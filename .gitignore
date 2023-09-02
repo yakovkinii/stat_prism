@@ -1,0 +1,7 @@
+# Project exclude paths
+/build/
+/.idea/
+/scratches/
+/QT Designer.bat
+/update_rc.bat
+/update_ui.bat
