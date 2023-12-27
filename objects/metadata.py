@@ -2,16 +2,18 @@ from typing import List
 
 
 class DescriptiveStudyMetadata:
-    def __init__(self,
-                 selected_columns: List[str],
-                 n: bool,
-                 missing: bool,
-                 mean: bool,
-                 median: bool,
-                 stddev: bool,
-                 variance: bool,
-                 minimum: bool,
-                 maximum: bool):
+    def __init__(
+        self,
+        selected_columns: List[str],
+        n: bool,
+        missing: bool,
+        mean: bool,
+        median: bool,
+        stddev: bool,
+        variance: bool,
+        minimum: bool,
+        maximum: bool,
+    ):
         self.selected_columns = selected_columns
         self.n = n
         self.missing = missing

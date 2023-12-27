@@ -1,7 +1,6 @@
 from typing import List
 
 
-
 class ResultMetadata:
     def __init__(self, study_id: int, study_options):
         self.study_id = study_id
