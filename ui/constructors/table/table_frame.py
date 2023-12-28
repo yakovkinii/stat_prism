@@ -26,3 +26,6 @@ class Table:
         self.tableWidget_2.verticalHeader().setHighlightSections(True)
         self.tableWidget_2.verticalHeader().setSortIndicatorShown(False)
         self.tableWidget_2.verticalHeader().setStretchLastSection(False)
+
+    def retranslateUI(self):
+        pass
