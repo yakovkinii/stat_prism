@@ -54,7 +54,6 @@ def round_series(series: pd.Series, n=4):
     return series.apply(round_to_significant_digits, args=(n,))
 
 
-
 def div_title():
     return (
         f"<div style=\"font-size:32px;text-align:center; font-family: 'Open Sans'; color:#000077;"

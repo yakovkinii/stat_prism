@@ -1,18 +1,16 @@
 import logging
+import os
 import tempfile
 
+import pandas as pd
 from PyQt5 import QtWidgets
-from PyQt5.QtWidgets import QFileDialog
+from PyQt5.QtCore import QUrl
+from PyQt5.QtWidgets import QFileDialog, QTableWidgetItem
 
 from core.descriptive.descriptive import run_descriptive_study
-from objects.constants import DESCRIPTIVE_INDEX, OUTPUT_WIDTH, HOME_INDEX
+from objects.constants import DESCRIPTIVE_INDEX, HOME_INDEX, OUTPUT_WIDTH
 from objects.metadata import DescriptiveStudyMetadata
 from ui.constructors.mainwindow import UiMainWindow
-import pandas as pd
-
-from PyQt5.QtCore import QUrl
-import os
-from PyQt5.QtWidgets import QTableWidgetItem
 
 
 def get_html_start_end():
@@ -78,7 +76,6 @@ def get_html_start_end():
     return html_start, html_end
 
 
-
 def load_data_to_table(dataframe, table_widget):
     table_widget.setRowCount(dataframe.shape[0])
     table_widget.setColumnCount(dataframe.shape[1])
@@ -138,7 +135,7 @@ class MainWindowHandler(QtWidgets.QMainWindow, UiMainWindow):
                 file_path += ".html"
             with open(file_path, "wt") as f:
                 f.write(self.output)
-        self.SaveReportButton.setDown(False)
+        self.frame_obj.SaveReportButton.setDown(False)
 
     def open_handler(self):
         options = QtWidgets.QFileDialog.Options()
@@ -187,7 +184,8 @@ class MainWindowHandler(QtWidgets.QMainWindow, UiMainWindow):
         w1 = self.frame_obj.listWidget.selectedItems()
         w1 = [c.text() for c in w1]
         selected = [
-            self.frame_obj.listWidget_2.item(i).text() for i in range(self.frame_obj.listWidget_2.count())
+            self.frame_obj.listWidget_2.item(i).text()
+            for i in range(self.frame_obj.listWidget_2.count())
         ]
         for item in w1:
             if item not in selected:
@@ -237,7 +235,9 @@ class MainWindowHandler(QtWidgets.QMainWindow, UiMainWindow):
         )
         self.temp_file.write(self.output)
         self.temp_file.seek(0)
-        self.frame2_obj.browser.load(QUrl.fromLocalFile(os.path.abspath(self.temp_file.name)))
+        self.frame2_obj.browser.load(
+            QUrl.fromLocalFile(os.path.abspath(self.temp_file.name))
+        )
 
         # set browser size
         sizes = self.splitter.sizes()

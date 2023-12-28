@@ -3,8 +3,9 @@ import sys
 from PyQt5.QtCore import QTimer
 from PyQt5.QtGui import QPixmap
 from PyQt5.QtWidgets import QApplication, QSplashScreen
-from ui.handlers.mainwindow_handler import MainWindowHandler
 from yatools import logging_config
+
+from ui.handlers.mainwindow_handler import MainWindowHandler
 
 if __name__ == "__main__":
     logging_config.init()

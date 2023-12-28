@@ -1,7 +1,8 @@
 # python setup.py build
 # python setup.py bdist_msi
 import sys
-from cx_Freeze import setup, Executable
+
+from cx_Freeze import Executable, setup
 
 build_exe_options = {
     "excludes": ["tkinter", "unittest"],
