@@ -1,8 +1,9 @@
 from PyQt5 import QtCore, QtGui, QtWidgets
 
-from ui_handlers.table_handler import CustomTableWidget
+from ui.handlers.table_handler import CustomTableWidget
 from PyQt5 import QtWebEngineWidgets
 import resources_rc
+
 
 class Table:
     def __init__(self, parent):
@@ -38,6 +39,7 @@ def icon(path):
     )
     return _icon
 
+
 class Frame2:
     def __init__(self, parent):
         self.frame_2 = QtWidgets.QFrame(parent)
@@ -64,6 +66,7 @@ class Frame2:
         self.gridLayout_2.addWidget(self.browser, 0, 0, 1, 1)
         self.scrollArea.setWidget(self.scrollAreaWidgetContents)
         self.gridLayout_4.addWidget(self.scrollArea, 0, 0, 1, 1)
+
 
 class Frame:
     def __init__(self, parent):
@@ -198,7 +201,9 @@ class Frame:
         self.checkBox_missing = QtWidgets.QCheckBox(self.groupBox)
         self.checkBox_missing.setChecked(True)
         self.checkBox_missing.setObjectName("checkBox_missing")
-        self.formLayout.setWidget(1, QtWidgets.QFormLayout.LabelRole, self.checkBox_missing)
+        self.formLayout.setWidget(
+            1, QtWidgets.QFormLayout.LabelRole, self.checkBox_missing
+        )
         self.checkBox_3 = QtWidgets.QCheckBox(self.groupBox)
         self.checkBox_3.setChecked(True)
         self.checkBox_3.setObjectName("checkBox_3")
@@ -317,7 +322,7 @@ class UiMainWindow(object):
         self.gridLayout_3.addWidget(self.splitter, 0, 0, 1, 1)
 
         self.table = Table(self.splitter)
-        self.frame2_obj=Frame2(self.splitter)
+        self.frame2_obj = Frame2(self.splitter)
 
         self.frame_obj = Frame(self.splitter)
 
@@ -368,6 +373,7 @@ class UiMainWindow(object):
 
 def main():
     import sys
+
     _ = resources_rc
     app = QtWidgets.QApplication(sys.argv)
     main_window = QtWidgets.QMainWindow()

@@ -1,8 +1,7 @@
 import pandas as pd
 
 from objects.metadata import DescriptiveStudyMetadata
-from ui_utilities.mainwindow_utility import div_title, div_text, div_table
-from ui_utilities.misc import smart_comma_join, num_to_str
+from core.misc import smart_comma_join, num_to_str, div_table, div_text, div_title
 
 
 def run_descriptive_study(df: pd.DataFrame, metadata: DescriptiveStudyMetadata):

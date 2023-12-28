@@ -3,17 +3,90 @@ import tempfile
 
 from PyQt5 import QtWidgets
 from PyQt5.QtWidgets import QFileDialog
-from qtconsole.mainwindow import MainWindow
 
-from core.descriptive import run_descriptive_study
+from core.descriptive.descriptive import run_descriptive_study
 from objects.constants import DESCRIPTIVE_INDEX, OUTPUT_WIDTH, HOME_INDEX
 from objects.metadata import DescriptiveStudyMetadata
-from ui_design.mainwindow import UiMainWindow
+from ui.constructors.mainwindow import UiMainWindow
 import pandas as pd
 
-from ui_utilities.mainwindow_utility import load_data_to_table, get_html_start_end
 from PyQt5.QtCore import QUrl
 import os
+from PyQt5.QtWidgets import QTableWidgetItem
+
+
+def get_html_start_end():
+    html_start = """
+    <!DOCTYPE html>
+    <html lang="en">
+
+    <head>
+        <meta charset="UTF-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Your Page Title</title>
+        <style>
+            /* Base Table Styles */
+            table {
+                border-collapse: collapse;
+                font-size: 18px;
+                width: 100%;
+                display: block;
+                overflow-x: auto;
+                white-space: nowrap;
+                text-align: right;
+            }
+
+            th, td {
+                padding: 8px 12px;
+                border: 1px solid #ddd;
+                width: 50px;
+                min-width: 50px;
+                position:relative;
+            }
+
+            th {
+                background-color: #f7f9fa;
+            }
+
+            tr:hover {
+                background-color: #e5f3f8;
+            }
+
+            /* Freeze the first column */
+            td:first-child, th:first-child {
+                position: sticky;
+                left: 0;
+                z-index: 1;
+                font-weight:800;
+                background-color: #f7f9fa;
+            }
+            .hidden_first_th th:first-child {{
+                visibility: hidden;
+            }}
+        </style>
+    </head>
+
+    <body>
+    <div style="display:flex;flex-direction:column;align-items:center;justify-content:center; width:100%;">
+        """
+    html_end = """
+    </div>
+    </body>
+    </html>
+    """
+    return html_start, html_end
+
+
+
+def load_data_to_table(dataframe, table_widget):
+    table_widget.setRowCount(dataframe.shape[0])
+    table_widget.setColumnCount(dataframe.shape[1])
+    table_widget.setHorizontalHeaderLabels(dataframe.columns)
+
+    for row in dataframe.iterrows():
+        for col, value in enumerate(row[1]):
+            table_widget.setItem(row[0], col, QTableWidgetItem(str(value)))
 
 
 class MainWindowHandler(QtWidgets.QMainWindow, UiMainWindow):
@@ -102,28 +175,28 @@ class MainWindowHandler(QtWidgets.QMainWindow, UiMainWindow):
             return
 
         self.set_current_index(DESCRIPTIVE_INDEX)
-        self.listWidget.clear()
+        self.frame_obj.listWidget.clear()
         numeric_columns = []
         for column in self.df.columns:
             if self.df[column].dtype.kind in "biufc":  # numeric
                 numeric_columns.append(column)
-        self.listWidget.addItems(numeric_columns)
-        self.listWidget_2.clear()
+        self.frame_obj.listWidget.addItems(numeric_columns)
+        self.frame_obj.listWidget_2.clear()
 
     def add_columns_to_selected(self):
-        w1 = self.listWidget.selectedItems()
+        w1 = self.frame_obj.listWidget.selectedItems()
         w1 = [c.text() for c in w1]
         selected = [
-            self.listWidget_2.item(i).text() for i in range(self.listWidget_2.count())
+            self.frame_obj.listWidget_2.item(i).text() for i in range(self.frame_obj.listWidget_2.count())
         ]
         for item in w1:
             if item not in selected:
-                self.listWidget_2.addItems([item])
+                self.frame_obj.listWidget_2.addItems([item])
         self.process_descriptive()
 
     def remove_columns_from_selected(self):
-        for item in self.listWidget_2.selectedItems():
-            self.listWidget_2.takeItem(self.listWidget_2.row(item))
+        for item in self.frame_obj.listWidget_2.selectedItems():
+            self.frame_obj.listWidget_2.takeItem(self.listWidget_2.row(item))
         self.process_descriptive()
 
     def process_descriptive(self):
@@ -135,17 +208,17 @@ class MainWindowHandler(QtWidgets.QMainWindow, UiMainWindow):
 
         metadata = DescriptiveStudyMetadata(
             selected_columns=[
-                self.listWidget_2.item(i).text()
-                for i in range(self.listWidget_2.count())
+                self.frame_obj.listWidget_2.item(i).text()
+                for i in range(self.frame_obj.listWidget_2.count())
             ],
-            n=self.checkBox.checkState(),
-            missing=self.checkBox_missing.checkState(),
-            mean=self.checkBox_3.checkState(),
-            median=self.checkBox_4.checkState(),
-            stddev=self.checkBox_6.checkState(),
-            variance=self.checkBox_7.checkState(),
-            minimum=self.checkBox_8.checkState(),
-            maximum=self.checkBox_9.checkState(),
+            n=self.frame_obj.checkBox.checkState(),
+            missing=self.frame_obj.checkBox_missing.checkState(),
+            mean=self.frame_obj.checkBox_3.checkState(),
+            median=self.frame_obj.checkBox_4.checkState(),
+            stddev=self.frame_obj.checkBox_6.checkState(),
+            variance=self.frame_obj.checkBox_7.checkState(),
+            minimum=self.frame_obj.checkBox_8.checkState(),
+            maximum=self.frame_obj.checkBox_9.checkState(),
         )
         html_start, html_end = get_html_start_end()
         self.output = html_start + run_descriptive_study(self.df, metadata) + html_end
@@ -164,7 +237,7 @@ class MainWindowHandler(QtWidgets.QMainWindow, UiMainWindow):
         )
         self.temp_file.write(self.output)
         self.temp_file.seek(0)
-        self.browser.load(QUrl.fromLocalFile(os.path.abspath(self.temp_file.name)))
+        self.frame2_obj.browser.load(QUrl.fromLocalFile(os.path.abspath(self.temp_file.name)))
 
         # set browser size
         sizes = self.splitter.sizes()

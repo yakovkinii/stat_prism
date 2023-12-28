@@ -52,3 +52,25 @@ def num_to_str(num, digits=4):
 
 def round_series(series: pd.Series, n=4):
     return series.apply(round_to_significant_digits, args=(n,))
+
+
+
+def div_title():
+    return (
+        f"<div style=\"font-size:32px;text-align:center; font-family: 'Open Sans'; color:#000077;"
+        + f'font-weight: 500;margin:20px;">'
+    )
+
+
+def div_text():
+    return (
+        f"<div style=\"font-size:24px;text-align:justify; font-family: 'Open Sans'; color:#000077;"
+        + f'font-weight: 500;margin:20px;">'
+    )
+
+
+def div_table():
+    return (
+        f"<div style=\"font-size:24px;text-align:justify; font-family: 'Open Sans'; color:#000077;"
+        + f'font-weight: 500;margin:20px;overflow:auto;width:100%;">'
+    )

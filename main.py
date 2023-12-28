@@ -1,10 +1,9 @@
-import logging
 import sys
 
 from PyQt5.QtCore import QTimer
 from PyQt5.QtGui import QPixmap
 from PyQt5.QtWidgets import QApplication, QSplashScreen
-from ui_handlers.mainwindow_handler import MainWindowHandler
+from ui.handlers.mainwindow_handler import MainWindowHandler
 from yatools import logging_config
 
 if __name__ == "__main__":
@@ -22,7 +21,6 @@ if __name__ == "__main__":
 
     # Set the exception hook to our wrapping function
     sys.excepthook = my_exception_hook
-
 
     app = QApplication(sys.argv)
 
