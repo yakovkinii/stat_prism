@@ -24,28 +24,28 @@ class MainWindowHandler(QtWidgets.QMainWindow, UiMainWindow):
         self.actionDesctiptive_Statistics.triggered.connect(
             self.select_descriptive_statistics_handler
         )
-        self.OpenFileButton.pressed.connect(self.open_handler)
-        self.DescriptiveStatisticsButton.pressed.connect(
+        self.frame_obj.OpenFileButton.pressed.connect(self.open_handler)
+        self.frame_obj.DescriptiveStatisticsButton.pressed.connect(
             self.select_descriptive_statistics_handler
         )
-        self.DownButton.pressed.connect(self.add_columns_to_selected)
-        self.UpButton.pressed.connect(self.remove_columns_from_selected)
-        self.browser.setMinimumWidth(OUTPUT_WIDTH)
-        self.HomeButton.pressed.connect(self.home_button_handler)
-        self.SaveReportButton.pressed.connect(self.save_handler)
-        self.checkBox.stateChanged.connect(self.process_descriptive)
-        self.checkBox_2.stateChanged.connect(self.process_descriptive)
-        self.checkBox_3.stateChanged.connect(self.process_descriptive)
-        self.checkBox_4.stateChanged.connect(self.process_descriptive)
-        self.checkBox_6.stateChanged.connect(self.process_descriptive)
-        self.checkBox_7.stateChanged.connect(self.process_descriptive)
-        self.checkBox_8.stateChanged.connect(self.process_descriptive)
-        self.checkBox_9.stateChanged.connect(self.process_descriptive)
+        self.frame_obj.DownButton.pressed.connect(self.add_columns_to_selected)
+        self.frame_obj.UpButton.pressed.connect(self.remove_columns_from_selected)
+        self.frame2_obj.browser.setMinimumWidth(OUTPUT_WIDTH)
+        self.frame_obj.HomeButton.pressed.connect(self.home_button_handler)
+        self.frame_obj.SaveReportButton.pressed.connect(self.save_handler)
+        self.frame_obj.checkBox.stateChanged.connect(self.process_descriptive)
+        self.frame_obj.checkBox_missing.stateChanged.connect(self.process_descriptive)
+        self.frame_obj.checkBox_3.stateChanged.connect(self.process_descriptive)
+        self.frame_obj.checkBox_4.stateChanged.connect(self.process_descriptive)
+        self.frame_obj.checkBox_6.stateChanged.connect(self.process_descriptive)
+        self.frame_obj.checkBox_7.stateChanged.connect(self.process_descriptive)
+        self.frame_obj.checkBox_8.stateChanged.connect(self.process_descriptive)
+        self.frame_obj.checkBox_9.stateChanged.connect(self.process_descriptive)
 
         self.temp_file = None
         self.df = None
         self.output = ""
-        self.stackedWidget.setCurrentIndex(0)
+        self.frame_obj.stackedWidget.setCurrentIndex(0)
         self.current_index = 0
         self.results = []
         self.collapse_results()
@@ -86,13 +86,13 @@ class MainWindowHandler(QtWidgets.QMainWindow, UiMainWindow):
                 except Exception as e:
                     logging.error(str(e))
         if self.df is not None:
-            load_data_to_table(dataframe=self.df, table_widget=self.tableWidget_2)
+            load_data_to_table(dataframe=self.df, table_widget=self.table.tableWidget_2)
         self.set_current_index(HOME_INDEX)
-        self.OpenFileButton.setDown(False)
+        self.frame_obj.OpenFileButton.setDown(False)
 
     def set_current_index(self, i: int):
         logging.info(f"Setting current index to {i}")
-        self.stackedWidget.setCurrentIndex(i)
+        self.frame_obj.stackedWidget.setCurrentIndex(i)
         self.current_index = i
 
     def select_descriptive_statistics_handler(self):
@@ -139,7 +139,7 @@ class MainWindowHandler(QtWidgets.QMainWindow, UiMainWindow):
                 for i in range(self.listWidget_2.count())
             ],
             n=self.checkBox.checkState(),
-            missing=self.checkBox_2.checkState(),
+            missing=self.checkBox_missing.checkState(),
             mean=self.checkBox_3.checkState(),
             median=self.checkBox_4.checkState(),
             stddev=self.checkBox_6.checkState(),

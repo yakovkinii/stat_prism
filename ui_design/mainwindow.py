@@ -4,26 +4,9 @@ from ui_handlers.table_handler import CustomTableWidget
 from PyQt5 import QtWebEngineWidgets
 import resources_rc
 
-
-class UiMainWindow(object):
-    def setupUi(self, MainWindow):
-        MainWindow.setObjectName("MainWindow")
-        MainWindow.resize(997, 1057)
-        icon = QtGui.QIcon()
-        icon.addPixmap(
-            QtGui.QPixmap(":/mat/resources/Icon.ico"),
-            QtGui.QIcon.Normal,
-            QtGui.QIcon.Off,
-        )
-        MainWindow.setWindowIcon(icon)
-        self.centralwidget = QtWidgets.QWidget(MainWindow)
-        self.centralwidget.setObjectName("centralwidget")
-        self.gridLayout_3 = QtWidgets.QGridLayout(self.centralwidget)
-        self.gridLayout_3.setObjectName("gridLayout_3")
-        self.splitter = QtWidgets.QSplitter(self.centralwidget)
-        self.splitter.setOrientation(QtCore.Qt.Horizontal)
-        self.splitter.setObjectName("splitter")
-        self.tableWidget_2 = CustomTableWidget(self.splitter)
+class Table:
+    def __init__(self, parent):
+        self.tableWidget_2 = CustomTableWidget(parent)
         self.tableWidget_2.setMinimumSize(QtCore.QSize(50, 0))
         self.tableWidget_2.setAutoFillBackground(False)
         self.tableWidget_2.setFrameShape(QtWidgets.QFrame.NoFrame)
@@ -44,7 +27,20 @@ class UiMainWindow(object):
         self.tableWidget_2.verticalHeader().setHighlightSections(True)
         self.tableWidget_2.verticalHeader().setSortIndicatorShown(False)
         self.tableWidget_2.verticalHeader().setStretchLastSection(False)
-        self.frame_2 = QtWidgets.QFrame(self.splitter)
+
+
+def icon(path):
+    _icon = QtGui.QIcon()
+    _icon.addPixmap(
+        QtGui.QPixmap(path),
+        QtGui.QIcon.Normal,
+        QtGui.QIcon.Off,
+    )
+    return _icon
+
+class Frame2:
+    def __init__(self, parent):
+        self.frame_2 = QtWidgets.QFrame(parent)
         self.frame_2.setMaximumSize(QtCore.QSize(16777215, 16777215))
         self.frame_2.setFrameShape(QtWidgets.QFrame.NoFrame)
         self.frame_2.setFrameShadow(QtWidgets.QFrame.Raised)
@@ -68,7 +64,10 @@ class UiMainWindow(object):
         self.gridLayout_2.addWidget(self.browser, 0, 0, 1, 1)
         self.scrollArea.setWidget(self.scrollAreaWidgetContents)
         self.gridLayout_4.addWidget(self.scrollArea, 0, 0, 1, 1)
-        self.frame = QtWidgets.QFrame(self.splitter)
+
+class Frame:
+    def __init__(self, parent):
+        self.frame = QtWidgets.QFrame(parent)
         sizePolicy = QtWidgets.QSizePolicy(
             QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred
         )
@@ -196,10 +195,10 @@ class UiMainWindow(object):
         self.checkBox.setChecked(True)
         self.checkBox.setObjectName("checkBox")
         self.formLayout.setWidget(0, QtWidgets.QFormLayout.LabelRole, self.checkBox)
-        self.checkBox_2 = QtWidgets.QCheckBox(self.groupBox)
-        self.checkBox_2.setChecked(True)
-        self.checkBox_2.setObjectName("checkBox_2")
-        self.formLayout.setWidget(1, QtWidgets.QFormLayout.LabelRole, self.checkBox_2)
+        self.checkBox_missing = QtWidgets.QCheckBox(self.groupBox)
+        self.checkBox_missing.setChecked(True)
+        self.checkBox_missing.setObjectName("checkBox_missing")
+        self.formLayout.setWidget(1, QtWidgets.QFormLayout.LabelRole, self.checkBox_missing)
         self.checkBox_3 = QtWidgets.QCheckBox(self.groupBox)
         self.checkBox_3.setChecked(True)
         self.checkBox_3.setObjectName("checkBox_3")
@@ -269,40 +268,11 @@ class UiMainWindow(object):
         self.UpButton.setObjectName("UpButton")
         self.stackedWidget.addWidget(self.Descriptive)
         self.gridLayout.addWidget(self.stackedWidget, 0, 0, 1, 1)
-        self.gridLayout_3.addWidget(self.splitter, 0, 0, 1, 1)
-        MainWindow.setCentralWidget(self.centralwidget)
-        self.menuBar = QtWidgets.QMenuBar(MainWindow)
-        self.menuBar.setGeometry(QtCore.QRect(0, 0, 997, 26))
-        self.menuBar.setObjectName("menuBar")
-        self.menuFile = QtWidgets.QMenu(self.menuBar)
-        self.menuFile.setObjectName("menuFile")
-        self.menuAnalyse = QtWidgets.QMenu(self.menuBar)
-        self.menuAnalyse.setObjectName("menuAnalyse")
-        self.menuHelp = QtWidgets.QMenu(self.menuBar)
-        self.menuHelp.setObjectName("menuHelp")
-        MainWindow.setMenuBar(self.menuBar)
-        self.actionOpen = QtWidgets.QAction(MainWindow)
-        self.actionOpen.setIcon(icon2)
-        self.actionOpen.setObjectName("actionOpen")
-        self.actionDesctiptive_Statistics = QtWidgets.QAction(MainWindow)
-        self.actionDesctiptive_Statistics.setIcon(icon1)
-        self.actionDesctiptive_Statistics.setObjectName("actionDesctiptive_Statistics")
-        self.actionAbout = QtWidgets.QAction(MainWindow)
-        self.actionAbout.setObjectName("actionAbout")
-        self.menuFile.addAction(self.actionOpen)
-        self.menuAnalyse.addAction(self.actionDesctiptive_Statistics)
-        self.menuHelp.addAction(self.actionAbout)
-        self.menuBar.addAction(self.menuFile.menuAction())
-        self.menuBar.addAction(self.menuAnalyse.menuAction())
-        self.menuBar.addAction(self.menuHelp.menuAction())
-
-        self.retranslateUi(MainWindow)
         self.stackedWidget.setCurrentIndex(1)
-        QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
-    def retranslateUi(self, MainWindow):
+    def retranslateUI(self):
         _translate = QtCore.QCoreApplication.translate
-        MainWindow.setWindowTitle(_translate("MainWindow", "StatPrism"))
+
         self.DescriptiveStatisticsButton.setText(
             _translate("MainWindow", "Descriptive\n" "Statistics")
         )
@@ -319,7 +289,7 @@ class UiMainWindow(object):
         self.label_4.setText(_translate("MainWindow", "Save Report"))
         self.groupBox.setTitle(_translate("MainWindow", "Options"))
         self.checkBox.setText(_translate("MainWindow", "N"))
-        self.checkBox_2.setText(_translate("MainWindow", "Missing"))
+        self.checkBox_missing.setText(_translate("MainWindow", "Missing"))
         self.checkBox_3.setText(_translate("MainWindow", "Mean"))
         self.checkBox_4.setText(_translate("MainWindow", "Median"))
         self.checkBox_6.setText(_translate("MainWindow", "Std. deviation"))
@@ -327,6 +297,65 @@ class UiMainWindow(object):
         self.checkBox_8.setText(_translate("MainWindow", "Minimum"))
         self.checkBox_9.setText(_translate("MainWindow", "Maximum"))
         self.HomeButton.setShortcut(_translate("MainWindow", "Backspace"))
+
+
+class UiMainWindow(object):
+    def setupUi(self, main_window):
+        main_window.setObjectName("MainWindow")
+        main_window.resize(997, 1057)
+        main_window.setWindowIcon(icon(":/mat/resources/Icon.ico"))
+
+        self.centralwidget = QtWidgets.QWidget(main_window)
+        self.centralwidget.setObjectName("centralwidget")
+
+        self.splitter = QtWidgets.QSplitter(self.centralwidget)
+        self.splitter.setOrientation(QtCore.Qt.Horizontal)
+        self.splitter.setObjectName("splitter")
+
+        self.gridLayout_3 = QtWidgets.QGridLayout(self.centralwidget)
+        self.gridLayout_3.setObjectName("gridLayout_3")
+        self.gridLayout_3.addWidget(self.splitter, 0, 0, 1, 1)
+
+        self.table = Table(self.splitter)
+        self.frame2_obj=Frame2(self.splitter)
+
+        self.frame_obj = Frame(self.splitter)
+
+        main_window.setCentralWidget(self.centralwidget)
+        self.menuBar = QtWidgets.QMenuBar(main_window)
+        self.menuBar.setGeometry(QtCore.QRect(0, 0, 997, 26))
+        self.menuBar.setObjectName("menuBar")
+        self.menuFile = QtWidgets.QMenu(self.menuBar)
+        self.menuFile.setObjectName("menuFile")
+        self.menuAnalyse = QtWidgets.QMenu(self.menuBar)
+        self.menuAnalyse.setObjectName("menuAnalyse")
+        self.menuHelp = QtWidgets.QMenu(self.menuBar)
+        self.menuHelp.setObjectName("menuHelp")
+
+        main_window.setMenuBar(self.menuBar)
+        self.actionOpen = QtWidgets.QAction(main_window)
+        # self.actionOpen.setIcon(icon2)
+        self.actionOpen.setObjectName("actionOpen")
+        self.actionDesctiptive_Statistics = QtWidgets.QAction(main_window)
+        # self.actionDesctiptive_Statistics.setIcon(icon1)
+        self.actionDesctiptive_Statistics.setObjectName("actionDesctiptive_Statistics")
+        self.actionAbout = QtWidgets.QAction(main_window)
+        self.actionAbout.setObjectName("actionAbout")
+        self.menuFile.addAction(self.actionOpen)
+        self.menuAnalyse.addAction(self.actionDesctiptive_Statistics)
+        self.menuHelp.addAction(self.actionAbout)
+        self.menuBar.addAction(self.menuFile.menuAction())
+        self.menuBar.addAction(self.menuAnalyse.menuAction())
+        self.menuBar.addAction(self.menuHelp.menuAction())
+
+        self.retranslateUi(main_window)
+        QtCore.QMetaObject.connectSlotsByName(main_window)
+
+    def retranslateUi(self, MainWindow):
+        _translate = QtCore.QCoreApplication.translate
+        MainWindow.setWindowTitle(_translate("MainWindow", "StatPrism"))
+
+        self.frame_obj.retranslateUI()
         self.menuFile.setTitle(_translate("MainWindow", "File"))
         self.menuAnalyse.setTitle(_translate("MainWindow", "Analyse"))
         self.menuHelp.setTitle(_translate("MainWindow", "Help"))
@@ -337,12 +366,16 @@ class UiMainWindow(object):
         self.actionAbout.setText(_translate("MainWindow", "About"))
 
 
-if __name__ == "__main__":
+def main():
     import sys
-
+    _ = resources_rc
     app = QtWidgets.QApplication(sys.argv)
     main_window = QtWidgets.QMainWindow()
     ui = UiMainWindow()
     ui.setupUi(main_window)
     main_window.show()
     sys.exit(app.exec_())
+
+
+if __name__ == "__main__":
+    main()
