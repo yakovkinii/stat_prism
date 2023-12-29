@@ -5,9 +5,9 @@ from PyQt5 import QtCore, QtWidgets
 
 from core.common_ui import create_label, create_tool_button
 from core.constants import DESCRIPTIVE_MODEL_NAME, NO_RESULT_SELECTED
-from core.objects import Result
 from core.shared import data, result_container
-from core.utility import get_next_valid_result_id, select_result
+from core.utility import get_next_valid_result_id, select_result, log_method
+from models.descriptive.objects import DescriptiveResult
 
 
 class Home:
@@ -72,9 +72,11 @@ class Home:
 
         self.OpenFileButton.pressed.connect(self.open_handler)
         self.DescriptiveStatisticsButton.pressed.connect(self.create_descriptive)
+        # self.SaveReportButton.pressed.connect(self.save_handler)
+
+        # Actions
         self.actionUpdateStudyFrame = QtWidgets.QAction(self.widget)
         self.actionUpdateTableFrame = QtWidgets.QAction(self.widget)
-        # self.SaveReportButton.pressed.connect(self.save_handler)
 
     def retranslateUI(self):
         _translate = QtCore.QCoreApplication.translate
@@ -94,17 +96,18 @@ class Home:
         # )
         self.label_save.setText(_translate("MainWindow", "Save Report"))
 
+    @log_method
     def create_descriptive(self):
         result_id = get_next_valid_result_id()
-        result_container.results[result_id] = Result(
+        result_container.results[result_id] = DescriptiveResult(
             result_id=result_id, module_name=DESCRIPTIVE_MODEL_NAME
         )
         select_result(result_id)
         self.actionUpdateStudyFrame.trigger()
 
-    def home_button_handler(self):
-        select_result(NO_RESULT_SELECTED)
-        self.actionUpdateStudyFrame.trigger()
+    # def home_button_handler(self):
+    #     select_result(NO_RESULT_SELECTED)
+    #     self.actionUpdateStudyFrame.trigger()
 
     # def save_handler(self):
     #     options = QFileDialog.Options()
@@ -120,6 +123,7 @@ class Home:
     #             f.write(self.output)
     #     self.study_frame.home_panel.SaveReportButton.setDown(False)
 
+    @log_method
     def open_handler(self):
         options = QtWidgets.QFileDialog.Options()
         file_path, _ = QtWidgets.QFileDialog.getOpenFileName(
@@ -140,8 +144,7 @@ class Home:
                     logging.error(str(e))
 
         if data.df is not None:
-            self.actionUpdateTableFrame.trigger()
-
             select_result(NO_RESULT_SELECTED)
             self.actionUpdateStudyFrame.trigger()
+            self.actionUpdateTableFrame.trigger()
             self.OpenFileButton.setDown(False)

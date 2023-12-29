@@ -60,7 +60,7 @@ def get_html_start_end():
         </style>
     </head>
 
-    <body>
+    <body style="background-color: lightblue;">
     <div style="display:flex;flex-direction:column;align-items:center;justify-content:center; width:100%;">
         """
     html_end = """
@@ -83,15 +83,6 @@ def smart_comma_join(items):
 
     return ", ".join(items[:-1]) + f", and {items[-1]}"
 
-
-def load_data_to_table(dataframe, table_widget):
-    table_widget.setRowCount(dataframe.shape[0])
-    table_widget.setColumnCount(dataframe.shape[1])
-    table_widget.setHorizontalHeaderLabels(dataframe.columns)
-
-    for row in dataframe.iterrows():
-        for col, value in enumerate(row[1]):
-            table_widget.setItem(row[0], col, QTableWidgetItem(str(value)))
 
 
 def round_to_significant_digits(num, n):
@@ -167,3 +158,41 @@ def div_table():
         f"<div style=\"font-size:24px;text-align:justify; font-family: 'Open Sans'; color:#000077;"
         + f'font-weight: 500;margin:20px;overflow:auto;width:100%;">'
     )
+
+level = 0
+def log_method(method):
+    """
+    A decorator to log the name of a class method when it is executed.
+    """
+    def wrapper(self, *args, **kwargs):
+        global level
+        class_name = self.__class__.__name__
+        ident = "⋅ "*level
+        logging.debug(ident+f"{class_name}.{method.__name__}")
+        level+=1
+        if args or kwargs:
+            result = method(self, *args, **kwargs)
+        else:
+            result = method(self)
+        level -=1
+        # logging.debug(ident+f"<{class_name}.{method.__name__}")
+        return result
+    return wrapper
+
+def log_method_noarg(method):
+    """
+    A decorator to log the name of a class method when it is executed.
+    Signature is without extra arguments is enforced.
+    To use when Qt passes different number of arguments depending on signature.
+    """
+    def wrapper(self):
+        global level
+        class_name = self.__class__.__name__
+        ident = "⋅ "*level
+        logging.debug(ident+f"{class_name}.{method.__name__}")
+        level+=1
+        result = method(self)
+        level-=1
+        # logging.debug(ident+f"<{class_name}.{method.__name__}")
+        return result
+    return wrapper

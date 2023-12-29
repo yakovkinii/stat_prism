@@ -1,11 +1,13 @@
 from PyQt5 import QtCore, QtWidgets
+from PyQt5.QtWidgets import QTableWidget, QTableWidgetItem
 
-from core.mainwindow.table.table_handler import CustomTableWidget
+from core.shared import data
+from core.utility import log_method_noarg, log_method
 
 
 class Table:
     def __init__(self, parent):
-        self.tableWidget_2 = CustomTableWidget(parent)
+        self.tableWidget_2 = QTableWidget(parent)
         self.tableWidget_2.setMinimumSize(QtCore.QSize(50, 0))
         self.tableWidget_2.setAutoFillBackground(False)
         self.tableWidget_2.setFrameShape(QtWidgets.QFrame.NoFrame)
@@ -30,7 +32,17 @@ class Table:
     def retranslateUI(self):
         pass
 
+    @log_method_noarg
     def update(self):
-        load_data_to_table(
-            dataframe=data.df, table_widget=self.table_frame.tableWidget_2
-        )
+        self.load_data_to_table(data.df)
+
+    @log_method
+    def load_data_to_table(self, dataframe):
+        self.tableWidget_2.setRowCount(dataframe.shape[0])
+        self.tableWidget_2.setColumnCount(dataframe.shape[1])
+        self.tableWidget_2.setHorizontalHeaderLabels(dataframe.columns)
+
+        for row in dataframe.iterrows():
+            for col, value in enumerate(row[1]):
+                self.tableWidget_2.setItem(row[0], col, QTableWidgetItem(str(value)))
+

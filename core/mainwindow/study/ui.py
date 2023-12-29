@@ -1,3 +1,4 @@
+import logging
 from typing import Dict
 
 from PyQt5 import QtCore, QtWidgets
@@ -6,6 +7,7 @@ from core.constants import DESCRIPTIVE_MODEL_NAME, NO_RESULT_SELECTED
 from core.mainwindow.study.home.ui import Home
 from core.objects import ModelRegistryItem
 from core.shared import result_container
+from core.utility import log_method, log_method_noarg
 from models.descriptive.ui import Descriptive
 
 
@@ -47,22 +49,32 @@ class Study:
 
         self.gridLayout.addWidget(self.stackedWidget, 0, 0, 1, 1)
         self.stackedWidget.setCurrentIndex(0)
-        self.home_panel.actionUpdateStudyFrame.triggered.connect(self.update)
 
         # MODEL REGISTRY
         self.registry: Dict[str, ModelRegistryItem] = {
             DESCRIPTIVE_MODEL_NAME: ModelRegistryItem(
                 model_name=DESCRIPTIVE_MODEL_NAME,
                 stacked_widget_index=1,
-                setup_from_result_handler=self.descriptive_panel.setup_from_result,
+                setup_from_result_handler=self.descriptive_panel.load_result,
                 run_handler=self.descriptive_panel.run,
             )
         }
+
+        # Actions
+        self.actionUpdateTableFrame = QtWidgets.QAction(self.frame)
+        self.actionUpdateResultsFrame = QtWidgets.QAction(self.frame)
+
+        self.home_panel.actionUpdateTableFrame.triggered.connect(self.actionUpdateTableFrame.trigger)
+        self.home_panel.actionUpdateStudyFrame.triggered.connect(self.update)
+
+        self.descriptive_panel.actionUpdateResultsFrame.triggered.connect(self.actionUpdateResultsFrame.trigger)
+        self.descriptive_panel.actionUpdateStudyFrame.triggered.connect(self.update)
 
     def retranslateUI(self):
         self.home_panel.retranslateUI()
         self.descriptive_panel.retranslateUI()
 
+    @log_method_noarg
     def update(self):
         result_id = result_container.current_result
         if result_id == NO_RESULT_SELECTED:
@@ -75,5 +87,5 @@ class Study:
         )
 
         if result_id != NO_RESULT_SELECTED:
-            self.registry[model_name].from_result_handler()
-            self.registry[model_name].update_handler()
+            self.registry[model_name].setup_from_result_handler()
+            self.registry[model_name].run_handler()

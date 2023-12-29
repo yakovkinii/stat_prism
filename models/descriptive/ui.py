@@ -1,11 +1,9 @@
-import logging
-
 from PyQt5 import QtCore, QtWidgets
 
 from core.common_ui import add_checkbox_to_groupbox, create_tool_button
 from core.constants import NO_RESULT_SELECTED
 from core.shared import data, result_container
-from core.utility import get_html_start_end
+from core.utility import get_html_start_end, log_method, log_method_noarg
 from models.descriptive.core import run_descriptive_study
 from models.descriptive.objects import DescriptiveStudyMetadata
 
@@ -68,18 +66,22 @@ class Descriptive:
         self.UpButton.pressed.connect(self.remove_columns_from_selected)
 
         # Trigger updates on change
-        self.actionTriggerBrowser = QtWidgets.QAction(self.widget)
-        self.actionUpdateStudyFrame = QtWidgets.QAction(self.widget)
-        self.checkBox_n.stateChanged.connect(self.run)
-        self.checkBox_missing.stateChanged.connect(self.run)
-        self.checkBox_mean.stateChanged.connect(self.run)
-        self.checkBox_median.stateChanged.connect(self.run)
-        self.checkBox_std.stateChanged.connect(self.run)
-        self.checkBox_var.stateChanged.connect(self.run)
-        self.checkBox_min.stateChanged.connect(self.run)
-        self.checkBox_max.stateChanged.connect(self.run)
+        self.checkBox_n.stateChanged.connect(self.ui_changed)
+        self.checkBox_missing.stateChanged.connect(self.ui_changed)
+        self.checkBox_mean.stateChanged.connect(self.ui_changed)
+        self.checkBox_median.stateChanged.connect(self.ui_changed)
+        self.checkBox_std.stateChanged.connect(self.ui_changed)
+        self.checkBox_var.stateChanged.connect(self.ui_changed)
+        self.checkBox_min.stateChanged.connect(self.ui_changed)
+        self.checkBox_max.stateChanged.connect(self.ui_changed)
 
         self.HomeButton.pressed.connect(self.home_button_handler)
+
+        self.hold_run = False
+
+        # Custom actions
+        self.actionUpdateResultsFrame = QtWidgets.QAction(self.widget)
+        self.actionUpdateStudyFrame = QtWidgets.QAction(self.widget)
 
     def retranslateUI(self):
         _translate = QtCore.QCoreApplication.translate
@@ -94,7 +96,8 @@ class Descriptive:
         self.checkBox_max.setText(_translate("MainWindow", "Maximum"))
         self.HomeButton.setShortcut(_translate("MainWindow", "Backspace"))
 
-    def get_metadata(self) -> DescriptiveStudyMetadata:
+    @log_method
+    def construct_metadata(self) -> DescriptiveStudyMetadata:
         return DescriptiveStudyMetadata(
             selected_columns=[
                 self.listWidget_selected_columns.item(i).text()
@@ -110,13 +113,19 @@ class Descriptive:
             maximum=bool(self.checkBox_max.checkState()),
         )
 
-    def run(self):
-        logging.info("Running descriptive statistics")
-        metadata = DescriptiveStudyMetadata(self.get_metadata())
-        html_start, html_end = get_html_start_end()
-        _ = html_start + run_descriptive_study(data.df, metadata) + html_end
-        self.actionTriggerBrowser.trigger()
+    @log_method_noarg
+    def ui_changed(self):
+        if not self.hold_run:
+            self.run()
 
+    @log_method
+    def run(self):
+        metadata = self.construct_metadata()
+        result_container.results[result_container.current_result].metadata = metadata
+        result_container.results[result_container.current_result].content = run_descriptive_study(data.df, metadata)
+        self.actionUpdateResultsFrame.trigger()
+
+    @log_method
     def add_columns_to_selected(self):
         w1 = self.listWidget_all_columns.selectedItems()
         w1 = [c.text() for c in w1]
@@ -127,21 +136,26 @@ class Descriptive:
         for item in w1:
             if item not in selected:
                 self.listWidget_selected_columns.addItems([item])
-        self.run()
+        self.ui_changed()
 
+    @log_method
     def remove_columns_from_selected(self):
         for item in self.listWidget_selected_columns.selectedItems():
             self.listWidget_selected_columns.takeItem(
                 self.listWidget_selected_columns.row(item)
             )
-        self.run()
+        self.ui_changed()
 
-    def setup_from_result(self):
+    @log_method
+    def load_result(self):
         result = result_container.results[result_container.current_result]
         metadata: DescriptiveStudyMetadata = result.metadata
-        self.from_metadata(metadata)
+        self.load_metadata(metadata)
 
-    def from_metadata(self, metadata):
+    @log_method
+    def load_metadata(self, metadata):
+        self.hold_run = True
+
         self.checkBox_n.setChecked(metadata.n)
         self.checkBox_missing.setChecked(metadata.missing)
         self.checkBox_mean.setChecked(metadata.mean)
@@ -157,10 +171,13 @@ class Descriptive:
         for column in data.df.columns:
             if data.df[column].dtype.kind in "biufc":  # numeric
                 if column in metadata.selected_columns:
-                    self.listWidget_selected_columns.addItems(column)
+                    self.listWidget_selected_columns.addItem(column)
                 else:
-                    self.listWidget_all_columns.addItems(column)
+                    self.listWidget_all_columns.addItem(column)
 
+        self.hold_run = False
+
+    @log_method
     def home_button_handler(self):
         result_container.current_result = NO_RESULT_SELECTED
         self.actionUpdateStudyFrame.trigger()

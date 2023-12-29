@@ -3,9 +3,10 @@ from PyQt5.QtWidgets import QMessageBox
 
 from core.common_ui import icon
 from core.constants import OUTPUT_WIDTH
-from core.mainwindow.results.results_frame import Results
+from core.mainwindow.results.ui import Results
 from core.mainwindow.study.ui import Study
-from core.mainwindow.table.table_frame import Table
+from core.mainwindow.table.ui import Table
+from core.utility import log_method_noarg
 
 
 class MainWindow(QtWidgets.QMainWindow):
@@ -48,6 +49,14 @@ class MainWindow(QtWidgets.QMainWindow):
 
         self._collapse_results()
 
+        # Custom actions
+        self.study_frame.actionUpdateTableFrame.triggered.connect(
+            self.table_frame.update
+        )
+        self.study_frame.actionUpdateResultsFrame.triggered.connect(
+            self.update_results_frame
+        )
+
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
         MainWindow.setWindowTitle(_translate("MainWindow", "StatPrism"))
@@ -57,6 +66,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.menuHelp.setTitle(_translate("MainWindow", "Help"))
         self.actionAbout.setText(_translate("MainWindow", "About"))
 
+    @log_method_noarg
     def about_handler(self):
         QMessageBox.about(
             self,
@@ -64,15 +74,18 @@ class MainWindow(QtWidgets.QMainWindow):
             "StatPrism Professional \nVersion: 0.1 \n(C) 2023 I.Y. and A.B.",
         )
 
+    @log_method_noarg
     def _collapse_results(self):
         # cannot use actual sizes because the frame is not fully loaded yet
         self.splitter.setSizes([1, 0, 1])
 
+    @log_method_noarg
     def _uncollapse_results(self):
         sizes = self.splitter.sizes()
         if sizes[1] == 0:
             self.splitter.setSizes([sizes[0] - OUTPUT_WIDTH, OUTPUT_WIDTH, sizes[2]])
 
+    @log_method_noarg
     def update_results_frame(self):
         self.results_frame.update()
         self._uncollapse_results()

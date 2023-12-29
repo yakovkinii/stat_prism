@@ -1,3 +1,4 @@
+import logging
 import sys
 
 from PyQt5.QtCore import QTimer
@@ -8,7 +9,7 @@ from yatools import logging_config
 from core.mainwindow.ui import MainWindow
 
 if __name__ == "__main__":
-    logging_config.init()
+    logging_config.init(logging.DEBUG)
     # Back up the reference to the exceptionhook
 
     sys._excepthook = sys.excepthook
@@ -31,9 +32,10 @@ if __name__ == "__main__":
 
     # Instantiate and show the first dialog
     main_win = MainWindow()
+    splash_time = 1# 1500
 
-    QTimer.singleShot(1500, splash.close)
-    QTimer.singleShot(1500, main_win.showMaximized)
+    QTimer.singleShot(splash_time, splash.close)
+    QTimer.singleShot(splash_time, main_win.showMaximized)
 
     app.exec_()
     if main_win.results_frame.temp_file is not None:
