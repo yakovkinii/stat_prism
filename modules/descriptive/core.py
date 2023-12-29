@@ -1,6 +1,6 @@
 import pandas as pd
 
-from kernel.misc import div_table, div_text, div_title, num_to_str, smart_comma_join
+from core.misc import div_table, div_text, div_title, num_to_str, smart_comma_join
 from modules.descriptive.metadata import DescriptiveStudyMetadata
 
 

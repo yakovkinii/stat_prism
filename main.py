@@ -5,7 +5,7 @@ from PyQt5.QtGui import QPixmap
 from PyQt5.QtWidgets import QApplication, QSplashScreen
 from yatools import logging_config
 
-from kernel.ui.mainwindow_handler import MainWindowHandler
+from core.ui.mainwindow import MainWindow
 
 if __name__ == "__main__":
     logging_config.init()
@@ -30,11 +30,11 @@ if __name__ == "__main__":
     splash.show()
 
     # Instantiate and show the first dialog
-    mainwin = MainWindowHandler()
+    main_win = MainWindow()
 
     QTimer.singleShot(1500, splash.close)
-    QTimer.singleShot(1500, mainwin.showMaximized)
+    QTimer.singleShot(1500, main_win.showMaximized)
 
     app.exec_()
-    if mainwin.results_frame.temp_file is not None:
-        mainwin.results_frame.temp_file.close()
+    if main_win.results_frame.temp_file is not None:
+        main_win.results_frame.temp_file.close()

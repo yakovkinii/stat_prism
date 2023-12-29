@@ -1,21 +1,45 @@
 import logging
-import os
-import tempfile
-
 import pandas as pd
-from PyQt5 import QtWidgets
-from PyQt5.QtCore import QUrl
 from PyQt5.QtWidgets import QFileDialog, QMessageBox
 
-from kernel.constants import DESCRIPTIVE_INDEX, HOME_INDEX, OUTPUT_WIDTH
-from kernel.misc import load_data_to_table
-from kernel.ui.mainwindow import MainWindow
+from core.constants import DESCRIPTIVE_INDEX, HOME_INDEX, OUTPUT_WIDTH
+from core.misc import load_data_to_table
+from PyQt5 import QtCore, QtWidgets
+
+from core.ui.misc import icon
+from core.ui.results.results_frame import Results
+from core.ui.study.study_frame import Study
+from core.ui.table.table_frame import Table
 
 
-class MainWindowHandler(QtWidgets.QMainWindow, MainWindow):
+class MainWindow(QtWidgets.QMainWindow):
     def __init__(self):
         super().__init__()
-        self.setupUi(self)
+        self.setWindowIcon(icon(":/mat/resources/Icon.ico"))
+
+        self.centralwidget = QtWidgets.QWidget(self)
+
+        self.gridLayout = QtWidgets.QGridLayout(self.centralwidget)
+        self.splitter = QtWidgets.QSplitter(self.centralwidget)
+        self.splitter.setOrientation(QtCore.Qt.Horizontal)
+        self.gridLayout.addWidget(self.splitter)
+
+        self.table_frame = Table(self.splitter)
+        self.results_frame = Results(self.splitter)
+        self.study_frame = Study(self.splitter)
+
+        self.setCentralWidget(self.centralwidget)
+
+        self.menuBar = QtWidgets.QMenuBar(self)
+        self.menuHelp = QtWidgets.QMenu(self.menuBar)
+        self.setMenuBar(self.menuBar)
+
+        self.actionAbout = QtWidgets.QAction(self)
+        self.menuHelp.addAction(self.actionAbout)
+        self.menuBar.addAction(self.menuHelp.menuAction())
+
+        self.retranslateUi(self)
+        QtCore.QMetaObject.connectSlotsByName(self)
 
 
         self.actionAbout.triggered.connect(self.about_handler)
@@ -38,7 +62,14 @@ class MainWindowHandler(QtWidgets.QMainWindow, MainWindow):
         self.current_index = 0
         self.results = []
         self.collapse_results()
-
+    def retranslateUi(self, MainWindow):
+        _translate = QtCore.QCoreApplication.translate
+        MainWindow.setWindowTitle(_translate("MainWindow", "StatPrism"))
+        self.table_frame.retranslateUI()
+        self.study_frame.retranslateUI()
+        self.results_frame.retranslateUI()
+        self.menuHelp.setTitle(_translate("MainWindow", "Help"))
+        self.actionAbout.setText(_translate("MainWindow", "About"))
     def about_handler(self):
         QMessageBox.about(
             self,

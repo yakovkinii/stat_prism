@@ -1,6 +1,6 @@
 from PyQt5 import QtCore, QtWidgets
 
-from kernel.ui.misc import create_tool_button, create_label
+from core.ui.misc import create_tool_button, create_label
 
 
 class Home:

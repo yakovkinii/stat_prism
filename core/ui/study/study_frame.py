@@ -1,6 +1,6 @@
 from PyQt5 import QtCore, QtWidgets
 
-from kernel.ui.study.home_panel import Home
+from core.ui.study.home_panel import Home
 from modules.descriptive.ui import Descriptive
 
 

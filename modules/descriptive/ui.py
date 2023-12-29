@@ -2,10 +2,10 @@ import logging
 
 from PyQt5 import QtCore, QtWidgets
 
-from kernel.misc import get_html_start_end
+from core.misc import get_html_start_end
 from modules.descriptive.core import run_descriptive_study
 from modules.descriptive.metadata import DescriptiveStudyMetadataUI, DescriptiveStudyMetadata
-from kernel.ui.misc import add_checkbox_to_groupbox, create_tool_button
+from core.ui.misc import add_checkbox_to_groupbox, create_tool_button
 
 
 class Descriptive:

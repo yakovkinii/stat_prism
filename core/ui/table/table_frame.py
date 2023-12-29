@@ -1,6 +1,6 @@
 from PyQt5 import QtCore, QtWidgets
 
-from kernel.ui.table.table_handler import CustomTableWidget
+from core.ui.table.table_handler import CustomTableWidget
 
 
 class Table:
