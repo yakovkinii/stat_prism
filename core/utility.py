@@ -4,6 +4,9 @@ import numpy as np
 import pandas as pd
 from PyQt5.QtWidgets import QTableWidgetItem
 
+from core.constants import NO_RESULT_SELECTED
+from core.shared import result_container
+
 
 def get_html_start_end():
     html_start = """
@@ -96,6 +99,23 @@ def round_to_significant_digits(num, n):
         return 0  # Handle the special case where the number is zero
     else:
         return round(num, -int(np.floor(np.log10(abs(num))) - (n - 1)))
+
+
+def get_next_valid_result_id():
+    if result_container.results:
+        return max(result_container.results.keys()) + 1
+    else:
+        return 0
+
+
+def select_result(result_id: int):
+    if result_id == NO_RESULT_SELECTED:
+        result_container.current_result = NO_RESULT_SELECTED
+        return
+    if result_id in result_container.results.keys():
+        result_container.current_result = result_id
+        return
+    raise ValueError(f"Trying to select non-existing result {result_id}")
 
 
 def num_to_str(num, digits=4):

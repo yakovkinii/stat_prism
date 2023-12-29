@@ -4,6 +4,8 @@ import tempfile
 from PyQt5 import QtWebEngineWidgets, QtWidgets
 from PyQt5.QtCore import QUrl
 
+from core.constants import OUTPUT_WIDTH
+
 
 class Results:
     def __init__(self, parent):
@@ -28,6 +30,7 @@ class Results:
         self.gridLayout_2.setContentsMargins(0, 0, 0, 0)
 
         self.browser = QtWebEngineWidgets.QWebEngineView(self.scrollAreaWidgetContents)
+        self.browser.setMinimumWidth(OUTPUT_WIDTH)
 
         self.gridLayout_2.addWidget(self.browser)
         self.scrollArea.setWidget(self.scrollAreaWidgetContents)
@@ -37,7 +40,7 @@ class Results:
     def retranslateUI(self):
         pass
 
-    def update_browser(self, output):
+    def update(self):
         if self.temp_file is not None:
             self.temp_file.close()
         self.temp_file = tempfile.NamedTemporaryFile(

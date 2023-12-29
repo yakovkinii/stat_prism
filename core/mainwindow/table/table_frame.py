@@ -1,6 +1,6 @@
 from PyQt5 import QtCore, QtWidgets
 
-from core.ui.table.table_handler import CustomTableWidget
+from core.mainwindow.table.table_handler import CustomTableWidget
 
 
 class Table:
@@ -29,3 +29,8 @@ class Table:
 
     def retranslateUI(self):
         pass
+
+    def update(self):
+        load_data_to_table(
+            dataframe=data.df, table_widget=self.table_frame.tableWidget_2
+        )

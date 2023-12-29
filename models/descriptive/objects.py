@@ -1,7 +1,9 @@
 from typing import List
 
+from core.objects import Result
 
-class DescriptiveStudyMetadataUI:
+
+class DescriptiveStudyMetadata:
     def __init__(
         self,
         selected_columns: List[str],
@@ -25,14 +27,18 @@ class DescriptiveStudyMetadataUI:
         self.maximum = maximum
 
 
-class DescriptiveStudyMetadata:
-    def __init__(self, metadata_ui: DescriptiveStudyMetadataUI):
-        self.selected_columns = metadata_ui.selected_columns
-        self.n = metadata_ui.n
-        self.missing = metadata_ui.missing
-        self.mean = metadata_ui.mean
-        self.median = metadata_ui.median
-        self.stddev = metadata_ui.stddev
-        self.variance = metadata_ui.variance
-        self.minimum = metadata_ui.minimum
-        self.maximum = metadata_ui.maximum
+class DescriptiveResult(Result):
+    def __init__(self, result_id: int, module_name: str):
+        super().__init__(result_id, module_name)
+        self.content = None
+        self.metadata = DescriptiveStudyMetadata(
+            selected_columns=[],
+            n=False,
+            missing=False,
+            mean=True,
+            median=False,
+            stddev=True,
+            variance=False,
+            minimum=True,
+            maximum=True,
+        )
