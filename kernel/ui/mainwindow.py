@@ -1,9 +1,9 @@
 from PyQt5 import QtCore, QtWidgets
 
-from ui.constructors.misc import icon
-from ui.constructors.results.results_frame import Results
-from ui.constructors.study.study_frame import Study
-from ui.constructors.table.table_frame import Table
+from kernel.ui.misc import icon
+from kernel.ui.results.results_frame import Results
+from kernel.ui.study.study_frame import Study
+from kernel.ui.table.table_frame import Table
 
 
 class MainWindow(object):

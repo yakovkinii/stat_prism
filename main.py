@@ -5,7 +5,7 @@ from PyQt5.QtGui import QPixmap
 from PyQt5.QtWidgets import QApplication, QSplashScreen
 from yatools import logging_config
 
-from ui.handlers.mainwindow_handler import MainWindowHandler
+from kernel.ui.mainwindow_handler import MainWindowHandler
 
 if __name__ == "__main__":
     logging_config.init()
@@ -36,5 +36,5 @@ if __name__ == "__main__":
     QTimer.singleShot(1500, mainwin.showMaximized)
 
     app.exec_()
-    if mainwin.temp_file is not None:
-        mainwin.temp_file.close()
+    if mainwin.results_frame.temp_file is not None:
+        mainwin.results_frame.temp_file.close()

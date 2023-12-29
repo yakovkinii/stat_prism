@@ -1,7 +1,7 @@
 from PyQt5 import QtCore, QtWidgets
 
-from ui.constructors.study.descriptive_panel import Descriptive
-from ui.constructors.study.home_panel import Home
+from kernel.ui.study.home_panel import Home
+from modules.descriptive.ui import Descriptive
 
 
 class Study:
