@@ -1,12 +1,12 @@
 import logging
+
 import pandas as pd
+from PyQt5 import QtCore, QtWidgets
 from PyQt5.QtWidgets import QFileDialog, QMessageBox
 
 from core.constants import DESCRIPTIVE_INDEX, HOME_INDEX, OUTPUT_WIDTH
 from core.misc import load_data_to_table
-from PyQt5 import QtCore, QtWidgets
-
-from core.ui.misc import icon
+from core.ui.common import icon
 from core.ui.results.results_frame import Results
 from core.ui.study.study_frame import Study
 from core.ui.table.table_frame import Table
@@ -41,7 +41,6 @@ class MainWindow(QtWidgets.QMainWindow):
         self.retranslateUi(self)
         QtCore.QMetaObject.connectSlotsByName(self)
 
-
         self.actionAbout.triggered.connect(self.about_handler)
         self.study_frame.home_panel.OpenFileButton.pressed.connect(self.open_handler)
         self.study_frame.home_panel.DescriptiveStatisticsButton.pressed.connect(
@@ -54,7 +53,9 @@ class MainWindow(QtWidgets.QMainWindow):
         )
         self.study_frame.home_panel.SaveReportButton.pressed.connect(self.save_handler)
 
-        self.study_frame.descriptive_panel.actionTriggerUpdate.triggered.connect(self.process_descriptive)
+        self.study_frame.descriptive_panel.actionTriggerUpdate.triggered.connect(
+            self.process_descriptive
+        )
 
         self.df = None
         self.output = ""
@@ -62,6 +63,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.current_index = 0
         self.results = []
         self.collapse_results()
+
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
         MainWindow.setWindowTitle(_translate("MainWindow", "StatPrism"))
@@ -70,6 +72,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.results_frame.retranslateUI()
         self.menuHelp.setTitle(_translate("MainWindow", "Help"))
         self.actionAbout.setText(_translate("MainWindow", "About"))
+
     def about_handler(self):
         QMessageBox.about(
             self,

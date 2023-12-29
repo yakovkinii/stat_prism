@@ -3,9 +3,10 @@ import logging
 from PyQt5 import QtCore, QtWidgets
 
 from core.misc import get_html_start_end
+from core.ui.common import add_checkbox_to_groupbox, create_tool_button
 from modules.descriptive.core import run_descriptive_study
-from modules.descriptive.metadata import DescriptiveStudyMetadataUI, DescriptiveStudyMetadata
-from core.ui.misc import add_checkbox_to_groupbox, create_tool_button
+from modules.descriptive.metadata import (DescriptiveStudyMetadata,
+                                          DescriptiveStudyMetadataUI)
 
 
 class Descriptive:
@@ -62,12 +63,8 @@ class Descriptive:
             icon_size=QtCore.QSize(40, 40),
         )
 
-        self.DownButton.pressed.connect(
-            self.add_columns_to_selected
-        )
-        self.UpButton.pressed.connect(
-            self.remove_columns_from_selected
-        )
+        self.DownButton.pressed.connect(self.add_columns_to_selected)
+        self.UpButton.pressed.connect(self.remove_columns_from_selected)
 
         # Trigger updates on change
         self.actionTriggerUpdate = QtWidgets.QAction(self.widget)
@@ -114,9 +111,7 @@ class Descriptive:
     def process_descriptive(self, df):
         logging.info("Running descriptive statistics")
 
-        metadata = DescriptiveStudyMetadata(
-            self.get_metadata()
-        )
+        metadata = DescriptiveStudyMetadata(self.get_metadata())
         html_start, html_end = get_html_start_end()
         return html_start + run_descriptive_study(df, metadata) + html_end
 
@@ -124,26 +119,16 @@ class Descriptive:
         w1 = self.listWidget_all_columns.selectedItems()
         w1 = [c.text() for c in w1]
         selected = [
-            self.listWidget_selected_columns.item(
-                i
-            ).text()
-            for i in range(
-                self.listWidget_selected_columns.count()
-            )
+            self.listWidget_selected_columns.item(i).text()
+            for i in range(self.listWidget_selected_columns.count())
         ]
         for item in w1:
             if item not in selected:
-                self.listWidget_selected_columns.addItems(
-                    [item]
-                )
+                self.listWidget_selected_columns.addItems([item])
         self.actionTriggerUpdate.trigger()
 
     def remove_columns_from_selected(self):
-        for (
-            item
-        ) in (
-            self.listWidget_selected_columns.selectedItems()
-        ):
+        for item in self.listWidget_selected_columns.selectedItems():
             self.listWidget_selected_columns.takeItem(
                 self.listWidget_selected_columns.row(item)
             )

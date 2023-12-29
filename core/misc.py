@@ -68,7 +68,6 @@ def get_html_start_end():
     return html_start, html_end
 
 
-
 def smart_comma_join(items):
     if len(items) == 0:
         return ""

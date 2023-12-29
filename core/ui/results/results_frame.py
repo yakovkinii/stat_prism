@@ -33,6 +33,7 @@ class Results:
         self.scrollArea.setWidget(self.scrollAreaWidgetContents)
         self.gridLayout.addWidget(self.scrollArea)
         self.temp_file = None
+
     def retranslateUI(self):
         pass
 
@@ -44,6 +45,4 @@ class Results:
         )
         self.temp_file.write(output)
         self.temp_file.seek(0)
-        self.browser.load(
-            QUrl.fromLocalFile(os.path.abspath(self.temp_file.name))
-        )
+        self.browser.load(QUrl.fromLocalFile(os.path.abspath(self.temp_file.name)))
