@@ -1,6 +1,7 @@
-from PyQt5 import QtCore, QtGui, QtWidgets
+from PyQt5 import QtCore, QtWidgets
 
-from ui.constructors.misc import icon
+from ui.constructors.study.descriptive_panel import Descriptive
+from ui.constructors.study.home_panel import Home
 
 
 class Study:
@@ -9,6 +10,9 @@ class Study:
         #       frame
         #           gridLayout
         #               stackedWidget
+        #                   home_panel
+        #                   descriptive_panel
+
         self.frame = QtWidgets.QFrame(parent)
         sizePolicy = QtWidgets.QSizePolicy(
             QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred
@@ -26,143 +30,14 @@ class Study:
         self.gridLayout.setContentsMargins(0, 0, 0, 0)
         self.stackedWidget = QtWidgets.QStackedWidget(self.frame)
 
-        self.Home = QtWidgets.QWidget()
-        self.DescriptiveStatisticsButton = QtWidgets.QToolButton(self.Home)
-        self.DescriptiveStatisticsButton.setGeometry(QtCore.QRect(60, 240, 101, 101))
-        self.DescriptiveStatisticsButton.setIcon(icon(":/mat/resources/material-icons-png-master/png/black/bar_chart/round-4x.png"))
-        self.DescriptiveStatisticsButton.setIconSize(QtCore.QSize(60, 60))
-        self.DescriptiveStatisticsButton.setToolButtonStyle(
-            QtCore.Qt.ToolButtonIconOnly
-        )
-        self.OpenFileButton = QtWidgets.QToolButton(self.Home)
-        self.OpenFileButton.setGeometry(QtCore.QRect(60, 40, 101, 101))
-        self.OpenFileButton.setText("")
-        self.OpenFileButton.setIcon(icon(":/mat/resources/material-icons-png-master/png/black/folder_open/round-4x.png"))
-        self.OpenFileButton.setIconSize(QtCore.QSize(60, 60))
-        self.OpenFileButton.setToolButtonStyle(QtCore.Qt.ToolButtonIconOnly)
-        self.label = QtWidgets.QLabel(self.Home)
-        self.label.setGeometry(QtCore.QRect(60, 150, 101, 61))
-        font = QtGui.QFont()
-        font.setPointSize(10)
-        self.label.setFont(font)
-        self.label.setAlignment(QtCore.Qt.AlignHCenter | QtCore.Qt.AlignTop)
-        self.label_2 = QtWidgets.QLabel(self.Home)
-        self.label_2.setGeometry(QtCore.QRect(60, 350, 101, 71))
-        font = QtGui.QFont()
-        font.setPointSize(10)
-        self.label_2.setFont(font)
-        self.label_2.setAlignment(QtCore.Qt.AlignHCenter | QtCore.Qt.AlignTop)
-        self.label_2.setObjectName("label_2")
-        self.DescriptiveStatisticsButton_2 = QtWidgets.QToolButton(self.Home)
-        self.DescriptiveStatisticsButton_2.setEnabled(False)
-        self.DescriptiveStatisticsButton_2.setGeometry(QtCore.QRect(240, 240, 101, 101))
-        self.DescriptiveStatisticsButton_2.setIcon(icon(":/mat/resources/material-icons-png-master/png/black/bar_chart/round-4x.png"))
-        self.DescriptiveStatisticsButton_2.setIconSize(QtCore.QSize(60, 60))
-        self.DescriptiveStatisticsButton_2.setToolButtonStyle(
-            QtCore.Qt.ToolButtonIconOnly
-        )
-        self.label_3 = QtWidgets.QLabel(self.Home)
-        self.label_3.setEnabled(False)
-        self.label_3.setGeometry(QtCore.QRect(240, 350, 101, 71))
-        font = QtGui.QFont()
-        font.setPointSize(10)
-        self.label_3.setFont(font)
-        self.label_3.setAlignment(QtCore.Qt.AlignHCenter | QtCore.Qt.AlignTop)
-        self.SaveReportButton = QtWidgets.QToolButton(self.Home)
-        self.SaveReportButton.setGeometry(QtCore.QRect(240, 40, 101, 101))
-        self.SaveReportButton.setText("")
-        self.SaveReportButton.setIcon(icon( ":/mat/resources/material-icons-png-master/png/black/save_alt/round-4x.png"))
-        self.SaveReportButton.setIconSize(QtCore.QSize(60, 60))
-        self.SaveReportButton.setToolButtonStyle(QtCore.Qt.ToolButtonIconOnly)
-        self.label_4 = QtWidgets.QLabel(self.Home)
-        self.label_4.setGeometry(QtCore.QRect(240, 150, 101, 61))
-        font = QtGui.QFont()
-        font.setPointSize(10)
-        self.label_4.setFont(font)
-        self.label_4.setAlignment(QtCore.Qt.AlignHCenter | QtCore.Qt.AlignTop)
-        self.stackedWidget.addWidget(self.Home)
-        self.Descriptive = QtWidgets.QWidget()
-        self.listWidget_2 = QtWidgets.QListWidget(self.Descriptive)
-        self.listWidget_2.setGeometry(QtCore.QRect(10, 423, 381, 231))
-        self.listWidget_2.setSelectionMode(
-            QtWidgets.QAbstractItemView.ExtendedSelection
-        )
-        self.listWidget = QtWidgets.QListWidget(self.Descriptive)
-        self.listWidget.setGeometry(QtCore.QRect(10, 93, 381, 271))
-        self.listWidget.setSelectionMode(QtWidgets.QAbstractItemView.ExtendedSelection)
-        self.groupBox = QtWidgets.QGroupBox(self.Descriptive)
-        self.groupBox.setGeometry(QtCore.QRect(10, 663, 116, 251))
-        self.formLayout = QtWidgets.QFormLayout(self.groupBox)
-        self.checkBox = QtWidgets.QCheckBox(self.groupBox)
-        self.checkBox.setChecked(True)
-        self.formLayout.setWidget(0, QtWidgets.QFormLayout.LabelRole, self.checkBox)
-        self.checkBox_missing = QtWidgets.QCheckBox(self.groupBox)
-        self.checkBox_missing.setChecked(True)
-        self.formLayout.setWidget(
-            1, QtWidgets.QFormLayout.LabelRole, self.checkBox_missing
-        )
-        self.checkBox_3 = QtWidgets.QCheckBox(self.groupBox)
-        self.checkBox_3.setChecked(True)
-        self.formLayout.setWidget(2, QtWidgets.QFormLayout.LabelRole, self.checkBox_3)
-        self.checkBox_4 = QtWidgets.QCheckBox(self.groupBox)
-        self.checkBox_4.setChecked(False)
-        self.formLayout.setWidget(3, QtWidgets.QFormLayout.LabelRole, self.checkBox_4)
-        self.checkBox_6 = QtWidgets.QCheckBox(self.groupBox)
-        self.checkBox_6.setChecked(True)
-        self.formLayout.setWidget(4, QtWidgets.QFormLayout.LabelRole, self.checkBox_6)
-        self.checkBox_7 = QtWidgets.QCheckBox(self.groupBox)
-        self.checkBox_7.setChecked(False)
-        self.formLayout.setWidget(5, QtWidgets.QFormLayout.LabelRole, self.checkBox_7)
-        self.checkBox_8 = QtWidgets.QCheckBox(self.groupBox)
-        self.checkBox_8.setChecked(True)
-        self.formLayout.setWidget(6, QtWidgets.QFormLayout.LabelRole, self.checkBox_8)
-        self.checkBox_9 = QtWidgets.QCheckBox(self.groupBox)
-        self.checkBox_9.setChecked(True)
-        self.formLayout.setWidget(7, QtWidgets.QFormLayout.LabelRole, self.checkBox_9)
-        self.HomeButton = QtWidgets.QToolButton(self.Descriptive)
-        self.HomeButton.setGeometry(QtCore.QRect(10, 10, 61, 61))
-        self.HomeButton.setText("")
-        self.HomeButton.setIcon(icon(":/mat/resources/material-icons-png-master/png/black/menu/round-4x.png"))
-        self.HomeButton.setIconSize(QtCore.QSize(40, 40))
-        self.HomeButton.setToolButtonStyle(QtCore.Qt.ToolButtonIconOnly)
-        self.DownButton = QtWidgets.QPushButton(self.Descriptive)
-        self.DownButton.setGeometry(QtCore.QRect(140, 370, 51, 51))
-        self.DownButton.setText("")
-        self.DownButton.setIcon(icon(":/mat/resources/material-icons-png-master/png/black/arrow_downward/round-4x.png"))
-        self.DownButton.setIconSize(QtCore.QSize(40, 40))
-        self.UpButton = QtWidgets.QPushButton(self.Descriptive)
-        self.UpButton.setGeometry(QtCore.QRect(210, 370, 51, 51))
-        self.UpButton.setText("")
-        self.UpButton.setIcon(icon(":/mat/resources/material-icons-png-master/png/black/arrow_upward/round-4x.png"))
-        self.UpButton.setIconSize(QtCore.QSize(40, 40))
-        self.stackedWidget.addWidget(self.Descriptive)
+        self.home_panel = Home()
+        self.descriptive_panel = Descriptive()
+
+        self.stackedWidget.addWidget(self.home_panel.widget)
+        self.stackedWidget.addWidget(self.descriptive_panel.widget)
+
         self.gridLayout.addWidget(self.stackedWidget, 0, 0, 1, 1)
-        self.stackedWidget.setCurrentIndex(1)
 
     def retranslateUI(self):
-        _translate = QtCore.QCoreApplication.translate
-
-        self.DescriptiveStatisticsButton.setText(
-            _translate("MainWindow", "Descriptive\n" "Statistics")
-        )
-        self.label.setText(_translate("MainWindow", "Open File"))
-        self.label_2.setText(
-            _translate("MainWindow", "Descriptive\n" "Statistics\n" "(Numeric)")
-        )
-        self.DescriptiveStatisticsButton_2.setText(
-            _translate("MainWindow", "Descriptive\n" "Statistics")
-        )
-        self.label_3.setText(
-            _translate("MainWindow", "Descriptive\n" "Statistics\n" "(Literal)")
-        )
-        self.label_4.setText(_translate("MainWindow", "Save Report"))
-        self.groupBox.setTitle(_translate("MainWindow", "Options"))
-        self.checkBox.setText(_translate("MainWindow", "N"))
-        self.checkBox_missing.setText(_translate("MainWindow", "Missing"))
-        self.checkBox_3.setText(_translate("MainWindow", "Mean"))
-        self.checkBox_4.setText(_translate("MainWindow", "Median"))
-        self.checkBox_6.setText(_translate("MainWindow", "Std. deviation"))
-        self.checkBox_7.setText(_translate("MainWindow", "Variance"))
-        self.checkBox_8.setText(_translate("MainWindow", "Minimum"))
-        self.checkBox_9.setText(_translate("MainWindow", "Maximum"))
-        self.HomeButton.setShortcut(_translate("MainWindow", "Backspace"))
+        self.home_panel.retranslateUI()
+        self.descriptive_panel.retranslateUI()

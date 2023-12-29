@@ -1,7 +1,6 @@
 import pandas as pd
 
-from core.misc import (div_table, div_text, div_title, num_to_str,
-                       smart_comma_join)
+from core.misc import div_table, div_text, div_title, num_to_str, smart_comma_join
 from objects.metadata import DescriptiveStudyMetadata
 
 

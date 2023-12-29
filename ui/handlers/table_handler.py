@@ -2,8 +2,13 @@ import sys
 
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QCursor
-from PyQt5.QtWidgets import (QApplication, QHeaderView, QMenu, QTableWidget,
-                             QTableWidgetItem)
+from PyQt5.QtWidgets import (
+    QApplication,
+    QHeaderView,
+    QMenu,
+    QTableWidget,
+    QTableWidgetItem,
+)
 
 
 class CustomHeaderView(QHeaderView):

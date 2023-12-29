@@ -91,23 +91,45 @@ class MainWindowHandler(QtWidgets.QMainWindow, MainWindow):
         super().__init__()
         self.setupUi(self)
         self.actionAbout.triggered.connect(self.about_handler)
-        self.study_frame.OpenFileButton.pressed.connect(self.open_handler)
-        self.study_frame.DescriptiveStatisticsButton.pressed.connect(
+        self.study_frame.home_panel.OpenFileButton.pressed.connect(self.open_handler)
+        self.study_frame.home_panel.DescriptiveStatisticsButton.pressed.connect(
             self.select_descriptive_statistics_handler
         )
-        self.study_frame.DownButton.pressed.connect(self.add_columns_to_selected)
-        self.study_frame.UpButton.pressed.connect(self.remove_columns_from_selected)
+        self.study_frame.descriptive_panel.DownButton.pressed.connect(
+            self.add_columns_to_selected
+        )
+        self.study_frame.descriptive_panel.UpButton.pressed.connect(
+            self.remove_columns_from_selected
+        )
         self.results_frame.browser.setMinimumWidth(OUTPUT_WIDTH)
-        self.study_frame.HomeButton.pressed.connect(self.home_button_handler)
-        self.study_frame.SaveReportButton.pressed.connect(self.save_handler)
-        self.study_frame.checkBox.stateChanged.connect(self.process_descriptive)
-        self.study_frame.checkBox_missing.stateChanged.connect(self.process_descriptive)
-        self.study_frame.checkBox_3.stateChanged.connect(self.process_descriptive)
-        self.study_frame.checkBox_4.stateChanged.connect(self.process_descriptive)
-        self.study_frame.checkBox_6.stateChanged.connect(self.process_descriptive)
-        self.study_frame.checkBox_7.stateChanged.connect(self.process_descriptive)
-        self.study_frame.checkBox_8.stateChanged.connect(self.process_descriptive)
-        self.study_frame.checkBox_9.stateChanged.connect(self.process_descriptive)
+        self.study_frame.descriptive_panel.HomeButton.pressed.connect(
+            self.home_button_handler
+        )
+        self.study_frame.home_panel.SaveReportButton.pressed.connect(self.save_handler)
+        self.study_frame.descriptive_panel.checkBox_n.stateChanged.connect(
+            self.process_descriptive
+        )
+        self.study_frame.descriptive_panel.checkBox_missing.stateChanged.connect(
+            self.process_descriptive
+        )
+        self.study_frame.descriptive_panel.checkBox_mean.stateChanged.connect(
+            self.process_descriptive
+        )
+        self.study_frame.descriptive_panel.checkBox_median.stateChanged.connect(
+            self.process_descriptive
+        )
+        self.study_frame.descriptive_panel.checkBox_std.stateChanged.connect(
+            self.process_descriptive
+        )
+        self.study_frame.descriptive_panel.checkBox_var.stateChanged.connect(
+            self.process_descriptive
+        )
+        self.study_frame.descriptive_panel.checkBox_min.stateChanged.connect(
+            self.process_descriptive
+        )
+        self.study_frame.descriptive_panel.checkBox_max.stateChanged.connect(
+            self.process_descriptive
+        )
 
         self.temp_file = None
         self.df = None
@@ -118,10 +140,11 @@ class MainWindowHandler(QtWidgets.QMainWindow, MainWindow):
         self.collapse_results()
 
     def about_handler(self):
-        QMessageBox.about(self, 'StatPrism', 'StatPrism Professional \n'
-                                             'Version: 0.1 \n'
-                                             '(C) 2023 I.Y. and A.B.'
-                          )
+        QMessageBox.about(
+            self,
+            "StatPrism",
+            "StatPrism Professional \n" "Version: 0.1 \n" "(C) 2023 I.Y. and A.B.",
+        )
 
     def home_button_handler(self):
         self.set_current_index(HOME_INDEX)
@@ -138,7 +161,7 @@ class MainWindowHandler(QtWidgets.QMainWindow, MainWindow):
                 file_path += ".html"
             with open(file_path, "wt") as f:
                 f.write(self.output)
-        self.study_frame.SaveReportButton.setDown(False)
+        self.study_frame.home_panel.SaveReportButton.setDown(False)
 
     def open_handler(self):
         options = QtWidgets.QFileDialog.Options()
@@ -159,9 +182,11 @@ class MainWindowHandler(QtWidgets.QMainWindow, MainWindow):
                 except Exception as e:
                     logging.error(str(e))
         if self.df is not None:
-            load_data_to_table(dataframe=self.df, table_widget=self.table_frame.tableWidget_2)
+            load_data_to_table(
+                dataframe=self.df, table_widget=self.table_frame.tableWidget_2
+            )
         self.set_current_index(HOME_INDEX)
-        self.study_frame.OpenFileButton.setDown(False)
+        self.study_frame.home_panel.OpenFileButton.setDown(False)
 
     def set_current_index(self, i: int):
         logging.info(f"Setting current index to {i}")
@@ -175,29 +200,43 @@ class MainWindowHandler(QtWidgets.QMainWindow, MainWindow):
             return
 
         self.set_current_index(DESCRIPTIVE_INDEX)
-        self.study_frame.listWidget.clear()
+        self.study_frame.descriptive_panel.listWidget_all_columns.clear()
         numeric_columns = []
         for column in self.df.columns:
             if self.df[column].dtype.kind in "biufc":  # numeric
                 numeric_columns.append(column)
-        self.study_frame.listWidget.addItems(numeric_columns)
-        self.study_frame.listWidget_2.clear()
+        self.study_frame.descriptive_panel.listWidget_all_columns.addItems(
+            numeric_columns
+        )
+        self.study_frame.descriptive_panel.listWidget_selected_columns.clear()
 
     def add_columns_to_selected(self):
-        w1 = self.study_frame.listWidget.selectedItems()
+        w1 = self.study_frame.descriptive_panel.listWidget_all_columns.selectedItems()
         w1 = [c.text() for c in w1]
         selected = [
-            self.study_frame.listWidget_2.item(i).text()
-            for i in range(self.study_frame.listWidget_2.count())
+            self.study_frame.descriptive_panel.listWidget_selected_columns.item(
+                i
+            ).text()
+            for i in range(
+                self.study_frame.descriptive_panel.listWidget_selected_columns.count()
+            )
         ]
         for item in w1:
             if item not in selected:
-                self.study_frame.listWidget_2.addItems([item])
+                self.study_frame.descriptive_panel.listWidget_selected_columns.addItems(
+                    [item]
+                )
         self.process_descriptive()
 
     def remove_columns_from_selected(self):
-        for item in self.study_frame.listWidget_2.selectedItems():
-            self.study_frame.listWidget_2.takeItem(self.listWidget_2.row(item))
+        for (
+            item
+        ) in (
+            self.study_frame.descriptive_panel.listWidget_selected_columns.selectedItems()
+        ):
+            self.study_frame.descriptive_panel.listWidget_selected_columns.takeItem(
+                self.study_frame.descriptive_panel.listWidget_selected_columns.row(item)
+            )
         self.process_descriptive()
 
     def process_descriptive(self):
@@ -208,18 +247,7 @@ class MainWindowHandler(QtWidgets.QMainWindow, MainWindow):
             return
 
         metadata = DescriptiveStudyMetadata(
-            selected_columns=[
-                self.study_frame.listWidget_2.item(i).text()
-                for i in range(self.study_frame.listWidget_2.count())
-            ],
-            n=self.study_frame.checkBox.checkState(),
-            missing=self.study_frame.checkBox_missing.checkState(),
-            mean=self.study_frame.checkBox_3.checkState(),
-            median=self.study_frame.checkBox_4.checkState(),
-            stddev=self.study_frame.checkBox_6.checkState(),
-            variance=self.study_frame.checkBox_7.checkState(),
-            minimum=self.study_frame.checkBox_8.checkState(),
-            maximum=self.study_frame.checkBox_9.checkState(),
+            self.study_frame.descriptive_panel.get_metadata()
         )
         html_start, html_end = get_html_start_end()
         self.output = html_start + run_descriptive_study(self.df, metadata) + html_end
