@@ -1,12 +1,19 @@
+from typing import TYPE_CHECKING
+
 from PyQt5 import QtCore, QtWidgets
 from PyQt5.QtWidgets import QTableWidget, QTableWidgetItem
 
 from core.shared import data
-from core.utility import log_method_noarg, log_method
+from core.utility import log_method, log_method_noarg
+
+if TYPE_CHECKING:
+    from core.mainwindow.ui import MainWindow
 
 
 class Table:
-    def __init__(self, parent):
+    def __init__(self, parent, mainwindow_instance):
+        self.mainwindow_instance: MainWindow = mainwindow_instance
+
         self.tableWidget_2 = QTableWidget(parent)
         self.tableWidget_2.setMinimumSize(QtCore.QSize(50, 0))
         self.tableWidget_2.setAutoFillBackground(False)
@@ -45,4 +52,3 @@ class Table:
         for row in dataframe.iterrows():
             for col, value in enumerate(row[1]):
                 self.tableWidget_2.setItem(row[0], col, QTableWidgetItem(str(value)))
-

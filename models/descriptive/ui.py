@@ -1,15 +1,21 @@
+from typing import TYPE_CHECKING
+
 from PyQt5 import QtCore, QtWidgets
 
 from core.common_ui import add_checkbox_to_groupbox, create_tool_button
 from core.constants import NO_RESULT_SELECTED
 from core.shared import data, result_container
-from core.utility import get_html_start_end, log_method, log_method_noarg
+from core.utility import log_method, log_method_noarg
 from models.descriptive.core import run_descriptive_study
 from models.descriptive.objects import DescriptiveStudyMetadata
 
+if TYPE_CHECKING:
+    from core.mainwindow.study.ui import Study
+
 
 class Descriptive:
-    def __init__(self):
+    def __init__(self, study_instance):
+        self.study_instance: Study = study_instance
         self.widget = QtWidgets.QWidget()
 
         self.listWidget_all_columns = QtWidgets.QListWidget(self.widget)
@@ -79,10 +85,6 @@ class Descriptive:
 
         self.hold_run = False
 
-        # Custom actions
-        self.actionUpdateResultsFrame = QtWidgets.QAction(self.widget)
-        self.actionUpdateStudyFrame = QtWidgets.QAction(self.widget)
-
     def retranslateUI(self):
         _translate = QtCore.QCoreApplication.translate
         self.groupBox.setTitle(_translate("MainWindow", "Options"))
@@ -122,8 +124,10 @@ class Descriptive:
     def run(self):
         metadata = self.construct_metadata()
         result_container.results[result_container.current_result].metadata = metadata
-        result_container.results[result_container.current_result].content = run_descriptive_study(data.df, metadata)
-        self.actionUpdateResultsFrame.trigger()
+        result_container.results[
+            result_container.current_result
+        ].content = run_descriptive_study(data.df, metadata)
+        self.study_instance.mainwindow_instance.actionUpdateResultsFrame.trigger()
 
     @log_method
     def add_columns_to_selected(self):
@@ -180,4 +184,4 @@ class Descriptive:
     @log_method
     def home_button_handler(self):
         result_container.current_result = NO_RESULT_SELECTED
-        self.actionUpdateStudyFrame.trigger()
+        self.study_instance.mainwindow_instance.actionUpdateStudyFrame.trigger()

@@ -1,4 +1,5 @@
 import logging
+from typing import TYPE_CHECKING
 
 import pandas as pd
 from PyQt5 import QtCore, QtWidgets
@@ -6,12 +7,16 @@ from PyQt5 import QtCore, QtWidgets
 from core.common_ui import create_label, create_tool_button
 from core.constants import DESCRIPTIVE_MODEL_NAME, NO_RESULT_SELECTED
 from core.shared import data, result_container
-from core.utility import get_next_valid_result_id, select_result, log_method
+from core.utility import get_next_valid_result_id, log_method, select_result
 from models.descriptive.objects import DescriptiveResult
+
+if TYPE_CHECKING:
+    from core.mainwindow.study.ui import Study
 
 
 class Home:
-    def __init__(self):
+    def __init__(self, study_instance):
+        self.study_instance: Study = study_instance
         self.widget = QtWidgets.QWidget()
 
         self.DescriptiveStatisticsButton = create_tool_button(
@@ -74,10 +79,6 @@ class Home:
         self.DescriptiveStatisticsButton.pressed.connect(self.create_descriptive)
         # self.SaveReportButton.pressed.connect(self.save_handler)
 
-        # Actions
-        self.actionUpdateStudyFrame = QtWidgets.QAction(self.widget)
-        self.actionUpdateTableFrame = QtWidgets.QAction(self.widget)
-
     def retranslateUI(self):
         _translate = QtCore.QCoreApplication.translate
 
@@ -103,7 +104,7 @@ class Home:
             result_id=result_id, module_name=DESCRIPTIVE_MODEL_NAME
         )
         select_result(result_id)
-        self.actionUpdateStudyFrame.trigger()
+        self.study_instance.mainwindow_instance.actionUpdateStudyFrame.trigger()
 
     # def home_button_handler(self):
     #     select_result(NO_RESULT_SELECTED)
@@ -145,6 +146,6 @@ class Home:
 
         if data.df is not None:
             select_result(NO_RESULT_SELECTED)
-            self.actionUpdateStudyFrame.trigger()
-            self.actionUpdateTableFrame.trigger()
+            self.study_instance.mainwindow_instance.actionUpdateStudyFrame.trigger()
+            self.study_instance.mainwindow_instance.actionUpdateTableFrame.trigger()
             self.OpenFileButton.setDown(False)

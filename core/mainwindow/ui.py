@@ -28,9 +28,9 @@ class MainWindow(QtWidgets.QMainWindow):
         self.splitter.setOrientation(QtCore.Qt.Horizontal)
         self.gridLayout.addWidget(self.splitter)
 
-        self.table_frame: Table = Table(self.splitter)
-        self.results_frame: Results = Results(self.splitter)
-        self.study_frame: Study = Study(self.splitter)
+        self.table_frame: Table = Table(self.splitter, self)
+        self.results_frame: Results = Results(self.splitter, self)
+        self.study_frame: Study = Study(self.splitter, self)
 
         self.setCentralWidget(self.centralwidget)
 
@@ -50,12 +50,13 @@ class MainWindow(QtWidgets.QMainWindow):
         self._collapse_results()
 
         # Custom actions
-        self.study_frame.actionUpdateTableFrame.triggered.connect(
-            self.table_frame.update
-        )
-        self.study_frame.actionUpdateResultsFrame.triggered.connect(
-            self.update_results_frame
-        )
+        self.actionUpdateStudyFrame = QtWidgets.QAction(self)
+        self.actionUpdateTableFrame = QtWidgets.QAction(self)
+        self.actionUpdateResultsFrame = QtWidgets.QAction(self)
+
+        self.actionUpdateStudyFrame.triggered.connect(self.study_frame.update)
+        self.actionUpdateResultsFrame.triggered.connect(self.update_results_frame)
+        self.actionUpdateTableFrame.triggered.connect(self.table_frame.update)
 
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate

@@ -2,7 +2,6 @@ import logging
 
 import numpy as np
 import pandas as pd
-from PyQt5.QtWidgets import QTableWidgetItem
 
 from core.constants import NO_RESULT_SELECTED
 from core.shared import result_container
@@ -60,7 +59,7 @@ def get_html_start_end():
         </style>
     </head>
 
-    <body style="background-color: lightblue;">
+    <body style="background-color: white;">
     <div style="display:flex;flex-direction:column;align-items:center;justify-content:center; width:100%;">
         """
     html_end = """
@@ -82,7 +81,6 @@ def smart_comma_join(items):
         return f"{items[0]} and {items[1]}"
 
     return ", ".join(items[:-1]) + f", and {items[-1]}"
-
 
 
 def round_to_significant_digits(num, n):
@@ -159,25 +157,31 @@ def div_table():
         + f'font-weight: 500;margin:20px;overflow:auto;width:100%;">'
     )
 
+
 level = 0
+
+
 def log_method(method):
     """
     A decorator to log the name of a class method when it is executed.
     """
+
     def wrapper(self, *args, **kwargs):
         global level
         class_name = self.__class__.__name__
-        ident = "⋅ "*level
-        logging.debug(ident+f"{class_name}.{method.__name__}")
-        level+=1
+        ident = "⋅ " * level
+        logging.debug(ident + f"{class_name}.{method.__name__}")
+        level += 1
         if args or kwargs:
             result = method(self, *args, **kwargs)
         else:
             result = method(self)
-        level -=1
+        level -= 1
         # logging.debug(ident+f"<{class_name}.{method.__name__}")
         return result
+
     return wrapper
+
 
 def log_method_noarg(method):
     """
@@ -185,14 +189,16 @@ def log_method_noarg(method):
     Signature is without extra arguments is enforced.
     To use when Qt passes different number of arguments depending on signature.
     """
+
     def wrapper(self):
         global level
         class_name = self.__class__.__name__
-        ident = "⋅ "*level
-        logging.debug(ident+f"{class_name}.{method.__name__}")
-        level+=1
+        ident = "⋅ " * level
+        logging.debug(ident + f"{class_name}.{method.__name__}")
+        level += 1
         result = method(self)
-        level-=1
+        level -= 1
         # logging.debug(ident+f"<{class_name}.{method.__name__}")
         return result
+
     return wrapper

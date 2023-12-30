@@ -1,5 +1,5 @@
 import logging
-from typing import Dict
+from typing import TYPE_CHECKING, Dict
 
 from PyQt5 import QtCore, QtWidgets
 
@@ -10,9 +10,12 @@ from core.shared import result_container
 from core.utility import log_method, log_method_noarg
 from models.descriptive.ui import Descriptive
 
+if TYPE_CHECKING:
+    from core.mainwindow.ui import MainWindow
+
 
 class Study:
-    def __init__(self, parent):
+    def __init__(self, parent, mainwindow_instance):
         #   parent
         #       frame
         #           gridLayout
@@ -20,6 +23,7 @@ class Study:
         #                   home_panel
         #                   descriptive_panel
 
+        self.mainwindow_instance: MainWindow = mainwindow_instance
         self.frame = QtWidgets.QFrame(parent)
         sizePolicy = QtWidgets.QSizePolicy(
             QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred
@@ -37,10 +41,10 @@ class Study:
         self.gridLayout.setContentsMargins(0, 0, 0, 0)
         self.stackedWidget = QtWidgets.QStackedWidget(self.frame)
 
-        self.home_panel: Home = Home()
+        self.home_panel: Home = Home(self)
 
         # === MODELS GO HERE ===
-        self.descriptive_panel: Descriptive = Descriptive()
+        self.descriptive_panel: Descriptive = Descriptive(self)
 
         # =======================
 
@@ -60,16 +64,6 @@ class Study:
             )
         }
 
-        # Actions
-        self.actionUpdateTableFrame = QtWidgets.QAction(self.frame)
-        self.actionUpdateResultsFrame = QtWidgets.QAction(self.frame)
-
-        self.home_panel.actionUpdateTableFrame.triggered.connect(self.actionUpdateTableFrame.trigger)
-        self.home_panel.actionUpdateStudyFrame.triggered.connect(self.update)
-
-        self.descriptive_panel.actionUpdateResultsFrame.triggered.connect(self.actionUpdateResultsFrame.trigger)
-        self.descriptive_panel.actionUpdateStudyFrame.triggered.connect(self.update)
-
     def retranslateUI(self):
         self.home_panel.retranslateUI()
         self.descriptive_panel.retranslateUI()
@@ -88,4 +82,3 @@ class Study:
 
         if result_id != NO_RESULT_SELECTED:
             self.registry[model_name].setup_from_result_handler()
-            self.registry[model_name].run_handler()
