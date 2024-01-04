@@ -14,15 +14,17 @@ if TYPE_CHECKING:
 
 
 class Browser(QtWebEngineWidgets.QWebEngineView):
-    def __init__(self, parent, results_instance, index):
+    def __init__(self, parent, results_instance, index, html=''):
         logging.info(f"init {index}")
         super().__init__(parent)
 
         self.results_instance: Results = results_instance
         self.setMinimumWidth(OUTPUT_WIDTH)
-        self.html = None
+        self.html = html
+        self.setHtml(self.html)
         self.index = index
         self.loadFinished.connect(self.trigger_update_height)
+        self.focusProxy().installEventFilter(self)
 
     def trigger_update_height(self):
         logging.info(f"trigger update {self.index}")
@@ -55,14 +57,13 @@ class Browser(QtWebEngineWidgets.QWebEngineView):
         # Propagate the event to the parent
         self.results_instance.scrollArea.wheelEvent(event)
 
-    def mousePressEvent(self, event: QMouseEvent):
-        if event.button() == Qt.LeftButton:
-            print("Left mouse button pressed in the web view")
-            # Your custom action here
-
-        # Call the base class implementation to ensure standard behavior
-        super().mousePressEvent(event)
-
+    def eventFilter(self, source, event):
+        if (
+            self.focusProxy() is source
+            and event.type() == QtCore.QEvent.MouseButtonPress
+        ):
+            print("ok")
+        return super().eventFilter(source, event)
 
 class Results:
     def __init__(self, parent, mainwindow_instance):
@@ -119,8 +120,7 @@ class Results:
         for result_id in browsers_to_add:
             logging.info(f"Adding result {result_id} browser")
             html = html_start + result_container.results[result_id].content + html_end
-            browser = Browser(self.scrollAreaWidgetContents, self, result_id)
-            browser.load_html(html)
+            browser = Browser(self.scrollAreaWidgetContents, self, result_id, html)
             self.browsers[result_id] = browser
 
         browsers_to_update = set(result_container.results.keys()) - browsers_to_add
@@ -136,6 +136,16 @@ class Results:
 
             for result_id, result in result_container.results.items():
                 self.gridLayout_2.addWidget(self.browsers[result_id])
+
+        for result_id, browser in self.browsers.items():
+            if result_id == result_container.current_result:
+                browser.setAttribute(Qt.WA_StyledBackground, True)
+                browser.setStyleSheet("border: 2px solid #e0e0e0;")
+                browser.setContentsMargins(2, 2, 2, 2)
+            else:
+                browser.setAttribute(Qt.WA_StyledBackground, True)
+                browser.setStyleSheet("border: 2px solid #f0f0f0;")
+                browser.setContentsMargins(2, 2, 2, 2)
 
         self.scrollArea.ensureWidgetVisible(
             self.browsers[result_container.current_result]
