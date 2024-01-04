@@ -20,28 +20,20 @@ class Descriptive:
 
         self.listWidget_all_columns = QtWidgets.QListWidget(self.widget)
         self.listWidget_all_columns.setGeometry(QtCore.QRect(10, 93, 381, 271))
-        self.listWidget_all_columns.setSelectionMode(
-            QtWidgets.QAbstractItemView.ExtendedSelection
-        )
+        self.listWidget_all_columns.setSelectionMode(QtWidgets.QAbstractItemView.ExtendedSelection)
 
         self.listWidget_selected_columns = QtWidgets.QListWidget(self.widget)
         self.listWidget_selected_columns.setGeometry(QtCore.QRect(10, 423, 381, 231))
-        self.listWidget_selected_columns.setSelectionMode(
-            QtWidgets.QAbstractItemView.ExtendedSelection
-        )
+        self.listWidget_selected_columns.setSelectionMode(QtWidgets.QAbstractItemView.ExtendedSelection)
 
         self.groupBox = QtWidgets.QGroupBox(self.widget)
         self.groupBox.setGeometry(QtCore.QRect(10, 663, 116, 251))
         self.formLayout = QtWidgets.QFormLayout(self.groupBox)
 
         self.checkBox_n = add_checkbox_to_groupbox(self.groupBox, 0, self.formLayout)
-        self.checkBox_missing = add_checkbox_to_groupbox(
-            self.groupBox, 1, self.formLayout
-        )
+        self.checkBox_missing = add_checkbox_to_groupbox(self.groupBox, 1, self.formLayout)
         self.checkBox_mean = add_checkbox_to_groupbox(self.groupBox, 2, self.formLayout)
-        self.checkBox_median = add_checkbox_to_groupbox(
-            self.groupBox, 3, self.formLayout
-        )
+        self.checkBox_median = add_checkbox_to_groupbox(self.groupBox, 3, self.formLayout)
         self.checkBox_std = add_checkbox_to_groupbox(self.groupBox, 4, self.formLayout)
         self.checkBox_var = add_checkbox_to_groupbox(self.groupBox, 5, self.formLayout)
         self.checkBox_min = add_checkbox_to_groupbox(self.groupBox, 6, self.formLayout)
@@ -102,8 +94,7 @@ class Descriptive:
     def construct_metadata(self) -> DescriptiveStudyMetadata:
         return DescriptiveStudyMetadata(
             selected_columns=[
-                self.listWidget_selected_columns.item(i).text()
-                for i in range(self.listWidget_selected_columns.count())
+                self.listWidget_selected_columns.item(i).text() for i in range(self.listWidget_selected_columns.count())
             ],
             n=bool(self.checkBox_n.checkState()),
             missing=bool(self.checkBox_missing.checkState()),
@@ -124,9 +115,7 @@ class Descriptive:
     def run(self):
         metadata = self.construct_metadata()
         result_container.results[result_container.current_result].metadata = metadata
-        result_container.results[
-            result_container.current_result
-        ].content = run_descriptive_study(data.df, metadata)
+        result_container.results[result_container.current_result].content = run_descriptive_study(data.df, metadata)
         self.study_instance.mainwindow_instance.actionUpdateResultsFrame.trigger()
 
     @log_method
@@ -134,8 +123,7 @@ class Descriptive:
         w1 = self.listWidget_all_columns.selectedItems()
         w1 = [c.text() for c in w1]
         selected = [
-            self.listWidget_selected_columns.item(i).text()
-            for i in range(self.listWidget_selected_columns.count())
+            self.listWidget_selected_columns.item(i).text() for i in range(self.listWidget_selected_columns.count())
         ]
         for item in w1:
             if item not in selected:
@@ -145,9 +133,7 @@ class Descriptive:
     @log_method
     def remove_columns_from_selected(self):
         for item in self.listWidget_selected_columns.selectedItems():
-            self.listWidget_selected_columns.takeItem(
-                self.listWidget_selected_columns.row(item)
-            )
+            self.listWidget_selected_columns.takeItem(self.listWidget_selected_columns.row(item))
         self.ui_changed()
 
     @log_method

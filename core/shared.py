@@ -1,6 +1,4 @@
-from typing import Dict
-
-from core.objects import Data, Result, ResultContainer
+from core.objects import Data, ResultContainer
 
 data: Data = Data()
 

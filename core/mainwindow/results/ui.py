@@ -3,7 +3,6 @@ from typing import TYPE_CHECKING, Dict
 
 from PyQt5 import QtCore, QtWebEngineWidgets, QtWidgets
 from PyQt5.QtCore import Qt
-from PyQt5.QtGui import QMouseEvent
 
 from core.constants import NO_RESULT_SELECTED, OUTPUT_WIDTH
 from core.shared import result_container
@@ -14,7 +13,7 @@ if TYPE_CHECKING:
 
 
 class Browser(QtWebEngineWidgets.QWebEngineView):
-    def __init__(self, parent, results_instance, index, html=''):
+    def __init__(self, parent, results_instance, index, html=""):
         logging.info(f"init {index}")
         super().__init__(parent)
 
@@ -28,9 +27,7 @@ class Browser(QtWebEngineWidgets.QWebEngineView):
 
     def trigger_update_height(self):
         logging.info(f"trigger update {self.index}")
-        self.page().runJavaScript(
-            "document.body.scrollHeight;", lambda height: self.update_height(height)
-        )
+        self.page().runJavaScript("document.body.scrollHeight;", lambda height: self.update_height(height))
 
     def update_height(self, height):
         if type(height) == int:
@@ -42,7 +39,7 @@ class Browser(QtWebEngineWidgets.QWebEngineView):
                     self.results_instance.browsers[result_container.current_result]
                 )
         else:
-            logging.warning(f"non-int height type:" + str(height))
+            logging.warning("non-int height type:" + str(height))
 
     def load_html(self, html):
         logging.info(f"load html {self.index}")
@@ -58,12 +55,10 @@ class Browser(QtWebEngineWidgets.QWebEngineView):
         self.results_instance.scrollArea.wheelEvent(event)
 
     def eventFilter(self, source, event):
-        if (
-            self.focusProxy() is source
-            and event.type() == QtCore.QEvent.MouseButtonPress
-        ):
-            print("ok")
+        if self.focusProxy() is source and event.type() == QtCore.QEvent.MouseButtonPress:
+            print("MouseButtonPress")
         return super().eventFilter(source, event)
+
 
 class Results:
     def __init__(self, parent, mainwindow_instance):
@@ -107,16 +102,12 @@ class Results:
     def update(self):
         html_start, html_end = get_html_start_end()
 
-        browsers_to_remove = set(self.browsers.keys()) - set(
-            result_container.results.keys()
-        )
+        browsers_to_remove = set(self.browsers.keys()) - set(result_container.results.keys())
         for result_id in browsers_to_remove:
             logging.info(f"Removing result {result_id} browser")
             del self.browsers[result_id]
 
-        browsers_to_add = set(result_container.results.keys()) - set(
-            self.browsers.keys()
-        )
+        browsers_to_add = set(result_container.results.keys()) - set(self.browsers.keys())
         for result_id in browsers_to_add:
             logging.info(f"Adding result {result_id} browser")
             html = html_start + result_container.results[result_id].content + html_end
@@ -147,6 +138,4 @@ class Results:
                 browser.setStyleSheet("border: 2px solid #f0f0f0;")
                 browser.setContentsMargins(2, 2, 2, 2)
 
-        self.scrollArea.ensureWidgetVisible(
-            self.browsers[result_container.current_result]
-        )
+        self.scrollArea.ensureWidgetVisible(self.browsers[result_container.current_result])

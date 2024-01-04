@@ -13,15 +13,9 @@ def run_descriptive_study(df: pd.DataFrame, metadata: DescriptiveStudyMetadata):
     result_n = df.count() if metadata.n else None
     result_missing = df.isna().sum() if metadata.missing else None
     result_mean = df.mean().apply(lambda x: num_to_str(x)) if metadata.mean else None
-    result_median = (
-        df.median().apply(lambda x: num_to_str(x)) if metadata.median else None
-    )
-    result_minimum = (
-        df.min().apply(lambda x: num_to_str(x)) if metadata.minimum else None
-    )
-    result_maximum = (
-        df.max().apply(lambda x: num_to_str(x)) if metadata.maximum else None
-    )
+    result_median = df.median().apply(lambda x: num_to_str(x)) if metadata.median else None
+    result_minimum = df.min().apply(lambda x: num_to_str(x)) if metadata.minimum else None
+    result_maximum = df.max().apply(lambda x: num_to_str(x)) if metadata.maximum else None
     result_std = df.std().apply(lambda x: num_to_str(x)) if metadata.stddev else None
     result_var = df.var().apply(lambda x: num_to_str(x)) if metadata.variance else None
 
@@ -48,17 +42,11 @@ def run_descriptive_study(df: pd.DataFrame, metadata: DescriptiveStudyMetadata):
         df_table = pd.DataFrame(final_dict)
         df_table.index.name = "Variable"
         df_table = df_table.reset_index()
-        html += (
-            div_table()
-            + df_table.to_html(border=0, index=False, classes="hidden_first_th")
-            + "</div>"
-        )
+        html += div_table() + df_table.to_html(border=0, index=False, classes="hidden_first_th") + "</div>"
 
     # Verbal
     columns = list(df.columns)
-    verbal = verbal_descriptive(
-        columns, result_n, result_mean, result_minimum, result_maximum
-    )
+    verbal = verbal_descriptive(columns, result_n, result_mean, result_minimum, result_maximum)
     html += div_text() + verbal + "</div>"
 
     return html

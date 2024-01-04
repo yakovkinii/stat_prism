@@ -82,13 +82,9 @@ class Home:
     def retranslateUI(self):
         _translate = QtCore.QCoreApplication.translate
 
-        self.DescriptiveStatisticsButton.setText(
-            _translate("MainWindow", "Descriptive\n" "Statistics")
-        )
+        self.DescriptiveStatisticsButton.setText(_translate("MainWindow", "Descriptive\n" "Statistics"))
         self.label_open.setText(_translate("MainWindow", "Open File"))
-        self.label_discriptive.setText(
-            _translate("MainWindow", "Descriptive\n" "Statistics\n" "(Numeric)")
-        )
+        self.label_discriptive.setText(_translate("MainWindow", "Descriptive\n" "Statistics\n" "(Numeric)"))
         # self.DescriptiveStatisticsButton_literal.setText(
         #     _translate("MainWindow", "Descriptive\n" "Statistics")
         # )
@@ -100,9 +96,7 @@ class Home:
     @log_method
     def create_descriptive(self):
         result_id = get_next_valid_result_id()
-        result_container.results[result_id] = DescriptiveResult(
-            result_id=result_id, module_name=DESCRIPTIVE_MODEL_NAME
-        )
+        result_container.results[result_id] = DescriptiveResult(result_id=result_id, module_name=DESCRIPTIVE_MODEL_NAME)
         select_result(result_id)
         self.study_instance.mainwindow_instance.actionUpdateStudyFrame.trigger()
 

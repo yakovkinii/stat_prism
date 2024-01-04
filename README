@@ -1,0 +1,3 @@
+isort --profile black ./ --line-width 120
+black -l 120 ./
+flake8 --max-line-length 120 ./
