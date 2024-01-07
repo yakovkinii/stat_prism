@@ -6,7 +6,7 @@ from PyQt5.QtCore import Qt
 
 from core.constants import NO_RESULT_SELECTED, OUTPUT_WIDTH
 from core.shared import result_container
-from core.utility import get_html_start_end, log_method_noarg
+from core.utility import get_html_start_end, log_method_noarg, log_method
 
 if TYPE_CHECKING:
     from core.mainwindow.ui import MainWindow
@@ -53,10 +53,17 @@ class Browser(QtWebEngineWidgets.QWebEngineView):
     def wheelEvent(self, event):
         # Propagate the event to the parent
         self.results_instance.scrollArea.wheelEvent(event)
+    @log_method
+    def set_active(self):
+        if (result_container.current_result != self.index):
+            result_container.current_result = self.index
+            self.results_instance.mainwindow_instance.actionUpdateStudyFrame.trigger()
+            self.results_instance.mainwindow_instance.actionUpdateResultsFrame.trigger()
 
     def eventFilter(self, source, event):
-        if self.focusProxy() is source and event.type() == QtCore.QEvent.MouseButtonPress:
-            print("MouseButtonPress")
+        if self.focusProxy() is source:
+            if event.type() == QtCore.QEvent.MouseButtonPress:
+                self.set_active()
         return super().eventFilter(source, event)
 
 
@@ -72,6 +79,13 @@ class Results:
         self.mainwindow_instance: MainWindow = mainwindow_instance
 
         self.frame = QtWidgets.QFrame(parent)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.frame.sizePolicy().hasHeightForWidth())
+        self.frame.setSizePolicy(sizePolicy)
+        self.frame.setMinimumSize(QtCore.QSize(OUTPUT_WIDTH, 0))
+        # self.frame.setMaximumSize(QtCore.QSize(OUTPUT_WIDTH, 16777215))
         self.frame.setFrameShape(QtWidgets.QFrame.NoFrame)
         self.frame.setFrameShadow(QtWidgets.QFrame.Raised)
         self.gridLayout = QtWidgets.QGridLayout(self.frame)

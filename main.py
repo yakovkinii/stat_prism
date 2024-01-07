@@ -26,6 +26,12 @@ if __name__ == "__main__":
 
     app = QApplication(sys.argv)
 
+    import qtvscodestyle as qtvsc
+
+    # stylesheet = qtvsc.load_stylesheet(qtvsc.Theme.DARK_VS)
+    # stylesheet = load_stylesheet(qtvsc.Theme.LIGHT_VS)
+    # app.setStyleSheet(stylesheet)
+
     pixmap = QPixmap(":/mat/resources/full_black_gold.png")
     splash = QSplashScreen(pixmap)
     splash.show()
