@@ -5,7 +5,7 @@ import pandas as pd
 from PyQt5 import QtCore, QtWidgets
 
 from core.common_ui import create_label, create_tool_button
-from core.constants import DESCRIPTIVE_MODEL_NAME, NO_RESULT_SELECTED
+from core.constants import NO_RESULT_SELECTED
 from core.shared import data, result_container
 from core.utility import get_next_valid_result_id, log_method, select_result
 from models.descriptive.objects import DescriptiveResult
@@ -96,7 +96,7 @@ class Home:
     @log_method
     def create_descriptive(self):
         result_id = get_next_valid_result_id()
-        result_container.results[result_id] = DescriptiveResult(result_id=result_id, module_name=DESCRIPTIVE_MODEL_NAME)
+        result_container.results[result_id] = DescriptiveResult(result_id=result_id)
         select_result(result_id)
         self.study_instance.mainwindow_instance.actionUpdateStudyFrame.trigger()
 

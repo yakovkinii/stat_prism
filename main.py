@@ -26,7 +26,7 @@ if __name__ == "__main__":
 
     app = QApplication(sys.argv)
 
-    import qtvscodestyle as qtvsc
+    # import qtvscodestyle as qtvsc
 
     # stylesheet = qtvsc.load_stylesheet(qtvsc.Theme.DARK_VS)
     # stylesheet = load_stylesheet(qtvsc.Theme.LIGHT_VS)
@@ -44,5 +44,5 @@ if __name__ == "__main__":
     QTimer.singleShot(splash_time, main_win.showMaximized)
 
     app.exec_()
-    if main_win.results_frame.temp_file is not None:
-        main_win.results_frame.temp_file.close()
+    # if main_win.results_frame.temp_file is not None:
+    #     main_win.results_frame.temp_file.close()

@@ -114,8 +114,9 @@ class Descriptive:
     @log_method
     def run(self):
         metadata = self.construct_metadata()
-        result_container.results[result_container.current_result].metadata = metadata
-        result_container.results[result_container.current_result].content = run_descriptive_study(data.df, metadata)
+        result_container.results[result_container.current_result] = run_descriptive_study(
+            df=data.df, metadata=metadata, result_id=result_container.current_result
+        )
         self.study_instance.mainwindow_instance.actionUpdateResultsFrame.trigger()
 
     @log_method
@@ -128,12 +129,16 @@ class Descriptive:
         for item in w1:
             if item not in selected:
                 self.listWidget_selected_columns.addItems([item])
+        self.listWidget_selected_columns.clearSelection()
+        self.listWidget_all_columns.clearSelection()
         self.ui_changed()
 
     @log_method
     def remove_columns_from_selected(self):
         for item in self.listWidget_selected_columns.selectedItems():
             self.listWidget_selected_columns.takeItem(self.listWidget_selected_columns.row(item))
+        self.listWidget_selected_columns.clearSelection()
+        self.listWidget_all_columns.clearSelection()
         self.ui_changed()
 
     @log_method

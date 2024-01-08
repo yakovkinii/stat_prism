@@ -1,12 +1,16 @@
 import pandas as pd
 
-from core.utility import div_table, div_text, div_title, num_to_str, smart_comma_join
-from models.descriptive.objects import DescriptiveStudyMetadata
+from core.objects import TableResultItem, TextResultItem
+from core.utility import num_to_str, smart_comma_join
+from models.descriptive.objects import DescriptiveResult, DescriptiveStudyMetadata
 
 
-def run_descriptive_study(df: pd.DataFrame, metadata: DescriptiveStudyMetadata):
+def run_descriptive_study(df: pd.DataFrame, metadata: DescriptiveStudyMetadata, result_id: int) -> DescriptiveResult:
+    result = DescriptiveResult(result_id=result_id, metadata=metadata)
+    result.title = f"Descriptive statistics (study #{result_id})"
+
     if len(metadata.selected_columns) == 0:
-        return ""
+        return result
     df = df[metadata.selected_columns]
 
     # Calculate
@@ -19,9 +23,6 @@ def run_descriptive_study(df: pd.DataFrame, metadata: DescriptiveStudyMetadata):
     result_std = df.std().apply(lambda x: num_to_str(x)) if metadata.stddev else None
     result_var = df.var().apply(lambda x: num_to_str(x)) if metadata.variance else None
 
-    # Title
-    html = div_title() + "Descriptive statistics" + "</div>"
-
     # Table
     full_dict = {
         "N": result_n,
@@ -33,23 +34,22 @@ def run_descriptive_study(df: pd.DataFrame, metadata: DescriptiveStudyMetadata):
         "Std. dev.": result_std,
         "Variance": result_var,
     }
-
     final_dict = dict()
     for k, v in full_dict.items():
         if v is not None:
             final_dict[k] = v
+
     if len(final_dict) > 0:
         df_table = pd.DataFrame(final_dict)
         df_table.index.name = "Variable"
         df_table = df_table.reset_index()
-        html += div_table() + df_table.to_html(border=0, index=False, classes="hidden_first_th") + "</div>"
+        result.items.append(TableResultItem(df_table, f"Table (Study #{result_id}):"))
 
     # Verbal
     columns = list(df.columns)
     verbal = verbal_descriptive(columns, result_n, result_mean, result_minimum, result_maximum)
-    html += div_text() + verbal + "</div>"
-
-    return html
+    result.items.append(TextResultItem(verbal, f"Summary (Study #{result_id})"))
+    return result
 
 
 def verbal_descriptive(columns, result_n, result_mean, result_minimum, result_maximum):

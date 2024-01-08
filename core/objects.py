@@ -1,4 +1,4 @@
-from typing import Callable, Dict
+from typing import Callable, Dict, List
 
 import pandas as pd
 
@@ -9,8 +9,30 @@ class Result:
     def __init__(self, result_id: int, module_name: str):
         self.result_id = result_id
         self.module_name = module_name
-        self.content = ...
+        self.items: List[TextResultItem, TableResultItem] = ...
         self.metadata = ...
+        self.title = ""
+
+
+class TextResultItem:
+    def __init__(self, text: str, title: str = None):
+        self.type = "TextResultItem"
+        self.title = title
+        self.text = text
+
+
+class TableResultItem:
+    def __init__(self, dataframe: pd.DataFrame, title: str = None):
+        self.type = "TableResultItem"
+        self.title = title
+        self.dataframe = dataframe
+
+
+class PlotResultItem:
+    def __init__(self, dataframe: pd.DataFrame, title: str = None):
+        self.type = "PlotResultItem"
+        self.title = title
+        self.dataframe = dataframe
 
 
 class ResultContainer:
