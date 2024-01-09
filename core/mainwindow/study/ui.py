@@ -2,7 +2,7 @@ from typing import TYPE_CHECKING, Dict
 
 from PyQt5 import QtCore, QtWidgets
 
-from core.constants import DESCRIPTIVE_MODEL_NAME, NO_RESULT_SELECTED, CORRELATION_MODEL_NAME
+from core.constants import CORRELATION_MODEL_NAME, DESCRIPTIVE_MODEL_NAME, NO_RESULT_SELECTED
 from core.mainwindow.study.home.ui import Home
 from core.objects import ModelRegistryItem
 from core.shared import result_container
@@ -67,12 +67,13 @@ class Study:
                 stacked_widget_index=2,
                 setup_from_result_handler=self.correlation_panel.load_result,
                 run_handler=self.correlation_panel.run,
-            )
+            ),
         }
 
     def retranslateUI(self):
         self.home_panel.retranslateUI()
         self.descriptive_panel.retranslateUI()
+        self.correlation_panel.retranslateUI()
 
     @log_method_noarg
     def update(self):

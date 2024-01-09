@@ -1,7 +1,8 @@
+import qtawesome as qta
 from PyQt5 import QtCore, QtGui, QtWidgets
 
 import resources_rc
-import qtawesome as qta
+
 
 def icon(path):
     _icon = QtGui.QIcon()
@@ -28,6 +29,7 @@ def create_tool_button(parent, button_geometry, icon_path, icon_size):
     button.setIconSize(icon_size)
     button.setToolButtonStyle(QtCore.Qt.ToolButtonIconOnly)
     return button
+
 
 def create_tool_button_qta(parent, button_geometry, icon_path, icon_size):
     button = QtWidgets.QToolButton(parent)

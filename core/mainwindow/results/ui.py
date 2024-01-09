@@ -3,7 +3,7 @@ from typing import TYPE_CHECKING, Dict
 
 from PyQt5 import QtCore, QtWidgets
 
-from core.constants import OUTPUT_WIDTH
+from core.constants import NO_RESULT_SELECTED, OUTPUT_WIDTH
 from core.mainwindow.results.result.ui import ResultWidget
 from core.shared import result_container
 from core.utility import log_method, log_method_noarg
@@ -101,4 +101,5 @@ class Results:
             else:
                 result_widget.frame.setStyleSheet("background-color: #fafafa;")
 
-        self.scrollArea.ensureWidgetVisible(self.result_widgets[result_container.current_result].frame)
+        if result_container.current_result is not NO_RESULT_SELECTED:
+            self.scrollArea.ensureWidgetVisible(self.result_widgets[result_container.current_result].frame)

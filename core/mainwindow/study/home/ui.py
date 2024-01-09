@@ -4,9 +4,9 @@ from typing import TYPE_CHECKING
 import pandas as pd
 from PyQt5 import QtCore, QtWidgets
 
-from core.common_ui import create_label, create_tool_button, create_tool_button_qta
+from core.common_ui import create_label, create_tool_button_qta
 from core.constants import NO_RESULT_SELECTED
-from core.mainwindow.study.home.utility import   button_y
+from core.mainwindow.study.home.utility import button_y
 from core.shared import data, result_container
 from core.utility import get_next_valid_result_id, log_method, select_result
 from models.correlation.objects import CorrelationResult
@@ -23,14 +23,14 @@ class Home:
 
         self.OpenFileButton = create_tool_button_qta(
             parent=self.widget,
-            button_geometry=QtCore.QRect(30,button_y(0,0), 101, 101),
+            button_geometry=QtCore.QRect(30, button_y(0, 0), 101, 101),
             icon_path="msc.folder-opened",
             icon_size=QtCore.QSize(80, 80),
         )
 
         self.SaveReportButton = create_tool_button_qta(
             parent=self.widget,
-            button_geometry=QtCore.QRect(30, button_y(0,1), 101, 101),
+            button_geometry=QtCore.QRect(30, button_y(0, 1), 101, 101),
             icon_path="fa.save",
             icon_size=QtCore.QSize(75, 75),
         )
@@ -38,7 +38,7 @@ class Home:
 
         self.DescriptiveStatisticsButton = create_tool_button_qta(
             parent=self.widget,
-            button_geometry=QtCore.QRect(30, button_y(1,2), 101, 101),
+            button_geometry=QtCore.QRect(30, button_y(1, 2), 101, 101),
             icon_path="msc.pie-chart",
             icon_size=QtCore.QSize(80, 80),
         )
@@ -46,47 +46,38 @@ class Home:
 
         self.CorrelationButton = create_tool_button_qta(
             parent=self.widget,
-            button_geometry=QtCore.QRect(30, button_y(1,3), 101, 101),
+            button_geometry=QtCore.QRect(30, button_y(1, 3), 101, 101),
             icon_path="ph.chart-line-up-light",
             icon_size=QtCore.QSize(80, 80),
         )
         self.CorrelationButton.setEnabled(False)
 
-
         self.label_open = create_label(
             parent=self.widget,
-            label_geometry=QtCore.QRect(150, button_y(0,0), 251, 101),
+            label_geometry=QtCore.QRect(150, button_y(0, 0), 251, 101),
             font_size=14,
             alignment=QtCore.Qt.AlignLeft | QtCore.Qt.AlignVCenter,
         )
         self.label_save = create_label(
             parent=self.widget,
-            label_geometry=QtCore.QRect(150, button_y(0,1), 251, 101),
+            label_geometry=QtCore.QRect(150, button_y(0, 1), 251, 101),
             font_size=14,
             alignment=QtCore.Qt.AlignLeft | QtCore.Qt.AlignVCenter,
         )
 
         self.label_descriptive = create_label(
             parent=self.widget,
-            label_geometry=QtCore.QRect(150, button_y(1,2), 251, 101),
+            label_geometry=QtCore.QRect(150, button_y(1, 2), 251, 101),
             font_size=14,
             alignment=QtCore.Qt.AlignLeft | QtCore.Qt.AlignVCenter,
         )
 
         self.label_correlation = create_label(
             parent=self.widget,
-            label_geometry=QtCore.QRect(150, button_y(1,3), 251, 101),
+            label_geometry=QtCore.QRect(150, button_y(1, 3), 251, 101),
             font_size=14,
-            alignment=QtCore.Qt.AlignLeft| QtCore.Qt.AlignVCenter,
+            alignment=QtCore.Qt.AlignLeft | QtCore.Qt.AlignVCenter,
         )
-
-
-        # self.label_discriptive_literal = create_label(
-        #     parent=self.widget,
-        #     label_geometry=QtCore.QRect(240, 350, 101, 71),
-        #     font_size=10,
-        #     alignment=QtCore.Qt.AlignHCenter | QtCore.Qt.AlignTop,
-        # )
 
         self.OpenFileButton.pressed.connect(self.open_handler)
         self.DescriptiveStatisticsButton.pressed.connect(self.create_descriptive)
@@ -100,12 +91,6 @@ class Home:
         self.label_open.setText(_translate("MainWindow", "Open File"))
         self.label_descriptive.setText(_translate("MainWindow", "Descriptive\n" "Statistics"))
         self.label_correlation.setText(_translate("MainWindow", "Correlation"))
-        # self.DescriptiveStatisticsButton_literal.setText(
-        #     _translate("MainWindow", "Descriptive\n" "Statistics")
-        # )
-        # self.label_discriptive_literal.setText(
-        #     _translate("MainWindow", "Descriptive\n" "Statistics\n" "(Literal)")
-        # )
         self.label_save.setText(_translate("MainWindow", "Save Report"))
 
     @log_method
@@ -114,6 +99,7 @@ class Home:
         result_container.results[result_id] = DescriptiveResult(result_id=result_id)
         select_result(result_id)
         self.study_instance.mainwindow_instance.actionUpdateStudyFrame.trigger()
+        # self.study_instance.mainwindow_instance.actionUpdateResultsFrame.trigger()
 
     @log_method
     def create_correlation(self):
@@ -121,24 +107,7 @@ class Home:
         result_container.results[result_id] = CorrelationResult(result_id=result_id)
         select_result(result_id)
         self.study_instance.mainwindow_instance.actionUpdateStudyFrame.trigger()
-
-    # def home_button_handler(self):
-    #     select_result(NO_RESULT_SELECTED)
-    #     self.actionUpdateStudyFrame.trigger()
-
-    # def save_handler(self):
-    #     options = QFileDialog.Options()
-    #     file_path, _ = QFileDialog.getSaveFileName(
-    #         self, "Save File", "", "HTML Files (*.html);;All Files (*)", options=options
-    #     )
-    #
-    #     if file_path:
-    #         # If the user doesn't add the .html extension, add it for them
-    #         if not file_path.lower().endswith(".html"):
-    #             file_path += ".html"
-    #         with open(file_path, "wt") as f:
-    #             f.write(self.output)
-    #     self.study_frame.home_panel.SaveReportButton.setDown(False)
+        # self.study_instance.mainwindow_instance.actionUpdateResultsFrame.trigger()
 
     @log_method
     def open_handler(self):
@@ -168,4 +137,3 @@ class Home:
             self.CorrelationButton.setEnabled(True)
 
         self.OpenFileButton.setDown(False)
-

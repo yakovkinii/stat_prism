@@ -31,6 +31,7 @@ class DescriptiveStudyMetadata:
 class DescriptiveResult(Result):
     def __init__(self, result_id: int, metadata: DescriptiveStudyMetadata = None):
         super().__init__(result_id, module_name=DESCRIPTIVE_MODEL_NAME)
+        self.title = f"Descriptive statistics (study #{result_id})"
         self.items = []
         if metadata is None:
             self.metadata = DescriptiveStudyMetadata(

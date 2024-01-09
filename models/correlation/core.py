@@ -1,7 +1,7 @@
 import numpy as np
 import pandas as pd
 
-from core.objects import TableResultItem, TextResultItem, PlotResultItem
+from core.objects import PlotResultItem, TableResultItem, TextResultItem
 from core.utility import smart_comma_join
 from models.correlation.objects import CorrelationResult, CorrelationStudyMetadata
 
@@ -41,17 +41,51 @@ def verbal_correlation(corr):
     np.fill_diagonal(corr_matrix.values, np.nan)
     mask = np.tril(np.ones(corr_matrix.shape), k=-1).astype(bool)
     lower_triangle_corr = corr_matrix.where(mask).stack()
-    threshold=0.9
-    high_corr_lower_triangle = lower_triangle_corr[lower_triangle_corr > threshold]
+    high_corr_lower_triangle = lower_triangle_corr
 
     sorted_high_corr_lower_triangle = high_corr_lower_triangle.sort_values(ascending=False)
     sorted_high_corr_lower_triangle_readable = sorted_high_corr_lower_triangle.reset_index()
-    sorted_high_corr_lower_triangle_readable.columns = ['Column1', 'Column2', 'Correlation']
+    sorted_high_corr_lower_triangle_readable.columns = ["col1", "col2", "cor"]
 
-    html=f'No correlations larger than {threshold} found.'
+    any_found = False
+    html = ""
     snippets = []
     for i, row in sorted_high_corr_lower_triangle_readable.iterrows():
-        snippets.append(f"'{row.Column1}' and '{row.Column2}' (r={row.Correlation})")
-    if len(snippets)>0:
-        html='Largest correlations were found between ' + smart_comma_join(snippets)+'.'
+        if row.cor > 0.8 or row.cor < -0.8:
+            snippets.append(f"'{row.col1}' and '{row.col2}' (r={row.cor})")
+
+    if len(snippets) > 0:
+        any_found = True
+        html += (
+            smart_comma_join(snippets) + " show a strong correlation/anticorrelation, "
+            "indicating a tight relationship "
+            "between the respective variables. "
+        )
+
+    snippets = []
+    for i, row in sorted_high_corr_lower_triangle_readable.iterrows():
+        if 0.8 > row.cor > 0.4 or -0.8 < row.cor < -0.4:
+            snippets.append(f"'{row.col1}' and '{row.col2}' (r={row.cor})")
+
+    if len(snippets) > 0:
+        any_found = True
+
+        html += smart_comma_join(snippets) + " have a moderate correlation/anticorrelation. "
+
+    html += "Other" if any_found else "All"
+    html += " correlations are weak or negligible. "
+
+    cor_mean = sorted_high_corr_lower_triangle_readable.cor.abs().mean()
+    all_columns = sorted_high_corr_lower_triangle_readable.col1.unique()
+    if cor_mean > 0.8:
+        degree = "very strong"
+    elif cor_mean > 0.6:
+        degree = "strong"
+    elif cor_mean > 0.4:
+        degree = "moderate"
+    else:
+        degree = "weak"
+
+    html += f"Overall, the correlations between the {smart_comma_join(all_columns)} variables are {degree} on average."
+
     return html

@@ -3,9 +3,9 @@ from PyQt5.QtWidgets import QMessageBox
 
 from core.common_ui import icon
 from core.constants import OUTPUT_WIDTH
+from core.mainwindow.data.ui import Data
 from core.mainwindow.results.ui import Results
 from core.mainwindow.study.ui import Study
-from core.mainwindow.data.ui import Data
 from core.utility import log_method_noarg
 
 

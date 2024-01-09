@@ -1,7 +1,7 @@
-from PyQt5 import QtWidgets, QtCore
+from PyQt5 import QtCore, QtWidgets
 from PyQt5.QtCore import Qt
-from PyQt5.QtGui import QPen, QBrush, QColor
-from QCustomPlot_PyQt5 import QCP, QCustomPlot, QCPGraph, QCPScatterStyle
+from PyQt5.QtGui import QBrush, QColor, QPen
+from QCustomPlot_PyQt5 import QCPGraph, QCPScatterStyle, QCustomPlot
 
 from core.mainwindow.results.result.common.title import TitleWidget
 from core.objects import PlotResultItem
@@ -33,20 +33,20 @@ class PlotResultItemWidget:
         graph0.setPen(QColor(50, 50, 50, 255))
         graph0.setLineStyle(QCPGraph.lsNone)
         graph0.setScatterStyle(QCPScatterStyle(QCPScatterStyle.ssDisc, 8))
-        graph0.setData(item.dataframe.iloc[:,0], item.dataframe.iloc[:,1])
+        graph0.setData(item.dataframe.iloc[:, 0], item.dataframe.iloc[:, 1])
 
-        minx = item.dataframe.iloc[:,0].min()
-        maxx = item.dataframe.iloc[:,0].max()
-        gapx = (maxx-minx)/10
+        minx = item.dataframe.iloc[:, 0].min()
+        maxx = item.dataframe.iloc[:, 0].max()
+        gapx = (maxx - minx) / 10
         miny = item.dataframe.iloc[:, 1].min()
         maxy = item.dataframe.iloc[:, 1].max()
         gapy = (maxy - miny) / 10
-        if gapx==0:
+        if gapx == 0:
             gapx = 1
-        if gapy==0:
-            gapy =1
-        self.customPlot.xAxis.setRange(minx-gapx, maxx+gapx)
-        self.customPlot.yAxis.setRange(miny-gapy, maxy+gapy)
+        if gapy == 0:
+            gapy = 1
+        self.customPlot.xAxis.setRange(minx - gapx, maxx + gapx)
+        self.customPlot.yAxis.setRange(miny - gapy, maxy + gapy)
 
         # self.customPlot.rescaleAxes()
         self.customPlot.setFixedSize(500, 300)

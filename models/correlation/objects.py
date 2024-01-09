@@ -15,6 +15,7 @@ class CorrelationStudyMetadata:
 class CorrelationResult(Result):
     def __init__(self, result_id: int, metadata: CorrelationStudyMetadata = None):
         super().__init__(result_id, module_name=CORRELATION_MODEL_NAME)
+        self.title = f"Descriptive statistics (study #{result_id})"
         self.items = []
         if metadata is None:
             self.metadata = CorrelationStudyMetadata(

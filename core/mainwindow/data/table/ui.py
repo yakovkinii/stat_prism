@@ -8,9 +8,8 @@ class CustomTableWidget(QtWidgets.QTableWidget):
     def wheelEvent(self, event):
         if event.angleDelta().y() != 0 and self.horizontalHeader().underMouse():
             # Translate vertical scrolling to horizontal
-            delta = event.angleDelta().y()/100
-            self.horizontalScrollBar().setValue(
-                self.horizontalScrollBar().value() - delta)
+            delta = event.angleDelta().y() / 100
+            self.horizontalScrollBar().setValue(self.horizontalScrollBar().value() - delta)
             event.accept()  # Accept the event to prevent default handling
         else:
             super().wheelEvent(event)  # Default behavior for other cases

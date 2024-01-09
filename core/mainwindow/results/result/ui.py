@@ -39,7 +39,7 @@ class ResultWidget:
             widget = item.widget()
             if widget is not None:
                 widget.deleteLater()
-        self.title_widget = TitleWidget(self.frame, self.result.title, 12, centered=True)
+        self.title_widget = TitleWidget(self.frame, self.result.title, 10, centered=True)
         self.gridLayout.addWidget(self.title_widget)
 
         self.result_item_widgets = []
