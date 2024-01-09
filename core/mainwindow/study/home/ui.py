@@ -4,8 +4,9 @@ from typing import TYPE_CHECKING
 import pandas as pd
 from PyQt5 import QtCore, QtWidgets
 
-from core.common_ui import create_label, create_tool_button
+from core.common_ui import create_label, create_tool_button, create_tool_button_qta
 from core.constants import NO_RESULT_SELECTED
+from core.mainwindow.study.home.utility import   button_y
 from core.shared import data, result_container
 from core.utility import get_next_valid_result_id, log_method, select_result
 from models.correlation.objects import CorrelationResult
@@ -20,72 +21,65 @@ class Home:
         self.study_instance: Study = study_instance
         self.widget = QtWidgets.QWidget()
 
-        self.DescriptiveStatisticsButton = create_tool_button(
+        self.OpenFileButton = create_tool_button_qta(
             parent=self.widget,
-            button_geometry=QtCore.QRect(60, 240, 101, 101),
-            icon_path=":/mat/resources/material-icons-png-master/png/black/bar_chart/round-4x.png",
-            icon_size=QtCore.QSize(60, 60),
-        )
-        self.DescriptiveStatisticsButton.setEnabled(False)
-
-        self.CorrelationButton = create_tool_button(
-            parent=self.widget,
-            button_geometry=QtCore.QRect(240, 240, 101, 101),
-            icon_path=":/mat/resources/material-icons-png-master/png/black/bar_chart/round-4x.png",
-            icon_size=QtCore.QSize(60, 60),
-        )
-        self.CorrelationButton.setEnabled(False)
-
-        self.OpenFileButton = create_tool_button(
-            parent=self.widget,
-            button_geometry=QtCore.QRect(60, 40, 101, 101),
-            icon_path=":/mat/resources/material-icons-png-master/png/black/folder_open/round-4x.png",
-            icon_size=QtCore.QSize(60, 60),
+            button_geometry=QtCore.QRect(30,button_y(0,0), 101, 101),
+            icon_path="msc.folder-opened",
+            icon_size=QtCore.QSize(80, 80),
         )
 
-        # self.DescriptiveStatisticsButton_literal = create_tool_button(
-        #     parent=self.widget,
-        #     button_geometry=QtCore.QRect(240, 240, 101, 101),
-        #     icon_path=":/mat/resources/material-icons-png-master/png/black/bar_chart/round-4x.png",
-        #     icon_size=QtCore.QSize(60, 60),
-        # )
-        # self.DescriptiveStatisticsButton_literal.setEnabled(False)
-
-        self.SaveReportButton = create_tool_button(
+        self.SaveReportButton = create_tool_button_qta(
             parent=self.widget,
-            button_geometry=QtCore.QRect(240, 40, 101, 101),
-            icon_path=":/mat/resources/material-icons-png-master/png/black/save_alt/round-4x.png",
-            icon_size=QtCore.QSize(60, 60),
+            button_geometry=QtCore.QRect(30, button_y(0,1), 101, 101),
+            icon_path="fa.save",
+            icon_size=QtCore.QSize(75, 75),
         )
         self.SaveReportButton.setEnabled(False)
 
+        self.DescriptiveStatisticsButton = create_tool_button_qta(
+            parent=self.widget,
+            button_geometry=QtCore.QRect(30, button_y(1,2), 101, 101),
+            icon_path="msc.pie-chart",
+            icon_size=QtCore.QSize(80, 80),
+        )
+        self.DescriptiveStatisticsButton.setEnabled(False)
+
+        self.CorrelationButton = create_tool_button_qta(
+            parent=self.widget,
+            button_geometry=QtCore.QRect(30, button_y(1,3), 101, 101),
+            icon_path="ph.chart-line-up-light",
+            icon_size=QtCore.QSize(80, 80),
+        )
+        self.CorrelationButton.setEnabled(False)
+
+
         self.label_open = create_label(
             parent=self.widget,
-            label_geometry=QtCore.QRect(60, 150, 101, 61),
-            font_size=10,
-            alignment=QtCore.Qt.AlignHCenter | QtCore.Qt.AlignTop,
+            label_geometry=QtCore.QRect(150, button_y(0,0), 251, 101),
+            font_size=14,
+            alignment=QtCore.Qt.AlignLeft | QtCore.Qt.AlignVCenter,
+        )
+        self.label_save = create_label(
+            parent=self.widget,
+            label_geometry=QtCore.QRect(150, button_y(0,1), 251, 101),
+            font_size=14,
+            alignment=QtCore.Qt.AlignLeft | QtCore.Qt.AlignVCenter,
         )
 
         self.label_descriptive = create_label(
             parent=self.widget,
-            label_geometry=QtCore.QRect(60, 350, 101, 71),
-            font_size=10,
-            alignment=QtCore.Qt.AlignHCenter | QtCore.Qt.AlignTop,
+            label_geometry=QtCore.QRect(150, button_y(1,2), 251, 101),
+            font_size=14,
+            alignment=QtCore.Qt.AlignLeft | QtCore.Qt.AlignVCenter,
         )
 
         self.label_correlation = create_label(
             parent=self.widget,
-            label_geometry=QtCore.QRect(240, 350, 101, 71),
-            font_size=10,
-            alignment=QtCore.Qt.AlignHCenter | QtCore.Qt.AlignTop,
+            label_geometry=QtCore.QRect(150, button_y(1,3), 251, 101),
+            font_size=14,
+            alignment=QtCore.Qt.AlignLeft| QtCore.Qt.AlignVCenter,
         )
 
-        self.label_save = create_label(
-            parent=self.widget,
-            label_geometry=QtCore.QRect(240, 150, 101, 61),
-            font_size=10,
-            alignment=QtCore.Qt.AlignHCenter | QtCore.Qt.AlignTop,
-        )
 
         # self.label_discriptive_literal = create_label(
         #     parent=self.widget,
@@ -104,7 +98,7 @@ class Home:
 
         self.DescriptiveStatisticsButton.setText(_translate("MainWindow", "Descriptive\n" "Statistics"))
         self.label_open.setText(_translate("MainWindow", "Open File"))
-        self.label_descriptive.setText(_translate("MainWindow", "Descriptive\n" "Statistics\n" "(Numeric)"))
+        self.label_descriptive.setText(_translate("MainWindow", "Descriptive\n" "Statistics"))
         self.label_correlation.setText(_translate("MainWindow", "Correlation"))
         # self.DescriptiveStatisticsButton_literal.setText(
         #     _translate("MainWindow", "Descriptive\n" "Statistics")

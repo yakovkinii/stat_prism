@@ -1,8 +1,9 @@
 from typing import TYPE_CHECKING
 
 from PyQt5 import QtCore, QtWidgets
+from PyQt5.QtWidgets import QFrame
 
-from core.common_ui import add_checkbox_to_groupbox, create_tool_button
+from core.common_ui import add_checkbox_to_groupbox, create_tool_button, create_tool_button_qta, create_label
 from core.constants import NO_RESULT_SELECTED
 from core.shared import data, result_container
 from core.utility import log_method, log_method_noarg
@@ -18,13 +19,27 @@ class Descriptive:
         self.study_instance: Study = study_instance
         self.widget = QtWidgets.QWidget()
 
-        self.listWidget_all_columns = QtWidgets.QListWidget(self.widget)
-        self.listWidget_all_columns.setGeometry(QtCore.QRect(10, 93, 381, 271))
-        self.listWidget_all_columns.setSelectionMode(QtWidgets.QAbstractItemView.ExtendedSelection)
+        self.gridLayout = QtWidgets.QGridLayout(self.widget)
+        self.gridLayout.setContentsMargins(0, 0, 0, 0)
+        self.stackedWidget = QtWidgets.QStackedWidget(self.widget)
 
-        self.listWidget_selected_columns = QtWidgets.QListWidget(self.widget)
-        self.listWidget_selected_columns.setGeometry(QtCore.QRect(10, 423, 381, 231))
-        self.listWidget_selected_columns.setSelectionMode(QtWidgets.QAbstractItemView.ExtendedSelection)
+        self.frame = QFrame(self.widget)
+
+        # === MODELS GO HERE ===
+        self.descriptive_panel: Descriptive = Descriptive(self)
+        self.correlation_panel: Correlation = Correlation(self)
+
+        # =======================
+
+        self.stackedWidget.addWidget(self.home_panel.widget)
+        self.stackedWidget.addWidget(self.descriptive_panel.widget)
+        self.stackedWidget.addWidget(self.correlation_panel.widget)
+
+        self.gridLayout.addWidget(self.stackedWidget, 0, 0, 1, 1)
+        self.stackedWidget.setCurrentIndex(0)
+
+
+
 
         self.groupBox = QtWidgets.QGroupBox(self.widget)
         self.groupBox.setGeometry(QtCore.QRect(10, 663, 116, 251))
@@ -39,11 +54,26 @@ class Descriptive:
         self.checkBox_min = add_checkbox_to_groupbox(self.groupBox, 6, self.formLayout)
         self.checkBox_max = add_checkbox_to_groupbox(self.groupBox, 7, self.formLayout)
 
-        self.HomeButton = create_tool_button(
+        self.HomeButton = create_tool_button_qta(
             parent=self.widget,
             button_geometry=QtCore.QRect(10, 10, 61, 61),
-            icon_path=":/mat/resources/material-icons-png-master/png/black/menu/round-4x.png",
+            icon_path="fa.home",
             icon_size=QtCore.QSize(40, 40),
+        )
+
+        self.DeleteButton = create_tool_button_qta(
+            parent=self.widget,
+            button_geometry=QtCore.QRect(10+380-59, 10, 61, 61),
+            icon_path="mdi.delete-forever",
+            icon_size=QtCore.QSize(40, 40),
+        )
+        self.DeleteButton.setEnabled(False)
+
+        self.title = create_label(
+            parent=self.widget,
+            label_geometry=QtCore.QRect(10+61,10, 381-122, 61),
+            font_size=16,
+            alignment=QtCore.Qt.AlignCenter | QtCore.Qt.AlignVCenter,
         )
 
         self.DownButton = create_tool_button(
@@ -79,6 +109,7 @@ class Descriptive:
 
     def retranslateUI(self):
         _translate = QtCore.QCoreApplication.translate
+        self.title.setText(_translate("MainWindow", "Descriptive\nStatistics"))
         self.groupBox.setTitle(_translate("MainWindow", "Options"))
         self.checkBox_n.setText(_translate("MainWindow", "N"))
         self.checkBox_missing.setText(_translate("MainWindow", "Missing"))
