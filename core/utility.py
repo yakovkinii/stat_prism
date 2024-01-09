@@ -83,7 +83,7 @@ def smart_comma_join(items):
     return ", ".join(items[:-1]) + f", and {items[-1]}"
 
 
-def round_to_significant_digits(num, n):
+def round_to_significant_digits(num, n=4):
     if num == 0:
         return 0  # Handle the special case where the number is zero
     else:

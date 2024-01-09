@@ -25,7 +25,7 @@ class TextResultItemWidget:
         self.label.setWordWrap(True)
         self.label.setTextInteractionFlags(Qt.TextSelectableByMouse)
         self.label.setAlignment(QtCore.Qt.AlignJustify)
-        font = QtGui.QFont()
+        font = QtGui.QFont("Segoe UI")
         font.setPointSize(12)
         self.label.setFont(font)
         self.label.setText(item.text)

@@ -2,11 +2,12 @@ from typing import TYPE_CHECKING, Dict
 
 from PyQt5 import QtCore, QtWidgets
 
-from core.constants import DESCRIPTIVE_MODEL_NAME, NO_RESULT_SELECTED
+from core.constants import DESCRIPTIVE_MODEL_NAME, NO_RESULT_SELECTED, CORRELATION_MODEL_NAME
 from core.mainwindow.study.home.ui import Home
 from core.objects import ModelRegistryItem
 from core.shared import result_container
 from core.utility import log_method_noarg
+from models.correlation.ui import Correlation
 from models.descriptive.ui import Descriptive
 
 if TYPE_CHECKING:
@@ -42,11 +43,13 @@ class Study:
 
         # === MODELS GO HERE ===
         self.descriptive_panel: Descriptive = Descriptive(self)
+        self.correlation_panel: Correlation = Correlation(self)
 
         # =======================
 
         self.stackedWidget.addWidget(self.home_panel.widget)
         self.stackedWidget.addWidget(self.descriptive_panel.widget)
+        self.stackedWidget.addWidget(self.correlation_panel.widget)
 
         self.gridLayout.addWidget(self.stackedWidget, 0, 0, 1, 1)
         self.stackedWidget.setCurrentIndex(0)
@@ -58,6 +61,12 @@ class Study:
                 stacked_widget_index=1,
                 setup_from_result_handler=self.descriptive_panel.load_result,
                 run_handler=self.descriptive_panel.run,
+            ),
+            CORRELATION_MODEL_NAME: ModelRegistryItem(
+                model_name=CORRELATION_MODEL_NAME,
+                stacked_widget_index=2,
+                setup_from_result_handler=self.correlation_panel.load_result,
+                run_handler=self.correlation_panel.run,
             )
         }
 

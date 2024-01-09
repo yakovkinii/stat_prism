@@ -1,19 +1,18 @@
-import math
-
-from PyQt5 import QtWidgets
+from PyQt5 import QtWidgets, QtCore
 from PyQt5.QtCore import Qt
-from QCustomPlot_PyQt5 import QCP, QCustomPlot
+from PyQt5.QtGui import QPen, QBrush, QColor
+from QCustomPlot_PyQt5 import QCP, QCustomPlot, QCPGraph, QCPScatterStyle
 
 from core.mainwindow.results.result.common.title import TitleWidget
-from core.objects import TextResultItem
+from core.objects import PlotResultItem
 from core.utility import log_method
 
 
 class PlotResultItemWidget:
     @log_method
-    def __init__(self, parent, result_widget_instance, item: TextResultItem):
+    def __init__(self, parent, result_widget_instance, item: PlotResultItem):
         self.result_widget_instance = result_widget_instance
-        self.item: TextResultItem = item
+        self.item: PlotResultItem = item
 
         self.frame = QtWidgets.QFrame(parent)
         self.frame.setAttribute(Qt.WA_StyledBackground, True)
@@ -24,26 +23,34 @@ class PlotResultItemWidget:
 
         self.gridLayout.addWidget(self.title_widget)
         self.customPlot = QCustomPlot(self.frame)
-        self.gridLayout.addWidget(self.customPlot)
+        self.gridLayout.addWidget(self.customPlot, 1, 0, QtCore.Qt.AlignLeft)
         graph0 = self.customPlot.addGraph()
-        # graph0.setPen(QPen(Qt.blue))
-        # graph0.setBrush(QBrush(QColor(0, 0, 255, 20)))
+        graph0.setPen(QPen(Qt.blue))
+        graph0.setBrush(QBrush(QColor(0, 0, 255, 20)))
 
-        graph1 = self.customPlot.addGraph()
-        # graph1.setPen(QPen(Qt.red))
+        self.customPlot.xAxis.setLabel(item.x_axis_title)
+        self.customPlot.yAxis.setLabel(item.y_axis_title)
+        graph0.setPen(QColor(50, 50, 50, 255))
+        graph0.setLineStyle(QCPGraph.lsNone)
+        graph0.setScatterStyle(QCPScatterStyle(QCPScatterStyle.ssDisc, 8))
+        graph0.setData(item.dataframe.iloc[:,0], item.dataframe.iloc[:,1])
 
-        x, y0, y1 = [], [], []
-        for i in range(251):
-            x.append(i)
-            y0.append(math.exp(-i / 150.0) * math.cos(i / 10.0))  # exponentially decaying cosine
-            y1.append(math.exp(-i / 150.0))  # exponential envelope
+        minx = item.dataframe.iloc[:,0].min()
+        maxx = item.dataframe.iloc[:,0].max()
+        gapx = (maxx-minx)/10
+        miny = item.dataframe.iloc[:, 1].min()
+        maxy = item.dataframe.iloc[:, 1].max()
+        gapy = (maxy - miny) / 10
+        if gapx==0:
+            gapx = 1
+        if gapy==0:
+            gapy =1
+        self.customPlot.xAxis.setRange(minx-gapx, maxx+gapx)
+        self.customPlot.yAxis.setRange(miny-gapy, maxy+gapy)
 
-        graph0.setData(x, y0)
-        graph1.setData(x, y1)
-
-        self.customPlot.rescaleAxes()
+        # self.customPlot.rescaleAxes()
         self.customPlot.setFixedSize(500, 300)
         # self.customPlot.set
-        self.customPlot.setInteraction(QCP.iRangeDrag)
-        self.customPlot.setInteraction(QCP.iRangeZoom)
-        self.customPlot.setInteraction(QCP.iSelectPlottables)
+        # self.customPlot.setInteraction(QCP.iRangeDrag)
+        # self.customPlot.setInteraction(QCP.iRangeZoom)
+        # self.customPlot.setInteraction(QCP.iSelectPlottables)

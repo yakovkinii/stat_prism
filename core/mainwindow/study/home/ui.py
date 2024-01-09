@@ -8,6 +8,7 @@ from core.common_ui import create_label, create_tool_button
 from core.constants import NO_RESULT_SELECTED
 from core.shared import data, result_container
 from core.utility import get_next_valid_result_id, log_method, select_result
+from models.correlation.objects import CorrelationResult
 from models.descriptive.objects import DescriptiveResult
 
 if TYPE_CHECKING:
@@ -25,6 +26,15 @@ class Home:
             icon_path=":/mat/resources/material-icons-png-master/png/black/bar_chart/round-4x.png",
             icon_size=QtCore.QSize(60, 60),
         )
+        self.DescriptiveStatisticsButton.setEnabled(False)
+
+        self.CorrelationButton = create_tool_button(
+            parent=self.widget,
+            button_geometry=QtCore.QRect(240, 240, 101, 101),
+            icon_path=":/mat/resources/material-icons-png-master/png/black/bar_chart/round-4x.png",
+            icon_size=QtCore.QSize(60, 60),
+        )
+        self.CorrelationButton.setEnabled(False)
 
         self.OpenFileButton = create_tool_button(
             parent=self.widget,
@@ -47,6 +57,7 @@ class Home:
             icon_path=":/mat/resources/material-icons-png-master/png/black/save_alt/round-4x.png",
             icon_size=QtCore.QSize(60, 60),
         )
+        self.SaveReportButton.setEnabled(False)
 
         self.label_open = create_label(
             parent=self.widget,
@@ -55,12 +66,20 @@ class Home:
             alignment=QtCore.Qt.AlignHCenter | QtCore.Qt.AlignTop,
         )
 
-        self.label_discriptive = create_label(
+        self.label_descriptive = create_label(
             parent=self.widget,
             label_geometry=QtCore.QRect(60, 350, 101, 71),
             font_size=10,
             alignment=QtCore.Qt.AlignHCenter | QtCore.Qt.AlignTop,
         )
+
+        self.label_correlation = create_label(
+            parent=self.widget,
+            label_geometry=QtCore.QRect(240, 350, 101, 71),
+            font_size=10,
+            alignment=QtCore.Qt.AlignHCenter | QtCore.Qt.AlignTop,
+        )
+
         self.label_save = create_label(
             parent=self.widget,
             label_geometry=QtCore.QRect(240, 150, 101, 61),
@@ -77,6 +96,7 @@ class Home:
 
         self.OpenFileButton.pressed.connect(self.open_handler)
         self.DescriptiveStatisticsButton.pressed.connect(self.create_descriptive)
+        self.CorrelationButton.pressed.connect(self.create_correlation)
         # self.SaveReportButton.pressed.connect(self.save_handler)
 
     def retranslateUI(self):
@@ -84,7 +104,8 @@ class Home:
 
         self.DescriptiveStatisticsButton.setText(_translate("MainWindow", "Descriptive\n" "Statistics"))
         self.label_open.setText(_translate("MainWindow", "Open File"))
-        self.label_discriptive.setText(_translate("MainWindow", "Descriptive\n" "Statistics\n" "(Numeric)"))
+        self.label_descriptive.setText(_translate("MainWindow", "Descriptive\n" "Statistics\n" "(Numeric)"))
+        self.label_correlation.setText(_translate("MainWindow", "Correlation"))
         # self.DescriptiveStatisticsButton_literal.setText(
         #     _translate("MainWindow", "Descriptive\n" "Statistics")
         # )
@@ -97,6 +118,13 @@ class Home:
     def create_descriptive(self):
         result_id = get_next_valid_result_id()
         result_container.results[result_id] = DescriptiveResult(result_id=result_id)
+        select_result(result_id)
+        self.study_instance.mainwindow_instance.actionUpdateStudyFrame.trigger()
+
+    @log_method
+    def create_correlation(self):
+        result_id = get_next_valid_result_id()
+        result_container.results[result_id] = CorrelationResult(result_id=result_id)
         select_result(result_id)
         self.study_instance.mainwindow_instance.actionUpdateStudyFrame.trigger()
 
@@ -142,4 +170,8 @@ class Home:
             select_result(NO_RESULT_SELECTED)
             self.study_instance.mainwindow_instance.actionUpdateStudyFrame.trigger()
             self.study_instance.mainwindow_instance.actionUpdateTableFrame.trigger()
-            self.OpenFileButton.setDown(False)
+            self.DescriptiveStatisticsButton.setEnabled(True)
+            self.CorrelationButton.setEnabled(True)
+
+        self.OpenFileButton.setDown(False)
+

@@ -5,7 +5,7 @@ from core.common_ui import icon
 from core.constants import OUTPUT_WIDTH
 from core.mainwindow.results.ui import Results
 from core.mainwindow.study.ui import Study
-from core.mainwindow.table.ui import Table
+from core.mainwindow.data.ui import Data
 from core.utility import log_method_noarg
 
 
@@ -25,10 +25,11 @@ class MainWindow(QtWidgets.QMainWindow):
 
         self.gridLayout = QtWidgets.QGridLayout(self.centralwidget)
         self.splitter = QtWidgets.QSplitter(self.centralwidget)
+        self.splitter.setHandleWidth(8)
         self.splitter.setOrientation(QtCore.Qt.Horizontal)
         self.gridLayout.addWidget(self.splitter)
 
-        self.table_frame: Table = Table(self.splitter, self)
+        self.table_frame: Data = Data(self.splitter, self)
         self.results_frame: Results = Results(self.splitter, self)
         self.study_frame: Study = Study(self.splitter, self)
 

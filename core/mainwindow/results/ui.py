@@ -3,6 +3,7 @@ from typing import TYPE_CHECKING, Dict
 
 from PyQt5 import QtCore, QtWidgets
 
+from core.constants import OUTPUT_WIDTH
 from core.mainwindow.results.result.ui import ResultWidget
 from core.shared import result_container
 from core.utility import log_method, log_method_noarg
@@ -30,7 +31,7 @@ class Results:
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.frame.sizePolicy().hasHeightForWidth())
         self.frame.setSizePolicy(sizePolicy)
-        # self.frame.setMinimumSize(QtCore.QSize(OUTPUT_WIDTH, 0))
+        self.frame.setMinimumSize(QtCore.QSize(OUTPUT_WIDTH, 0))
         # self.frame.setMaximumSize(QtCore.QSize(OUTPUT_WIDTH, 16777215))
         self.frame.setFrameShape(QtWidgets.QFrame.NoFrame)
         self.frame.setFrameShadow(QtWidgets.QFrame.Raised)

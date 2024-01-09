@@ -1,11 +1,12 @@
 CSS_STYLE = """
       <style>
-      table, th, td {
-        border: 1px solid gray;
+      table, th, td, span {
+        border: 1px solid black;
         border-collapse: collapse;
-        padding: 8px;
+        padding: 5px 10px;
         text-align: left;
-        font-size: 14px;
+        font-size: 18px;
+        font-family: 'Segoe UI', Arial, sans-serif;
         white-space: nowrap;  /* Prevents text in cells from wrapping */
       }
       table {

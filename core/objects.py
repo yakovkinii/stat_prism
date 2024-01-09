@@ -26,6 +26,8 @@ class TableResultItem:
         self.type = "TableResultItem"
         self.title = title
         self.dataframe = dataframe
+        self.draw_index = False
+        self.color_values = True
 
 
 class PlotResultItem:
@@ -33,6 +35,8 @@ class PlotResultItem:
         self.type = "PlotResultItem"
         self.title = title
         self.dataframe = dataframe
+        self.x_axis_title = ""
+        self.y_axis_title = ""
 
 
 class ResultContainer:

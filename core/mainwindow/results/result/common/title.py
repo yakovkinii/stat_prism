@@ -12,7 +12,7 @@ class TitleWidget(LabelClickable):
         self.setWordWrap(True)
         self.setTextInteractionFlags(Qt.TextSelectableByMouse)
         self.setAlignment(QtCore.Qt.AlignCenter if centered else QtCore.Qt.AlignLeft)
-        font = QtGui.QFont()
+        font = QtGui.QFont("Segoe UI")
         font.setPointSize(size)
 
         palette = self.palette()

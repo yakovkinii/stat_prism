@@ -1,7 +1,7 @@
 import pandas as pd
 
 from core.objects import TableResultItem, TextResultItem
-from core.utility import num_to_str, smart_comma_join
+from core.utility import num_to_str, smart_comma_join, round_to_significant_digits
 from models.descriptive.objects import DescriptiveResult, DescriptiveStudyMetadata
 
 
@@ -16,12 +16,12 @@ def run_descriptive_study(df: pd.DataFrame, metadata: DescriptiveStudyMetadata, 
     # Calculate
     result_n = df.count() if metadata.n else None
     result_missing = df.isna().sum() if metadata.missing else None
-    result_mean = df.mean().apply(lambda x: num_to_str(x)) if metadata.mean else None
-    result_median = df.median().apply(lambda x: num_to_str(x)) if metadata.median else None
-    result_minimum = df.min().apply(lambda x: num_to_str(x)) if metadata.minimum else None
-    result_maximum = df.max().apply(lambda x: num_to_str(x)) if metadata.maximum else None
-    result_std = df.std().apply(lambda x: num_to_str(x)) if metadata.stddev else None
-    result_var = df.var().apply(lambda x: num_to_str(x)) if metadata.variance else None
+    result_mean = df.mean().apply(lambda x: round_to_significant_digits(x)) if metadata.mean else None
+    result_median = df.median().apply(lambda x: round_to_significant_digits(x)) if metadata.median else None
+    result_minimum = df.min().apply(lambda x: round_to_significant_digits(x)) if metadata.minimum else None
+    result_maximum = df.max().apply(lambda x: round_to_significant_digits(x)) if metadata.maximum else None
+    result_std = df.std().apply(lambda x: round_to_significant_digits(x)) if metadata.stddev else None
+    result_var = df.var().apply(lambda x: round_to_significant_digits(x)) if metadata.variance else None
 
     # Table
     full_dict = {
@@ -56,7 +56,7 @@ def verbal_descriptive(columns, result_n, result_mean, result_minimum, result_ma
     html = ""
     # 1. Aggregate
     if result_n is not None and result_n.nunique() == 1:
-        html += smart_comma_join(columns) + f" had {result_n.iloc[0]:} entries. "
+        html += smart_comma_join([f"'{c}'" for c in columns]) + f" had {result_n.iloc[0]:} entries. "
     else:
         ...
 
@@ -69,6 +69,6 @@ def verbal_descriptive(columns, result_n, result_mean, result_minimum, result_ma
         if result_mean is not None:
             snippets.append(f"had the mean value of {result_mean[c]}")
         if len(snippets) > 0:
-            ind_htmls.append(c + " " + smart_comma_join(snippets))
+            ind_htmls.append(f"'{c}'" + " " + smart_comma_join(snippets))
     html += smart_comma_join(ind_htmls)
     return html
