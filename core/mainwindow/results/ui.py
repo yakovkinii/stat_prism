@@ -2,6 +2,7 @@ import logging
 from typing import TYPE_CHECKING, Dict
 
 from PyQt5 import QtCore, QtWidgets
+from PyQt5.QtCore import QTimer
 
 from core.constants import NO_RESULT_SELECTED, OUTPUT_WIDTH
 from core.mainwindow.results.result.ui import ResultWidget
@@ -101,5 +102,12 @@ class Results:
             else:
                 result_widget.frame.setStyleSheet("background-color: #fafafa;")
 
+        if result_container.current_result is not NO_RESULT_SELECTED:
+            self.timer = QTimer()
+            self.timer.timeout.connect(self.ensure_visible)
+            self.timer.setSingleShot(True)
+            self.timer.start(10)
+
+    def ensure_visible(self):
         if result_container.current_result is not NO_RESULT_SELECTED:
             self.scrollArea.ensureWidgetVisible(self.result_widgets[result_container.current_result].frame)

@@ -20,23 +20,27 @@ def run_correlation_study(df: pd.DataFrame, metadata: CorrelationStudyMetadata, 
     df_table = df_table.reset_index()
     result.items.append(TableResultItem(df_table, f"Table (Study #{result_id}):"))
 
+    readable = get_readable(corr)
+
     # Plot
-    df_plot = df.iloc[:, 0:2]
-    plot_result = PlotResultItem(df_plot, f"Plot (Study #{result_id}):")
-    plot_result.x_axis_title = df_plot.columns[0]
-    plot_result.y_axis_title = df_plot.columns[1]
+    name1 = readable.iloc[0, 0] if readable.iloc[0, 2] > -readable.iloc[-1, 2] else readable.iloc[-1, 0]
+    name2 = readable.iloc[0, 1] if readable.iloc[0, 2] > -readable.iloc[-1, 2] else readable.iloc[-1, 1]
+    df_plot = df.loc[:, [name1, name2]]
+    plot_result = PlotResultItem(df_plot[[name1, name2]], f"Plot (Study #{result_id}):")
+    plot_result.x_axis_title = name1
+    plot_result.y_axis_title = name2
     result.items.append(plot_result)
 
     # Verbal
     # columns = list(df.columns)
-    verbal = verbal_correlation(corr)
+    verbal = verbal_correlation(readable)
     # verbal = 'Lorem Ipsum Trololo.'
     result.items.append(TextResultItem(verbal, f"Summary (Study #{result_id})"))
 
     return result
 
 
-def verbal_correlation(corr):
+def get_readable(corr):
     corr_matrix = corr.copy()
     np.fill_diagonal(corr_matrix.values, np.nan)
     mask = np.tril(np.ones(corr_matrix.shape), k=-1).astype(bool)
@@ -46,7 +50,10 @@ def verbal_correlation(corr):
     sorted_high_corr_lower_triangle = high_corr_lower_triangle.sort_values(ascending=False)
     sorted_high_corr_lower_triangle_readable = sorted_high_corr_lower_triangle.reset_index()
     sorted_high_corr_lower_triangle_readable.columns = ["col1", "col2", "cor"]
+    return sorted_high_corr_lower_triangle_readable
 
+
+def verbal_correlation(sorted_high_corr_lower_triangle_readable):
     any_found = False
     html = ""
     snippets = []
@@ -57,7 +64,7 @@ def verbal_correlation(corr):
     if len(snippets) > 0:
         any_found = True
         html += (
-            smart_comma_join(snippets) + " show a strong correlation/anticorrelation, "
+            smart_comma_join(snippets) + " show a strong correlation degree, "
             "indicating a tight relationship "
             "between the respective variables. "
         )
@@ -70,10 +77,13 @@ def verbal_correlation(corr):
     if len(snippets) > 0:
         any_found = True
 
-        html += smart_comma_join(snippets) + " have a moderate correlation/anticorrelation. "
+        html += smart_comma_join(snippets) + " have a moderate degree of correlation. "
 
-    html += "Other" if any_found else "All"
-    html += " correlations are weak or negligible. "
+    html += (
+        "Other correlations are relatively weak. "
+        if any_found
+        else ("All correlations are weak, indicating no significant " "linear relationship between the variables. ")
+    )
 
     cor_mean = sorted_high_corr_lower_triangle_readable.cor.abs().mean()
     all_columns = sorted_high_corr_lower_triangle_readable.col1.unique()
@@ -86,6 +96,9 @@ def verbal_correlation(corr):
     else:
         degree = "weak"
 
-    html += f"Overall, the correlations between the {smart_comma_join(all_columns)} variables are {degree} on average."
+    if any_found:
+        html += (
+            f"Overall, the correlations between the {smart_comma_join(all_columns)} variables are {degree} on average."
+        )
 
     return html

@@ -49,7 +49,7 @@ class PlotResultItemWidget:
         self.customPlot.yAxis.setRange(miny - gapy, maxy + gapy)
 
         # self.customPlot.rescaleAxes()
-        self.customPlot.setFixedSize(500, 300)
+        self.customPlot.setFixedSize(400, 250)
         # self.customPlot.set
         # self.customPlot.setInteraction(QCP.iRangeDrag)
         # self.customPlot.setInteraction(QCP.iRangeZoom)

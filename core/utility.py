@@ -127,7 +127,7 @@ def num_to_str(num, digits=4):
         if num == 0:
             return 0  # just in case
 
-        return round(num, -int(np.floor(np.log10(abs(num))) - (digits - 1)))
+        return str(round(num, -int(np.floor(np.log10(abs(num))) - (digits - 1))))
         # return f"{whole}.{decimal[:digits-len(whole)]}"  # Taking the first three characters of the decimal part
     else:
         return whole

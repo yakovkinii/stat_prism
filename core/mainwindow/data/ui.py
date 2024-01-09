@@ -6,7 +6,7 @@ from PyQt5.QtWidgets import QTableWidgetItem
 from core.mainwindow.data.table.header.ui import LeftAlignHeaderView
 from core.mainwindow.data.table.ui import CustomTableWidget
 from core.shared import data
-from core.utility import log_method, log_method_noarg
+from core.utility import log_method, log_method_noarg, num_to_str
 
 if TYPE_CHECKING:
     from core.mainwindow.ui import MainWindow
@@ -52,6 +52,6 @@ class Data:
 
         for row in dataframe.iterrows():
             for col, value in enumerate(row[1]):
-                item = QTableWidgetItem(str(value))
+                item = QTableWidgetItem(num_to_str(value))
                 item.setFlags(item.flags() & ~QtCore.Qt.ItemIsEditable)
                 self.table.setItem(row[0], col, item)
