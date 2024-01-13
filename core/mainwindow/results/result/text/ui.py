@@ -1,6 +1,8 @@
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtCore import Qt
 
+from core.mainwindow.layout import VerticalLayout
+from core.mainwindow.results.preferred import createPreferredWidget
 from core.mainwindow.results.result.common.label import LabelClickable
 from core.mainwindow.results.result.common.title import TitleWidget
 from core.objects import TextResultItem
@@ -14,12 +16,14 @@ class TextResultItemWidget:
         self.item: TextResultItem = item
 
         self.frame = QtWidgets.QFrame(parent)
-        self.frame.setAttribute(Qt.WA_StyledBackground, True)
-        self.title_widget = TitleWidget(self.frame, self.item.title)
 
-        self.gridLayout = QtWidgets.QGridLayout(self.frame)
-        self.gridLayout.setContentsMargins(20, 0, 20, 0)
-        self.gridLayout.addWidget(self.title_widget)
+        self.layout = VerticalLayout(self.frame, padding_left=20, padding_right=20)
+
+        self.title_widget = TitleWidget(self.frame, self.item.title)
+        self.title_widget.setFixedWidth(999999)
+        self.title_widget.adjustSize()
+
+        self.layout.addWidget(self.title_widget)
 
         self.label = LabelClickable(self.frame)
         self.label.setWordWrap(True)
@@ -29,5 +33,6 @@ class TextResultItemWidget:
         font.setPointSize(12)
         self.label.setFont(font)
         self.label.setText(item.text)
-
-        self.gridLayout.addWidget(self.label)
+        #'Table (Study #0):' 107 21
+        self.layout.addWidget(self.label)
+'Summary (Study #0)'

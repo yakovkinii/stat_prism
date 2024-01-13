@@ -10,7 +10,9 @@ from core.utility import log_method, log_method_noarg
 from models.common.column_selector.ui import ColumnSelector
 from models.common.home_delete_title.ui import HomeDeleteTitle
 from models.common.list_clickable.ui import CustomListWidget
-from models.correlation.core import run_correlation_study
+
+# from models.correlation.core import run_correlation_study
+from models.correlation.core.main import run_correlation_study
 from models.correlation.objects import CorrelationStudyMetadata
 from models.descriptive.objects import DescriptiveStudyMetadata
 
@@ -39,7 +41,9 @@ class Correlation:
         self.gridLayout.addWidget(self.stackedWidget, 0, 0, 1, 1)
 
         # Populate main frame
-        self.home_delete_title = HomeDeleteTitle(parent=self.frame, owner=self, title_text="Correlation\nAnalysis")
+        self.home_delete_title = HomeDeleteTitle(
+            parent=self.frame, owner=self, title_text="Correlation\nAnalysis"
+        )
 
         self.list_label = create_label(
             parent=self.frame,
@@ -54,6 +58,11 @@ class Correlation:
 
         self.list_widget.clicked.connect(self.invoke_column_selector)
 
+        self.compact_checkbox = QtWidgets.QCheckBox(self.frame)
+        self.compact_checkbox.setChecked(False)
+        self.compact_checkbox.setGeometry(10, 400, 200, 50)
+        self.compact_checkbox.stateChanged.connect(self.ui_changed)
+
         self.state = self.state_selecting_columns
         self.selected_columns = []
         self.stackedWidget.setCurrentIndex(1)
@@ -63,13 +72,16 @@ class Correlation:
     def retranslateUI(self):
         _translate = QtCore.QCoreApplication.translate
         self.home_delete_title.retranslateUI()
-
+        self.compact_checkbox.setText(_translate("MainWindow", "Compact table"))
         self.list_label.setText(_translate("MainWindow", "Selected columns:"))
 
     @log_method
     def construct_metadata(self) -> CorrelationStudyMetadata:
         return CorrelationStudyMetadata(
-            selected_columns=[self.list_widget.item(i).text() for i in range(self.list_widget.count())]
+            selected_columns=[
+                self.list_widget.item(i).text() for i in range(self.list_widget.count())
+            ],
+            compact=bool(self.compact_checkbox.checkState())
         )
 
     @log_method_noarg
@@ -80,7 +92,9 @@ class Correlation:
     @log_method
     def run(self):
         metadata = self.construct_metadata()
-        result_container.results[result_container.current_result] = run_correlation_study(
+        result_container.results[
+            result_container.current_result
+        ] = run_correlation_study(
             df=data.df, metadata=metadata, result_id=result_container.current_result
         )
         self.study_instance.mainwindow_instance.actionUpdateResultsFrame.trigger()

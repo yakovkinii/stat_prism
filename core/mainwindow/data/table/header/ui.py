@@ -15,7 +15,9 @@ class LeftAlignHeaderView(QtWidgets.QHeaderView):
         text = self.model().headerData(logicalIndex, self.orientation())
 
         # Set elide mode to show the beginning of the text
-        elidedText = painter.fontMetrics().elidedText(text, QtCore.Qt.ElideRight, rect.width())
+        elidedText = painter.fontMetrics().elidedText(
+            text, QtCore.Qt.ElideRight, rect.width()
+        )
 
         # Draw the text
         painter.drawText(rect, QtCore.Qt.AlignLeft | QtCore.Qt.AlignVCenter, elidedText)

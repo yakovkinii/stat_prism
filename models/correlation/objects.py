@@ -8,8 +8,10 @@ class CorrelationStudyMetadata:
     def __init__(
         self,
         selected_columns: List[str],
+            compact:bool,
     ):
         self.selected_columns = selected_columns
+        self.compact = compact
 
 
 class CorrelationResult(Result):
@@ -20,6 +22,7 @@ class CorrelationResult(Result):
         if metadata is None:
             self.metadata = CorrelationStudyMetadata(
                 selected_columns=[],
+                compact=False
             )
         else:
             self.metadata = metadata

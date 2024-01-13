@@ -6,7 +6,9 @@ from core.utility import round_to_significant_digits, smart_comma_join
 from models.descriptive.objects import DescriptiveResult, DescriptiveStudyMetadata
 
 
-def run_descriptive_study(df: pd.DataFrame, metadata: DescriptiveStudyMetadata, result_id: int) -> DescriptiveResult:
+def run_descriptive_study(
+    df: pd.DataFrame, metadata: DescriptiveStudyMetadata, result_id: int
+) -> DescriptiveResult:
     result = DescriptiveResult(result_id=result_id, metadata=metadata)
     result.title = f"Descriptive statistics (study #{result_id})"
 
@@ -62,7 +64,11 @@ def run_descriptive_study(df: pd.DataFrame, metadata: DescriptiveStudyMetadata, 
         df_table = pd.DataFrame(final_dict)
         df_table.index.name = "Variable"
         df_table = df_table.reset_index()
-        result.items.append(TableResultItem(df_table, f"Table (Study #{result_id}):", color_values=False))
+        result.items.append(
+            TableResultItem(
+                df_table, f"Table (Study #{result_id}):", color_values=False
+            )
+        )
 
     # Verbal
     columns = list(df.columns)
@@ -109,7 +115,9 @@ def verbal_descriptive_keynote(columns, final_dict):
 
         if len(low_rat) > 0:
             html += (
-                "The " + smart_comma_join(low_rat) + " variables are tightly distributed around the mean value, "
+                "The "
+                + smart_comma_join(low_rat)
+                + " variables are tightly distributed around the mean value, "
                 "indicating a strong localization around a non-zero value. "
             )
         if len(high_rat) > 0:
@@ -131,7 +139,8 @@ def verbal_descriptive_keynote(columns, final_dict):
 
             if len(high_rang) > 0:
                 html += (
-                    smart_comma_join(high_rang) + " have the value ranges exceeding 3 sigma, which indicates either "
+                    smart_comma_join(high_rang)
+                    + " have the value ranges exceeding 3 sigma, which indicates either "
                     "an exceptional sample size or the presence of outliers."
                 )
             else:

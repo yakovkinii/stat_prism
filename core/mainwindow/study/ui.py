@@ -2,7 +2,11 @@ from typing import TYPE_CHECKING, Dict
 
 from PyQt5 import QtCore, QtWidgets
 
-from core.constants import CORRELATION_MODEL_NAME, DESCRIPTIVE_MODEL_NAME, NO_RESULT_SELECTED
+from core.constants import (
+    CORRELATION_MODEL_NAME,
+    DESCRIPTIVE_MODEL_NAME,
+    NO_RESULT_SELECTED,
+)
 from core.mainwindow.study.home.ui import Home
 from core.objects import ModelRegistryItem
 from core.shared import result_container
@@ -25,7 +29,9 @@ class Study:
 
         self.mainwindow_instance: MainWindow = mainwindow_instance
         self.frame = QtWidgets.QFrame(parent)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred)
+        sizePolicy = QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred
+        )
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.frame.sizePolicy().hasHeightForWidth())
@@ -83,7 +89,9 @@ class Study:
             return
 
         model_name = result_container.results[result_id].module_name
-        self.stackedWidget.setCurrentIndex(self.registry[model_name].stacked_widget_index)
+        self.stackedWidget.setCurrentIndex(
+            self.registry[model_name].stacked_widget_index
+        )
 
         if result_id != NO_RESULT_SELECTED:
             self.registry[model_name].setup_from_result_handler()

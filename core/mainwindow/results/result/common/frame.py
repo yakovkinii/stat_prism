@@ -1,4 +1,4 @@
-from PyQt5 import QtCore, QtWidgets
+from PyQt5 import QtCore, QtWidgets, QtGui
 
 
 class FrameClickable(QtWidgets.QFrame):
@@ -8,7 +8,7 @@ class FrameClickable(QtWidgets.QFrame):
         super(FrameClickable, self).__init__(parent)
         self.installEventFilter(self)
 
-    def eventFilter(self, object, event):
+    def eventFilter(self, obj, event):
         if event.type() == QtCore.QEvent.MouseButtonPress:
             self.clicked.emit()
-        return super(FrameClickable, self).eventFilter(object, event)
+        return super(FrameClickable, self).eventFilter(obj, event)

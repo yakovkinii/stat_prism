@@ -22,12 +22,19 @@ class TextResultItem:
 
 
 class TableResultItem:
-    def __init__(self, dataframe: pd.DataFrame, title: str = None, draw_index=False, color_values=True):
+    def __init__(
+        self,
+        dataframe: pd.DataFrame = None,
+        title: str = None,
+        draw_index=False,
+        color_values=True,
+    ):
         self.type = "TableResultItem"
         self.title = title
         self.dataframe = dataframe
         self.draw_index = draw_index
         self.color_values = color_values
+        self.html = None
 
 
 class PlotResultItem:
