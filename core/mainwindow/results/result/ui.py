@@ -1,7 +1,6 @@
 import logging
 from typing import TYPE_CHECKING
 
-from PyQt5 import QtWidgets
 from PyQt5.QtCore import Qt
 
 from core.mainwindow.layout import VerticalLayout
@@ -41,9 +40,7 @@ class ResultWidget:
             widget = item.widget()
             if widget is not None:
                 widget.deleteLater()
-        self.title_widget = TitleWidget(
-            self.frame, self.result.title, 10, centered=True
-        )
+        self.title_widget = TitleWidget(self.frame, self.result.title, 10, centered=True)
         # self.title_widget.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Preferred)
 
         self.layout.addWidget(self.title_widget)

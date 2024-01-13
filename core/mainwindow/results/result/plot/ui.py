@@ -1,7 +1,7 @@
 from PyQt5 import QtCore, QtWidgets
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QBrush, QColor, QPen
-from QCustomPlot_PyQt5 import QCPGraph, QCPScatterStyle, QCustomPlot
+from QCustomPlot_PyQt5 import QCPGraph, QCPScatterStyle, QCustomPlot, QCP
 
 from core.mainwindow.results.result.common.title import TitleWidget
 from core.objects import PlotResultItem
@@ -49,8 +49,8 @@ class PlotResultItemWidget:
         self.customPlot.yAxis.setRange(miny - gapy, maxy + gapy)
 
         # self.customPlot.rescaleAxes()
-        self.customPlot.setFixedSize(400, 250)
+        self.customPlot.setFixedSize(400, 400)
         # self.customPlot.set
-        # self.customPlot.setInteraction(QCP.iRangeDrag)
-        # self.customPlot.setInteraction(QCP.iRangeZoom)
-        # self.customPlot.setInteraction(QCP.iSelectPlottables)
+        self.customPlot.setInteraction(QCP.iRangeDrag)
+        self.customPlot.setInteraction(QCP.iRangeZoom)
+        self.customPlot.setInteraction(QCP.iSelectPlottables)

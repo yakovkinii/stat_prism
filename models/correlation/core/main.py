@@ -2,7 +2,7 @@ import numpy as np
 import pandas as pd
 import scipy.stats
 
-from core.objects import PlotResultItem, TableResultItem, TextResultItem
+from core.objects import TableResultItem, TextResultItem, PlotResultItem
 from core.utility import smart_comma_join
 from models.correlation.core.report import get_report
 from models.correlation.core.table import get_table
@@ -13,7 +13,6 @@ def calculate_correlations(df):
     correlation_matrix = pd.DataFrame(index=df.columns, columns=df.columns)
     p_matrix = pd.DataFrame(index=df.columns, columns=df.columns)
     df_matrix = pd.DataFrame(index=df.columns, columns=df.columns)
-    long_format_list = []
 
     # Calculate correlation, p-values, and degrees of freedom for each pair of columns
     for i1, col1 in enumerate(df.columns):
@@ -34,31 +33,10 @@ def calculate_correlations(df):
             p_matrix.loc[col1, col2] = p_value
             df_matrix.loc[col1, col2] = degrees_of_freedom
 
-            # Append to the long format list
-            long_format_list.append([col1, col2, corr, p_value, degrees_of_freedom])
-
-    # Create DataFrame for long format
-    long_format_df = pd.DataFrame(
-        long_format_list,
-        columns=[
-            "variable 1",
-            "variable 2",
-            "correlation",
-            "p-value",
-            "degrees of freedom",
-        ],
-    )
-    return correlation_matrix, p_matrix, df_matrix, long_format_df
+    return correlation_matrix, p_matrix, df_matrix
 
 
-def run_correlation_study(
-    df: pd.DataFrame, metadata: CorrelationStudyMetadata, result_id: int
-) -> CorrelationResult:
-    language = "EN"  # 'UA'
-    # table = True
-    plots = False  # True
-    report = True  # False
-
+def run_correlation_study(df: pd.DataFrame, metadata: CorrelationStudyMetadata, result_id: int) -> CorrelationResult:
     result = CorrelationResult(result_id=result_id, metadata=metadata)
     result.title = f"Correlation (study #{result_id})"
     if len(metadata.selected_columns) < 2:
@@ -66,16 +44,15 @@ def run_correlation_study(
 
     df = df[metadata.selected_columns]
     compact = metadata.compact
-    table_name=metadata.table_name
+    table_name = metadata.table_name
+    report_non_significant = metadata.report_non_significant
     columns = list(df.columns)
 
-    correlation_matrix, p_matrix, df_matrix, long_format_df = calculate_correlations(df)
+    correlation_matrix, p_matrix, df_matrix = calculate_correlations(df)
 
     html = get_table(columns, correlation_matrix, p_matrix, df_matrix, compact, table_name)
     table = TableResultItem(title=f"Table (Study #{result_id}):")
     table.html = html
-    # df_table.index.name = "Variable"
-    # df_table = df_table.reset_index()
     result.items.append(table)
 
     # readable = get_readable(corr)
@@ -83,15 +60,17 @@ def run_correlation_study(
     # Plot
     # name1 = readable.iloc[0, 0] if readable.iloc[0, 2] > -readable.iloc[-1, 2] else readable.iloc[-1, 0]
     # name2 = readable.iloc[0, 1] if readable.iloc[0, 2] > -readable.iloc[-1, 2] else readable.iloc[-1, 1]
-    # df_plot = df.loc[:, [name1, name2]]
-    # plot_result = PlotResultItem(df_plot[[name1, name2]], f"Plot (Study #{result_id}):")
-    # plot_result.x_axis_title = name1
-    # plot_result.y_axis_title = name2
-    # result.items.append(plot_result)
+    name1=columns[0]
+    name2=columns[1]
+    df_plot = df.loc[:, [name1, name2]]
+    plot_result = PlotResultItem(df_plot[[name1, name2]], f"Plot (Study #{result_id}):")
+    plot_result.x_axis_title = name1
+    plot_result.y_axis_title = name2
+    result.items.append(plot_result)
 
     # Verbal
     # columns = list(df.columns)
-    verbal = get_report(columns, correlation_matrix, p_matrix, df_matrix, table_name)
+    verbal = get_report(columns, correlation_matrix, p_matrix, df_matrix, table_name, report_non_significant)
     # verbal = 'Lorem Ipsum Trololo.'
     result.items.append(TextResultItem(verbal, f"Summary (Study #{result_id})"))
 
@@ -105,12 +84,8 @@ def get_readable(corr):
     lower_triangle_corr = corr_matrix.where(mask).stack()
     high_corr_lower_triangle = lower_triangle_corr
 
-    sorted_high_corr_lower_triangle = high_corr_lower_triangle.sort_values(
-        ascending=False
-    )
-    sorted_high_corr_lower_triangle_readable = (
-        sorted_high_corr_lower_triangle.reset_index()
-    )
+    sorted_high_corr_lower_triangle = high_corr_lower_triangle.sort_values(ascending=False)
+    sorted_high_corr_lower_triangle_readable = sorted_high_corr_lower_triangle.reset_index()
     sorted_high_corr_lower_triangle_readable.columns = ["col1", "col2", "cor"]
     return sorted_high_corr_lower_triangle_readable
 
@@ -144,10 +119,7 @@ def verbal_correlation_APA_ENG(sorted_high_corr_lower_triangle_readable):
     html += (
         "Other correlations are relatively weak. "
         if any_found
-        else (
-            "All correlations are weak, indicating no significant "
-            "linear relationship between the variables. "
-        )
+        else ("All correlations are weak, indicating no significant " "linear relationship between the variables. ")
     )
 
     cor_mean = sorted_high_corr_lower_triangle_readable.cor.abs().mean()
@@ -162,7 +134,9 @@ def verbal_correlation_APA_ENG(sorted_high_corr_lower_triangle_readable):
         degree = "weak"
 
     if any_found:
-        html += f"Overall, the correlations between the {smart_comma_join(all_columns)} variables are {degree} on average."
+        html += (
+            f"Overall, the correlations between the {smart_comma_join(all_columns)} variables are {degree} on average."
+        )
 
     return html
 
@@ -196,10 +170,7 @@ def verbal_correlation(sorted_high_corr_lower_triangle_readable):
     html += (
         "Other correlations are relatively weak. "
         if any_found
-        else (
-            "All correlations are weak, indicating no significant "
-            "linear relationship between the variables. "
-        )
+        else ("All correlations are weak, indicating no significant " "linear relationship between the variables. ")
     )
 
     cor_mean = sorted_high_corr_lower_triangle_readable.cor.abs().mean()
@@ -214,6 +185,8 @@ def verbal_correlation(sorted_high_corr_lower_triangle_readable):
         degree = "weak"
 
     if any_found:
-        html += f"Overall, the correlations between the {smart_comma_join(all_columns)} variables are {degree} on average."
+        html += (
+            f"Overall, the correlations between the {smart_comma_join(all_columns)} variables are {degree} on average."
+        )
 
     return html

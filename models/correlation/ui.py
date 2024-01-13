@@ -41,34 +41,37 @@ class Correlation:
         self.gridLayout.addWidget(self.stackedWidget, 0, 0, 1, 1)
 
         # Populate main frame
-        self.home_delete_title = HomeDeleteTitle(
-            parent=self.frame, owner=self, title_text="Correlation\nAnalysis"
-        )
+        self.home_delete_title = HomeDeleteTitle(parent=self.frame, owner=self, title_text="Correlation Analysis")
 
         self.list_label = create_label(
             parent=self.frame,
-            label_geometry=QtCore.QRect(10, 100, 381, 21),
+            label_geometry=QtCore.QRect(10, 130, 381, 21),
             font_size=12,
             alignment=QtCore.Qt.AlignLeft | QtCore.Qt.AlignVCenter,
         )
 
         self.list_widget = CustomListWidget(self.frame)
-        self.list_widget.setGeometry(QtCore.QRect(10, 130, 381, 251))
+        self.list_widget.setGeometry(QtCore.QRect(10, 160, 381, 251))
         self.list_widget.setSelectionMode(QtWidgets.QAbstractItemView.NoSelection)
 
         self.list_widget.clicked.connect(self.invoke_column_selector)
 
         self.compact_checkbox = QtWidgets.QCheckBox(self.frame)
         self.compact_checkbox.setChecked(False)
-        self.compact_checkbox.setGeometry(10, 400, 200, 50)
+        self.compact_checkbox.setGeometry(10, 430, 400, 50)
         self.compact_checkbox.stateChanged.connect(self.ui_changed)
 
+        self.report_non_significant_checkbox = QtWidgets.QCheckBox(self.frame)
+        self.report_non_significant_checkbox.setChecked(False)
+        self.report_non_significant_checkbox.setGeometry(10, 470, 400, 50)
+        self.report_non_significant_checkbox.stateChanged.connect(self.ui_changed)
+
         self.edit_table_title = QtWidgets.QLineEdit(self.frame)
-        self.edit_table_title.setText('1')
-        self.edit_table_title.setGeometry(80,450,30,30)
+        self.edit_table_title.setText("1")
+        self.edit_table_title.setGeometry(80, 530, 30, 30)
 
         self.edit_table_title_label = QtWidgets.QLabel(self.frame)
-        self.edit_table_title_label.setGeometry(10,440,85,50)
+        self.edit_table_title_label.setGeometry(10, 520, 85, 50)
 
         self.edit_table_title.editingFinished.connect(self.ui_changed)
 
@@ -82,17 +85,17 @@ class Correlation:
         _translate = QtCore.QCoreApplication.translate
         self.home_delete_title.retranslateUI()
         self.compact_checkbox.setText(_translate("MainWindow", "Compact table"))
+        self.report_non_significant_checkbox.setText(_translate("MainWindow", "Report non-significant correlations"))
         self.list_label.setText(_translate("MainWindow", "Selected columns:"))
-        self.edit_table_title_label.setText(_translate("MainWindow","Table ID:"))
+        self.edit_table_title_label.setText(_translate("MainWindow", "Table ID:"))
 
     @log_method
     def construct_metadata(self) -> CorrelationStudyMetadata:
         return CorrelationStudyMetadata(
-            selected_columns=[
-                self.list_widget.item(i).text() for i in range(self.list_widget.count())
-            ],
+            selected_columns=[self.list_widget.item(i).text() for i in range(self.list_widget.count())],
             compact=bool(self.compact_checkbox.checkState()),
-            table_name=self.edit_table_title.text()
+            report_non_significant=bool(self.report_non_significant_checkbox.checkState()),
+            table_name=self.edit_table_title.text(),
         )
 
     @log_method_noarg
@@ -103,9 +106,7 @@ class Correlation:
     @log_method
     def run(self):
         metadata = self.construct_metadata()
-        result_container.results[
-            result_container.current_result
-        ] = run_correlation_study(
+        result_container.results[result_container.current_result] = run_correlation_study(
             df=data.df, metadata=metadata, result_id=result_container.current_result
         )
         self.study_instance.mainwindow_instance.actionUpdateResultsFrame.trigger()

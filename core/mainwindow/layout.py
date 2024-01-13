@@ -1,17 +1,19 @@
 from PyQt5.QtCore import QRect, QSize
-from PyQt5.QtWidgets import QLayout, QWidgetItem
+from PyQt5.QtWidgets import QLayout
 
 
 class VerticalLayout(QLayout):
-    def __init__(self, parent, padding_left=0, padding_right=0, padding_top=0, padding_bottom=0, spacing=0, top_level=False):
+    def __init__(
+        self, parent, padding_left=0, padding_right=0, padding_top=0, padding_bottom=0, spacing=0, top_level=False
+    ):
         super().__init__(parent)
-        self.parent=parent
-        self.top_level=top_level
-        self.padding_left=padding_left
-        self.padding_right=padding_right
-        self.padding_top=padding_top
-        self.padding_bottom=padding_bottom
-        self.spacing=spacing
+        self.parent = parent
+        self.top_level = top_level
+        self.padding_left = padding_left
+        self.padding_right = padding_right
+        self.padding_top = padding_top
+        self.padding_bottom = padding_bottom
+        self.spacing = spacing
         self.items = []
 
     def addItem(self, item):
@@ -38,14 +40,13 @@ class VerticalLayout(QLayout):
         x = rect.x() + self.padding_left
         for item in self.items:
             widget_height = item.sizeHint().height()
-            item.setGeometry(QRect(x, y, rect.width()-self.padding_left-self.padding_right,
-                                   widget_height))
+            item.setGeometry(QRect(x, y, rect.width() - self.padding_left - self.padding_right, widget_height))
             y += widget_height + self.spacing
 
     def sizeHint(self):
         if self.top_level:
             return self.parent.size()
-        height = self.padding_top+self.padding_bottom+self.spacing*(len(self.items)-1)
+        height = self.padding_top + self.padding_bottom + self.spacing * (len(self.items) - 1)
         height += sum(item.sizeHint().height() for item in self.items)
-        width = max(item.sizeHint().width() for item in self.items) + self.padding_left+self.padding_right
+        width = max(item.sizeHint().width() for item in self.items) + self.padding_left + self.padding_right
         return QSize(width, height)

@@ -1,5 +1,7 @@
+from typing import TYPE_CHECKING
+
 from PyQt5 import QtCore
-from PyQt5.QtWidgets import QFrame
+from PyQt5.QtWidgets import  QFrame
 
 from core.common_ui import create_label, create_tool_button_qta
 from core.constants import NO_RESULT_SELECTED
@@ -19,7 +21,12 @@ class HomeDeleteTitle:
             icon_path="fa.home",
             icon_size=QtCore.QSize(40, 40),
         )
-
+        # self.SaveWord = create_tool_button_qta(
+        #     parent=self.frame,
+        #     button_geometry=QtCore.QRect(10 + 380 // 3 - 59 // 3, 10, 61, 61),
+        #     icon_path="fa.file-word-o",
+        #     icon_size=QtCore.QSize(40, 40),
+        # )
         self.DeleteButton = create_tool_button_qta(
             parent=self.frame,
             button_geometry=QtCore.QRect(10 + 380 - 59, 10, 61, 61),
@@ -29,11 +36,10 @@ class HomeDeleteTitle:
 
         self.title = create_label(
             parent=self.frame,
-            label_geometry=QtCore.QRect(10 + 61, 0, 381 - 122, 81),
+            label_geometry=QtCore.QRect(10, 62, 390, 61),
             font_size=16,
             alignment=QtCore.Qt.AlignCenter | QtCore.Qt.AlignVCenter,
         )
-
         self.HomeButton.pressed.connect(self.home_button_handler)
         self.DeleteButton.pressed.connect(self.delete_button_handler)
 

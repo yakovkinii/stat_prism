@@ -18,34 +18,35 @@ CSS_STYLE = """
         overflow-x: auto;
       }
       .thick-border-bottom{
-        border-bottom: 2px solid #777;
+        border-bottom: 2px solid #000;
       }
       .thick-border-top{
-        border-top: 2px solid #777;
+        border-top: 2px solid #000;
       }
       .thin-border-left{
-        border-left: 1px solid rgba(0,0,0,10);
+        /*border-left: 1px solid rgba(0,0,0,10);*/
       }
       .thin-border-right{
-        border-right: 1px solid rgba(0,0,0,10);
+        /*border-right: 1px solid rgba(0,0,0,10);*/
       }
-     .thin-border-top{
-        border-top: 1px solid rgba(0,0,0,10);
+      .thin-border-top{
+        /*border-top: 1px solid rgba(0,0,0,10);*/
       }
-                  .thin-border-bottom{
-        border-bottom: 1px solid rgba(0,0,0,10);
+      .thin-border-bottom{
+        /*border-bottom: 1px solid rgba(0,0,0,10);*/
       }
       .align-right {
         text-align: right;
         padding-right: 0px;
+        margin:0px;
       }
       .align-left {
         text-align: left;
         padding-left: 0px;
       }
       .footnote{
-              text-align: left;
-              margin-left: 10px;
+        text-align: left;
+        margin-left: 10px;
         font-size: 12px;
         font-family: 'Segoe UI', Arial, sans-serif;
       }
@@ -60,7 +61,7 @@ CSS_STYLE = """
       }
       .table-title-apa{
         text-align: left;
-        margin-left: 0px;        
+        margin-left: 0px;
         margin-top:3px;
         font-size: 14px;
         font-style: italic;

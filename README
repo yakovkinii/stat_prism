@@ -4,6 +4,3 @@ flake8 --max-line-length 120 ./
 
 Known issues:
 - Add study button can be double-clicked
-
-Todo:
-Add titles and references for tables. Add customizer for table title.

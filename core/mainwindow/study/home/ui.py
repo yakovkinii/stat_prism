@@ -87,13 +87,9 @@ class Home:
     def retranslateUI(self):
         _translate = QtCore.QCoreApplication.translate
 
-        self.DescriptiveStatisticsButton.setText(
-            _translate("MainWindow", "Descriptive\n" "Statistics")
-        )
+        self.DescriptiveStatisticsButton.setText(_translate("MainWindow", "Descriptive\n" "Statistics"))
         self.label_open.setText(_translate("MainWindow", "Open File"))
-        self.label_descriptive.setText(
-            _translate("MainWindow", "Descriptive\n" "Statistics")
-        )
+        self.label_descriptive.setText(_translate("MainWindow", "Descriptive\n" "Statistics"))
         self.label_correlation.setText(_translate("MainWindow", "Correlation"))
         self.label_save.setText(_translate("MainWindow", "Save Report"))
 

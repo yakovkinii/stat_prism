@@ -51,9 +51,7 @@ class ColumnSelector:
         for col, dtype in zip(columns, dtypes):
             item = QListWidgetItem(col)
             item.setIcon(icon_dict[dtype] if dtype in icon_dict else string_icon)
-            self.list_widget.add_item_custom(
-                item, checkable=dtype in allowed_dtypes, checked=col in selected_columns
-            )
+            self.list_widget.add_item_custom(item, checkable=dtype in allowed_dtypes, checked=col in selected_columns)
 
         self.list_widget.clearSelection()
 

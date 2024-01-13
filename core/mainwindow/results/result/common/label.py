@@ -1,4 +1,4 @@
-from PyQt5 import QtWidgets, QtGui
+from PyQt5 import QtGui, QtWidgets
 
 
 class LabelClickable(QtWidgets.QLabel):
@@ -13,4 +13,3 @@ class LabelClickable(QtWidgets.QLabel):
     def resizeEvent(self, a0: QtGui.QResizeEvent) -> None:
         super(LabelClickable, self).resizeEvent(a0)
         self.setFixedHeight(self.sizeHint().height())
-

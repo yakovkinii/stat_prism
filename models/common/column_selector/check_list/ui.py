@@ -49,16 +49,8 @@ class CheckListWidget(QListWidget):
         item = self.itemAt(event.pos())
         # super().mouseReleaseEvent(event)
 
-        if (
-            item == self.start_item
-            and (item.flags() & Qt.ItemIsEnabled)
-            and (event.button() == Qt.LeftButton)
-        ):
-            item.setCheckState(
-                Qt.Checked
-                if self.start_item_check_state == Qt.Unchecked
-                else Qt.Unchecked
-            )
+        if item == self.start_item and (item.flags() & Qt.ItemIsEnabled) and (event.button() == Qt.LeftButton):
+            item.setCheckState(Qt.Checked if self.start_item_check_state == Qt.Unchecked else Qt.Unchecked)
 
         self._fillingState = None
 

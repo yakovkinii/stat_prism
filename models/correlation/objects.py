@@ -8,11 +8,13 @@ class CorrelationStudyMetadata:
     def __init__(
         self,
         selected_columns: List[str],
-            compact:bool,
-            table_name:str
+        compact: bool,
+        report_non_significant: bool,
+        table_name: str,
     ):
         self.selected_columns = selected_columns
         self.compact = compact
+        self.report_non_significant = report_non_significant
         self.table_name = table_name
 
 
@@ -23,9 +25,7 @@ class CorrelationResult(Result):
         self.items = []
         if metadata is None:
             self.metadata = CorrelationStudyMetadata(
-                selected_columns=[],
-                compact=False,
-                table_name=''
+                selected_columns=[], compact=False, report_non_significant=False, table_name=""
             )
         else:
             self.metadata = metadata

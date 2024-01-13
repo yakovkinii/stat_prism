@@ -37,9 +37,7 @@ class Descriptive:
         self.gridLayout.addWidget(self.stackedWidget, 0, 0, 1, 1)
 
         # Populate main frame
-        self.home_delete_title = HomeDeleteTitle(
-            parent=self.frame, owner=self, title_text="Descriptive\nStatistics"
-        )
+        self.home_delete_title = HomeDeleteTitle(parent=self.frame, owner=self, title_text="Descriptive\nStatistics")
 
         self.list_label = create_label(
             parent=self.frame,
@@ -60,13 +58,9 @@ class Descriptive:
         self.formLayout = QtWidgets.QFormLayout(self.groupBox)
 
         self.checkBox_n = add_checkbox_to_groupbox(self.groupBox, 0, self.formLayout)
-        self.checkBox_missing = add_checkbox_to_groupbox(
-            self.groupBox, 1, self.formLayout
-        )
+        self.checkBox_missing = add_checkbox_to_groupbox(self.groupBox, 1, self.formLayout)
         self.checkBox_mean = add_checkbox_to_groupbox(self.groupBox, 2, self.formLayout)
-        self.checkBox_median = add_checkbox_to_groupbox(
-            self.groupBox, 3, self.formLayout
-        )
+        self.checkBox_median = add_checkbox_to_groupbox(self.groupBox, 3, self.formLayout)
         self.checkBox_std = add_checkbox_to_groupbox(self.groupBox, 4, self.formLayout)
         self.checkBox_var = add_checkbox_to_groupbox(self.groupBox, 5, self.formLayout)
         self.checkBox_min = add_checkbox_to_groupbox(self.groupBox, 6, self.formLayout)
@@ -114,9 +108,7 @@ class Descriptive:
     @log_method
     def construct_metadata(self) -> DescriptiveStudyMetadata:
         return DescriptiveStudyMetadata(
-            selected_columns=[
-                self.list_widget.item(i).text() for i in range(self.list_widget.count())
-            ],
+            selected_columns=[self.list_widget.item(i).text() for i in range(self.list_widget.count())],
             n=bool(self.checkBox_n.checkState()),
             missing=bool(self.checkBox_missing.checkState()),
             mean=bool(self.checkBox_mean.checkState()),
@@ -135,9 +127,7 @@ class Descriptive:
     @log_method
     def run(self):
         metadata = self.construct_metadata()
-        result_container.results[
-            result_container.current_result
-        ] = run_descriptive_study(
+        result_container.results[result_container.current_result] = run_descriptive_study(
             df=data.df, metadata=metadata, result_id=result_container.current_result
         )
         self.study_instance.mainwindow_instance.actionUpdateResultsFrame.trigger()

@@ -28,22 +28,20 @@ class Results:
         self.mainwindow_instance: MainWindow = mainwindow_instance
 
         self.frame = QtWidgets.QFrame(parent)
-        sizePolicy = QtWidgets.QSizePolicy(
-            QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Expanding
-        )
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Expanding)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.frame.sizePolicy().hasHeightForWidth())
         self.frame.setSizePolicy(sizePolicy)
         self.frame.setStyleSheet("background-color: #fafafa;")
 
-        # self.frame.setMinimumSize(QtCore.QSize(OUTPUT_WIDTH, 0))
+        self.frame.setMinimumSize(QtCore.QSize(OUTPUT_WIDTH, 0))
         # self.frame.setMaximumSize(QtCore.QSize(OUTPUT_WIDTH, 16777215))
         self.frame.setFrameShape(QtWidgets.QFrame.NoFrame)
         self.frame.setFrameShadow(QtWidgets.QFrame.Raised)
 
         self.layout = QtWidgets.QVBoxLayout(self.frame)
-        self.layout.setContentsMargins(0,0,0,0)
+        self.layout.setContentsMargins(0, 0, 0, 0)
         self.scrollArea = QtWidgets.QScrollArea(self.frame)
 
         self.scrollArea.setFrameShape(QtWidgets.QFrame.NoFrame)
@@ -68,15 +66,9 @@ class Results:
 
     @log_method_noarg
     def update(self):
-        result_widgets_to_remove = set(self.result_widgets.keys()) - set(
-            result_container.results.keys()
-        )
-        result_widgets_to_add = set(result_container.results.keys()) - set(
-            self.result_widgets.keys()
-        )
-        result_widgets_to_update = (
-            set(result_container.results.keys()) - result_widgets_to_add
-        )
+        result_widgets_to_remove = set(self.result_widgets.keys()) - set(result_container.results.keys())
+        result_widgets_to_add = set(result_container.results.keys()) - set(self.result_widgets.keys())
+        result_widgets_to_update = set(result_container.results.keys()) - result_widgets_to_add
 
         for result_id in result_widgets_to_add:
             logging.info(f"Adding result {result_id} widget")
@@ -103,17 +95,8 @@ class Results:
                 self.result_widgets[result_id].frame.deleteLater()
                 del self.result_widgets[result_id]
 
-            last_result_id = None
             for result_id, result in result_container.results.items():
                 self.layout_for_results.addWidget(self.result_widgets[result_id].frame)
-                # self.result_widgets[result_id].frame.setSizePolicy(
-                #     QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Preferred
-                # )
-                last_result_id = result_id
-            # if last_result_id is not None:
-            #     self.result_widgets[last_result_id].frame.setSizePolicy(
-            #         QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding
-            #     )
 
         for result_id, result_widget in self.result_widgets.items():
             if result_id == result_container.current_result:
@@ -129,6 +112,4 @@ class Results:
 
     def ensure_visible(self):
         if result_container.current_result is not NO_RESULT_SELECTED:
-            self.scrollArea.ensureWidgetVisible(
-                self.result_widgets[result_container.current_result].frame
-            )
+            self.scrollArea.ensureWidgetVisible(self.result_widgets[result_container.current_result].frame)
