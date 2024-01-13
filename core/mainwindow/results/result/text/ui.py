@@ -18,11 +18,11 @@ class TextResultItemWidget:
 
         self.layout = VerticalLayout(self.frame, padding_left=20, padding_right=20)
 
-        self.title_widget = TitleWidget(self.frame, self.item.title)
-        self.title_widget.setFixedWidth(999999)
-        self.title_widget.adjustSize()
-
-        self.layout.addWidget(self.title_widget)
+        # self.title_widget = TitleWidget(self.frame, self.item.title)
+        # self.title_widget.setFixedWidth(999999)
+        # self.title_widget.adjustSize()
+        #
+        # self.layout.addWidget(self.title_widget)
 
         self.label = LabelClickable(self.frame)
         self.label.setWordWrap(True)

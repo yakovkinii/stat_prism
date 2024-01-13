@@ -66,11 +66,12 @@ def run_correlation_study(
 
     df = df[metadata.selected_columns]
     compact = metadata.compact
+    table_name=metadata.table_name
     columns = list(df.columns)
 
     correlation_matrix, p_matrix, df_matrix, long_format_df = calculate_correlations(df)
 
-    html = get_table(columns, correlation_matrix, p_matrix, df_matrix, compact)
+    html = get_table(columns, correlation_matrix, p_matrix, df_matrix, compact, table_name)
     table = TableResultItem(title=f"Table (Study #{result_id}):")
     table.html = html
     # df_table.index.name = "Variable"
@@ -90,7 +91,7 @@ def run_correlation_study(
 
     # Verbal
     # columns = list(df.columns)
-    verbal = get_report(columns, correlation_matrix, p_matrix, df_matrix)
+    verbal = get_report(columns, correlation_matrix, p_matrix, df_matrix, table_name)
     # verbal = 'Lorem Ipsum Trololo.'
     result.items.append(TextResultItem(verbal, f"Summary (Study #{result_id})"))
 

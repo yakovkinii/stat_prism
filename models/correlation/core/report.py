@@ -80,7 +80,7 @@ class ID:
 
 
 
-def get_report(columns, correlation_matrix, p_matrix, df_matrix):
+def get_report(columns, correlation_matrix, p_matrix, df_matrix, table_name):
     id1=ID()
     id2=ID()
     id3=ID()
@@ -90,7 +90,7 @@ def get_report(columns, correlation_matrix, p_matrix, df_matrix):
     text = (f"A Pearson correlation coefficient was computed to assess the linear relationship between the variables "+
     smart_comma_join([f"'{var}'" for var in columns])
             +
-            '. '
+            f' (Table {table_name}). '
             )
 
     if len(columns) == 2:

@@ -8,6 +8,7 @@ CSS_STYLE = """
       }
       table{
       margin-bottom: 5px;
+      margin-top: 5px;
       }
 
       td {
@@ -17,7 +18,10 @@ CSS_STYLE = """
         overflow-x: auto;
       }
       .thick-border-bottom{
-        border-bottom: 2px solid rgba(0,0,0,30);
+        border-bottom: 2px solid #777;
+      }
+      .thick-border-top{
+        border-top: 2px solid #777;
       }
       .thin-border-left{
         border-left: 1px solid rgba(0,0,0,10);
@@ -25,7 +29,7 @@ CSS_STYLE = """
       .thin-border-right{
         border-right: 1px solid rgba(0,0,0,10);
       }
-            .thin-border-top{
+     .thin-border-top{
         border-top: 1px solid rgba(0,0,0,10);
       }
                   .thin-border-bottom{
@@ -43,6 +47,23 @@ CSS_STYLE = """
               text-align: left;
               margin-left: 10px;
         font-size: 12px;
+        font-family: 'Segoe UI', Arial, sans-serif;
+      }
+      .table-name-apa{
+        text-align: left;
+        margin-left: 0px;
+        margin-top:3px;
+        margin-bottom:3px;
+        font-size: 14px;
+        font-weight: 600;
+        font-family: 'Segoe UI', Arial, sans-serif;
+      }
+      .table-title-apa{
+        text-align: left;
+        margin-left: 0px;        
+        margin-top:3px;
+        font-size: 14px;
+        font-style: italic;
         font-family: 'Segoe UI', Arial, sans-serif;
       }
       .nowrap{

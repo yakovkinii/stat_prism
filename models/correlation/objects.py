@@ -9,9 +9,11 @@ class CorrelationStudyMetadata:
         self,
         selected_columns: List[str],
             compact:bool,
+            table_name:str
     ):
         self.selected_columns = selected_columns
         self.compact = compact
+        self.table_name = table_name
 
 
 class CorrelationResult(Result):
@@ -22,7 +24,8 @@ class CorrelationResult(Result):
         if metadata is None:
             self.metadata = CorrelationStudyMetadata(
                 selected_columns=[],
-                compact=False
+                compact=False,
+                table_name=''
             )
         else:
             self.metadata = metadata

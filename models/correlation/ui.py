@@ -63,6 +63,15 @@ class Correlation:
         self.compact_checkbox.setGeometry(10, 400, 200, 50)
         self.compact_checkbox.stateChanged.connect(self.ui_changed)
 
+        self.edit_table_title = QtWidgets.QLineEdit(self.frame)
+        self.edit_table_title.setText('1')
+        self.edit_table_title.setGeometry(80,450,30,30)
+
+        self.edit_table_title_label = QtWidgets.QLabel(self.frame)
+        self.edit_table_title_label.setGeometry(10,440,85,50)
+
+        self.edit_table_title.editingFinished.connect(self.ui_changed)
+
         self.state = self.state_selecting_columns
         self.selected_columns = []
         self.stackedWidget.setCurrentIndex(1)
@@ -74,6 +83,7 @@ class Correlation:
         self.home_delete_title.retranslateUI()
         self.compact_checkbox.setText(_translate("MainWindow", "Compact table"))
         self.list_label.setText(_translate("MainWindow", "Selected columns:"))
+        self.edit_table_title_label.setText(_translate("MainWindow","Table ID:"))
 
     @log_method
     def construct_metadata(self) -> CorrelationStudyMetadata:
@@ -81,7 +91,8 @@ class Correlation:
             selected_columns=[
                 self.list_widget.item(i).text() for i in range(self.list_widget.count())
             ],
-            compact=bool(self.compact_checkbox.checkState())
+            compact=bool(self.compact_checkbox.checkState()),
+            table_name=self.edit_table_title.text()
         )
 
     @log_method_noarg
