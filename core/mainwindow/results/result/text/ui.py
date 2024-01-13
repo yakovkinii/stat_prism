@@ -2,7 +2,6 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtCore import Qt
 
 from core.mainwindow.layout import VerticalLayout
-from core.mainwindow.results.preferred import createPreferredWidget
 from core.mainwindow.results.result.common.label import LabelClickable
 from core.mainwindow.results.result.common.title import TitleWidget
 from core.objects import TextResultItem
@@ -30,7 +29,7 @@ class TextResultItemWidget:
         self.label.setTextInteractionFlags(Qt.TextSelectableByMouse)
         self.label.setAlignment(QtCore.Qt.AlignJustify)
         font = QtGui.QFont("Segoe UI")
-        font.setPointSize(12)
+        font.setPointSize(10)
         self.label.setFont(font)
         self.label.setText(item.text)
         #'Table (Study #0):' 107 21

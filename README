@@ -4,4 +4,6 @@ flake8 --max-line-length 120 ./
 
 Known issues:
 - Add study button can be double-clicked
-- When activating the result - the last result flickers
+
+Todo:
+Add titles and references for tables. Add customizer for table title.

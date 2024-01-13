@@ -5,7 +5,6 @@ from PyQt5 import QtWidgets
 from PyQt5.QtCore import Qt
 
 from core.mainwindow.layout import VerticalLayout
-from core.mainwindow.results.preferred import createPreferredWidget
 from core.mainwindow.results.result.common.frame import FrameClickable
 from core.mainwindow.results.result.common.title import TitleWidget
 from core.mainwindow.results.result.constant import RESULT_ITEM_WIDGET_CLASS

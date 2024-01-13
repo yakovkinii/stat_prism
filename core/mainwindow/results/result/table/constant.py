@@ -42,7 +42,7 @@ CSS_STYLE = """
       .footnote{
               text-align: left;
               margin-left: 10px;
-        font-size: 10px;
+        font-size: 12px;
         font-family: 'Segoe UI', Arial, sans-serif;
       }
       .nowrap{
