@@ -1,4 +1,6 @@
 import logging
+import pickle
+import tempfile
 from typing import TYPE_CHECKING
 
 import pandas as pd
@@ -7,10 +9,11 @@ from PyQt5 import QtCore, QtWidgets
 from core.common_ui import create_label, create_tool_button_qta
 from core.constants import NO_RESULT_SELECTED
 from core.mainwindow.study.home.utility import button_y
-from core.shared import data, result_container
+from core.shared import data, result_container, data_selected
 from core.utility import get_next_valid_result_id, log_method, select_result
 from models.correlation.objects import CorrelationResult
 from models.descriptive.objects import DescriptiveResult
+import zipfile
 
 if TYPE_CHECKING:
     from core.mainwindow.study.ui import Study
@@ -34,7 +37,7 @@ class Home:
             icon_path="fa.save",
             icon_size=QtCore.QSize(75, 75),
         )
-        self.SaveReportButton.setEnabled(False)
+        # self.SaveReportButton.setEnabled(False)
 
         self.DescriptiveStatisticsButton = create_tool_button_qta(
             parent=self.widget,
@@ -82,7 +85,7 @@ class Home:
         self.OpenFileButton.pressed.connect(self.open_handler)
         self.DescriptiveStatisticsButton.pressed.connect(self.create_descriptive)
         self.CorrelationButton.pressed.connect(self.create_correlation)
-        # self.SaveReportButton.pressed.connect(self.save_handler)
+        self.SaveReportButton.pressed.connect(self.save_handler)
 
     def retranslateUI(self):
         _translate = QtCore.QCoreApplication.translate
@@ -114,9 +117,9 @@ class Home:
         options = QtWidgets.QFileDialog.Options()
         file_path, _ = QtWidgets.QFileDialog.getOpenFileName(
             self.widget,
-            "Open CSV File",
+            "Open File",
             "",
-            "Excel Files (*.xlsx *.csv);;All Files (*)",
+            "Supported Files (*.sp *.xlsx *.csv);;All Files (*)",
             options=options,
         )
         logging.info(f"Opening {file_path}")
@@ -128,12 +131,79 @@ class Home:
                     data.df = pd.read_excel(file_path, sheet_name=0)
                 except Exception as e:
                     logging.error(str(e))
+            elif file_path.endswith(".sp"):
+                with tempfile.TemporaryDirectory() as temp_dir:
+                        # Extract all files
+                        with zipfile.ZipFile(file_path, 'r') as zipf:
+                            zipf.extractall(temp_dir)
+
+                        with open(f'{temp_dir}/result_container.pkl', 'rb') as file:
+                            result_container.results = pickle.load(file).results
+
+                        data.df = pd.read_parquet(f'{temp_dir}/data.df.parquet')
+                        select_result(NO_RESULT_SELECTED)
+                        self.study_instance.mainwindow_instance.actionUpdateResultsFrame.trigger()
+            else:
+                logging.error('Not supported file type')
 
         if data.df is not None:
             select_result(NO_RESULT_SELECTED)
+            data_selected.df = data.df.copy()
+            data_selected.filter = ""
             self.study_instance.mainwindow_instance.actionUpdateStudyFrame.trigger()
             self.study_instance.mainwindow_instance.actionUpdateTableFrame.trigger()
             self.DescriptiveStatisticsButton.setEnabled(True)
             self.CorrelationButton.setEnabled(True)
 
         self.OpenFileButton.setDown(False)
+
+    def save_handler(self):
+        options = QtWidgets.QFileDialog.Options()
+        file_path, _ = QtWidgets.QFileDialog.getSaveFileName(
+            self.widget,
+            "Chose",
+            "",
+            "StatPrism project (*.sp);;",
+            options=options,
+        )
+        with tempfile.TemporaryDirectory() as temp_dir:
+            data.df.to_parquet(f'{temp_dir}/data.df.parquet')
+            # Save metadata
+
+            # with open(f'{temp_dir}/result_container.results.json', 'w') as meta_file:
+            #     json.dump(result_container.results, meta_file)
+            with open(f'{temp_dir}/result_container.pkl', 'wb') as file:
+                pickle.dump(result_container, file)
+            # Zip all files
+            with zipfile.ZipFile(file_path, 'w') as zipf:
+                zipf.write(f'{temp_dir}/data.df.parquet', f'data.df.parquet')
+                zipf.write(f'{temp_dir}/result_container.pkl', 'result_container.pkl')
+
+
+        # def load_project(filename):
+        #     # Temporary directory to extract files
+        #     temp_dir = 'temp_project_files'
+        #     os.makedirs(temp_dir, exist_ok=True)
+        #
+        #     # Extract all files
+        #     with zipfile.ZipFile(filename, 'r') as zipf:
+        #         zipf.extractall(temp_dir)
+        #
+        #     # Load metadata
+        #     with open(os.path.join(temp_dir, 'metadata.json'), 'r') as meta_file:
+        #         metadata = json.load(meta_file)
+        #
+        #     # Load dataframes
+        #     dataframes = []
+        #     for file in sorted(os.listdir(temp_dir)):
+        #         if file.startswith('dataframe_') and file.endswith('.pkl'):
+        #             df = pd.read_pickle(os.path.join(temp_dir, file))
+        #             dataframes.append(df)
+        #
+        #     # Clean up temporary files
+        #     for file in os.listdir(temp_dir):
+        #         os.remove(os.path.join(temp_dir, file))
+        #     os.rmdir(temp_dir)
+        #
+        #     return dataframes, metadata
+

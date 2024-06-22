@@ -49,9 +49,10 @@ class Results:
 
         self.scrollArea.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
 
-        self.scrollAreaWidgetContents = QtWidgets.QWidget()
+        self.scrollAreaWidgetContents = QtWidgets.QWidget(self.frame)
+        self.scrollAreaWidgetContents.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
 
-        self.layout_for_results = VerticalLayout(self.scrollAreaWidgetContents, top_level=True)
+        self.layout_for_results = VerticalLayout(self.scrollAreaWidgetContents)
 
         self.result_widgets: Dict[int, ResultWidget] = dict()
 

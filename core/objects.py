@@ -54,6 +54,7 @@ class ResultContainer:
 
 class Data:
     def __init__(self, df: pd.DataFrame = None):
+        self.filter = None
         if df is None:
             self.df = None
         else:

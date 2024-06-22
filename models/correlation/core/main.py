@@ -36,9 +36,11 @@ def calculate_correlations(df):
     return correlation_matrix, p_matrix, df_matrix
 
 
-def run_correlation_study(df: pd.DataFrame, metadata: CorrelationStudyMetadata, result_id: int) -> CorrelationResult:
+def run_correlation_study(df: pd.DataFrame, metadata: CorrelationStudyMetadata, result_id: int, comment:str=None) -> CorrelationResult:
     result = CorrelationResult(result_id=result_id, metadata=metadata)
     result.title = f"Correlation (study #{result_id})"
+    if comment is not None:
+        result.title=result.title+comment
     if len(metadata.selected_columns) < 2:
         return result
 

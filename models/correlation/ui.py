@@ -1,3 +1,4 @@
+import logging
 from typing import TYPE_CHECKING
 
 from PyQt5 import QtCore, QtWidgets
@@ -5,7 +6,7 @@ from PyQt5.QtWidgets import QFrame
 
 from core.common_ui import create_label
 from core.constants import NO_RESULT_SELECTED
-from core.shared import data, result_container
+from core.shared import data, result_container, data_selected
 from core.utility import log_method, log_method_noarg
 from models.common.column_selector.ui import ColumnSelector
 from models.common.home_delete_title.ui import HomeDeleteTitle
@@ -73,7 +74,15 @@ class Correlation:
         self.edit_table_title_label = QtWidgets.QLabel(self.frame)
         self.edit_table_title_label.setGeometry(10, 520, 85, 50)
 
+        self.edit_filter = QtWidgets.QLineEdit(self.frame)
+        self.edit_filter.setText("")
+        self.edit_filter.setGeometry(80, 580, 200, 30)
+
+        self.edit_filter_label = QtWidgets.QLabel(self.frame)
+        self.edit_filter_label.setGeometry(10, 570, 85, 50)
+
         self.edit_table_title.editingFinished.connect(self.ui_changed)
+        self.edit_filter.editingFinished.connect(self.ui_changed)
 
         self.state = self.state_selecting_columns
         self.selected_columns = []
@@ -88,9 +97,19 @@ class Correlation:
         self.report_non_significant_checkbox.setText(_translate("MainWindow", "Report non-significant correlations"))
         self.list_label.setText(_translate("MainWindow", "Selected columns:"))
         self.edit_table_title_label.setText(_translate("MainWindow", "Table ID:"))
+        self.edit_filter_label.setText(_translate("MainWindow", "Filter (df):"))
 
     @log_method
     def construct_metadata(self) -> CorrelationStudyMetadata:
+        df = data.df
+        try:
+            data_selected.df = eval(str(self.edit_filter.text()))
+            data_selected.filter = str(self.edit_filter.text())
+        except Exception as e:
+            logging.error(str(e))
+            data_selected.df = data.df
+            data_selected.filter = ""
+
         return CorrelationStudyMetadata(
             selected_columns=[self.list_widget.item(i).text() for i in range(self.list_widget.count())],
             compact=bool(self.compact_checkbox.checkState()),
@@ -106,8 +125,9 @@ class Correlation:
     @log_method
     def run(self):
         metadata = self.construct_metadata()
+        comment = data_selected.filter
         result_container.results[result_container.current_result] = run_correlation_study(
-            df=data.df, metadata=metadata, result_id=result_container.current_result
+            df=data_selected.df, metadata=metadata, result_id=result_container.current_result, comment=comment
         )
         self.study_instance.mainwindow_instance.actionUpdateResultsFrame.trigger()
 
