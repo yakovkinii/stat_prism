@@ -2,8 +2,8 @@ import numpy as np
 import pandas as pd
 import scipy.stats
 
-from core.objects import TableResultItem, TextResultItem, PlotResultItem
-from core.utility import smart_comma_join
+from core.registry.objects import TableResultItem, TextResultItem, PlotResultItem
+from core.registry.utility import smart_comma_join
 from models.correlation.core.report import get_report
 from models.correlation.core.table import get_table
 from models.correlation.objects import CorrelationResult, CorrelationStudyMetadata

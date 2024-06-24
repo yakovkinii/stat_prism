@@ -1,7 +1,7 @@
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QAbstractItemView, QListWidget
 
-from core.utility import log_method
+from core.registry.utility import log_method
 
 
 class CheckListWidget(QListWidget):

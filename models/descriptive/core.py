@@ -1,8 +1,8 @@
 import numpy as np
 import pandas as pd
 
-from core.objects import TableResultItem, TextResultItem
-from core.utility import round_to_significant_digits, smart_comma_join
+from core.registry.objects import TableResultItem, TextResultItem
+from core.registry.utility import round_to_significant_digits, smart_comma_join
 from models.descriptive.objects import DescriptiveResult, DescriptiveStudyMetadata
 
 

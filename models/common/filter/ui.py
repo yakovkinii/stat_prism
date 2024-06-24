@@ -3,8 +3,8 @@ from PyQt5 import QtCore, QtWidgets
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QFrame, QListWidgetItem
 
-from core.common_ui import create_tool_button_qta
-from core.utility import log_method
+from core.ui.common.common_ui import create_tool_button_qta
+from core.registry.utility import log_method
 from models.common.column_selector.check_list.ui import CheckListWidget
 
 

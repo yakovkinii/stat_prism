@@ -1,7 +1,7 @@
 from typing import List
 
-from core.constants import DESCRIPTIVE_MODEL_NAME
-from core.objects import Result
+from core.registry.constants import DESCRIPTIVE_MODEL_NAME
+from core.registry.objects import Result
 
 
 class DescriptiveStudyMetadata:

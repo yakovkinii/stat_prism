@@ -6,7 +6,7 @@ from PyQt5.QtGui import QPixmap
 from PyQt5.QtWidgets import QApplication, QSplashScreen
 from yatools import logging_config
 
-from core.mainwindow.ui import MainWindow
+from core.ui.ui import MainWindowClass
 
 if __name__ == "__main__":
     logging_config.init(logging.DEBUG)
@@ -37,8 +37,8 @@ if __name__ == "__main__":
     splash.show()
 
     # Instantiate and show the first dialog
-    main_win = MainWindow()
-    splash_time = 1500
+    main_win = MainWindowClass()
+    splash_time = 100 #1500
 
     QTimer.singleShot(splash_time, splash.close)
     QTimer.singleShot(splash_time, main_win.showMaximized)

@@ -1,4 +1,4 @@
-from core.utility import smart_comma_join
+from core.registry.utility import smart_comma_join
 
 
 def format_r_apa(r, decimals=2):

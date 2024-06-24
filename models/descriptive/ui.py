@@ -3,9 +3,9 @@ from typing import TYPE_CHECKING
 from PyQt5 import QtCore, QtWidgets
 from PyQt5.QtWidgets import QFrame
 
-from core.common_ui import add_checkbox_to_groupbox, create_label
-from core.shared import data, result_container
-from core.utility import log_method, log_method_noarg
+from core.ui.common.common_ui import add_checkbox_to_groupbox, create_label
+from core.registry.shared import data, result_container
+from core.registry.utility import log_method, log_method_noarg
 from models.common.column_selector.ui import ColumnSelector
 from models.common.home_delete_title.ui import HomeDeleteTitle
 from models.common.list_clickable.ui import CustomListWidget
@@ -13,7 +13,7 @@ from models.descriptive.core import run_descriptive_study
 from models.descriptive.objects import DescriptiveStudyMetadata
 
 if TYPE_CHECKING:
-    from core.mainwindow.study.ui import Study
+    from core.ui.study.ui import SettingsPanelClass
 
 
 class Descriptive:
@@ -21,7 +21,7 @@ class Descriptive:
         self.state_ready = 0
         self.state_selecting_columns = 1
 
-        self.study_instance: Study = study_instance
+        self.study_instance: SettingsPanelClass = study_instance
         self.widget = QtWidgets.QWidget()
 
         self.gridLayout = QtWidgets.QGridLayout(self.widget)
@@ -94,16 +94,16 @@ class Descriptive:
     def retranslateUI(self):
         _translate = QtCore.QCoreApplication.translate
         self.home_delete_title.retranslateUI()
-        self.list_label.setText(_translate("MainWindow", "Selected columns:"))
-        self.groupBox.setTitle(_translate("MainWindow", "Options"))
-        self.checkBox_n.setText(_translate("MainWindow", "N"))
-        self.checkBox_missing.setText(_translate("MainWindow", "Missing"))
-        self.checkBox_mean.setText(_translate("MainWindow", "Mean"))
-        self.checkBox_median.setText(_translate("MainWindow", "Median"))
-        self.checkBox_std.setText(_translate("MainWindow", "Std. deviation"))
-        self.checkBox_var.setText(_translate("MainWindow", "Variance"))
-        self.checkBox_min.setText(_translate("MainWindow", "Minimum"))
-        self.checkBox_max.setText(_translate("MainWindow", "Maximum"))
+        self.list_label.setText(_translate("MainWindowClass", "Selected columns:"))
+        self.groupBox.setTitle(_translate("MainWindowClass", "Options"))
+        self.checkBox_n.setText(_translate("MainWindowClass", "N"))
+        self.checkBox_missing.setText(_translate("MainWindowClass", "Missing"))
+        self.checkBox_mean.setText(_translate("MainWindowClass", "Mean"))
+        self.checkBox_median.setText(_translate("MainWindowClass", "Median"))
+        self.checkBox_std.setText(_translate("MainWindowClass", "Std. deviation"))
+        self.checkBox_var.setText(_translate("MainWindowClass", "Variance"))
+        self.checkBox_min.setText(_translate("MainWindowClass", "Minimum"))
+        self.checkBox_max.setText(_translate("MainWindowClass", "Maximum"))
 
     @log_method
     def construct_metadata(self) -> DescriptiveStudyMetadata:

@@ -1,12 +1,10 @@
-from typing import TYPE_CHECKING
-
 from PyQt5 import QtCore
 from PyQt5.QtWidgets import  QFrame
 
-from core.common_ui import create_label, create_tool_button_qta
-from core.constants import NO_RESULT_SELECTED
-from core.shared import result_container
-from core.utility import log_method
+from core.ui.common.common_ui import create_label, create_tool_button_qta
+from core.registry.constants import NO_RESULT_SELECTED
+from core.registry.shared import result_container
+from core.registry.utility import log_method
 
 
 class HomeDeleteTitle:
@@ -22,7 +20,7 @@ class HomeDeleteTitle:
             icon_size=QtCore.QSize(40, 40),
         )
         # self.SaveWord = create_tool_button_qta(
-        #     parent=self.frame,
+        #     parent_widget=self.frame,
         #     button_geometry=QtCore.QRect(10 + 380 // 3 - 59 // 3, 10, 61, 61),
         #     icon_path="fa.file-word-o",
         #     icon_size=QtCore.QSize(40, 40),
@@ -45,7 +43,7 @@ class HomeDeleteTitle:
 
     def retranslateUI(self):
         _translate = QtCore.QCoreApplication.translate
-        self.title.setText(_translate("MainWindow", self.title_text))
+        self.title.setText(_translate("MainWindowClass", self.title_text))
 
     @log_method
     def home_button_handler(self):

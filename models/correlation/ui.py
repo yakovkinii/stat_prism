@@ -4,10 +4,10 @@ from typing import TYPE_CHECKING
 from PyQt5 import QtCore, QtWidgets
 from PyQt5.QtWidgets import QFrame
 
-from core.common_ui import create_label
-from core.constants import NO_RESULT_SELECTED
-from core.shared import data, result_container, data_selected
-from core.utility import log_method, log_method_noarg
+from core.ui.common.common_ui import create_label
+from core.registry.constants import NO_RESULT_SELECTED
+from core.registry.shared import data, result_container, data_selected
+from core.registry.utility import log_method, log_method_noarg
 from models.common.column_selector.ui import ColumnSelector
 from models.common.home_delete_title.ui import HomeDeleteTitle
 from models.common.list_clickable.ui import CustomListWidget
@@ -18,7 +18,7 @@ from models.correlation.objects import CorrelationStudyMetadata
 from models.descriptive.objects import DescriptiveStudyMetadata
 
 if TYPE_CHECKING:
-    from core.mainwindow.study.ui import Study
+    from core.ui.study.ui import SettingsPanelClass
 
 
 class Correlation:
@@ -26,7 +26,7 @@ class Correlation:
         self.state_ready = 0
         self.state_selecting_columns = 1
 
-        self.study_instance: Study = study_instance
+        self.study_instance: SettingsPanelClass = study_instance
         self.widget = QtWidgets.QWidget()
 
         self.gridLayout = QtWidgets.QGridLayout(self.widget)
@@ -93,11 +93,11 @@ class Correlation:
     def retranslateUI(self):
         _translate = QtCore.QCoreApplication.translate
         self.home_delete_title.retranslateUI()
-        self.compact_checkbox.setText(_translate("MainWindow", "Compact table"))
-        self.report_non_significant_checkbox.setText(_translate("MainWindow", "Report non-significant correlations"))
-        self.list_label.setText(_translate("MainWindow", "Selected columns:"))
-        self.edit_table_title_label.setText(_translate("MainWindow", "Table ID:"))
-        self.edit_filter_label.setText(_translate("MainWindow", "Filter (df):"))
+        self.compact_checkbox.setText(_translate("MainWindowClass", "Compact table"))
+        self.report_non_significant_checkbox.setText(_translate("MainWindowClass", "Report non-significant correlations"))
+        self.list_label.setText(_translate("MainWindowClass", "Selected columns:"))
+        self.edit_table_title_label.setText(_translate("MainWindowClass", "Table ID:"))
+        self.edit_filter_label.setText(_translate("MainWindowClass", "Filter (df):"))
 
     @log_method
     def construct_metadata(self) -> CorrelationStudyMetadata:
