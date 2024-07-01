@@ -42,16 +42,12 @@ class DataModel(QAbstractTableModel):
 
             dataframe.columns = new_columns
 
-
-
         self.beginResetModel()
         self._df_all = dataframe
         self._df = dataframe
         self.column_flags = {}
         for column in dataframe.columns:
-            self.column_flags[column] = ColumnFlags(
-                dataframe[column]
-            )
+            self.column_flags[column] = ColumnFlags(dataframe[column])
         self.endResetModel()
 
     def rowCount(self, parent=None):
@@ -82,7 +78,7 @@ class DataModel(QAbstractTableModel):
             column_name = self._df.columns[section]
             icons = []
             if self.column_flags[column_name].get_flag(ColumnFlagsRegistry.inverted):
-                icons.append(qta.icon('fa.asl-interpreting'))
+                icons.append(qta.icon("fa.asl-interpreting"))
 
             return icons
         return None

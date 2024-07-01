@@ -1,116 +1,83 @@
 from PyQt5 import QtCore
+from PyQt5.QtWidgets import QWidget
 
-from core.panels.common.common_ui import create_tool_button_qta, create_label, create_label_editable, \
-    create_label_editable_wordwrap
+from core.panels.common.common_ui import (
+    create_tool_button_qta,
+    create_label,
+    create_label_editable,
+    create_label_editable_wordwrap,
+    create_tool_button,
+)
 
 
 # 30 ... 380
 
 
 class Title:
-    def __init__(self, parent_widget, label_text, handler=None):
-        self.parent_widget = parent_widget
-        self.label_text = label_text
-        self.margin = 10
-        self.height = 41
-
-        self.label = None
-
-    def place(self, current_height):
-        self.label = create_label(
-            parent=self.parent_widget,
-            label_geometry=QtCore.QRect(30, current_height + self.margin, 351, self.height),
-            font_size=14,
-            alignment=QtCore.Qt.AlignLeft | QtCore.Qt.AlignVCenter,
+    def __init__(self, parent_widget, label_text):
+        self.widget = create_label(
+            parent=parent_widget,
+            label_geometry=None,
+            font_size=12,
+            alignment=QtCore.Qt.AlignHCenter | QtCore.Qt.AlignVCenter,
         )
-        self.label.setText(self.label_text)
-
-        return current_height + self.margin * 2 + self.height
+        self.widget.setText(label_text)
 
 
 class EditableTitle:
     def __init__(self, parent_widget, label_text, handler=None):
-        self.parent_widget = parent_widget
-        self.handler = handler
-        self.label_text = label_text
-        self.margin = 10
-        self.height = 41
-
-        self.label = None
-
-    def place(self, current_height):
-        self.label = create_label_editable(
-            parent=self.parent_widget,
-            label_geometry=QtCore.QRect(30, current_height + self.margin, 351, self.height),
+        self.widget = create_label_editable(
+            parent=parent_widget,
+            label_geometry=None,
             font_size=14,
             alignment=QtCore.Qt.AlignLeft | QtCore.Qt.AlignVCenter,
         )
-        self.label.setText(self.label_text)
-        if self.handler is not None:
-            self.label.editingFinished.connect(self.handler)
+        self.widget.setText(label_text)
+        if handler is not None:
+            self.widget.editingFinished.connect(handler)
 
-        return current_height + self.margin * 2 + self.height
 
 class EditableTitleWordWrap:
     def __init__(self, parent_widget, label_text, handler=None):
-        self.parent_widget = parent_widget
-        self.handler = handler
-        self.label_text = label_text
-        self.margin = 10
-        self.height = 41
-
-        self.label = None
-
-    def place(self, current_height):
-        self.label = create_label_editable_wordwrap(
-            parent=self.parent_widget,
+        self.widget = create_label_editable_wordwrap(
+            parent=parent_widget,
             font_size=14,
             alignment=QtCore.Qt.AlignLeft | QtCore.Qt.AlignVCenter,
         )
-        self.label.setText(self.label_text)
-        if self.handler is not None:
-            self.label.editingFinished.connect(self.handler)
+        # use only the needed vertical size
 
-        return current_height + self.margin * 2 + self.height
+        self.widget.setText(label_text)
+        if handler is not None:
+            self.widget.editingFinished.connect(handler)
 
 
 class BigAssButton:
     def __init__(self, parent_widget, label_text, icon_path, handler=None):
-        self.label_text = label_text
-        self.icon_path = icon_path if icon_path is not None else "msc.blank"
-        self.parent_widget = parent_widget
-        self.handler = handler
+        self.widget = QWidget(parent_widget)
+        self._margin = 30
+        self._height = 101
+        self.widget.setFixedHeight(self._height + self._margin)
+        icon_path = icon_path if icon_path is not None else "msc.blank"
 
-        self.margin = 10
-        self.height = 101
-
-        self.button = None
-        self.label = None
-
-    def place(self, current_height):
         self.button = create_tool_button_qta(
-            parent=self.parent_widget,
-            button_geometry=QtCore.QRect(30, current_height + self.margin, self.height, self.height),
-            icon_path=self.icon_path,
+            parent=self.widget,
+            button_geometry=QtCore.QRect(self._margin, self._margin, self._height, self._height),
+            icon_path=icon_path,
             icon_size=QtCore.QSize(80, 80),
         )
         self.label = create_label(
-            parent=self.parent_widget,
-            label_geometry=QtCore.QRect(150, current_height + self.margin, 231, self.height),
+            parent=self.widget,
+            label_geometry=QtCore.QRect(150, self._margin, 231, self._height),
             font_size=14,
             alignment=QtCore.Qt.AlignLeft | QtCore.Qt.AlignVCenter,
         )
-        self.label.setText(self.label_text)
-        if self.handler is not None:
-            self.button.pressed.connect(self.handler)
+        self.label.setText(label_text)
 
-        return current_height + self.margin * 2 + self.height
+        if handler is not None:
+            self.button.pressed.connect(handler)
 
 
 class Spacer:
     def __init__(self, parent_widget):
-        self.parent_widget = parent_widget
-        self.height = 150
-
-    def place(self, current_height):
-        return current_height + self.height
+        self.widget = QWidget(parent_widget)
+        self.widget.setFixedHeight(50)

@@ -27,9 +27,10 @@ class LeftAlignHeaderView(QtWidgets.QHeaderView):
                 headerText,
                 4,
             )
-            if len(headerIcons)>0:
-                rect_expanded = rect.adjusted(-self._padding, -self._padding, self._padding,
-                                              self._padding + self._icon_height + self._spacing)
+            if len(headerIcons) > 0:
+                rect_expanded = rect.adjusted(
+                    -self._padding, -self._padding, self._padding, self._padding + self._icon_height + self._spacing
+                )
             else:
                 rect_expanded = rect.adjusted(-self._padding, -self._padding, self._padding, self._padding)
 
@@ -58,26 +59,32 @@ class LeftAlignHeaderView(QtWidgets.QHeaderView):
             painter.setPen(QtGui.QPen(QColor(170, 170, 200)))
             painter.drawLine(rect.topRight(), rect.bottomRight())
             painter.restore()
-            if len(headerIcons)>0:
-                iconRect = QtCore.QRect(rect.left() + self._padding,
-                                        rect.bottom() - self._icon_height-self._padding,
-                                        self._icon_height, self._icon_height)
+            if len(headerIcons) > 0:
+                iconRect = QtCore.QRect(
+                    rect.left() + self._padding,
+                    rect.bottom() - self._icon_height - self._padding,
+                    self._icon_height,
+                    self._icon_height,
+                )
                 for headerIcon in headerIcons:
                     headerIcon.paint(painter, iconRect)
-                    iconRect.setLeft(iconRect.left() + self._icon_height+self._spacing)
+                    iconRect.setLeft(iconRect.left() + self._icon_height + self._spacing)
                     iconRect.setWidth(self._icon_height)
                 # headerIcon.paint(painter, iconRect)
             if len(headerIcons) > 0:
-                rect_padded = QtCore.QRectF(rect.adjusted(self._padding, self._padding, -self._padding,
-                                                          -self._padding - self._icon_height - self._spacing))
+                rect_padded = QtCore.QRectF(
+                    rect.adjusted(
+                        self._padding, self._padding, -self._padding, -self._padding - self._icon_height - self._spacing
+                    )
+                )
 
             else:
-                rect_padded = QtCore.QRectF(rect.adjusted(self._padding, self._padding, -self._padding,
-                                                          -self._padding))
+                rect_padded = QtCore.QRectF(rect.adjusted(self._padding, self._padding, -self._padding, -self._padding))
 
             painter.drawText(QtCore.QRectF(rect_padded), QtCore.Qt.TextWordWrap, headerText)
         else:
             QtWidgets.QHeaderView.paintSection(self, painter, rect, logicalIndex)
+
     def enterEvent(self, event):
         index = self.logicalIndexAt(event.pos())
         if index >= 0:

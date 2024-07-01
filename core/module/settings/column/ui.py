@@ -9,7 +9,7 @@ from PyQt5.QtWidgets import QVBoxLayout
 
 from core.globals.debug import DEBUG_LAYOUT
 from core.globals.result import result_container
-from core.module.settings.base.elements import BigAssButton, Spacer, EditableTitle, EditableTitleWordWrap
+from core.module.settings.base.elements import BigAssButton, Spacer, EditableTitle, EditableTitleWordWrap, Title
 from core.module.settings.base.ui import BaseSettingsPanel
 from core.panels.common.common_ui import create_label, create_tool_button_qta
 from core.registry.constants import NO_RESULT_SELECTED
@@ -32,21 +32,26 @@ class Column(BaseSettingsPanel):
         self.column_index = None
         self.caller_index = None
         self.elements = {
-            "title": EditableTitle(
+            "title2": Title(
                 parent_widget=self.widget_for_elements,
-                label_text="Title lorem ipsum trololo lorem ipsum trololo #2",
+                label_text="Column properties",
+            ),
+            "title": EditableTitleWordWrap(
+                parent_widget=self.widget_for_elements,
+                label_text="Title lorem ipsum trololo lorem ipsum trololo #1",
                 handler=self.finish_editing_title,
             ),
-            "title2": EditableTitleWordWrap(
+            "invert": BigAssButton(
                 parent_widget=self.widget_for_elements,
-                label_text="Title lorem ipsum trololo lorem ipsum trololo #2",
-                handler=self.finish_editing_title,
-            ),
-            "open2": BigAssButton(
-                parent_widget=self.widget_for_elements,
-                label_text="Inverse column",
-                icon_path='fa.asl-interpreting',
+                label_text="Invert column",
+                icon_path="fa.asl-interpreting",
                 handler=self.inverse_handler,
+            ),
+            "debug": BigAssButton(
+                parent_widget=self.widget_for_elements,
+                label_text="Debug",
+                icon_path=None,
+                handler=self.debug_handler,
             ),
         }
 
@@ -56,21 +61,21 @@ class Column(BaseSettingsPanel):
     def configure(self, column_index, caller_index=None):
         self.column_index = column_index
         self.caller_index = caller_index
-        self.elements["title"].label.setText(str(self.tabledata.get_column_name(self.column_index)))
-        self.elements["title"].label.setCursorPosition(0)
+        self.elements["title"].widget.setText(str(self.tabledata.get_column_name(self.column_index)))
+        # self.elements["title"].widget.setCursorPosition(0)
 
     @log_method_noarg
     def finish_editing_title(self):
         logging.info(
             f"column #{self.column_index} name changed from "
             f"{self.tabledata.get_column_name(self.column_index)} to "
-            f"{self.elements['title'].label.text()}"
+            f"{self.elements['title'].widget.text()}"
         )
-        if self.elements["title"].label.text() not in self.tabledata.get_column_names():
-            self.tabledata.rename_column(column_index=self.column_index, new_name=self.elements["title"].label.text())
+        if self.elements["title"].widget.text() not in self.tabledata.get_column_names():
+            self.tabledata.rename_column(column_index=self.column_index, new_name=self.elements["title"].widget.text())
         else:
             logging.warning("Column name already exists, reverting")
-            self.elements["title"].label.setText(self.tabledata.get_column_name(self.column_index))
+            self.elements["title"].widget.setText(self.tabledata.get_column_name(self.column_index))
 
     @log_method_noarg
     def inverse_handler(self):

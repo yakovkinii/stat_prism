@@ -14,13 +14,13 @@ if TYPE_CHECKING:
 
 class BaseSettingsPanel:
     def __init__(
-            self,
-            parent_widget,
-            parent_class,
-            root_class,
-            stacked_widget_index,
-            navigation_elements=True,
-            ok_button=False,
+        self,
+        parent_widget,
+        parent_class,
+        root_class,
+        stacked_widget_index,
+        navigation_elements=True,
+        ok_button=False,
     ):
         # Setup
         self.caller_index = None
@@ -40,6 +40,8 @@ class BaseSettingsPanel:
         if navigation_elements:
             self.navigation_widget = QtWidgets.QWidget(self.widget)
             self.navigation_widget.setFixedHeight(80)
+            self.navigation_widget.setStyleSheet("border-bottom: 1px solid #bbb;")
+
             self.widget_layout.addWidget(self.navigation_widget)
 
             self.back_button = create_tool_button_qta(
@@ -71,25 +73,37 @@ class BaseSettingsPanel:
 
         # Definition
         self.widget_for_elements = QtWidgets.QWidget()
+        self.widget_for_elements_layout = QVBoxLayout(self.widget)
+        self.widget_for_elements.setLayout(self.widget_for_elements_layout)
 
         self.scroll_area = QScrollArea()
         self.scroll_area.setWidgetResizable(True)
+        self.scroll_area.setStyleSheet("QScrollArea{border: none;}")
 
         self.scroll_area.setWidget(self.widget_for_elements)
 
         self.widget_layout.addWidget(self.scroll_area)
 
-        self.scroll_area.verticalScrollBar().setStyleSheet("QScrollBar {width: 15px;}")
+        self.scroll_area.verticalScrollBar().setStyleSheet("width: 15px;")
         self.scroll_area.setVerticalScrollBarPolicy(Qt.ScrollBarAsNeeded)
         self.scroll_area.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         self.elements = {}
 
     @log_method_noarg
     def place_elements(self):
-        current_height = 20
+        while self.widget_for_elements_layout.count():
+            item = self.widget_for_elements_layout.takeAt(0)
+            widget = item.widget()
+            if widget is not None:
+                widget.deleteLater()
+
         for element in self.elements.values():
-            current_height = element.place(current_height)
-        self.widget_for_elements.setFixedHeight(current_height + 20)
+            self.widget_for_elements_layout.addWidget(element.widget)
+        self.widget_for_elements_layout.addStretch()
+        # current_height = 20
+        # for element in self.elements.values():
+        #     current_height = element.place(current_height)
+        # self.widget_for_elements.setFixedHeight(current_height + 20)
 
     @log_method_noarg
     def retranslateUI(self):
@@ -117,3 +131,6 @@ class BaseSettingsPanel:
     def ok_button_pressed(self):
         logging.warning("OK button pressed is not reimplemented in the subclass")
         self.activate_caller()
+
+    def debug_handler(self):
+        ...

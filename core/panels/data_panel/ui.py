@@ -57,7 +57,10 @@ class DataPanelClass:
         self.tableview.horizontalHeader().sectionClicked.connect(self.on_selection_changed)
 
     @log_method
-    def on_selection_changed(self, selected,):
+    def on_selection_changed(
+        self,
+        selected,
+    ):
         # This method will be called whenever the selection changes
         selected_columns = list({index.column() for index in self.tableview.selectedIndexes()})
         if len(selected_columns) == 1:

@@ -44,7 +44,8 @@ def create_tool_button_qta(parent, button_geometry, icon_path, icon_size):
 
 def create_label(parent, label_geometry, font_size, alignment):
     label = QtWidgets.QLabel(parent)
-    label.setGeometry(label_geometry)
+    if label_geometry is not None:
+        label.setGeometry(label_geometry)
     font = QtGui.QFont("Segoe UI")
     font.setPointSize(font_size)
     label.setFont(font)
@@ -54,12 +55,14 @@ def create_label(parent, label_geometry, font_size, alignment):
 
 def create_label_editable(parent, label_geometry, font_size, alignment):
     label = EditableLabel(parent)
-    label.setGeometry(label_geometry)
+    if label_geometry is not None:
+        label.setGeometry(label_geometry)
     font = QtGui.QFont("Segoe UI")
     font.setPointSize(font_size)
     label.setFont(font)
     label.setAlignment(alignment)
     return label
+
 
 def create_label_editable_wordwrap(parent, font_size, alignment):
     label = EditableLabelWordwrap(parent)

@@ -39,7 +39,7 @@ class VerticalLayout(QLayout):
         y = rect.y() + self.padding_top
         x = rect.x() + self.padding_left
         for item in self.items:
-            widget_height = item.sizeHint().height()
+            widget_height = item.sizeHint()._height()
             item.setGeometry(QRect(x, y, rect.width() - self.padding_left - self.padding_right, widget_height))
             y += widget_height + self.spacing
 
@@ -49,6 +49,6 @@ class VerticalLayout(QLayout):
         if len(self.items) == 0:
             return QSize(self.padding_left + self.padding_right, self.padding_top + self.padding_bottom)
         height = self.padding_top + self.padding_bottom + self.spacing * (len(self.items) - 1)
-        height += sum(item.sizeHint().height() for item in self.items)
+        height += sum(item.sizeHint()._height() for item in self.items)
         width = max(item.sizeHint().width() for item in self.items) + self.padding_left + self.padding_right
         return QSize(width, height)
