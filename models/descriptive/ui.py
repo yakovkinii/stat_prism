@@ -3,7 +3,7 @@ from typing import TYPE_CHECKING
 from PyQt5 import QtCore, QtWidgets
 from PyQt5.QtWidgets import QFrame
 
-from core.ui.common.common_ui import add_checkbox_to_groupbox, create_label
+from core.panels.common.common_ui import add_checkbox_to_groupbox, create_label
 from core.registry.shared import data, result_container
 from core.registry.utility import log_method, log_method_noarg
 from models.common.column_selector.ui import ColumnSelector
@@ -13,7 +13,7 @@ from models.descriptive.core import run_descriptive_study
 from models.descriptive.objects import DescriptiveStudyMetadata
 
 if TYPE_CHECKING:
-    from core.ui.study.ui import SettingsPanelClass
+    from core.panels.study.ui import SettingsPanelClass
 
 
 class Descriptive:
@@ -128,7 +128,7 @@ class Descriptive:
     def run(self):
         metadata = self.construct_metadata()
         result_container.results[result_container.current_result] = run_descriptive_study(
-            df=data.df, metadata=metadata, result_id=result_container.current_result
+            df=data._df, metadata=metadata, result_id=result_container.current_result
         )
         self.study_instance.mainwindow_instance.actionUpdateResultsFrame.trigger()
 
@@ -166,8 +166,8 @@ class Descriptive:
     @log_method
     def invoke_column_selector(self):
         self.column_selector.configure(
-            columns=list(data.df.columns),
-            dtypes=data.df.dtypes.astype(str).tolist(),
+            columns=list(data._df.columns),
+            dtypes=data._df.dtypes.astype(str).tolist(),
             selected_columns=self.selected_columns,
             allowed_dtypes=["int64", "float64"],
         )

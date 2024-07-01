@@ -2,7 +2,7 @@ import qtawesome as qta
 from PyQt5 import QtCore, QtGui, QtWidgets
 
 import resources_rc
-from core.module.settings.base.helpers import EditableLabel
+from core.module.settings.base.helpers import EditableLabel, EditableLabelWordwrap
 
 
 def icon(path):
@@ -51,9 +51,18 @@ def create_label(parent, label_geometry, font_size, alignment):
     label.setAlignment(alignment)
     return label
 
+
 def create_label_editable(parent, label_geometry, font_size, alignment):
     label = EditableLabel(parent)
     label.setGeometry(label_geometry)
+    font = QtGui.QFont("Segoe UI")
+    font.setPointSize(font_size)
+    label.setFont(font)
+    label.setAlignment(alignment)
+    return label
+
+def create_label_editable_wordwrap(parent, font_size, alignment):
+    label = EditableLabelWordwrap(parent)
     font = QtGui.QFont("Segoe UI")
     font.setPointSize(font_size)
     label.setFont(font)

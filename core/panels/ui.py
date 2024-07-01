@@ -1,11 +1,11 @@
 from PyQt5 import QtCore, QtWidgets
 from PyQt5.QtWidgets import QMessageBox, QVBoxLayout, QStackedWidget, QHBoxLayout
 
-from core.ui.common.common_ui import icon
+from core.panels.common.common_ui import icon
 from core.registry.constants import OUTPUT_WIDTH
-from core.ui.data.ui import DataPanelClass
+from core.panels.data_panel.ui import DataPanelClass
 from core.registry.utility import log_method_noarg, log_method
-from core.ui.settings.ui import SettingsPanelClass
+from core.panels.settings.ui import SettingsPanelClass
 
 
 class MainWindowClass(QtWidgets.QMainWindow):
@@ -26,14 +26,10 @@ class MainWindowClass(QtWidgets.QMainWindow):
         self.central_widget_layout.setSpacing(0)
         self.stacked_widget = QStackedWidget()
         self.data_panel: DataPanelClass = DataPanelClass(
-            parent_widget=self.stacked_widget,
-            parent_class=self.widget,
-            root_class=self
+            parent_widget=self.stacked_widget, parent_class=self.widget, root_class=self
         )
         self.settings_panel: SettingsPanelClass = SettingsPanelClass(
-            parent_widget=self.stacked_widget,
-            parent_class=self.widget,
-            root_class=self
+            parent_widget=self.stacked_widget, parent_class=self.widget, root_class=self
         )
 
         # self.menu = QtWidgets.QMenuBar(self.widget)
@@ -87,32 +83,28 @@ class MainWindowClass(QtWidgets.QMainWindow):
         QMessageBox.about(
             self,
             "StatPrism",
-            "StatPrism Professional \nVersion: 0.1 \n(C) 2023 I.Y. and A.B.",
+            "StatPrism Professional \nVersion: 0.1 \n(C) 2023 - 2024 I.Y. and A.B.",
         )
 
     @log_method_noarg
     def action_update_data_panel(self):
-        self.data_panel.update()
+        raise NotImplementedError("deprecated action")
+        # self.data_panel.update()
 
     @log_method
     def action_activate_column_panel(self, column_index):
         if (self.settings_panel.stacked_widget.currentIndex == self.settings_panel.column_panel_index) and (
-                self.settings_panel.column_panel.column_index == column_index):
+            self.settings_panel.column_panel.column_index == column_index
+        ):
             return
-        self.settings_panel.stacked_widget.setCurrentIndex(
-            self.settings_panel.column_panel_index
-        )
+        self.settings_panel.stacked_widget.setCurrentIndex(self.settings_panel.column_panel_index)
         self.settings_panel.column_panel.configure(column_index)
 
     @log_method_noarg
     def action_activate_home_panel(self):
-        self.settings_panel.stacked_widget.setCurrentIndex(
-            self.settings_panel.home_panel_index
-        )
+        self.settings_panel.stacked_widget.setCurrentIndex(self.settings_panel.home_panel_index)
 
     @log_method
     def action_activate_panel_by_index(self, index):
         if index is not None:
-            self.settings_panel.stacked_widget.setCurrentIndex(
-                index
-            )
+            self.settings_panel.stacked_widget.setCurrentIndex(index)

@@ -25,13 +25,13 @@ def format_p_apa(p, decimals=3):
 
 def get_table(columns, correlation_matrix, p_matrix, df_matrix, compact, table_name):
     n_subrows = 1 if compact else 3
-    html = f'<div class="table-name-apa">Table {table_name}.</div>'
+    html = f'<div class="tabledata-name-apa">Table {table_name}.</div>'
     html += (
-        f'<div class="table-title-apa">Correlations between '
+        f'<div class="tabledata-title-apa">Correlations between '
         + smart_comma_join([f"'{var}'" for var in columns])
         + ".</div>"
     )
-    html += "<table>"
+    html += "<tabledata>"
     html += "<tr>"
     html += '<td  class="thick-border-bottom thick-border-top thin-border-left"></td>'
     if not compact:
@@ -154,7 +154,7 @@ def get_table(columns, correlation_matrix, p_matrix, df_matrix, compact, table_n
 
             html += "</tr>"
 
-    html += "</table>"
+    html += "</tabledata>"
     html += '<div class="footnote"> <i>Note.</i> * p &lt; .05; ** p &lt; .01; *** p &lt; .001</div>'
     print(html)
     return html

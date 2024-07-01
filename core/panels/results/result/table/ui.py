@@ -2,8 +2,8 @@ import numpy as np
 from PyQt5 import QtCore, QtWidgets
 from PyQt5.QtCore import QSize, Qt
 
-from core.ui.common.common_ui.layout import VerticalLayout
-from core.ui.results.result.common.label import LabelClickable
+from core.panels.common.common_ui.layout import VerticalLayout
+from core.panels.results.result.common.label import LabelClickable
 from core.mainwindow import CSS_STYLE
 from core.registry.objects import TableResultItem
 from core.registry.utility import log_method
@@ -73,7 +73,7 @@ class TableResultItemWidget:
 
         header_style = '"font-weight:500;background-color:rgba(0,0,0,10)"'
 
-        html = "<table>"
+        html = "<tabledata>"
         html += "<tr>"
         for column in df.columns:
             html += f'<td style={header_style}><span style="background-color:transparent">{column}</span></td>'
@@ -98,7 +98,7 @@ class TableResultItemWidget:
                     html += f'<span style = "background-color: transparent">{value}</span'
                     html += "</td>"
             html += "</tr>"
-        html += "</table>"
+        html += "</tabledata>"
 
         # html_table = self.item.dataframe.to_html(index=False)
         html = CSS_STYLE + f'<div class="scrollable">{html}</div>'

@@ -19,7 +19,7 @@ def get_html_start_end():
         <title>Your Page Title</title>
         <style>
             /* Base Table Styles */
-            table {
+            tabledata {
                 border-collapse: collapse;
                 font-size: 18px;
                 width: 100%;

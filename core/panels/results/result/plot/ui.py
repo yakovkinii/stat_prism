@@ -3,7 +3,7 @@ from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QBrush, QColor, QPen
 from QCustomPlot_PyQt5 import QCPGraph, QCPScatterStyle, QCustomPlot, QCP
 
-from core.ui.results.result.common.title import TitleWidget
+from core.panels.results.result.common.title import TitleWidget
 from core.registry.objects import PlotResultItem
 from core.registry.utility import log_method
 

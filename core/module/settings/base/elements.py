@@ -1,13 +1,16 @@
 from PyQt5 import QtCore
 
-from core.ui.common.common_ui import create_tool_button_qta, create_label, create_label_editable
+from core.panels.common.common_ui import create_tool_button_qta, create_label, create_label_editable, \
+    create_label_editable_wordwrap
+
 
 # 30 ... 380
+
 
 class Title:
     def __init__(self, parent_widget, label_text, handler=None):
         self.parent_widget = parent_widget
-        self.label_text=label_text
+        self.label_text = label_text
         self.margin = 10
         self.height = 41
 
@@ -29,7 +32,7 @@ class EditableTitle:
     def __init__(self, parent_widget, label_text, handler=None):
         self.parent_widget = parent_widget
         self.handler = handler
-        self.label_text=label_text
+        self.label_text = label_text
         self.margin = 10
         self.height = 41
 
@@ -48,12 +51,33 @@ class EditableTitle:
 
         return current_height + self.margin * 2 + self.height
 
+class EditableTitleWordWrap:
+    def __init__(self, parent_widget, label_text, handler=None):
+        self.parent_widget = parent_widget
+        self.handler = handler
+        self.label_text = label_text
+        self.margin = 10
+        self.height = 41
+
+        self.label = None
+
+    def place(self, current_height):
+        self.label = create_label_editable_wordwrap(
+            parent=self.parent_widget,
+            font_size=14,
+            alignment=QtCore.Qt.AlignLeft | QtCore.Qt.AlignVCenter,
+        )
+        self.label.setText(self.label_text)
+        if self.handler is not None:
+            self.label.editingFinished.connect(self.handler)
+
+        return current_height + self.margin * 2 + self.height
 
 
 class BigAssButton:
     def __init__(self, parent_widget, label_text, icon_path, handler=None):
         self.label_text = label_text
-        self.icon_path = icon_path
+        self.icon_path = icon_path if icon_path is not None else "msc.blank"
         self.parent_widget = parent_widget
         self.handler = handler
 
@@ -81,7 +105,6 @@ class BigAssButton:
             self.button.pressed.connect(self.handler)
 
         return current_height + self.margin * 2 + self.height
-
 
 
 class Spacer:

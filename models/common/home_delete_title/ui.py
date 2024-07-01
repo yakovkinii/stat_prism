@@ -1,7 +1,7 @@
 from PyQt5 import QtCore
 from PyQt5.QtWidgets import  QFrame
 
-from core.ui.common.common_ui import create_label, create_tool_button_qta
+from core.panels.common.common_ui import create_label, create_tool_button_qta
 from core.registry.constants import NO_RESULT_SELECTED
 from core.registry.shared import result_container
 from core.registry.utility import log_method

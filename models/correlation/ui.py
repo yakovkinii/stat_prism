@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING
 from PyQt5 import QtCore, QtWidgets
 from PyQt5.QtWidgets import QFrame
 
-from core.ui.common.common_ui import create_label
+from core.panels.common.common_ui import create_label
 from core.registry.constants import NO_RESULT_SELECTED
 from core.registry.shared import data, result_container, data_selected
 from core.registry.utility import log_method, log_method_noarg
@@ -18,7 +18,7 @@ from models.correlation.objects import CorrelationStudyMetadata
 from models.descriptive.objects import DescriptiveStudyMetadata
 
 if TYPE_CHECKING:
-    from core.ui.study.ui import SettingsPanelClass
+    from core.panels.study.ui import SettingsPanelClass
 
 
 class Correlation:
@@ -93,7 +93,7 @@ class Correlation:
     def retranslateUI(self):
         _translate = QtCore.QCoreApplication.translate
         self.home_delete_title.retranslateUI()
-        self.compact_checkbox.setText(_translate("MainWindowClass", "Compact table"))
+        self.compact_checkbox.setText(_translate("MainWindowClass", "Compact tabledata"))
         self.report_non_significant_checkbox.setText(_translate("MainWindowClass", "Report non-significant correlations"))
         self.list_label.setText(_translate("MainWindowClass", "Selected columns:"))
         self.edit_table_title_label.setText(_translate("MainWindowClass", "Table ID:"))
@@ -101,13 +101,13 @@ class Correlation:
 
     @log_method
     def construct_metadata(self) -> CorrelationStudyMetadata:
-        df = data.df
+        df = data._df
         try:
-            data_selected.df = eval(str(self.edit_filter.text()))
+            data_selected._df = eval(str(self.edit_filter.text()))
             data_selected.filter = str(self.edit_filter.text())
         except Exception as e:
             logging.error(str(e))
-            data_selected.df = data.df
+            data_selected._df = data._df
             data_selected.filter = ""
 
         return CorrelationStudyMetadata(
@@ -127,7 +127,7 @@ class Correlation:
         metadata = self.construct_metadata()
         comment = data_selected.filter
         result_container.results[result_container.current_result] = run_correlation_study(
-            df=data_selected.df, metadata=metadata, result_id=result_container.current_result, comment=comment
+            df=data_selected._df, metadata=metadata, result_id=result_container.current_result, comment=comment
         )
         self.study_instance.mainwindow_instance.actionUpdateResultsFrame.trigger()
 
@@ -161,8 +161,8 @@ class Correlation:
     @log_method
     def invoke_column_selector(self):
         self.column_selector.configure(
-            columns=list(data.df.columns),
-            dtypes=data.df.dtypes.astype(str).tolist(),
+            columns=list(data._df.columns),
+            dtypes=data._df.dtypes.astype(str).tolist(),
             selected_columns=self.selected_columns,
             allowed_dtypes=["int64", "float64"],
         )

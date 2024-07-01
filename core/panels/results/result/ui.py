@@ -3,9 +3,9 @@ from typing import TYPE_CHECKING
 
 from PyQt5.QtCore import Qt
 
-from core.ui.common.common_ui.layout import VerticalLayout
-from core.ui.results.result.common.frame import FrameClickable
-from core.ui.results.result.common.title import TitleWidget
+from core.panels.common.common_ui.layout import VerticalLayout
+from core.panels.results.result.common.frame import FrameClickable
+from core.panels.results.result.common.title import TitleWidget
 from core.mainwindow import RESULT_ITEM_WIDGET_CLASS
 from core.registry.shared import result_container
 from core.registry.utility import log_method

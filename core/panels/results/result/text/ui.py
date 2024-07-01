@@ -1,8 +1,8 @@
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtCore import Qt
 
-from core.ui.common.common_ui.layout import VerticalLayout
-from core.ui.results.result.common.label import LabelClickable
+from core.panels.common.common_ui.layout import VerticalLayout
+from core.panels.results.result.common.label import LabelClickable
 from core.registry.objects import TextResultItem
 from core.registry.utility import log_method
 

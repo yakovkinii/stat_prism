@@ -52,9 +52,6 @@ class ResultContainer:
         self.current_result = NO_RESULT_SELECTED
 
 
-
-
-
 class ModelRegistryItem:
     def __init__(
         self,

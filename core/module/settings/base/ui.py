@@ -6,21 +6,28 @@ from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QVBoxLayout, QScrollArea
 from core.globals.debug import DEBUG_LAYOUT
 from core.registry.utility import log_method_noarg
-from core.ui.common.common_ui import create_tool_button_qta
+from core.panels.common.common_ui import create_tool_button_qta
 
 if TYPE_CHECKING:
-    from core.ui.ui import MainWindowClass
+    from core.panels.ui import MainWindowClass
 
 
 class BaseSettingsPanel:
-    def __init__(self, parent_widget, parent_class, root_class,
-                 stacked_widget_index,navigation_elements=True,
-                 ):
+    def __init__(
+            self,
+            parent_widget,
+            parent_class,
+            root_class,
+            stacked_widget_index,
+            navigation_elements=True,
+            ok_button=False,
+    ):
         # Setup
         self.caller_index = None
         self.stacked_widget_index = stacked_widget_index
         self.root_class: MainWindowClass = root_class
         self.parent_class = parent_class
+        self.tabledata = self.root_class.data_panel.tabledata
         self.widget = QtWidgets.QWidget(parent_widget)
         if DEBUG_LAYOUT:
             self.widget.setStyleSheet("border: 1px solid green; background-color: #efe;")
@@ -42,7 +49,17 @@ class BaseSettingsPanel:
                 icon_size=QtCore.QSize(40, 40),
             )
             self.back_button.clicked.connect(self.back_button_pressed)
-            # self.back_button.setEnabled(False)
+            if self.caller_index is None:
+                self.back_button.setEnabled(False)
+
+            if ok_button:
+                self.ok_button = create_tool_button_qta(
+                    parent=self.widget,
+                    button_geometry=QtCore.QRect((10 + 400 - 120) // 2, 10, 120, 60),
+                    icon_path="ri.check-line",
+                    icon_size=QtCore.QSize(40, 40),
+                )
+                self.ok_button.clicked.connect(self.ok_button_pressed)
 
             self.home_button = create_tool_button_qta(
                 parent=self.widget,
@@ -51,8 +68,6 @@ class BaseSettingsPanel:
                 icon_size=QtCore.QSize(40, 40),
             )
             self.home_button.clicked.connect(self.root_class.action_activate_home_panel)
-
-
 
         # Definition
         self.widget_for_elements = QtWidgets.QWidget()
@@ -67,8 +82,7 @@ class BaseSettingsPanel:
         self.scroll_area.verticalScrollBar().setStyleSheet("QScrollBar {width: 15px;}")
         self.scroll_area.setVerticalScrollBarPolicy(Qt.ScrollBarAsNeeded)
         self.scroll_area.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
-        self.elements = {
-        }
+        self.elements = {}
 
     @log_method_noarg
     def place_elements(self):
@@ -86,8 +100,20 @@ class BaseSettingsPanel:
         if self.stacked_widget_index:
             self.root_class.action_activate_panel_by_index(self.stacked_widget_index)
         else:
-            logging.error(f'{self.stacked_widget_index=}')
-    @log_method_noarg
+            logging.error(f"{self.stacked_widget_index=}")
 
+    @log_method_noarg
+    def activate_caller(self):
+        if self.caller_index is not None:
+            self.root_class.action_activate_panel_by_index(self.caller_index)
+        else:
+            logging.error(f"Trying to activate caller {self.caller_index=}")
+
+    @log_method_noarg
     def back_button_pressed(self):
-        self.root_class.action_activate_panel_by_index(self.caller_index)
+        self.activate_caller()
+
+    @log_method_noarg
+    def ok_button_pressed(self):
+        logging.warning("OK button pressed is not reimplemented in the subclass")
+        self.activate_caller()

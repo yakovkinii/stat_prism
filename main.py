@@ -6,7 +6,7 @@ from PyQt5.QtGui import QPixmap
 from PyQt5.QtWidgets import QApplication, QSplashScreen
 from yatools import logging_config
 
-from core.ui.ui import MainWindowClass
+from core.panels.ui import MainWindowClass
 
 if __name__ == "__main__":
     logging_config.init(logging.DEBUG)

@@ -47,7 +47,7 @@ class VerticalLayout(QLayout):
         if self.top_level:
             return self.parent.size()
         if len(self.items) == 0:
-            return QSize(self.padding_left+self.padding_right,self.padding_top+self.padding_bottom)
+            return QSize(self.padding_left + self.padding_right, self.padding_top + self.padding_bottom)
         height = self.padding_top + self.padding_bottom + self.spacing * (len(self.items) - 1)
         height += sum(item.sizeHint().height() for item in self.items)
         width = max(item.sizeHint().width() for item in self.items) + self.padding_left + self.padding_right

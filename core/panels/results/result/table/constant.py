@@ -1,12 +1,12 @@
 CSS_STYLE = """
       <style>
-      table, th, td, span {
+      tabledata, th, td, span {
         border-collapse: collapse;
         text-align: left;
         font-size: 14px;
         font-family: 'Segoe UI', Arial, sans-serif;
       }
-      table{
+      tabledata{
       margin-bottom: 5px;
       margin-top: 5px;
       }
@@ -50,7 +50,7 @@ CSS_STYLE = """
         font-size: 12px;
         font-family: 'Segoe UI', Arial, sans-serif;
       }
-      .table-name-apa{
+      .tabledata-name-apa{
         text-align: left;
         margin-left: 0px;
         margin-top:3px;
@@ -59,7 +59,7 @@ CSS_STYLE = """
         font-weight: 600;
         font-family: 'Segoe UI', Arial, sans-serif;
       }
-      .table-title-apa{
+      .tabledata-title-apa{
         text-align: left;
         margin-left: 0px;
         margin-top:3px;

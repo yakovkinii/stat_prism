@@ -5,8 +5,8 @@ from PyQt5 import QtCore, QtWidgets
 from PyQt5.QtCore import QTimer
 
 from core.registry.constants import NO_RESULT_SELECTED, OUTPUT_WIDTH
-from core.ui.common.common_ui.layout import VerticalLayout
-from core.ui.results.result.ui import ResultWidget
+from core.panels.common.common_ui.layout import VerticalLayout
+from core.panels.results.result.ui import ResultWidget
 from core.registry.shared import result_container
 from core.registry.utility import log_method, log_method_noarg
 

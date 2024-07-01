@@ -13,7 +13,7 @@ from core.registry.utility import log_method_noarg
 
 
 if TYPE_CHECKING:
-    from core.ui.ui import MainWindowClass
+    from core.panels.ui import MainWindowClass
 
 
 class SettingsPanelClass:
@@ -46,7 +46,6 @@ class SettingsPanelClass:
             parent_class=self,
             root_class=self.root_class,
             stacked_widget_index=self.home_panel_index,
-
         )
         # Todo move to module
         self.column_panel_index = 1
@@ -67,8 +66,6 @@ class SettingsPanelClass:
         )
 
         self.panels = [self.home_panel, self.column_panel, self.inverse_panel]
-
-
 
         # Relations
         self.stacked_widget.addWidget(self.home_panel.widget)  # Todo move to module

@@ -16,7 +16,6 @@ class ColumnInfo:
 
 class Data:
     def __init__(self, df: pd.DataFrame = None):
-
         self.folded_groups = []
         self.filter = None
         self.df = None
@@ -35,9 +34,9 @@ class Data:
             self.df = df
             self.column_info: List[ColumnInfo] = []
             for column in df.columns:
-                self.column_info.append(ColumnInfo(full_name=str(column),
-                                              display_name=self.format_string(str(column), 20, 8)
-                                              ))
+                self.column_info.append(
+                    ColumnInfo(full_name=str(column), display_name=self.format_string(str(column), 20, 8))
+                )
 
     @log_method
     def format_string(self, input_string, max_row_length, max_rows):
@@ -53,7 +52,7 @@ class Data:
                 if n_lines == max_rows:
                     if len(current_line) > max_row_length - 3:
                         current_line = current_line[:, max_row_length - 3]
-                    return result + current_line + '...'
+                    return result + current_line + "..."
 
                 result += current_line + "\n"
 
@@ -70,6 +69,3 @@ class Data:
             result += current_line
 
         return result
-
-
-data: Data = Data(pd.read_csv('./data.csv'))
