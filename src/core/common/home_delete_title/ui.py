@@ -2,9 +2,7 @@ from PyQt5 import QtCore
 from PyQt5.QtWidgets import QFrame
 
 from src.common import create_label, create_tool_button_qta
-from src.common.registry import NO_RESULT_SELECTED
-from src.common.registry import result_container
-from src.common.registry import log_method
+from src.common.registry import NO_RESULT_SELECTED, log_method, result_container
 
 
 class HomeDeleteTitle:

@@ -4,11 +4,9 @@ from typing import TYPE_CHECKING, Dict
 from PyQt5 import QtCore, QtWidgets
 from PyQt5.QtCore import QTimer
 
-from src.common.registry import NO_RESULT_SELECTED, OUTPUT_WIDTH
+from src.common.registry import NO_RESULT_SELECTED, OUTPUT_WIDTH, log_method, log_method_noarg, result_container
 from src.common.ui_constructor import VerticalLayout
 from src.results_panel.result.ui import ResultWidget
-from src.common.registry import result_container
-from src.common.registry import log_method, log_method_noarg
 
 if TYPE_CHECKING:
     from src.ui_main import MainWindowClass

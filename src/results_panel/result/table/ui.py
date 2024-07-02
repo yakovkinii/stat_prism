@@ -2,11 +2,11 @@ import numpy as np
 from PyQt5 import QtCore, QtWidgets
 from PyQt5.QtCore import QSize, Qt
 
+from src.common.objects import TableResultItem
+from src.common.registry import log_method
 from src.common.ui_constructor import VerticalLayout
 from src.results_panel.result.common.label import LabelClickable
 from src.ui_main import CSS_STYLE
-from src.common.objects import TableResultItem
-from src.common.registry import log_method
 
 
 class ScrollAreaMinimumHeight(QtWidgets.QScrollArea):

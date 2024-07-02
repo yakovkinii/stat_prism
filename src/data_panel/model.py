@@ -1,12 +1,13 @@
 import logging
-from typing import Union, List, Dict
+from typing import Dict, List, Union
 
-import qtawesome as qta
 import pandas as pd
-from PyQt5.QtCore import QAbstractTableModel, Qt, QModelIndex
+import qtawesome as qta
+from PyQt5.QtCore import QAbstractTableModel, QModelIndex, Qt
 
 from src.common.column_flags import ColumnFlags, ColumnFlagsRegistry
 from src.common.decorators import log_method, log_method_noarg
+
 
 class DataModel(QAbstractTableModel):
     def __init__(self, parent=None):
@@ -66,7 +67,7 @@ class DataModel(QAbstractTableModel):
     def headerData(self, section, orientation, role=Qt.DisplayRole):
         if role == Qt.DisplayRole:
             if orientation == Qt.Horizontal:
-                if self.hide_headers_mode == True:
+                if self.hide_headers_mode:
                     return None
                 else:
                     return str(self._df.columns[section])

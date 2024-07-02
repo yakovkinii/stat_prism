@@ -1,7 +1,5 @@
-
-from PyQt5.QtCore import pyqtSignal, QTimer, Qt
-
-from PyQt5.QtWidgets import  QLineEdit, QTextEdit
+from PyQt5.QtCore import Qt, QTimer, pyqtSignal
+from PyQt5.QtWidgets import QLineEdit, QTextEdit
 
 from src.common.constant import DEBUG_LAYOUT
 

@@ -1,7 +1,7 @@
 from typing import List
 
-from src.common.registry import CORRELATION_MODEL_NAME
 from src.common.objects import Result
+from src.common.registry import CORRELATION_MODEL_NAME
 
 
 class CorrelationStudyMetadata:

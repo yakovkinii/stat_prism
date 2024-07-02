@@ -9,6 +9,7 @@ from src.common.decorators import log_method
 from src.data_panel.header import LeftAlignHeaderView
 from src.data_panel.model import DataModel
 from src.data_panel.view import DataView
+
 if TYPE_CHECKING:
     from src.ui_main import MainWindowClass
 

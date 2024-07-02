@@ -32,10 +32,9 @@ if __name__ == "__main__":
 
     # Instantiate and show the first dialog
     main_win = MainWindowClass()
-    splash_time = 100 #1500
+    splash_time = 100  # 1500
 
     QTimer.singleShot(splash_time, splash.close)
     QTimer.singleShot(splash_time, main_win.showMaximized)
 
     app.exec_()
-

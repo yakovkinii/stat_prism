@@ -1,9 +1,9 @@
 import logging
 from typing import TYPE_CHECKING
 
-from src.common.custom_widget_containers import EditableTitleWordWrap, Title, MediumAssButton, ColumnColorSelector
-from src.settings_panel.panels.base import BaseSettingsPanel
+from src.common.custom_widget_containers import ColumnColorSelector, EditableTitleWordWrap, MediumAssButton, Title
 from src.common.decorators import log_method, log_method_noarg
+from src.settings_panel.panels.base import BaseSettingsPanel
 
 if TYPE_CHECKING:
     pass

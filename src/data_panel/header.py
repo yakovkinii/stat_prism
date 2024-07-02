@@ -1,7 +1,7 @@
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtGui import QColor
 
-from src.common.constant import COLORS_SELECTION, COLORS
+from src.common.constant import COLORS, COLORS_SELECTION
 
 
 class LeftAlignHeaderView(QtWidgets.QHeaderView):

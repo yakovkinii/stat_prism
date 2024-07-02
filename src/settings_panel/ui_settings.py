@@ -1,14 +1,13 @@
 from typing import TYPE_CHECKING
 
 from PyQt5 import QtCore, QtWidgets
-from PyQt5.QtWidgets import QVBoxLayout, QMenuBar, QMenu, QAction
+from PyQt5.QtWidgets import QAction, QMenu, QMenuBar, QVBoxLayout
 
 from src.common.constant import DEBUG_LAYOUT
 from src.settings_panel.panels.column import Column
 from src.settings_panel.panels.columns import Columns
-from src.settings_panel.panels.invert import Inverse
 from src.settings_panel.panels.home import Home
-
+from src.settings_panel.panels.invert import Inverse
 
 if TYPE_CHECKING:
     from src.ui_main import MainWindowClass

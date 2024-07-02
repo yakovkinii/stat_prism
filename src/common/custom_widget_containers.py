@@ -1,12 +1,12 @@
 from PyQt5 import QtCore, QtWidgets
-from PyQt5.QtWidgets import QWidget, QGridLayout
+from PyQt5.QtWidgets import QGridLayout, QWidget
 
 from src.common.constant import COLORS
 from src.common.ui_constructor import (
-    create_tool_button_qta,
     create_label,
     create_label_editable,
     create_label_editable_wordwrap,
+    create_tool_button_qta,
 )
 
 

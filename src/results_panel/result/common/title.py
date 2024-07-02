@@ -1,8 +1,8 @@
 from PyQt5 import QtCore, QtGui
 from PyQt5.QtCore import Qt
 
+from src.common.decorators import log_method
 from src.results_panel.result.common.label import LabelClickable
-from src.common.registry import log_method
 
 
 class TitleWidget(LabelClickable):

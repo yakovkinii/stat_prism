@@ -1,10 +1,10 @@
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtCore import Qt
 
-from src.common.ui_constructor import VerticalLayout
-from src.results_panel.result.common.label import LabelClickable
 from src.common.objects import TextResultItem
 from src.common.registry import log_method
+from src.common.ui_constructor import VerticalLayout
+from src.results_panel.result.common.label import LabelClickable
 
 
 class TextResultItemWidget:

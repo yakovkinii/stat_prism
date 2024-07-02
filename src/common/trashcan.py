@@ -25,9 +25,6 @@ def create_tool_button(parent, button_geometry, icon_path, icon_size):
     return button
 
 
-
-
-
 class VerticalLayout(QLayout):
     def __init__(
         self, parent, padding_left=0, padding_right=0, padding_top=0, padding_bottom=0, spacing=0, top_level=False

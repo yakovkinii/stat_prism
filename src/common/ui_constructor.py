@@ -4,6 +4,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 import resources_rc
 from src.common.subclassed_widgets import EditableLabel, EditableLabelWordwrap
 
+
 def icon(path):
     _icon = QtGui.QIcon()
     _icon.addPixmap(

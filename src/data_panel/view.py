@@ -1,5 +1,4 @@
-
-from PyQt5.QtGui import QPalette, QColor
+from PyQt5.QtGui import QColor, QPalette
 from PyQt5.QtWidgets import QTableView
 
 

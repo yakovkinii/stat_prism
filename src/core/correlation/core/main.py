@@ -2,7 +2,7 @@ import numpy as np
 import pandas as pd
 import scipy.stats
 
-from src.common.objects import TableResultItem, TextResultItem, PlotResultItem
+from src.common.objects import PlotResultItem, TableResultItem, TextResultItem
 from src.common.registry import smart_comma_join
 from src.core.correlation.core.report import get_report
 from src.core.correlation.core.table import get_table

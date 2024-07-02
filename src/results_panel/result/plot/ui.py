@@ -1,11 +1,11 @@
 from PyQt5 import QtCore, QtWidgets
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QBrush, QColor, QPen
-from QCustomPlot_PyQt5 import QCPGraph, QCPScatterStyle, QCustomPlot, QCP
+from QCustomPlot_PyQt5 import QCP, QCPGraph, QCPScatterStyle, QCustomPlot
 
-from src.results_panel.result.common.title import TitleWidget
 from src.common.objects import PlotResultItem
 from src.common.registry import log_method
+from src.results_panel.result.common.title import TitleWidget
 
 
 class PlotResultItemWidget:

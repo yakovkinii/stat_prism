@@ -1,5 +1,6 @@
 import logging
 import tempfile
+import zipfile
 from typing import TYPE_CHECKING
 
 import pandas as pd
@@ -9,8 +10,6 @@ from PyQt5.QtWidgets import QMessageBox
 from src.common.custom_widget_containers import BigAssButton, Spacer
 from src.common.decorators import log_method_noarg
 from src.settings_panel.panels.base import BaseSettingsPanel
-
-import zipfile
 
 if TYPE_CHECKING:
     pass
@@ -124,7 +123,7 @@ class Home(BaseSettingsPanel):
             #     pickle.dump(result_container, file)
             # Zip all files
             with zipfile.ZipFile(file_path, "w") as zipf:
-                zipf.write(f"{temp_dir}/data.df.parquet", f"data.df.parquet")
+                zipf.write(f"{temp_dir}/data.df.parquet", "data.df.parquet")
                 zipf.write(f"{temp_dir}/result_container.pkl", "result_container.pkl")
 
         # def load_project(filename):

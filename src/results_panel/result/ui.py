@@ -3,12 +3,11 @@ from typing import TYPE_CHECKING
 
 from PyQt5.QtCore import Qt
 
+from src.common.registry import log_method, result_container
 from src.common.ui_constructor import VerticalLayout
 from src.results_panel.result.common.frame import FrameClickable
 from src.results_panel.result.common.title import TitleWidget
 from src.ui_main import RESULT_ITEM_WIDGET_CLASS
-from src.common.registry import result_container
-from src.common.registry import log_method
 
 if TYPE_CHECKING:
     from src.ui_main import Results
