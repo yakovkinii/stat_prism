@@ -139,6 +139,10 @@ class DataModel(QAbstractTableModel):
         return self._df.iloc[:, column_index]
 
     @log_method
+    def get_columns(self, column_names: List[str]):
+        return self._df[column_names]
+
+    @log_method
     def set_column(self, column_index: int, values: Union[List, pd.Series]):
         assert len(values) == self.rowCount()
         column_name = self._df.columns[column_index]

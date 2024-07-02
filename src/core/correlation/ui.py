@@ -5,8 +5,8 @@ from PyQt5 import QtCore, QtWidgets
 from PyQt5.QtWidgets import QFrame
 
 from src.common import create_label
+from src.common.column_selector.ui import ColumnSelector
 from src.common.registry import NO_RESULT_SELECTED, data, data_selected, log_method, log_method_noarg, result_container
-from src.core.common.column_selector.ui import ColumnSelector
 from src.core.common.home_delete_title.ui import HomeDeleteTitle
 from src.core.common.list_clickable.ui import CustomListWidget
 

@@ -56,12 +56,7 @@ class DataPanelClass:
         self.tableview.verticalHeader().setSortIndicatorShown(False)
         self.tableview.verticalHeader().setStretchLastSection(False)
         self.tableview.verticalHeader().setStyleSheet("background-color: white;")
-        # self.tableview.horizontalHeader().setStyleSheet("background-color: rgb(240, 240, 250);")
-        # set the background color of the vertical header items to 240, 240, 250
-        # self.tableview.verticalHeader().setStyleSheet(
-        #     "QHeaderView::section{background-color: rgb(240, 240, 250);}"
-        # )
-        # self.tableview.verticalHeader().setStyleSheet("background-color: rgb(240, 240, 250);")
+        self.tableview.verticalHeader().setHighlightSections(False)
 
         self.tableview.horizontalHeader().sectionClicked.connect(self.on_selection_changed)
 

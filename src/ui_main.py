@@ -71,6 +71,8 @@ class MainWindowClass(QtWidgets.QMainWindow):
         # Post-init
         self.tab_widget.setCurrentIndex(0)
 
+        self.tab_widget.currentChanged.connect(self.on_tab_changed)
+
     @log_method
     def action_activate_column_panel(self, column_index):
         if (self.settings_panel.stacked_widget.currentIndex == self.settings_panel.column_panel_index) and (
@@ -102,3 +104,10 @@ class MainWindowClass(QtWidgets.QMainWindow):
 
         self.settings_panel.stacked_widget.setCurrentIndex(self.settings_panel.columns_panel_index)
         self.settings_panel.columns_panel.configure(column_indexes)
+
+    @log_method_noarg
+    def on_tab_changed(self):
+        if self.tab_widget.currentIndex() == 1:
+            self.settings_panel.stacked_widget.setCurrentIndex(self.settings_panel.select_study_panel_index)
+        else:
+            self.settings_panel.stacked_widget.setCurrentIndex(self.settings_panel.home_panel_index)

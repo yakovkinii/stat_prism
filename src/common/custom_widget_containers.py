@@ -1,7 +1,10 @@
+import qtawesome as qta
 from PyQt5 import QtCore, QtWidgets
-from PyQt5.QtWidgets import QGridLayout, QWidget
+from PyQt5.QtCore import Qt
+from PyQt5.QtWidgets import QGridLayout, QListWidgetItem, QWidget
 
 from src.common.constant import COLORS
+from src.common.subclassed_widgets import CheckListWidget
 from src.common.ui_constructor import (
     create_label,
     create_label_editable,
@@ -133,3 +136,28 @@ class ColumnColorSelector:
             self.buttons.append(button)
             self.layout.addWidget(button, i // 6, i % 6)
             button.pressed.connect(get_handler(i))
+
+
+class ColumnSelector:
+    def __init__(self, parent_widget):
+        self.widget = CheckListWidget(parent_widget)
+        self.widget.setFixedWidth(380)
+        self.widget.setMinimumHeight(100)
+        # self.widget.setGeometry(QtCore.QRect(10, 100, 381, 400))
+        self.widget.setSelectionMode(QtWidgets.QAbstractItemView.ExtendedSelection)
+
+    def configure(self, columns, selected_columns, allowed_columns):
+        while self.widget.count() > 0:
+            self.widget.takeItem(0)
+
+        for column in columns:
+            item = QListWidgetItem(column)
+            self.widget.add_item_custom(item, checkable=column in allowed_columns, checked=column in selected_columns)
+        self.widget.clearSelection()
+
+    def get_selected_columns(self):
+        return [
+            self.widget.item(i).text()
+            for i in range(self.widget.count())
+            if self.widget.item(i).checkState() == Qt.Checked
+        ]

@@ -47,18 +47,16 @@ class BaseSettingsPanel:
 
             self.back_button = create_tool_button_qta(
                 parent=self.widget,
-                button_geometry=QtCore.QRect(10, 10, 180, 60),
+                button_geometry=QtCore.QRect((400 - 180), 10, 180, 60),
                 icon_path="fa.remove",
                 icon_size=QtCore.QSize(40, 40),
             )
             self.back_button.clicked.connect(self.back_button_pressed)
-            if self.caller_index is None:
-                self.back_button.setEnabled(False)
 
             if ok_button:
                 self.ok_button = create_tool_button_qta(
                     parent=self.widget,
-                    button_geometry=QtCore.QRect((10 + 400 - 180) // 2, 10, 180, 60),
+                    button_geometry=QtCore.QRect(10, 10, 180, 60),
                     icon_path="fa.check",
                     icon_size=QtCore.QSize(40, 40),
                 )
@@ -128,6 +126,3 @@ class BaseSettingsPanel:
     def ok_button_pressed(self):
         logging.warning("OK button pressed is not reimplemented in the subclass")
         self.activate_caller()
-
-    def debug_handler(self):
-        ...

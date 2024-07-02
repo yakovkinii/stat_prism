@@ -48,11 +48,11 @@ class Column(BaseSettingsPanel):
                 icon_path="mdi.table-column-remove",
                 handler=self.delete_column_handler,
             ),
-            "set_values": MediumAssButton(
+            "calculate": MediumAssButton(
                 parent_widget=self.widget_for_elements,
-                label_text="Set values",
+                label_text="Calculate",
                 icon_path="mdi.function",
-                # handler=self.inverse_handler,
+                handler=self.calculate_handler,
             ),
             # "debug": MediumAssButton(
             #     parent_widget=self.widget_for_elements,
@@ -126,3 +126,10 @@ class Column(BaseSettingsPanel):
         if previous_color == color:
             color = None
         self.tabledata.set_column_color(self.column_index, color)
+
+    @log_method_noarg
+    def calculate_handler(self):
+        self.root_class.settings_panel.calculate_panel.configure(
+            column_index=self.column_index, caller_index=self.stacked_widget_index
+        )
+        self.root_class.action_activate_panel_by_index(self.root_class.settings_panel.calculate_panel_index)

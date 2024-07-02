@@ -4,10 +4,12 @@ from PyQt5 import QtCore, QtWidgets
 from PyQt5.QtWidgets import QAction, QMenu, QMenuBar, QVBoxLayout
 
 from src.common.constant import DEBUG_LAYOUT
+from src.settings_panel.panels.calculate import Calculate
 from src.settings_panel.panels.column import Column
 from src.settings_panel.panels.columns import Columns
 from src.settings_panel.panels.home import Home
 from src.settings_panel.panels.invert import Inverse
+from src.settings_panel.panels.select_study import SelectStudy
 
 if TYPE_CHECKING:
     from src.ui_main import MainWindowClass
@@ -62,6 +64,7 @@ class SettingsPanelClass:
             stacked_widget_index=self.inverse_panel_index,
         )
 
+        # Todo move to module
         self.columns_panel_index = 3
         self.columns_panel: Columns = Columns(
             parent_widget=self.stacked_widget,
@@ -70,13 +73,40 @@ class SettingsPanelClass:
             stacked_widget_index=self.columns_panel_index,
         )
 
-        self.panels = [self.home_panel, self.column_panel, self.inverse_panel, self.columns_panel]
+        # Todo move to module
+        self.select_study_panel_index = 4
+        self.select_study_panel: SelectStudy = SelectStudy(
+            parent_widget=self.stacked_widget,
+            parent_class=self,
+            root_class=self.root_class,
+            stacked_widget_index=self.select_study_panel_index,
+        )
+
+        # Todo move to module
+        self.calculate_panel_index = 5
+        self.calculate_panel: Calculate = Calculate(
+            parent_widget=self.stacked_widget,
+            parent_class=self,
+            root_class=self.root_class,
+            stacked_widget_index=self.calculate_panel_index,
+        )
+
+        self.panels = [
+            self.home_panel,
+            self.column_panel,
+            self.inverse_panel,
+            self.columns_panel,
+            self.select_study_panel,
+            self.calculate_panel,
+        ]
 
         # Relations
         self.stacked_widget.addWidget(self.home_panel.widget)  # Todo move to module
         self.stacked_widget.addWidget(self.column_panel.widget)  # Todo move to module
         self.stacked_widget.addWidget(self.inverse_panel.widget)  # Todo move to module
         self.stacked_widget.addWidget(self.columns_panel.widget)  # Todo move to module
+        self.stacked_widget.addWidget(self.select_study_panel.widget)  # Todo move to module
+        self.stacked_widget.addWidget(self.calculate_panel.widget)  # Todo move to module
         self.widget_layout.addWidget(self.stacked_widget)
 
         # Create a file menu and add actions
