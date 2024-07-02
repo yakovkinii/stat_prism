@@ -44,6 +44,7 @@ class DataModel(QAbstractTableModel):
 
             dataframe.columns = new_columns
 
+        dataframe.columns = [str(column) for column in dataframe.columns]
         self.beginResetModel()
         self._df_all = dataframe.copy()
         self._df = dataframe.copy()
@@ -100,7 +101,6 @@ class DataModel(QAbstractTableModel):
 
     @log_method
     def setHorizontalHeaderLabels(self, labels):
-        logging.warning("setHorizontalHeaderLabels called")
         assert len(labels) == self._df.shape[1]
         assert len(set(labels)) == len(labels)
         self.beginResetModel()
@@ -129,12 +129,10 @@ class DataModel(QAbstractTableModel):
             [new_name if i == column_index else self._df.columns[i] for i in range(self.columnCount())]
         )
 
-    @log_method
     def get_column_name(self, column_index: int):
         assert 0 <= column_index < self.columnCount()
         return str(self._df.columns[column_index])
 
-    @log_method_noarg
     def get_column_names(self) -> List[str]:
         return [str(column) for column in self._df.columns]
 
@@ -190,7 +188,6 @@ class DataModel(QAbstractTableModel):
         new_column_name = "New column "+str(suffix)
 
         self.beginInsertColumns(QModelIndex(), column_to_the_left_index+1, column_to_the_left_index+1)
-        logging.info(self._df_all.columns)
         self._df.insert(column_to_the_left_index+1, new_column_name, "")
         self._df_all.insert(column_to_the_left_index_all+1, new_column_name, "")
         self.column_flags[new_column_name] = ColumnFlags(self._df_all[new_column_name])
@@ -205,4 +202,28 @@ class DataModel(QAbstractTableModel):
         self.column_flags.pop(column_name)
         self.endRemoveColumns()
 
+    @log_method
+    def delete_columns(self, column_indexes):
+        column_names = [self.get_column_name(index) for index in column_indexes]
+        self.beginRemoveColumns(QModelIndex(), min(column_indexes), max(column_indexes))
+        self._df.drop(columns=column_names, inplace=True)
+        self._df_all.drop(columns=column_names, inplace=True)
+        for column_name in column_names:
+            self.column_flags.pop(column_name)
+        self.endRemoveColumns()
 
+    def get_column_color(self, column_index):
+        try:
+            column_name = self.get_column_name(column_index)
+            return self.column_flags[column_name].color
+        except KeyError as e:
+            logging.error(f"{self._df.columns=}")
+            logging.error(f"{self._df_all.columns=}")
+            logging.error(f"{self.column_flags=}")
+            raise KeyError(e)
+
+    @log_method
+    def set_column_color(self, column_index, color):
+        column_name = self.get_column_name(column_index)
+        self.column_flags[column_name].color = color
+        self.headerDataChanged.emit(Qt.Horizontal, column_index, column_index)

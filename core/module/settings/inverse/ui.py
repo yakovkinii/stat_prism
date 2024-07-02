@@ -28,19 +28,20 @@ if TYPE_CHECKING:
 class Inverse(BaseSettingsPanel):
     def __init__(self, parent_widget, parent_class, root_class, stacked_widget_index):
         # Setup
-        super().__init__(parent_widget, parent_class, root_class, stacked_widget_index, ok_button=True)
+        super().__init__(parent_widget, parent_class, root_class, stacked_widget_index,navigation_elements=True,
+                         ok_button=True)
 
-        self.column_index = None
+        self.column_indexes = None
         self.caller_index = None
         self.elements = {
             "title": Title(
                 parent_widget=self.widget_for_elements,
-                label_text="Invert column",
+                label_text="Invert (flip) values",
             ),
-            "title2": Title(
-                parent_widget=self.widget_for_elements,
-                label_text="",
-            ),
+            # "title2": Title(
+            #     parent_widget=self.widget_for_elements,
+            #     label_text="",
+            # ),
             # "inverse": BigAssButton(
             #     parent_widget=self.widget_for_elements,
             #     label_text="Confirm",
@@ -52,22 +53,21 @@ class Inverse(BaseSettingsPanel):
         self.place_elements()
 
     @log_method
-    def configure(self, column_index, caller_index=None):
-        self.column_index = column_index
+    def configure(self, column_indexes, caller_index=None):
+        self.column_indexes = column_indexes
         self.caller_index = caller_index
-        self.elements["title2"].widget.setText(self.tabledata.get_column_name(column_index))
         if caller_index is not None:
             self.back_button.setEnabled(True)
         else:
+            logging.warning('Unexpected absence of caller_index')
             self.back_button.setEnabled(False)
-
 
     @log_method_noarg
     def ok_button_pressed(self):
-        column = self.tabledata.get_column(self.column_index)
-        column_name = self.tabledata.get_column_name(self.column_index)
+        column = self.tabledata.get_column(self.column_indexes)
+        column_name = self.tabledata.get_column_name(self.column_indexes)
         self.tabledata.set_column(
-            self.column_index,
+            self.column_indexes,
             column.max() - (column - column.min()),
         )
         self.tabledata.toggle_column_flag(

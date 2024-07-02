@@ -1,3 +1,4 @@
+import inspect
 import logging
 
 import numpy as np
@@ -160,6 +161,19 @@ def div_table():
 
 level = 0
 
+def logging_decorator(func):
+    def error_log():
+        try:
+            func()
+        except Exception as err:
+            logger.error(err, extra={'real_pathname': inspect.getsourcefile(func),  # path to source file
+                                     'real_lineno': inspect.trace()[-1][2],         # line number from trace
+                                     'real_funcName': func.__name__})               # function name
+
+    return error_log
+
+
+
 
 def log_method(method):
     """
@@ -170,7 +184,17 @@ def log_method(method):
         global level
         class_name = self.__class__.__name__
         ident = "⋅ " * level
-        logging.debug(ident + f"{class_name}.{method.__name__}")
+
+        logger = logging.getLogger()
+        source_file = inspect.getsourcefile(method)
+        line_number = inspect.getsourcelines(method)[1]
+        lr = logger.makeRecord(logger.name,
+                               logging.DEBUG,
+                               source_file,
+                               line_number,
+                               ident + f"{class_name}.{method.__name__}", {}, None, "")
+        logger.handle(lr)
+
         level += 1
         if args or kwargs:
             result = method(self, *args, **kwargs)
@@ -194,7 +218,17 @@ def log_method_noarg(method):
         global level
         class_name = self.__class__.__name__
         ident = "⋅ " * level
-        logging.debug(ident + f"{class_name}.{method.__name__}")
+
+        logger = logging.getLogger()
+        source_file = inspect.getsourcefile(method)
+        line_number = inspect.getsourcelines(method)[1]
+        lr = logger.makeRecord(logger.name,
+                               logging.DEBUG,
+                               source_file,
+                               line_number,
+                               ident + f"{class_name}.{method.__name__}", {}, None, "")
+        logger.handle(lr)
+
         level += 1
         result = method(self)
         level -= 1

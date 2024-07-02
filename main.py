@@ -9,7 +9,7 @@ from yatools import logging_config
 from core.panels.ui import MainWindowClass
 
 if __name__ == "__main__":
-    logging_config.init(logging.DEBUG)
+    logging_config.init(logging.INFO)
     # Back up the reference to the exceptionhook
 
     sys._excepthook = sys.excepthook

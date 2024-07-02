@@ -1,5 +1,7 @@
 import qtawesome as qta
 from PyQt5 import QtCore, QtGui, QtWidgets
+from PyQt5.QtGui import QPainter, QFont
+from PyQt5.QtWidgets import QTabWidget
 
 import resources_rc
 from core.module.settings.base.helpers import EditableLabel, EditableLabelWordwrap

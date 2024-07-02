@@ -36,6 +36,15 @@ class EditableLabelWordwrap(QTextEdit):
         if DEBUG_LAYOUT:
             self.setStyleSheet("border: 1px solid blue; background-color: #eef;")
         self.textChanged.connect(self.adjustHeightToFitText)
+        # on Enter (both regular and numpad) emit editingFinished signal and clear focus
+        self.installEventFilter(self)
+
+    def eventFilter(self, obj, event):
+        if event.type() == event.KeyPress:
+            if event.key() in (Qt.Key_Return, Qt.Key_Enter):
+                self.clearFocus()  # will emit editingFinished
+                return True
+        return super().eventFilter(obj, event)
 
     def focusOutEvent(self, event):
         self.editingFinished.emit()
@@ -47,57 +56,7 @@ class EditableLabelWordwrap(QTextEdit):
     def adjustHeightToFitText(self):
         doc = self.document()
         doc.setTextWidth(388.0)
-
-        # Translate this to python:
-        #     QSizeF sz = d->pageSize;
-        #     sz.setWidth(width);
-        #     sz.setHeight(-1);
-        #     setPageSize(sz);
-
-        # self.document().setPageSize(QSizeF(388.0, -1))
-        # self.setFixedHeight(doc.size().height() + 2 * self.frameWidth()+10)
-        #
-
-        # self.setFixedHeight(doc.size().height() + 2 * self.frameWidth() + 10)
-        # height = 0
-        # block = doc.begin()
-        # while block.isValid():
-        #     block_layout = block.layout()
-        #     if block_layout:
-        #         line_count = block_layout.lineCount()
-        #         for i in range(line_count):
-        #                 line_height = block_layout.lineAt(0).height()
-        #                 height += line_height
-        #             # line_height = block_layout.lineAt(0).height()
-        #             # height += line_count * line_height
-        #     block = block.next()
         self.setFixedHeight(doc.size().height() + 2 * self.frameWidth())
-        # return height
-
-    # def getLineHeight(self):
-    #     block = self.document().firstBlock()
-    #     if block.isValid():
-    #         block_layout = block.layout()
-    #         if block_layout and block_layout.lineCount() > 0:
-    #             line = block_layout.lineAt(0)
-    #             return line.height()
-    #     return 0
-    #
-    # #
-    # def adjustHeightToFitText(self):
-    #     doc = self.document()
-    #     doc.setTextWidth(388.0)
-    #     # doc.setPageSize(QSizeF(388.0, 1000.0))
-    #     # doc.adjustSize()
-    #     logging.info(self.size())
-    #     logging.info(doc.size())
-    #
-    #     newHeight = doc.size().height() + 2 * self.frameWidth()
-    #     self.setMaximumHeight(newHeight)
-
-    # def resizeEvent(self, event):
-    #     super().resizeEvent(event)
-    #     self.adjustHeightToFitText()
 
     def scheduleAdjustHeightToFitText(self):
         QTimer.singleShot(10, self.adjustHeightToFitText)

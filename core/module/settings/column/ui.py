@@ -10,7 +10,7 @@ from PyQt5.QtWidgets import QVBoxLayout
 from core.globals.debug import DEBUG_LAYOUT
 from core.globals.result import result_container
 from core.module.settings.base.elements import BigAssButton, Spacer, EditableTitle, EditableTitleWordWrap, Title, \
-    MediumAssButton
+    MediumAssButton, ColumnColorSelector
 from core.module.settings.base.ui import BaseSettingsPanel
 from core.panels.common.common_ui import create_label, create_tool_button_qta
 from core.registry.constants import NO_RESULT_SELECTED
@@ -42,6 +42,10 @@ class Column(BaseSettingsPanel):
                 label_text="Title lorem ipsum trololo lorem ipsum trololo #1",
                 handler=self.finish_editing_title,
             ),
+            "color": ColumnColorSelector(
+                parent_widget=self.widget_for_elements,
+                handler=self.color_pressed,
+            ),
             "invert": MediumAssButton(
                 parent_widget=self.widget_for_elements,
                 label_text="Invert\ncolumn ",
@@ -60,18 +64,16 @@ class Column(BaseSettingsPanel):
                 icon_path="mdi.table-column-remove",
                 handler=self.delete_column_handler,
             ),
-            "select_color": MediumAssButton(
-                parent_widget=self.widget_for_elements,
-                label_text="Color",
-                icon_path="ph.drop-fill",
-                # handler=self.inverse_handler,
-            ),
+
             "set_values": MediumAssButton(
                 parent_widget=self.widget_for_elements,
                 label_text="Set values",
                 icon_path="mdi.function",
                 # handler=self.inverse_handler,
             ),
+
+
+
             # "debug": MediumAssButton(
             #     parent_widget=self.widget_for_elements,
             #     label_text="Debug",
@@ -88,7 +90,7 @@ class Column(BaseSettingsPanel):
         self.caller_index = caller_index
         self.elements["title"].widget.setText(str(self.tabledata.get_column_name(self.column_index)))
 
-        if self.tabledata.get_column_dtype(self.column_index) in ['int', 'float']:
+        if self.tabledata.get_column_dtype(self.column_index) in ['int']:
             self.elements["invert"].widget.setEnabled(True)
         else:
             self.elements["invert"].widget.setEnabled(False)
@@ -106,11 +108,12 @@ class Column(BaseSettingsPanel):
         else:
             logging.warning("Column name already exists, reverting")
             self.elements["title"].widget.setText(self.tabledata.get_column_name(self.column_index))
+        self.root_class.action_select_table_column(self.column_index)
 
     @log_method_noarg
     def inverse_handler(self):
         self.root_class.settings_panel.inverse_panel.configure(
-            column_index=self.column_index, caller_index=self.stacked_widget_index
+            column_indexes=[self.column_index], caller_index=self.stacked_widget_index
         )
 
         self.root_class.action_activate_panel_by_index(self.root_class.settings_panel.inverse_panel_index)
@@ -124,5 +127,22 @@ class Column(BaseSettingsPanel):
     @log_method_noarg
     def delete_column_handler(self):
         self.tabledata.delete_column(self.column_index)
-        self.root_class.action_select_table_column(self.column_index)
-        self.root_class.action_activate_column_panel(self.column_index)
+
+        if self.tabledata.columnCount() == 0:
+            self.root_class.action_activate_home_panel()
+            return
+        if self.tabledata.columnCount() > self.column_index:
+            self.root_class.action_select_table_column(self.column_index)
+            self.root_class.action_activate_column_panel(self.column_index)
+            return
+
+        self.root_class.action_select_table_column(self.column_index-1)
+        self.root_class.action_activate_column_panel(self.column_index-1)
+
+    @log_method
+    def color_pressed(self, color:int):
+        logging.info(f"color {color} pressed")
+        previous_color = self.tabledata.get_column_color(self.column_index)
+        if previous_color == color:
+            color = None
+        self.tabledata.set_column_color(self.column_index, color)

@@ -7,6 +7,7 @@ from PyQt5.QtWidgets import QVBoxLayout, QMenuBar, QMenu, QAction
 from core.globals.debug import DEBUG_LAYOUT
 from core.globals.result import result_container
 from core.module.settings.column.ui import Column
+from core.module.settings.columns.ui import Columns
 from core.module.settings.inverse.ui import Inverse
 from core.registry.constants import NO_RESULT_SELECTED
 from core.module.settings.home.ui import Home
@@ -82,12 +83,21 @@ class SettingsPanelClass:
             stacked_widget_index=self.inverse_panel_index,
         )
 
-        self.panels = [self.home_panel, self.column_panel, self.inverse_panel]
+        self.columns_panel_index = 3
+        self.columns_panel: Columns = Columns(
+            parent_widget=self.stacked_widget,
+            parent_class=self,
+            root_class=self.root_class,
+            stacked_widget_index=self.columns_panel_index,
+        )
+
+        self.panels = [self.home_panel, self.column_panel, self.inverse_panel, self.columns_panel]
 
         # Relations
         self.stacked_widget.addWidget(self.home_panel.widget)  # Todo move to module
         self.stacked_widget.addWidget(self.column_panel.widget)  # Todo move to module
         self.stacked_widget.addWidget(self.inverse_panel.widget)  # Todo move to module
+        self.stacked_widget.addWidget(self.columns_panel.widget)  # Todo move to module
         self.widget_layout.addWidget(self.stacked_widget)
 
         # Create a file menu and add actions
@@ -95,12 +105,9 @@ class SettingsPanelClass:
         self.widget_layout.setMenuBar(menu_bar)
         menu_bar.setStyleSheet(
             "QMenuBar{"
-            # "border-left: 1px solid #eee; "
-                               # "border-right: 1px solid #eee;"
-                               # "border-top: 1px solid #eee;"
-                               "border-bottom: 1px solid #ddd;"
-                               "background-color: #eee;"
-        "}"
+               "border-bottom: 1px solid #ddd;"
+               "background-color: #eee;"
+            "}"
         )
 
         file_menu = QMenu("File", self.widget)
@@ -122,11 +129,6 @@ class SettingsPanelClass:
         open_action.triggered.connect(self.home_panel.open_handler)
         save_action.triggered.connect(self.home_panel.save_handler)
         about_action.triggered.connect(self.home_panel.about_handler)
-
-    @log_method_noarg
-    def retranslateUI(self):
-        for panel in self.panels:
-            panel.retranslateUI()
 
     @log_method_noarg
     def update(self):

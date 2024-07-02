@@ -21,6 +21,9 @@ class DataPanelClass:
         self.root_class: MainWindowClass = root_class
         self.parent_class: MainWindowClass = parent_class
         self.widget = QtWidgets.QWidget(parent_widget)
+        self.widget.setContentsMargins(10,0,0,0)
+        self.widget.setStyleSheet("background-color: white;")
+
         if DEBUG_LAYOUT:
             self.widget.setStyleSheet("border: 1px solid blue; background-color: #eef;")
         self.widget_layout = QVBoxLayout(self.widget)
@@ -53,6 +56,13 @@ class DataPanelClass:
         self.tableview.verticalHeader().setHighlightSections(True)
         self.tableview.verticalHeader().setSortIndicatorShown(False)
         self.tableview.verticalHeader().setStretchLastSection(False)
+        self.tableview.verticalHeader().setStyleSheet("background-color: white;")
+        # self.tableview.horizontalHeader().setStyleSheet("background-color: rgb(240, 240, 250);")
+        # set the background color of the vertical header items to 240, 240, 250
+        # self.tableview.verticalHeader().setStyleSheet(
+        #     "QHeaderView::section{background-color: rgb(240, 240, 250);}"
+        # )
+        # self.tableview.verticalHeader().setStyleSheet("background-color: rgb(240, 240, 250);")
 
         self.tableview.horizontalHeader().sectionClicked.connect(self.on_selection_changed)
 
@@ -63,8 +73,12 @@ class DataPanelClass:
     ):
         # This method will be called whenever the selection changes
         selected_columns = list({index.column() for index in self.tableview.selectedIndexes()})
+
         if len(selected_columns) == 1:
             self.root_class.action_activate_column_panel(selected_columns[0])
+        elif len(selected_columns) > 1:
+            self.root_class.action_activate_columns_panel(selected_columns)
+
         logging.debug(f"Selected columns: {selected_columns}")
 
     def retranslateUI(self):

@@ -19,7 +19,7 @@ class BaseSettingsPanel:
         parent_class,
         root_class,
         stacked_widget_index,
-        navigation_elements=True,
+        navigation_elements=False,
         ok_button=False,
     ):
         # Setup
@@ -46,7 +46,7 @@ class BaseSettingsPanel:
 
             self.back_button = create_tool_button_qta(
                 parent=self.widget,
-                button_geometry=QtCore.QRect(10, 10, 120, 60),
+                button_geometry=QtCore.QRect(10, 10, 180, 60),
                 icon_path="fa.remove",
                 icon_size=QtCore.QSize(40, 40),
             )
@@ -57,19 +57,19 @@ class BaseSettingsPanel:
             if ok_button:
                 self.ok_button = create_tool_button_qta(
                     parent=self.widget,
-                    button_geometry=QtCore.QRect((10 + 400 - 120) // 2, 10, 120, 60),
+                    button_geometry=QtCore.QRect((10 + 400 - 180) // 2, 10, 180, 60),
                     icon_path="fa.check",
                     icon_size=QtCore.QSize(40, 40),
                 )
                 self.ok_button.clicked.connect(self.ok_button_pressed)
 
-            self.home_button = create_tool_button_qta(
-                parent=self.widget,
-                button_geometry=QtCore.QRect(400 - 120, 10, 120, 60),
-                icon_path="fa.home",
-                icon_size=QtCore.QSize(40, 40),
-            )
-            self.home_button.clicked.connect(self.root_class.action_activate_home_panel)
+            # self.home_button = create_tool_button_qta(
+            #     parent=self.widget,
+            #     button_geometry=QtCore.QRect(400 - 120, 10, 120, 60),
+            #     icon_path="fa.home",
+            #     icon_size=QtCore.QSize(40, 40),
+            # )
+            # self.home_button.clicked.connect(self.root_class.action_activate_home_panel)
 
         # Definition
         self.widget_for_elements = QtWidgets.QWidget()
@@ -104,10 +104,6 @@ class BaseSettingsPanel:
         # for element in self.elements.values():
         #     current_height = element.place(current_height)
         # self.widget_for_elements.setFixedHeight(current_height + 20)
-
-    @log_method_noarg
-    def retranslateUI(self):
-        ...
 
     @log_method_noarg
     def activate(self):

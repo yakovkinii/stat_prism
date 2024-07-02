@@ -1,5 +1,5 @@
-from PyQt5 import QtCore
-from PyQt5.QtWidgets import QWidget
+from PyQt5 import QtCore, QtWidgets
+from PyQt5.QtWidgets import QWidget, QGridLayout
 
 from core.panels.common.common_ui import (
     create_tool_button_qta,
@@ -11,6 +11,7 @@ from core.panels.common.common_ui import (
 
 
 # 30 ... 380
+from core.registry.registry import COLORS
 
 
 class Title:
@@ -115,3 +116,25 @@ class Spacer:
     def __init__(self, parent_widget):
         self.widget = QWidget(parent_widget)
         self.widget.setFixedHeight(50)
+
+
+class ColumnColorSelector:
+    def __init__(self, parent_widget,handler=None):
+        self.widget = QWidget(parent_widget)
+        self.layout = QGridLayout(self.widget)
+
+        self.buttons = []
+
+        def get_handler(index):
+            return lambda: handler(index)
+
+        for i, color in enumerate(COLORS):
+            button = QtWidgets.QToolButton(self.widget)
+            button.setFixedWidth(40)
+            button.setFixedHeight(40)
+            button.setText("")
+            button.setStyleSheet(f"background-color: {color}")
+            button.setToolButtonStyle(QtCore.Qt.ToolButtonIconOnly)
+            self.buttons.append(button)
+            self.layout.addWidget(button, i//6, i%6)
+            button.pressed.connect(get_handler(i))

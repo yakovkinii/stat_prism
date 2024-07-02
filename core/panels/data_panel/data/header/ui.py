@@ -1,6 +1,8 @@
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtGui import QColor
 
+from core.registry.registry import COLORS, COLORS_SELECTION
+
 
 class LeftAlignHeaderView(QtWidgets.QHeaderView):
     def __init__(self, orientation, parent=None):
@@ -48,12 +50,23 @@ class LeftAlignHeaderView(QtWidgets.QHeaderView):
 
             headerText = self.model().headerData(logicalIndex, self.orientation(), QtCore.Qt.DisplayRole)
             headerIcons = self.model().headerData(logicalIndex, self.orientation(), QtCore.Qt.DecorationRole)
+            headerColor = self.model().get_column_color(logicalIndex)
 
             modelIndex = self.model().index(0, logicalIndex)
+
             if self.selectionModel().isSelected(modelIndex):
-                painter.fillRect(QtCore.QRectF(rect), QColor(210, 210, 230))
+                if headerColor is not None:
+                    painter.fillRect(QtCore.QRectF(rect), QColor(COLORS_SELECTION[headerColor]))
+                else:
+                    painter.fillRect(QtCore.QRectF(rect), QColor("#ddd"))
+                # painter.fillRect(QtCore.QRectF(rect), QColor(210, 210, 230))
             else:
-                painter.fillRect(QtCore.QRectF(rect), QColor(240, 240, 250))
+                if headerColor is not None:
+                    painter.fillRect(QtCore.QRectF(rect), QColor(COLORS[headerColor]))
+                else:
+                    painter.fillRect(QtCore.QRectF(rect), QColor("#eee"))
+
+                # painter.fillRect(QtCore.QRectF(rect), QColor(240, 240, 250))
 
             painter.save()
             painter.setPen(QtGui.QPen(QColor(170, 170, 200)))

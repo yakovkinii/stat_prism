@@ -11,7 +11,7 @@ class ColumnFlags:
     def __init__(self, column: pd.Series):
         self.numeric = column.dtype in [int, float]
         self.inverted = False
-        self.category = None
+        self.color = None
 
         self._flags = {
             "inverted": self.inverted,
