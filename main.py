@@ -6,12 +6,12 @@ from PyQt5.QtGui import QPixmap
 from PyQt5.QtWidgets import QApplication, QSplashScreen
 from yatools import logging_config
 
-from core.panels.ui import MainWindowClass
+from src.ui_main import MainWindowClass
 
 if __name__ == "__main__":
     logging_config.init(logging.INFO)
-    # Back up the reference to the exceptionhook
 
+    # Back up the reference to the exceptionhook
     sys._excepthook = sys.excepthook
 
     def my_exception_hook(exctype, value, traceback):
@@ -26,12 +26,6 @@ if __name__ == "__main__":
 
     app = QApplication(sys.argv)
 
-    # import qtvscodestyle as qtvsc
-
-    # stylesheet = qtvsc.load_stylesheet(qtvsc.Theme.DARK_VS)
-    # stylesheet = load_stylesheet(qtvsc.Theme.LIGHT_VS)
-    # app.setStyleSheet(stylesheet)
-
     pixmap = QPixmap(":/mat/resources/full_black_gold.png")
     splash = QSplashScreen(pixmap)
     splash.show()
@@ -44,5 +38,4 @@ if __name__ == "__main__":
     QTimer.singleShot(splash_time, main_win.showMaximized)
 
     app.exec_()
-    # if main_win.results_frame.temp_file is not None:
-    #     main_win.results_frame.temp_file.close()
+

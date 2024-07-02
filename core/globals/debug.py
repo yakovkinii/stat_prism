@@ -1,2 +1,0 @@
-DEBUG_LAYOUT = False
-# DEBUG_LAYOUT = True
