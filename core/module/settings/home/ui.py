@@ -5,7 +5,7 @@ from typing import TYPE_CHECKING
 
 import pandas as pd
 from PyQt5 import QtCore, QtWidgets
-from PyQt5.QtWidgets import QVBoxLayout
+from PyQt5.QtWidgets import QVBoxLayout, QMessageBox
 
 from core.globals.debug import DEBUG_LAYOUT
 from core.globals.result import result_container
@@ -14,7 +14,7 @@ from core.module.settings.base.ui import BaseSettingsPanel
 from core.panels.common.common_ui import create_label, create_tool_button_qta
 from core.registry.constants import NO_RESULT_SELECTED
 from core.panels.common.utility import button_y
-from core.registry.utility import get_next_valid_result_id, log_method, select_result
+from core.registry.utility import get_next_valid_result_id, log_method, select_result, log_method_noarg
 
 from models.correlation.objects import CorrelationResult
 from models.descriptive.objects import DescriptiveResult
@@ -50,6 +50,12 @@ class Home(BaseSettingsPanel):
             "spacer": Spacer(
                 parent_widget=self.widget_for_elements,
             ),
+            "about": BigAssButton(
+                parent_widget=self.widget_for_elements,
+                label_text="About",
+                icon_path="ri.questionnaire-line",
+                handler=self.about_handler,
+            ),
         }
 
         self.place_elements()
@@ -70,7 +76,7 @@ class Home(BaseSettingsPanel):
         self.study_instance.mainwindow_instance.actionUpdateStudyFrame.trigger()
         # self.study_instance.parent_class.actionUpdateResultsFrame.trigger()
 
-    @log_method
+    @log_method_noarg
     def open_handler(self):
         options = QtWidgets.QFileDialog.Options()
         file_path, _ = QtWidgets.QFileDialog.getOpenFileName(
@@ -108,6 +114,7 @@ class Home(BaseSettingsPanel):
 
         self.elements["open"].button.setDown(False)
 
+    @log_method_noarg
     def save_handler(self):
         options = QtWidgets.QFileDialog.Options()
         file_path, _ = QtWidgets.QFileDialog.getSaveFileName(
@@ -156,3 +163,23 @@ class Home(BaseSettingsPanel):
         #     os.rmdir(temp_dir)
         #
         #     return dataframes, metadata
+    @log_method_noarg
+    def about_handler(self):
+        QMessageBox.about(
+            self.widget,
+            "About StatPrism",
+            "StatPrism - Developer edition\n"
+            "Version: 0.2\n"
+            "\n"
+            "This version of StatPrism is intended for developers only.\n"
+            "\n"
+            "StatPrism is a statistical software for data analysis.\n"
+            "It is designed to be user-friendly and powerful.\n"
+            "\n"
+            "This software is in development and may contain bugs.\n"
+            "The software is provided as is, without any guarantees.\n"
+            "Please report any issues to the developers.\n"
+            "\n"
+            "Developed by: StatPrism team\n"
+            "Copyright 2023 - 2024",
+        )

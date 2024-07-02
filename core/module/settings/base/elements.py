@@ -18,7 +18,7 @@ class Title:
         self.widget = create_label(
             parent=parent_widget,
             label_geometry=None,
-            font_size=12,
+            font_size=10,
             alignment=QtCore.Qt.AlignHCenter | QtCore.Qt.AlignVCenter,
         )
         self.widget.setText(label_text)
@@ -41,7 +41,7 @@ class EditableTitleWordWrap:
     def __init__(self, parent_widget, label_text, handler=None):
         self.widget = create_label_editable_wordwrap(
             parent=parent_widget,
-            font_size=14,
+            font_size=12,
             alignment=QtCore.Qt.AlignLeft | QtCore.Qt.AlignVCenter,
         )
         # use only the needed vertical size
@@ -75,6 +75,40 @@ class BigAssButton:
 
         if handler is not None:
             self.button.pressed.connect(handler)
+        else:
+            self.widget.setEnabled(False)
+        self.button.pressed.connect(lambda:self.button.setDown(False))
+
+
+class MediumAssButton:
+    def __init__(self, parent_widget, label_text, icon_path, handler=None):
+        self.widget = QWidget(parent_widget)
+        self._margin_left = 30
+        self._margin = 10
+        self._height = 51
+        self.widget.setFixedHeight(self._height + self._margin)
+        icon_path = icon_path if icon_path is not None else "msc.blank"
+
+        self.button = create_tool_button_qta(
+            parent=self.widget,
+            button_geometry=QtCore.QRect(self._margin_left, self._margin, self._height, self._height),
+            icon_path=icon_path,
+            icon_size=QtCore.QSize(40, 40),
+        )
+        self.label = create_label(
+            parent=self.widget,
+            label_geometry=QtCore.QRect(100, self._margin, 231, self._height),
+            font_size=10,
+            alignment=QtCore.Qt.AlignLeft | QtCore.Qt.AlignVCenter,
+        )
+        self.label.setText(label_text)
+
+        if handler is not None:
+            self.button.pressed.connect(handler)
+        else:
+            self.widget.setEnabled(False)
+        self.button.pressed.connect(lambda:self.button.setDown(False))
+
 
 
 class Spacer:

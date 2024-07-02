@@ -35,6 +35,10 @@ class Inverse(BaseSettingsPanel):
         self.elements = {
             "title": Title(
                 parent_widget=self.widget_for_elements,
+                label_text="Invert column",
+            ),
+            "title2": Title(
+                parent_widget=self.widget_for_elements,
                 label_text="",
             ),
             # "inverse": BigAssButton(
@@ -51,11 +55,12 @@ class Inverse(BaseSettingsPanel):
     def configure(self, column_index, caller_index=None):
         self.column_index = column_index
         self.caller_index = caller_index
-        self.elements["title"].label.setText("Inverse " + self.tabledata.get_column_name(column_index))
+        self.elements["title2"].widget.setText(self.tabledata.get_column_name(column_index))
         if caller_index is not None:
             self.back_button.setEnabled(True)
         else:
             self.back_button.setEnabled(False)
+
 
     @log_method_noarg
     def ok_button_pressed(self):

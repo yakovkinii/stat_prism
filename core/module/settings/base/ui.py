@@ -40,14 +40,14 @@ class BaseSettingsPanel:
         if navigation_elements:
             self.navigation_widget = QtWidgets.QWidget(self.widget)
             self.navigation_widget.setFixedHeight(80)
-            self.navigation_widget.setStyleSheet("border-bottom: 1px solid #bbb;")
+            self.navigation_widget.setStyleSheet("border-bottom: 1px solid #ddd;")
 
             self.widget_layout.addWidget(self.navigation_widget)
 
             self.back_button = create_tool_button_qta(
                 parent=self.widget,
                 button_geometry=QtCore.QRect(10, 10, 120, 60),
-                icon_path="ri.arrow-go-back-fill",
+                icon_path="fa.remove",
                 icon_size=QtCore.QSize(40, 40),
             )
             self.back_button.clicked.connect(self.back_button_pressed)
@@ -58,7 +58,7 @@ class BaseSettingsPanel:
                 self.ok_button = create_tool_button_qta(
                     parent=self.widget,
                     button_geometry=QtCore.QRect((10 + 400 - 120) // 2, 10, 120, 60),
-                    icon_path="ri.check-line",
+                    icon_path="fa.check",
                     icon_size=QtCore.QSize(40, 40),
                 )
                 self.ok_button.clicked.connect(self.ok_button_pressed)

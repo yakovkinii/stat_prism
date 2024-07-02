@@ -36,7 +36,9 @@ def create_tool_button_qta(parent, button_geometry, icon_path, icon_size):
     button = QtWidgets.QToolButton(parent)
     button.setGeometry(button_geometry)
     button.setText("")
+
     button.setIcon(qta.icon(icon_path))
+    # button.setIcon(qta.icon(icon_path, color='green'))
     button.setIconSize(icon_size)
     button.setToolButtonStyle(QtCore.Qt.ToolButtonIconOnly)
     return button

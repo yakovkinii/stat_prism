@@ -1,9 +1,11 @@
 import logging
 from typing import Union, List, Dict
+
+import numpy as np
 import qtawesome as qta
 import pandas as pd
 from PyQt5 import QtWidgets
-from PyQt5.QtCore import QAbstractTableModel, Qt
+from PyQt5.QtCore import QAbstractTableModel, Qt, QModelIndex
 from PyQt5.QtGui import QColor
 
 from core.panels.data_panel.data.flags import ColumnFlags, ColumnFlagsRegistry
@@ -43,8 +45,8 @@ class DataModel(QAbstractTableModel):
             dataframe.columns = new_columns
 
         self.beginResetModel()
-        self._df_all = dataframe
-        self._df = dataframe
+        self._df_all = dataframe.copy()
+        self._df = dataframe.copy()
         self.column_flags = {}
         for column in dataframe.columns:
             self.column_flags[column] = ColumnFlags(dataframe[column])
@@ -78,7 +80,7 @@ class DataModel(QAbstractTableModel):
             column_name = self._df.columns[section]
             icons = []
             if self.column_flags[column_name].get_flag(ColumnFlagsRegistry.inverted):
-                icons.append(qta.icon("fa.asl-interpreting"))
+                icons.append(qta.icon("ri.arrow-up-down-line"))
 
             return icons
         return None
@@ -165,3 +167,42 @@ class DataModel(QAbstractTableModel):
     def toggle_column_flag(self, column_name: str, flag: str):
         self.set_column_flag(column_name, flag, not self.column_flags[column_name].get_flag(flag))
         self.headerDataChanged.emit(Qt.Horizontal, 0, self.columnCount())
+
+    @log_method
+    def get_column_dtype(self, column_index: int):
+        if pd.api.types.is_integer_dtype(self._df.iloc[:, column_index]):
+            return 'int'
+        if pd.api.types.is_float_dtype(self._df.iloc[:, column_index]):
+            return 'float'
+        if pd.api.types.is_string_dtype(self._df.iloc[:, column_index]):
+            return 'str'
+        return 'other'
+
+    @log_method
+    def add_column(self, column_to_the_left_index):
+        column_to_the_left_name = self.get_column_name(column_to_the_left_index)
+        column_to_the_left_index_all = self._df_all.columns.get_loc(column_to_the_left_name)
+
+        new_column_name = "New column "
+        suffix = 1
+        while new_column_name+str(suffix) in self._df_all.columns:
+            suffix += 1
+        new_column_name = "New column "+str(suffix)
+
+        self.beginInsertColumns(QModelIndex(), column_to_the_left_index+1, column_to_the_left_index+1)
+        logging.info(self._df_all.columns)
+        self._df.insert(column_to_the_left_index+1, new_column_name, "")
+        self._df_all.insert(column_to_the_left_index_all+1, new_column_name, "")
+        self.column_flags[new_column_name] = ColumnFlags(self._df_all[new_column_name])
+        self.endInsertColumns()
+
+    @log_method
+    def delete_column(self, column_index):
+        column_name = self.get_column_name(column_index)
+        self.beginRemoveColumns(QModelIndex(), column_index, column_index)
+        self._df.drop(columns=[column_name], inplace=True)
+        self._df_all.drop(columns=[column_name], inplace=True)
+        self.column_flags.pop(column_name)
+        self.endRemoveColumns()
+
+

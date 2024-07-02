@@ -1,7 +1,8 @@
+import logging
 from typing import TYPE_CHECKING
 
 from PyQt5 import QtCore, QtWidgets
-from PyQt5.QtWidgets import QVBoxLayout
+from PyQt5.QtWidgets import QVBoxLayout, QMenuBar, QMenu, QAction
 
 from core.globals.debug import DEBUG_LAYOUT
 from core.globals.result import result_container
@@ -37,6 +38,22 @@ class SettingsPanelClass:
         self.widget.setMaximumSize(QtCore.QSize(410, 16777215))
 
         # Definition
+
+
+
+
+
+        # self.action_about.triggered.connect(self.about_handler)
+
+
+        #
+        #
+        # self.widget_layout.setMenuBar(self.menu)
+        # self.menu.addAction(self.menu_help.menuAction())
+        # self.menu_help.addAction(self.action_about)
+        # # self.action_about.triggered.connect(self.about_handler)
+
+
         self.stacked_widget = QtWidgets.QStackedWidget(self.widget)
 
         # Todo move to module
@@ -73,8 +90,38 @@ class SettingsPanelClass:
         self.stacked_widget.addWidget(self.inverse_panel.widget)  # Todo move to module
         self.widget_layout.addWidget(self.stacked_widget)
 
+        # Create a file menu and add actions
+        menu_bar = QMenuBar(self.widget)
+        self.widget_layout.setMenuBar(menu_bar)
+        menu_bar.setStyleSheet(
+            "QMenuBar{"
+            # "border-left: 1px solid #eee; "
+                               # "border-right: 1px solid #eee;"
+                               # "border-top: 1px solid #eee;"
+                               "border-bottom: 1px solid #ddd;"
+                               "background-color: #eee;"
+        "}"
+        )
+
+        file_menu = QMenu("File", self.widget)
+        help_menu = QMenu("Help", self.widget)
+        open_action = QAction("Open", self.widget)
+        save_action = QAction("Save", self.widget)
+        about_action = QAction("About", self.widget)
+
+        menu_bar.addMenu(file_menu)
+        menu_bar.addMenu(help_menu)
+
+        file_menu.addAction(open_action)
+        file_menu.addAction(save_action)
+        help_menu.addAction(about_action)
+
         # Post-init
         self.stacked_widget.setCurrentIndex(self.home_panel_index)
+
+        open_action.triggered.connect(self.home_panel.open_handler)
+        save_action.triggered.connect(self.home_panel.save_handler)
+        about_action.triggered.connect(self.home_panel.about_handler)
 
     @log_method_noarg
     def retranslateUI(self):

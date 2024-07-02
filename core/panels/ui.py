@@ -43,6 +43,9 @@ class MainWindowClass(QtWidgets.QMainWindow):
         self.central_widget_layout.addWidget(self.settings_panel.widget)
 
         self.stacked_widget.addWidget(self.data_panel.widget)
+        # self.menu = QtWidgets.QMenuBar(self.widget)
+        # self.menu_help = QtWidgets.QMenu(self.menu)
+        # self.action_about = QtWidgets.QAction(self.widget)
 
         # self.widget.setMenuBar(self.menu)
         # self.menu.addAction(self.menu_help.menuAction())
@@ -78,13 +81,6 @@ class MainWindowClass(QtWidgets.QMainWindow):
         # self.menu_help.setTitle(_translate("MainWindowClass", "Help"))
         # self.action_about.setText(_translate("MainWindowClass", "About"))
 
-    @log_method_noarg
-    def about_handler(self):
-        QMessageBox.about(
-            self,
-            "StatPrism",
-            "StatPrism Professional \nVersion: 0.1 \n(C) 2023 - 2024 I.Y. and A.B.",
-        )
 
     @log_method_noarg
     def action_update_data_panel(self):
@@ -108,3 +104,7 @@ class MainWindowClass(QtWidgets.QMainWindow):
     def action_activate_panel_by_index(self, index):
         if index is not None:
             self.settings_panel.stacked_widget.setCurrentIndex(index)
+
+    @log_method
+    def action_select_table_column(self, column_index):
+        self.data_panel.tableview.selectColumn(column_index)
