@@ -10,13 +10,6 @@ class DataView(QTableView):
         palette.setColor(QPalette.HighlightedText, QColor(0, 0, 0))
         self.setPalette(palette)
 
-        # self.setStyleSheet("""
-        #     QTableView {
-        #         selection-background-color: rgb(245, 245, 245);
-        #         selection-color: black;
-        #     }
-        # """)
-
     def wheelEvent(self, event):
         if event.angleDelta().y() != 0 and self.horizontalHeader().underMouse():
             # Translate vertical scrolling to horizontal

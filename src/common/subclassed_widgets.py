@@ -2,15 +2,15 @@ from PyQt5.QtCore import Qt, QTimer, pyqtSignal
 from PyQt5.QtWidgets import QAbstractItemView, QLineEdit, QListWidget, QTextEdit
 
 from src.common.constant import DEBUG_LAYOUT
+from src.common.unique_qss import set_stylesheet
 
 
 class EditableLabel(QLineEdit):
     def __init__(self, parent):
         super().__init__(parent)
-
-        self.setStyleSheet("border: none; background-color: rgba(255,255,255,100);")
+        set_stylesheet(self, "#id{border: none; background-color: rgba(255,255,255,100);}")
         if DEBUG_LAYOUT:
-            self.setStyleSheet("border: 1px solid blue; background-color: #eef;")
+            set_stylesheet(self, "#id{border: 1px solid blue; background-color: #eef;}")
 
         self.setCursorPosition(0)
         self.editingFinished.connect(self.editing_finished)
@@ -28,9 +28,9 @@ class EditableLabelWordwrap(QTextEdit):
         self.setFixedWidth(388)
         self.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         self.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
-        self.setStyleSheet("border: none; background-color: rgba(255,255,255,100);")
+        set_stylesheet(self, "#id{border: none; background-color: rgba(255,255,255,100);}")
         if DEBUG_LAYOUT:
-            self.setStyleSheet("border: 1px solid blue; background-color: #eef;")
+            set_stylesheet(self, "#id{border: 1px solid blue; background-color: #eef;}")
         self.textChanged.connect(self.adjustHeightToFitText)
         self.installEventFilter(self)
 

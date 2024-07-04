@@ -8,6 +8,7 @@ from PyQt5.QtWidgets import QScrollArea, QVBoxLayout
 from src.common.constant import DEBUG_LAYOUT
 from src.common.decorators import log_method_noarg
 from src.common.ui_constructor import create_tool_button_qta
+from src.common.unique_qss import set_stylesheet
 
 if TYPE_CHECKING:
     from src.ui_main import MainWindowClass
@@ -31,7 +32,7 @@ class BaseSettingsPanel:
         self.tabledata = self.root_class.data_panel.tabledata
         self.widget = QtWidgets.QWidget(parent_widget)
         if DEBUG_LAYOUT:
-            self.widget.setStyleSheet("border: 1px solid green; background-color: #efe;")
+            set_stylesheet(self.widget, "#id{border: 1px solid green; background-color: #efe;}")
         self.widget_layout = QVBoxLayout(self.widget)
         self.widget_layout.setContentsMargins(0, 0, 0, 0)
         self.widget_layout.setSpacing(0)
@@ -41,7 +42,7 @@ class BaseSettingsPanel:
         if navigation_elements:
             self.navigation_widget = QtWidgets.QWidget(self.widget)
             self.navigation_widget.setFixedHeight(80)
-            self.navigation_widget.setStyleSheet("border-bottom: 1px solid #ddd;")
+            set_stylesheet(self.navigation_widget, "#id{border-bottom: 1px solid #ddd;}")
 
             self.widget_layout.addWidget(self.navigation_widget)
 
@@ -77,13 +78,12 @@ class BaseSettingsPanel:
 
         self.scroll_area = QScrollArea()
         self.scroll_area.setWidgetResizable(True)
-        self.scroll_area.setStyleSheet("QScrollArea{border: none;}")
+        set_stylesheet(self.scroll_area, "#id{border: none;}")
 
         self.scroll_area.setWidget(self.widget_for_elements)
 
         self.widget_layout.addWidget(self.scroll_area)
-
-        self.scroll_area.verticalScrollBar().setStyleSheet("width: 15px;")
+        set_stylesheet(self.widget, "#id>QScrollBar{width: 15px;}")
         self.scroll_area.setVerticalScrollBarPolicy(Qt.ScrollBarAsNeeded)
         self.scroll_area.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         self.elements = {}

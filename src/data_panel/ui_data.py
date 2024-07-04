@@ -6,6 +6,7 @@ from PyQt5.QtWidgets import QVBoxLayout
 
 from src.common.constant import DEBUG_LAYOUT
 from src.common.decorators import log_method
+from src.common.unique_qss import set_stylesheet
 from src.data_panel.header import LeftAlignHeaderView
 from src.data_panel.model import DataModel
 from src.data_panel.view import DataView
@@ -21,10 +22,10 @@ class DataPanelClass:
         self.parent_class: MainWindowClass = parent_class
         self.widget = QtWidgets.QWidget(parent_widget)
         self.widget.setContentsMargins(10, 0, 0, 0)
-        self.widget.setStyleSheet("background-color: white;")
+        set_stylesheet(self.widget, "#id{background-color: white;}")
 
         if DEBUG_LAYOUT:
-            self.widget.setStyleSheet("border: 1px solid blue; background-color: #eef;")
+            set_stylesheet(self.widget, "#id{border: 1px solid blue; background-color: #eef;}")
         self.widget_layout = QVBoxLayout(self.widget)
         self.widget_layout.setContentsMargins(0, 0, 0, 0)
         self.widget.setLayout(self.widget_layout)
@@ -55,7 +56,7 @@ class DataPanelClass:
         self.tableview.verticalHeader().setHighlightSections(True)
         self.tableview.verticalHeader().setSortIndicatorShown(False)
         self.tableview.verticalHeader().setStretchLastSection(False)
-        self.tableview.verticalHeader().setStyleSheet("background-color: white;")
+        set_stylesheet(self.tableview, "#id>QHeaderView{background-color: white;}")
         self.tableview.verticalHeader().setHighlightSections(False)
 
         self.tableview.horizontalHeader().sectionClicked.connect(self.on_selection_changed)

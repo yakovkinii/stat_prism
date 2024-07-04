@@ -3,7 +3,9 @@ from PyQt5.QtWidgets import QHBoxLayout, QTabWidget
 
 from src.common.decorators import log_method, log_method_noarg
 from src.common.ui_constructor import icon
+from src.common.unique_qss import set_stylesheet
 from src.data_panel.ui_data import DataPanelClass
+from src.results_panel.ui_results import ResultsPanelClass
 from src.settings_panel.ui_settings import SettingsPanelClass
 
 
@@ -29,10 +31,12 @@ class MainWindowClass(QtWidgets.QMainWindow):
         self.data_panel: DataPanelClass = DataPanelClass(
             parent_widget=self.tab_widget, parent_class=self.widget, root_class=self
         )
+        self.results_panel: ResultsPanelClass = ResultsPanelClass(
+            parent_widget=self.tab_widget, parent_class=self.widget, root_class=self
+        )
         self.settings_panel: SettingsPanelClass = SettingsPanelClass(
             parent_widget=self.tab_widget, parent_class=self.widget, root_class=self
         )
-        self.results_widget_placeholder = QtWidgets.QWidget(self.tab_widget)
 
         # Relations
         self.widget.setCentralWidget(self.central_widget)
@@ -41,16 +45,16 @@ class MainWindowClass(QtWidgets.QMainWindow):
         self.central_widget_layout.addWidget(self.settings_panel.widget)
 
         self.tab_widget.addTab(self.data_panel.widget, "Data")
-        self.tab_widget.addTab(self.results_widget_placeholder, "Analysis")
+        self.tab_widget.addTab(self.results_panel.widget, "Analysis")
         self.tab_widget.setTabPosition(QtWidgets.QTabWidget.West)
         self.tab_widget.tabBar().setDocumentMode(True)
         self.tab_widget.tabBar().setExpanding(True)
 
         # Misc
         self.setWindowIcon(icon(":/mat/resources/Icon.ico"))
-        self.tab_widget.setStyleSheet(
+        set_stylesheet(self.tab_widget,
             """
-        QTabBar::tab:selected{
+        QTabWidget#id>QTabBar::tab:selected{
             background: #fff;
             font-size: 16px;
             font-family: Segoe UI;
@@ -58,7 +62,7 @@ class MainWindowClass(QtWidgets.QMainWindow):
             width: 25px;
             border:none;
         }
-        QTabBar::tab:!selected {
+        QTabWidget#id>QTabBar::tab:!selected {
             background: #eee;
             font-size: 16px;
             font-family: Segoe UI;
@@ -67,7 +71,6 @@ class MainWindowClass(QtWidgets.QMainWindow):
         }
         """
         )
-        self.results_widget_placeholder.setStyleSheet("background-color: #fff;")
         # Post-init
         self.tab_widget.setCurrentIndex(0)
 

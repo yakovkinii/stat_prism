@@ -26,7 +26,7 @@ if __name__ == "__main__":
 
     app = QApplication(sys.argv)
 
-    pixmap = QPixmap(":/mat/resources/full_black_gold.png")
+    pixmap = QPixmap(":/mat/resources/StatPrism_splash.png")
     splash = QSplashScreen(pixmap)
     splash.show()
 

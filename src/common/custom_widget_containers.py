@@ -11,6 +11,7 @@ from src.common.ui_constructor import (
     create_label_editable_wordwrap,
     create_tool_button_qta,
 )
+from src.common.unique_qss import set_stylesheet
 
 
 class Title:
@@ -131,7 +132,7 @@ class ColumnColorSelector:
             button.setFixedWidth(40)
             button.setFixedHeight(40)
             button.setText("")
-            button.setStyleSheet(f"background-color: {color}")
+            set_stylesheet(button,"#id{"+f"background-color: {color}"+"}")
             button.setToolButtonStyle(QtCore.Qt.ToolButtonIconOnly)
             self.buttons.append(button)
             self.layout.addWidget(button, i // 6, i % 6)

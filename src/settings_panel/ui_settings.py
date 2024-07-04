@@ -4,6 +4,7 @@ from PyQt5 import QtCore, QtWidgets
 from PyQt5.QtWidgets import QAction, QMenu, QMenuBar, QVBoxLayout
 
 from src.common.constant import DEBUG_LAYOUT
+from src.common.unique_qss import set_stylesheet
 from src.settings_panel.panels.calculate import Calculate
 from src.settings_panel.panels.column import Column
 from src.settings_panel.panels.columns import Columns
@@ -22,7 +23,7 @@ class SettingsPanelClass:
         self.parent_class: MainWindowClass = parent_class
         self.widget = QtWidgets.QWidget(parent_widget)
         if DEBUG_LAYOUT:
-            self.widget.setStyleSheet("border: 1px solid red; background-color: #fee;")
+            set_stylesheet(self.widget, "#id{border: 1px solid red; background-color: #fee;}")
         self.widget_layout = QVBoxLayout(self.widget)
         self.widget_layout.setContentsMargins(0, 0, 0, 0)
         self.widget.setLayout(self.widget_layout)
@@ -112,7 +113,7 @@ class SettingsPanelClass:
         # Create a file menu and add actions
         menu_bar = QMenuBar(self.widget)
         self.widget_layout.setMenuBar(menu_bar)
-        menu_bar.setStyleSheet("QMenuBar{" "border-bottom: 1px solid #ddd;" "background-color: #eee;" "}")
+        set_stylesheet(menu_bar, "#id{border-bottom: 1px solid #ddd; background-color: #eee;}")
 
         file_menu = QMenu("File", self.widget)
         help_menu = QMenu("Help", self.widget)
