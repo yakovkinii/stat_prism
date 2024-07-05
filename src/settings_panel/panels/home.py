@@ -1,4 +1,6 @@
+import json
 import logging
+import pickle
 import tempfile
 import zipfile
 from typing import TYPE_CHECKING
@@ -85,16 +87,14 @@ class Home(BaseSettingsPanel):
             elif file_path.endswith(".xlsx"):
                 dataframe = pd.read_excel(file_path, sheet_name=0)
             elif file_path.endswith(".sp"):
-                # Todo fix
                 with tempfile.TemporaryDirectory() as temp_dir:
                     # Extract all files
                     with zipfile.ZipFile(file_path, "r") as zipf:
                         zipf.extractall(temp_dir)
 
-                    # with open(f"{temp_dir}/result_container.pkl", "rb") as file:
-                    #     result_container.results = pickle.load(file).results
-
-                    # data.load(pd.read_parquet(f"{temp_dir}/data.df.parquet"))
+                    self.tabledata.load_data(pd.read_parquet(f"{temp_dir}/tabledata_df.parquet"))
+                    with open(f"{temp_dir}/tabledata_column_flags.pkl", "rb") as file:
+                        self.tabledata.load_flags(pickle.load(file))
             else:
                 logging.error("Not supported file type")
 
@@ -102,6 +102,7 @@ class Home(BaseSettingsPanel):
             self.root_class.data_panel.tabledata.load_data(dataframe)
 
         self.elements["open"].button.setDown(False)
+        logging.info(f"Opened {file_path}")
 
     @log_method_noarg
     def save_handler(self):
@@ -113,18 +114,20 @@ class Home(BaseSettingsPanel):
             "StatPrism project (*.sp);;",
             options=options,
         )
-        with tempfile.TemporaryDirectory() as temp_dir:
-            # data.df.to_parquet(f"{temp_dir}/data.df.parquet")
-            # Save metadata
+        if not file_path:
+            return
 
-            # with open(f'{temp_dir}/result_container.results.json', 'w') as meta_file:
-            #     json.dump(result_container.results, meta_file)
-            # with open(f"{temp_dir}/result_container.pkl", "wb") as file:
-            #     pickle.dump(result_container, file)
+        with tempfile.TemporaryDirectory() as temp_dir:
+            self.tabledata.get_data().to_parquet(f"{temp_dir}/tabledata_df.parquet")
+            # Save metadata
+            # with open(f'{temp_dir}/tabledata_column_flags.json', 'w') as meta_file:
+            #     json.dump(.results, meta_file)
+            with open(f"{temp_dir}/tabledata_column_flags.pkl", "wb") as file:
+                pickle.dump(self.tabledata.get_flags(), file)
             # Zip all files
             with zipfile.ZipFile(file_path, "w") as zipf:
-                zipf.write(f"{temp_dir}/data.df.parquet", "data.df.parquet")
-                zipf.write(f"{temp_dir}/result_container.pkl", "result_container.pkl")
+                zipf.write(f"{temp_dir}/tabledata_df.parquet", "tabledata_df.parquet")
+                zipf.write(f"{temp_dir}/tabledata_column_flags.pkl", "tabledata_column_flags.pkl")
 
         # def load_project(filename):
         #     # Temporary directory to extract files

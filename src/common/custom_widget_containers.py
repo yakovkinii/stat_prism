@@ -1,5 +1,5 @@
 import qtawesome as qta
-from PyQt5 import QtCore, QtWidgets
+from PyQt5 import QtCore, QtWidgets, QtGui
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QGridLayout, QListWidgetItem, QWidget
 
@@ -137,6 +137,48 @@ class ColumnColorSelector:
             self.buttons.append(button)
             self.layout.addWidget(button, i // 6, i % 6)
             button.pressed.connect(get_handler(i))
+
+
+class InvertVisualizer:
+    def __init__(self, parent_widget, handler=None):
+        self.widget = QWidget(parent_widget)
+        # self.widget.setStyleSheet("border: 1px solid black; ")
+        self.layout = QGridLayout(self.widget)
+        self.children = []
+
+        self.font = QtGui.QFont("Segoe UI")
+        self.font.setPointSize(14)
+
+    def configure(self, unique_values, max_plus_min):
+        # clear layout
+        for i in reversed(range(self.layout.count())):
+            self.layout.itemAt(i).widget().deleteLater()
+
+        self.children = []
+        for i, value in enumerate(unique_values):
+            label_left = QtWidgets.QLabel(self.widget)
+            label_left.setText(str(value))
+            label_left.setFont(self.font)
+            label_left.setAlignment(Qt.AlignRight | Qt.AlignVCenter)
+
+            label_center = QtWidgets.QLabel(self.widget)
+            icon = qta.icon("mdi.arrow-right", color="black")
+            label_center.setPixmap(icon.pixmap(32, 32))
+            label_center.setFixedWidth(32)
+
+            label_right = QtWidgets.QLabel(self.widget)
+            label_right.setText(str(max_plus_min - value))
+            label_right.setFont(self.font)
+            label_right.setAlignment(Qt.AlignLeft | Qt.AlignVCenter)
+
+            self.children.append(label_left)
+            self.children.append(label_center)
+            self.children.append(label_right)
+
+            self.layout.addWidget(label_left, i, 0)
+            self.layout.addWidget(label_center, i, 1)
+            self.layout.addWidget(label_right, i, 2)
+
 
 
 class ColumnSelector:

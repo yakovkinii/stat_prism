@@ -34,7 +34,7 @@ class Columns(BaseSettingsPanel):
                 parent_widget=self.widget_for_elements,
                 label_text="Invert\ncolumn ",
                 icon_path="ri.arrow-up-down-line",
-                # handler=self.inverse_handler,
+                handler=self.inverse_handler,
             ),
             "add_col": MediumAssButton(
                 parent_widget=self.widget_for_elements,
@@ -69,7 +69,6 @@ class Columns(BaseSettingsPanel):
         self.root_class.settings_panel.inverse_panel.configure(
             column_indexes=self.column_indexes, caller_index=self.stacked_widget_index
         )
-
         self.root_class.action_activate_panel_by_index(self.root_class.settings_panel.inverse_panel_index)
 
     @log_method_noarg

@@ -1,22 +1,24 @@
 import logging
 from typing import Dict, List, Union
 
+from PyQt5.QtWidgets import QMessageBox
+from odf.opendocument import OpenDocumentSpreadsheet
+from odf.table import Table, TableColumn, TableRow, TableCell
+from odf.style import Style, TableCellProperties
+from odf.text import P
 import pandas as pd
 import qtawesome as qta
 from PyQt5.QtCore import QAbstractTableModel, QModelIndex, Qt
 
 from src.common.column_flags import ColumnFlags, ColumnFlagsRegistry
+from src.common.constant import COLORS
 from src.common.decorators import log_method, log_method_noarg
 
 
 class DataModel(QAbstractTableModel):
     def __init__(self, parent=None):
         super().__init__(parent)
-        # Current loaded dataframe
-        self._df_all: pd.DataFrame = pd.DataFrame()
-        # Current displayed dataframe
         self._df: pd.DataFrame = pd.DataFrame()
-
         self.column_flags: Dict[str, ColumnFlags] = {}
         self.hide_headers_mode = False
         self.load_data(pd.read_csv("data.csv"))
@@ -43,7 +45,6 @@ class DataModel(QAbstractTableModel):
 
         dataframe.columns = [str(column) for column in dataframe.columns]
         self.beginResetModel()
-        self._df_all = dataframe.copy()
         self._df = dataframe.copy()
         self.column_flags = {}
         for column in dataframe.columns:
@@ -58,7 +59,7 @@ class DataModel(QAbstractTableModel):
 
     def data(self, index, role=Qt.DisplayRole):
         if index.isValid():
-            if role == Qt.DisplayRole:
+            if role in [Qt.DisplayRole, Qt.EditRole]:
                 return str(self._df.iloc[index.row(), index.column()])
             # elif role == Qt.BackgroundRole:
             #     return QColor(0, 0, 255)
@@ -84,7 +85,7 @@ class DataModel(QAbstractTableModel):
         return None
 
     def flags(self, index):
-        return Qt.ItemIsEnabled | Qt.ItemIsSelectable
+        return Qt.ItemIsEnabled | Qt.ItemIsSelectable | Qt.ItemIsEditable
 
     @log_method
     def setRowCount(self, count):
@@ -103,7 +104,6 @@ class DataModel(QAbstractTableModel):
         self.beginResetModel()
         old_labels = self._df.columns
         self._df = self._df.rename(columns=dict(zip(old_labels, labels)))
-        self._df_all = self._df_all.rename(columns=dict(zip(old_labels, labels)))
         for i, column in enumerate(old_labels):
             self.column_flags[labels[i]] = self.column_flags.pop(column)
         self.endResetModel()
@@ -112,13 +112,19 @@ class DataModel(QAbstractTableModel):
     def setItem(self, row, col, value):
         logging.warning("setItem called")
         self._df.iloc[row, col] = value
-        column_name = self._df.columns[col]
-        self._df_all[column_name][row] = value
         self.dataChanged.emit(self.index(row, col), self.index(row, col))
 
     @log_method
+    def setData(self, index, value, role=Qt.EditRole):
+        if role == Qt.EditRole:
+            self._df.iloc[index.row(), index.column()] = value
+            self.dataChanged.emit(index, index)
+            return True
+        return False
+
+    @log_method
     def rename_column(self, column_index: int, new_name: str):
-        if new_name in self._df_all.columns:
+        if new_name in self._df.columns:
             logging.error("Column name already exists")
             return
 
@@ -147,12 +153,27 @@ class DataModel(QAbstractTableModel):
         assert len(values) == self.rowCount()
         column_name = self._df.columns[column_index]
         self._df[column_name] = values
-        self._df_all[column_name] = values
         self.dataChanged.emit(self.index(0, column_index), self.index(self.rowCount() - 1, column_index))
 
     @log_method_noarg
     def get_data(self):
         return self._df.copy()
+
+    @log_method_noarg
+    def get_flags(self):
+        return self.column_flags
+
+    @log_method
+    def load_flags(self, flags: Dict[str, ColumnFlags]):
+        try:
+            for column_name in flags.keys():
+                assert column_name in self._df.columns
+            self.column_flags = flags
+        except AssertionError as e:
+            logging.error('Column names in flags do not match the column names in the dataframe')
+            QMessageBox.warning(None, "Error loading flags", "Column names in flags do not match "
+                                                             "the column names in the dataframe")
+
 
     def get_column_flags(self, column_name: str):
         return self.column_flags[column_name]
@@ -179,19 +200,15 @@ class DataModel(QAbstractTableModel):
 
     @log_method
     def add_column(self, column_to_the_left_index):
-        column_to_the_left_name = self.get_column_name(column_to_the_left_index)
-        column_to_the_left_index_all = self._df_all.columns.get_loc(column_to_the_left_name)
-
         new_column_name = "New column "
         suffix = 1
-        while new_column_name + str(suffix) in self._df_all.columns:
+        while new_column_name + str(suffix) in self._df.columns:
             suffix += 1
         new_column_name = "New column " + str(suffix)
 
         self.beginInsertColumns(QModelIndex(), column_to_the_left_index + 1, column_to_the_left_index + 1)
         self._df.insert(column_to_the_left_index + 1, new_column_name, "")
-        self._df_all.insert(column_to_the_left_index_all + 1, new_column_name, "")
-        self.column_flags[new_column_name] = ColumnFlags(self._df_all[new_column_name])
+        self.column_flags[new_column_name] = ColumnFlags(self._df[new_column_name])
         self.endInsertColumns()
 
     @log_method
@@ -199,7 +216,6 @@ class DataModel(QAbstractTableModel):
         column_name = self.get_column_name(column_index)
         self.beginRemoveColumns(QModelIndex(), column_index, column_index)
         self._df.drop(columns=[column_name], inplace=True)
-        self._df_all.drop(columns=[column_name], inplace=True)
         self.column_flags.pop(column_name)
         self.endRemoveColumns()
 
@@ -208,7 +224,6 @@ class DataModel(QAbstractTableModel):
         column_names = [self.get_column_name(index) for index in column_indexes]
         self.beginRemoveColumns(QModelIndex(), min(column_indexes), max(column_indexes))
         self._df.drop(columns=column_names, inplace=True)
-        self._df_all.drop(columns=column_names, inplace=True)
         for column_name in column_names:
             self.column_flags.pop(column_name)
         self.endRemoveColumns()
@@ -219,7 +234,6 @@ class DataModel(QAbstractTableModel):
             return self.column_flags[column_name].color
         except KeyError as e:
             logging.error(f"{self._df.columns=}")
-            logging.error(f"{self._df_all.columns=}")
             logging.error(f"{self.column_flags=}")
             raise KeyError(e)
 
@@ -228,3 +242,20 @@ class DataModel(QAbstractTableModel):
         column_name = self.get_column_name(column_index)
         self.column_flags[column_name].color = color
         self.headerDataChanged.emit(Qt.Horizontal, column_index, column_index)
+
+    @log_method
+    def save_as_xlsx(self, filename):
+        def apply_style(column):
+            if column in self.column_flags:
+                color = self.column_flags[column].color
+                if color is not None:
+                    return f"background-color: {COLORS[color]};"
+            return "background-color: #eee;"
+
+        try:
+            self._df.style.applymap_index(apply_style, axis=1).to_excel(filename, engine='openpyxl', index=False)
+        except Exception as e:
+            logging.error(e)
+            QMessageBox.warning(None, "Error saving to Excel file", str(e))
+        logging.info(f"Saved to {filename}")
+

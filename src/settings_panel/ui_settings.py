@@ -119,6 +119,7 @@ class SettingsPanelClass:
         help_menu = QMenu("Help", self.widget)
         open_action = QAction("Open", self.widget)
         save_action = QAction("Save", self.widget)
+        save_table_action = QAction("Save Table", self.widget)
         about_action = QAction("About", self.widget)
 
         menu_bar.addMenu(file_menu)
@@ -126,6 +127,7 @@ class SettingsPanelClass:
 
         file_menu.addAction(open_action)
         file_menu.addAction(save_action)
+        file_menu.addAction(save_table_action)
         help_menu.addAction(about_action)
 
         # Post-init
@@ -133,4 +135,17 @@ class SettingsPanelClass:
 
         open_action.triggered.connect(self.home_panel.open_handler)
         save_action.triggered.connect(self.home_panel.save_handler)
+        save_table_action.triggered.connect(self.save_table_handler)
         about_action.triggered.connect(self.home_panel.about_handler)
+
+    def save_table_handler(self):
+        options = QtWidgets.QFileDialog.Options()
+        file_path, _ = QtWidgets.QFileDialog.getSaveFileName(
+            self.widget,
+            "Save Table",
+            "",
+            "Excel Spreadsheet (*.xlsx);;",
+            options=options,
+        )
+        if file_path:
+            self.root_class.data_panel.tabledata.save_as_xlsx(file_path)

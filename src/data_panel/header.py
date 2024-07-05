@@ -52,9 +52,7 @@ class LeftAlignHeaderView(QtWidgets.QHeaderView):
             headerIcons = self.model().headerData(logicalIndex, self.orientation(), QtCore.Qt.DecorationRole)
             headerColor = self.model().get_column_color(logicalIndex)
 
-            modelIndex = self.model().index(0, logicalIndex)
-
-            if self.selectionModel().isSelected(modelIndex):
+            if self.selectionModel().isColumnSelected(logicalIndex):
                 if headerColor is not None:
                     painter.fillRect(QtCore.QRectF(rect), QColor(COLORS_SELECTION[headerColor]))
                 else:
