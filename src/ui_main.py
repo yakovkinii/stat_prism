@@ -52,7 +52,8 @@ class MainWindowClass(QtWidgets.QMainWindow):
 
         # Misc
         self.setWindowIcon(icon(":/mat/resources/Icon.ico"))
-        set_stylesheet(self.tab_widget,
+        set_stylesheet(
+            self.tab_widget,
             """
         QTabWidget#id>QTabBar::tab:selected{
             background: #fff;
@@ -69,7 +70,7 @@ class MainWindowClass(QtWidgets.QMainWindow):
             width: 25px;
             border:none;
         }
-        """
+        """,
         )
         # Post-init
         self.tab_widget.setCurrentIndex(0)

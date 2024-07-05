@@ -1,7 +1,7 @@
 import logging
 from typing import TYPE_CHECKING
 
-from PyQt5 import  QtWidgets
+from PyQt5 import QtWidgets
 from PyQt5.QtWidgets import QHBoxLayout
 
 from src.common.constant import DEBUG_LAYOUT

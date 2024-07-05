@@ -2,7 +2,7 @@ import logging
 from typing import TYPE_CHECKING
 
 from src.common.column_flags import ColumnFlagsRegistry
-from src.common.custom_widget_containers import Title, InvertVisualizer
+from src.common.custom_widget_containers import InvertVisualizer, Title
 from src.common.decorators import log_method, log_method_noarg
 from src.settings_panel.panels.base import BaseSettingsPanel
 
@@ -66,7 +66,7 @@ class Inverse(BaseSettingsPanel):
             column_name = self.tabledata.get_column_name(index)
             self.tabledata.set_column(
                 index,
-                self.max_plus_min-column,
+                self.max_plus_min - column,
             )
             self.tabledata.toggle_column_flag(
                 column_name=column_name,

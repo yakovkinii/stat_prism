@@ -1,14 +1,10 @@
 import logging
 from typing import Dict, List, Union
 
-from PyQt5.QtWidgets import QMessageBox
-from odf.opendocument import OpenDocumentSpreadsheet
-from odf.table import Table, TableColumn, TableRow, TableCell
-from odf.style import Style, TableCellProperties
-from odf.text import P
 import pandas as pd
 import qtawesome as qta
 from PyQt5.QtCore import QAbstractTableModel, QModelIndex, Qt
+from PyQt5.QtWidgets import QMessageBox
 
 from src.common.column_flags import ColumnFlags, ColumnFlagsRegistry
 from src.common.constant import COLORS
@@ -170,10 +166,10 @@ class DataModel(QAbstractTableModel):
                 assert column_name in self._df.columns
             self.column_flags = flags
         except AssertionError as e:
-            logging.error('Column names in flags do not match the column names in the dataframe')
-            QMessageBox.warning(None, "Error loading flags", "Column names in flags do not match "
-                                                             "the column names in the dataframe")
-
+            logging.error("Column names in flags do not match the column names in the dataframe" +str(e))
+            QMessageBox.warning(
+                None, "Error loading flags", "Column names in flags do not match " "the column names in the dataframe"
+            )
 
     def get_column_flags(self, column_name: str):
         return self.column_flags[column_name]
@@ -253,9 +249,8 @@ class DataModel(QAbstractTableModel):
             return "background-color: #eee;"
 
         try:
-            self._df.style.applymap_index(apply_style, axis=1).to_excel(filename, engine='openpyxl', index=False)
+            self._df.style.applymap_index(apply_style, axis=1).to_excel(filename, engine="openpyxl", index=False)
         except Exception as e:
             logging.error(e)
             QMessageBox.warning(None, "Error saving to Excel file", str(e))
         logging.info(f"Saved to {filename}")
-

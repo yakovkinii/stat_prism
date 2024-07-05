@@ -8,6 +8,7 @@ from PyQt5.QtWidgets import QTableView
 class DataView(QTableView):
     copy_signal = QtCore.pyqtSignal(int)
     paste_signal = QtCore.pyqtSignal(int)
+
     def __init__(self, parent=None):
         super(DataView, self).__init__(parent)
         palette = self.palette()
@@ -35,6 +36,4 @@ class DataView(QTableView):
             event.accept()
             return
 
-
         super().keyPressEvent(event)
-

@@ -1,5 +1,5 @@
 import qtawesome as qta
-from PyQt5 import QtCore, QtWidgets, QtGui
+from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QGridLayout, QListWidgetItem, QWidget
 
@@ -132,7 +132,7 @@ class ColumnColorSelector:
             button.setFixedWidth(40)
             button.setFixedHeight(40)
             button.setText("")
-            set_stylesheet(button,"#id{"+f"background-color: {color}"+"}")
+            set_stylesheet(button, "#id{" + f"background-color: {color}" + "}")
             button.setToolButtonStyle(QtCore.Qt.ToolButtonIconOnly)
             self.buttons.append(button)
             self.layout.addWidget(button, i // 6, i % 6)
@@ -178,7 +178,6 @@ class InvertVisualizer:
             self.layout.addWidget(label_left, i, 0)
             self.layout.addWidget(label_center, i, 1)
             self.layout.addWidget(label_right, i, 2)
-
 
 
 class ColumnSelector:

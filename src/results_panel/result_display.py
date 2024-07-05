@@ -1,7 +1,6 @@
 from typing import TYPE_CHECKING
 
 from PyQt5 import QtWidgets
-from PyQt5.QtWidgets import QProxyStyle, QTabWidget, QStyleFactory
 
 from src.common.constant import DEBUG_LAYOUT
 from src.common.unique_qss import set_stylesheet
@@ -29,5 +28,3 @@ class ResultDisplayClass:
         # Increase the minimum size for tabs to prevent cutting off
 
         # Adjust the style of the tabs for better appearance
-
-

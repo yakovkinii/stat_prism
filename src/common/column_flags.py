@@ -5,7 +5,7 @@ from attr import define
 @define
 class ColumnFlagsRegistry:
     inverted = "inverted"
-    color="color"
+    color = "color"
 
 
 class ColumnFlags:
