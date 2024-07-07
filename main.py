@@ -2,7 +2,7 @@ import logging
 import sys
 
 from PyQt5.QtCore import QTimer
-from PyQt5.QtGui import QPixmap
+from PyQt5.QtGui import QPixmap, QIcon
 from PyQt5.QtWidgets import QApplication, QSplashScreen
 from yatools import logging_config
 
@@ -25,6 +25,7 @@ if __name__ == "__main__":
     sys.excepthook = my_exception_hook
 
     app = QApplication(sys.argv)
+    app.setWindowIcon(QIcon(":/mat/resources/Icon.ico"))
 
     pixmap = QPixmap(":/mat/resources/StatPrism_splash.png")
     splash = QSplashScreen(pixmap)

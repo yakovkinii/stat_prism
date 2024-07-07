@@ -59,10 +59,18 @@ class DataPanelClass:
         self.tableview.verticalHeader().setHighlightSections(True)
         self.tableview.verticalHeader().setSortIndicatorShown(False)
         self.tableview.verticalHeader().setStretchLastSection(False)
-        set_stylesheet(self.tableview, "#id>QHeaderView{background-color: white;}")
+        set_stylesheet(
+            self.tableview,
+            "#id{outline:0;}"
+            "#id>QHeaderView{background-color: white;}"
+            "#id::item:selected:focus { background:#eee;}"  # Required for outline:0
+            "#id::item:!selected:focus { background:transparent; }",  # Required for outline:0
+        )
+
         self.tableview.verticalHeader().setHighlightSections(False)
 
-        self.tableview.horizontalHeader().sectionClicked.connect(self.on_selection_changed)
+        self.header.sectionClicked.connect(self.on_selection_changed)
+        self.header.edit_column_name.connect(self.on_selection_double_clicked)
         self.tableview.copy_signal.connect(self.copy_selection)
         self.tableview.paste_signal.connect(self.paste_selection)
 
@@ -71,7 +79,6 @@ class DataPanelClass:
         self,
         selected,
     ):
-        self.copy_selection()
         # This method will be called whenever the selection changes
         selected_columns = list({index.column() for index in self.tableview.selectedIndexes()})
 
@@ -166,3 +173,8 @@ class DataPanelClass:
                 self.tabledata.setItem(selected_row + row_index, selected_column + column_index, cell)
         self.tabledata.endResetModel()
         logging.info("Table pasted from clipboard")
+
+    @log_method
+    def on_selection_double_clicked(self, column):
+        logging.info(f"Double clicked column: {column}")
+        self.root_class.action_current_column_begin_edit_title()

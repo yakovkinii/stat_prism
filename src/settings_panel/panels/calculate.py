@@ -13,7 +13,13 @@ class Calculate(BaseSettingsPanel):
     def __init__(self, parent_widget, parent_class, root_class, stacked_widget_index):
         # Setup
         super().__init__(
-            parent_widget, parent_class, root_class, stacked_widget_index, navigation_elements=True, ok_button=True
+            parent_widget,
+            parent_class,
+            root_class,
+            stacked_widget_index,
+            navigation_elements=True,
+            ok_button=True,
+            stretch=False,
         )
 
         self.column_index = None

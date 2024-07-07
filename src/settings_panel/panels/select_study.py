@@ -9,6 +9,7 @@ from PyQt5.QtWidgets import QMessageBox
 
 from src.common.custom_widget_containers import BigAssButton, Spacer, Title
 from src.common.decorators import log_method_noarg
+from src.results_panel.results.descriptive_result import DescriptiveResult
 from src.settings_panel.panels.base import BaseSettingsPanel
 
 if TYPE_CHECKING:
@@ -28,31 +29,29 @@ class SelectStudy(BaseSettingsPanel):
             "descriptive": BigAssButton(
                 parent_widget=self.widget_for_elements,
                 label_text="Descriptive",
-                icon_path="msc.folder-opened",
-                # handler=self.open_handler,
+                icon_path=None,
+                handler=self.add_descriptive,
             ),
             "correlations": BigAssButton(
                 parent_widget=self.widget_for_elements,
                 label_text="Correlations",
-                icon_path="fa.save",
+                icon_path=None,
                 # handler=self.save_handler,
             ),
         }
 
         self.place_elements()
 
-    # @log_method
-    # def create_descriptive(self):
-    #     result_id = get_next_valid_result_id()
-    #     result_container.results[result_id] = DescriptiveResult(result_id=result_id)
-    #     select_result(result_id)
-    #     self.study_instance.mainwindow_instance.actionUpdateStudyFrame.trigger()
-    #     # self.study_instance.parent_class.actionUpdateResultsFrame.trigger()
+    @log_method_noarg
+    def add_descriptive(self):
+        result = DescriptiveResult(
+            unique_id=self.root_class.results_panel.get_unique_id(),
+            settings_panel_index=self.root_class.settings_panel.descriptive_panel_index,
+        )
+        self.root_class.results_panel.add_result(result)
 
-    # @log_method
-    # def create_correlation(self):
-    #     result_id = get_next_valid_result_id()
-    #     result_container.results[result_id] = CorrelationResult(result_id=result_id)
-    #     select_result(result_id)
-    #     self.study_instance.mainwindow_instance.actionUpdateStudyFrame.trigger()
-    #     # self.study_instance.parent_class.actionUpdateResultsFrame.trigger()
+        self.root_class.settings_panel.descriptive_panel.configure(
+            result=result, caller_index=self.stacked_widget_index
+        )
+
+        self.root_class.action_activate_panel_by_index(self.root_class.settings_panel.descriptive_panel_index)

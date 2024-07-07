@@ -1,46 +1,32 @@
 import numpy as np
 import pandas as pd
 
-from src.common.objects import TableResultItem, TextResultItem
-from src.common.registry import round_to_significant_digits, smart_comma_join
-from src.core.descriptive.objects import DescriptiveResult, DescriptiveStudyMetadata
+from src.common.utility import round_to_significant_digits, smart_comma_join
+from src.results_panel.results.descriptive_result import DescriptiveResult
 
 
-def run_descriptive_study(df: pd.DataFrame, metadata: DescriptiveStudyMetadata, result_id: int) -> DescriptiveResult:
-    result = DescriptiveResult(result_id=result_id, metadata=metadata)
-    result.title = f"Descriptive statistics (study #{result_id})"
-
-    if len(metadata.selected_columns) == 0:
+def recalculate_descriptive_study(df: pd.DataFrame, result: DescriptiveResult) -> DescriptiveResult:
+    config = result.config
+    if len(config.selected_columns) == 0:
+        result.result_elements[result.table].text = "Please select columns to analyse"
+        result.result_elements[result.description].text = "Please select columns to analyse"
         return result
-    df = df[metadata.selected_columns]
+    df = df[config.selected_columns]
 
     # Calculate
     result_n = df.count()
     result_missing = df.isna().sum()
     result_mean = df.mean().apply(lambda x: round_to_significant_digits(x))
-    result_median = df.median().apply(lambda x: round_to_significant_digits(x))
     result_minimum = df.min().apply(lambda x: round_to_significant_digits(x))
     result_maximum = df.max().apply(lambda x: round_to_significant_digits(x))
     result_std = df.std().apply(lambda x: round_to_significant_digits(x))
-    result_var = df.var().apply(lambda x: round_to_significant_digits(x))
-
-    # result_n = result_n if metadata.n else None
-    # result_missing = result_missing if metadata.missing else None
-    # result_mean = result_mean if metadata.mean else None
-    # result_median = result_median if metadata.median else None
-    # result_minimum = result_minimum if metadata.minimum else None
-    # result_maximum = result_maximum if metadata.maximum else None
-    # result_std = result_std if metadata.stddev else None
-    # result_var = result_var if metadata.variance else None
 
     result_n = result_n if np.any((result_n != df.shape[0])) else None
     result_missing = result_missing if np.any((result_missing != 0)) else None
-    result_mean = result_mean if metadata.mean else None
-    result_median = None
-    result_minimum = result_minimum if metadata.minimum else None
-    result_maximum = result_maximum if metadata.maximum else None
-    result_std = result_std if metadata.stddev else None
-    result_var = None
+    result_mean = result_mean
+    result_minimum = result_minimum
+    result_maximum = result_maximum
+    result_std = result_std
 
     # Table
     full_dict = {
@@ -49,26 +35,26 @@ def run_descriptive_study(df: pd.DataFrame, metadata: DescriptiveStudyMetadata, 
         "Minimum": result_minimum,
         "Maximum": result_maximum,
         "Mean": result_mean,
-        "Median": result_median,
         "Std. dev.": result_std,
-        "Variance": result_var,
     }
+
     final_dict = dict()
     for k, v in full_dict.items():
         if v is not None:
             final_dict[k] = v
 
+    df_table = None
     if len(final_dict) > 0:
         df_table = pd.DataFrame(final_dict)
         df_table.index.name = "Variable"
         df_table = df_table.reset_index()
-        result.items.append(TableResultItem(df_table, f"Table (Study #{result_id}):", color_values=False))
 
     # Verbal
     columns = list(df.columns)
-    # verbal = verbal_descriptive(columns, result_n, result_mean, result_minimum, result_maximum)
     verbal = verbal_descriptive_keynote(columns, final_dict)
-    result.items.append(TextResultItem(verbal, f"Summary (Study #{result_id})"))
+
+    result.result_elements[result.table].dataframe = df_table
+    result.result_elements[result.description].text = verbal
     return result
 
 

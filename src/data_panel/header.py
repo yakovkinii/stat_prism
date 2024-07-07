@@ -1,3 +1,5 @@
+import logging
+
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtGui import QColor
 
@@ -5,6 +7,8 @@ from src.common.constant import COLORS, COLORS_SELECTION
 
 
 class LeftAlignHeaderView(QtWidgets.QHeaderView):
+    edit_column_name = QtCore.pyqtSignal(int)
+
     def __init__(self, orientation, parent=None):
         super().__init__(orientation, parent)
         self.setDefaultAlignment(QtCore.Qt.AlignLeft | QtCore.Qt.AlignBottom)
@@ -114,3 +118,10 @@ class LeftAlignHeaderView(QtWidgets.QHeaderView):
             globalPos = self.mapToGlobal(event.pos())
             QtWidgets.QToolTip.showText(globalPos, text)
         super().mouseMoveEvent(event)
+
+    def mouseDoubleClickEvent(self, event):
+        index = self.logicalIndexAt(event.pos())
+        if index >= 0:
+            logging.info("emitting edit_column_name")
+            self.edit_column_name.emit(index)
+        super().mouseDoubleClickEvent(event)

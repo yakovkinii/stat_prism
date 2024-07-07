@@ -1,7 +1,7 @@
 import qtawesome as qta
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtCore import Qt
-from PyQt5.QtWidgets import QGridLayout, QListWidgetItem, QWidget
+from PyQt5.QtWidgets import QCheckBox, QComboBox, QGridLayout, QHBoxLayout, QLabel, QListWidgetItem, QWidget
 
 from src.common.constant import COLORS
 from src.common.subclassed_widgets import CheckListWidget
@@ -36,6 +36,15 @@ class EditableTitle:
         self.widget.setText(label_text)
         if handler is not None:
             self.widget.editingFinished.connect(handler)
+
+
+class ColumnTypeSelector:
+    def __init__(self, parent_widget, handler=None):
+        self.widget = QComboBox(parent_widget)
+        self.widget.addItem("None")
+        self.widget.addItem("Nominal")
+        self.widget.addItem("Ordinal")
+        self.widget.addItem("Numerical")
 
 
 class EditableTitleWordWrap:
@@ -75,19 +84,33 @@ class BigAssButton:
         self.label.setText(label_text)
 
         if handler is not None:
-            self.button.pressed.connect(handler)
+            self.button.clicked.connect(handler)
         else:
             self.widget.setEnabled(False)
-        self.button.pressed.connect(lambda: self.button.setDown(False))
+        # self.button.pressed.connect(lambda: self.button.setDown(False))
+
+
+class MediumAssButtonContainer:
+    def __init__(self, parent_widget, widgets):
+        self.widget = QWidget(parent_widget)
+        self.layout = QGridLayout(self.widget)
+        self.layout.setContentsMargins(0, 0, 0, 0)
+        self.layout.setSpacing(10)
+        self.widget.setLayout(self.layout)
+        self.widgets = widgets
+        for i, widget in enumerate(self.widgets.values()):
+            self.layout.addWidget(widget.widget, i // 2, i % 2)
 
 
 class MediumAssButton:
     def __init__(self, parent_widget, label_text, icon_path, handler=None):
         self.widget = QWidget(parent_widget)
-        self._margin_left = 30
-        self._margin = 10
+        # self.widget.setStyleSheet("border: 1px solid black; ")
+        self._margin_left = 0
+        self._margin = 0
         self._height = 51
         self.widget.setFixedHeight(self._height + self._margin)
+        self.widget.setFixedWidth(150)
         icon_path = icon_path if icon_path is not None else "msc.blank"
 
         self.button = create_tool_button_qta(
@@ -98,17 +121,17 @@ class MediumAssButton:
         )
         self.label = create_label(
             parent=self.widget,
-            label_geometry=QtCore.QRect(100, self._margin, 231, self._height),
+            label_geometry=QtCore.QRect(60, self._margin, 90, self._height),
             font_size=10,
             alignment=QtCore.Qt.AlignLeft | QtCore.Qt.AlignVCenter,
         )
         self.label.setText(label_text)
 
         if handler is not None:
-            self.button.pressed.connect(handler)
+            self.button.clicked.connect(handler)
         else:
             self.widget.setEnabled(False)
-        self.button.pressed.connect(lambda: self.button.setDown(False))
+        self.button.clicked.connect(lambda: self.button.setDown(False))
 
 
 class Spacer:
@@ -136,7 +159,7 @@ class ColumnColorSelector:
             button.setToolButtonStyle(QtCore.Qt.ToolButtonIconOnly)
             self.buttons.append(button)
             self.layout.addWidget(button, i // 6, i % 6)
-            button.pressed.connect(get_handler(i))
+            button.clicked.connect(get_handler(i))
 
 
 class InvertVisualizer:
@@ -183,23 +206,48 @@ class InvertVisualizer:
 class ColumnSelector:
     def __init__(self, parent_widget):
         self.widget = CheckListWidget(parent_widget)
-        self.widget.setFixedWidth(380)
+
+
+
+        self.widget.setFixedWidth(390)
         self.widget.setMinimumHeight(100)
         # self.widget.setGeometry(QtCore.QRect(10, 100, 381, 400))
         self.widget.setSelectionMode(QtWidgets.QAbstractItemView.ExtendedSelection)
+        self.items = []
 
     def configure(self, columns, selected_columns, allowed_columns):
         while self.widget.count() > 0:
             self.widget.takeItem(0)
-
+        self.items = []
         for column in columns:
-            item = QListWidgetItem(column)
-            self.widget.add_item_custom(item, checkable=column in allowed_columns, checked=column in selected_columns)
+            item = QListWidgetItem()
+            item.setFont(QtGui.QFont("Segoe UI", 12))
+
+            widget = QWidget()
+            label = QLabel(column)
+            set_stylesheet(
+                label,
+                """
+            font-size: 18px;
+            font-family: "Segoe UI";
+            margin-left: 10px;
+            """,
+            )
+            # Layout to hold the label
+            layout = QHBoxLayout()
+            layout.addWidget(label)
+            layout.addStretch()  # Add stretch to push text to the left
+            layout.setContentsMargins(0, 0, 0, 0)  # Add some padding around the text
+
+            # Set the layout on the QWidget
+            widget.setLayout(layout)
+
+            self.widget.add_item_custom(
+                item, checkable=column in allowed_columns, checked=column in selected_columns, widget=widget
+            )
+            self.items.append(column)
+
         self.widget.clearSelection()
 
     def get_selected_columns(self):
-        return [
-            self.widget.item(i).text()
-            for i in range(self.widget.count())
-            if self.widget.item(i).checkState() == Qt.Checked
-        ]
+        return [self.items[i] for i in range(len(self.items)) if self.widget.item(i).checkState() == Qt.Checked]

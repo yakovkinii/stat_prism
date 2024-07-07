@@ -1,5 +1,4 @@
-import logging
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Dict
 
 from PyQt5 import QtWidgets
 from PyQt5.QtWidgets import QHBoxLayout
@@ -8,6 +7,7 @@ from src.common.constant import DEBUG_LAYOUT
 from src.common.unique_qss import set_stylesheet
 from src.results_panel.result_display import ResultDisplayClass
 from src.results_panel.result_selector import ResultSelectorClass
+from src.results_panel.results.base_result import BaseResult
 
 if TYPE_CHECKING:
     from src.ui_main import MainWindowClass
@@ -20,6 +20,7 @@ class ResultsPanelClass:
         self.parent_class: MainWindowClass = parent_class
         self.widget = QtWidgets.QWidget(parent_widget)
         self.widget.setContentsMargins(10, 0, 0, 0)
+        set_stylesheet(self.widget, "#id{background-color: #fff;}")
 
         if DEBUG_LAYOUT:
             set_stylesheet(self.widget, "#id{border: 1px solid blue; background-color: #eef;}")
@@ -41,3 +42,18 @@ class ResultsPanelClass:
 
         self.widget_layout.addWidget(self.result_display.widget)
         self.widget_layout.addWidget(self.result_selector.widget)
+
+        self.results: Dict[int, BaseResult] = {}
+
+    def add_result(self, result: BaseResult):
+        self.results[result.unique_id] = result
+        self.result_selector.add_result(result)
+        self.result_display.configure(result)
+
+    def update_result(self, result: BaseResult):
+        self.results[result.unique_id] = result
+        # self.result_selector.update_result(result)
+        self.result_display.configure(result)
+
+    def get_unique_id(self):
+        return max(self.results.keys()) + 1 if len(self.results) > 0 else 1

@@ -2,5 +2,10 @@
   <qresource prefix="/mat">
     <file>resources/StatPrism_splash.png</file>
     <file>resources/Icon.ico</file>
+    <file>resources/StatPrism_icon_small.ico</file>
+    <file>resources/unchecked.png</file>
+    <file>resources/unchecked_disabled.png</file>
+    <file>resources/checked.png</file>
+    <file>resources/checked_disabled.png</file>
   </qresource>
 </RCC>

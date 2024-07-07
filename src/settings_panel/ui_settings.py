@@ -8,6 +8,7 @@ from src.common.unique_qss import set_stylesheet
 from src.settings_panel.panels.calculate import Calculate
 from src.settings_panel.panels.column import Column
 from src.settings_panel.panels.columns import Columns
+from src.settings_panel.panels.descriptive import Descriptive
 from src.settings_panel.panels.home import Home
 from src.settings_panel.panels.invert import Inverse
 from src.settings_panel.panels.select_study import SelectStudy
@@ -92,6 +93,15 @@ class SettingsPanelClass:
             stacked_widget_index=self.calculate_panel_index,
         )
 
+        # Todo move to module
+        self.descriptive_panel_index = 6
+        self.descriptive_panel: Descriptive = Descriptive(
+            parent_widget=self.stacked_widget,
+            parent_class=self,
+            root_class=self.root_class,
+            stacked_widget_index=self.descriptive_panel_index,
+        )
+
         self.panels = [
             self.home_panel,
             self.column_panel,
@@ -99,6 +109,7 @@ class SettingsPanelClass:
             self.columns_panel,
             self.select_study_panel,
             self.calculate_panel,
+            self.descriptive_panel,
         ]
 
         # Relations
@@ -108,6 +119,7 @@ class SettingsPanelClass:
         self.stacked_widget.addWidget(self.columns_panel.widget)  # Todo move to module
         self.stacked_widget.addWidget(self.select_study_panel.widget)  # Todo move to module
         self.stacked_widget.addWidget(self.calculate_panel.widget)  # Todo move to module
+        self.stacked_widget.addWidget(self.descriptive_panel.widget)  # Todo move to module
         self.widget_layout.addWidget(self.stacked_widget)
 
         # Create a file menu and add actions
@@ -118,8 +130,8 @@ class SettingsPanelClass:
         file_menu = QMenu("File", self.widget)
         help_menu = QMenu("Help", self.widget)
         open_action = QAction("Open", self.widget)
-        save_action = QAction("Save", self.widget)
-        save_table_action = QAction("Save Table", self.widget)
+        save_action = QAction("Save project", self.widget)
+        save_table_action = QAction("Export Table", self.widget)
         about_action = QAction("About", self.widget)
 
         menu_bar.addMenu(file_menu)

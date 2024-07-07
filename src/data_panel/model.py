@@ -129,6 +129,8 @@ class DataModel(QAbstractTableModel):
         )
 
     def get_column_name(self, column_index: int):
+        if column_index is None:
+            logging.error('column_index is None')
         assert 0 <= column_index < self.columnCount()
         return str(self._df.columns[column_index])
 
@@ -166,7 +168,7 @@ class DataModel(QAbstractTableModel):
                 assert column_name in self._df.columns
             self.column_flags = flags
         except AssertionError as e:
-            logging.error("Column names in flags do not match the column names in the dataframe" +str(e))
+            logging.error("Column names in flags do not match the column names in the dataframe" + str(e))
             QMessageBox.warning(
                 None, "Error loading flags", "Column names in flags do not match " "the column names in the dataframe"
             )

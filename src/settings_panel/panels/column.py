@@ -1,7 +1,14 @@
 import logging
 from typing import TYPE_CHECKING
 
-from src.common.custom_widget_containers import ColumnColorSelector, EditableTitleWordWrap, MediumAssButton, Title
+from src.common.custom_widget_containers import (
+    ColumnColorSelector,
+    ColumnTypeSelector,
+    EditableTitleWordWrap,
+    MediumAssButton,
+    MediumAssButtonContainer,
+    Title,
+)
 from src.common.decorators import log_method, log_method_noarg
 from src.settings_panel.panels.base import BaseSettingsPanel
 
@@ -23,37 +30,45 @@ class Column(BaseSettingsPanel):
             ),
             "title": EditableTitleWordWrap(
                 parent_widget=self.widget_for_elements,
-                label_text="Title lorem ipsum trololo lorem ipsum trololo #1",
+                label_text="",
                 handler=self.finish_editing_title,
             ),
             "color": ColumnColorSelector(
                 parent_widget=self.widget_for_elements,
                 handler=self.color_pressed,
             ),
-            "invert": MediumAssButton(
+            # "type":ColumnTypeSelector(
+            #     parent_widget=self.widget_for_elements,
+            # ),
+            "buttons": MediumAssButtonContainer(
                 parent_widget=self.widget_for_elements,
-                label_text="Invert\ncolumn ",
-                icon_path="ri.arrow-up-down-line",
-                handler=self.inverse_handler,
-            ),
-            "add_col": MediumAssButton(
-                parent_widget=self.widget_for_elements,
-                label_text="Add",
-                icon_path="mdi.table-column-plus-after",
-                handler=self.add_column_handler,
-            ),
-            "delete_col": MediumAssButton(
-                parent_widget=self.widget_for_elements,
-                label_text="Delete column",
-                icon_path="mdi.table-column-remove",
-                handler=self.delete_column_handler,
-            ),
-            "calculate": MediumAssButton(
-                parent_widget=self.widget_for_elements,
-                label_text="Calculate",
-                icon_path="mdi.function",
-                handler=self.calculate_handler,
-            ),
+                widgets={
+                    "add_col": MediumAssButton(
+                        parent_widget=self.widget_for_elements,
+                        label_text="Add",
+                        icon_path="mdi.table-column-plus-after",
+                        handler=self.add_column_handler,
+                    ),
+                    "delete_col": MediumAssButton(
+                        parent_widget=self.widget_for_elements,
+                        label_text="Delete",
+                        icon_path="mdi.table-column-remove",
+                        handler=self.delete_column_handler,
+                    ),
+                    "invert": MediumAssButton(
+                        parent_widget=self.widget_for_elements,
+                        label_text="Invert",
+                        icon_path="ri.arrow-up-down-line",
+                        handler=self.inverse_handler,
+                    ),
+                    "calculate": MediumAssButton(
+                        parent_widget=self.widget_for_elements,
+                        label_text="Calculate\nScale",
+                        icon_path="mdi.sigma",
+                        handler=self.calculate_handler,
+                    ),
+                },
+            )
             # "debug": MediumAssButton(
             #     parent_widget=self.widget_for_elements,
             #     label_text="Debug",
@@ -71,24 +86,56 @@ class Column(BaseSettingsPanel):
         self.elements["title"].widget.setText(str(self.tabledata.get_column_name(self.column_index)))
 
         if self.tabledata.get_column_dtype(self.column_index) in ["int"]:
-            self.elements["invert"].widget.setEnabled(True)
+            self.elements["buttons"].widgets["invert"].widget.setEnabled(True)
         else:
-            self.elements["invert"].widget.setEnabled(False)
+            self.elements["buttons"].widgets["invert"].widget.setEnabled(False)
         # self.elements["title"].widget.setCursorPosition(0)
 
     @log_method_noarg
-    def finish_editing_title(self):
-        logging.info(
-            f"column #{self.column_index} name changed from "
+    def begin_edit_title(self):
+        self.elements["title"].widget.setFocus()
+        self.elements["title"].widget.selectAll()
+
+    @log_method
+    def finish_editing_title(self, ok: bool):
+        if not ok:
+            logging.info("Title editing cancelled")
+            self.configure(
+                column_index=self.column_index,
+                caller_index=self.caller_index,
+            )
+            return
+
+        logging.debug(
+            f"Trying changing column #{self.column_index} name changed from "
             f"{self.tabledata.get_column_name(self.column_index)} to "
             f"{self.elements['title'].widget.text()}"
         )
-        if self.elements["title"].widget.text() not in self.tabledata.get_column_names():
-            self.tabledata.rename_column(column_index=self.column_index, new_name=self.elements["title"].widget.text())
-        else:
-            logging.warning("Column name already exists, reverting")
-            self.elements["title"].widget.setText(self.tabledata.get_column_name(self.column_index))
+
+        title = self.elements["title"].widget.text()
+        columns = self.tabledata.get_column_names()
+
+        if title not in columns:
+            self.tabledata.rename_column(column_index=self.column_index, new_name=title)
+            self.root_class.action_select_table_column(self.column_index)
+            return
+
+        if title == columns[self.column_index]:
+            logging.debug("Column name not changed")
+            return
+        # Modify column name
+
+        suffix = 1
+        while title + f" ({suffix})" in columns:
+            suffix += 1
+        title = title + f" ({suffix})"
+        logging.info(f"Amended title to avoid conflict: {title}")
+        self.tabledata.rename_column(column_index=self.column_index, new_name=title)
         self.root_class.action_select_table_column(self.column_index)
+        self.configure(
+            column_index=self.column_index,
+            caller_index=self.caller_index,
+        )
 
     @log_method_noarg
     def inverse_handler(self):

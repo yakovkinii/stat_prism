@@ -23,9 +23,11 @@ class BaseSettingsPanel:
         stacked_widget_index,
         navigation_elements=False,
         ok_button=False,
+        stretch=True,
     ):
         # Setup
         self.caller_index = None
+        self.stretch = stretch
         self.stacked_widget_index = stacked_widget_index
         self.root_class: MainWindowClass = root_class
         self.parent_class = parent_class
@@ -98,7 +100,8 @@ class BaseSettingsPanel:
 
         for element in self.elements.values():
             self.widget_for_elements_layout.addWidget(element.widget)
-        self.widget_for_elements_layout.addStretch()
+        if self.stretch:
+            self.widget_for_elements_layout.addStretch()
         # current_height = 20
         # for element in self.elements.values():
         #     current_height = element.place(current_height)

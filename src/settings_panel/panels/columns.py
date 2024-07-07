@@ -1,7 +1,7 @@
 import logging
 from typing import TYPE_CHECKING
 
-from src.common.custom_widget_containers import ColumnColorSelector, MediumAssButton, Title
+from src.common.custom_widget_containers import ColumnColorSelector, MediumAssButton, MediumAssButtonContainer, Title
 from src.common.decorators import log_method, log_method_noarg
 from src.settings_panel.panels.base import BaseSettingsPanel
 
@@ -25,28 +25,28 @@ class Columns(BaseSettingsPanel):
                 parent_widget=self.widget_for_elements,
                 handler=self.color_pressed,
             ),
-            # "title": EditableTitleWordWrap(
-            #     parent_widget=self.widget_for_elements,
-            #     label_text="Title lorem ipsum trololo lorem ipsum trololo #1",
-            #     handler=self.finish_editing_title,
-            # ),
-            "invert": MediumAssButton(
+            "buttons": MediumAssButtonContainer(
                 parent_widget=self.widget_for_elements,
-                label_text="Invert\ncolumn ",
-                icon_path="ri.arrow-up-down-line",
-                handler=self.inverse_handler,
-            ),
-            "add_col": MediumAssButton(
-                parent_widget=self.widget_for_elements,
-                label_text="Add",
-                icon_path="mdi.table-column-plus-after",
-                handler=self.add_column_handler,
-            ),
-            "delete_col": MediumAssButton(
-                parent_widget=self.widget_for_elements,
-                label_text="Delete columns",
-                icon_path="mdi.table-column-remove",
-                handler=self.delete_column_handler,
+                widgets={
+                    "add_col": MediumAssButton(
+                        parent_widget=self.widget_for_elements,
+                        label_text="Add",
+                        icon_path="mdi.table-column-plus-after",
+                        handler=self.add_column_handler,
+                    ),
+                    "delete_col": MediumAssButton(
+                        parent_widget=self.widget_for_elements,
+                        label_text="Delete",
+                        icon_path="mdi.table-column-remove",
+                        handler=self.delete_column_handler,
+                    ),
+                    "invert": MediumAssButton(
+                        parent_widget=self.widget_for_elements,
+                        label_text="Invert",
+                        icon_path="ri.arrow-up-down-line",
+                        handler=self.inverse_handler,
+                    ),
+                },
             ),
         }
 
@@ -62,7 +62,7 @@ class Columns(BaseSettingsPanel):
             if self.tabledata.get_column_dtype(index) not in ["int"]:
                 all_numeric = False
                 break
-        self.elements["invert"].widget.setEnabled(all_numeric)
+        self.elements["buttons"].widgets["invert"].widget.setEnabled(all_numeric)
 
     @log_method_noarg
     def inverse_handler(self):

@@ -1,3 +1,5 @@
+import logging
+
 from PyQt5 import QtWidgets
 from PyQt5.QtWidgets import QHBoxLayout, QTabWidget
 
@@ -51,7 +53,7 @@ class MainWindowClass(QtWidgets.QMainWindow):
         self.tab_widget.tabBar().setExpanding(True)
 
         # Misc
-        self.setWindowIcon(icon(":/mat/resources/Icon.ico"))
+        self.setWindowIcon(icon(":/mat/resources/StatPrism_icon_small.ico"))
         set_stylesheet(
             self.tab_widget,
             """
@@ -83,8 +85,13 @@ class MainWindowClass(QtWidgets.QMainWindow):
             self.settings_panel.column_panel.column_index == column_index
         ):
             return
+        logging.info("configuring column panel")
         self.settings_panel.stacked_widget.setCurrentIndex(self.settings_panel.column_panel_index)
         self.settings_panel.column_panel.configure(column_index)
+
+    @log_method
+    def action_current_column_begin_edit_title(self):
+        self.settings_panel.column_panel.begin_edit_title()
 
     @log_method_noarg
     def action_activate_home_panel(self):
@@ -111,7 +118,8 @@ class MainWindowClass(QtWidgets.QMainWindow):
 
     @log_method_noarg
     def on_tab_changed(self):
-        if self.tab_widget.currentIndex() == 1:
-            self.settings_panel.stacked_widget.setCurrentIndex(self.settings_panel.select_study_panel_index)
-        else:
-            self.settings_panel.stacked_widget.setCurrentIndex(self.settings_panel.home_panel_index)
+        pass
+        # if self.tab_widget.currentIndex() == 1:
+        #     self.settings_panel.stacked_widget.setCurrentIndex(self.settings_panel.select_study_panel_index)
+        # else:
+        #     self.settings_panel.stacked_widget.setCurrentIndex(self.settings_panel.home_panel_index)
