@@ -9,7 +9,7 @@ from PyQt5.QtWidgets import QWidget, QListWidgetItem
 from src.common.constant import DEBUG_LAYOUT
 from src.common.decorators import log_method
 from src.common.unique_qss import set_stylesheet
-from src.results_panel.results.base_result import BaseResult
+from src.results_panel.results.common.base import BaseResult
 
 if TYPE_CHECKING:
     from src.ui_main import MainWindowClass

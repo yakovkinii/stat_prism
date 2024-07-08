@@ -2,13 +2,13 @@ import numpy as np
 import pandas as pd
 
 from src.common.utility import round_to_significant_digits, smart_comma_join
-from src.results_panel.results.descriptive_result import DescriptiveResult
+from src.results_panel.results.descriptive.descriptive_result import DescriptiveResult
 
 
 def recalculate_descriptive_study(df: pd.DataFrame, result: DescriptiveResult) -> DescriptiveResult:
     config = result.config
     if len(config.selected_columns) == 0:
-        result.result_elements[result.table].text = "Please select columns to analyse"
+        result.result_elements[result.table].dataframe = None
         result.result_elements[result.description].text = "Please select columns to analyse"
         return result
     df = df[config.selected_columns]

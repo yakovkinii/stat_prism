@@ -1,15 +1,9 @@
-import logging
-import tempfile
-import zipfile
 from typing import TYPE_CHECKING
 
-import pandas as pd
-from PyQt5 import QtWidgets
-from PyQt5.QtWidgets import QMessageBox
-
-from src.common.custom_widget_containers import BigAssButton, Spacer, Title
+from src.common.custom_widget_containers import BigAssButton, Title
 from src.common.decorators import log_method_noarg
-from src.results_panel.results.descriptive_result import DescriptiveResult
+from src.results_panel.results.correlation.correlation_result import CorrelationResult
+from src.results_panel.results.descriptive.descriptive_result import DescriptiveResult
 from src.settings_panel.panels.base import BaseSettingsPanel
 
 if TYPE_CHECKING:
@@ -36,7 +30,7 @@ class SelectStudy(BaseSettingsPanel):
                 parent_widget=self.widget_for_elements,
                 label_text="Correlations",
                 icon_path=None,
-                # handler=self.save_handler,
+                handler=self.add_correlation,
             ),
         }
 
@@ -55,3 +49,17 @@ class SelectStudy(BaseSettingsPanel):
         )
 
         self.root_class.action_activate_panel_by_index(self.root_class.settings_panel.descriptive_panel_index)
+
+    @log_method_noarg
+    def add_correlation(self):
+        result = CorrelationResult(
+            unique_id=self.root_class.results_panel.get_unique_id(),
+            settings_panel_index=self.root_class.settings_panel.descriptive_panel_index,
+        )
+        self.root_class.results_panel.add_result(result)
+
+        self.root_class.settings_panel.correlation_panel.configure(
+            result=result, caller_index=self.stacked_widget_index
+        )
+
+        self.root_class.action_activate_panel_by_index(self.root_class.settings_panel.correlation_panel_index)

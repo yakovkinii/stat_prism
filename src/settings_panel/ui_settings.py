@@ -8,6 +8,7 @@ from src.common.unique_qss import set_stylesheet
 from src.settings_panel.panels.calculate import Calculate
 from src.settings_panel.panels.column import Column
 from src.settings_panel.panels.columns import Columns
+from src.settings_panel.panels.correlation import Correlation
 from src.settings_panel.panels.descriptive import Descriptive
 from src.settings_panel.panels.home import Home
 from src.settings_panel.panels.invert import Inverse
@@ -102,6 +103,14 @@ class SettingsPanelClass:
             stacked_widget_index=self.descriptive_panel_index,
         )
 
+        self.correlation_panel_index = 7
+        self.correlation_panel: Correlation = Correlation(
+            parent_widget=self.stacked_widget,
+            parent_class=self,
+            root_class=self.root_class,
+            stacked_widget_index=self.correlation_panel_index,
+        )
+
         self.panels = [
             self.home_panel,
             self.column_panel,
@@ -110,6 +119,7 @@ class SettingsPanelClass:
             self.select_study_panel,
             self.calculate_panel,
             self.descriptive_panel,
+            self.correlation_panel,
         ]
 
         # Relations
@@ -120,6 +130,7 @@ class SettingsPanelClass:
         self.stacked_widget.addWidget(self.select_study_panel.widget)  # Todo move to module
         self.stacked_widget.addWidget(self.calculate_panel.widget)  # Todo move to module
         self.stacked_widget.addWidget(self.descriptive_panel.widget)  # Todo move to module
+        self.stacked_widget.addWidget(self.correlation_panel.widget)  # Todo move to module
         self.widget_layout.addWidget(self.stacked_widget)
 
         # Create a file menu and add actions

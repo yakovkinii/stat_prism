@@ -2,15 +2,17 @@ from typing import TYPE_CHECKING
 
 from src.common.custom_widget_containers import ColumnSelector, Title
 from src.common.decorators import log_method, log_method_noarg
+from src.core.correlation.main import recalculate_correlation_study
 from src.core.descriptive.core import recalculate_descriptive_study
-from src.results_panel.results.descriptive.descriptive_result import DescriptiveResult, DescriptiveStudyConfig
+from src.results_panel.results.correlation.correlation_result import CorrelationStudyConfig, CorrelationResult
+from src.results_panel.results.descriptive.descriptive_result import DescriptiveResult
 from src.settings_panel.panels.base import BaseSettingsPanel
 
 if TYPE_CHECKING:
     pass
 
 
-class Descriptive(BaseSettingsPanel):
+class Correlation(BaseSettingsPanel):
     def __init__(self, parent_widget, parent_class, root_class, stacked_widget_index):
         # Setup
         super().__init__(parent_widget, parent_class, root_class, stacked_widget_index, stretch=False)
@@ -21,7 +23,7 @@ class Descriptive(BaseSettingsPanel):
         self.elements = {
             "title2": Title(
                 parent_widget=self.widget_for_elements,
-                label_text="Descriptive",
+                label_text="Correlation",
             ),
             # "edit": EditableTitleWordWrap(
             #     parent_widget=self.widget_for_elements,
@@ -36,7 +38,7 @@ class Descriptive(BaseSettingsPanel):
         self.place_elements()
 
     @log_method
-    def configure(self, result: DescriptiveResult, caller_index=None):
+    def configure(self, result: CorrelationResult, caller_index=None):
         self.caller_index = caller_index
         self.result = result
 
@@ -65,9 +67,9 @@ class Descriptive(BaseSettingsPanel):
 
     def selection_changed(self):
         selected_columns = self.elements["column_selector"].get_selected_columns()
-        config = DescriptiveStudyConfig(
+        config = CorrelationStudyConfig(
             selected_columns=selected_columns,
         )
         self.result.config = config
-        new_result = recalculate_descriptive_study(df=self.tabledata.get_data(), result=self.result)
+        new_result = recalculate_correlation_study(df=self.tabledata.get_data(), result=self.result)
         self.root_class.results_panel.update_result(new_result)

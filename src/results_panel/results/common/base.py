@@ -1,12 +1,37 @@
-CSS_STYLE = """
-      <style>
-      tabledata, th, td, span {
+from typing import Dict
+
+
+
+class BaseResult:
+    def __init__(self, unique_id):
+        self.unique_id: int = unique_id
+        self.result_elements: Dict[str, BaseResultElement] = {}
+        self.title: str = ...
+        self.settings_panel_index: int = ...
+        self.config = ...
+
+    def configure(self, *args, **kwargs):
+        pass
+
+
+class BaseResultElement:
+    def __init__(self):
+        self.title: str = ...
+        self.class_id: str = ...
+
+
+
+
+
+APA_TABLE_STYLE_CLASSES = """
+<style>
+      table, th, td, span {
         border-collapse: collapse;
         text-align: left;
-        font-size: 14px;
-        font-family: 'Segoe UI', Arial, sans-serif;
+        font-size: 12pt;
+        font-family: "Times New Roman";
       }
-      tabledata{
+      table{
       margin-bottom: 5px;
       margin-top: 5px;
       }
@@ -47,25 +72,25 @@ CSS_STYLE = """
       .footnote{
         text-align: left;
         margin-left: 10px;
-        font-size: 12px;
-        font-family: 'Segoe UI', Arial, sans-serif;
+        font-size: 12pt;
+        font-family: "Times New Roman";
       }
-      .tabledata-name-apa{
+      .table-name-apa{
         text-align: left;
         margin-left: 0px;
         margin-top:3px;
         margin-bottom:3px;
-        font-size: 14px;
+        font-size: 12pt;
         font-weight: 600;
-        font-family: 'Segoe UI', Arial, sans-serif;
+        font-family: "Times New Roman";
       }
-      .tabledata-title-apa{
+      .table-title-apa{
         text-align: left;
         margin-left: 0px;
         margin-top:3px;
-        font-size: 14px;
+        font-size: 12pt;
         font-style: italic;
-        font-family: 'Segoe UI', Arial, sans-serif;
+        font-family: "Times New Roman";
       }
       .nowrap{
       white-space: nowrap;

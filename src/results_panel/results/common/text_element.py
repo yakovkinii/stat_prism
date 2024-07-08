@@ -1,7 +1,8 @@
 from PyQt5.QtCore import Qt
-from PyQt5.QtWidgets import QLabel, QTextEdit, QVBoxLayout, QWidget
+from PyQt5.QtWidgets import QLabel, QVBoxLayout, QWidget
 
-from src.results_panel.results.base_element import BaseResultElement
+from src.common.unique_qss import set_stylesheet
+from src.results_panel.results.common.base import BaseResultElement
 
 
 class TextResultElement(BaseResultElement):
@@ -23,6 +24,14 @@ class TextResultElementWidgetContainer:
         self.label.setText(self.result_element.text)
         self.label.setWordWrap(True)
         self.label.setTextInteractionFlags(Qt.TextSelectableByMouse)
+        set_stylesheet(self.label,
+                       "#id {"
+                          "font-size: 12pt;"
+                            "font-family: 'Times New Roman';"
+        "}"
+                       )
+        self.label.setAlignment(Qt.AlignJustify)
+
         self.label.adjustSize()
 
         self.widget_layout.addWidget(self.label)

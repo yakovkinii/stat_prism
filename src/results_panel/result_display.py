@@ -4,7 +4,7 @@ from PyQt5 import QtWidgets
 
 from src.common.constant import DEBUG_LAYOUT
 from src.common.unique_qss import set_stylesheet
-from src.results_panel.results.base_result import BaseResult
+from src.results_panel.results.common.base import BaseResult
 from src.results_panel.results.registry import result_widget_container_registry
 
 if TYPE_CHECKING:
