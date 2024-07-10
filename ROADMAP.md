@@ -1,8 +1,5 @@
 # Development roadmap
 
-
-multicol
-
 ## Early evaluation (v0.5) 
 
 ### Required features for early evaluation:
@@ -16,7 +13,7 @@ multicol
 * [ ] Refactor the modules
 * [ ] Ask to save and delete results on opening a new file
 * [ ] Handle mixed types in the data
-* [ ] Find a solution for HTML-related CTD
+* [x] Find a solution for HTML-related CTD
 
 ### Optional features for early evaluation:
 
