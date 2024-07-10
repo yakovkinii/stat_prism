@@ -1,9 +1,9 @@
 from typing import TYPE_CHECKING
 
-from src.common.custom_widget_containers import ColumnSelector, Title, BigAssCheckbox, SpacerSmall
+from src.common.custom_widget_containers import BigAssCheckbox, ColumnSelector, SpacerSmall, Title
 from src.common.decorators import log_method
+from src.core.correlation.correlation_result import CorrelationResult, CorrelationStudyConfig
 from src.core.correlation.main import recalculate_correlation_study
-from src.core.correlation.correlation_result import CorrelationStudyConfig, CorrelationResult
 from src.settings_panel.panels.base import BaseSettingsPanel
 
 if TYPE_CHECKING:
@@ -24,7 +24,6 @@ class Correlation(BaseSettingsPanel):
                 label_text="Correlation",
             ),
             "spacer": SpacerSmall(parent_widget=self.widget_for_elements),
-
             "compact": BigAssCheckbox(
                 parent_widget=self.widget_for_elements,
                 label_text="Compact table",
@@ -36,7 +35,6 @@ class Correlation(BaseSettingsPanel):
                 handler=self.study_settings_changed,
             ),
             "spacer2": SpacerSmall(parent_widget=self.widget_for_elements),
-
             # "edit": EditableTitleWordWrap(
             #     parent_widget=self.widget_for_elements,
             #     label_text="",

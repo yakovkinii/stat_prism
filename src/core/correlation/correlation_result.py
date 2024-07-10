@@ -9,7 +9,7 @@ class CorrelationStudyConfig:
         self,
         selected_columns: List[str],
         compact: bool,
-            report_only_significant: bool,
+        report_only_significant: bool,
         # missing: bool,
         # mean: bool,
         # median: bool,
@@ -31,17 +31,14 @@ class CorrelationStudyConfig:
         # self.maximum = maximum
 
 
-
 class CorrelationResult(BaseResult):
     def __init__(self, unique_id, settings_panel_index, title=None, config: CorrelationStudyConfig = None):
         super().__init__(unique_id)
         self.html = "html"
-        self.result_elements = {
-            self.html: HTMLResultElement()
-        }
+        self.result_elements = {self.html: HTMLResultElement()}
         self.settings_panel_index = settings_panel_index
         if title is None:
-            title = "Correlation "+str(unique_id)
+            title = "Correlation " + str(unique_id)
         self.title = title
 
         if config is None:

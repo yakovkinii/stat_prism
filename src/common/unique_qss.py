@@ -1,5 +1,3 @@
-from typing import Callable
-
 LATEST_ID = 0
 
 

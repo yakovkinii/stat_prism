@@ -8,9 +8,10 @@ from typing import TYPE_CHECKING
 
 import pandas as pd
 from PyQt5 import QtWidgets
-from PyQt5.QtGui import QIcon, QPixmap
-from PyQt5.QtWidgets import QApplication, QMessageBox
+from PyQt5.QtGui import QIcon
+from PyQt5.QtWidgets import QMessageBox
 
+from src.about import version
 from src.common.constant import MDASH, NDASH
 from src.common.custom_widget_containers import BigAssButton, Spacer
 from src.common.decorators import log_method_noarg
@@ -110,15 +111,13 @@ class Home(BaseSettingsPanel):
                 zipf.write(f"{temp_dir}/tabledata_df.parquet", "tabledata_df.parquet")
                 zipf.write(f"{temp_dir}/tabledata_column_flags.pkl", "tabledata_column_flags.pkl")
 
-
-
     @log_method_noarg
     def about_handler(self):
         msg_box = QMessageBox()
 
         msg_box.setWindowTitle("About StatPrism")
         msg_box.setText(
-            f"StatPrism {MDASH} version 0.4.x (Developer Edition)\n"
+            f"StatPrism {MDASH} version {version} (Developer Edition)\n"
             "\n"
             "This version of StatPrism is intended for internal testing only.\n"
             "\n"

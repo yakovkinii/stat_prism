@@ -64,11 +64,13 @@ class EditableTitleWordWrap:
 class BigAssCheckbox:
     def __init__(self, parent_widget, label_text, handler=None):
         self.widget = QCheckBox(parent_widget)
-        set_stylesheet(self.widget, "#id{"
-                             "font-family: 'Segoe UI';"
-                             "font-size: 12pt;"
-                             "}"
-                             """   
+        set_stylesheet(
+            self.widget,
+            "#id{"
+            "font-family: 'Segoe UI';"
+            "font-size: 12pt;"
+            "}"
+            """   
             #id::indicator {
                 margin-top: 2px;
                 width: 25px;  /* Makes the checkbox appear larger */
@@ -90,9 +92,10 @@ class BigAssCheckbox:
                 image: url(:/mat/resources/unchecked_disabled.png);
             }
             """
-                             ""
-                             ""
-                             "")
+            ""
+            ""
+            "",
+        )
         self.widget.setText(label_text)
         if handler is not None:
             self.widget.stateChanged.connect(handler)
@@ -176,10 +179,12 @@ class Spacer:
         self.widget = QWidget(parent_widget)
         self.widget.setFixedHeight(50)
 
+
 class SpacerSmall:
     def __init__(self, parent_widget):
         self.widget = QWidget(parent_widget)
         self.widget.setFixedHeight(10)
+
 
 class ColumnColorSelector:
     def __init__(self, parent_widget, handler=None):
@@ -247,8 +252,6 @@ class InvertVisualizer:
 class ColumnSelector:
     def __init__(self, parent_widget):
         self.widget = CheckListWidget(parent_widget)
-
-
 
         self.widget.setFixedWidth(390)
         self.widget.setMinimumHeight(100)

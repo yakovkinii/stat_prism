@@ -130,7 +130,7 @@ class DataModel(QAbstractTableModel):
 
     def get_column_name(self, column_index: int):
         if column_index is None:
-            logging.error('column_index is None')
+            logging.error("column_index is None")
         assert 0 <= column_index < self.columnCount()
         return str(self._df.columns[column_index])
 

@@ -3,7 +3,7 @@ import pandas as pd
 
 from src.common.utility import round_to_significant_digits, smart_comma_join
 from src.core.descriptive.descriptive_result import DescriptiveResult
-from src.results_panel.results.common.html_element import HTMLText, HTMLResultElement, HTMLTable, Cell, Row
+from src.results_panel.results.common.html_element import Cell, HTMLResultElement, HTMLTable, HTMLText, Row
 
 
 def recalculate_descriptive_study(df: pd.DataFrame, result: DescriptiveResult) -> DescriptiveResult:
@@ -48,11 +48,13 @@ def recalculate_descriptive_study(df: pd.DataFrame, result: DescriptiveResult) -
     df_table = df_table.reset_index()
     html_table = HTMLTable([])
     html_table.table_id = "1"
-    html_table.table_caption = "Descriptive statistics of " + smart_comma_join([f"'{var}'" for var in df_table.columns]) + "."
+    html_table.table_caption = (
+        "Descriptive statistics of " + smart_comma_join([f"'{var}'" for var in df_table.columns]) + "."
+    )
     html_table.add_single_row_apa(Row([Cell(x) for x in df_table.columns]))
     for i in range(df_table.shape[0]):
         row = df_table.iloc[i]
-        html_table.add_single_row_apa(Row([Cell(row[0])]+[Cell(x) for x in row[1:]]))
+        html_table.add_single_row_apa(Row([Cell(row[0])] + [Cell(x) for x in row[1:]]))
 
     # Verbal
     columns = list(df.columns)

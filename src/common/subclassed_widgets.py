@@ -1,14 +1,10 @@
 import logging
 
-from PyQt5.QtCore import QSize, Qt, QTimer, pyqtSignal
+from PyQt5.QtCore import  Qt, QTimer, pyqtSignal
 from PyQt5.QtWidgets import (
     QAbstractItemView,
-    QApplication,
     QLineEdit,
     QListWidget,
-    QStyle,
-    QStyledItemDelegate,
-    QStyleOptionButton,
     QTextEdit,
 )
 
@@ -88,7 +84,8 @@ class CheckListWidget(QListWidget):
         # never display horizontal scrollbar
         self.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         # vertical scrollbar width of 10px
-        set_stylesheet(self,
+        set_stylesheet(
+            self,
             """
             #id {border: 1px solid #ddd;}
             #id::item {
@@ -117,7 +114,7 @@ class CheckListWidget(QListWidget):
             #id::indicator:unchecked:disabled {
                 image: url(:/mat/resources/unchecked_disabled.png);
             }
-            """
+            """,
         )
         self.setMouseTracking(True)
         self._fillingState = None

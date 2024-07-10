@@ -1,10 +1,10 @@
 import logging
 from typing import TYPE_CHECKING
-import qtawesome as qta
 
-from PyQt5 import QtWidgets, QtCore
+import qtawesome as qta
+from PyQt5 import QtCore, QtWidgets
 from PyQt5.QtCore import QSize
-from PyQt5.QtWidgets import QWidget, QListWidgetItem
+from PyQt5.QtWidgets import QListWidgetItem, QWidget
 
 from src.common.constant import DEBUG_LAYOUT
 from src.common.decorators import log_method

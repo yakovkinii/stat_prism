@@ -53,7 +53,7 @@ class SelectStudy(BaseSettingsPanel):
 
     @log_method_noarg
     def add_correlation(self):
-        logging.info('add correlation clicked')
+        logging.info("add correlation clicked")
         result = CorrelationResult(
             unique_id=self.root_class.results_panel.get_unique_id(),
             settings_panel_index=self.root_class.settings_panel.correlation_panel_index,

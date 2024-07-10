@@ -1,7 +1,6 @@
 from typing import Dict
 
 
-
 class BaseResult:
     def __init__(self, unique_id):
         self.unique_id: int = unique_id
@@ -18,9 +17,6 @@ class BaseResultElement:
     def __init__(self):
         self.title: str = ...
         self.class_id: str = ...
-
-
-
 
 
 APA_TABLE_STYLE_CLASSES = """

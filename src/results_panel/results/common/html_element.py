@@ -1,11 +1,9 @@
 import logging
 from typing import List, Union
 
-from PyQt5.QtCore import Qt
 from PyQt5.QtWebEngineWidgets import QWebEngineView
-from PyQt5.QtWidgets import QLabel, QVBoxLayout, QWidget, QTextEdit, QTextBrowser
+from PyQt5.QtWidgets import QLabel,  QVBoxLayout
 
-from src.common.unique_qss import set_stylesheet
 from src.results_panel.results.common.base import BaseResultElement
 
 
@@ -150,17 +148,16 @@ class HTMLResultElementWidgetContainer:
 
         self.webview = QWebEngineView(self.widget)
         self._html = self.get_html()
-        logging.debug(f'setting html')
+        logging.debug(f"setting html")
         self.webview.setHtml(self._html)
-        logging.debug(f'setted html')
+        logging.debug(f"setted html")
         self.widget_layout.addWidget(self.webview)
-        logging.debug(f'added to layout')
-
+        logging.debug(f"added to layout")
 
     def get_html(self):
-        html = "<HTML>"+STYLES
-        html+="<br><br><br>".join([item.get_html() for item in self.result_element.items])
-        html+="</HTML>"
+        html = "<HTML>" + STYLES
+        html += "<br><br><br>".join([item.get_html() for item in self.result_element.items])
+        html += "</HTML>"
         return html
 
 

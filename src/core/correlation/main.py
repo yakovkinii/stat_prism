@@ -1,10 +1,10 @@
 import pandas as pd
 import scipy.stats
 
+from src.core.correlation.correlation_result import CorrelationResult
 from src.core.correlation.report import get_report
 from src.core.correlation.table import get_table_compact, get_table_full
 from src.results_panel.results.common.html_element import HTMLResultElement, HTMLText
-from src.core.correlation.correlation_result import CorrelationResult
 
 
 def calculate_correlations(df):
@@ -34,9 +34,7 @@ def calculate_correlations(df):
     return correlation_matrix, p_matrix, df_matrix
 
 
-def recalculate_correlation_study(
-    df: pd.DataFrame, result: CorrelationResult
-) -> CorrelationResult:
+def recalculate_correlation_study(df: pd.DataFrame, result: CorrelationResult) -> CorrelationResult:
     config = result.config
     if len(config.selected_columns) < 2:
         result.result_elements[result.html] = HTMLResultElement()
@@ -57,11 +55,12 @@ def recalculate_correlation_study(
         html_table = get_table_full(columns, correlation_matrix, p_matrix, df_matrix)
 
     # Verbal
-    verbal = get_report(columns, correlation_matrix, p_matrix, df_matrix, table_name, report_non_significant=not report_only_significant)
+    verbal = get_report(
+        columns, correlation_matrix, p_matrix, df_matrix, table_name, report_non_significant=not report_only_significant
+    )
     html_result_element = HTMLResultElement()
     html_result_element.items.append(html_table)
     html_result_element.items.append(HTMLText(verbal))
 
     result.result_elements[result.html] = html_result_element
     return result
-

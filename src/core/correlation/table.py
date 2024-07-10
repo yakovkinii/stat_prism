@@ -1,6 +1,6 @@
 from src.common.constant import MDASH
 from src.common.utility import smart_comma_join
-from src.results_panel.results.common.html_element import HTMLTable, Row, Cell
+from src.results_panel.results.common.html_element import Cell, HTMLTable, Row
 
 
 def format_r_apa(r, decimals=2):
