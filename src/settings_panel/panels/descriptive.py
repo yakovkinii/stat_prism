@@ -3,7 +3,7 @@ from typing import TYPE_CHECKING
 from src.common.custom_widget_containers import ColumnSelector, Title
 from src.common.decorators import log_method, log_method_noarg
 from src.core.descriptive.core import recalculate_descriptive_study
-from src.results_panel.results.descriptive.descriptive_result import DescriptiveResult, DescriptiveStudyConfig
+from src.core.descriptive.descriptive_result import DescriptiveResult, DescriptiveStudyConfig
 from src.settings_panel.panels.base import BaseSettingsPanel
 
 if TYPE_CHECKING:

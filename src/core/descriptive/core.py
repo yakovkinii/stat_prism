@@ -2,14 +2,14 @@ import numpy as np
 import pandas as pd
 
 from src.common.utility import round_to_significant_digits, smart_comma_join
-from src.results_panel.results.descriptive.descriptive_result import DescriptiveResult
+from src.core.descriptive.descriptive_result import DescriptiveResult
+from src.results_panel.results.common.html_element import HTMLText, HTMLResultElement, HTMLTable, Cell, Row
 
 
 def recalculate_descriptive_study(df: pd.DataFrame, result: DescriptiveResult) -> DescriptiveResult:
     config = result.config
     if len(config.selected_columns) == 0:
-        result.result_elements[result.table].dataframe = None
-        result.result_elements[result.description].text = "Please select columns to analyse"
+        result.result_elements[result.html] = HTMLResultElement()
         return result
     df = df[config.selected_columns]
 
@@ -43,18 +43,27 @@ def recalculate_descriptive_study(df: pd.DataFrame, result: DescriptiveResult) -
         if v is not None:
             final_dict[k] = v
 
-    df_table = None
-    if len(final_dict) > 0:
-        df_table = pd.DataFrame(final_dict)
-        df_table.index.name = "Variable"
-        df_table = df_table.reset_index()
+    df_table = pd.DataFrame(final_dict)
+    df_table.index.name = "Variable"
+    df_table = df_table.reset_index()
+    html_table = HTMLTable([])
+    html_table.table_id = "1"
+    html_table.table_caption = "Descriptive statistics of " + smart_comma_join([f"'{var}'" for var in df_table.columns]) + "."
+    html_table.add_single_row_apa(Row([Cell(x) for x in df_table.columns]))
+    for i in range(df_table.shape[0]):
+        row = df_table.iloc[i]
+        html_table.add_single_row_apa(Row([Cell(row[0])]+[Cell(x) for x in row[1:]]))
 
     # Verbal
     columns = list(df.columns)
     verbal = verbal_descriptive_keynote(columns, final_dict)
 
-    result.result_elements[result.table].dataframe = df_table
-    result.result_elements[result.description].text = verbal
+    html_result_element = HTMLResultElement()
+    html_result_element.items.append(html_table)
+    html_result_element.items.append(HTMLText(verbal))
+
+    result.result_elements[result.html] = html_result_element
+
     return result
 
 

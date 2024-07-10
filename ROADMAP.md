@@ -8,24 +8,25 @@
 * [ ] Delete results
 * [ ] Save/load reports
 * [ ] Export/copy reports
-* [ ] Fully restore correlations and descriptives
+* [x] Fully restore correlations 
+* [x] Minimally restore descriptives
 * [ ] Add filters
 * [ ] Refactor the modules
 * [ ] Ask to save and delete results on opening a new file
 * [ ] Handle mixed types in the data
+* [ ] Find a solution for HTML-related CTD
 
 ### Optional features for early evaluation:
 
 * [ ] Color column selector according to the column category
 * [ ] Custom column inversion calibration
-* [ ] Reimplement verbal results for descriptive statistics
-
+* [x] <s>Reimplement verbal results for descriptive statistics</s>. To be implemented after unfreezing.
 
 ### Early evaluation feedback focus
 
 * User interface: layout and general usability
 * User interface: color scheme and design
-* Feature-completeness of descriptives and correlations
+* Feature-completeness of correlations
 * Any bugs or crashes
 * Any manual adjustments left over
 

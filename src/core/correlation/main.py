@@ -1,12 +1,10 @@
-import numpy as np
 import pandas as pd
 import scipy.stats
 
-from src.common.utility import smart_comma_join
 from src.core.correlation.report import get_report
-from src.core.correlation.table import get_table, get_table_compact, get_table_full
-from src.results_panel.results.common.html_element import HTMLTable, HTMLResultElement, HTMLText
-from src.results_panel.results.correlation.correlation_result import CorrelationResult
+from src.core.correlation.table import get_table_compact, get_table_full
+from src.results_panel.results.common.html_element import HTMLResultElement, HTMLText
+from src.core.correlation.correlation_result import CorrelationResult
 
 
 def calculate_correlations(df):

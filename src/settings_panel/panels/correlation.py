@@ -1,12 +1,9 @@
-import logging
 from typing import TYPE_CHECKING
 
-from src.common.custom_widget_containers import ColumnSelector, Title, BigAssCheckbox, Spacer, SpacerSmall
-from src.common.decorators import log_method, log_method_noarg
+from src.common.custom_widget_containers import ColumnSelector, Title, BigAssCheckbox, SpacerSmall
+from src.common.decorators import log_method
 from src.core.correlation.main import recalculate_correlation_study
-from src.core.descriptive.core import recalculate_descriptive_study
-from src.results_panel.results.correlation.correlation_result import CorrelationStudyConfig, CorrelationResult
-from src.results_panel.results.descriptive.descriptive_result import DescriptiveResult
+from src.core.correlation.correlation_result import CorrelationStudyConfig, CorrelationResult
 from src.settings_panel.panels.base import BaseSettingsPanel
 
 if TYPE_CHECKING:
