@@ -22,6 +22,7 @@ class ResultDisplayClass:
         # self.widget.setContentsMargins(0, 0, 0, 0)
         self.widget.tabBar().setDocumentMode(True)
         self.widget.tabBar().setExpanding(False)
+        self.element_widget_containers = []
 
         if DEBUG_LAYOUT:
             set_stylesheet(self.widget, "#id{border: 1px solid blue; background-color: #eef;}")
@@ -34,7 +35,18 @@ class ResultDisplayClass:
 
     def configure(self, result: BaseResult):
         self.widget.clear()
-
+        self.element_widget_containers = []
         for element in result.result_elements.values():
             element_widget_container = result_widget_container_registry[element.class_id](self.widget, element)
-            self.widget.addTab(element_widget_container.widget, element.title)
+            logging.debug('element_widget_container created')
+            self.element_widget_containers.append(element_widget_container)  # To prevent garbage collection
+            logging.debug('element_widget_container stored')
+            try:
+                logging.info('enter try')
+                self.widget.addTab(element_widget_container.widget, element.title)
+                logging.info('exit try')
+            except Exception as e:
+                logging.error(f"Error adding tab: {e}")
+                raise ValueError()
+            logging.debug('element_widget_container added to tab')
+

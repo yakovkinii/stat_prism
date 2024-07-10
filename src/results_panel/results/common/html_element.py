@@ -150,8 +150,12 @@ class HTMLResultElementWidgetContainer:
 
         self.webview = QWebEngineView(self.widget)
         self._html = self.get_html()
+        logging.debug(f'setting html')
         self.webview.setHtml(self._html)
+        logging.debug(f'setted html')
         self.widget_layout.addWidget(self.webview)
+        logging.debug(f'added to layout')
+
 
     def get_html(self):
         html = "<HTML>"+STYLES
