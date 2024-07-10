@@ -1,14 +1,11 @@
 <RCC>
   <qresource prefix="/mat">
-    <file>resources/full_black_gold.png</file>
-    <file>resources/full_gold - Copy.png</file>
+    <file>resources/StatPrism_splash.png</file>
     <file>resources/Icon.ico</file>
-    <file>resources/Icon.png</file>
-    <file>resources/material-icons-png-master/png/black/menu/round-4x.png</file>
-    <file>resources/material-icons-png-master/png/black/bar_chart/round-4x.png</file>
-    <file>resources/material-icons-png-master/png/black/save_alt/round-4x.png</file>
-    <file>resources/material-icons-png-master/png/black/arrow_downward/round-4x.png</file>
-    <file>resources/material-icons-png-master/png/black/arrow_upward/round-4x.png</file>
-    <file>resources/material-icons-png-master/png/black/folder_open/round-4x.png</file>
+    <file>resources/StatPrism_icon_small.ico</file>
+    <file>resources/unchecked.png</file>
+    <file>resources/unchecked_disabled.png</file>
+    <file>resources/checked.png</file>
+    <file>resources/checked_disabled.png</file>
   </qresource>
 </RCC>
