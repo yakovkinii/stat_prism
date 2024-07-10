@@ -1,3 +1,4 @@
+import logging
 from typing import TYPE_CHECKING
 
 from src.common.custom_widget_containers import BigAssButton, Title
@@ -52,9 +53,10 @@ class SelectStudy(BaseSettingsPanel):
 
     @log_method_noarg
     def add_correlation(self):
+        logging.info('add correlation clicked')
         result = CorrelationResult(
             unique_id=self.root_class.results_panel.get_unique_id(),
-            settings_panel_index=self.root_class.settings_panel.descriptive_panel_index,
+            settings_panel_index=self.root_class.settings_panel.correlation_panel_index,
         )
         self.root_class.results_panel.add_result(result)
 

@@ -61,6 +61,43 @@ class EditableTitleWordWrap:
             self.widget.editingFinished.connect(handler)
 
 
+class BigAssCheckbox:
+    def __init__(self, parent_widget, label_text, handler=None):
+        self.widget = QCheckBox(parent_widget)
+        set_stylesheet(self.widget, "#id{"
+                             "font-family: 'Segoe UI';"
+                             "font-size: 12pt;"
+                             "}"
+                             """   
+            #id::indicator {
+                margin-top: 2px;
+                width: 25px;  /* Makes the checkbox appear larger */
+                height: 25px;
+            }
+            #id::indicator:checked {
+                image: url(:/mat/resources/checked.png);
+            }
+            
+            #id::indicator:unchecked {
+                image: url(:/mat/resources/unchecked.png);
+            }
+            
+            #id::indicator:checked:disabled {
+                image: url(:/mat/resources/checked_disabled.png);
+            }
+            
+            #id::indicator:unchecked:disabled {
+                image: url(:/mat/resources/unchecked_disabled.png);
+            }
+            """
+                             ""
+                             ""
+                             "")
+        self.widget.setText(label_text)
+        if handler is not None:
+            self.widget.stateChanged.connect(handler)
+
+
 class BigAssButton:
     def __init__(self, parent_widget, label_text, icon_path, handler=None):
         self.widget = QWidget(parent_widget)
@@ -139,6 +176,10 @@ class Spacer:
         self.widget = QWidget(parent_widget)
         self.widget.setFixedHeight(50)
 
+class SpacerSmall:
+    def __init__(self, parent_widget):
+        self.widget = QWidget(parent_widget)
+        self.widget.setFixedHeight(10)
 
 class ColumnColorSelector:
     def __init__(self, parent_widget, handler=None):

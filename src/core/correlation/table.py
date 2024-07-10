@@ -1,4 +1,6 @@
+from src.common.constant import MDASH
 from src.common.utility import smart_comma_join
+from src.results_panel.results.common.html_element import HTMLTable, Row, Cell
 
 
 def format_r_apa(r, decimals=2):
@@ -156,5 +158,112 @@ def get_table(columns, correlation_matrix, p_matrix, df_matrix, compact, table_n
 
     html += "</table>"
     html += '<div class="footnote"> <i>Note.</i> * p &lt; .05; ** p &lt; .01; *** p &lt; .001</div>'
-    print(html)
+    # print(html)
     return html
+
+
+def get_table_compact(columns, correlation_matrix, p_matrix) -> HTMLTable:
+    table = HTMLTable([])
+
+    table.table_id = "1"
+    table.table_caption = "Correlations between " + smart_comma_join([f"'{var}'" for var in columns]) + "."
+
+    # Add header
+    table.add_single_row_apa(Row([Cell()] + [Cell(column, col_span=2, center=True) for column in columns]))
+
+    # Add matrix
+    for i_row, row in enumerate(columns):
+        table_row = [Cell(row)]
+        for i_column, column in enumerate(columns):
+            if i_column < i_row:
+                table_row.append(
+                    Cell(
+                        format_r_apa(correlation_matrix.loc[row, column]),
+                        push_to_right=True,
+                        is_doubled=True,
+                        no_wrap=True,
+                    )
+                )
+                table_row.append(Cell(get_stars(p_matrix.loc[row, column]), push_to_left=True, is_doubled=True))
+            elif i_column == i_row:
+                table_row.append(Cell(MDASH, push_to_right=True, is_doubled=True))
+                table_row.append(Cell(push_to_left=True, is_doubled=True))
+            else:
+                table_row.append(Cell(push_to_right=True, is_doubled=True))
+                table_row.append(Cell(push_to_left=True, is_doubled=True))
+        table.add_single_row_apa(Row(table_row))
+
+    table.table_note = "* p &lt; .05; ** p &lt; .01; *** p &lt; .001"
+
+    return table
+
+
+def get_table_full(columns, correlation_matrix, p_matrix, df_matrix) -> HTMLTable:
+    table = HTMLTable([])
+
+    table.table_id = "1"
+    table.table_caption = "Correlations between " + smart_comma_join([f"'{var}'" for var in columns]) + "."
+
+    # Add header
+    table.add_single_row_apa(Row([Cell(col_span=2)] + [Cell(column, col_span=2, center=True) for column in columns]))
+
+    # Add matrix
+    for i_row, row in enumerate(columns):
+        table_row_1 = [Cell(row, row_span=3), Cell("Pearson's r", no_wrap=True)]
+        for i_column, column in enumerate(columns):
+            if i_column < i_row:
+                table_row_1.append(
+                    Cell(
+                        format_r_apa(correlation_matrix.loc[row, column]),
+                        push_to_right=True,
+                        is_doubled=True,
+                        no_wrap=True,
+                    )
+                )
+                table_row_1.append(Cell(get_stars(p_matrix.loc[row, column]), push_to_left=True, is_doubled=True))
+            elif i_column == i_row:
+                table_row_1.append(Cell(MDASH, push_to_right=True, is_doubled=True))
+                table_row_1.append(Cell(push_to_left=True, is_doubled=True))
+            else:
+                table_row_1.append(Cell(push_to_right=True, is_doubled=True))
+                table_row_1.append(Cell(push_to_left=True, is_doubled=True))
+
+        table_row_2 = [Cell("p-value", no_wrap=True)]
+        for i_column, column in enumerate(columns):
+            if i_column < i_row:
+                table_row_2.append(
+                    Cell(format_p_apa(p_matrix.loc[row, column]), push_to_right=True, is_doubled=True, no_wrap=True)
+                )
+                table_row_2.append(Cell(push_to_left=True, is_doubled=True))
+            elif i_column == i_row:
+                table_row_2.append(Cell(MDASH, push_to_right=True, is_doubled=True))
+                table_row_2.append(Cell(push_to_left=True, is_doubled=True))
+            else:
+                table_row_2.append(Cell(push_to_right=True, is_doubled=True))
+                table_row_2.append(Cell(push_to_left=True, is_doubled=True))
+
+        table_row_3 = [Cell("df", no_wrap=True)]
+        for i_column, column in enumerate(columns):
+            if i_column < i_row:
+                table_row_3.append(
+                    Cell(str(df_matrix.loc[row, column]), push_to_right=True, is_doubled=True, no_wrap=True)
+                )
+                table_row_3.append(Cell(push_to_left=True, is_doubled=True))
+            elif i_column == i_row:
+                table_row_3.append(Cell(MDASH, push_to_right=True, is_doubled=True))
+                table_row_3.append(Cell(push_to_left=True, is_doubled=True))
+            else:
+                table_row_3.append(Cell(push_to_right=True, is_doubled=True))
+                table_row_3.append(Cell(push_to_left=True, is_doubled=True))
+
+        table.add_multirow_apa(
+            [
+                Row(table_row_1),
+                Row(table_row_2),
+                Row(table_row_3),
+            ]
+        )
+
+    table.table_note = "* p &lt; .05; ** p &lt; .01; *** p &lt; .001"
+
+    return table

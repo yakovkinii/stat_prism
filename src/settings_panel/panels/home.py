@@ -11,6 +11,7 @@ from PyQt5 import QtWidgets
 from PyQt5.QtGui import QIcon, QPixmap
 from PyQt5.QtWidgets import QApplication, QMessageBox
 
+from src.common.constant import MDASH, NDASH
 from src.common.custom_widget_containers import BigAssButton, Spacer
 from src.common.decorators import log_method_noarg
 from src.settings_panel.panels.base import BaseSettingsPanel
@@ -117,7 +118,7 @@ class Home(BaseSettingsPanel):
 
         msg_box.setWindowTitle("About StatPrism")
         msg_box.setText(
-            "StatPrism – version 0.4.x (Developer Edition)\n"
+            f"StatPrism {MDASH} version 0.4.x (Developer Edition)\n"
             "\n"
             "This version of StatPrism is intended for internal testing only.\n"
             "\n"

@@ -1,3 +1,4 @@
+import logging
 from typing import TYPE_CHECKING
 
 from PyQt5 import QtWidgets

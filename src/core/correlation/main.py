@@ -4,7 +4,8 @@ import scipy.stats
 
 from src.common.utility import smart_comma_join
 from src.core.correlation.report import get_report
-from src.core.correlation.table import get_table
+from src.core.correlation.table import get_table, get_table_compact, get_table_full
+from src.results_panel.results.common.html_element import HTMLTable, HTMLResultElement, HTMLText
 from src.results_panel.results.correlation.correlation_result import CorrelationResult
 
 
@@ -40,35 +41,29 @@ def recalculate_correlation_study(
 ) -> CorrelationResult:
     config = result.config
     if len(config.selected_columns) < 2:
-        result.result_elements[result.table].html = "Please select at least 2 columns to analyse"
-        result.result_elements[result.description].text = "Please select at least 2 columns to analyse"
+        result.result_elements[result.html] = HTMLResultElement()
         return result
     df = df[config.selected_columns]
 
-    compact = False
+    compact = config.compact
     table_name = "1"
-    report_non_significant = True
+    report_only_significant = config.report_only_significant
     columns = list(df.columns)
 
     correlation_matrix, p_matrix, df_matrix = calculate_correlations(df)
 
-    html_table = get_table(columns, correlation_matrix, p_matrix, df_matrix, compact, table_name)
-
-    # Plot
-    # name1 = readable.iloc[0, 0] if readable.iloc[0, 2] > -readable.iloc[-1, 2] else readable.iloc[-1, 0]
-    # name2 = readable.iloc[0, 1] if readable.iloc[0, 2] > -readable.iloc[-1, 2] else readable.iloc[-1, 1]
-    # name1 = columns[0]
-    # name2 = columns[1]
-    # df_plot = df.loc[:, [name1, name2]]
-    # plot_result = PlotResultItem(df_plot[[name1, name2]], f"Plot (Study #{result_id}):")
-    # plot_result.x_axis_title = name1
-    # plot_result.y_axis_title = name2
-    # result.items.append(plot_result)
+    # html_table = get_table(columns, correlation_matrix, p_matrix, df_matrix, compact, table_name)
+    if compact:
+        html_table = get_table_compact(columns, correlation_matrix, p_matrix)
+    else:
+        html_table = get_table_full(columns, correlation_matrix, p_matrix, df_matrix)
 
     # Verbal
-    verbal = get_report(columns, correlation_matrix, p_matrix, df_matrix, table_name, report_non_significant)
-    result.result_elements[result.table].html = html_table
-    result.result_elements[result.description].text = verbal
+    verbal = get_report(columns, correlation_matrix, p_matrix, df_matrix, table_name, report_non_significant=not report_only_significant)
+    html_result_element = HTMLResultElement()
+    html_result_element.items.append(html_table)
+    html_result_element.items.append(HTMLText(verbal))
 
+    result.result_elements[result.html] = html_result_element
     return result
 

@@ -6,7 +6,7 @@ from src.results_panel.results.common.base import BaseResultElement
 
 
 class TextResultElement(BaseResultElement):
-    def __init__(self, text, title="Text Result Element"):
+    def __init__(self, text="", title="Text Result Element"):
         super().__init__()
         self.title: str = title
         self.class_id: str = "TextResultElement"

@@ -27,6 +27,7 @@ class BaseSettingsPanel:
     ):
         # Setup
         self.caller_index = None
+        self.configuring = False
         self.stretch = stretch
         self.stacked_widget_index = stacked_widget_index
         self.root_class: MainWindowClass = root_class

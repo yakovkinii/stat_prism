@@ -47,8 +47,8 @@ class ResultsPanelClass:
 
     def add_result(self, result: BaseResult):
         self.results[result.unique_id] = result
-        self.result_selector.add_result(result)
-        self.result_display.configure(result)
+        self.result_selector.add_result(self.results[result.unique_id])
+        self.result_display.configure(self.results[result.unique_id])
 
     def update_result(self, result: BaseResult):
         self.results[result.unique_id] = result
