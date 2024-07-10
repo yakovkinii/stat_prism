@@ -1,12 +1,5 @@
-import logging
-
-from PyQt5.QtCore import  Qt, QTimer, pyqtSignal
-from PyQt5.QtWidgets import (
-    QAbstractItemView,
-    QLineEdit,
-    QListWidget,
-    QTextEdit,
-)
+from PySide6.QtCore import QEvent, Qt, QTimer, Signal
+from PySide6.QtWidgets import QAbstractItemView, QLineEdit, QListWidget, QTextEdit
 
 from src.common.constant import DEBUG_LAYOUT
 from src.common.unique_qss import set_stylesheet
@@ -28,28 +21,28 @@ class EditableLabel(QLineEdit):
 
 
 class EditableLabelWordwrap(QTextEdit):
-    editingFinished = pyqtSignal(bool)
+    editingFinished = Signal(bool)
 
     def __init__(self, parent):
         super().__init__(parent)
         self.setFixedWidth(388)
-        self.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
-        self.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        self.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
+        self.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
         set_stylesheet(self, "#id{border: none; background-color: rgba(255,255,255,100);}")
         if DEBUG_LAYOUT:
             set_stylesheet(self, "#id{border: 1px solid blue; background-color: #eef;}")
         self.textChanged.connect(self.adjustHeightToFitText)
         self.installEventFilter(self)
-        self.setFocusPolicy(Qt.StrongFocus)
+        self.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
         self.accept_editing = True
 
     def eventFilter(self, obj, event):
-        if event.type() == event.KeyPress:
-            if event.key() in (Qt.Key_Return, Qt.Key_Enter):
+        if event.type() == QEvent.Type.KeyPress:
+            if event.key() in (Qt.Key.Key_Return, Qt.Key.Key_Enter):
                 self.clearFocus()  # will emit editingFinished
                 return True
 
-            if event.key() == Qt.Key_Escape:
+            if event.key() == Qt.Key.Key_Escape:
                 self.accept_editing = False
                 self.clearFocus()
                 return True
@@ -69,27 +62,27 @@ class EditableLabelWordwrap(QTextEdit):
     def adjustHeightToFitText(self):
         doc = self.document()
         doc.setTextWidth(388.0)
-        self.setFixedHeight(doc.size().height() + 2 * self.frameWidth())
+        self.setFixedHeight(int(doc.size().height() + 2 * self.frameWidth()))
 
     def scheduleAdjustHeightToFitText(self):
         QTimer.singleShot(10, self.adjustHeightToFitText)
 
 
 class CheckListWidget(QListWidget):
-    selection_changed = pyqtSignal()
+    selection_changed = Signal()
 
     def __init__(self, parent=None):
         super().__init__(parent)
-        self.setSelectionMode(QAbstractItemView.NoSelection)
+        self.setSelectionMode(QAbstractItemView.SelectionMode.NoSelection)
         # never display horizontal scrollbar
-        self.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        self.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
         # vertical scrollbar width of 10px
         set_stylesheet(
             self,
             """
             #id {border: 1px solid #ddd;}
             #id::item {
-                color: #333; 
+                color: #333;
                 background-color: #fff;
                 padding: 2px;
                 border-bottom: 1px solid #eee;
@@ -102,15 +95,12 @@ class CheckListWidget(QListWidget):
             #id::indicator:checked {
                 image: url(:/mat/resources/checked.png);
             }
-            
             #id::indicator:unchecked {
                 image: url(:/mat/resources/unchecked.png);
             }
-            
             #id::indicator:checked:disabled {
                 image: url(:/mat/resources/checked_disabled.png);
             }
-            
             #id::indicator:unchecked:disabled {
                 image: url(:/mat/resources/unchecked_disabled.png);
             }
@@ -123,12 +113,12 @@ class CheckListWidget(QListWidget):
 
     def add_item_custom(self, item, checkable=True, checked=False, widget=None):
         if checkable:
-            item.setFlags(item.flags() | Qt.ItemIsUserCheckable)
-            item.setCheckState(Qt.Checked if checked else Qt.Unchecked)
+            item.setFlags(item.flags() | Qt.ItemFlag.ItemIsUserCheckable)
+            item.setCheckState(Qt.CheckState.Checked if checked else Qt.CheckState.Unchecked)
         else:
-            item.setFlags(item.flags() | Qt.ItemIsUserCheckable)
-            item.setCheckState(Qt.Unchecked)
-            item.setFlags(item.flags() & ~Qt.ItemIsEnabled)
+            item.setFlags(item.flags() | Qt.ItemFlag.ItemIsUserCheckable)
+            item.setCheckState(Qt.CheckState.Unchecked)
+            item.setFlags(item.flags() & ~Qt.ItemFlag.ItemIsEnabled)
         self.addItem(item)
         if widget is not None:
             self.setItemWidget(item, widget)
@@ -138,10 +128,10 @@ class CheckListWidget(QListWidget):
         item = self.itemAt(event.pos())
         if item:
             button = event.button()
-            if button == Qt.LeftButton:
-                self._fillingState = Qt.Checked
-            elif button == Qt.RightButton:
-                self._fillingState = Qt.Unchecked
+            if button == Qt.MouseButton.LeftButton:
+                self._fillingState = Qt.CheckState.Checked
+            elif button == Qt.MouseButton.RightButton:
+                self._fillingState = Qt.CheckState.Unchecked
             else:
                 return
             self.start_item = item
@@ -155,8 +145,16 @@ class CheckListWidget(QListWidget):
         item = self.itemAt(event.pos())
         # super().mouseReleaseEvent(event)
 
-        if item == self.start_item and (item.flags() & Qt.ItemIsEnabled) and (event.button() == Qt.LeftButton):
-            item.setCheckState(Qt.Checked if self.start_item_check_state == Qt.Unchecked else Qt.Unchecked)
+        if (
+            item == self.start_item
+            and (item.flags() & Qt.ItemFlag.ItemIsEnabled)
+            and (event.button() == Qt.MouseButton.LeftButton)
+        ):
+            item.setCheckState(
+                Qt.CheckState.Checked
+                if self.start_item_check_state == Qt.CheckState.Unchecked
+                else Qt.CheckState.Unchecked
+            )
 
         self._fillingState = None
         self.selection_changed.emit()
@@ -171,5 +169,5 @@ class CheckListWidget(QListWidget):
     def toggleCheckState(self, item):
         if self._fillingState is None:
             return
-        if item.flags() & Qt.ItemIsEnabled:
+        if item.flags() & Qt.ItemFlag.ItemIsEnabled:
             item.setCheckState(self._fillingState)

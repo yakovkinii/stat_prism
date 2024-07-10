@@ -1,6 +1,8 @@
 # Development roadmap
 
 
+multicol
+
 ## Early evaluation (v0.5) 
 
 ### Required features for early evaluation:

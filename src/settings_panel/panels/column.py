@@ -3,7 +3,6 @@ from typing import TYPE_CHECKING
 
 from src.common.custom_widget_containers import (
     ColumnColorSelector,
-    ColumnTypeSelector,
     EditableTitleWordWrap,
     MediumAssButton,
     MediumAssButtonContainer,

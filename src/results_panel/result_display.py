@@ -1,7 +1,7 @@
 import logging
 from typing import TYPE_CHECKING
 
-from PyQt5 import QtWidgets
+from PySide6 import QtWidgets
 
 from src.common.constant import DEBUG_LAYOUT
 from src.common.unique_qss import set_stylesheet

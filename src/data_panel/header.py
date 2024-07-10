@@ -1,17 +1,19 @@
 import logging
 
-from PyQt5 import QtCore, QtGui, QtWidgets
-from PyQt5.QtGui import QColor
+from PySide6 import QtCore, QtGui, QtWidgets
+from PySide6.QtGui import QColor
 
 from src.common.constant import COLORS, COLORS_SELECTION
+from src.data_panel.model import DataModel
 
 
 class LeftAlignHeaderView(QtWidgets.QHeaderView):
-    edit_column_name = QtCore.pyqtSignal(int)
+    edit_column_name = QtCore.Signal(int)
+    mouse_up = QtCore.Signal()
 
     def __init__(self, orientation, parent=None):
         super().__init__(orientation, parent)
-        self.setDefaultAlignment(QtCore.Qt.AlignLeft | QtCore.Qt.AlignBottom)
+        self.setDefaultAlignment(QtCore.Qt.AlignmentFlag.AlignLeft | QtCore.Qt.AlignmentFlag.AlignBottom)
         self.setMouseTracking(True)  # Enable mouse tracking for hover events
         self.setSectionsClickable(True)  # From QTableWidget's init
         self.setHighlightSections(True)  # From QTableWidget's init
@@ -22,14 +24,15 @@ class LeftAlignHeaderView(QtWidgets.QHeaderView):
 
     def sectionSizeFromContents(self, logicalIndex):
         if self.model():
-            headerText = self.model().headerData(logicalIndex, self.orientation(), QtCore.Qt.DisplayRole)
-            headerIcons = self.model().headerData(logicalIndex, self.orientation(), QtCore.Qt.DecorationRole)
-            options = self.viewOptions()
-            metrics = QtGui.QFontMetrics(options.font)
+            headerText = self.model().headerData(logicalIndex, self.orientation(), QtCore.Qt.ItemDataRole.DisplayRole)
+            headerIcons = self.model().headerData(
+                logicalIndex, self.orientation(), QtCore.Qt.ItemDataRole.DecorationRole
+            )
+            metrics = QtGui.QFontMetrics(self.font())
             maxWidth = self.sectionSize(logicalIndex)
             rect = metrics.boundingRect(
                 QtCore.QRect(0, 0, maxWidth, 5000),
-                int(self.defaultAlignment()) | QtCore.Qt.TextWordWrap | QtCore.Qt.TextExpandTabs,
+                int(self.defaultAlignment()) | QtCore.Qt.TextFlag.TextWordWrap | QtCore.Qt.TextFlag.TextExpandTabs,
                 headerText,
                 4,
             )
@@ -46,15 +49,16 @@ class LeftAlignHeaderView(QtWidgets.QHeaderView):
 
     def paintSection(self, painter, rect, logicalIndex):
         if self.model():
+            model: DataModel = self.model()  # this is ok
             painter.save()
-            self.model().hideHeaders()
+            model.hideHeaders()
             QtWidgets.QHeaderView.paintSection(self, painter, rect, logicalIndex)
-            self.model().unhideHeaders()
+            model.unhideHeaders()
             painter.restore()
 
-            headerText = self.model().headerData(logicalIndex, self.orientation(), QtCore.Qt.DisplayRole)
-            headerIcons = self.model().headerData(logicalIndex, self.orientation(), QtCore.Qt.DecorationRole)
-            headerColor = self.model().get_column_color(logicalIndex)
+            headerText = model.headerData(logicalIndex, self.orientation(), QtCore.Qt.ItemDataRole.DisplayRole)
+            headerIcons = model.headerData(logicalIndex, self.orientation(), QtCore.Qt.ItemDataRole.DecorationRole)
+            headerColor = model.get_column_color(logicalIndex)
 
             if self.selectionModel().isColumnSelected(logicalIndex):
                 if headerColor is not None:
@@ -96,7 +100,7 @@ class LeftAlignHeaderView(QtWidgets.QHeaderView):
             else:
                 rect_padded = QtCore.QRectF(rect.adjusted(self._padding, self._padding, -self._padding, -self._padding))
 
-            painter.drawText(QtCore.QRectF(rect_padded), QtCore.Qt.TextWordWrap, headerText)
+            painter.drawText(QtCore.QRectF(rect_padded), QtCore.Qt.TextFlag.TextWordWrap, headerText)
         else:
             QtWidgets.QHeaderView.paintSection(self, painter, rect, logicalIndex)
 
@@ -125,3 +129,7 @@ class LeftAlignHeaderView(QtWidgets.QHeaderView):
             logging.info("emitting edit_column_name")
             self.edit_column_name.emit(index)
         super().mouseDoubleClickEvent(event)
+
+    def mouseReleaseEvent(self, event):
+        self.mouse_up.emit()
+        super().mouseReleaseEvent(event)

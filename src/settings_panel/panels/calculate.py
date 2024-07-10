@@ -1,7 +1,7 @@
 import logging
 from typing import TYPE_CHECKING
 
-from src.common.custom_widget_containers import ColumnSelector, MediumAssButton, Title
+from src.common.custom_widget_containers import ColumnSelector, Title
 from src.common.decorators import log_method, log_method_noarg
 from src.settings_panel.panels.base import BaseSettingsPanel
 

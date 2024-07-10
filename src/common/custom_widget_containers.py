@@ -1,7 +1,7 @@
 import qtawesome as qta
-from PyQt5 import QtCore, QtGui, QtWidgets
-from PyQt5.QtCore import Qt
-from PyQt5.QtWidgets import QCheckBox, QComboBox, QGridLayout, QHBoxLayout, QLabel, QListWidgetItem, QWidget
+from PySide6 import QtCore, QtGui, QtWidgets
+from PySide6.QtCore import Qt
+from PySide6.QtWidgets import QCheckBox, QComboBox, QGridLayout, QHBoxLayout, QLabel, QListWidgetItem, QWidget
 
 from src.common.constant import COLORS
 from src.common.subclassed_widgets import CheckListWidget
@@ -20,7 +20,7 @@ class Title:
             parent=parent_widget,
             label_geometry=None,
             font_size=10,
-            alignment=QtCore.Qt.AlignHCenter | QtCore.Qt.AlignVCenter,
+            alignment=QtCore.Qt.AlignmentFlag.AlignHCenter | QtCore.Qt.AlignmentFlag.AlignVCenter,
         )
         self.widget.setText(label_text)
 
@@ -31,7 +31,7 @@ class EditableTitle:
             parent=parent_widget,
             label_geometry=None,
             font_size=14,
-            alignment=QtCore.Qt.AlignLeft | QtCore.Qt.AlignVCenter,
+            alignment=QtCore.Qt.AlignmentFlag.AlignLeft | QtCore.Qt.AlignmentFlag.AlignVCenter,
         )
         self.widget.setText(label_text)
         if handler is not None:
@@ -52,7 +52,7 @@ class EditableTitleWordWrap:
         self.widget = create_label_editable_wordwrap(
             parent=parent_widget,
             font_size=12,
-            alignment=QtCore.Qt.AlignLeft | QtCore.Qt.AlignVCenter,
+            alignment=QtCore.Qt.AlignmentFlag.AlignLeft | QtCore.Qt.AlignmentFlag.AlignVCenter,
         )
         # use only the needed vertical size
 
@@ -70,7 +70,7 @@ class BigAssCheckbox:
             "font-family: 'Segoe UI';"
             "font-size: 12pt;"
             "}"
-            """   
+            """
             #id::indicator {
                 margin-top: 2px;
                 width: 25px;  /* Makes the checkbox appear larger */
@@ -79,22 +79,16 @@ class BigAssCheckbox:
             #id::indicator:checked {
                 image: url(:/mat/resources/checked.png);
             }
-            
             #id::indicator:unchecked {
                 image: url(:/mat/resources/unchecked.png);
             }
-            
             #id::indicator:checked:disabled {
                 image: url(:/mat/resources/checked_disabled.png);
             }
-            
             #id::indicator:unchecked:disabled {
                 image: url(:/mat/resources/unchecked_disabled.png);
             }
-            """
-            ""
-            ""
-            "",
+            """,
         )
         self.widget.setText(label_text)
         if handler is not None:
@@ -119,7 +113,7 @@ class BigAssButton:
             parent=self.widget,
             label_geometry=QtCore.QRect(150, self._margin, 231, self._height),
             font_size=14,
-            alignment=QtCore.Qt.AlignLeft | QtCore.Qt.AlignVCenter,
+            alignment=QtCore.Qt.AlignmentFlag.AlignLeft | QtCore.Qt.AlignmentFlag.AlignVCenter,
         )
         self.label.setText(label_text)
 
@@ -163,7 +157,7 @@ class MediumAssButton:
             parent=self.widget,
             label_geometry=QtCore.QRect(60, self._margin, 90, self._height),
             font_size=10,
-            alignment=QtCore.Qt.AlignLeft | QtCore.Qt.AlignVCenter,
+            alignment=QtCore.Qt.AlignmentFlag.AlignLeft | QtCore.Qt.AlignmentFlag.AlignVCenter,
         )
         self.label.setText(label_text)
 
@@ -202,7 +196,7 @@ class ColumnColorSelector:
             button.setFixedHeight(40)
             button.setText("")
             set_stylesheet(button, "#id{" + f"background-color: {color}" + "}")
-            button.setToolButtonStyle(QtCore.Qt.ToolButtonIconOnly)
+            button.setToolButtonStyle(QtCore.Qt.ToolButtonStyle.ToolButtonIconOnly)
             self.buttons.append(button)
             self.layout.addWidget(button, i // 6, i % 6)
             button.clicked.connect(get_handler(i))
@@ -228,7 +222,7 @@ class InvertVisualizer:
             label_left = QtWidgets.QLabel(self.widget)
             label_left.setText(str(value))
             label_left.setFont(self.font)
-            label_left.setAlignment(Qt.AlignRight | Qt.AlignVCenter)
+            label_left.setAlignment(Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignVCenter)
 
             label_center = QtWidgets.QLabel(self.widget)
             icon = qta.icon("mdi.arrow-right", color="black")
@@ -238,7 +232,7 @@ class InvertVisualizer:
             label_right = QtWidgets.QLabel(self.widget)
             label_right.setText(str(max_plus_min - value))
             label_right.setFont(self.font)
-            label_right.setAlignment(Qt.AlignLeft | Qt.AlignVCenter)
+            label_right.setAlignment(Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter)
 
             self.children.append(label_left)
             self.children.append(label_center)
@@ -256,7 +250,7 @@ class ColumnSelector:
         self.widget.setFixedWidth(390)
         self.widget.setMinimumHeight(100)
         # self.widget.setGeometry(QtCore.QRect(10, 100, 381, 400))
-        self.widget.setSelectionMode(QtWidgets.QAbstractItemView.ExtendedSelection)
+        self.widget.setSelectionMode(QtWidgets.QAbstractItemView.SelectionMode.ExtendedSelection)
         self.items = []
 
     def configure(self, columns, selected_columns, allowed_columns):
@@ -294,4 +288,6 @@ class ColumnSelector:
         self.widget.clearSelection()
 
     def get_selected_columns(self):
-        return [self.items[i] for i in range(len(self.items)) if self.widget.item(i).checkState() == Qt.Checked]
+        return [
+            self.items[i] for i in range(len(self.items)) if self.widget.item(i).checkState() == Qt.CheckState.Checked
+        ]

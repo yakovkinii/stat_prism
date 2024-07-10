@@ -1,5 +1,5 @@
 import qtawesome as qta
-from PyQt5 import QtCore, QtGui, QtWidgets
+from PySide6 import QtCore, QtGui, QtWidgets
 
 import resources_rc
 from src.common.subclassed_widgets import EditableLabel, EditableLabelWordwrap
@@ -9,8 +9,8 @@ def icon(path):
     _icon = QtGui.QIcon()
     _icon.addPixmap(
         QtGui.QPixmap(path),
-        QtGui.QIcon.Normal,
-        QtGui.QIcon.Off,
+        QtGui.QIcon.Mode.Normal,
+        QtGui.QIcon.State.Off,
     )
     return _icon
 
@@ -22,7 +22,7 @@ def create_tool_button_qta(parent, button_geometry, icon_path, icon_size):
 
     button.setIcon(qta.icon(icon_path))
     button.setIconSize(icon_size)
-    button.setToolButtonStyle(QtCore.Qt.ToolButtonIconOnly)
+    button.setToolButtonStyle(QtCore.Qt.ToolButtonStyle.ToolButtonIconOnly)
     return button
 
 
