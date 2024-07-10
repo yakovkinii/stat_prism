@@ -1,8 +1,8 @@
 import logging
 import sys
 
-from PySide6.QtCore import QTimer, Qt
-from PySide6.QtGui import QPixmap, QIcon
+from PySide6.QtCore import QTimer
+from PySide6.QtGui import QIcon, QPixmap
 from PySide6.QtWidgets import QApplication, QSplashScreen
 from yatools import logging_config
 

@@ -10,6 +10,7 @@ from src.data_panel.model import DataModel
 class LeftAlignHeaderView(QtWidgets.QHeaderView):
     edit_column_name = QtCore.Signal(int)
     mouse_up = QtCore.Signal()
+
     def __init__(self, orientation, parent=None):
         super().__init__(orientation, parent)
         self.setDefaultAlignment(QtCore.Qt.AlignmentFlag.AlignLeft | QtCore.Qt.AlignmentFlag.AlignBottom)
@@ -24,7 +25,9 @@ class LeftAlignHeaderView(QtWidgets.QHeaderView):
     def sectionSizeFromContents(self, logicalIndex):
         if self.model():
             headerText = self.model().headerData(logicalIndex, self.orientation(), QtCore.Qt.ItemDataRole.DisplayRole)
-            headerIcons = self.model().headerData(logicalIndex, self.orientation(), QtCore.Qt.ItemDataRole.DecorationRole)
+            headerIcons = self.model().headerData(
+                logicalIndex, self.orientation(), QtCore.Qt.ItemDataRole.DecorationRole
+            )
             metrics = QtGui.QFontMetrics(self.font())
             maxWidth = self.sectionSize(logicalIndex)
             rect = metrics.boundingRect(

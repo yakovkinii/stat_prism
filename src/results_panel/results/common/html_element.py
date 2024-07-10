@@ -2,7 +2,7 @@ import logging
 from typing import List, Union
 
 from PySide6.QtWebEngineWidgets import QWebEngineView
-from PySide6.QtWidgets import QLabel,  QVBoxLayout
+from PySide6.QtWidgets import QLabel, QVBoxLayout
 
 from src.results_panel.results.common.base import BaseResultElement
 

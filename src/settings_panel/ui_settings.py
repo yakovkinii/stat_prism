@@ -1,8 +1,9 @@
 from typing import TYPE_CHECKING
 
 from PySide6 import QtCore, QtWidgets
-from PySide6.QtWidgets import QMenu, QMenuBar, QVBoxLayout
 from PySide6.QtGui import QAction
+from PySide6.QtWidgets import QMenu, QMenuBar, QVBoxLayout
+
 from src.common.constant import DEBUG_LAYOUT
 from src.common.unique_qss import set_stylesheet
 from src.settings_panel.panels.calculate import Calculate
@@ -30,7 +31,9 @@ class SettingsPanelClass:
         self.widget_layout.setContentsMargins(0, 0, 0, 0)
         self.widget.setLayout(self.widget_layout)
 
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Policy.Preferred, QtWidgets.QSizePolicy.Policy.Preferred)
+        sizePolicy = QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.Policy.Preferred, QtWidgets.QSizePolicy.Policy.Preferred
+        )
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.widget.sizePolicy().hasHeightForWidth())

@@ -70,7 +70,7 @@ class BigAssCheckbox:
             "font-family: 'Segoe UI';"
             "font-size: 12pt;"
             "}"
-            """   
+            """
             #id::indicator {
                 margin-top: 2px;
                 width: 25px;  /* Makes the checkbox appear larger */
@@ -79,22 +79,16 @@ class BigAssCheckbox:
             #id::indicator:checked {
                 image: url(:/mat/resources/checked.png);
             }
-            
             #id::indicator:unchecked {
                 image: url(:/mat/resources/unchecked.png);
             }
-            
             #id::indicator:checked:disabled {
                 image: url(:/mat/resources/checked_disabled.png);
             }
-            
             #id::indicator:unchecked:disabled {
                 image: url(:/mat/resources/unchecked_disabled.png);
             }
-            """
-            ""
-            ""
-            "",
+            """,
         )
         self.widget.setText(label_text)
         if handler is not None:

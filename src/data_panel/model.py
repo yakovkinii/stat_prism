@@ -4,7 +4,6 @@ from typing import Dict, List, Union
 import pandas as pd
 import qtawesome as qta
 from PySide6.QtCore import QAbstractTableModel, QModelIndex, Qt
-from PySide6.QtWidgets import QMessageBox
 
 from src.common.column_flags import ColumnFlags, ColumnFlagsRegistry
 from src.common.constant import COLORS
@@ -169,7 +168,6 @@ class DataModel(QAbstractTableModel):
             self.column_flags = flags
         except AssertionError as e:
             logging.error("Column names in flags do not match the column names in the dataframe" + str(e))
-
 
     def get_column_flags(self, column_name: str):
         return self.column_flags[column_name]

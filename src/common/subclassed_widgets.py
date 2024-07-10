@@ -1,10 +1,5 @@
-from PySide6.QtCore import Qt, QTimer, Signal, QEvent
-from PySide6.QtWidgets import (
-    QAbstractItemView,
-    QLineEdit,
-    QListWidget,
-    QTextEdit,
-)
+from PySide6.QtCore import QEvent, Qt, QTimer, Signal
+from PySide6.QtWidgets import QAbstractItemView, QLineEdit, QListWidget, QTextEdit
 
 from src.common.constant import DEBUG_LAYOUT
 from src.common.unique_qss import set_stylesheet
@@ -87,7 +82,7 @@ class CheckListWidget(QListWidget):
             """
             #id {border: 1px solid #ddd;}
             #id::item {
-                color: #333; 
+                color: #333;
                 background-color: #fff;
                 padding: 2px;
                 border-bottom: 1px solid #eee;
@@ -100,15 +95,12 @@ class CheckListWidget(QListWidget):
             #id::indicator:checked {
                 image: url(:/mat/resources/checked.png);
             }
-            
             #id::indicator:unchecked {
                 image: url(:/mat/resources/unchecked.png);
             }
-            
             #id::indicator:checked:disabled {
                 image: url(:/mat/resources/checked_disabled.png);
             }
-            
             #id::indicator:unchecked:disabled {
                 image: url(:/mat/resources/unchecked_disabled.png);
             }
