@@ -1,9 +1,9 @@
 import logging
 import sys
 
-from PyQt5.QtCore import QTimer
-from PyQt5.QtGui import QPixmap, QIcon
-from PyQt5.QtWidgets import QApplication, QSplashScreen
+from PySide6.QtCore import QTimer, Qt
+from PySide6.QtGui import QPixmap, QIcon
+from PySide6.QtWidgets import QApplication, QSplashScreen
 from yatools import logging_config
 
 from src.ui_main import MainWindowClass
@@ -24,6 +24,7 @@ if __name__ == "__main__":
     # Set the exception hook to our wrapping function
     sys.excepthook = my_exception_hook
 
+    # QApplication.setAttribute(Qt.ApplicationAttribute.AA_DisableHighDpiScaling)
     app = QApplication(sys.argv)
     app.setWindowIcon(QIcon(":/mat/resources/Icon.ico"))
 
@@ -38,4 +39,4 @@ if __name__ == "__main__":
     QTimer.singleShot(splash_time, splash.close)
     QTimer.singleShot(splash_time, main_win.showMaximized)
 
-    app.exec_()
+    app.exec()

@@ -1,7 +1,7 @@
 from typing import TYPE_CHECKING, Dict
 
-from PyQt5 import QtWidgets
-from PyQt5.QtWidgets import QHBoxLayout
+from PySide6 import QtWidgets
+from PySide6.QtWidgets import QHBoxLayout
 
 from src.common.constant import DEBUG_LAYOUT
 from src.common.unique_qss import set_stylesheet

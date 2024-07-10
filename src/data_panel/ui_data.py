@@ -1,8 +1,8 @@
 import logging
 from typing import TYPE_CHECKING
 
-from PyQt5 import QtCore, QtWidgets
-from PyQt5.QtWidgets import QMessageBox, QVBoxLayout
+from PySide6 import QtCore, QtWidgets
+from PySide6.QtWidgets import QMessageBox, QVBoxLayout
 
 from src.common.constant import DEBUG_LAYOUT
 from src.common.decorators import log_method, log_method_noarg
@@ -41,16 +41,16 @@ class DataPanelClass:
         self.widget_layout.addWidget(self.tableview)
 
         self.tableview.setAutoFillBackground(False)
-        self.tableview.setFrameShape(QtWidgets.QFrame.NoFrame)
+        self.tableview.setFrameShape(QtWidgets.QFrame.Shape.NoFrame)
         # self.tabledata.setSelectionBehavior(QtWidgets.QAbstractItemView.SelectItems)
         # self.tabledata.setHorizontalScrollMode(QtWidgets.QAbstractItemView.ScrollPerPixel)
         self.tableview.setShowGrid(True)
-        self.tableview.setGridStyle(QtCore.Qt.SolidLine)
-        self.header = LeftAlignHeaderView(QtCore.Qt.Horizontal, self.tableview)
+        self.tableview.setGridStyle(QtCore.Qt.PenStyle.SolidLine)
+        self.header = LeftAlignHeaderView(QtCore.Qt.Orientation.Horizontal, self.tableview)
         self.tableview.setHorizontalHeader(self.header)
 
         # make table editable
-        self.tableview.setEditTriggers(QtWidgets.QAbstractItemView.DoubleClicked)
+        self.tableview.setEditTriggers(QtWidgets.QAbstractItemView.EditTrigger.DoubleClicked)
 
         self.tableview.horizontalHeader().setVisible(True)
         self.tableview.horizontalHeader().setCascadingSectionResizes(False)
@@ -69,16 +69,16 @@ class DataPanelClass:
 
         self.tableview.verticalHeader().setHighlightSections(False)
 
-        self.header.sectionClicked.connect(self.on_selection_changed)
+        self.header.mouse_up.connect(self.on_selection_changed)
+        # self.header.clicked.connect(self.on_selection_changed)
+        # self.tableview.selectionModel().selectionChanged.connect(self.on_selection_changed)
+        # self.header.
         self.header.edit_column_name.connect(self.on_selection_double_clicked)
         self.tableview.copy_signal.connect(self.copy_selection)
         self.tableview.paste_signal.connect(self.paste_selection)
 
     @log_method
-    def on_selection_changed(
-        self,
-        selected,
-    ):
+    def on_selection_changed(self, *args, **kwargs):
         # This method will be called whenever the selection changes
         selected_columns = list({index.column() for index in self.tableview.selectedIndexes()})
 

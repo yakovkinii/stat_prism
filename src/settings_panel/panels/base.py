@@ -1,9 +1,9 @@
 import logging
 from typing import TYPE_CHECKING
 
-from PyQt5 import QtCore, QtWidgets
-from PyQt5.QtCore import Qt
-from PyQt5.QtWidgets import QScrollArea, QVBoxLayout
+from PySide6 import QtCore, QtWidgets
+from PySide6.QtCore import Qt
+from PySide6.QtWidgets import QScrollArea, QVBoxLayout
 
 from src.common.constant import DEBUG_LAYOUT
 from src.common.decorators import log_method_noarg
@@ -87,8 +87,8 @@ class BaseSettingsPanel:
 
         self.widget_layout.addWidget(self.scroll_area)
         set_stylesheet(self.widget, "#id>QScrollBar{width: 15px;}")
-        self.scroll_area.setVerticalScrollBarPolicy(Qt.ScrollBarAsNeeded)
-        self.scroll_area.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        self.scroll_area.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAsNeeded)
+        self.scroll_area.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
         self.elements = {}
 
     @log_method_noarg

@@ -10,25 +10,10 @@ class CorrelationStudyConfig:
         selected_columns: List[str],
         compact: bool,
         report_only_significant: bool,
-        # missing: bool,
-        # mean: bool,
-        # median: bool,
-        # stddev: bool,
-        # variance: bool,
-        # minimum: bool,
-        # maximum: bool,
     ):
         self.selected_columns = selected_columns
         self.compact = compact
         self.report_only_significant = report_only_significant
-        # self.n = n
-        # self.missing = missing
-        # self.mean = mean
-        # self.median = median
-        # self.stddev = stddev
-        # self.variance = variance
-        # self.minimum = minimum
-        # self.maximum = maximum
 
 
 class CorrelationResult(BaseResult):

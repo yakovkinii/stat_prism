@@ -1,18 +1,16 @@
-import json
 import logging
 import pickle
-import sys
 import tempfile
 import zipfile
 from typing import TYPE_CHECKING
 
 import pandas as pd
-from PyQt5 import QtWidgets
-from PyQt5.QtGui import QIcon
-from PyQt5.QtWidgets import QMessageBox
+from PySide6 import QtWidgets
+from PySide6.QtGui import QIcon
+from PySide6.QtWidgets import QMessageBox
 
 from src.about import version
-from src.common.constant import MDASH, NDASH
+from src.common.constant import MDASH
 from src.common.custom_widget_containers import BigAssButton, Spacer
 from src.common.decorators import log_method_noarg
 from src.settings_panel.panels.base import BaseSettingsPanel
@@ -54,13 +52,11 @@ class Home(BaseSettingsPanel):
 
     @log_method_noarg
     def open_handler(self):
-        options = QtWidgets.QFileDialog.Options()
         file_path, _ = QtWidgets.QFileDialog.getOpenFileName(
             self.widget,
             "Open File",
             "",
             "Supported Files (*.sp *.xlsx *.csv);;All Files (*)",
-            options=options,
         )
         logging.info(f"Opening {file_path}")
 
@@ -91,13 +87,11 @@ class Home(BaseSettingsPanel):
 
     @log_method_noarg
     def save_handler(self):
-        options = QtWidgets.QFileDialog.Options()
         file_path, _ = QtWidgets.QFileDialog.getSaveFileName(
             self.widget,
             "Chose",
             "",
             "StatPrism project (*.sp);;",
-            options=options,
         )
         if not file_path:
             return

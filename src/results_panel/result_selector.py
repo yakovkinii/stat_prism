@@ -2,9 +2,9 @@ import logging
 from typing import TYPE_CHECKING
 
 import qtawesome as qta
-from PyQt5 import QtCore, QtWidgets
-from PyQt5.QtCore import QSize
-from PyQt5.QtWidgets import QListWidgetItem, QWidget
+from PySide6 import QtCore, QtWidgets
+from PySide6.QtCore import QSize
+from PySide6.QtWidgets import QListWidgetItem, QWidget
 
 from src.common.constant import DEBUG_LAYOUT
 from src.common.decorators import log_method
@@ -104,7 +104,7 @@ class ResultSelectorClass:
             handler=self.activate_result_handler,
             parent_widget=self.list_widget,
         )
-        widget.setFocusPolicy(QtCore.Qt.NoFocus)
+        widget.setFocusPolicy(QtCore.Qt.FocusPolicy.NoFocus)
         item.setSizeHint(widget.sizeHint())
         self.list_widget.addItem(item)
         self.list_widget.setItemWidget(item, widget)

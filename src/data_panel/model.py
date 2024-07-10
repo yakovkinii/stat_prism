@@ -3,8 +3,8 @@ from typing import Dict, List, Union
 
 import pandas as pd
 import qtawesome as qta
-from PyQt5.QtCore import QAbstractTableModel, QModelIndex, Qt
-from PyQt5.QtWidgets import QMessageBox
+from PySide6.QtCore import QAbstractTableModel, QModelIndex, Qt
+from PySide6.QtWidgets import QMessageBox
 
 from src.common.column_flags import ColumnFlags, ColumnFlagsRegistry
 from src.common.constant import COLORS
@@ -53,25 +53,25 @@ class DataModel(QAbstractTableModel):
     def columnCount(self, parent=None):
         return self._df.shape[1]
 
-    def data(self, index, role=Qt.DisplayRole):
+    def data(self, index, role=Qt.ItemDataRole.DisplayRole):
         if index.isValid():
-            if role in [Qt.DisplayRole, Qt.EditRole]:
+            if role in [Qt.ItemDataRole.DisplayRole, Qt.ItemDataRole.EditRole]:
                 return str(self._df.iloc[index.row(), index.column()])
             # elif role == Qt.BackgroundRole:
             #     return QColor(0, 0, 255)
         return None
 
-    def headerData(self, section, orientation, role=Qt.DisplayRole):
-        if role == Qt.DisplayRole:
-            if orientation == Qt.Horizontal:
+    def headerData(self, section, orientation, role=Qt.ItemDataRole.DisplayRole):
+        if role == Qt.ItemDataRole.DisplayRole:
+            if orientation == Qt.Orientation.Horizontal:
                 if self.hide_headers_mode:
                     return None
                 else:
                     return str(self._df.columns[section])
 
-            if orientation == Qt.Vertical:
+            if orientation == Qt.Orientation.Vertical:
                 return str(section)
-        elif role == Qt.DecorationRole and orientation == Qt.Horizontal:
+        elif role == Qt.ItemDataRole.DecorationRole and orientation == Qt.Orientation.Horizontal:
             column_name = self._df.columns[section]
             icons = []
             if self.column_flags[column_name].get_flag(ColumnFlagsRegistry.inverted):
@@ -81,7 +81,7 @@ class DataModel(QAbstractTableModel):
         return None
 
     def flags(self, index):
-        return Qt.ItemIsEnabled | Qt.ItemIsSelectable | Qt.ItemIsEditable
+        return Qt.ItemFlag.ItemIsEnabled | Qt.ItemFlag.ItemIsSelectable | Qt.ItemFlag.ItemIsEditable
 
     @log_method
     def setRowCount(self, count):
@@ -111,8 +111,8 @@ class DataModel(QAbstractTableModel):
         self.dataChanged.emit(self.index(row, col), self.index(row, col))
 
     @log_method
-    def setData(self, index, value, role=Qt.EditRole):
-        if role == Qt.EditRole:
+    def setData(self, index, value, role=Qt.ItemDataRole.EditRole):
+        if role == Qt.ItemDataRole.EditRole:
             self._df.iloc[index.row(), index.column()] = value
             self.dataChanged.emit(index, index)
             return True
@@ -169,9 +169,7 @@ class DataModel(QAbstractTableModel):
             self.column_flags = flags
         except AssertionError as e:
             logging.error("Column names in flags do not match the column names in the dataframe" + str(e))
-            QMessageBox.warning(
-                None, "Error loading flags", "Column names in flags do not match " "the column names in the dataframe"
-            )
+
 
     def get_column_flags(self, column_name: str):
         return self.column_flags[column_name]
@@ -179,12 +177,12 @@ class DataModel(QAbstractTableModel):
     @log_method
     def set_column_flag(self, column_name: str, flag: str, value: bool):
         self.column_flags[column_name].set_flag(flag, value)
-        self.headerDataChanged.emit(Qt.Horizontal, 0, self.columnCount())
+        self.headerDataChanged.emit(Qt.Orientation.Horizontal, 0, self.columnCount())
 
     @log_method
     def toggle_column_flag(self, column_name: str, flag: str):
         self.set_column_flag(column_name, flag, not self.column_flags[column_name].get_flag(flag))
-        self.headerDataChanged.emit(Qt.Horizontal, 0, self.columnCount())
+        self.headerDataChanged.emit(Qt.Orientation.Horizontal, 0, self.columnCount())
 
     @log_method
     def get_column_dtype(self, column_index: int):
@@ -239,7 +237,7 @@ class DataModel(QAbstractTableModel):
     def set_column_color(self, column_index, color):
         column_name = self.get_column_name(column_index)
         self.column_flags[column_name].color = color
-        self.headerDataChanged.emit(Qt.Horizontal, column_index, column_index)
+        self.headerDataChanged.emit(Qt.Orientation.Horizontal, column_index, column_index)
 
     @log_method
     def save_as_xlsx(self, filename):
@@ -254,5 +252,4 @@ class DataModel(QAbstractTableModel):
             self._df.style.applymap_index(apply_style, axis=1).to_excel(filename, engine="openpyxl", index=False)
         except Exception as e:
             logging.error(e)
-            QMessageBox.warning(None, "Error saving to Excel file", str(e))
         logging.info(f"Saved to {filename}")

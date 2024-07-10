@@ -1,7 +1,7 @@
 import logging
 
-from PyQt5 import QtWidgets
-from PyQt5.QtWidgets import QHBoxLayout, QTabWidget
+from PySide6 import QtWidgets
+from PySide6.QtWidgets import QHBoxLayout, QTabWidget
 
 from src.common.decorators import log_method, log_method_noarg
 from src.common.ui_constructor import icon
@@ -48,7 +48,7 @@ class MainWindowClass(QtWidgets.QMainWindow):
 
         self.tab_widget.addTab(self.data_panel.widget, "Data")
         self.tab_widget.addTab(self.results_panel.widget, "Analysis")
-        self.tab_widget.setTabPosition(QtWidgets.QTabWidget.West)
+        self.tab_widget.setTabPosition(QtWidgets.QTabWidget.TabPosition.West)
         self.tab_widget.tabBar().setDocumentMode(True)
         self.tab_widget.tabBar().setExpanding(True)
 

@@ -1,5 +1,5 @@
 import pandas as pd
-import scipy.stats
+from scipy.stats import pearsonr
 
 from src.core.correlation.correlation_result import CorrelationResult
 from src.core.correlation.report import get_report
@@ -21,7 +21,7 @@ def calculate_correlations(df):
             valid_data = df[[col1, col2]].dropna()
 
             # Compute correlation and p-value
-            corr, p_value = scipy.stats.pearsonr(valid_data[col1], valid_data[col2])
+            corr, p_value = pearsonr(valid_data[col1], valid_data[col2])
 
             # Calculate degrees of freedom (n - 2)
             degrees_of_freedom = len(valid_data) - 2
