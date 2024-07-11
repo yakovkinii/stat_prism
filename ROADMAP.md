@@ -5,7 +5,7 @@
 ### Required features for early evaluation:
  
 * <s>Delete results</s>
-* Save/load reports
+* <s>Save/load reports</s>
 * <s>Export/copy reports</s>
 * <s>Fully restore correlations</s> 
 * <s>Minimally restore descriptives</s>

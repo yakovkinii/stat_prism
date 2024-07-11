@@ -76,8 +76,15 @@ class Home(BaseSettingsPanel):
                         zipf.extractall(temp_dir)
 
                     self.tabledata.load_data(pd.read_parquet(f"{temp_dir}/tabledata_df.parquet"))
+
                     with open(f"{temp_dir}/tabledata_column_flags.pkl", "rb") as file:
                         self.tabledata.load_flags(pickle.load(file))
+
+                    with open(f"{temp_dir}/results.pkl", "rb") as file:
+                        results = pickle.load(file)
+                        for result in results.values():
+                            self.root_class.results_panel.add_result(result)
+
                 self.root_class.action_activate_home_panel()
             else:
                 logging.error("Not supported file type")
@@ -100,10 +107,13 @@ class Home(BaseSettingsPanel):
             self.tabledata.get_data().to_parquet(f"{temp_dir}/tabledata_df.parquet")
             with open(f"{temp_dir}/tabledata_column_flags.pkl", "wb") as file:
                 pickle.dump(self.tabledata.get_flags(), file)
+            with open(f"{temp_dir}/results.pkl", "wb") as file:
+                pickle.dump(self.root_class.results_panel.results, file)
             # Zip all files
             with zipfile.ZipFile(file_path, "w") as zipf:
                 zipf.write(f"{temp_dir}/tabledata_df.parquet", "tabledata_df.parquet")
                 zipf.write(f"{temp_dir}/tabledata_column_flags.pkl", "tabledata_column_flags.pkl")
+                zipf.write(f"{temp_dir}/results.pkl", "results.pkl")
 
     @log_method_noarg
     def about_handler(self):
