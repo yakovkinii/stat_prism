@@ -4,22 +4,23 @@
 
 ### Required features for early evaluation:
  
-* [ ] Delete results
-* [ ] Save/load reports
-* [ ] Export/copy reports
-* [x] Fully restore correlations 
-* [x] Minimally restore descriptives
-* [ ] Add filters
-* [ ] Refactor the modules
-* [ ] Ask to save and delete results on opening a new file
-* [ ] Handle mixed types in the data
-* [x] Find a solution for HTML-related CTD
+* <s>Delete results</s>
+* Save/load reports
+* <s>Export/copy reports</s>
+* <s>Fully restore correlations</s> 
+* <s>Minimally restore descriptives</s>
+* Add filters
+* Ask to save and delete results on opening a new file
+* Handle mixed types in the data
+* <s>Find a solution for HTML-related CTD</s>
 
 ### Optional features for early evaluation:
 
-* [ ] Color column selector according to the column category
-* [ ] Custom column inversion calibration
-* [x] <s>Reimplement verbal results for descriptive statistics</s>. To be implemented after unfreezing.
+* Color column selector according to the column category
+* Custom column inversion calibration
+* <s>Reimplement verbal results for descriptive statistics</s>
+* Add correlation plots
+* Refactor the modules
 
 ### Early evaluation feedback focus
 
@@ -35,21 +36,21 @@
 
 ### Required features before unfreezing:
 
-* [ ] Group column values into custom categories
-* [ ] Add plots and plot tools
-* [ ] Unify result styles
+* Group column values into custom categories
+* Add plots and plot tools
+* Unify result styles
 
 
 ### Checklist for unfreezing
 
-* [ ] Descriptives and correlations are fully functional and feature-complete
-* [ ] Project structure is sound and modular
+* Descriptives and correlations are fully functional and feature-complete
+* Project structure is sound and modular
 
 ---
 
 ## Closed alpha (v0.8):
 
-* [ ] Undo functionality
-* [ ] All basic analyses (ANOVA, EFA, CFA, etc.)
+* Undo functionality
+* All basic analyses (ANOVA, EFA, CFA, etc.)
 
 

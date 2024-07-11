@@ -4,7 +4,8 @@ from typing import TYPE_CHECKING
 import qtawesome as qta
 from PySide6 import QtCore, QtWidgets
 from PySide6.QtCore import QSize
-from PySide6.QtWidgets import QListWidgetItem, QWidget
+from PySide6.QtGui import QAction
+from PySide6.QtWidgets import QListWidgetItem, QMenu, QWidget
 
 from src.common.constant import DEBUG_LAYOUT
 from src.common.decorators import log_method
@@ -16,7 +17,28 @@ if TYPE_CHECKING:
     from src.ui_main import MainWindowClass
 
 
+class ResultListWidget(QtWidgets.QListWidget):
+    result_deleted = QtCore.Signal(int)
+
+    def __init__(self, parent_widget=None):
+        super().__init__(parent_widget)
+
+        set_stylesheet(
+            self,
+            "#id{"
+            "border: 1px solid #ddd;"
+            "outline: 0;"
+            "}"
+            "#id::item:selected{"
+            "background-color: rgb(229,241,251);"
+            "border: 1px solid rgb(0,120,215)"
+            "}",
+        )
+
+
 class ResultListItem(QWidget):
+    delete_result = QtCore.Signal(int)
+
     def __init__(self, unique_id, parent_widget=None, title="", handler=None):
         super().__init__(parent_widget)
 
@@ -34,6 +56,17 @@ class ResultListItem(QWidget):
         if self.handler is not None:
             self.handler(self.unique_id)
         super().mousePressEvent(event)
+
+    def contextMenuEvent(self, event):
+        context_menu = QMenu(self)
+        delete_action = QAction("Delete", self)
+        context_menu.addAction(delete_action)
+
+        # Connect the 'delete' action to the slot/function
+        delete_action.triggered.connect(lambda: self.delete_result.emit(self.unique_id))
+
+        # Show the menu at the cursor's current position
+        context_menu.exec_(event.globalPos())
 
 
 class ResultSelectorClass:
@@ -71,19 +104,7 @@ class ResultSelectorClass:
 
         self.widget_layout.addWidget(button)
 
-        self.list_widget = QtWidgets.QListWidget(self.widget)
-
-        set_stylesheet(
-            self.list_widget,
-            "#id{"
-            "border: 1px solid #ddd;"
-            "outline: 0;"
-            "}"
-            "#id::item:selected{"
-            "background-color: rgb(229,241,251);"
-            "border: 1px solid rgb(0,120,215)"
-            "}",
-        )
+        self.list_widget = ResultListWidget(self.widget)
 
         # self.list_widget.setFixedWidth(self._width)
         self.widget_layout.addWidget(self.list_widget)
@@ -106,6 +127,7 @@ class ResultSelectorClass:
             parent_widget=self.list_widget,
         )
         widget.setFocusPolicy(QtCore.Qt.FocusPolicy.NoFocus)
+        widget.delete_result.connect(self.delete_result_handler)
         item.setSizeHint(widget.sizeHint())
         self.list_widget.addItem(item)
         self.list_widget.setItemWidget(item, widget)
@@ -125,3 +147,13 @@ class ResultSelectorClass:
         self.root_class.settings_panel.panels[result.settings_panel_index].configure(result=result)
         self.root_class.action_activate_panel_by_index(result.settings_panel_index)
         self.root_class.results_panel.result_display.configure(self.root_class.results_panel.results[unique_id])
+
+    @log_method
+    def delete_result_handler(self, unique_id):
+        logging.info(f"Trying to delete result with unique_id: {unique_id}")
+        result_index = self.list_widget.currentRow()
+        self.list_widget.takeItem(result_index)
+        self.root_class.results_panel.results.pop(unique_id)
+        if self.root_class.results_panel.results:
+            self.activate_result_handler(list(self.root_class.results_panel.results.keys())[0])
+            self.list_widget.setCurrentRow(0)
