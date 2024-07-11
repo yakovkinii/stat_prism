@@ -1,4 +1,3 @@
-import logging
 from typing import TYPE_CHECKING
 
 from PySide6 import QtWidgets
@@ -38,14 +37,5 @@ class ResultDisplayClass:
         self.element_widget_containers = []
         for element in result.result_elements.values():
             element_widget_container = result_widget_container_registry[element.class_id](self.widget, element)
-            logging.debug("element_widget_container created")
             self.element_widget_containers.append(element_widget_container)  # To prevent garbage collection
-            logging.debug("element_widget_container stored")
-            try:
-                logging.info("enter try")
-                self.widget.addTab(element_widget_container.widget, element.title)
-                logging.info("exit try")
-            except Exception as e:
-                logging.error(f"Error adding tab: {e}")
-                raise ValueError()
-            logging.debug("element_widget_container added to tab")
+            self.widget.addTab(element_widget_container.widget, element.title)

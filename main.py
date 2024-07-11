@@ -24,7 +24,6 @@ if __name__ == "__main__":
     # Set the exception hook to our wrapping function
     sys.excepthook = my_exception_hook
 
-    # QApplication.setAttribute(Qt.ApplicationAttribute.AA_DisableHighDpiScaling)
     app = QApplication(sys.argv)
     app.setWindowIcon(QIcon(":/mat/resources/Icon.ico"))
 

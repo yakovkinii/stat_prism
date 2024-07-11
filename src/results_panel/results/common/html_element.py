@@ -144,7 +144,7 @@ class HTMLResultElementWidgetContainer:
         self.result_element = result_element
         self.widget = QLabel(parent_widget)
         self.widget_layout = QVBoxLayout(self.widget)
-        self.widget_layout.setContentsMargins(10, 10, 10, 10)
+        self.widget_layout.setContentsMargins(0, 0, 0, 0)
 
         self.webview = QWebEngineView(self.widget)
         self._html = self.get_html()

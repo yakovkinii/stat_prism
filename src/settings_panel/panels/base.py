@@ -7,6 +7,7 @@ from PySide6.QtWidgets import QScrollArea, QVBoxLayout
 
 from src.common.constant import DEBUG_LAYOUT
 from src.common.decorators import log_method_noarg
+from src.common.size import SettingsPanelSize
 from src.common.ui_constructor import create_tool_button_qta
 from src.common.unique_qss import set_stylesheet
 
@@ -51,7 +52,7 @@ class BaseSettingsPanel:
 
             self.back_button = create_tool_button_qta(
                 parent=self.widget,
-                button_geometry=QtCore.QRect((400 - 180), 10, 180, 60),
+                button_geometry=QtCore.QRect((SettingsPanelSize.width - 145 - 10), 10, 145, 60),
                 icon_path="fa.remove",
                 icon_size=QtCore.QSize(40, 40),
             )
@@ -60,7 +61,7 @@ class BaseSettingsPanel:
             if ok_button:
                 self.ok_button = create_tool_button_qta(
                     parent=self.widget,
-                    button_geometry=QtCore.QRect(10, 10, 180, 60),
+                    button_geometry=QtCore.QRect(10, 10, 145, 60),
                     icon_path="fa.check",
                     icon_size=QtCore.QSize(40, 40),
                 )
@@ -76,6 +77,8 @@ class BaseSettingsPanel:
 
         # Definition
         self.widget_for_elements = QtWidgets.QWidget()
+        self.widget_for_elements.setFixedWidth(SettingsPanelSize.width)
+
         self.widget_for_elements_layout = QVBoxLayout(self.widget)
         self.widget_for_elements.setLayout(self.widget_for_elements_layout)
 

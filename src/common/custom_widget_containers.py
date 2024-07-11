@@ -4,13 +4,9 @@ from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QCheckBox, QComboBox, QGridLayout, QHBoxLayout, QLabel, QListWidgetItem, QWidget
 
 from src.common.constant import COLORS
+from src.common.size import Font, SettingsPanelSize
 from src.common.subclassed_widgets import CheckListWidget
-from src.common.ui_constructor import (
-    create_label,
-    create_label_editable,
-    create_label_editable_wordwrap,
-    create_tool_button_qta,
-)
+from src.common.ui_constructor import create_label, create_label_editable_wordwrap, create_tool_button_qta
 from src.common.unique_qss import set_stylesheet
 
 
@@ -19,23 +15,10 @@ class Title:
         self.widget = create_label(
             parent=parent_widget,
             label_geometry=None,
-            font_size=10,
+            font_size=Font.size_small,
             alignment=QtCore.Qt.AlignmentFlag.AlignHCenter | QtCore.Qt.AlignmentFlag.AlignVCenter,
         )
         self.widget.setText(label_text)
-
-
-class EditableTitle:
-    def __init__(self, parent_widget, label_text, handler=None):
-        self.widget = create_label_editable(
-            parent=parent_widget,
-            label_geometry=None,
-            font_size=14,
-            alignment=QtCore.Qt.AlignmentFlag.AlignLeft | QtCore.Qt.AlignmentFlag.AlignVCenter,
-        )
-        self.widget.setText(label_text)
-        if handler is not None:
-            self.widget.editingFinished.connect(handler)
 
 
 class ColumnTypeSelector:
@@ -51,7 +34,7 @@ class EditableTitleWordWrap:
     def __init__(self, parent_widget, label_text, handler=None):
         self.widget = create_label_editable_wordwrap(
             parent=parent_widget,
-            font_size=12,
+            font_size=Font.size_big,
             alignment=QtCore.Qt.AlignmentFlag.AlignLeft | QtCore.Qt.AlignmentFlag.AlignVCenter,
         )
         # use only the needed vertical size
@@ -66,29 +49,23 @@ class BigAssCheckbox:
         self.widget = QCheckBox(parent_widget)
         set_stylesheet(
             self.widget,
-            "#id{"
-            "font-family: 'Segoe UI';"
-            "font-size: 12pt;"
+            "#id{" "    font-family: 'Segoe UI';" f"   font-size: {Font.size}pt;" "}" "#id::indicator {"
+            # "    margin-top: 2px;"
+            f"    width: 20px;"
+            f"    height: 20px;"
             "}"
-            """
-            #id::indicator {
-                margin-top: 2px;
-                width: 25px;  /* Makes the checkbox appear larger */
-                height: 25px;
-            }
-            #id::indicator:checked {
-                image: url(:/mat/resources/checked.png);
-            }
-            #id::indicator:unchecked {
-                image: url(:/mat/resources/unchecked.png);
-            }
-            #id::indicator:checked:disabled {
-                image: url(:/mat/resources/checked_disabled.png);
-            }
-            #id::indicator:unchecked:disabled {
-                image: url(:/mat/resources/unchecked_disabled.png);
-            }
-            """,
+            "#id::indicator:checked {"
+            "    image: url(:/mat/resources/checked.png);"
+            "}"
+            "#id::indicator:unchecked {"
+            "    image: url(:/mat/resources/unchecked.png);"
+            "}"
+            "#id::indicator:checked:disabled {"
+            "    image: url(:/mat/resources/checked_disabled.png);"
+            "}"
+            "#id::indicator:unchecked:disabled {"
+            "    image: url(:/mat/resources/unchecked_disabled.png);"
+            "}",
         )
         self.widget.setText(label_text)
         if handler is not None:
@@ -98,8 +75,8 @@ class BigAssCheckbox:
 class BigAssButton:
     def __init__(self, parent_widget, label_text, icon_path, handler=None):
         self.widget = QWidget(parent_widget)
-        self._margin = 30
-        self._height = 101
+        self._margin = 20
+        self._height = 81
         self.widget.setFixedHeight(self._height + self._margin)
         icon_path = icon_path if icon_path is not None else "msc.blank"
 
@@ -107,12 +84,12 @@ class BigAssButton:
             parent=self.widget,
             button_geometry=QtCore.QRect(self._margin, self._margin, self._height, self._height),
             icon_path=icon_path,
-            icon_size=QtCore.QSize(80, 80),
+            icon_size=QtCore.QSize(60, 60),
         )
         self.label = create_label(
             parent=self.widget,
-            label_geometry=QtCore.QRect(150, self._margin, 231, self._height),
-            font_size=14,
+            label_geometry=QtCore.QRect(120, self._margin, SettingsPanelSize.width - 120, self._height),
+            font_size=Font.size_big,
             alignment=QtCore.Qt.AlignmentFlag.AlignLeft | QtCore.Qt.AlignmentFlag.AlignVCenter,
         )
         self.label.setText(label_text)
@@ -128,7 +105,7 @@ class MediumAssButtonContainer:
     def __init__(self, parent_widget, widgets):
         self.widget = QWidget(parent_widget)
         self.layout = QGridLayout(self.widget)
-        self.layout.setContentsMargins(0, 0, 0, 0)
+        self.layout.setContentsMargins(20, 0, 20, 0)
         self.layout.setSpacing(10)
         self.widget.setLayout(self.layout)
         self.widgets = widgets
@@ -142,21 +119,21 @@ class MediumAssButton:
         # self.widget.setStyleSheet("border: 1px solid black; ")
         self._margin_left = 0
         self._margin = 0
-        self._height = 51
+        self._height = 41
         self.widget.setFixedHeight(self._height + self._margin)
-        self.widget.setFixedWidth(150)
+        self.widget.setFixedWidth(140)
         icon_path = icon_path if icon_path is not None else "msc.blank"
 
         self.button = create_tool_button_qta(
             parent=self.widget,
             button_geometry=QtCore.QRect(self._margin_left, self._margin, self._height, self._height),
             icon_path=icon_path,
-            icon_size=QtCore.QSize(40, 40),
+            icon_size=QtCore.QSize(35, 35),
         )
         self.label = create_label(
             parent=self.widget,
-            label_geometry=QtCore.QRect(60, self._margin, 90, self._height),
-            font_size=10,
+            label_geometry=QtCore.QRect(50, self._margin, 80, self._height),
+            font_size=Font.size,
             alignment=QtCore.Qt.AlignmentFlag.AlignLeft | QtCore.Qt.AlignmentFlag.AlignVCenter,
         )
         self.label.setText(label_text)
@@ -171,13 +148,13 @@ class MediumAssButton:
 class Spacer:
     def __init__(self, parent_widget):
         self.widget = QWidget(parent_widget)
-        self.widget.setFixedHeight(50)
+        self.widget.setFixedHeight(40)
 
 
 class SpacerSmall:
     def __init__(self, parent_widget):
         self.widget = QWidget(parent_widget)
-        self.widget.setFixedHeight(10)
+        self.widget.setFixedHeight(8)
 
 
 class ColumnColorSelector:
@@ -192,8 +169,8 @@ class ColumnColorSelector:
 
         for i, color in enumerate(COLORS):
             button = QtWidgets.QToolButton(self.widget)
-            button.setFixedWidth(40)
-            button.setFixedHeight(40)
+            button.setFixedWidth(35)
+            button.setFixedHeight(35)
             button.setText("")
             set_stylesheet(button, "#id{" + f"background-color: {color}" + "}")
             button.setToolButtonStyle(QtCore.Qt.ToolButtonStyle.ToolButtonIconOnly)
@@ -210,7 +187,7 @@ class InvertVisualizer:
         self.children = []
 
         self.font = QtGui.QFont("Segoe UI")
-        self.font.setPointSize(14)
+        self.font.setPointSize(Font.size)
 
     def configure(self, unique_values, max_plus_min):
         # clear layout
@@ -247,7 +224,7 @@ class ColumnSelector:
     def __init__(self, parent_widget):
         self.widget = CheckListWidget(parent_widget)
 
-        self.widget.setFixedWidth(390)
+        self.widget.setFixedWidth(SettingsPanelSize.width - 15)
         self.widget.setMinimumHeight(100)
         # self.widget.setGeometry(QtCore.QRect(10, 100, 381, 400))
         self.widget.setSelectionMode(QtWidgets.QAbstractItemView.SelectionMode.ExtendedSelection)
@@ -259,18 +236,11 @@ class ColumnSelector:
         self.items = []
         for column in columns:
             item = QListWidgetItem()
-            item.setFont(QtGui.QFont("Segoe UI", 12))
+            item.setFont(QtGui.QFont("Segoe UI", Font.size))
 
             widget = QWidget()
             label = QLabel(column)
-            set_stylesheet(
-                label,
-                """
-            font-size: 18px;
-            font-family: "Segoe UI";
-            margin-left: 10px;
-            """,
-            )
+            set_stylesheet(label, f"font-size: {Font.size}pt;" 'font-family: "Segoe UI";' "margin-left: 10px;")
             # Layout to hold the label
             layout = QHBoxLayout()
             layout.addWidget(label)

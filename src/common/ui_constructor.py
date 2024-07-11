@@ -2,7 +2,7 @@ import qtawesome as qta
 from PySide6 import QtCore, QtGui, QtWidgets
 
 import resources_rc
-from src.common.subclassed_widgets import EditableLabel, EditableLabelWordwrap
+from src.common.subclassed_widgets import EditableLabelWordwrap
 
 
 def icon(path):
@@ -28,17 +28,6 @@ def create_tool_button_qta(parent, button_geometry, icon_path, icon_size):
 
 def create_label(parent, label_geometry, font_size, alignment):
     label = QtWidgets.QLabel(parent)
-    if label_geometry is not None:
-        label.setGeometry(label_geometry)
-    font = QtGui.QFont("Segoe UI")
-    font.setPointSize(font_size)
-    label.setFont(font)
-    label.setAlignment(alignment)
-    return label
-
-
-def create_label_editable(parent, label_geometry, font_size, alignment):
-    label = EditableLabel(parent)
     if label_geometry is not None:
         label.setGeometry(label_geometry)
     font = QtGui.QFont("Segoe UI")

@@ -1,23 +1,9 @@
 from PySide6.QtCore import QEvent, Qt, QTimer, Signal
-from PySide6.QtWidgets import QAbstractItemView, QLineEdit, QListWidget, QTextEdit
+from PySide6.QtWidgets import QAbstractItemView, QListWidget, QTextEdit
 
 from src.common.constant import DEBUG_LAYOUT
+from src.common.size import SettingsPanelSize
 from src.common.unique_qss import set_stylesheet
-
-
-class EditableLabel(QLineEdit):
-    def __init__(self, parent):
-        super().__init__(parent)
-        set_stylesheet(self, "#id{border: none; background-color: rgba(255,255,255,100);}")
-        if DEBUG_LAYOUT:
-            set_stylesheet(self, "#id{border: 1px solid blue; background-color: #eef;}")
-
-        self.setCursorPosition(0)
-        self.editingFinished.connect(self.editing_finished)
-
-    def editing_finished(self):
-        self.setCursorPosition(0)
-        self.clearFocus()
 
 
 class EditableLabelWordwrap(QTextEdit):
@@ -25,7 +11,7 @@ class EditableLabelWordwrap(QTextEdit):
 
     def __init__(self, parent):
         super().__init__(parent)
-        self.setFixedWidth(388)
+        self.setFixedWidth(SettingsPanelSize.width - 15)
         self.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
         self.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
         set_stylesheet(self, "#id{border: none; background-color: rgba(255,255,255,100);}")
@@ -89,8 +75,8 @@ class CheckListWidget(QListWidget):
             }
             #id::indicator {
                 margin-top: 2px;
-                width: 20px;  /* Makes the checkbox appear larger */
-                height: 20px;
+                width: 18px;  /* Makes the checkbox appear larger */
+                height: 18px;
             }
             #id::indicator:checked {
                 image: url(:/mat/resources/checked.png);

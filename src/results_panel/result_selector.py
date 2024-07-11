@@ -8,6 +8,7 @@ from PySide6.QtWidgets import QListWidgetItem, QWidget
 
 from src.common.constant import DEBUG_LAYOUT
 from src.common.decorators import log_method
+from src.common.size import Font
 from src.common.unique_qss import set_stylesheet
 from src.results_panel.results.common.base import BaseResult
 
@@ -27,7 +28,7 @@ class ResultListItem(QWidget):
         title_widget = QtWidgets.QLabel(title)
         self.layout.addWidget(title_widget)
 
-        set_stylesheet(title_widget, "#id{" "color: #000;" "font-family: Segoe UI;" "font-size: 18px;" "}")
+        set_stylesheet(title_widget, "#id{" "color: #000;" "font-family: Segoe UI;" f"font-size: {Font.size}pt;" "}")
 
     def mousePressEvent(self, event):
         if self.handler is not None:
@@ -38,7 +39,7 @@ class ResultListItem(QWidget):
 class ResultSelectorClass:
     def __init__(self, parent_widget, parent_class, root_class):
         # Setup
-        self._width = 255
+        self._width = 220
         self.root_class: MainWindowClass = root_class
         self.parent_class: MainWindowClass = parent_class
         self.widget = QtWidgets.QWidget(parent_widget)
@@ -55,7 +56,7 @@ class ResultSelectorClass:
             "#id{"
             "background-color: #fff;"
             "font-family: Segoe UI;"
-            "font-size: 18px;"
+            f"font-size: {Font.size}pt;"
             "border: 1px solid #ddd;"
             "}"
             "#id:hover{"

@@ -1,10 +1,11 @@
 from typing import TYPE_CHECKING
 
-from PySide6 import QtCore, QtWidgets
+from PySide6 import QtWidgets
 from PySide6.QtGui import QAction
 from PySide6.QtWidgets import QMenu, QMenuBar, QVBoxLayout
 
 from src.common.constant import DEBUG_LAYOUT
+from src.common.size import SettingsPanelSize
 from src.common.unique_qss import set_stylesheet
 from src.settings_panel.panels.calculate import Calculate
 from src.settings_panel.panels.column import Column
@@ -25,6 +26,7 @@ class SettingsPanelClass:
         self.root_class: MainWindowClass = root_class
         self.parent_class: MainWindowClass = parent_class
         self.widget = QtWidgets.QWidget(parent_widget)
+
         if DEBUG_LAYOUT:
             set_stylesheet(self.widget, "#id{border: 1px solid red; background-color: #fee;}")
         self.widget_layout = QVBoxLayout(self.widget)
@@ -38,8 +40,7 @@ class SettingsPanelClass:
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.widget.sizePolicy().hasHeightForWidth())
         self.widget.setSizePolicy(sizePolicy)
-        self.widget.setMinimumSize(QtCore.QSize(410, 0))
-        self.widget.setMaximumSize(QtCore.QSize(410, 16777215))
+        self.widget.setFixedWidth(SettingsPanelSize.width)
 
         # Definition
         self.stacked_widget = QtWidgets.QStackedWidget(self.widget)
