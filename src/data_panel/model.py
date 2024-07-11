@@ -26,6 +26,19 @@ class DataModel(QAbstractTableModel):
 
     @log_method
     def load_data(self, dataframe: pd.DataFrame):
+        # make sure that there are no mixed types
+        for column in dataframe.columns:
+            if pd.api.types.is_string_dtype(dataframe[column]):
+                dataframe[column] = dataframe[column].astype(str)
+            elif pd.api.types.is_float_dtype(dataframe[column]):
+                dataframe[column] = dataframe[column].astype(float)
+            elif pd.api.types.is_integer_dtype(dataframe[column]):
+                dataframe[column] = dataframe[column].astype(int)
+            else:
+                logging.error(f"Unknown type detectedfor {column}")
+                logging.info("Trying to convert to string")
+                dataframe[column] = dataframe[column].astype(str)
+
         if len(set(dataframe.columns)) != len(dataframe.columns):
             logging.warning("Duplicate column names detected")
             columns = list(dataframe.columns)

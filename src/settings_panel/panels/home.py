@@ -61,6 +61,21 @@ class Home(BaseSettingsPanel):
         logging.info(f"Opening {file_path}")
 
         if file_path:
+            # ask to save current project
+            # need yes/no/cancel dialog
+            msg_box = QMessageBox()
+            msg_box.setWindowTitle("Save project?")
+            msg_box.setText("Do you want to save the current project?")
+            msg_box.setStandardButtons(
+                QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No | QMessageBox.StandardButton.Cancel
+            )
+            msg_box.setDefaultButton(QMessageBox.StandardButton.Yes)
+            ret = msg_box.exec_()
+            if ret == QMessageBox.StandardButton.Cancel:
+                return
+            elif ret == QMessageBox.StandardButton.Yes:
+                self.save_handler()
+
             if file_path.endswith(".csv"):
                 dataframe = pd.read_csv(file_path)
                 self.root_class.data_panel.tabledata.load_data(dataframe)
@@ -89,8 +104,7 @@ class Home(BaseSettingsPanel):
             else:
                 logging.error("Not supported file type")
 
-        self.elements["open"].button.setDown(False)
-        logging.info(f"Opened {file_path}")
+            logging.info(f"Opened {file_path}")
 
     @log_method_noarg
     def save_handler(self):

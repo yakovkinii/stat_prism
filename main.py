@@ -25,13 +25,16 @@ if __name__ == "__main__":
     sys.excepthook = my_exception_hook
 
     app = QApplication(sys.argv)
-    app.setWindowIcon(QIcon(":/mat/resources/Icon.ico"))
 
     pixmap = QPixmap(":/mat/resources/StatPrism_splash.png")
+    # set size of pixmap, but maintain aspect ratio
+    scale = 0.8
+    pixmap = pixmap.scaled(int(scale * 675), int(scale * 375))
+
     splash = QSplashScreen(pixmap)
     splash.show()
 
-    # Instantiate and show the first dialog
+    app.setWindowIcon(QIcon(":/mat/resources/Icon.ico"))
     main_win = MainWindowClass()
     splash_time = 1500
 

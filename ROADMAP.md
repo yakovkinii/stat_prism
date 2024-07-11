@@ -10,8 +10,8 @@
 * <s>Fully restore correlations</s> 
 * <s>Minimally restore descriptives</s>
 * Add filters
-* Ask to save and delete results on opening a new file
-* Handle mixed types in the data
+* <s>Ask to save and delete results on opening a new file</s>
+* <s>Handle mixed types in the data</s>
 * <s>Find a solution for HTML-related CTD</s>
 
 ### Optional features for early evaluation:
