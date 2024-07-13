@@ -5,6 +5,7 @@ from src.core.correlation.correlation_result import CorrelationResult
 from src.core.correlation.report import get_report
 from src.core.correlation.table import get_table_compact, get_table_full
 from src.results_panel.results.common.html_element import HTMLResultElement, HTMLText
+from src.results_panel.results.common.plot_element import PlotResultElement, Scatter
 
 
 def calculate_correlations(df):
@@ -63,4 +64,29 @@ def recalculate_correlation_study(df: pd.DataFrame, result: CorrelationResult) -
     html_result_element.items.append(HTMLText(verbal))
 
     result.result_elements[result.html] = html_result_element
+
+
+
+    # Add plots
+    for i, name1 in enumerate(columns):
+        for j, name2 in enumerate(columns):
+            if i<j:
+                if report_only_significant and p_matrix.loc[name1, name2] > 0.05:
+                    continue
+                plot=Scatter(
+                    x=df[name1],
+                    y=df[name2],
+
+                )
+                plot_result = PlotResultElement(
+                    tab_title=f"{name1[:8]} vs {name2[:8]}",
+                    plot_title=f"Correlation between {name1} and {name2}",
+                    x_axis_title=name1,
+                    y_axis_title=name2,
+                )
+                plot_result.items = [plot]
+
+                result.result_elements[str(i)+'_'+str(j)]=plot_result
+
+
     return result

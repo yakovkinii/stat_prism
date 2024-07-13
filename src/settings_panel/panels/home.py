@@ -80,10 +80,12 @@ class Home(BaseSettingsPanel):
                 dataframe = pd.read_csv(file_path)
                 self.root_class.data_panel.tabledata.load_data(dataframe)
                 self.root_class.action_activate_home_panel()
+                self.root_class.results_panel.delete_all_results()
             elif file_path.endswith(".xlsx"):
                 dataframe = pd.read_excel(file_path, sheet_name=0)
                 self.root_class.data_panel.tabledata.load_data(dataframe)
                 self.root_class.action_activate_home_panel()
+                self.root_class.results_panel.delete_all_results()
             elif file_path.endswith(".sp"):
                 with tempfile.TemporaryDirectory() as temp_dir:
                     # Extract all files
@@ -95,6 +97,7 @@ class Home(BaseSettingsPanel):
                     with open(f"{temp_dir}/tabledata_column_flags.pkl", "rb") as file:
                         self.tabledata.load_flags(pickle.load(file))
 
+                    self.root_class.results_panel.delete_all_results()
                     with open(f"{temp_dir}/results.pkl", "rb") as file:
                         results = pickle.load(file)
                         for result in results.values():

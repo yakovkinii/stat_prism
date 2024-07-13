@@ -7,3 +7,5 @@ qtawesome
 attrs
 openpyxl
 pyarrow
+Jinja2
+pyqtgraph

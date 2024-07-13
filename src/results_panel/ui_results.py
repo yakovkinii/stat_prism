@@ -57,3 +57,8 @@ class ResultsPanelClass:
 
     def get_unique_id(self):
         return max(self.results.keys()) + 1 if len(self.results) > 0 else 1
+
+    def delete_all_results(self):
+        self.results = {}
+        self.result_display.widget.clear()
+        self.result_selector.list_widget.clear()

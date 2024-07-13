@@ -2,7 +2,7 @@ import logging
 from typing import List, Union
 
 from PySide6.QtWebEngineWidgets import QWebEngineView
-from PySide6.QtWidgets import QLabel, QVBoxLayout
+from PySide6.QtWidgets import QLabel, QVBoxLayout, QWidget
 
 from src.results_panel.results.common.base import BaseResultElement
 
@@ -142,7 +142,7 @@ class HTMLResultElement(BaseResultElement):
 class HTMLResultElementWidgetContainer:
     def __init__(self, parent_widget, result_element: HTMLResultElement):
         self.result_element = result_element
-        self.widget = QLabel(parent_widget)
+        self.widget = QWidget(parent_widget)
         self.widget_layout = QVBoxLayout(self.widget)
         self.widget_layout.setContentsMargins(0, 0, 0, 0)
 
