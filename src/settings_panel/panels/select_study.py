@@ -5,6 +5,7 @@ from src.common.custom_widget_containers import BigAssButton, Title
 from src.common.decorators import log_method_noarg
 from src.core.correlation.correlation_result import CorrelationResult
 from src.core.descriptive.descriptive_result import DescriptiveResult
+from src.core.filter.filter_result import FilterResult
 from src.settings_panel.panels.base import BaseSettingsPanel
 
 if TYPE_CHECKING:
@@ -32,6 +33,12 @@ class SelectStudy(BaseSettingsPanel):
                 label_text="Correlations",
                 icon_path="ph.chart-line-up-fill",
                 handler=self.add_correlation,
+            ),
+            "filter": BigAssButton(
+                parent_widget=self.widget_for_elements,
+                label_text="Filter",
+                icon_path="ph.chart-line-up-fill",
+                handler=self.add_filter,
             ),
         }
 
@@ -65,3 +72,16 @@ class SelectStudy(BaseSettingsPanel):
         )
 
         self.root_class.action_activate_panel_by_index(self.root_class.settings_panel.correlation_panel_index)
+
+    @log_method_noarg
+    def add_filter(self):
+        logging.info("add filter clicked")
+        result = FilterResult(
+            unique_id=self.root_class.results_panel.get_unique_id(),
+            settings_panel_index=self.root_class.settings_panel.filter_panel_index,
+        )
+        self.root_class.results_panel.add_result(result)
+
+        self.root_class.settings_panel.filter_panel.configure(result=result, caller_index=self.stacked_widget_index)
+
+        self.root_class.action_activate_panel_by_index(self.root_class.settings_panel.filter_panel_index)

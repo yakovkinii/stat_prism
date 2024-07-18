@@ -178,3 +178,6 @@ class DataPanelClass:
     def on_selection_double_clicked(self, column):
         logging.info(f"Double clicked column: {column}")
         self.root_class.action_current_column_begin_edit_title()
+
+
+logging.debug("data loaded")

@@ -52,6 +52,13 @@ def recalculate_descriptive_study(df: pd.DataFrame, result: DescriptiveResult) -
         "Descriptive statistics of " + smart_comma_join([f"'{var}'" for var in df_table.columns]) + "."
     )
     html_table.add_single_row_apa(Row([Cell(x) for x in df_table.columns]))
+
+    # Todo fix
+    #  FutureWarning: Series.__getitem__ treating keys as positions is deprecated.
+    #  In a future version, integer keys will always be treated as labels (consistent with DataFrame behavior).
+    #  To access a value by position, use `ser.iloc[pos]`
+    #  html_table.add_single_row_apa(Row([Cell(row[0])] + [Cell(x) for x in row[1:]]))
+
     for i in range(df_table.shape[0]):
         row = df_table.iloc[i]
         html_table.add_single_row_apa(Row([Cell(row[0])] + [Cell(x) for x in row[1:]]))

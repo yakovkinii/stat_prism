@@ -1,3 +1,4 @@
+import logging
 from typing import TYPE_CHECKING, Dict
 
 from PySide6 import QtWidgets
@@ -62,3 +63,6 @@ class ResultsPanelClass:
         self.results = {}
         self.result_display.widget.clear()
         self.result_selector.list_widget.clear()
+
+
+logging.debug("results loaded")

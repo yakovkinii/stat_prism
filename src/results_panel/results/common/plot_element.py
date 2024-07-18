@@ -1,9 +1,7 @@
 from typing import List, Union
 
-import numpy as np
 import pyqtgraph as pg
-
-from PySide6.QtWidgets import QWidget, QVBoxLayout, QLabel
+from PySide6.QtWidgets import QLabel, QVBoxLayout, QWidget
 
 from src.results_panel.results.common.base import BaseResultElement
 

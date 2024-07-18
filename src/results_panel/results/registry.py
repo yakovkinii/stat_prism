@@ -3,5 +3,5 @@ from src.results_panel.results.common.plot_element import PlotResultElementWidge
 
 result_widget_container_registry = {
     "HTMLResultElement": HTMLResultElementWidgetContainer,
-    "PlotResultElement":PlotResultElementWidgetContainer,
+    "PlotResultElement": PlotResultElementWidgetContainer,
 }

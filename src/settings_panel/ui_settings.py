@@ -1,3 +1,4 @@
+import logging
 from typing import TYPE_CHECKING
 
 from PySide6 import QtWidgets
@@ -12,6 +13,7 @@ from src.settings_panel.panels.column import Column
 from src.settings_panel.panels.columns import Columns
 from src.settings_panel.panels.correlation import Correlation
 from src.settings_panel.panels.descriptive import Descriptive
+from src.settings_panel.panels.filter import Filter
 from src.settings_panel.panels.home import Home
 from src.settings_panel.panels.invert import Inverse
 from src.settings_panel.panels.select_study import SelectStudy
@@ -115,6 +117,14 @@ class SettingsPanelClass:
             stacked_widget_index=self.correlation_panel_index,
         )
 
+        self.filter_panel_index = 8
+        self.filter_panel: Filter = Filter(
+            parent_widget=self.stacked_widget,
+            parent_class=self,
+            root_class=self.root_class,
+            stacked_widget_index=self.filter_panel_index,
+        )
+
         self.panels = [
             self.home_panel,
             self.column_panel,
@@ -124,6 +134,7 @@ class SettingsPanelClass:
             self.calculate_panel,
             self.descriptive_panel,
             self.correlation_panel,
+            self.filter_panel,
         ]
 
         # Relations
@@ -135,6 +146,7 @@ class SettingsPanelClass:
         self.stacked_widget.addWidget(self.calculate_panel.widget)  # Todo move to module
         self.stacked_widget.addWidget(self.descriptive_panel.widget)  # Todo move to module
         self.stacked_widget.addWidget(self.correlation_panel.widget)  # Todo move to module
+        self.stacked_widget.addWidget(self.filter_panel.widget)
         self.widget_layout.addWidget(self.stacked_widget)
 
         # Create a file menu and add actions
@@ -174,3 +186,6 @@ class SettingsPanelClass:
         )
         if file_path:
             self.root_class.data_panel.tabledata.save_as_xlsx(file_path)
+
+
+logging.debug("settings loaded")

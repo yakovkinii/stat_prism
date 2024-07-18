@@ -65,18 +65,15 @@ def recalculate_correlation_study(df: pd.DataFrame, result: CorrelationResult) -
 
     result.result_elements[result.html] = html_result_element
 
-
-
     # Add plots
     for i, name1 in enumerate(columns):
         for j, name2 in enumerate(columns):
-            if i<j:
+            if i < j:
                 if report_only_significant and p_matrix.loc[name1, name2] > 0.05:
                     continue
-                plot=Scatter(
+                plot = Scatter(
                     x=df[name1],
                     y=df[name2],
-
                 )
                 plot_result = PlotResultElement(
                     tab_title=f"{name1[:8]} vs {name2[:8]}",
@@ -86,7 +83,6 @@ def recalculate_correlation_study(df: pd.DataFrame, result: CorrelationResult) -
                 )
                 plot_result.items = [plot]
 
-                result.result_elements[str(i)+'_'+str(j)]=plot_result
-
+                result.result_elements[str(i) + "_" + str(j)] = plot_result
 
     return result
