@@ -7,7 +7,7 @@ from PySide6.QtWidgets import QHBoxLayout
 from src.common.constant import DEBUG_LAYOUT
 from src.common.unique_qss import set_stylesheet
 from src.results_panel.result_display import ResultDisplayClass
-from src.results_panel.result_selector import ResultSelectorClass
+from src.results_panel.result_selector.result_selector import ResultSelectorClass
 from src.results_panel.results.common.base import BaseResult
 
 if TYPE_CHECKING:

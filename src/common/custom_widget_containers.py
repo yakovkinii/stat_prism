@@ -1,7 +1,16 @@
 import qtawesome as qta
 from PySide6 import QtCore, QtGui, QtWidgets
 from PySide6.QtCore import Qt
-from PySide6.QtWidgets import QCheckBox, QComboBox, QGridLayout, QHBoxLayout, QLabel, QListWidgetItem, QWidget
+from PySide6.QtWidgets import (
+    QCheckBox,
+    QComboBox,
+    QGridLayout,
+    QHBoxLayout,
+    QLabel,
+    QLineEdit,
+    QListWidgetItem,
+    QWidget,
+)
 
 from src.common.constant import COLORS
 from src.common.size import Font, SettingsPanelSize
@@ -261,3 +270,22 @@ class ColumnSelector:
         return [
             self.items[i] for i in range(len(self.items)) if self.widget.item(i).checkState() == Qt.CheckState.Checked
         ]
+
+
+class ColumnFilter:
+    def __init__(self, parent_widget, on_change_handler):
+        """
+        This widget will be used to filter the values.
+        It will be 2 drop-downs: for col name and for type of filter.
+        the 3rd one will be the selector: some formula or something
+        """
+        self.widget = QWidget(parent_widget)
+        self.layout = QGridLayout(self.widget)
+        self.layout.setContentsMargins(0, 0, 0, 0)
+        self.layout.setSpacing(0)
+        self.widget.setLayout(self.layout)
+
+        self.filter_value = QLineEdit(self.widget)
+        self.filter_value.setFixedWidth(100)
+        self.filter_value.textChanged.connect(on_change_handler)
+        self.layout.addWidget(self.filter_value)

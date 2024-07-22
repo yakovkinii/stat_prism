@@ -1,61 +1,17 @@
 import logging
 from typing import TYPE_CHECKING
 
-import qtawesome as qta
-from PySide6 import QtWidgets
-from PySide6.QtCore import QMimeData, QSize, Qt, QTimer
+from PySide6.QtCore import QMimeData, Qt, QTimer
 from PySide6.QtGui import QAction, QDrag
 from PySide6.QtWidgets import QLabel, QListWidget, QListWidgetItem, QMenu, QSizePolicy, QVBoxLayout, QWidget
 
-from src.common.constant import DEBUG_LAYOUT
-from src.common.decorators import log_method, log_method_noarg
 from src.common.size import Font
 from src.common.unique_qss import set_stylesheet
 from src.core.filter.filter_result import FilterResult
-from src.results_panel.results.common.base import BaseResult
+from src.results_panel.result_selector.result_item import ResultListItem
 
 if TYPE_CHECKING:
     from src.ui_main import MainWindowClass
-
-
-class ResultListItem(QWidget):
-    """
-    The very item displayed
-    """
-
-    def __init__(self, result_id: int, result: BaseResult, parent_widget=None, click_handler=None):
-        super().__init__(parent_widget)
-
-        self.result_id: int = result_id
-        self.result = result
-        self.click_handler = click_handler
-
-        self.layout = QtWidgets.QVBoxLayout(self)
-        title_widget = QtWidgets.QLabel(self.result.title)
-        context_widget = QtWidgets.QLabel(self.result.title_context + str(self.result.config.filter_id))
-        self.layout.addWidget(title_widget)
-        self.layout.addWidget(context_widget)
-
-        set_stylesheet(title_widget, "#id{" "color: #000;" "font-family: Segoe UI;" f"font-size: {Font.size}pt;" "}")
-        set_stylesheet(
-            context_widget, "#id{" "color: #000;" "font-family: Segoe UI;" f"font-size: {Font.size_small}pt;" "}"
-        )
-
-    def mousePressEvent(self, event):
-        if self.click_handler is not None:
-            self.click_handler(self.result_id)
-        super().mousePressEvent(event)
-
-    def contextMenuEvent(self, event):
-        context_menu = QMenu(self)
-        delete_action = QAction("Delete", self)
-        context_menu.addAction(delete_action)
-
-        # Connect the 'delete' action to the slot/function
-        # delete_action.triggered.connect(lambda: self.delete_result.emit(self.unique_id))
-
-        # Show the menu at the cursor's current position
-        context_menu.exec_(event.globalPos())
 
 
 class DragDropListWidget(QListWidget):
@@ -63,8 +19,10 @@ class DragDropListWidget(QListWidget):
     Main list widget
     """
 
-    def __init__(self, parent, root_class):
+    def __init__(self, parent, root_class, click_handler, delete_handler):
         super().__init__(parent)
+        self.click_handler = click_handler
+        self.delete_handler = delete_handler
         self.top_level_list = self
         self.root_class: MainWindowClass = root_class
         set_stylesheet(
@@ -82,8 +40,8 @@ class DragDropListWidget(QListWidget):
         self.setObjectName("root")
         self.setAcceptDrops(True)
         self.setDragEnabled(True)
-        self.setDragDropMode(QListWidget.DragDrop)
-        self.setDefaultDropAction(Qt.MoveAction)
+        self.setDragDropMode(QListWidget.DragDropMode.DragDrop)
+        self.setDefaultDropAction(Qt.DropAction.MoveAction)
 
     def startDrag(self, supportedActions):
         drag = QDrag(self)
@@ -125,6 +83,9 @@ class DragDropListWidget(QListWidget):
             if drop_position == -1:  # If dropped outside any item, add to the end
                 drop_position = self.count()
 
+            if source_widget != self:
+                self.root_class.results_panel.results[result_id].needs_update = True
+
             if isinstance(self, DragDropListWidgetItemInner):
                 filter_id = self.result_id
                 self.root_class.results_panel.results[result_id].config.filter_id = filter_id
@@ -147,16 +108,17 @@ class DragDropListWidget(QListWidget):
                 new_filter_widget: NestedListContainerWidget = self.addItemWithCustomWidget(result_id, drop_position)
                 for child_id in result_ids:
                     new_filter_widget.inner_list_widget.addItemWithCustomWidget(child_id)
+
             else:
                 source_item = source_widget.currentItem()
                 source_widget.takeItem(source_widget.row(source_item))
                 self.addItemWithCustomWidget(result_id, drop_position)
 
-            event.setDropAction(Qt.MoveAction)
+            event.setDropAction(Qt.DropAction.MoveAction)
             event.accept()
+            source_widget.clearSelection()
         else:
             event.ignore()
-
         self.top_level_list.adjust_height()
 
     def addItemWithCustomWidget(self, result_id, position=None):
@@ -167,12 +129,20 @@ class DragDropListWidget(QListWidget):
         if isinstance(result, FilterResult):
             # Creating a FILTER (NESTED LIST)
             widget = NestedListContainerWidget(
-                result_id=result_id, result=result, parent=self, root_class=self.root_class
+                result_id=result_id,
+                result=result,
+                parent=self,
+                root_class=self.root_class,
+                click_handler=self.click_handler,
+                delete_handler=self.delete_handler,
             )
         else:
             widget = ResultListItem(
                 result_id=result_id,
                 result=result,
+                parent_widget=self,
+                click_handler=self.click_handler,
+                delete_handler=self.delete_handler,
             )
 
         item.setSizeHint(widget.sizeHint())
@@ -198,8 +168,11 @@ class DragDropListWidget(QListWidget):
 
 
 class DragDropListWidgetItemInner(DragDropListWidget):
-    def __init__(self, parent, result_id, root_class, top_level_list):
-        super().__init__(parent, root_class)
+    def __init__(self, parent, result_id, root_class, top_level_list, click_handler, delete_handler):
+        self.click_handler = click_handler
+        self.delete_handler = delete_handler
+
+        super().__init__(parent, root_class, click_handler, delete_handler)
         self.result_id = result_id
         self.top_level_list = top_level_list
         self.root_class: MainWindowClass = root_class
@@ -220,8 +193,11 @@ class DragDropListWidgetItemInner(DragDropListWidget):
 
 
 class NestedListContainerWidget(QWidget):
-    def __init__(self, result_id, result, parent, root_class):
+    def __init__(self, result_id, result, parent, root_class, click_handler, delete_handler):
         super().__init__(parent)
+        self.click_handler = click_handler
+        self.delete_handler = delete_handler
+
         self.result_id = result_id
         self.result = result
         self.parent = parent
@@ -235,7 +211,9 @@ class NestedListContainerWidget(QWidget):
             self.title_widget, "#id{" "color: #000;" "font-family: Segoe UI;" f"font-size: {Font.size}pt;" "}"
         )
 
-        self.inner_list_widget = DragDropListWidgetItemInner(self, result_id, root_class, parent)
+        self.inner_list_widget = DragDropListWidgetItemInner(
+            self, result_id, root_class, parent, click_handler, delete_handler
+        )
         self.layout.addWidget(self.inner_list_widget)
 
     def adjust_height(self):
@@ -245,86 +223,24 @@ class NestedListContainerWidget(QWidget):
         self.inner_list_widget.adjust_height()
         return self.layout.sizeHint()
 
+    def mousePressEvent(self, event):
+        if self.click_handler is not None:
+            self.click_handler(self.result_id)
+        super().mousePressEvent(event)
 
-class ResultSelectorClass:
-    def __init__(self, parent_widget, parent_class, root_class):
-        """
-        list of results is drawn here in order.
-        The items are identified by result id.
+    def contextMenuEvent(self, event):
+        context_menu = QMenu(self)
+        delete_action = QAction("Delete", self)
+        context_menu.addAction(delete_action)
 
-        """
-        # Setup
-        self._width = 220
-        self.root_class: MainWindowClass = root_class
-        self.parent_class: MainWindowClass = parent_class
-        self.widget = QtWidgets.QWidget(parent_widget)
-        self.widget.setFixedWidth(self._width)
+        # Connect the 'delete' action to the slot/function
+        delete_action.triggered.connect(self.delete_handler)
 
-        self.widget_layout = QtWidgets.QVBoxLayout(self.widget)
-        self.widget_layout.setContentsMargins(0, 0, 5, 0)
+        # Show the menu at the cursor's current position
+        context_menu.exec_(event.globalPos())
 
-        button = QtWidgets.QPushButton("Add Study")
-        button.clicked.connect(self.add_result_handler)
-        # font size
-        set_stylesheet(
-            button,
-            "#id{"
-            "background-color: #fff;"
-            "font-family: Segoe UI;"
-            f"font-size: {Font.size}pt;"
-            "border: 1px solid #ddd;"
-            "}"
-            "#id:hover{"
-            "background-color: rgb(229,241,251);"
-            "border: 1px solid rgb(0,120,215)"
-            "}",
-        )
-        icon = qta.icon("fa5s.plus")
-        button.setIcon(icon)
-        button.setIconSize(QSize(32, 32))
-        button.setFixedHeight(60)
-
-        self.widget_layout.addWidget(button)
-
-        self.list_widget = DragDropListWidget(self.widget, root_class)
-
-        # self.list_widget.setFixedWidth(self._width)
-        self.widget_layout.addWidget(self.list_widget)
-        if DEBUG_LAYOUT:
-            set_stylesheet(self.widget, "#id{border: 1px solid blue; background-color: #eef;}")
-
-        # self.widget.addItem("Result1")
-        # self.widget.addItem("Result2")
-
-    @log_method_noarg
-    def add_all_results(self):
-        for result in self.root_class.results_panel.results.values():
-            self.add_result(result)
-
-    @log_method
-    def add_result(self, result: BaseResult):
-        self.list_widget.addItemWithCustomWidget(result.unique_id)
-
-    @log_method
-    def add_result_handler(self, *args, **kwargs):
-        logging.info("Trying to add result")
-        self.root_class.action_activate_panel_by_index(self.root_class.settings_panel.select_study_panel_index)
-
-    @log_method
-    def activate_result_handler(self, unique_id):
-        logging.info(f"Trying to activate result with unique_id: {unique_id}")
-        result = self.root_class.results_panel.results[unique_id]
-
-        self.root_class.settings_panel.panels[result.settings_panel_index].configure(result=result)
-        self.root_class.action_activate_panel_by_index(result.settings_panel_index)
-        self.root_class.results_panel.result_display.configure(self.root_class.results_panel.results[unique_id])
-
-    @log_method
-    def delete_result_handler(self, unique_id):
-        logging.info(f"Trying to delete result with unique_id: {unique_id}")
-        result_index = self.list_widget.currentRow()
-        self.list_widget.takeItem(result_index)
-        self.root_class.results_panel.results.pop(unique_id)
-        if self.root_class.results_panel.results:
-            self.activate_result_handler(list(self.root_class.results_panel.results.keys())[0])
-            self.list_widget.setCurrentRow(0)
+    def refresh(self):
+        for i in range(self.inner_list_widget.count()):
+            item = self.inner_list_widget.item(i)
+            widget = self.inner_list_widget.itemWidget(item)
+            widget.refresh()

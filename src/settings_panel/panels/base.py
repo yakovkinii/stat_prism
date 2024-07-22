@@ -6,8 +6,8 @@ from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QScrollArea, QVBoxLayout
 
 from src.common.constant import DEBUG_LAYOUT
-from src.common.decorators import log_method_noarg
-from src.common.size import SettingsPanelSize
+from src.common.decorators import log_method, log_method_noarg
+from src.common.size import Font, SettingsPanelSize
 from src.common.ui_constructor import create_tool_button_qta
 from src.common.unique_qss import set_stylesheet
 
@@ -25,6 +25,7 @@ class BaseSettingsPanel:
         navigation_elements=False,
         ok_button=False,
         stretch=True,
+        recalculate=False,
     ):
         # Setup
         self.caller_index = None
@@ -66,14 +67,13 @@ class BaseSettingsPanel:
                     icon_size=QtCore.QSize(40, 40),
                 )
                 self.ok_button.clicked.connect(self.ok_button_pressed)
-
-            # self.home_button = create_tool_button_qta(
-            #     parent=self.widget,
-            #     button_geometry=QtCore.QRect(400 - 120, 10, 120, 60),
-            #     icon_path="fa.home",
-            #     icon_size=QtCore.QSize(40, 40),
-            # )
-            # self.home_button.clicked.connect(self.root_class.action_activate_home_panel)
+        if recalculate:
+            self.recalculate_button = QtWidgets.QPushButton("Update Results")
+            self.recalculate_button.setFixedHeight(40)
+            self.widget_layout.addWidget(self.recalculate_button)
+            self.recalculate_button.clicked.connect(self.recalculate)
+        else:
+            self.recalculate_button = None
 
         # Definition
         self.widget_for_elements = QtWidgets.QWidget()
@@ -106,10 +106,46 @@ class BaseSettingsPanel:
             self.widget_for_elements_layout.addWidget(element.widget)
         if self.stretch:
             self.widget_for_elements_layout.addStretch()
-        # current_height = 20
-        # for element in self.elements.values():
-        #     current_height = element.place(current_height)
-        # self.widget_for_elements.setFixedHeight(current_height + 20)
+
+    @log_method
+    def set_recalculate_button_highlight(self, highlight: bool):
+        if self.recalculate_button is None:
+            logging.error("No recalculate button")
+            return
+
+        if highlight:
+            set_stylesheet(
+                self.recalculate_button,
+                "#id{"
+                "font-family: Segoe UI;"
+                f"font-size: {Font.size_big}pt;"
+                "border: 1px solid #ddd;"
+                "color: #700;"
+                "}"
+                "#id:hover{"
+                "background-color: rgb(229,241,251);"
+                "border: 1px solid rgb(0,120,215)"
+                "}",
+            )
+        else:
+            set_stylesheet(
+                self.recalculate_button,
+                "#id{"
+                "font-family: Segoe UI;"
+                f"font-size: {Font.size_big}pt;"
+                "border: 1px solid #ddd;"
+                "color: #777;"
+                "}"
+                "#id:hover{"
+                "background-color: rgb(229,241,251);"
+                "border: 1px solid rgb(0,120,215)"
+                "}",
+            )
+
+    @log_method_noarg
+    def recalculate(self):
+        logging.warning("Recalculate handler not implemented")
+        ...
 
     @log_method_noarg
     def activate(self):

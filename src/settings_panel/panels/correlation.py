@@ -1,4 +1,5 @@
-from typing import TYPE_CHECKING
+import logging
+from typing import TYPE_CHECKING, Union
 
 from src.common.custom_widget_containers import BigAssCheckbox, ColumnSelector, SpacerSmall, Title
 from src.common.decorators import log_method
@@ -13,11 +14,11 @@ if TYPE_CHECKING:
 class Correlation(BaseSettingsPanel):
     def __init__(self, parent_widget, parent_class, root_class, stacked_widget_index):
         # Setup
-        super().__init__(parent_widget, parent_class, root_class, stacked_widget_index, stretch=False)
+        super().__init__(parent_widget, parent_class, root_class, stacked_widget_index, stretch=False, recalculate=True)
 
         self.study_index = None
         self.caller_index = None
-        self.result = None
+        self.result: Union[CorrelationResult, None] = None
         self.elements = {
             "title2": Title(
                 parent_widget=self.widget_for_elements,
@@ -35,11 +36,6 @@ class Correlation(BaseSettingsPanel):
                 handler=self.study_settings_changed,
             ),
             "spacer2": SpacerSmall(parent_widget=self.widget_for_elements),
-            # "edit": EditableTitleWordWrap(
-            #     parent_widget=self.widget_for_elements,
-            #     label_text="",
-            #     handler=self.finish_editing,
-            # ),
             "column_selector": ColumnSelector(
                 parent_widget=self.widget_for_elements,
             ),
@@ -65,17 +61,39 @@ class Correlation(BaseSettingsPanel):
         )
         self.elements["compact"].widget.setChecked(config.compact)
         self.elements["report_only_significant"].widget.setChecked(config.report_only_significant)
+        self.set_recalculate_button_highlight(result.needs_update)
+
         self.configuring = False
 
-    def study_settings_changed(self):
+    def recalculate(self):
         if self.configuring:
+            logging.error("Recalculate called while configuring.")
             return
+
         selected_columns = self.elements["column_selector"].get_selected_columns()
         config = CorrelationStudyConfig(
             selected_columns=selected_columns,
             compact=self.elements["compact"].widget.isChecked(),
             report_only_significant=self.elements["report_only_significant"].widget.isChecked(),
+            filter_id=self.result.config.filter_id,
         )
         self.result.config = config
-        new_result = recalculate_correlation_study(df=self.tabledata.get_data(), result=self.result)
+        filter_result = None
+        if self.result.config.filter_id is not None:
+            filter_result = self.root_class.results_panel.results[self.result.config.filter_id]
+        new_result = recalculate_correlation_study(
+            df=self.tabledata.get_data(), result=self.result, filter_result=filter_result
+        )
+        new_result.needs_update = False
+        self.result = new_result
         self.root_class.results_panel.update_result(new_result)
+        self.set_recalculate_button_highlight(False)
+        self.root_class.results_panel.result_selector.update_all()
+
+    def study_settings_changed(self):
+        if self.configuring:
+            return
+        self.result.needs_update = True
+        self.root_class.results_panel.results[self.result.unique_id].needs_update = True
+        self.set_recalculate_button_highlight(True)
+        self.root_class.results_panel.result_selector.update_all()

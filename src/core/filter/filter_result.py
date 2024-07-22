@@ -10,6 +10,7 @@ class FilterStudyConfig:
     ):
         # result ID of the filter is always None (no nested filters)
         self.filter_id: Union[int, None] = None
+        self.query: str = ""
 
 
 class FilterResult(BaseResult):
