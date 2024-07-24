@@ -2,9 +2,8 @@
 /build/
 /.idea/
 /scratches/
-/QT Designer.bat
-/update_rc.bat
-/update_ui.bat
 /Database_Media.xlsx
-/save1.sp
 /Дослідження_впливу_тривожності_на_самооцінку_Ответы.xlsx
+*.log
+/resources/old/
+/resources/High-res/
