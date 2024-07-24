@@ -84,7 +84,8 @@ def recalculate_correlation_study(
     html_result_element.items.append(html_table)
     html_result_element.items.append(HTMLText(verbal))
 
-    result.result_elements[result.html] = html_result_element
+    result.title_context = ", ".join([f"{col[:8]}" if len(col) > 8 else col for col in config.selected_columns])
+    result.result_elements = {result.html: html_result_element}
 
     # Add plots
     for i, name1 in enumerate(columns):

@@ -25,23 +25,25 @@ class ResultListItem(QWidget):
         self.click_handler = click_handler
         self.delete_handler = delete_handler
 
-        self.layout = QtWidgets.QVBoxLayout(self)
+        self.false_layout = QtWidgets.QVBoxLayout(self)
+        self.false_layout.setContentsMargins(0, 0, 0, 0)
+
+        self.true_widget = QtWidgets.QWidget(self)
+        self.false_layout.addWidget(self.true_widget)
+
+        self.layout = QtWidgets.QVBoxLayout(self.true_widget)
+        self.layout.setContentsMargins(2, 2, 2, 2)
+
         self.title_widget = QtWidgets.QLabel(self.result.title)
-        self.context_widget = QtWidgets.QLabel(self.result.title_context + str(self.result.config.filter_id))
+        self.context_widget = QtWidgets.QLabel(self.result.title_context)
         self.layout.addWidget(self.title_widget)
         self.layout.addWidget(self.context_widget)
 
-        set_stylesheet(
-            self.title_widget,
-            (
-                "#id{" + ("color: #700;" if result.needs_update else "color: #000") + "font-family: Segoe UI;"
-                f"font-size: {Font.size}pt;"
-                "}"
-            ),
-        )
+        self.refresh()
         set_stylesheet(
             self.context_widget, "#id{" "color: #000;" "font-family: Segoe UI;" f"font-size: {Font.size_small}pt;" "}"
         )
+        set_stylesheet(self.true_widget, "#id{" "border: 1px solid #eee;" "}")
 
     def mousePressEvent(self, event):
         if self.click_handler is not None:
@@ -63,8 +65,10 @@ class ResultListItem(QWidget):
         set_stylesheet(
             self.title_widget,
             (
-                "#id{" + ("color: #700;" if self.result.needs_update else "color: #000") + "font-family: Segoe UI;"
+                "#id{" + ("color: #700;" if self.result.needs_update else "color: #000;") + "font-family: Segoe UI;"
                 f"font-size: {Font.size}pt;"
                 "}"
             ),
         )
+        self.context_widget.setText(self.result.title_context)
+        self.title_widget.setText(self.result.title)

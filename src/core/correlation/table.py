@@ -169,7 +169,7 @@ def get_table_compact(columns, correlation_matrix, p_matrix) -> HTMLTable:
     table.table_caption = "Correlations between " + smart_comma_join([f"'{var}'" for var in columns]) + "."
 
     # Add header
-    table.add_single_row_apa(Row([Cell()] + [Cell(column, col_span=2, center=True) for column in columns]))
+    table.add_title_row_apa(Row([Cell()] + [Cell(column, col_span=2, center=True) for column in columns]))
 
     # Add matrix
     for i_row, row in enumerate(columns):
@@ -205,7 +205,7 @@ def get_table_full(columns, correlation_matrix, p_matrix, df_matrix) -> HTMLTabl
     table.table_caption = "Correlations between " + smart_comma_join([f"'{var}'" for var in columns]) + "."
 
     # Add header
-    table.add_single_row_apa(Row([Cell(col_span=2)] + [Cell(column, col_span=2, center=True) for column in columns]))
+    table.add_title_row_apa(Row([Cell(col_span=2)] + [Cell(column, col_span=2, center=True) for column in columns]))
 
     # Add matrix
     for i_row, row in enumerate(columns):

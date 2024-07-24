@@ -70,14 +70,6 @@ class Correlation(BaseSettingsPanel):
             logging.error("Recalculate called while configuring.")
             return
 
-        selected_columns = self.elements["column_selector"].get_selected_columns()
-        config = CorrelationStudyConfig(
-            selected_columns=selected_columns,
-            compact=self.elements["compact"].widget.isChecked(),
-            report_only_significant=self.elements["report_only_significant"].widget.isChecked(),
-            filter_id=self.result.config.filter_id,
-        )
-        self.result.config = config
         filter_result = None
         if self.result.config.filter_id is not None:
             filter_result = self.root_class.results_panel.results[self.result.config.filter_id]
@@ -93,7 +85,15 @@ class Correlation(BaseSettingsPanel):
     def study_settings_changed(self):
         if self.configuring:
             return
+
+        selected_columns = self.elements["column_selector"].get_selected_columns()
+        config = CorrelationStudyConfig(
+            selected_columns=selected_columns,
+            compact=self.elements["compact"].widget.isChecked(),
+            report_only_significant=self.elements["report_only_significant"].widget.isChecked(),
+            filter_id=self.result.config.filter_id,
+        )
+        self.result.config = config
         self.result.needs_update = True
-        self.root_class.results_panel.results[self.result.unique_id].needs_update = True
         self.set_recalculate_button_highlight(True)
         self.root_class.results_panel.result_selector.update_all()

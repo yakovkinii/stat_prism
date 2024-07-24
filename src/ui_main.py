@@ -118,7 +118,8 @@ class MainWindowClass(QtWidgets.QMainWindow):
 
     @log_method_noarg
     def on_tab_changed(self):
-        pass
+        if len(self.results_panel.results) == 0:
+            self.settings_panel.stacked_widget.setCurrentIndex(self.settings_panel.select_study_panel_index)
         # if self.tab_widget.currentIndex() == 1:
         #     self.settings_panel.stacked_widget.setCurrentIndex(self.settings_panel.select_study_panel_index)
         # else:

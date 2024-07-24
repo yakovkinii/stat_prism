@@ -65,8 +65,7 @@ class ResultSelectorClass:
         if DEBUG_LAYOUT:
             set_stylesheet(self.widget, "#id{border: 1px solid blue; background-color: #eef;}")
 
-        # self.widget.addItem("Result1")
-        # self.widget.addItem("Result2")
+        self.widget_layout.setSpacing(4)
 
     @log_method_noarg
     def add_all_results(self):

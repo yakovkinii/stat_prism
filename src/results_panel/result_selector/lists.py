@@ -25,23 +25,13 @@ class DragDropListWidget(QListWidget):
         self.delete_handler = delete_handler
         self.top_level_list = self
         self.root_class: MainWindowClass = root_class
-        set_stylesheet(
-            self,
-            "#id{"
-            "border: 1px solid #ddd;"
-            "outline: 0;"
-            "}"
-            "#id::item:selected{"
-            "background-color: rgb(229,241,251);"
-            "border: 1px solid rgb(0,120,215)"
-            "}",
-        )
-        self.setDropIndicatorShown(True)
+        self.setDropIndicatorShown(False)
         self.setObjectName("root")
         self.setAcceptDrops(True)
         self.setDragEnabled(True)
         self.setDragDropMode(QListWidget.DragDropMode.DragDrop)
         self.setDefaultDropAction(Qt.DropAction.MoveAction)
+        self.setSpacing(2)
 
     def startDrag(self, supportedActions):
         drag = QDrag(self)
@@ -203,12 +193,16 @@ class NestedListContainerWidget(QWidget):
         self.parent = parent
         self.layout = QVBoxLayout(self)
         self.setContentsMargins(0, 0, 0, 0)
-        self.layout.setSpacing(0)
+        self.layout.setSpacing(2)
 
-        self.title_widget = QLabel(result.title)
+        if result.config.query:
+            self.title_widget = QLabel(result.config.query)
+        else:
+            self.title_widget = QLabel("Filter")
+
         self.layout.addWidget(self.title_widget)
         set_stylesheet(
-            self.title_widget, "#id{" "color: #000;" "font-family: Segoe UI;" f"font-size: {Font.size}pt;" "}"
+            self.title_widget, "#id{" "color: #000;" "font-family: Segoe UI;" f"font-size: {Font.size_small}pt;" "}"
         )
 
         self.inner_list_widget = DragDropListWidgetItemInner(
@@ -240,6 +234,11 @@ class NestedListContainerWidget(QWidget):
         context_menu.exec_(event.globalPos())
 
     def refresh(self):
+        if self.result.config.query:
+            self.title_widget.setText(self.result.config.query)
+        else:
+            self.title_widget.setText("Filter")
+
         for i in range(self.inner_list_widget.count()):
             item = self.inner_list_widget.item(i)
             widget = self.inner_list_widget.itemWidget(item)

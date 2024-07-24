@@ -111,9 +111,12 @@ class HTMLTable:
         # print(html)
         return html
 
-    def add_single_row_apa(self, row: Row):
+    def add_title_row_apa(self, row: Row):
         for cell in row.cells:
-            cell.border_top = True
+            cell.border_bottom = True
+        self.rows.append(row)
+
+    def add_single_row_apa(self, row: Row):
         self.rows.append(row)
 
     def add_multirow_apa(self, rows: List[Row]):
