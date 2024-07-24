@@ -8,3 +8,4 @@
 /resources/old/
 /resources/High-res/
 .aider*
+/.env/
