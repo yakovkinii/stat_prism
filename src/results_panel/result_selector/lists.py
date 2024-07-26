@@ -32,9 +32,13 @@ class DragDropListWidget(QListWidget):
         self.setDragDropMode(QListWidget.DragDropMode.DragDrop)
         self.setDefaultDropAction(Qt.DropAction.MoveAction)
         self.setSpacing(2)
-        self.setSelectionMode(QListWidget.SelectionMode.NoSelection)
+        self.setSelectionMode(QListWidget.SelectionMode.SingleSelection)
         self.setFocusPolicy(Qt.FocusPolicy.NoFocus)
-        self.setStyleSheet("QListWidget::item:selected { background: transparent; }")
+        self.setStyleSheet("""
+            QListWidget::item:selected { background: transparent; }
+            QListWidget::item:hover { background: transparent; }
+            QListWidget { outline: none; }
+        """)
 
     def startDrag(self, supportedActions):
         drag = QDrag(self)
@@ -173,9 +177,13 @@ class DragDropListWidgetItemInner(DragDropListWidget):
         self.setSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Fixed)
         self.setFixedHeight(100)
         self.setFixedWidth(200)
-        self.setSelectionMode(QListWidget.SelectionMode.NoSelection)
+        self.setSelectionMode(QListWidget.SelectionMode.SingleSelection)
         self.setFocusPolicy(Qt.FocusPolicy.NoFocus)
-        self.setStyleSheet("QListWidget::item:selected { background: transparent; }")
+        self.setStyleSheet("""
+            QListWidget::item:selected { background: transparent; }
+            QListWidget::item:hover { background: transparent; }
+            QListWidget { outline: none; }
+        """)
 
     def adjust_height(self):
         height = 0
