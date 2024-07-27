@@ -12,6 +12,7 @@ from src.settings_panel.panels.calculate import Calculate
 from src.settings_panel.panels.column import Column
 from src.settings_panel.panels.columns import Columns
 from src.settings_panel.panels.correlation import Correlation
+from src.settings_panel.panels.crosstab import Crosstab
 from src.settings_panel.panels.descriptive import Descriptive
 from src.settings_panel.panels.filter import Filter
 from src.settings_panel.panels.home import Home
@@ -125,6 +126,14 @@ class SettingsPanelClass:
             stacked_widget_index=self.filter_panel_index,
         )
 
+        self.crosstab_panel_index = 9
+        self.crosstab_panel: Crosstab = Crosstab(
+            parent_widget=self.stacked_widget,
+            parent_class=self,
+            root_class=self.root_class,
+            stacked_widget_index=self.crosstab_panel_index,
+        )
+
         self.panels = [
             self.home_panel,
             self.column_panel,
@@ -135,6 +144,7 @@ class SettingsPanelClass:
             self.descriptive_panel,
             self.correlation_panel,
             self.filter_panel,
+            self.crosstab_panel,
         ]
 
         # Relations
@@ -147,6 +157,7 @@ class SettingsPanelClass:
         self.stacked_widget.addWidget(self.descriptive_panel.widget)  # Todo move to module
         self.stacked_widget.addWidget(self.correlation_panel.widget)  # Todo move to module
         self.stacked_widget.addWidget(self.filter_panel.widget)
+        self.stacked_widget.addWidget(self.crosstab_panel.widget)
         self.widget_layout.addWidget(self.stacked_widget)
 
         # Create a file menu and add actions
