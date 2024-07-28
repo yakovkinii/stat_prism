@@ -7,6 +7,7 @@ from src.core.correlation.correlation_result import CorrelationResult
 from src.core.crosstab.crosstab_result import CrosstabResult
 from src.core.descriptive.descriptive_result import DescriptiveResult
 from src.core.filter.filter_result import FilterResult
+from src.core.linearregr.linearregr_result import LinearregrResult
 from src.settings_panel.panels.base import BaseSettingsPanel
 
 if TYPE_CHECKING:
@@ -47,6 +48,13 @@ class SelectStudy(BaseSettingsPanel):
                 label_text="Crosstab",
                 icon_path="ph.chart-line-up-fill",
                 handler=self.add_crosstab,
+            ),
+
+            "linearregr": BigAssButton(
+                parent_widget=self.widget_for_elements,
+                label_text="Linearregr",
+                icon_path="ph.chart-line-up-fill",
+                handler=self.add_linearregr,
             ),
         }
 
@@ -108,3 +116,18 @@ class SelectStudy(BaseSettingsPanel):
         )
 
         self.root_class.action_activate_panel_by_index(self.root_class.settings_panel.crosstab_panel_index)
+
+    @log_method_noarg
+    def add_linearregr(self):
+        logging.info("add linearregr clicked")
+        result = LinearregrResult(
+            unique_id=self.root_class.results_panel.get_unique_id(),
+            settings_panel_index=self.root_class.settings_panel.linearregr_panel_index,
+        )
+        self.root_class.results_panel.add_result(result)
+
+        self.root_class.settings_panel.linearregr_panel.configure(
+            result=result, caller_index=self.stacked_widget_index
+        )
+
+        self.root_class.action_activate_panel_by_index(self.root_class.settings_panel.linearregr_panel_index)

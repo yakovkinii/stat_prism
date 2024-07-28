@@ -17,6 +17,7 @@ from src.settings_panel.panels.descriptive import Descriptive
 from src.settings_panel.panels.filter import Filter
 from src.settings_panel.panels.home import Home
 from src.settings_panel.panels.invert import Inverse
+from src.settings_panel.panels.linearregr import Linearregr
 from src.settings_panel.panels.select_study import SelectStudy
 
 if TYPE_CHECKING:
@@ -134,6 +135,14 @@ class SettingsPanelClass:
             stacked_widget_index=self.crosstab_panel_index,
         )
 
+        self.linearregr_panel_index = 10
+        self.linearregr_panel: Linearregr = Linearregr(
+            parent_widget=self.stacked_widget,
+            parent_class=self,
+            root_class=self.root_class,
+            stacked_widget_index=self.linearregr_panel_index,
+        )
+
         self.panels = [
             self.home_panel,
             self.column_panel,
@@ -145,6 +154,7 @@ class SettingsPanelClass:
             self.correlation_panel,
             self.filter_panel,
             self.crosstab_panel,
+            self.linearregr_panel,
         ]
 
         # Relations
@@ -158,6 +168,7 @@ class SettingsPanelClass:
         self.stacked_widget.addWidget(self.correlation_panel.widget)  # Todo move to module
         self.stacked_widget.addWidget(self.filter_panel.widget)
         self.stacked_widget.addWidget(self.crosstab_panel.widget)
+        self.stacked_widget.addWidget(self.linearregr_panel.widget)
         self.widget_layout.addWidget(self.stacked_widget)
 
         # Create a file menu and add actions
