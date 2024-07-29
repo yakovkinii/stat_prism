@@ -8,17 +8,26 @@ from PySide6.QtWidgets import QMenu, QMenuBar, QVBoxLayout
 from src.common.constant import DEBUG_LAYOUT
 from src.common.size import SettingsPanelSize
 from src.common.unique_qss import set_stylesheet
+from src.settings_panel.panels.anova import Anova
+from src.settings_panel.panels.binomiallogregression import BinomialLogRegression
 from src.settings_panel.panels.calculate import Calculate
 from src.settings_panel.panels.column import Column
 from src.settings_panel.panels.columns import Columns
 from src.settings_panel.panels.correlation import Correlation
 from src.settings_panel.panels.crosstab import Crosstab
 from src.settings_panel.panels.descriptive import Descriptive
+from src.settings_panel.panels.efa import EFA
 from src.settings_panel.panels.filter import Filter
 from src.settings_panel.panels.home import Home
 from src.settings_panel.panels.invert import Inverse
+from src.settings_panel.panels.kruskalwallis import KruskalWallis
 from src.settings_panel.panels.linearregr import Linearregr
+from src.settings_panel.panels.multinomiallogregression import MultinomialLogRegression
+from src.settings_panel.panels.ordnallogregression import OrdnalLogRegression
+from src.settings_panel.panels.partcorrelation import PartCorrelation
+from src.settings_panel.panels.reliability import Reliability
 from src.settings_panel.panels.select_study import SelectStudy
+from src.settings_panel.panels.ttest import TTest
 
 if TYPE_CHECKING:
     from src.ui_main import MainWindowClass
@@ -143,6 +152,80 @@ class SettingsPanelClass:
             stacked_widget_index=self.linearregr_panel_index,
         )
 
+        self.kruskalwallis_panel_index = 11
+        self.kruskalwallis_panel: KruskalWallis = KruskalWallis(
+            parent_widget=self.stacked_widget,
+            parent_class=self,
+            root_class=self.root_class,
+            stacked_widget_index=self.kruskalwallis_panel_index,
+        )
+
+        self.partcorrelation_panel_index = 12
+        self.partcorrelation_panel: PartCorrelation = PartCorrelation(
+            parent_widget=self.stacked_widget,
+            parent_class=self,
+            root_class=self.root_class,
+            stacked_widget_index=self.partcorrelation_panel_index,
+        )
+
+        self.binomiallogregression_panel_index = 13
+        self.binomiallogregression_panel: BinomialLogRegression = BinomialLogRegression(
+            parent_widget=self.stacked_widget,
+            parent_class=self,
+            root_class=self.root_class,
+            stacked_widget_index=self.binomiallogregression_panel_index,
+        )
+
+        self.multinomiallogregression_panel_index = 14
+        self.multinomiallogregression_panel: MultinomialLogRegression = MultinomialLogRegression(
+            parent_widget=self.stacked_widget,
+            parent_class=self,
+            root_class=self.root_class,
+            stacked_widget_index=self.multinomiallogregression_panel_index,
+        )
+
+        self.ordnallogregression_panel_index = 15
+        self.ordnallogregression_panel: OrdnalLogRegression = OrdnalLogRegression(
+            parent_widget=self.stacked_widget,
+            parent_class=self,
+            root_class=self.root_class,
+            stacked_widget_index=self.ordnallogregression_panel_index,
+        )
+
+        self.reliability_panel_index = 16
+        self.reliability_panel: Reliability = Reliability(
+            parent_widget=self.stacked_widget,
+            parent_class=self,
+            root_class=self.root_class,
+            stacked_widget_index=self.reliability_panel_index,
+        )
+
+        self.efa_panel_index = 17
+        self.efa_panel: EFA = EFA(
+            parent_widget=self.stacked_widget,
+            parent_class=self,
+            root_class=self.root_class,
+            stacked_widget_index=self.efa_panel_index,
+        )
+
+        self.ttest_panel_index = 18
+        self.ttest_panel: TTest = TTest(
+            parent_widget=self.stacked_widget,
+            parent_class=self,
+            root_class=self.root_class,
+            stacked_widget_index=self.ttest_panel_index,
+        )
+
+        self.anova_panel_index = 10
+        self.anova_panel: Anova = Anova(
+            parent_widget=self.stacked_widget,
+            parent_class=self,
+            root_class=self.root_class,
+            stacked_widget_index=self.anova_panel_index,
+        )
+
+
+
         self.panels = [
             self.home_panel,
             self.column_panel,
@@ -155,6 +238,15 @@ class SettingsPanelClass:
             self.filter_panel,
             self.crosstab_panel,
             self.linearregr_panel,
+            self.kruskalwallis_panel,
+            self.partcorrelation_panel,
+            self.binomiallogregression_panel,
+            self.multinomiallogregression_panel,
+            self.ordnallogregression_panel,
+            self.reliability_panel,
+            self.efa_panel,
+            self.ttest_panel,
+            self.anova_panel,
         ]
 
         # Relations
@@ -169,6 +261,16 @@ class SettingsPanelClass:
         self.stacked_widget.addWidget(self.filter_panel.widget)
         self.stacked_widget.addWidget(self.crosstab_panel.widget)
         self.stacked_widget.addWidget(self.linearregr_panel.widget)
+        self.stacked_widget.addWidget(self.kruskalwallis_panel.widget)
+        self.stacked_widget.addWidget(self.partcorrelation_panel.widget)
+        self.stacked_widget.addWidget(self.binomiallogregression_panel.widget)
+        self.stacked_widget.addWidget(self.multinomiallogregression_panel.widget)
+        self.stacked_widget.addWidget(self.ordnallogregression_panel.widget)
+        self.stacked_widget.addWidget(self.reliability_panel.widget)
+        self.stacked_widget.addWidget(self.efa_panel.widget)
+        self.stacked_widget.addWidget(self.ttest_panel.widget)
+        self.stacked_widget.addWidget(self.anova_panel.widget)
+
         self.widget_layout.addWidget(self.stacked_widget)
 
         # Create a file menu and add actions
