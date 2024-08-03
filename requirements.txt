@@ -9,3 +9,4 @@ openpyxl
 pyarrow
 Jinja2
 pyqtgraph
+scikit-learn

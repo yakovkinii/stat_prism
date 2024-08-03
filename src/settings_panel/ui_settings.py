@@ -224,8 +224,6 @@ class SettingsPanelClass:
             stacked_widget_index=self.anova_panel_index,
         )
 
-
-
         self.panels = [
             self.home_panel,
             self.column_panel,

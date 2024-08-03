@@ -43,7 +43,6 @@ class TTestResult(BaseResult):
         if config is None:
             self.config: TTestStudyConfig = TTestStudyConfig(
                 selected_columns=[],
-
             )
         else:
             self.config: TTestStudyConfig = config

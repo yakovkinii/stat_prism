@@ -2,13 +2,11 @@ import logging
 from typing import Union
 
 import pandas as pd
-from scipy.stats import pearsonr
 from sklearn.linear_model import LinearRegression
+
 from src.core.filter.filter_result import FilterResult
-from src.core.linearregr.linearregr_result import LinearregrResult
 from src.core.ttest.ttest_result import TTestResult
 from src.results_panel.results.common.html_element import HTMLResultElement, HTMLText
-from src.results_panel.results.common.plot_element import PlotResultElement, Scatter
 
 
 def calculate_ttest(df, col1, col2):
@@ -16,7 +14,8 @@ def calculate_ttest(df, col1, col2):
     ttest.fit(df[col1].values.reshape(-1, 1), df[col2].values.reshape(-1, 1))
     a = ttest.intercept_
     b = ttest.coef_[0]
-    return a,b
+    return a, b
+
 
 def recalculate_ttest_study(
     df: pd.DataFrame, result: TTestResult, filter_result: Union[FilterResult, None]
@@ -44,7 +43,7 @@ def recalculate_ttest_study(
 
     columns = list(df.columns)
 
-    a,b=calculate_ttest(df, columns[0], columns[1])
+    a, b = calculate_ttest(df, columns[0], columns[1])
 
     html_result_element = HTMLResultElement()
     html_result_element.items.append(HTMLText(f"linear chototam ttest a={a}, b={b}"))

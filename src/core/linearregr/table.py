@@ -1,17 +1,16 @@
-from src.common.constant import MDASH
 from src.common.utility import smart_comma_join
 from src.results_panel.results.common.html_element import Cell, HTMLTable, Row
 
 
 def get_table_compact(columns, linearregr_matrix) -> HTMLTable:
     table = HTMLTable([])
-    linearregr_matrix=linearregr_matrix.reset_index()
+    linearregr_matrix = linearregr_matrix.reset_index()
 
     table.table_id = "1"
     table.table_caption = "Linearregr between " + smart_comma_join([f"'{var}'" for var in columns]) + "."
 
     # Add header
-    table.add_title_row_apa(Row( [Cell(column, center=True) for column in linearregr_matrix.columns]))
+    table.add_title_row_apa(Row([Cell(column, center=True) for column in linearregr_matrix.columns]))
 
     # Add matrix
     for row_name, row in linearregr_matrix.iterrows():
@@ -29,4 +28,3 @@ def get_table_compact(columns, linearregr_matrix) -> HTMLTable:
         table.add_single_row_apa(Row(table_row))
 
     return table
-

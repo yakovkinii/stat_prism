@@ -17,9 +17,7 @@ class EFAStudyConfig:
 
 
 class EFAResult(BaseResult):
-    def __init__(
-        self, unique_id, settings_panel_index, title=None, title_context=None, config: EFAStudyConfig = None
-    ):
+    def __init__(self, unique_id, settings_panel_index, title=None, title_context=None, config: EFAStudyConfig = None):
         super().__init__(unique_id)
         # Unique integer id, not for display
         self.unique_id: int = unique_id
@@ -43,7 +41,6 @@ class EFAResult(BaseResult):
         if config is None:
             self.config: EFAStudyConfig = EFAStudyConfig(
                 selected_columns=[],
-
             )
         else:
             self.config: EFAStudyConfig = config

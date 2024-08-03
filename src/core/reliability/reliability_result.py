@@ -43,7 +43,6 @@ class ReliabilityResult(BaseResult):
         if config is None:
             self.config: ReliabilityStudyConfig = ReliabilityStudyConfig(
                 selected_columns=[],
-
             )
         else:
             self.config: ReliabilityStudyConfig = config

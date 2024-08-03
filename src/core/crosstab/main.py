@@ -2,18 +2,17 @@ import logging
 from typing import Union
 
 import pandas as pd
-from scipy.stats import pearsonr
 
 from src.core.crosstab.crosstab_result import CrosstabResult
 from src.core.crosstab.table import get_table_compact
 from src.core.filter.filter_result import FilterResult
-from src.results_panel.results.common.html_element import HTMLResultElement, HTMLText
-from src.results_panel.results.common.plot_element import PlotResultElement, Scatter
+from src.results_panel.results.common.html_element import HTMLResultElement
 
 
 def calculate_crosstab(df, col1, col2):
     crosstab = pd.crosstab(df[col1], df[col2])
     return crosstab
+
 
 def recalculate_crosstab_study(
     df: pd.DataFrame, result: CrosstabResult, filter_result: Union[FilterResult, None]
@@ -39,15 +38,12 @@ def recalculate_crosstab_study(
 
     df = df[config.selected_columns]
 
-    table_name = "1"
+    # table_name = "1"
     columns = list(df.columns)
 
-    crosstab_matrix=calculate_crosstab(df, columns[0], columns[1])
-
+    crosstab_matrix = calculate_crosstab(df, columns[0], columns[1])
 
     html_table = get_table_compact(columns, crosstab_matrix)
-
-
 
     html_result_element = HTMLResultElement()
     html_result_element.items.append(html_table)

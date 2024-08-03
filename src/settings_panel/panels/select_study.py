@@ -51,77 +51,66 @@ class SelectStudy(BaseSettingsPanel):
                 icon_path="ph.chart-line-up-fill",
                 handler=self.add_filter,
             ),
-
             "crosstab": BigAssButton(
                 parent_widget=self.widget_for_elements,
                 label_text="Crosstab",
                 icon_path="ph.chart-line-up-fill",
                 handler=self.add_crosstab,
             ),
-
             "linearregr": BigAssButton(
                 parent_widget=self.widget_for_elements,
                 label_text="Linearregr",
                 icon_path="ph.chart-line-up-fill",
                 handler=self.add_linearregr,
             ),
-
             "kruskalwallis": BigAssButton(
                 parent_widget=self.widget_for_elements,
                 label_text="Pruskalwallis",
                 icon_path="ph.chart-line-up-fill",
                 handler=self.add_kruskalwallis,
             ),
-
-            "partcorrelation" : BigAssButton(
+            "partcorrelation": BigAssButton(
                 parent_widget=self.widget_for_elements,
                 label_text="Partcorrelation",
                 icon_path="ph.chart-line-up-fill",
                 handler=self.add_partcorrelation,
             ),
-
             "binomiallogregression": BigAssButton(
                 parent_widget=self.widget_for_elements,
                 label_text="Binomiallogregression",
                 icon_path="ph.chart-line-up-fill",
                 handler=self.add_binomiallogregression,
             ),
-
             "multinomiallogregression": BigAssButton(
                 parent_widget=self.widget_for_elements,
                 label_text="Multinomiallogregression",
                 icon_path="ph.chart-line-up-fill",
                 handler=self.add_multinomiallogregression,
             ),
-
             "ordnallogregression": BigAssButton(
                 parent_widget=self.widget_for_elements,
                 label_text="Ordnallogregression",
                 icon_path="ph.chart-line-up-fill",
                 handler=self.add_ordnallogregression,
             ),
-
             "reliability": BigAssButton(
                 parent_widget=self.widget_for_elements,
                 label_text="Reliability",
                 icon_path="ph.chart-line-up-fill",
                 handler=self.add_reliability,
             ),
-
             "efa": BigAssButton(
                 parent_widget=self.widget_for_elements,
                 label_text="EFA",
                 icon_path="ph.chart-line-up-fill",
                 handler=self.add_efa,
             ),
-
             "ttest": BigAssButton(
                 parent_widget=self.widget_for_elements,
                 label_text="TTest",
                 icon_path="ph.chart-line-up-fill",
                 handler=self.add_ttest,
             ),
-
             "anova": BigAssButton(
                 parent_widget=self.widget_for_elements,
                 label_text="Anova",
@@ -183,9 +172,7 @@ class SelectStudy(BaseSettingsPanel):
         )
         self.root_class.results_panel.add_result(result)
 
-        self.root_class.settings_panel.crosstab_panel.configure(
-            result=result, caller_index=self.stacked_widget_index
-        )
+        self.root_class.settings_panel.crosstab_panel.configure(result=result, caller_index=self.stacked_widget_index)
 
         self.root_class.action_activate_panel_by_index(self.root_class.settings_panel.crosstab_panel_index)
 
@@ -198,9 +185,7 @@ class SelectStudy(BaseSettingsPanel):
         )
         self.root_class.results_panel.add_result(result)
 
-        self.root_class.settings_panel.linearregr_panel.configure(
-            result=result, caller_index=self.stacked_widget_index
-        )
+        self.root_class.settings_panel.linearregr_panel.configure(result=result, caller_index=self.stacked_widget_index)
 
         self.root_class.action_activate_panel_by_index(self.root_class.settings_panel.linearregr_panel_index)
 
@@ -262,7 +247,9 @@ class SelectStudy(BaseSettingsPanel):
             result=result, caller_index=self.stacked_widget_index
         )
 
-        self.root_class.action_activate_panel_by_index(self.root_class.settings_panel.multinomiallogregression_panel_index)
+        self.root_class.action_activate_panel_by_index(
+            self.root_class.settings_panel.multinomiallogregression_panel_index
+        )
 
     @log_method_noarg
     def add_ordnallogregression(self):
@@ -303,9 +290,7 @@ class SelectStudy(BaseSettingsPanel):
         )
         self.root_class.results_panel.add_result(result)
 
-        self.root_class.settings_panel.efa_panel.configure(
-            result=result, caller_index=self.stacked_widget_index
-        )
+        self.root_class.settings_panel.efa_panel.configure(result=result, caller_index=self.stacked_widget_index)
 
         self.root_class.action_activate_panel_by_index(self.root_class.settings_panel.efa_panel_index)
 
@@ -318,9 +303,7 @@ class SelectStudy(BaseSettingsPanel):
         )
         self.root_class.results_panel.add_result(result)
 
-        self.root_class.settings_panel.ttest_panel.configure(
-            result=result, caller_index=self.stacked_widget_index
-        )
+        self.root_class.settings_panel.ttest_panel.configure(result=result, caller_index=self.stacked_widget_index)
 
         self.root_class.action_activate_panel_by_index(self.root_class.settings_panel.ttest_panel_index)
 
@@ -333,8 +316,6 @@ class SelectStudy(BaseSettingsPanel):
         )
         self.root_class.results_panel.add_result(result)
 
-        self.root_class.settings_panel.anova_panel.configure(
-            result=result, caller_index=self.stacked_widget_index
-        )
+        self.root_class.settings_panel.anova_panel.configure(result=result, caller_index=self.stacked_widget_index)
 
         self.root_class.action_activate_panel_by_index(self.root_class.settings_panel.anova_panel_index)

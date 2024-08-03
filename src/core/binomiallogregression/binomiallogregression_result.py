@@ -18,7 +18,12 @@ class BinomialLogRegressionStudyConfig:
 
 class BinomialLogRegressionResult(BaseResult):
     def __init__(
-        self, unique_id, settings_panel_index, title=None, title_context=None, config: BinomialLogRegressionStudyConfig = None
+        self,
+        unique_id,
+        settings_panel_index,
+        title=None,
+        title_context=None,
+        config: BinomialLogRegressionStudyConfig = None,
     ):
         super().__init__(unique_id)
         # Unique integer id, not for display
@@ -43,7 +48,6 @@ class BinomialLogRegressionResult(BaseResult):
         if config is None:
             self.config: BinomialLogRegressionStudyConfig = BinomialLogRegressionStudyConfig(
                 selected_columns=[],
-
             )
         else:
             self.config: BinomialLogRegressionStudyConfig = config

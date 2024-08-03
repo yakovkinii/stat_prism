@@ -3,7 +3,7 @@ from typing import TYPE_CHECKING
 
 from PySide6.QtCore import QMimeData, Qt, QTimer
 from PySide6.QtGui import QAction, QDrag
-from PySide6.QtWidgets import QLabel, QListWidget, QListWidgetItem, QMenu, QSizePolicy, QVBoxLayout, QWidget, QStyle
+from PySide6.QtWidgets import QLabel, QListWidget, QListWidgetItem, QMenu, QSizePolicy, QVBoxLayout, QWidget
 
 from src.common.size import Font
 from src.common.unique_qss import set_stylesheet
@@ -34,11 +34,13 @@ class DragDropListWidget(QListWidget):
         self.setSpacing(2)
         self.setSelectionMode(QListWidget.SelectionMode.SingleSelection)
         self.setFocusPolicy(Qt.FocusPolicy.NoFocus)
-        self.setStyleSheet("""
+        self.setStyleSheet(
+            """
             QListWidget::item:selected { background: transparent; }
             QListWidget::item:hover { background: transparent; }
             QListWidget { outline: none; }
-        """)
+        """
+        )
 
     def startDrag(self, supportedActions):
         drag = QDrag(self)
@@ -179,11 +181,13 @@ class DragDropListWidgetItemInner(DragDropListWidget):
         self.setFixedWidth(200)
         self.setSelectionMode(QListWidget.SelectionMode.SingleSelection)
         self.setFocusPolicy(Qt.FocusPolicy.NoFocus)
-        self.setStyleSheet("""
+        self.setStyleSheet(
+            """
             QListWidget::item:selected { background: transparent; }
             QListWidget::item:hover { background: transparent; }
             QListWidget { outline: none; }
-        """)
+        """
+        )
 
     def adjust_height(self):
         height = 0

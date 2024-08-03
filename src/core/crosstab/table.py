@@ -1,21 +1,20 @@
-from src.common.constant import MDASH
 from src.common.utility import smart_comma_join
 from src.results_panel.results.common.html_element import Cell, HTMLTable, Row
 
 
 def get_table_compact(columns, crosstab_matrix) -> HTMLTable:
     table = HTMLTable([])
-    crosstab_matrix=crosstab_matrix.reset_index()
+    crosstab_matrix = crosstab_matrix.reset_index()
 
     table.table_id = "1"
     table.table_caption = "Crosstab between " + smart_comma_join([f"'{var}'" for var in columns]) + "."
 
     # Add header
-    table.add_title_row_apa(Row( [Cell(column, center=True) for column in crosstab_matrix.columns]))
+    table.add_title_row_apa(Row([Cell(column, center=True) for column in crosstab_matrix.columns]))
 
     # Add matrix
     for row_name, row in crosstab_matrix.iterrows():
-        table_row = [Cell(row_name)]
+        table_row = []
         for column in row:
             table_row.append(
                 Cell(
@@ -29,4 +28,3 @@ def get_table_compact(columns, crosstab_matrix) -> HTMLTable:
         table.add_single_row_apa(Row(table_row))
 
     return table
-

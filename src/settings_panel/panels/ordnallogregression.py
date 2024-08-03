@@ -1,17 +1,13 @@
 import logging
 from typing import TYPE_CHECKING, Union
 
-from src.common.custom_widget_containers import BigAssCheckbox, ColumnSelector, SpacerSmall, Title
+from src.common.custom_widget_containers import ColumnSelector, SpacerSmall, Title
 from src.common.decorators import log_method
-from src.core.correlation.correlation_result import CorrelationResult, CorrelationStudyConfig
-from src.core.correlation.main import recalculate_correlation_study
-from src.core.crosstab.crosstab_result import CrosstabResult, CrosstabStudyConfig
-from src.core.crosstab.main import recalculate_crosstab_study
-from src.core.linearregr.linearregr_result import LinearregrStudyConfig, LinearregrResult
-from src.core.linearregr.main import recalculate_linearregr_study
 from src.core.ordnallogregression.main import recalculate_ordnallogregression_study
-from src.core.ordnallogregression.ordnallogregression_result import OrdnalLogRegressionResult, \
-    OrdnalLogRegressionStudyConfig
+from src.core.ordnallogregression.ordnallogregression_result import (
+    OrdnalLogRegressionResult,
+    OrdnalLogRegressionStudyConfig,
+)
 from src.settings_panel.panels.base import BaseSettingsPanel
 
 if TYPE_CHECKING:
@@ -32,7 +28,6 @@ class OrdnalLogRegression(BaseSettingsPanel):
                 label_text="OrdnalLogRegression",
             ),
             "spacer": SpacerSmall(parent_widget=self.widget_for_elements),
-
             "column_selector": ColumnSelector(
                 parent_widget=self.widget_for_elements,
             ),

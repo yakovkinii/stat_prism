@@ -18,7 +18,12 @@ class OrdnalLogRegressionStudyConfig:
 
 class OrdnalLogRegressionResult(BaseResult):
     def __init__(
-        self, unique_id, settings_panel_index, title=None, title_context=None, config: OrdnalLogRegressionStudyConfig = None
+        self,
+        unique_id,
+        settings_panel_index,
+        title=None,
+        title_context=None,
+        config: OrdnalLogRegressionStudyConfig = None,
     ):
         super().__init__(unique_id)
         # Unique integer id, not for display
@@ -43,7 +48,6 @@ class OrdnalLogRegressionResult(BaseResult):
         if config is None:
             self.config: OrdnalLogRegressionStudyConfig = OrdnalLogRegressionStudyConfig(
                 selected_columns=[],
-
             )
         else:
             self.config: OrdnalLogRegressionStudyConfig = config

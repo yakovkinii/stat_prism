@@ -1,9 +1,8 @@
-from src.common.constant import MDASH
 from src.common.utility import smart_comma_join
 from src.results_panel.results.common.html_element import Cell, HTMLTable, Row
 
 
-def get_table_compact(columns,  binomiallogregression_matrix) -> HTMLTable:
+def get_table_compact(columns, binomiallogregression_matrix) -> HTMLTable:
     table = HTMLTable([])
     binomiallogregression_matrix = binomiallogregression_matrix.reset_index()
 
@@ -11,10 +10,10 @@ def get_table_compact(columns,  binomiallogregression_matrix) -> HTMLTable:
     table.table_caption = "Binomiallogregression between " + smart_comma_join([f"'{var}'" for var in columns]) + "."
 
     # Add header
-    table.add_title_row_apa(Row( [Cell(column, center=True) for column in  binomiallogregression_matrix.columns]))
+    table.add_title_row_apa(Row([Cell(column, center=True) for column in binomiallogregression_matrix.columns]))
 
     # Add matrix
-    for row_name, row in  binomiallogregression_matrix.iterrows():
+    for row_name, row in binomiallogregression_matrix.iterrows():
         table_row = [Cell(row_name)]
         for column in row:
             table_row.append(
@@ -29,4 +28,3 @@ def get_table_compact(columns,  binomiallogregression_matrix) -> HTMLTable:
         table.add_single_row_apa(Row(table_row))
 
     return table
-

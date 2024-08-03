@@ -43,7 +43,6 @@ class AnovaResult(BaseResult):
         if config is None:
             self.config: AnovaStudyConfig = AnovaStudyConfig(
                 selected_columns=[],
-
             )
         else:
             self.config: AnovaStudyConfig = config

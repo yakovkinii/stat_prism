@@ -43,7 +43,6 @@ class LinearregrResult(BaseResult):
         if config is None:
             self.config: LinearregrStudyConfig = LinearregrStudyConfig(
                 selected_columns=[],
-
             )
         else:
             self.config: LinearregrStudyConfig = config

@@ -43,7 +43,6 @@ class CrosstabResult(BaseResult):
         if config is None:
             self.config: CrosstabStudyConfig = CrosstabStudyConfig(
                 selected_columns=[],
-
             )
         else:
             self.config: CrosstabStudyConfig = config

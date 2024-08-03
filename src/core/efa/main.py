@@ -2,14 +2,11 @@ import logging
 from typing import Union
 
 import pandas as pd
-from scipy.stats import pearsonr
 from sklearn.linear_model import LinearRegression
 
 from src.core.efa.efa_result import EFAResult
 from src.core.filter.filter_result import FilterResult
-from src.core.linearregr.linearregr_result import LinearregrResult
 from src.results_panel.results.common.html_element import HTMLResultElement, HTMLText
-from src.results_panel.results.common.plot_element import PlotResultElement, Scatter
 
 
 def calculate_efa(df, col1, col2):
@@ -17,11 +14,10 @@ def calculate_efa(df, col1, col2):
     efa.fit(df[col1].values.reshape(-1, 1), df[col2].values.reshape(-1, 1))
     a = efa.intercept_
     b = efa.coef_[0]
-    return a,b
+    return a, b
 
-def recalculate_efa_study(
-    df: pd.DataFrame, result: EFAResult, filter_result: Union[FilterResult, None]
-) -> EFAResult:
+
+def recalculate_efa_study(df: pd.DataFrame, result: EFAResult, filter_result: Union[FilterResult, None]) -> EFAResult:
     logging.info("Recalculating efa study")
 
     config = result.config
@@ -45,7 +41,7 @@ def recalculate_efa_study(
 
     columns = list(df.columns)
 
-    a,b=calculate_efa(df, columns[0], columns[1])
+    a, b = calculate_efa(df, columns[0], columns[1])
 
     html_result_element = HTMLResultElement()
     html_result_element.items.append(HTMLText(f"linear chototam efa a={a}, b={b}"))

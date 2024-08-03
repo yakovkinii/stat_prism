@@ -43,7 +43,6 @@ class KruskalWallisResult(BaseResult):
         if config is None:
             self.config: KruskalWallisStudyConfig = KruskalWallisStudyConfig(
                 selected_columns=[],
-
             )
         else:
             self.config: KruskalWallisStudyConfig = config

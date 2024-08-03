@@ -1,20 +1,19 @@
-from src.common.constant import MDASH
 from src.common.utility import smart_comma_join
 from src.results_panel.results.common.html_element import Cell, HTMLTable, Row
 
 
-def get_table_compact(columns,  multinomiallogregression_matrix) -> HTMLTable:
+def get_table_compact(columns, multinomiallogregression_matrix) -> HTMLTable:
     table = HTMLTable([])
-    multinomiallogregression_matrix= multinomiallogregression_matrix.reset_index()
+    multinomiallogregression_matrix = multinomiallogregression_matrix.reset_index()
 
     table.table_id = "1"
     table.table_caption = "Multinomiallogregression between " + smart_comma_join([f"'{var}'" for var in columns]) + "."
 
     # Add header
-    table.add_title_row_apa(Row( [Cell(column, center=True) for column in  multinomiallogregression_matrix.columns]))
+    table.add_title_row_apa(Row([Cell(column, center=True) for column in multinomiallogregression_matrix.columns]))
 
     # Add matrix
-    for row_name, row in  multinomiallogregression_matrix.iterrows():
+    for row_name, row in multinomiallogregression_matrix.iterrows():
         table_row = [Cell(row_name)]
         for column in row:
             table_row.append(
@@ -29,4 +28,3 @@ def get_table_compact(columns,  multinomiallogregression_matrix) -> HTMLTable:
         table.add_single_row_apa(Row(table_row))
 
     return table
-

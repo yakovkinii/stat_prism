@@ -44,7 +44,9 @@ class ResultListItem(QWidget):
         set_stylesheet(
             self.context_widget, "#id{" "color: #000;" "font-family: Segoe UI;" f"font-size: {Font.size_small}pt;" "}"
         )
-        set_stylesheet(self.true_widget, """
+        set_stylesheet(
+            self.true_widget,
+            """
             #id {
                 border: 1px solid #eee;
                 background-color: transparent;
@@ -52,7 +54,8 @@ class ResultListItem(QWidget):
             #id:hover {
                 background-color: transparent;
             }
-        """)
+        """,
+        )
         self.setFocusPolicy(Qt.FocusPolicy.NoFocus)
         self.setAttribute(Qt.WA_TransparentForMouseEvents, False)
 

@@ -43,7 +43,6 @@ class PartCorrelationResult(BaseResult):
         if config is None:
             self.config: PartCorrelationStudyConfig = PartCorrelationStudyConfig(
                 selected_columns=[],
-
             )
         else:
             self.config: PartCorrelationStudyConfig = config
