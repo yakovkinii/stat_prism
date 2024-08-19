@@ -1,7 +1,7 @@
 import logging
 from typing import TYPE_CHECKING, Union
 
-from src.common.custom_widget_containers import BigAssCheckbox, ColumnSelector, SpacerSmall, Title
+from src.common.custom_widget_containers import BigAssCheckbox, ColumnSelector, SpacerSmall, Title, ColumnSelectorEx
 from src.common.decorators import log_method
 from src.core.correlation.correlation_result import CorrelationResult, CorrelationStudyConfig
 from src.core.correlation.main import recalculate_correlation_study
@@ -36,11 +36,12 @@ class Correlation(BaseSettingsPanel):
                 handler=self.study_settings_changed,
             ),
             "spacer2": SpacerSmall(parent_widget=self.widget_for_elements),
-            "column_selector": ColumnSelector(
+            "column_selector": ColumnSelectorEx(
                 parent_widget=self.widget_for_elements,
+                labels=["X", "Y"],
             ),
         }
-        self.elements["column_selector"].widget.selection_changed.connect(self.study_settings_changed)
+        # self.elements["column_selector"].widget.selection_changed.connect(self.study_settings_changed)
         self.place_elements()
 
     @log_method
@@ -57,7 +58,7 @@ class Correlation(BaseSettingsPanel):
         config = result.config
 
         self.elements["column_selector"].configure(
-            columns=all_columns, selected_columns=config.selected_columns, allowed_columns=numeric_columns
+            columns=all_columns, selected_columns_list=[config.selected_columns, []], allowed_columns=numeric_columns
         )
         self.elements["compact"].widget.setChecked(config.compact)
         self.elements["report_only_significant"].widget.setChecked(config.report_only_significant)

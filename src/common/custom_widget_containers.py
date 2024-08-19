@@ -1,3 +1,7 @@
+import logging
+from functools import partial
+from typing import Type, Union, Tuple, Callable
+
 import qtawesome as qta
 from PySide6 import QtCore, QtGui, QtWidgets
 from PySide6.QtCore import Qt
@@ -10,6 +14,10 @@ from PySide6.QtWidgets import (
     QLineEdit,
     QListWidgetItem,
     QWidget,
+    QVBoxLayout,
+    QListWidget,
+    QLayout,
+    QPushButton,
 )
 
 from src.common.constant import COLORS
@@ -289,3 +297,141 @@ class ColumnFilter:
         self.filter_value.setFixedWidth(100)
         self.filter_value.textChanged.connect(on_change_handler)
         self.layout.addWidget(self.filter_value)
+
+
+def empty_widget(
+    parent,
+    inner_layout_class: Union[
+        Type[QHBoxLayout],
+        Type[QVBoxLayout],
+        Type[QGridLayout],
+    ] = QVBoxLayout,
+    outer_layout=None,
+    setup: Callable[[object, object], any] = None,
+) -> Tuple[QWidget, Union[QHBoxLayout, QVBoxLayout, QGridLayout]]:
+    widget = QWidget(parent)
+    layout = inner_layout_class(widget)
+    widget.setLayout(layout)
+
+    if outer_layout is not None:
+        outer_layout.addWidget(widget)
+
+    if setup is not None:
+        _ = setup(widget, layout)
+    else:
+        layout.setContentsMargins(0, 0, 0, 0)
+        layout.setSpacing(0)
+    return widget, layout
+
+
+def widget_in_layout(
+    widget,
+    layout,
+    setup: Callable[[object, object], any] = None,
+):
+    layout.addWidget(widget)
+    if setup is not None:
+        _ = setup(widget, layout)
+    return widget
+
+
+def clean_up_list_widget(list_widget):
+    for index in range(list_widget.count()):
+        item = list_widget.item(index)
+        widget = list_widget.itemWidget(item)
+        if widget:
+            widget.deleteLater()
+        list_widget.takeItem(index)
+    list_widget.clear()
+
+
+class ColumnSelectorEx:
+    def __init__(self, parent_widget, labels):
+        self.widget, self.layout = empty_widget(
+            parent=parent_widget,
+            inner_layout_class=QHBoxLayout,
+        )
+        self.main_list = widget_in_layout(
+            widget=QListWidget(self.widget),
+            layout=self.layout,
+            setup=lambda widget, layout: [
+                widget.setSelectionMode(QtWidgets.QAbstractItemView.SelectionMode.SingleSelection),
+                widget.clicked.connect(self.main_list_clicked),
+            ],
+        )
+        self.fields_panel, self.fields_panel_layout = empty_widget(
+            parent=self.widget,
+            inner_layout_class=QVBoxLayout,
+            outer_layout=self.layout,
+        )
+
+        self.panel_list_widgets = []
+        self.panel_list_buttons = []
+        for index, label in enumerate(labels):
+            logging.warning(f"Creating panel {index}, label {label}")
+            panel, panel_layout = empty_widget(
+                parent=self.fields_panel,
+                inner_layout_class=QVBoxLayout,
+                outer_layout=self.fields_panel_layout,
+            )
+            _ = widget_in_layout(
+                widget=QLabel(panel),
+                layout=panel_layout,
+                setup=lambda widget, layout: widget.setText(label),
+            )
+            panel_list_button = widget_in_layout(
+                widget=QPushButton(panel),
+                layout=panel_layout,
+                setup=lambda widget, layout: [
+                    widget.setText("Add"),
+                    widget.clicked.connect((lambda _: lambda: self.button_pressed(_))(index)),
+                ],
+            )
+            panel_list = widget_in_layout(
+                widget=QListWidget(panel),
+                layout=panel_layout,
+                setup=lambda widget, layout: (
+                    widget.setSelectionMode(QtWidgets.QAbstractItemView.SelectionMode.SingleSelection),
+                    widget.clicked.connect((lambda _: lambda: self.panel_list_clicked(_))(index)),
+                ),
+            )
+            self.panel_list_widgets.append(panel_list)
+            self.panel_list_buttons.append(panel_list_button)
+
+    def configure(self, columns, selected_columns_list, allowed_columns):
+        clean_up_list_widget(self.main_list)
+        self.main_list.addItems(columns)
+        for panel_list, selected_columns in zip(self.panel_list_widgets, selected_columns_list):
+            clean_up_list_widget(panel_list)
+            panel_list.addItems(selected_columns)
+
+    def main_list_clicked(self):
+        logging.info("Main list clicked")
+        for button in self.panel_list_buttons:
+            button.setText("Add")
+            button.setEnabled(True)
+
+    def panel_list_clicked(self, panel_index):
+        logging.info(f"Panel {panel_index} clicked")
+        for button_index, button in enumerate(self.panel_list_buttons):
+            if button_index == panel_index:
+                button.setText("Remove")
+                button.setEnabled(True)
+            else:
+                button.setText("Remove")
+                button.setEnabled(False)
+
+    def button_pressed(self, button_index):
+        logging.info(f"Button {button_index} pressed")
+        button = self.panel_list_buttons[button_index]
+        panel_list = self.panel_list_widgets[button_index]
+        if button.text() == "Add":
+            selected_main = self.main_list.currentItem()
+            if selected_main is not None:
+                panel_list.addItem(selected_main.text())
+                self.main_list.takeItem(self.main_list.currentRow())
+        elif button.text() == "Remove":
+            selected_list1 = panel_list.currentItem()
+            if selected_list1 is not None:
+                self.main_list.addItem(selected_list1.text())
+                panel_list.takeItem(panel_list.currentRow())
