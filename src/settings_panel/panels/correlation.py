@@ -1,7 +1,14 @@
 import logging
 from typing import TYPE_CHECKING, Union
 
-from src.common.custom_widget_containers import BigAssCheckbox, ColumnSelector, SpacerSmall, Title, ColumnSelectorEx
+from src.common.custom_widget_containers import (
+    BigAssCheckbox,
+    ColumnSelector,
+    SpacerSmall,
+    Title,
+    ColumnSelectorEx,
+    Field,
+)
 from src.common.decorators import log_method
 from src.core.correlation.correlation_result import CorrelationResult, CorrelationStudyConfig
 from src.core.correlation.main import recalculate_correlation_study
@@ -38,10 +45,10 @@ class Correlation(BaseSettingsPanel):
             "spacer2": SpacerSmall(parent_widget=self.widget_for_elements),
             "column_selector": ColumnSelectorEx(
                 parent_widget=self.widget_for_elements,
-                labels=["X", "Y"],
+                fields=[Field(name="Columns:", allowed_column_dtypes=["int", "float"])],
+                study_settings_changed_handler=self.study_settings_changed,
             ),
         }
-        # self.elements["column_selector"].widget.selection_changed.connect(self.study_settings_changed)
         self.place_elements()
 
     @log_method
@@ -87,7 +94,7 @@ class Correlation(BaseSettingsPanel):
         if self.configuring:
             return
 
-        selected_columns = self.elements["column_selector"].get_selected_columns()
+        selected_columns = self.elements["column_selector"].get_selected_columns()[0]
         config = CorrelationStudyConfig(
             selected_columns=selected_columns,
             compact=self.elements["compact"].widget.isChecked(),

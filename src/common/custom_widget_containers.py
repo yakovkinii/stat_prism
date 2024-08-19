@@ -1,7 +1,8 @@
 import logging
 from functools import partial
-from typing import Type, Union, Tuple, Callable
+from typing import Type, Union, Tuple, Callable, List, Dict
 
+import attrs
 import qtawesome as qta
 from PySide6 import QtCore, QtGui, QtWidgets
 from PySide6.QtCore import Qt
@@ -18,6 +19,7 @@ from PySide6.QtWidgets import (
     QListWidget,
     QLayout,
     QPushButton,
+    QDialog,
 )
 
 from src.common.constant import COLORS
@@ -301,26 +303,29 @@ class ColumnFilter:
 
 def empty_widget(
     parent,
-    inner_layout_class: Union[
-        Type[QHBoxLayout],
-        Type[QVBoxLayout],
-        Type[QGridLayout],
-    ] = QVBoxLayout,
+    inner_layout_class=None,
+    widget_class=None,
     outer_layout=None,
     setup: Callable[[object, object], any] = None,
-) -> Tuple[QWidget, Union[QHBoxLayout, QVBoxLayout, QGridLayout]]:
-    widget = QWidget(parent)
+):
+    if inner_layout_class is None:
+        inner_layout_class = QVBoxLayout
+    if widget_class is None:
+        widget_class = QWidget
+
+    widget = widget_class(parent)
     layout = inner_layout_class(widget)
     widget.setLayout(layout)
 
     if outer_layout is not None:
         outer_layout.addWidget(widget)
 
+    layout.setContentsMargins(0, 0, 0, 0)
+    layout.setSpacing(0)
+
     if setup is not None:
         _ = setup(widget, layout)
-    else:
-        layout.setContentsMargins(0, 0, 0, 0)
-        layout.setSpacing(0)
+
     return widget, layout
 
 
@@ -345,11 +350,129 @@ def clean_up_list_widget(list_widget):
     list_widget.clear()
 
 
+class QWidgetClickable(QWidget):
+    clicked = QtCore.Signal()
+
+    def __init__(self, parent=None):
+        super(QWidgetClickable, self).__init__(parent)
+
+    def mousePressEvent(self, event):
+        self.clicked.emit()
+        super(QWidgetClickable, self).mousePressEvent(event)
+
+
+class QListWidgetClickable(QListWidget):
+    def mousePressEvent(self, event):
+        super().mousePressEvent(event)
+        self.parent().mousePressEvent(event)
+
+
+@attrs.define
+class Column:
+    name: str
+    column_dtype: str
+
+
+@attrs.define
+class Field:
+    name: str
+    allowed_column_dtypes: List[str]
+    max_columns: int = -1
+
+
 class ColumnSelectorEx:
-    def __init__(self, parent_widget, labels):
+    def __init__(self, parent_widget, fields: List[Field], study_settings_changed_handler: Callable):
+        self.fields = fields
+        self.allowed_columns = None
+        self.columns = None
+        self.study_settings_changed_handler = study_settings_changed_handler
+        self.popup = ColumnSelectorExPopup(parent_widget, fields)
+        self.popup.widget.finished.connect(self.popup_closed)
+        self.popup.widget.hide()
+
         self.widget, self.layout = empty_widget(
             parent=parent_widget,
             inner_layout_class=QHBoxLayout,
+            widget_class=QWidgetClickable,
+            setup=lambda widget, layout: [
+                widget.clicked.connect(self.open_popup),
+            ],
+        )
+
+        self.fields_panel, self.fields_panel_layout = empty_widget(
+            parent=self.widget,
+            inner_layout_class=QVBoxLayout,
+            outer_layout=self.layout,
+        )
+
+        self.panel_list_widgets = []
+        for index, field in enumerate(fields):
+            panel, panel_layout = empty_widget(
+                parent=self.fields_panel,
+                inner_layout_class=QVBoxLayout,
+                outer_layout=self.fields_panel_layout,
+            )
+            _ = widget_in_layout(
+                widget=QLabel(panel),
+                layout=panel_layout,
+                setup=lambda widget, layout: widget.setText(field.name),
+            )
+            panel_list = widget_in_layout(
+                widget=QListWidgetClickable(panel),
+                layout=panel_layout,
+                setup=lambda widget, layout: (
+                    widget.setSelectionMode(QtWidgets.QAbstractItemView.SelectionMode.NoSelection),
+                    widget.setFocusPolicy(Qt.FocusPolicy.NoFocus),
+                ),
+            )
+            self.panel_list_widgets.append(panel_list)
+
+    def configure(self, columns, selected_columns_list, allowed_columns):
+        self.columns = columns
+        self.allowed_columns = allowed_columns
+        for panel_list, selected_columns in zip(self.panel_list_widgets, selected_columns_list):
+            clean_up_list_widget(panel_list)
+            panel_list.addItems(selected_columns)
+
+    def open_popup(self):
+        selected_columns_list = [
+            [list_widget.item(i).text() for i in range(list_widget.count())] for list_widget in self.panel_list_widgets
+        ]
+        self.popup.configure(
+            columns=self.columns,
+            selected_columns_list=selected_columns_list,
+            allowed_columns=self.allowed_columns,
+        )
+
+        self.popup.widget.show()
+
+    def popup_closed(self):
+        logging.info("Popup closed")
+        for panel_list, popup_panel_list in zip(self.panel_list_widgets, self.popup.panel_list_widgets):
+            clean_up_list_widget(panel_list)
+            items = [popup_panel_list.item(i).text() for i in range(popup_panel_list.count())]
+            panel_list.addItems(items)
+            logging.info(f"Adding {items} to panel list")
+        self.study_settings_changed_handler()
+
+    def get_selected_columns(self):
+        return [
+            [list_widget.item(i).text() for i in range(list_widget.count())] for list_widget in self.panel_list_widgets
+        ]
+
+
+class ColumnSelectorExPopup:
+    def __init__(self, parent_widget, fields: List[Field]):
+        # Need a widget that will pop up. It needs to be a resizeable window with a 'ok' button which  is same as X or 'hide'
+
+        self.widget, self.layout = empty_widget(
+            parent=parent_widget,
+            inner_layout_class=QHBoxLayout,
+            widget_class=QDialog,
+            setup=lambda widget, layout: [
+                widget.setMinimumWidth(400),
+                widget.setMinimumHeight(400),
+            ],
         )
         self.main_list = widget_in_layout(
             widget=QListWidget(self.widget),
@@ -357,6 +480,7 @@ class ColumnSelectorEx:
             setup=lambda widget, layout: [
                 widget.setSelectionMode(QtWidgets.QAbstractItemView.SelectionMode.SingleSelection),
                 widget.clicked.connect(self.main_list_clicked),
+                widget.setFocusPolicy(Qt.FocusPolicy.NoFocus),
             ],
         )
         self.fields_panel, self.fields_panel_layout = empty_widget(
@@ -367,8 +491,7 @@ class ColumnSelectorEx:
 
         self.panel_list_widgets = []
         self.panel_list_buttons = []
-        for index, label in enumerate(labels):
-            logging.warning(f"Creating panel {index}, label {label}")
+        for index, field in enumerate(fields):
             panel, panel_layout = empty_widget(
                 parent=self.fields_panel,
                 inner_layout_class=QVBoxLayout,
@@ -377,7 +500,7 @@ class ColumnSelectorEx:
             _ = widget_in_layout(
                 widget=QLabel(panel),
                 layout=panel_layout,
-                setup=lambda widget, layout: widget.setText(label),
+                setup=lambda widget, layout: widget.setText(field.name),
             )
             panel_list_button = widget_in_layout(
                 widget=QPushButton(panel),
@@ -393,6 +516,7 @@ class ColumnSelectorEx:
                 setup=lambda widget, layout: (
                     widget.setSelectionMode(QtWidgets.QAbstractItemView.SelectionMode.SingleSelection),
                     widget.clicked.connect((lambda _: lambda: self.panel_list_clicked(_))(index)),
+                    widget.setFocusPolicy(Qt.FocusPolicy.NoFocus),
                 ),
             )
             self.panel_list_widgets.append(panel_list)
