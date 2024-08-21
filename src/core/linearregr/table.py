@@ -1,5 +1,5 @@
+from src.common.result.classes.html_result import Cell, HTMLTable, Row
 from src.common.utility import smart_comma_join
-from src.results_panel.results.common.html_element import Cell, HTMLTable, Row
 
 
 def get_table_compact(columns, linearregr_matrix) -> HTMLTable:

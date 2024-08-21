@@ -4,12 +4,14 @@ from typing import Union
 import pandas as pd
 from scipy.stats import pearsonr
 
+from src.common.result.classes.html_result import HTMLText
+from src.common.result.classes.plot_result import Scatter
 from src.core.correlation.correlation_result import CorrelationResult
 from src.core.correlation.report import get_report
 from src.core.correlation.table import get_table_compact, get_table_full
 from src.core.filter.filter_result import FilterResult
-from src.results_panel.results.common.html_element import HTMLResultElement, HTMLText
-from src.results_panel.results.common.plot_element import PlotResultElement, Scatter
+from src.result_display_panel.result_widget_containers.html_widget_container import HTMLResultElement
+from src.result_display_panel.result_widget_containers.plot_widget_container import PlotResultElement
 
 
 def calculate_correlations(df):

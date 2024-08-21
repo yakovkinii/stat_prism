@@ -4,9 +4,10 @@ from typing import Union
 import pandas as pd
 from sklearn.linear_model import LinearRegression
 
+from src.common.result.classes.html_result import HTMLText
 from src.core.filter.filter_result import FilterResult
 from src.core.ttest.ttest_result import TTestResult
-from src.results_panel.results.common.html_element import HTMLResultElement, HTMLText
+from src.result_display_panel.result_widget_containers.html_widget_container import HTMLResultElement
 
 
 def calculate_ttest(df, col1, col2):

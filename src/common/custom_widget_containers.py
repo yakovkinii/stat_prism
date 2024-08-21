@@ -1,6 +1,5 @@
 import logging
-from functools import partial
-from typing import Type, Union, Tuple, Callable, List, Dict
+from typing import Callable, List
 
 import attrs
 import qtawesome as qta
@@ -9,17 +8,16 @@ from PySide6.QtCore import Qt
 from PySide6.QtWidgets import (
     QCheckBox,
     QComboBox,
+    QDialog,
     QGridLayout,
     QHBoxLayout,
     QLabel,
     QLineEdit,
-    QListWidgetItem,
-    QWidget,
-    QVBoxLayout,
     QListWidget,
-    QLayout,
+    QListWidgetItem,
     QPushButton,
-    QDialog,
+    QVBoxLayout,
+    QWidget,
 )
 
 from src.common.constant import COLORS
@@ -463,8 +461,6 @@ class ColumnSelectorEx:
 
 class ColumnSelectorExPopup:
     def __init__(self, parent_widget, fields: List[Field]):
-        # Need a widget that will pop up. It needs to be a resizeable window with a 'ok' button which  is same as X or 'hide'
-
         self.widget, self.layout = empty_widget(
             parent=parent_widget,
             inner_layout_class=QHBoxLayout,

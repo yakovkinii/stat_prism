@@ -6,7 +6,7 @@ import pandas as pd
 from src.core.crosstab.crosstab_result import CrosstabResult
 from src.core.crosstab.table import get_table_compact
 from src.core.filter.filter_result import FilterResult
-from src.results_panel.results.common.html_element import HTMLResultElement
+from src.result_display_panel.result_widget_containers.html_widget_container import HTMLResultElement
 
 
 def calculate_crosstab(df, col1, col2):

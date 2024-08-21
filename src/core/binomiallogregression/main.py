@@ -4,9 +4,9 @@ from typing import Union
 import pandas as pd
 from sklearn.linear_model import LinearRegression
 
+from src.common.result.classes.html_result import HTMLResultElement, HTMLText
 from src.core.binomiallogregression.binomiallogregression_result import BinomialLogRegressionResult
 from src.core.filter.filter_result import FilterResult
-from src.results_panel.results.common.html_element import HTMLResultElement, HTMLText
 
 
 def calculate_binomiallogregression(df, col1, col2):

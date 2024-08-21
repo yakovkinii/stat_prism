@@ -4,9 +4,10 @@ from typing import Union
 import pandas as pd
 from sklearn.linear_model import LinearRegression
 
+from src.common.result.classes.html_result import HTMLText
 from src.core.efa.efa_result import EFAResult
 from src.core.filter.filter_result import FilterResult
-from src.results_panel.results.common.html_element import HTMLResultElement, HTMLText
+from src.result_display_panel.result_widget_containers.html_widget_container import HTMLResultElement
 
 
 def calculate_efa(df, col1, col2):
