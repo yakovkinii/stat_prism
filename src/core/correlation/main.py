@@ -1,5 +1,4 @@
 import logging
-from typing import Union
 
 import pandas as pd
 from scipy.stats import pearsonr
@@ -9,7 +8,6 @@ from src.common.result.classes.plot_result import Scatter
 from src.core.correlation.correlation_result import CorrelationResult, CorrelationStudyConfig
 from src.core.correlation.report import get_report
 from src.core.correlation.table import get_table_compact, get_table_full
-from src.core.filter.filter_result import FilterResult
 from src.result_display_panel.result_widget_containers.html_widget_container import HTMLResultElement
 from src.result_display_panel.result_widget_containers.plot_widget_container import PlotResultElement
 
@@ -41,18 +39,16 @@ def calculate_correlations(df):
     return correlation_matrix, p_matrix, df_matrix
 
 
-def recalculate_correlation_study(
-    df: pd.DataFrame, result: CorrelationResult
-) -> CorrelationResult:
+def recalculate_correlation_study(df: pd.DataFrame, result: CorrelationResult) -> CorrelationResult:
     logging.info("Recalculating correlation study")
 
-    config:CorrelationStudyConfig = result.config
+    config: CorrelationStudyConfig = result.config
     if len(config.selected_columns) < 2:
         result.result_elements[result.html] = HTMLResultElement()
         logging.info("Not enough columns selected")
         return result
 
-    if len(config.filters)>0:
+    if len(config.filters) > 0:
         for filter_settings in config.filters:
             df = df.query(filter_settings.get_query())
     else:

@@ -128,6 +128,9 @@ class MainWindowClass(QtWidgets.QMainWindow):
 
     @log_method_noarg
     def action_activate_home_panel(self):
+        for debt in DEBTS:
+            if debt.debt_type == DebtType.ON_STUDY_CHANGE:
+                debt.resolve()
         self.settings_panel.stacked_widget.setCurrentIndex(self.settings_panel.home_panel_index)
 
     @log_method

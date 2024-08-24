@@ -59,5 +59,8 @@ class ResultDisplayClass:
     def refresh(self):
         self.display(self.result_id, self.element_id)
 
+    def copy_for_word(self):
+        self.element_widget_container.copy_for_word()
+
 
 logging.debug("result display loaded")

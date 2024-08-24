@@ -2,7 +2,6 @@ from typing import TYPE_CHECKING
 
 from src.common.custom_widget_containers import ColumnSelectorExPopup, ColumnSelectorPopupHolder, Title
 from src.common.decorators import log_method, log_method_noarg
-from src.common.registry import DEBTS, Debt, DebtType
 from src.settings_panel.panels.base import BaseSettingsPanel
 
 if TYPE_CHECKING:

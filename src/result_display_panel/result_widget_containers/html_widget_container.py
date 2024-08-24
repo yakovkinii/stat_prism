@@ -1,5 +1,6 @@
 import logging
 
+from PySide6.QtWebEngineCore import QWebEnginePage
 from PySide6.QtWebEngineWidgets import QWebEngineView
 from PySide6.QtWidgets import QVBoxLayout, QWidget
 
@@ -26,6 +27,15 @@ class HTMLResultElementWidgetContainer:
         html += "<br><br><br>".join([item.get_html() for item in self.result_element.items])
         html += "</HTML>"
         return html
+
+    def copy_for_word(self):
+        logging.info("Copying for word")
+        logging.info(self.get_html())
+
+        self.webview.setFocus()
+        self.webview.triggerPageAction(QWebEnginePage.WebAction.SelectAll)
+        self.webview.triggerPageAction(QWebEnginePage.WebAction.Copy)
+        self.webview.triggerPageAction(QWebEnginePage.WebAction.Unselect)
 
 
 STYLES = (

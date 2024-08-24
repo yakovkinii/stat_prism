@@ -101,7 +101,6 @@ class Home(BaseSettingsPanel):
             self.root_class.action_activate_home_panel()
         elif file_path.endswith(".sp"):
             with tempfile.TemporaryDirectory() as temp_dir:
-
                 self.root_class.results_panel.display_none()
                 self.root_class.result_selector_panel.delete_all_results()
                 RESULTS.clear()

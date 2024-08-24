@@ -16,8 +16,9 @@ from PySide6.QtWidgets import (
     QLabel,
     QLineEdit,
     QListWidgetItem,
+    QPushButton,
     QVBoxLayout,
-    QWidget, QPushButton,
+    QWidget,
 )
 
 from src.common.constant import COLORS, COLUMN_TYPE_ICONS, ColumnType
@@ -162,7 +163,6 @@ class MediumAssButton:
         self.button.clicked.connect(lambda: self.button.setDown(False))
 
 
-
 class MediumAssButtonWide:
     def __init__(self, parent_widget, label_text, icon_path, handler=None):
         self.widget = QWidget(parent_widget)
@@ -193,6 +193,7 @@ class MediumAssButtonWide:
         else:
             self.widget.setEnabled(False)
         self.button.clicked.connect(lambda: self.button.setDown(False))
+
 
 class Spacer:
     def __init__(self, parent_widget):
@@ -416,7 +417,6 @@ FILTER_TYPE_OPERATION_MAPPING_VERBAL = {
 }
 
 
-
 @attrs.define
 class FilterSettings:
     column_name: str
@@ -542,7 +542,9 @@ class FilterSetup:
             ],
         )
 
-    def configure(self, root_class, df, column_names, dtypes, already_filtered_rows, filter_settings: FilterSettings = None):
+    def configure(
+        self, root_class, df, column_names, dtypes, already_filtered_rows, filter_settings: FilterSettings = None
+    ):
         self.root_class = root_class
         self.configuring = True
         self.already_filtered_rows = already_filtered_rows
@@ -598,7 +600,6 @@ class FilterSetup:
             self.ok_button.setEnabled(False)
             return
 
-
         initial_population = self.df.shape[0]
         initial_indexes = list(self.df.index)
         self.filter_settings = FilterSettings(
@@ -614,7 +615,7 @@ class FilterSetup:
             final_population = queried_df.shape[0]
             final_indexes = list(queried_df.index)
             filtered_indexes = list(set(initial_indexes) - set(final_indexes))
-            self.root_class.data_panel.tabledata.filtered_rows = filtered_indexes+self.already_filtered_rows
+            self.root_class.data_panel.tabledata.filtered_rows = filtered_indexes + self.already_filtered_rows
             self.root_class.data_panel.tabledata.data_changed()
 
             self.result_label.setText(
@@ -1035,6 +1036,7 @@ class QLabelClickable(QLabel):
     def mousePressEvent(self, event):
         self.clicked.emit()
         super().mousePressEvent(event)
+
 
 class CompiledFilterHistory:
     def __init__(self, parent_widget, filter_clicked_handler):

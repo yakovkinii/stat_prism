@@ -1,4 +1,4 @@
-from typing import List, Union
+from typing import List
 
 from src.common.custom_widget_containers import FilterSettings
 from src.common.result.classes.base_result import BaseResult

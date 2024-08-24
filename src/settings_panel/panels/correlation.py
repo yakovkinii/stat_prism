@@ -2,10 +2,17 @@ import logging
 from typing import TYPE_CHECKING
 
 from src.common.constant import ColumnType
-from src.common.custom_widget_containers import BigAssCheckbox, Column, ColumnSelectorEx, Field, SpacerSmall, Title, \
-    FilterSetup, BigAssButton, CompiledFilterHistory, MediumAssButton, MediumAssButtonWide
+from src.common.custom_widget_containers import (
+    BigAssCheckbox,
+    Column,
+    ColumnSelectorEx,
+    CompiledFilterHistory,
+    Field,
+    MediumAssButtonWide,
+    SpacerSmall,
+    Title,
+)
 from src.common.decorators import log_method
-from src.common.registry import DEBTS, DebtType
 from src.common.result.registry import RESULTS
 from src.core.correlation.correlation_result import CorrelationStudyConfig
 from src.core.correlation.main import recalculate_correlation_study
@@ -23,7 +30,7 @@ class Correlation(BaseSettingsPanel):
             root_class=root_class,
             stacked_widget_index=stacked_widget_index,
             stretch=True,
-            recalculate=True,
+            study_elements=True,
         )
 
         self.elements = {
@@ -73,9 +80,8 @@ class Correlation(BaseSettingsPanel):
             ),
             "compiled_filters": CompiledFilterHistory(
                 parent_widget=self.widget_for_elements,
-                filter_clicked_handler=lambda _:self.open_filter_handler(),
+                filter_clicked_handler=lambda _: self.open_filter_handler(),
             ),
-
         }
         self.place_elements()
 
@@ -88,7 +94,6 @@ class Correlation(BaseSettingsPanel):
         all_column_names = self.tabledata.get_column_names()
         number_of_columns = len(all_column_names)
         types = [self.tabledata.get_column_type(i) for i in range(number_of_columns)]
-        dtypes = [self.tabledata.get_column_dtype(i) for i in range(number_of_columns)]
         all_columns = [Column(name=col, column_type=column_type) for col, column_type in zip(all_column_names, types)]
 
         config = RESULTS[result_id].config
@@ -99,7 +104,6 @@ class Correlation(BaseSettingsPanel):
         )
 
         self.elements["compiled_filters"].configure(RESULTS[result_id].config.filters)
-
 
         self.elements["compact"].widget.setChecked(config.compact)
         self.elements["report_only_significant"].widget.setChecked(config.report_only_significant)
@@ -136,7 +140,11 @@ class Correlation(BaseSettingsPanel):
             return
 
         RESULTS[self.result_id].needs_update = True
-        self.set_recalculate_button_highlight(True)
+
+        if self.is_auto_recalculate_enabled():
+            self.recalculate()
+        else:
+            self.set_recalculate_button_highlight(True)
 
     def open_popup_handler(self):
         self.elements["column_selector"].configure_popup()
@@ -151,7 +159,8 @@ class Correlation(BaseSettingsPanel):
     def open_filter_handler(self):
         self.root_class.settings_panel.filter_panel.configure(
             caller_index=self.stacked_widget_index,
-            finished_handler=self.filter_closed_handler,filters=RESULTS[self.result_id].config.filters
+            finished_handler=self.filter_closed_handler,
+            filters=RESULTS[self.result_id].config.filters,
         )
         self.root_class.action_activate_panel_by_index(self.root_class.settings_panel.filter_panel_index)
 

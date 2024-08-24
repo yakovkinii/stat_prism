@@ -1,8 +1,7 @@
 from typing import TYPE_CHECKING, Callable
 
 from PySide6 import QtWidgets
-from PySide6.QtGui import QAction
-from PySide6.QtWidgets import QFrame, QMenu
+from PySide6.QtWidgets import QFrame
 
 from src.common.result.registry import RESULTS
 from src.common.unique_qss import set_stylesheet

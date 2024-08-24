@@ -1,9 +1,8 @@
-import logging
 from typing import TYPE_CHECKING, List
 
-from src.common.custom_widget_containers import Title, FilterSetup, FilterSettings, CompiledFilterHistory, SpacerSmall
+from src.common.custom_widget_containers import CompiledFilterHistory, FilterSettings, FilterSetup, SpacerSmall, Title
 from src.common.decorators import log_method, log_method_noarg
-from src.common.registry import DEBTS, DebtType, Debt
+from src.common.registry import DEBTS, Debt, DebtType
 from src.data_panel.const import DataPanelState
 from src.settings_panel.panels.base import BaseSettingsPanel
 
@@ -29,7 +28,7 @@ class Filter(BaseSettingsPanel):
                 parent_widget=self.widget_for_elements,
                 label_text="Filter population",
             ),
-            "compiled_filters":CompiledFilterHistory(
+            "compiled_filters": CompiledFilterHistory(
                 parent_widget=self.widget_for_elements,
                 filter_clicked_handler=self.compiled_filter_item_pressed,
             ),
@@ -38,7 +37,6 @@ class Filter(BaseSettingsPanel):
                 parent_widget=self.widget_for_elements,
                 on_filter_added=self.on_filter_added,
             ),
-
         }
 
         self.place_elements()
@@ -63,7 +61,6 @@ class Filter(BaseSettingsPanel):
         number_of_columns = len(all_column_names)
         dtypes = [self.tabledata.get_column_dtype(i) for i in range(number_of_columns)]
 
-
         df = self.tabledata.get_data()
         for filter_settings in filters:
             df = df.query(filter_settings.get_query())
@@ -71,7 +68,6 @@ class Filter(BaseSettingsPanel):
         removed_rows = [i for i in self.tabledata.get_data().index if i not in remaining_rows]
 
         self.elements["compiled_filters"].configure(self.filters)
-
 
         self.elements["filter"].configure(
             root_class=self.root_class,
@@ -94,8 +90,6 @@ class Filter(BaseSettingsPanel):
         remaining_rows = list(df.index)
         removed_rows = [i for i in self.tabledata.get_data().index if i not in remaining_rows]
 
-
-
         self.elements["filter"].configure(
             root_class=self.root_class,
             df=self.tabledata.get_data(),
@@ -103,7 +97,6 @@ class Filter(BaseSettingsPanel):
             dtypes=[self.tabledata.get_column_dtype(i) for i in range(len(self.tabledata.get_column_names()))],
             filter_settings=None,
             already_filtered_rows=removed_rows,
-
         )
 
     @log_method_noarg
@@ -133,4 +126,3 @@ class Filter(BaseSettingsPanel):
             filter_settings=clicked_filter,
             already_filtered_rows=removed_rows,
         )
-
