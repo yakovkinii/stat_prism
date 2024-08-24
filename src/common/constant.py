@@ -1,4 +1,5 @@
 from enum import Enum
+
 import qtawesome as qta
 
 DEBUG_LAYOUT = False

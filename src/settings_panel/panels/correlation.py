@@ -1,8 +1,8 @@
 import logging
-from typing import TYPE_CHECKING, Union
+from typing import TYPE_CHECKING
 
 from src.common.constant import ColumnType
-from src.common.custom_widget_containers import BigAssCheckbox, ColumnSelectorEx, Field, SpacerSmall, Title, Column
+from src.common.custom_widget_containers import BigAssCheckbox, Column, ColumnSelectorEx, Field, SpacerSmall, Title
 from src.common.decorators import log_method
 from src.common.result.registry import RESULTS
 from src.core.correlation.correlation_result import CorrelationStudyConfig

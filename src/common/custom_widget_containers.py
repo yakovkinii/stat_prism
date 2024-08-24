@@ -19,7 +19,7 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
-from src.common.constant import COLORS, ColumnType, COLUMN_TYPE_ICONS
+from src.common.constant import COLORS, COLUMN_TYPE_ICONS, ColumnType
 from src.common.size import Font, SettingsPanelSize
 from src.common.subclassed_widgets import CheckListWidget
 from src.common.ui_constructor import create_label, create_label_editable_wordwrap, create_tool_button_qta
@@ -510,7 +510,7 @@ class ColumnSelectorEx:
 
 class ColumnSelectorExPopup:
     def __init__(self, parent_widget, fields: List[Field]):
-        self.fields =  fields
+        self.fields = fields
         self.columns: List[Column] = []
         self.column_names: List[str] = []
         self.success = False
@@ -573,8 +573,7 @@ class ColumnSelectorExPopup:
                 layout=title_layout,
                 setup=lambda widget, layout: [
                     set_stylesheet(widget, f"font-size: {Font.size_big}px;"),
-                    widget.setPixmap(COLUMN_TYPE_ICONS[field.column_type]
-                                     .pixmap(24, 24)),
+                    widget.setPixmap(COLUMN_TYPE_ICONS[field.column_type].pixmap(24, 24)),
                 ],
             )
             self.panel_list_icons.append(icon)
@@ -602,7 +601,6 @@ class ColumnSelectorExPopup:
                 setup=lambda widget, layout: [
                     widget.setText("Add"),
                     widget.clicked.connect((lambda _: lambda: self.button_pressed(_))(index)),
-
                 ],
             )
             button_stretch_layout.addStretch()
@@ -619,8 +617,9 @@ class ColumnSelectorExPopup:
                 setup=lambda widget, layout: (
                     widget.setSelectionMode(QtWidgets.QAbstractItemView.SelectionMode.ExtendedSelection),
                     widget.clicked.connect((lambda _: lambda: self.panel_list_clicked(_))(index)),
-                    widget.selectionModel().selectionChanged.connect((lambda _: lambda: self.panel_list_clicked(_))(index)),
-
+                    widget.selectionModel().selectionChanged.connect(
+                        (lambda _: lambda: self.panel_list_clicked(_))(index)
+                    ),
                     widget.setFocusPolicy(Qt.FocusPolicy.NoFocus),
                     layout.setContentsMargins(0, 0, 0, 0),
                     set_stylesheet(widget, "#id{border: 1px solid #ddd;}"),
@@ -681,7 +680,9 @@ class ColumnSelectorExPopup:
             if selected_main:
                 # check that all column types are ok
                 selected_main_names = [item.text() for item in selected_main]
-                selected_main_types = [self.columns[self.column_names.index(item)].column_type for item in selected_main_names]
+                selected_main_types = [
+                    self.columns[self.column_names.index(item)].column_type for item in selected_main_names
+                ]
                 panel_type = self.fields[button_index].column_type
                 if not all([selected_main_type == panel_type for selected_main_type in selected_main_types]):
                     # make the icon flash for a second

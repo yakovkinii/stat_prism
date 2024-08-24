@@ -1,4 +1,3 @@
-import pandas as pd
 from attr import define
 
 from src.common.constant import ColumnType

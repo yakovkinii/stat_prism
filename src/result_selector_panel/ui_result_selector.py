@@ -33,7 +33,23 @@ class ResultSelectorPanelClass:
         self.widget_layout.setSpacing(0)
         self.widget.setLayout(self.widget_layout)
 
+        self.scroll_area = QtWidgets.QScrollArea(self.widget)
+        self.scroll_area.setWidgetResizable(True)
+        set_stylesheet(self.scroll_area, "#id{border: none; background-color: #fff;}")
+
+        self.scroll_area_widget = QtWidgets.QWidget(self.scroll_area)
+        set_stylesheet(self.scroll_area_widget, "#id{background-color: #fff;}")
+        self.scroll_area.setWidget(self.scroll_area_widget)
+        self.scroll_area_layout = QVBoxLayout(self.scroll_area_widget)
+        self.scroll_area_layout.setContentsMargins(0, 0, 0, 0)
+        self.scroll_area_layout.setSpacing(0)
+        self.scroll_area_widget.setLayout(self.scroll_area_layout)
+
         self.results_list_widget = QtWidgets.QWidget(self.widget)
+
+        self.scroll_area_layout.addWidget(self.results_list_widget)
+        self.scroll_area_layout.addStretch()
+
         self.results_list_layout = QVBoxLayout(self.results_list_widget)
         self.results_list_layout.setContentsMargins(0, 0, 0, 0)
         self.results_list_layout.setSpacing(2)
@@ -64,9 +80,8 @@ class ResultSelectorPanelClass:
             )
         )
 
-        self.widget_layout.addWidget(self.results_list_widget)
         self.widget_layout.addWidget(self.add_result_button)
-        self.widget_layout.addStretch()
+        self.widget_layout.addWidget(self.scroll_area)
 
         self.result_widgets: Dict[int, ResultItemWidget] = {}
         self.selected_result: Union[int, None] = None
