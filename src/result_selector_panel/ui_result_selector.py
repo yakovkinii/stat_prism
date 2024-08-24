@@ -137,7 +137,17 @@ class ResultSelectorPanelClass:
 
     @log_method_noarg
     def delete_all_results(self):
-        raise NotImplementedError()
+        for result_id in list(self.result_widgets.keys()):
+            self.delete_result(result_id)
+
+    @log_method
+    def delete_result(self, result_id: int):
+        if result_id in self.result_widgets:
+            widget = self.result_widgets[result_id]
+            self.results_list_layout.removeWidget(widget)
+            widget.deleteLater()
+            del self.result_widgets[result_id]
+        self.refresh()
 
 
 logging.debug("results loaded")

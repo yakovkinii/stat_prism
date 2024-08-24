@@ -53,15 +53,15 @@ class ResultItemWidget(QFrame):
         self.handler(action=ClickAction.ACTIVATE, result_id=self.result_id, element_id=None)
         super().mousePressEvent(event)
 
-    def contextMenuEvent(self, event):
-        context_menu = QMenu(self)
-        delete_action = QAction("Delete", self)
-        context_menu.addAction(delete_action)
-
-        delete_action.triggered.connect(
-            lambda: self.handler(action=ClickAction.DELETE, result_id=self.result_id, element_id=None)
-        )
-        context_menu.exec_(event.globalPos())
+    # def contextMenuEvent(self, event):
+    #     context_menu = QMenu(self)
+    #     delete_action = QAction("Delete", self)
+    #     context_menu.addAction(delete_action)
+    #
+    #     delete_action.triggered.connect(
+    #         lambda: self.handler(action=ClickAction.DELETE, result_id=self.result_id, element_id=None)
+    #     )
+    #     context_menu.exec_(event.globalPos())
 
     def refresh(self, selected_result: int, selected_element: str):
         for widget in self.element_widgets:

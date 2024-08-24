@@ -13,6 +13,7 @@ from src.about import version
 from src.common.constant import MDASH
 from src.common.custom_widget_containers import BigAssButton, Spacer
 from src.common.decorators import log_method_noarg
+from src.common.result.registry import RESULTS
 from src.settings_panel.panels.base import BaseSettingsPanel
 
 if TYPE_CHECKING:
@@ -58,56 +59,73 @@ class Home(BaseSettingsPanel):
             "",
             "Supported Files (*.sp *.xlsx *.csv);;All Files (*)",
         )
+
+        if not file_path:
+            logging.info("No file selected")
+            return
+
         logging.info(f"Opening {file_path}")
 
-        if file_path:
-            # ask to save current project
-            # need yes/no/cancel dialog
-            msg_box = QMessageBox()
-            msg_box.setWindowTitle("Save project?")
-            msg_box.setText("Do you want to save the current project?")
-            msg_box.setStandardButtons(
-                QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No | QMessageBox.StandardButton.Cancel
-            )
-            msg_box.setDefaultButton(QMessageBox.StandardButton.Yes)
-            ret = msg_box.exec_()
-            if ret == QMessageBox.StandardButton.Cancel:
-                return
-            elif ret == QMessageBox.StandardButton.Yes:
-                self.save_handler()
+        # ask to save current project
+        # need yes/no/cancel dialog
+        msg_box = QMessageBox()
+        msg_box.setWindowTitle("Save project?")
+        msg_box.setText("Do you want to save the current project?")
+        msg_box.setStandardButtons(
+            QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No | QMessageBox.StandardButton.Cancel
+        )
+        msg_box.setDefaultButton(QMessageBox.StandardButton.Yes)
+        ret = msg_box.exec_()
+        if ret == QMessageBox.StandardButton.Cancel:
+            return
+        elif ret == QMessageBox.StandardButton.Yes:
+            self.save_handler()
 
-            if file_path.endswith(".csv"):
-                dataframe = pd.read_csv(file_path)
-                self.root_class.data_panel.tabledata.load_data(dataframe)
-                self.root_class.action_activate_home_panel()
-                self.root_class.results_panel.delete_all_results()
-            elif file_path.endswith(".xlsx"):
-                dataframe = pd.read_excel(file_path, sheet_name=0)
-                self.root_class.data_panel.tabledata.load_data(dataframe)
-                self.root_class.action_activate_home_panel()
-                self.root_class.results_panel.delete_all_results()
-            elif file_path.endswith(".sp"):
-                with tempfile.TemporaryDirectory() as temp_dir:
-                    # Extract all files
-                    with zipfile.ZipFile(file_path, "r") as zipf:
-                        zipf.extractall(temp_dir)
+        if file_path.endswith(".csv"):
+            dataframe = pd.read_csv(file_path)
 
-                    self.tabledata.load_data(pd.read_parquet(f"{temp_dir}/tabledata_df.parquet"))
+            self.root_class.results_panel.display_none()
+            self.root_class.result_selector_panel.delete_all_results()
+            RESULTS.clear()
 
-                    with open(f"{temp_dir}/tabledata_column_flags.pkl", "rb") as file:
-                        self.tabledata.load_flags(pickle.load(file))
+            self.root_class.data_panel.tabledata.load_data(dataframe)
+            self.root_class.action_activate_home_panel()
+        elif file_path.endswith(".xlsx"):
+            dataframe = pd.read_excel(file_path, sheet_name=0)
 
-                    self.root_class.results_panel.delete_all_results()
-                    with open(f"{temp_dir}/results.pkl", "rb") as file:
-                        results = pickle.load(file)
-                        for result in results.values():
-                            self.root_class.results_panel.add_result(result)
+            self.root_class.results_panel.display_none()
+            self.root_class.result_selector_panel.delete_all_results()
+            RESULTS.clear()
 
-                self.root_class.action_activate_home_panel()
-            else:
-                logging.error("Not supported file type")
+            self.root_class.data_panel.tabledata.load_data(dataframe)
+            self.root_class.action_activate_home_panel()
+        elif file_path.endswith(".sp"):
+            with tempfile.TemporaryDirectory() as temp_dir:
 
-            logging.info(f"Opened {file_path}")
+                self.root_class.results_panel.display_none()
+                self.root_class.result_selector_panel.delete_all_results()
+                RESULTS.clear()
+
+                # Extract all files
+                with zipfile.ZipFile(file_path, "r") as zipf:
+                    zipf.extractall(temp_dir)
+
+                self.tabledata.load_data(pd.read_parquet(f"{temp_dir}/tabledata_df.parquet"))
+
+                with open(f"{temp_dir}/tabledata_column_flags.pkl", "rb") as file:
+                    self.tabledata.load_flags(pickle.load(file))
+
+                with open(f"{temp_dir}/results.pkl", "rb") as file:
+                    results = pickle.load(file)
+                    for result in results.values():
+                        RESULTS[result.unique_id] = result
+                        self.root_class.result_selector_panel.add_result(result.unique_id)
+
+            self.root_class.action_activate_home_panel()
+        else:
+            logging.error("Not supported file type")
+
+        logging.info(f"Opened {file_path}")
 
     @log_method_noarg
     def save_handler(self):
@@ -125,7 +143,7 @@ class Home(BaseSettingsPanel):
             with open(f"{temp_dir}/tabledata_column_flags.pkl", "wb") as file:
                 pickle.dump(self.tabledata.get_flags(), file)
             with open(f"{temp_dir}/results.pkl", "wb") as file:
-                pickle.dump(self.root_class.results_panel.results, file)
+                pickle.dump(RESULTS, file)
             # Zip all files
             with zipfile.ZipFile(file_path, "w") as zipf:
                 zipf.write(f"{temp_dir}/tabledata_df.parquet", "tabledata_df.parquet")
