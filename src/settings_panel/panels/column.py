@@ -1,6 +1,8 @@
 import logging
 from typing import TYPE_CHECKING
 
+from PySide6 import QtCore
+
 from src.common.custom_widget_containers import (
     ColumnColorSelector,
     EditableTitleWordWrap,
@@ -93,7 +95,10 @@ class Column(BaseSettingsPanel):
     @log_method_noarg
     def begin_edit_title(self):
         self.elements["title"].widget.setFocus()
-        self.elements["title"].widget.selectAll()
+        # select all after small delay
+
+        # self.elements["title"].widget.selectAll()
+        QtCore.QTimer.singleShot(100, self.elements["title"].widget.selectAll)
 
     @log_method
     def finish_editing_title(self, ok: bool):

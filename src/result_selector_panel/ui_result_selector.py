@@ -107,6 +107,7 @@ class ResultSelectorPanelClass:
     def item_handler(self, action: ClickAction, result_id: int, element_id: str):
         logging.info(f"Item handler: {action} {result_id} {element_id}")
         if action == ClickAction.ACTIVATE:
+            self.parent_class.settings_panel.panels[RESULTS[result_id].settings_panel_index].configure(result_id)
             self.parent_class.action_activate_panel_by_index(RESULTS[result_id].settings_panel_index)
             self.parent_class.results_panel.display(result_id=result_id, element_id=element_id)
             self.selected_result = result_id

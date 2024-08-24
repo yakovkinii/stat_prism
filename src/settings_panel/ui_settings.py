@@ -12,6 +12,7 @@ from src.settings_panel.panels.anova import Anova
 from src.settings_panel.panels.binomiallogregression import BinomialLogRegression
 from src.settings_panel.panels.calculate import Calculate
 from src.settings_panel.panels.column import Column
+from src.settings_panel.panels.column_selector import ColumnSelector
 from src.settings_panel.panels.columns import Columns
 from src.settings_panel.panels.correlation import Correlation
 from src.settings_panel.panels.crosstab import Crosstab
@@ -216,12 +217,20 @@ class SettingsPanelClass:
             stacked_widget_index=self.ttest_panel_index,
         )
 
-        self.anova_panel_index = 10
+        self.anova_panel_index = 19
         self.anova_panel: Anova = Anova(
             parent_widget=self.stacked_widget,
             parent_class=self,
             root_class=self.root_class,
             stacked_widget_index=self.anova_panel_index,
+        )
+
+        self.column_selector_panel_index = 20
+        self.column_selector_panel: ColumnSelector = ColumnSelector(
+            parent_widget=self.stacked_widget,
+            parent_class=self,
+            root_class=self.root_class,
+            stacked_widget_index=self.column_selector_panel_index,
         )
 
         self.panels = [
@@ -245,6 +254,7 @@ class SettingsPanelClass:
             self.efa_panel,
             self.ttest_panel,
             self.anova_panel,
+            self.column_selector_panel,
         ]
 
         # Relations
@@ -268,6 +278,7 @@ class SettingsPanelClass:
         self.stacked_widget.addWidget(self.efa_panel.widget)
         self.stacked_widget.addWidget(self.ttest_panel.widget)
         self.stacked_widget.addWidget(self.anova_panel.widget)
+        self.stacked_widget.addWidget(self.column_selector_panel.widget)
 
         self.widget_layout.addWidget(self.stacked_widget)
 

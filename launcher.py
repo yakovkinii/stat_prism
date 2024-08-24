@@ -13,6 +13,7 @@ if __name__ == "__main__":
     splash = QSplashScreen(pixmap)
     splash.show()
     import time
+
     time0 = time.time()
 
     import logging
@@ -50,7 +51,7 @@ if __name__ == "__main__":
 
     delta_time = time.time() - time0
     logging.info(f"Time to load: {delta_time} seconds")
-    splash_time = int(max(10.0, 1500-delta_time*1000))
+    splash_time = int(max(10.0, 1500 - delta_time * 1000))
     QTimer.singleShot(splash_time, splash.close)
-    QTimer.singleShot(splash_time, main_win.showMaximized)
+    QTimer.singleShot(splash_time, main_win.init_web_view_and_show_maximized)
     app.exec()

@@ -45,12 +45,9 @@ class ResultElementWidget(QWidget):
                 "#id{"
                 "margin-top: 2px;"
                 "font-family: Segoe UI;"
-                "background-color: rgb(229,241,251);"
-                "border: 1px solid rgba(0,120,215, 0.8);"
-                "}"
-                "#id:hover{"
-                "background-color: rgb(229,241,251);"
-                "border: 1px solid rgb(0,120,215)"
+                "background-color: #f2f2f2;"
+                "border: 1px solid #eee;"
+                "border-left: 4px solid #7af;"
                 "}",
             )
         else:
@@ -59,11 +56,8 @@ class ResultElementWidget(QWidget):
                 "#id{"
                 "margin-top: 2px;"
                 "font-family: Segoe UI;"
-                "background-color: #eee;"
-                "border: 1px solid rgba(180,180,180, 0.8);"
-                "}"
-                "#id:hover{"
-                "background-color: #eee;"
-                "border: 1px solid rgba(100,140,215, 0.8)"
+                "background-color: #f2f2f2;"
+                "border: 1px solid #eee;"
+                "border-left: 4px solid #ddd;"
                 "}",
             )

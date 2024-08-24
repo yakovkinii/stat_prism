@@ -74,10 +74,8 @@ class ResultItemWidget(QFrame):
                 "margin-top: 2px;"
                 "background-color: #fff;"
                 "font-family: Segoe UI;"
-                "border: 2px solid rgba(0,120,215, 0.8);"
-                "}"
-                "#id:hover{"
-                "border: 2px solid rgb(0,120,215)"
+                "border: 2px solid #eee;"
+                "border-left: 4px solid #7af;"
                 "}",
             )
         else:
@@ -87,9 +85,7 @@ class ResultItemWidget(QFrame):
                 "margin-top: 2px;"
                 "background-color: #fff;"
                 "font-family: Segoe UI;"
-                "border: 2px solid rgba(180,180,180, 0.8);"
-                "}"
-                "#id:hover{"
-                "border: 2px solid rgba(100,140,215, 0.8)"
+                "border: 2px solid #eee;"
+                "border-left: 4px solid #ddd;"
                 "}",
             )

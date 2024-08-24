@@ -1,6 +1,7 @@
 import logging
 
 from PySide6 import QtWidgets
+from PySide6.QtWebEngineWidgets import QWebEngineView
 from PySide6.QtWidgets import QHBoxLayout, QTabWidget
 
 from src.common.decorators import log_method, log_method_noarg
@@ -29,6 +30,16 @@ class MainWindowClass(QtWidgets.QMainWindow):
         self.central_widget_layout = QHBoxLayout(self.central_widget)
         self.central_widget_layout.setContentsMargins(0, 0, 0, 0)
         self.central_widget_layout.setSpacing(0)
+
+        # dummy = QWebEngineView(self.central_widget)
+        # dummy.setHtml('dummy')
+        # self.central_widget_layout.addWidget(dummy)
+        # dummy.showMaximized()
+
+        # # Delete dummy
+        # self.central_widget_layout.removeWidget(dummy)
+        # dummy.deleteLater()
+
         self.splitter = QtWidgets.QSplitter(self.central_widget)
         self.tab_widget = QTabWidget(self.splitter)
 
@@ -53,7 +64,7 @@ class MainWindowClass(QtWidgets.QMainWindow):
 
         self.splitter.addWidget(self.tab_widget)
         self.splitter.addWidget(self.result_selector_panel.widget)
-        self.splitter.setSizes([1, 0])
+        # self.splitter.setSizes([1, 0])
 
         self.tab_widget.addTab(self.data_panel.widget, "Data")
         self.tab_widget.addTab(self.results_panel.widget, "Analysis")
@@ -87,6 +98,16 @@ class MainWindowClass(QtWidgets.QMainWindow):
         self.tab_widget.setCurrentIndex(0)
 
         self.tab_widget.currentChanged.connect(self.on_tab_changed)
+
+    def init_web_view_and_show_maximized(self):
+        webview = QWebEngineView(self.central_widget)
+        self.central_widget_layout.addWidget(webview)
+        webview.setHtml("dummy")
+
+        self.showMaximized()
+
+        self.central_widget_layout.removeWidget(webview)
+        webview.deleteLater()
 
     @log_method
     def action_activate_column_panel(self, column_index):

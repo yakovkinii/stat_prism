@@ -17,7 +17,8 @@ def icon(path):
 
 def create_tool_button_qta(parent, button_geometry, icon_path, icon_size):
     button = QtWidgets.QToolButton(parent)
-    button.setGeometry(button_geometry)
+    if button_geometry is not None:
+        button.setGeometry(button_geometry)
     button.setText("")
 
     button.setIcon(qta.icon(icon_path))

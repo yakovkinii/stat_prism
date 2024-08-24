@@ -15,7 +15,7 @@ if TYPE_CHECKING:
 class Correlation(BaseSettingsPanel):
     def __init__(self, parent_widget, parent_class, root_class, stacked_widget_index):
         # Setup
-        super().__init__(parent_widget, parent_class, root_class, stacked_widget_index, stretch=False, recalculate=True)
+        super().__init__(parent_widget, parent_class, root_class, stacked_widget_index, stretch=True, recalculate=True)
 
         self.study_index = None
         self.caller_index = None
@@ -40,6 +40,7 @@ class Correlation(BaseSettingsPanel):
             "column_selector": ColumnSelectorEx(
                 parent_widget=self.widget_for_elements,
                 fields=[Field(name="Columns:", allowed_column_dtypes=["int", "float"])],
+                clicked_handler=self.open_popup_handler,
                 study_settings_changed_handler=self.study_settings_changed,
             ),
         }
@@ -97,3 +98,16 @@ class Correlation(BaseSettingsPanel):
 
         RESULTS[self.result_id].needs_update = True
         self.set_recalculate_button_highlight(True)
+
+    def open_popup_handler(self):
+        self.elements["column_selector"].configure_popup()
+
+        self.root_class.settings_panel.column_selector_panel.configure(
+            caller_index=self.stacked_widget_index,
+            finished_handler=self.popup_closed_handler,
+            popup=self.elements["column_selector"].popup,
+        )
+        self.root_class.action_activate_panel_by_index(self.root_class.settings_panel.column_selector_panel_index)
+
+    def popup_closed_handler(self):
+        self.elements["column_selector"].configure_from_popup()
