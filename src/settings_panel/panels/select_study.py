@@ -3,6 +3,8 @@ from typing import TYPE_CHECKING
 
 from src.common.custom_widget_containers import BigAssButton, Title
 from src.common.decorators import log_method_noarg
+from src.common.result.methods import get_unique_result_id
+from src.common.result.registry import RESULTS
 from src.core.anova.anova_result import AnovaResult
 from src.core.binomiallogregression.binomiallogregression_result import BinomialLogRegressionResult
 from src.core.correlation.correlation_result import CorrelationResult
@@ -124,7 +126,7 @@ class SelectStudy(BaseSettingsPanel):
     @log_method_noarg
     def add_descriptive(self):
         result = DescriptiveResult(
-            unique_id=self.root_class.results_panel.get_unique_id(),
+            unique_id=get_unique_result_id(),
             settings_panel_index=self.root_class.settings_panel.descriptive_panel_index,
         )
         self.root_class.results_panel.add_result(result)
@@ -138,16 +140,18 @@ class SelectStudy(BaseSettingsPanel):
     @log_method_noarg
     def add_correlation(self):
         logging.info("add correlation clicked")
-        result = CorrelationResult(
-            unique_id=self.root_class.results_panel.get_unique_id(),
+        result_id = get_unique_result_id()
+        RESULTS[result_id] = CorrelationResult(
+            unique_id=result_id,
             settings_panel_index=self.root_class.settings_panel.correlation_panel_index,
         )
-        self.root_class.results_panel.add_result(result)
+
+        self.root_class.result_selector_panel.add_result(result_id)
+        self.root_class.results_panel.display(result_id)
 
         self.root_class.settings_panel.correlation_panel.configure(
-            result=result, caller_index=self.stacked_widget_index
+            result_id=result_id, caller_index=self.stacked_widget_index
         )
-
         self.root_class.action_activate_panel_by_index(self.root_class.settings_panel.correlation_panel_index)
 
     @log_method_noarg

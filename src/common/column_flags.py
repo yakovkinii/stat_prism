@@ -1,5 +1,6 @@
-import pandas as pd
 from attr import define
+
+from src.common.constant import ColumnType
 
 
 @define
@@ -9,8 +10,8 @@ class ColumnFlagsRegistry:
 
 
 class ColumnFlags:
-    def __init__(self, column: pd.Series):
-        self.numeric = column.dtype in [int, float]
+    def __init__(self, dtype: str):
+        self.column_type = ColumnType.NUMERIC if dtype in ["int", "float"] else ColumnType.NOMINAL
         self.inverted = False
         self.color = None
 

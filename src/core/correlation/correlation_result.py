@@ -1,7 +1,8 @@
-from typing import List, Union
+from typing import List
 
-from src.results_panel.results.common.base import BaseResult
-from src.results_panel.results.common.html_element import HTMLResultElement
+from src.common.custom_widget_containers import FilterSettings
+from src.common.result.classes.base_result import BaseResult
+from src.result_display_panel.result_widget_containers.html_widget_container import HTMLResultElement
 
 
 class CorrelationStudyConfig:
@@ -10,14 +11,12 @@ class CorrelationStudyConfig:
         selected_columns: List[str],
         compact: bool,
         report_only_significant: bool,
-        filter_id: Union[int, None] = None,
+        filters: List[FilterSettings] = None,
     ):
         self.selected_columns = selected_columns
         self.compact = compact
         self.report_only_significant = report_only_significant
-
-        # result ID of the filter or None
-        self.filter_id: Union[int, None] = filter_id
+        self.filters: List[FilterSettings] = filters if filters is not None else []
 
 
 class CorrelationResult(BaseResult):

@@ -1,13 +1,16 @@
 import logging
 
 from PySide6 import QtWidgets
+from PySide6.QtWebEngineWidgets import QWebEngineView
 from PySide6.QtWidgets import QHBoxLayout, QTabWidget
 
 from src.common.decorators import log_method, log_method_noarg
+from src.common.registry import DEBTS, DebtType
 from src.common.ui_constructor import icon
 from src.common.unique_qss import set_stylesheet
 from src.data_panel.ui_data import DataPanelClass
-from src.results_panel.ui_results import ResultsPanelClass
+from src.result_display_panel.ui_result_display import ResultDisplayClass
+from src.result_selector_panel.ui_result_selector import ResultSelectorPanelClass
 from src.settings_panel.ui_settings import SettingsPanelClass
 
 
@@ -28,12 +31,26 @@ class MainWindowClass(QtWidgets.QMainWindow):
         self.central_widget_layout = QHBoxLayout(self.central_widget)
         self.central_widget_layout.setContentsMargins(0, 0, 0, 0)
         self.central_widget_layout.setSpacing(0)
-        self.tab_widget = QTabWidget(self.central_widget)
+
+        # dummy = QWebEngineView(self.central_widget)
+        # dummy.setHtml('dummy')
+        # self.central_widget_layout.addWidget(dummy)
+        # dummy.showMaximized()
+
+        # # Delete dummy
+        # self.central_widget_layout.removeWidget(dummy)
+        # dummy.deleteLater()
+
+        self.splitter = QtWidgets.QSplitter(self.central_widget)
+        self.tab_widget = QTabWidget(self.splitter)
 
         self.data_panel: DataPanelClass = DataPanelClass(
             parent_widget=self.tab_widget, parent_class=self.widget, root_class=self
         )
-        self.results_panel: ResultsPanelClass = ResultsPanelClass(
+        self.results_panel: ResultDisplayClass = ResultDisplayClass(
+            parent_widget=self.tab_widget, parent_class=self.widget, root_class=self
+        )
+        self.result_selector_panel: ResultSelectorPanelClass = ResultSelectorPanelClass(
             parent_widget=self.tab_widget, parent_class=self.widget, root_class=self
         )
         self.settings_panel: SettingsPanelClass = SettingsPanelClass(
@@ -43,8 +60,14 @@ class MainWindowClass(QtWidgets.QMainWindow):
         # Relations
         self.widget.setCentralWidget(self.central_widget)
         self.central_widget.setLayout(self.central_widget_layout)
-        self.central_widget_layout.addWidget(self.tab_widget)
+        self.central_widget_layout.addWidget(self.splitter)
         self.central_widget_layout.addWidget(self.settings_panel.widget)
+
+        self.splitter.addWidget(self.tab_widget)
+        self.splitter.addWidget(self.result_selector_panel.widget)
+        # increase size of splitter handle
+        self.splitter.setHandleWidth(6)
+        # self.splitter.setSizes([1, 0])
 
         self.tab_widget.addTab(self.data_panel.widget, "Data")
         self.tab_widget.addTab(self.results_panel.widget, "Analysis")
@@ -79,6 +102,16 @@ class MainWindowClass(QtWidgets.QMainWindow):
 
         self.tab_widget.currentChanged.connect(self.on_tab_changed)
 
+    def init_web_view_and_show_maximized(self):
+        webview = QWebEngineView(self.central_widget)
+        self.central_widget_layout.addWidget(webview)
+        webview.setHtml("dummy")
+
+        self.showMaximized()
+
+        self.central_widget_layout.removeWidget(webview)
+        webview.deleteLater()
+
     @log_method
     def action_activate_column_panel(self, column_index):
         if (self.settings_panel.stacked_widget.currentIndex == self.settings_panel.column_panel_index) and (
@@ -95,11 +128,17 @@ class MainWindowClass(QtWidgets.QMainWindow):
 
     @log_method_noarg
     def action_activate_home_panel(self):
+        for debt in DEBTS:
+            if debt.debt_type == DebtType.ON_STUDY_CHANGE:
+                debt.resolve()
         self.settings_panel.stacked_widget.setCurrentIndex(self.settings_panel.home_panel_index)
 
     @log_method
     def action_activate_panel_by_index(self, index):
         if index is not None:
+            for debt in DEBTS:
+                if debt.debt_type == DebtType.ON_STUDY_CHANGE:
+                    debt.resolve()
             self.settings_panel.stacked_widget.setCurrentIndex(index)
 
     @log_method
@@ -118,9 +157,13 @@ class MainWindowClass(QtWidgets.QMainWindow):
 
     @log_method_noarg
     def on_tab_changed(self):
-        if len(self.results_panel.results) == 0:
-            self.settings_panel.stacked_widget.setCurrentIndex(self.settings_panel.select_study_panel_index)
-        # if self.tab_widget.currentIndex() == 1:
-        #     self.settings_panel.stacked_widget.setCurrentIndex(self.settings_panel.select_study_panel_index)
-        # else:
-        #     self.settings_panel.stacked_widget.setCurrentIndex(self.settings_panel.home_panel_index)
+        if self.tab_widget.currentIndex() == 1:
+            self.splitter.setSizes([1, 1])
+
+    @log_method_noarg
+    def action_activate_results_panel(self):
+        self.tab_widget.setCurrentIndex(1)
+
+    @log_method_noarg
+    def action_activate_data_panel(self):
+        self.tab_widget.setCurrentIndex(0)

@@ -1,13 +1,16 @@
 import logging
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Union
 
+import qtawesome as qta
 from PySide6 import QtCore, QtWidgets
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QScrollArea, QVBoxLayout
 
 from src.common.constant import DEBUG_LAYOUT
 from src.common.decorators import log_method, log_method_noarg
-from src.common.size import Font, SettingsPanelSize
+from src.common.registry import DEBTS, DebtType
+from src.common.result.registry import RESULTS
+from src.common.size import SettingsPanelSize
 from src.common.ui_constructor import create_tool_button_qta
 from src.common.unique_qss import set_stylesheet
 
@@ -25,9 +28,11 @@ class BaseSettingsPanel:
         navigation_elements=False,
         ok_button=False,
         stretch=True,
-        recalculate=False,
+        study_elements=False,
     ):
         # Setup
+        self.study_index = None
+        self.result_id: Union[int, None] = None
         self.caller_index = None
         self.configuring = False
         self.stretch = stretch
@@ -67,13 +72,44 @@ class BaseSettingsPanel:
                     icon_size=QtCore.QSize(40, 40),
                 )
                 self.ok_button.clicked.connect(self.ok_button_pressed)
-        if recalculate:
-            self.recalculate_button = QtWidgets.QPushButton("Update Results")
-            self.recalculate_button.setFixedHeight(40)
-            self.widget_layout.addWidget(self.recalculate_button)
+        if study_elements:
+            self.study_widget = QtWidgets.QWidget(self.widget)
+            self.study_widget.setFixedHeight(80)
+            set_stylesheet(self.study_widget, "#id{border-bottom: 1px solid #ddd;}")
+
+            self.widget_layout.addWidget(self.study_widget)
+
+            self.recalculate_button = create_tool_button_qta(
+                parent=self.widget,
+                button_geometry=QtCore.QRect(10, 5, 50, 50),
+                icon_path="ph.arrows-clockwise",
+                icon_size=QtCore.QSize(40, 40),
+            )
+            self.auto_checkbox = QtWidgets.QCheckBox(self.study_widget)
+            self.auto_checkbox.setText("Auto")
+            self.auto_checkbox.setChecked(True)
+            self.auto_checkbox.setGeometry(10, 60, 50, 20)
             self.recalculate_button.clicked.connect(self.recalculate)
+
+            self.delete_button = create_tool_button_qta(
+                parent=self.widget,
+                button_geometry=QtCore.QRect((SettingsPanelSize.width - 50 - 10), 5, 50, 50),
+                icon_path="mdi6.delete-outline",
+                icon_size=QtCore.QSize(40, 40),
+            )
+            self.delete_button.clicked.connect(self.delete)
+
+            self.copy_for_word_button = create_tool_button_qta(
+                parent=self.widget,
+                button_geometry=QtCore.QRect((SettingsPanelSize.width - 120), 5, 50, 50),
+                icon_path="fa.file-word-o",
+                icon_size=QtCore.QSize(40, 40),
+            )
+            self.copy_for_word_button.clicked.connect(self.copy_for_word)
+
         else:
             self.recalculate_button = None
+            self.auto_checkbox = None
 
         # Definition
         self.widget_for_elements = QtWidgets.QWidget()
@@ -95,6 +131,14 @@ class BaseSettingsPanel:
         self.elements = {}
 
     @log_method_noarg
+    def is_auto_recalculate_enabled(self):
+        if self.auto_checkbox is None:
+            return False
+        if self.auto_checkbox.isChecked():
+            return True
+        return False
+
+    @log_method_noarg
     def place_elements(self):
         while self.widget_for_elements_layout.count():
             item = self.widget_for_elements_layout.takeAt(0)
@@ -114,38 +158,25 @@ class BaseSettingsPanel:
             return
 
         if highlight:
-            set_stylesheet(
-                self.recalculate_button,
-                "#id{"
-                "font-family: Segoe UI;"
-                f"font-size: {Font.size_big}pt;"
-                "border: 1px solid #ddd;"
-                "color: #700;"
-                "}"
-                "#id:hover{"
-                "background-color: rgb(229,241,251);"
-                "border: 1px solid rgb(0,120,215)"
-                "}",
-            )
+            self.recalculate_button.setIcon(qta.icon("ph.arrows-clockwise", color="darkred"))
         else:
-            set_stylesheet(
-                self.recalculate_button,
-                "#id{"
-                "font-family: Segoe UI;"
-                f"font-size: {Font.size_big}pt;"
-                "border: 1px solid #ddd;"
-                "color: #777;"
-                "}"
-                "#id:hover{"
-                "background-color: rgb(229,241,251);"
-                "border: 1px solid rgb(0,120,215)"
-                "}",
-            )
+            self.recalculate_button.setIcon(qta.icon("ph.arrows-clockwise", color="black"))
 
     @log_method_noarg
     def recalculate(self):
         logging.warning("Recalculate handler not implemented")
         ...
+
+    @log_method_noarg
+    def delete(self):
+        self.root_class.results_panel.display_none()
+        self.root_class.result_selector_panel.delete_result(self.result_id)
+        self.root_class.action_activate_home_panel()
+        RESULTS.pop(self.result_id)
+
+    @log_method_noarg
+    def copy_for_word(self):
+        self.root_class.results_panel.copy_for_word()
 
     @log_method_noarg
     def activate(self):
@@ -157,6 +188,10 @@ class BaseSettingsPanel:
     @log_method_noarg
     def activate_caller(self):
         if self.caller_index is not None:
+            for debt in DEBTS:
+                if DebtType.ON_STUDY_CHANGE in debt.debt_type:
+                    debt.resolve()
+
             self.root_class.action_activate_panel_by_index(self.caller_index)
         else:
             logging.error(f"Trying to activate caller {self.caller_index=}")

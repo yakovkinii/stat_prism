@@ -1,9 +1,9 @@
 import numpy as np
 import pandas as pd
 
+from src.common.result.classes.html_result import Cell, HTMLResultElement, HTMLTable, HTMLText, Row
 from src.common.utility import round_to_significant_digits, smart_comma_join
 from src.core.descriptive.descriptive_result import DescriptiveResult
-from src.results_panel.results.common.html_element import Cell, HTMLResultElement, HTMLTable, HTMLText, Row
 
 
 def recalculate_descriptive_study(df: pd.DataFrame, result: DescriptiveResult) -> DescriptiveResult:

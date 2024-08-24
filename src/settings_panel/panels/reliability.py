@@ -14,7 +14,9 @@ if TYPE_CHECKING:
 class Reliability(BaseSettingsPanel):
     def __init__(self, parent_widget, parent_class, root_class, stacked_widget_index):
         # Setup
-        super().__init__(parent_widget, parent_class, root_class, stacked_widget_index, stretch=False, recalculate=True)
+        super().__init__(
+            parent_widget, parent_class, root_class, stacked_widget_index, stretch=False, study_elements=True
+        )
 
         self.study_index = None
         self.caller_index = None

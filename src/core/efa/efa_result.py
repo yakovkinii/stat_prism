@@ -1,7 +1,7 @@
 from typing import List, Union
 
-from src.results_panel.results.common.base import BaseResult
-from src.results_panel.results.common.html_element import HTMLResultElement
+from src.common.result.classes.base_result import BaseResult
+from src.result_display_panel.result_widget_containers.html_widget_container import HTMLResultElement
 
 
 class EFAStudyConfig:

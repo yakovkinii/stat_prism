@@ -1,15 +1,15 @@
 import logging
-from typing import Union
 
 import pandas as pd
 from scipy.stats import pearsonr
 
-from src.core.correlation.correlation_result import CorrelationResult
+from src.common.result.classes.html_result import HTMLText
+from src.common.result.classes.plot_result import Scatter
+from src.core.correlation.correlation_result import CorrelationResult, CorrelationStudyConfig
 from src.core.correlation.report import get_report
 from src.core.correlation.table import get_table_compact, get_table_full
-from src.core.filter.filter_result import FilterResult
-from src.results_panel.results.common.html_element import HTMLResultElement, HTMLText
-from src.results_panel.results.common.plot_element import PlotResultElement, Scatter
+from src.result_display_panel.result_widget_containers.html_widget_container import HTMLResultElement
+from src.result_display_panel.result_widget_containers.plot_widget_container import PlotResultElement
 
 
 def calculate_correlations(df):
@@ -39,25 +39,18 @@ def calculate_correlations(df):
     return correlation_matrix, p_matrix, df_matrix
 
 
-def recalculate_correlation_study(
-    df: pd.DataFrame, result: CorrelationResult, filter_result: Union[FilterResult, None]
-) -> CorrelationResult:
+def recalculate_correlation_study(df: pd.DataFrame, result: CorrelationResult) -> CorrelationResult:
     logging.info("Recalculating correlation study")
 
-    config = result.config
+    config: CorrelationStudyConfig = result.config
     if len(config.selected_columns) < 2:
         result.result_elements[result.html] = HTMLResultElement()
         logging.info("Not enough columns selected")
         return result
 
-    if filter_result is not None:
-        query = filter_result.config.query
-        logging.info(f"Applying filter query: {query}")
-        try:
-            df = df.query(query)
-        except Exception as e:
-            logging.error(f"Error filtering data: {e}")
-            return result
+    if len(config.filters) > 0:
+        for filter_settings in config.filters:
+            df = df.query(filter_settings.get_query())
     else:
         logging.info("No filter applied")
 

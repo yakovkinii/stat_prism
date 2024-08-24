@@ -2,15 +2,21 @@
 g{
   color: green;
 }
+y{
+  color: #aa0;
+}
+r{
+  color: #a00;
+}
 </style>
 
 # Development roadmap
 
-## Early evaluation (v0.5) 
+## <g>Early evaluation (before v0.5)</g> 
 
-### Required features for early evaluation:
+### <g>Required features for early evaluation:</g>
 
-[//]: # (<details>)
+<details>
 <summary></summary>
 
 * <g>Delete results</g>
@@ -22,62 +28,81 @@ g{
 * <g>Ask to save and delete results on opening a new file</g>
 * <g>Handle mixed types in the data</g>
 * <g>Find a solution for HTML-related CTD</g>
-* Add UI for filters
-* Polish interface
+* <g>Add UI for filters</g>
+* <g>Polish interface</g>
 * <g>Reimplement verbal results for descriptive statistics</g>
 * <g>Add correlation plots</g>
 
-[//]: # (</details>)
+</details>
 
-### Early evaluation feedback focus
+### <g>Early evaluation feedback:</g>
 
 <details>
 <summary></summary>
 
-* User interface: layout and general usability
-* User interface: color scheme and design
-* Feature-completeness of correlations
-* Any bugs or crashes
-* Any manual adjustments left over
+* User interface: layout and general usability &ndash; <g>Positive feedback</g>
+* User interface: color scheme and design &ndash; <g>Positive feedback</g>
+* Feature-completeness of correlations &ndash; 
+<r>
+Need to add more options, especially filters.
+Emphasis was put on that MVP should have all primary analysis types, with all options implemented.
+</r>
+* Any bugs or crashes &ndash; 
+<g>
+Flickering on first study creation. Overall, the app is stable. 
+</g>
+* Any manual adjustments left over &ndash;
+<y>
+Table slicing and rotated copying were requested. 
+</y>
+* Other &ndash;
+<g>App updates should be incremental. Model specs will be provided on request. 
+Need multiple representations of each analysis, but only one will typically be used. 
+For plots, the customization is mostly regarding the color scheme.</g>
 
 </details>
 
 ---
 
-## Unfreezing (v0.6) 
+## Unfreezing Preparation (before v0.6) 
 
 ### Required features before unfreezing:
 
-<details>
+[//]: # (<details>)
 <summary></summary>
 
 * Color column selector according to the column category
 * Custom column inversion calibration
+* Change column type and dtype
+* <g>Advanced filters</g>
+* <g>Group column values into custom categories</g>
+* <g>Add plots</g> and plot tools
+* <g>Unify result styles</g>
 * Refactor the modules
-* Group column values into custom categories
-* Add plots and plot tools
-* Unify result styles
 
-</details>
+[//]: # (</details>)
 
-### Checklist for unfreezing
+### Checklist for unfreezing:
 
 <details>
 <summary></summary>
 
-* Descriptives and correlations are fully functional and feature-complete
-* Project structure is sound and modular
+* Correlations are fully functional and feature-complete, 
+including customization and export of result elements.
+* Refactoring debt is mostly paid off.
 
 </details>
 
 ---
 
-## Closed alpha (v0.8):
+## After Unfreezing (v0.6+; September 2024 ME):
 
 <details>
 <summary></summary>
 
 * Undo functionality
 * All basic analyses (ANOVA, EFA, CFA, etc.)
+* Table slicing and rotated copying
+* Try-except handling
 
 </details>

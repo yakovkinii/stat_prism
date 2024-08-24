@@ -10,7 +10,7 @@ class DataView(QTableView):
     def __init__(self, parent=None):
         super(DataView, self).__init__(parent)
         palette = self.palette()
-        palette.setColor(QPalette.ColorRole.Highlight, QColor(240, 240, 240))  # Change to the color you want
+        palette.setColor(QPalette.ColorRole.Highlight, QColor(240, 240, 240))
         palette.setColor(QPalette.ColorRole.HighlightedText, QColor(0, 0, 0))
         self.setPalette(palette)
 
