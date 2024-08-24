@@ -64,6 +64,8 @@ class MainWindowClass(QtWidgets.QMainWindow):
 
         self.splitter.addWidget(self.tab_widget)
         self.splitter.addWidget(self.result_selector_panel.widget)
+        # increase size of splitter handle
+        self.splitter.setHandleWidth(6)
         # self.splitter.setSizes([1, 0])
 
         self.tab_widget.addTab(self.data_panel.widget, "Data")
@@ -150,3 +152,11 @@ class MainWindowClass(QtWidgets.QMainWindow):
     def on_tab_changed(self):
         if self.tab_widget.currentIndex() == 1:
             self.splitter.setSizes([1, 1])
+
+    @log_method_noarg
+    def action_activate_results_panel(self):
+        self.tab_widget.setCurrentIndex(1)
+
+    @log_method_noarg
+    def action_activate_data_panel(self):
+        self.tab_widget.setCurrentIndex(0)

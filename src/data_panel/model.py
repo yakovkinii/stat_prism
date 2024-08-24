@@ -6,7 +6,7 @@ import qtawesome as qta
 from PySide6.QtCore import QAbstractTableModel, QModelIndex, Qt
 
 from src.common.column_flags import ColumnFlags, ColumnFlagsRegistry
-from src.common.constant import COLORS
+from src.common.constant import COLORS, COLUMN_TYPE_ICONS
 from src.common.decorators import log_method, log_method_noarg
 
 
@@ -51,12 +51,12 @@ class DataModel(QAbstractTableModel):
 
             dataframe.columns = new_columns
 
-        dataframe.columns = [str(column) for column in dataframe.columns]
+        dataframe.columns = pd.Index([str(column) for column in dataframe.columns])
         self.beginResetModel()
         self._df = dataframe.copy()
         self.column_flags = {}
         for column in dataframe.columns:
-            self.column_flags[column] = ColumnFlags(dataframe[column])
+            self.column_flags[column] = ColumnFlags(dtype=self.get_column_dtype(dataframe.columns.get_loc(column)))
         self.endResetModel()
 
     def rowCount(self, parent=None):
@@ -86,6 +86,8 @@ class DataModel(QAbstractTableModel):
         elif role == Qt.ItemDataRole.DecorationRole and orientation == Qt.Orientation.Horizontal:
             column_name = self._df.columns[section]
             icons = []
+            icons.append(COLUMN_TYPE_ICONS[self.column_flags[column_name].column_type])
+
             if self.column_flags[column_name].get_flag(ColumnFlagsRegistry.inverted):
                 icons.append(qta.icon("ri.arrow-up-down-line"))
 
@@ -206,6 +208,10 @@ class DataModel(QAbstractTableModel):
         return "other"
 
     @log_method
+    def get_column_type(self, column_index: int):
+        return self.column_flags[self.get_column_name(column_index)].column_type
+
+    @log_method
     def add_column(self, column_to_the_left_index):
         new_column_name = "New column "
         suffix = 1
@@ -215,7 +221,7 @@ class DataModel(QAbstractTableModel):
 
         self.beginInsertColumns(QModelIndex(), column_to_the_left_index + 1, column_to_the_left_index + 1)
         self._df.insert(column_to_the_left_index + 1, new_column_name, "")
-        self.column_flags[new_column_name] = ColumnFlags(self._df[new_column_name])
+        self.column_flags[new_column_name] = ColumnFlags(dtype=self.get_column_dtype(column_to_the_left_index + 1))
         self.endInsertColumns()
 
     @log_method

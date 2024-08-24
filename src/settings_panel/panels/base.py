@@ -1,5 +1,5 @@
 import logging
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Union
 
 from PySide6 import QtCore, QtWidgets
 from PySide6.QtCore import Qt
@@ -28,6 +28,8 @@ class BaseSettingsPanel:
         recalculate=False,
     ):
         # Setup
+        self.study_index = None
+        self.result_id: Union[int, None] = None
         self.caller_index = None
         self.configuring = False
         self.stretch = stretch

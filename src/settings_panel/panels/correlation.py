@@ -1,7 +1,8 @@
 import logging
 from typing import TYPE_CHECKING, Union
 
-from src.common.custom_widget_containers import BigAssCheckbox, ColumnSelectorEx, Field, SpacerSmall, Title
+from src.common.constant import ColumnType
+from src.common.custom_widget_containers import BigAssCheckbox, ColumnSelectorEx, Field, SpacerSmall, Title, Column
 from src.common.decorators import log_method
 from src.common.result.registry import RESULTS
 from src.core.correlation.correlation_result import CorrelationStudyConfig
@@ -14,14 +15,17 @@ if TYPE_CHECKING:
 
 class Correlation(BaseSettingsPanel):
     def __init__(self, parent_widget, parent_class, root_class, stacked_widget_index):
-        # Setup
-        super().__init__(parent_widget, parent_class, root_class, stacked_widget_index, stretch=True, recalculate=True)
+        super().__init__(
+            parent_widget=parent_widget,
+            parent_class=parent_class,
+            root_class=root_class,
+            stacked_widget_index=stacked_widget_index,
+            stretch=True,
+            recalculate=True,
+        )
 
-        self.study_index = None
-        self.caller_index = None
-        self.result_id: Union[int, None] = None
         self.elements = {
-            "title2": Title(
+            "title": Title(
                 parent_widget=self.widget_for_elements,
                 label_text="Correlation",
             ),
@@ -39,7 +43,23 @@ class Correlation(BaseSettingsPanel):
             "spacer2": SpacerSmall(parent_widget=self.widget_for_elements),
             "column_selector": ColumnSelectorEx(
                 parent_widget=self.widget_for_elements,
-                fields=[Field(name="Columns:", allowed_column_dtypes=["int", "float"])],
+                fields=[
+                    Field(
+                        name="Columns:",
+                        column_type=ColumnType.NUMERIC,
+                    ),
+                    Field(
+                        name="Dummy 1-column:",
+                        column_type=ColumnType.NOMINAL,
+                        reasonable_number_of_columns=1,
+                        allow_only_single_column=True,
+                    ),
+                    Field(
+                        name="Dummy long list:",
+                        column_type=ColumnType.ORDINAL,
+                        reasonable_number_of_columns=10,
+                    ),
+                ],
                 clicked_handler=self.open_popup_handler,
                 study_settings_changed_handler=self.study_settings_changed,
             ),
@@ -52,15 +72,17 @@ class Correlation(BaseSettingsPanel):
         self.caller_index = caller_index
         self.result_id = result_id
 
-        all_columns = self.tabledata.get_column_names()
-        number_of_columns = len(all_columns)
-        dtypes = [self.tabledata.get_column_dtype(i) for i in range(number_of_columns)]
-        numeric_columns = [col for col, dtype in zip(all_columns, dtypes) if dtype in ["int", "float"]]
+        all_column_names = self.tabledata.get_column_names()
+        number_of_columns = len(all_column_names)
+        types = [self.tabledata.get_column_type(i) for i in range(number_of_columns)]
+
+        all_columns = [Column(name=col, column_type=column_type) for col, column_type in zip(all_column_names, types)]
 
         config = RESULTS[result_id].config
 
         self.elements["column_selector"].configure(
-            columns=all_columns, selected_columns_list=[config.selected_columns, []], allowed_columns=numeric_columns
+            columns=all_columns,
+            selected_columns_list=[config.selected_columns, [], []],
         )
         self.elements["compact"].widget.setChecked(config.compact)
         self.elements["report_only_significant"].widget.setChecked(config.report_only_significant)
@@ -91,6 +113,7 @@ class Correlation(BaseSettingsPanel):
 
         self.root_class.result_selector_panel.refresh_result(result_id=self.result_id)
         self.root_class.results_panel.display(result_id=self.result_id)
+        self.root_class.action_activate_results_panel()
 
     def study_settings_changed(self):
         if self.configuring:

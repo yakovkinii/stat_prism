@@ -14,13 +14,12 @@ from PySide6.QtWidgets import (
     QHBoxLayout,
     QLabel,
     QLineEdit,
-    QListWidget,
     QListWidgetItem,
     QVBoxLayout,
     QWidget,
 )
 
-from src.common.constant import COLORS
+from src.common.constant import COLORS, ColumnType, COLUMN_TYPE_ICONS
 from src.common.size import Font, SettingsPanelSize
 from src.common.subclassed_widgets import CheckListWidget
 from src.common.ui_constructor import create_label, create_label_editable_wordwrap, create_tool_button_qta
@@ -371,33 +370,28 @@ class QListWidgetClickable(QtWidgets.QListWidget):
         self.parent().mousePressEvent(event)
 
     def sizeHint(self):
-        logging.info(f"Size hint called")
         return QtCore.QSize(20, self.calculate_height())
 
     def minimumSizeHint(self):
         return self.sizeHint()
 
     def calculate_height(self):
-        new_height = self.height * self.reasonable_number_of_columns + 6
-        # If horizontal scrollbar is visible, add its height
+        new_height = self.height * self.reasonable_number_of_columns + 2
         if self.horizontalScrollBar().isVisible():
-            hrheight = self.horizontalScrollBar().height()
-        else:
-            hrheight = 0
-        logging.info(f"Horizontal scrollbar height: {hrheight}")
-        return new_height + hrheight
+            new_height += self.horizontalScrollBar().height()
+        return new_height
 
 
 @attrs.define
 class Column:
     name: str
-    column_dtype: str
+    column_type: ColumnType
 
 
 @attrs.define
 class Field:
     name: str
-    allowed_column_dtypes: List[str]
+    column_type: ColumnType
     reasonable_number_of_columns: int = 5
     allow_only_single_column: bool = False
 
@@ -407,7 +401,6 @@ class ColumnSelectorEx:
         self, parent_widget, fields: List[Field], clicked_handler: Callable, study_settings_changed_handler: Callable
     ):
         self.fields = fields
-        self.allowed_columns = None
         self.columns = None
         self.study_settings_changed_handler = study_settings_changed_handler
         self.clicked_handler = clicked_handler
@@ -428,6 +421,10 @@ class ColumnSelectorEx:
             parent=self.widget,
             inner_layout_class=QVBoxLayout,
             outer_layout=self.layout,
+            setup=lambda widget, layout: [
+                layout.setContentsMargins(2, 2, 2, 2),
+                layout.setSpacing(15),
+            ],
         )
 
         self.panel_list_widgets = []
@@ -437,13 +434,31 @@ class ColumnSelectorEx:
                 inner_layout_class=QVBoxLayout,
                 outer_layout=self.fields_panel_layout,
             )
+
+            title, title_layout = empty_widget(
+                parent=panel,
+                inner_layout_class=QHBoxLayout,
+                outer_layout=panel_layout,
+            )
+
             _ = widget_in_layout(
-                widget=QLabel(panel),
-                layout=panel_layout,
+                widget=QLabel(title),
+                layout=title_layout,
                 setup=lambda widget, layout: [
                     widget.setText(field.name),
+                    set_stylesheet(widget, f"font-size: {Font.size_big}px;"),
                 ],
             )
+            title_layout.addStretch()
+            # _ = widget_in_layout(
+            #     widget=QLabel(title),
+            #     layout=title_layout,
+            #     setup=lambda widget, layout: [
+            #         set_stylesheet(widget, f"font-size: {Font.size_big}px;"),
+            #         widget.setPixmap(COLUMN_TYPE_ICONS[field.column_type]
+            #                          .pixmap(24, 24)),
+            #     ],
+            # )
 
             panel_list = widget_in_layout(
                 widget=QListWidgetClickable(panel),
@@ -451,13 +466,15 @@ class ColumnSelectorEx:
                 setup=lambda widget, layout: (
                     widget.setSelectionMode(QtWidgets.QAbstractItemView.SelectionMode.NoSelection),
                     widget.setFocusPolicy(Qt.FocusPolicy.NoFocus),
+                    set_stylesheet(widget, "#id{border: 1px solid #ddd;}"),
                 ),
             )
+            panel_list.reasonable_number_of_columns = field.reasonable_number_of_columns
+
             self.panel_list_widgets.append(panel_list)
 
-    def configure(self, columns, selected_columns_list, allowed_columns):
+    def configure(self, columns: List[Column], selected_columns_list):
         self.columns = columns
-        self.allowed_columns = allowed_columns
         for panel_list, selected_columns in zip(self.panel_list_widgets, selected_columns_list):
             clean_up_list_widget(panel_list)
             panel_list.addItems(selected_columns)
@@ -469,7 +486,6 @@ class ColumnSelectorEx:
         self.popup.configure(
             columns=self.columns,
             selected_columns_list=selected_columns_list,
-            allowed_columns=self.allowed_columns,
         )
 
     def configure_from_popup(self):
@@ -494,6 +510,9 @@ class ColumnSelectorEx:
 
 class ColumnSelectorExPopup:
     def __init__(self, parent_widget, fields: List[Field]):
+        self.fields =  fields
+        self.columns: List[Column] = []
+        self.column_names: List[str] = []
         self.success = False
         self.widget, self.layout = empty_widget(
             parent=parent_widget,
@@ -502,33 +521,64 @@ class ColumnSelectorExPopup:
             setup=lambda widget, layout: [layout.setContentsMargins(0, 5, 0, 5), layout.setSpacing(10)],
         )
         self.main_list = widget_in_layout(
-            widget=QListWidget(self.widget),
+            widget=QListWidgetClickable(self.widget),
             layout=self.layout,
             setup=lambda widget, layout: [
-                widget.setSelectionMode(QtWidgets.QAbstractItemView.SelectionMode.SingleSelection),
+                widget.setSelectionMode(QtWidgets.QAbstractItemView.SelectionMode.ExtendedSelection),
                 widget.clicked.connect(self.main_list_clicked),
+                widget.selectionModel().selectionChanged.connect(self.main_list_clicked),
                 widget.setFocusPolicy(Qt.FocusPolicy.NoFocus),
+                set_stylesheet(widget, "#id{border: 1px solid #ddd;}"),
             ],
         )
+        self.main_list.reasonable_number_of_columns = 16
+
         self.fields_panel, self.fields_panel_layout = empty_widget(
             parent=self.widget,
             inner_layout_class=QVBoxLayout,
             outer_layout=self.layout,
+            setup=lambda widget, layout: [
+                layout.setContentsMargins(2, 2, 2, 2),
+                layout.setSpacing(15),
+            ],
         )
 
         self.panel_list_widgets = []
         self.panel_list_buttons = []
+        self.panel_list_icons = []
         for index, field in enumerate(fields):
             panel, panel_layout = empty_widget(
                 parent=self.fields_panel,
                 inner_layout_class=QVBoxLayout,
                 outer_layout=self.fields_panel_layout,
             )
-            _ = widget_in_layout(
-                widget=QLabel(panel),
-                layout=panel_layout,
-                setup=lambda widget, layout: widget.setText(field.name),
+
+            title, title_layout = empty_widget(
+                parent=panel,
+                inner_layout_class=QHBoxLayout,
+                outer_layout=panel_layout,
             )
+
+            _ = widget_in_layout(
+                widget=QLabel(title),
+                layout=title_layout,
+                setup=lambda widget, layout: [
+                    widget.setText(field.name),
+                    set_stylesheet(widget, f"font-size: {Font.size_big}px;"),
+                ],
+            )
+            title_layout.addStretch()
+            icon = widget_in_layout(
+                widget=QLabel(title),
+                layout=title_layout,
+                setup=lambda widget, layout: [
+                    set_stylesheet(widget, f"font-size: {Font.size_big}px;"),
+                    widget.setPixmap(COLUMN_TYPE_ICONS[field.column_type]
+                                     .pixmap(24, 24)),
+                ],
+            )
+            self.panel_list_icons.append(icon)
+
             button_list, button_list_layout = empty_widget(
                 parent=panel,
                 inner_layout_class=QHBoxLayout,
@@ -552,28 +602,55 @@ class ColumnSelectorExPopup:
                 setup=lambda widget, layout: [
                     widget.setText("Add"),
                     widget.clicked.connect((lambda _: lambda: self.button_pressed(_))(index)),
+
                 ],
             )
             button_stretch_layout.addStretch()
 
+            list_stretch, list_stretch_layout = empty_widget(
+                parent=button_list,
+                inner_layout_class=QVBoxLayout,
+                outer_layout=button_list_layout,
+            )
+
             panel_list = widget_in_layout(
-                widget=QListWidget(button_list),
-                layout=button_list_layout,
+                widget=QListWidgetClickable(list_stretch),
+                layout=list_stretch_layout,
                 setup=lambda widget, layout: (
-                    widget.setSelectionMode(QtWidgets.QAbstractItemView.SelectionMode.SingleSelection),
+                    widget.setSelectionMode(QtWidgets.QAbstractItemView.SelectionMode.ExtendedSelection),
                     widget.clicked.connect((lambda _: lambda: self.panel_list_clicked(_))(index)),
+                    widget.selectionModel().selectionChanged.connect((lambda _: lambda: self.panel_list_clicked(_))(index)),
+
                     widget.setFocusPolicy(Qt.FocusPolicy.NoFocus),
+                    layout.setContentsMargins(0, 0, 0, 0),
+                    set_stylesheet(widget, "#id{border: 1px solid #ddd;}"),
                 ),
             )
+            panel_list.reasonable_number_of_columns = field.reasonable_number_of_columns
+            list_stretch_layout.addStretch()
+
             self.panel_list_widgets.append(panel_list)
             self.panel_list_buttons.append(panel_list_button)
 
-    def configure(self, columns, selected_columns_list, allowed_columns):
+    def configure(self, columns: List[Column], selected_columns_list: List[List[str]]):
         clean_up_list_widget(self.main_list)
-        self.main_list.addItems(columns)
+        self.columns = columns
+        self.column_names = [column.name for column in columns]
+        main_list_names = [column.name for column in columns]
+
         for panel_list, selected_columns in zip(self.panel_list_widgets, selected_columns_list):
             clean_up_list_widget(panel_list)
-            panel_list.addItems(selected_columns)
+            for column in selected_columns:
+                main_list_names.remove(column)
+                item = QListWidgetItem(column)
+                item.setIcon(COLUMN_TYPE_ICONS[columns[self.column_names.index(column)].column_type])
+                panel_list.addItem(item)
+            # panel_list.addItems(selected_columns)
+
+        for column in main_list_names:
+            item = QListWidgetItem(column)
+            item.setIcon(COLUMN_TYPE_ICONS[columns[self.column_names.index(column)].column_type])
+            self.main_list.addItem(item)
         self.success = False
 
     def main_list_clicked(self):
@@ -600,15 +677,45 @@ class ColumnSelectorExPopup:
         button = self.panel_list_buttons[button_index]
         panel_list = self.panel_list_widgets[button_index]
         if button.text() == "Add":
-            selected_main = self.main_list.currentItem()
-            if selected_main is not None:
-                panel_list.addItem(selected_main.text())
-                self.main_list.takeItem(self.main_list.currentRow())
+            selected_main = self.main_list.selectedItems()
+            if selected_main:
+                # check that all column types are ok
+                selected_main_names = [item.text() for item in selected_main]
+                selected_main_types = [self.columns[self.column_names.index(item)].column_type for item in selected_main_names]
+                panel_type = self.fields[button_index].column_type
+                if not all([selected_main_type == panel_type for selected_main_type in selected_main_types]):
+                    # make the icon flash for a second
+                    icon = self.panel_list_icons[button_index]
+                    old_pixmap = icon.pixmap()
+                    icon.setPixmap(qta.icon("mdi.alert", color="red").pixmap(24, 24))
+                    QtCore.QTimer.singleShot(50, lambda _=old_pixmap: icon.setPixmap(_))
+                    return
+
+                for item in selected_main:
+                    new_item = QListWidgetItem(item.text())
+                    new_item.setIcon(item.icon())
+                    panel_list.addItem(new_item)
+                    self.main_list.takeItem(self.main_list.row(item))
+
         elif button.text() == "Remove":
-            selected_list1 = panel_list.currentItem()
-            if selected_list1 is not None:
-                self.main_list.addItem(selected_list1.text())
-                panel_list.takeItem(panel_list.currentRow())
+            selected_list = panel_list.selectedItems()
+            # selected_list1 = panel_list.currentItem()
+            if selected_list:
+                for item in selected_list:
+                    new_item = QListWidgetItem(item.text())
+                    new_item.setIcon(item.icon())
+                    self.main_list.addItem(new_item)
+                    panel_list.takeItem(panel_list.row(item))
+
+                sorted_items = sorted(
+                    (self.main_list.item(i).text() for i in range(self.main_list.count())),
+                    key=lambda x: self.column_names.index(x),
+                )
+                clean_up_list_widget(self.main_list)
+                for item in sorted_items:
+                    new_item = QListWidgetItem(item)
+                    new_item.setIcon(COLUMN_TYPE_ICONS[self.columns[self.column_names.index(item)].column_type])
+                    self.main_list.addItem(new_item)
 
 
 class ColumnSelectorPopupHolder:
