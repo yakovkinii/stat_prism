@@ -2,6 +2,7 @@ from typing import TYPE_CHECKING
 
 from src.common.custom_widget_containers import ColumnSelectorExPopup, ColumnSelectorPopupHolder, Title
 from src.common.decorators import log_method, log_method_noarg
+from src.common.registry import DEBTS, Debt, DebtType
 from src.settings_panel.panels.base import BaseSettingsPanel
 
 if TYPE_CHECKING:
@@ -33,10 +34,13 @@ class ColumnSelector(BaseSettingsPanel):
 
     @log_method
     def configure(self, popup: ColumnSelectorExPopup, caller_index, finished_handler):
+        self.ok_button.setEnabled(False)
         self.caller_index = caller_index
         self.finished_handler = finished_handler
         self.popup = popup
         self.back_button.setEnabled(True)
+
+        self.popup.on_moved_column_handler = self.column_moved
 
         self.elements["popup_holder"].configure(
             popup=popup,
@@ -53,3 +57,7 @@ class ColumnSelector(BaseSettingsPanel):
         self.popup.success = False
         self.activate_caller()
         self.finished_handler()
+
+    @log_method_noarg
+    def column_moved(self):
+        self.ok_button.setEnabled(True)

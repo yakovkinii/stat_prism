@@ -55,7 +55,7 @@ class ResultSelectorPanelClass:
         self.results_list_layout.setSpacing(2)
         self.results_list_widget.setLayout(self.results_list_layout)
 
-        self.add_result_button = QtWidgets.QPushButton("Add Result")
+        self.add_result_button = QtWidgets.QPushButton("Add Analysis")
         set_stylesheet(
             self.add_result_button,
             "#id{"

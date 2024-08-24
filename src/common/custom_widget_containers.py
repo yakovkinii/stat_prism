@@ -1,4 +1,5 @@
 import logging
+from enum import Enum
 from typing import Callable, List
 
 import attrs
@@ -16,7 +17,7 @@ from PySide6.QtWidgets import (
     QLineEdit,
     QListWidgetItem,
     QVBoxLayout,
-    QWidget,
+    QWidget, QPushButton,
 )
 
 from src.common.constant import COLORS, COLUMN_TYPE_ICONS, ColumnType
@@ -160,6 +161,38 @@ class MediumAssButton:
             self.widget.setEnabled(False)
         self.button.clicked.connect(lambda: self.button.setDown(False))
 
+
+
+class MediumAssButtonWide:
+    def __init__(self, parent_widget, label_text, icon_path, handler=None):
+        self.widget = QWidget(parent_widget)
+        # self.widget.setStyleSheet("border: 1px solid black; ")
+        self._margin_left = 0
+        self._margin = 0
+        self._height = 41
+        self.widget.setFixedHeight(self._height + self._margin)
+        self.widget.setFixedWidth(300)
+        icon_path = icon_path if icon_path is not None else "msc.blank"
+
+        self.button = create_tool_button_qta(
+            parent=self.widget,
+            button_geometry=QtCore.QRect(self._margin_left, self._margin, self._height, self._height),
+            icon_path=icon_path,
+            icon_size=QtCore.QSize(35, 35),
+        )
+        self.label = create_label(
+            parent=self.widget,
+            label_geometry=QtCore.QRect(50, self._margin, 220, self._height),
+            font_size=Font.size,
+            alignment=QtCore.Qt.AlignmentFlag.AlignLeft | QtCore.Qt.AlignmentFlag.AlignVCenter,
+        )
+        self.label.setText(label_text)
+
+        if handler is not None:
+            self.button.clicked.connect(handler)
+        else:
+            self.widget.setEnabled(False)
+        self.button.clicked.connect(lambda: self.button.setDown(False))
 
 class Spacer:
     def __init__(self, parent_widget):
@@ -347,6 +380,257 @@ def clean_up_list_widget(list_widget):
     list_widget.clear()
 
 
+RESPONDENT_NUMBER = "[respondent #]"
+
+
+class FilterTypeRemoveKeep(Enum):
+    REMOVE = "Remove"
+    KEEP = "Keep only"
+
+
+class FilterTypeOperation(Enum):
+    EQUAL = "equal to (==)"
+    GREATER = "greater than (>)"
+    LESS = "less than (<)"
+    GREATER_EQUAL = "greater or equal than (>=)"
+    LESS_EQUAL = "less or equal than (<=)"
+    CONTAINS = "in (comma-delimited)"
+
+
+FILTER_TYPE_OPERATION_MAPPING_OPERATOR = {
+    FilterTypeOperation.EQUAL: "==",
+    FilterTypeOperation.GREATER: ">",
+    FilterTypeOperation.LESS: "<",
+    FilterTypeOperation.GREATER_EQUAL: ">=",
+    FilterTypeOperation.LESS_EQUAL: "<=",
+    FilterTypeOperation.CONTAINS: "in",
+}
+
+FILTER_TYPE_OPERATION_MAPPING_VERBAL = {
+    FilterTypeOperation.EQUAL: "equal to",
+    FilterTypeOperation.GREATER: "greater than",
+    FilterTypeOperation.LESS: "less than",
+    FilterTypeOperation.GREATER_EQUAL: "greater or equal than",
+    FilterTypeOperation.LESS_EQUAL: "less or equal than",
+    FilterTypeOperation.CONTAINS: "in",
+}
+
+
+
+@attrs.define
+class FilterSettings:
+    column_name: str
+    filter_type_remove_keep: FilterTypeRemoveKeep
+    filter_type_operation: FilterTypeOperation
+    filter_value: any
+
+    def get_query(self):
+        if self.column_name == RESPONDENT_NUMBER:
+            column_name = "index"
+        else:
+            column_name = self.column_name
+
+        filter_value = self.filter_value
+        if self.filter_type_operation == FilterTypeOperation.CONTAINS:
+            filter_value = f"[{filter_value}]"
+        query = f"`{column_name}` {FILTER_TYPE_OPERATION_MAPPING_OPERATOR[self.filter_type_operation]} {filter_value}"
+        if self.filter_type_remove_keep == FilterTypeRemoveKeep.REMOVE:
+            return f"~({query})"
+        else:
+            return query
+
+    def get_text(self):
+        return (
+            f"{self.filter_type_remove_keep.value} respondents with {self.column_name} "
+            f"{FILTER_TYPE_OPERATION_MAPPING_VERBAL[self.filter_type_operation]} {self.filter_value}"
+        )
+
+
+class FilterSetup:
+    def __init__(self, parent_widget, on_filter_added=None):
+        self.already_filtered_rows = None
+        self.on_filter_added = on_filter_added
+        self.root_class = None
+        self.configuring = True
+        self.dtypes = None
+        self.column_names = None
+        self.df = None
+        self.filter_settings = None
+        self.widget = QWidget(parent_widget)
+        self.layout = QVBoxLayout(self.widget)
+        self.layout.setContentsMargins(0, 0, 0, 0)
+        self.layout.setSpacing(0)
+        self.widget.setLayout(self.layout)
+
+        w1, l1 = empty_widget(
+            parent=self.widget,
+            outer_layout=self.layout,
+            inner_layout_class=QHBoxLayout,
+        )
+
+        self.filter_type_remove_keep = widget_in_layout(
+            widget=QComboBox(w1),
+            layout=l1,
+            setup=lambda widget, layout: [
+                widget.addItem(FilterTypeRemoveKeep.REMOVE.value),
+                widget.addItem(FilterTypeRemoveKeep.KEEP.value),
+                widget.currentIndexChanged.connect(self.filter_changed),
+            ],
+        )
+        _ = widget_in_layout(
+            widget=QLabel(w1),
+            layout=l1,
+            setup=lambda widget, layout: [
+                widget.setText(" respondents with"),
+                set_stylesheet(widget, f"font-size: {Font.size}px;"),
+            ],
+        )
+        l1.addStretch()
+
+        self.filter_column = widget_in_layout(
+            widget=QComboBox(self.widget),
+            layout=self.layout,
+            setup=lambda widget, layout: [
+                widget.currentIndexChanged.connect(self.filter_column_changed),
+                widget.currentIndexChanged.connect(self.filter_changed),
+            ],
+        )
+
+        self.filter_type_operation = widget_in_layout(
+            widget=QComboBox(self.widget),
+            layout=self.layout,
+            setup=lambda widget, layout: [
+                widget.addItem(FilterTypeOperation.EQUAL.value),
+                widget.addItem(FilterTypeOperation.GREATER.value),
+                widget.addItem(FilterTypeOperation.LESS.value),
+                widget.addItem(FilterTypeOperation.GREATER_EQUAL.value),
+                widget.addItem(FilterTypeOperation.LESS_EQUAL.value),
+                widget.addItem(FilterTypeOperation.CONTAINS.value),
+                widget.currentIndexChanged.connect(self.filter_changed),
+            ],
+        )
+
+        self.filter_value = widget_in_layout(
+            widget=QLineEdit(self.widget),
+            layout=self.layout,
+            setup=lambda widget, layout: [widget.textChanged.connect(self.filter_changed)],
+        )
+
+        w2, l2 = empty_widget(
+            parent=self.widget,
+            outer_layout=self.layout,
+            inner_layout_class=QHBoxLayout,
+        )
+        self.result_label = widget_in_layout(
+            widget=QLabel(w2),
+            layout=l2,
+            setup=lambda widget, layout: [
+                set_stylesheet(widget, f"font-size: {Font.size}px;"),
+            ],
+        )
+        self.ok_button = widget_in_layout(
+            widget=QPushButton(w2),
+            layout=l2,
+            setup=lambda widget, layout: [
+                widget.setText(""),
+                widget.setIcon(qta.icon("fa5s.check")),
+                widget.setIconSize(QtCore.QSize(24, 24)),
+                widget.setFixedWidth(32),
+                widget.setFixedHeight(32),
+                widget.setEnabled(False),
+                widget.clicked.connect(lambda: self.on_filter_added(self.filter_settings)),
+            ],
+        )
+
+    def configure(self, root_class, df, column_names, dtypes, already_filtered_rows, filter_settings: FilterSettings = None):
+        self.root_class = root_class
+        self.configuring = True
+        self.already_filtered_rows = already_filtered_rows
+        self.df = df.query(f"index not in {already_filtered_rows}")
+        self.column_names = column_names
+        self.dtypes = dtypes
+        self.filter_settings = filter_settings
+
+        self.filter_column.clear()
+        if RESPONDENT_NUMBER in column_names:
+            logging.error(f"Column names contain {RESPONDENT_NUMBER}")
+        else:
+            self.filter_column.addItem(RESPONDENT_NUMBER)
+        self.filter_column.addItems(column_names)
+
+        if filter_settings is not None:
+            self.filter_column.setCurrentText(filter_settings.column_name)
+            self.filter_type_remove_keep.setCurrentText(filter_settings.filter_type_remove_keep.value)
+            self.filter_type_operation.setCurrentText(filter_settings.filter_type_operation.value)
+            self.filter_value.setText(filter_settings.filter_value)
+            self.configuring = False
+            self.filter_changed()
+        else:
+            self.filter_column.setCurrentIndex(0)
+            self.filter_type_operation.setCurrentIndex(0)
+            self.filter_value.setText("")
+            self.result_label.setText("")
+            self.ok_button.setEnabled(False)
+            self.configuring = False
+
+    def filter_column_changed(self):
+        if self.configuring:
+            return
+        new_column = self.filter_column.currentText()
+        if new_column == "[respondent #]":
+            column_dtype = "int"
+        else:
+            column_dtype = self.dtypes[self.column_names.index(new_column)]
+        if column_dtype not in ["int", "float"]:
+            model = self.filter_type_operation.model()
+            for index in [1, 2, 3, 4]:
+                model.item(index).setFlags(model.item(index).flags() & ~Qt.ItemFlag.ItemIsEnabled)
+        else:
+            model = self.filter_type_operation.model()
+            for index in [1, 2, 3, 4]:
+                model.item(index).setFlags(model.item(index).flags() | Qt.ItemFlag.ItemIsEnabled)
+
+    def filter_changed(self):
+        if self.configuring:
+            return
+        if self.filter_value.text() == "":
+            self.result_label.setText("")
+            self.ok_button.setEnabled(False)
+            return
+
+
+        initial_population = self.df.shape[0]
+        initial_indexes = list(self.df.index)
+        self.filter_settings = FilterSettings(
+            column_name=self.filter_column.currentText(),
+            filter_type_remove_keep=FilterTypeRemoveKeep(self.filter_type_remove_keep.currentText()),
+            filter_type_operation=FilterTypeOperation(self.filter_type_operation.currentText()),
+            filter_value=self.filter_value.text(),
+        )
+
+        query = self.filter_settings.get_query()
+        try:
+            queried_df = self.df.query(query)
+            final_population = queried_df.shape[0]
+            final_indexes = list(queried_df.index)
+            filtered_indexes = list(set(initial_indexes) - set(final_indexes))
+            self.root_class.data_panel.tabledata.filtered_rows = filtered_indexes+self.already_filtered_rows
+            self.root_class.data_panel.tabledata.data_changed()
+
+            self.result_label.setText(
+                f"Removing: {initial_population-final_population} respondents \n"
+                f"Remaining: {final_population} respondents"
+            )
+            self.ok_button.setEnabled(True)
+        except Exception as e:
+            logging.debug(f"Filter error: {query}")
+            logging.debug(e)
+            self.root_class.data_panel.tabledata.filtered_rows = self.already_filtered_rows
+            self.root_class.data_panel.tabledata.data_changed()
+            self.result_label.setText(f"Invalid filter:\n{query}")
+            self.ok_button.setEnabled(False)
+
+
 class QWidgetClickable(QFrame):
     clicked = QtCore.Signal()
 
@@ -510,6 +794,7 @@ class ColumnSelectorEx:
 
 class ColumnSelectorExPopup:
     def __init__(self, parent_widget, fields: List[Field]):
+        self.on_moved_column_handler = None
         self.fields = fields
         self.columns: List[Column] = []
         self.column_names: List[str] = []
@@ -697,7 +982,8 @@ class ColumnSelectorExPopup:
                     new_item.setIcon(item.icon())
                     panel_list.addItem(new_item)
                     self.main_list.takeItem(self.main_list.row(item))
-
+                if self.on_moved_column_handler is not None:
+                    self.on_moved_column_handler()
         elif button.text() == "Remove":
             selected_list = panel_list.selectedItems()
             # selected_list1 = panel_list.currentItem()
@@ -717,6 +1003,8 @@ class ColumnSelectorExPopup:
                     new_item = QListWidgetItem(item)
                     new_item.setIcon(COLUMN_TYPE_ICONS[self.columns[self.column_names.index(item)].column_type])
                     self.main_list.addItem(new_item)
+                if self.on_moved_column_handler is not None:
+                    self.on_moved_column_handler()
 
 
 class ColumnSelectorPopupHolder:
@@ -736,3 +1024,43 @@ class ColumnSelectorPopupHolder:
         self.popup = popup
         self.layout.addWidget(self.popup.widget)
         self.popup.widget.show()
+
+
+class QLabelClickable(QLabel):
+    clicked = QtCore.Signal()
+
+    def __init__(self, parent=None):
+        super().__init__(parent)
+
+    def mousePressEvent(self, event):
+        self.clicked.emit()
+        super().mousePressEvent(event)
+
+class CompiledFilterHistory:
+    def __init__(self, parent_widget, filter_clicked_handler):
+        self.widget = QWidget(parent_widget)
+        self.layout = QVBoxLayout(self.widget)
+        self.layout.setContentsMargins(0, 0, 0, 0)
+        self.layout.setSpacing(0)
+        self.widget.setLayout(self.layout)
+        self.handler = filter_clicked_handler
+
+        self.filter_widgets = []
+
+    def configure(self, filters: List[FilterSettings]):
+        for filter_widget in self.filter_widgets:
+            self.layout.removeWidget(filter_widget)
+            filter_widget.deleteLater()
+
+        self.filter_widgets = []
+        for i, filter_settings in enumerate(filters):
+            filter_widget = widget_in_layout(
+                widget=QLabelClickable(self.widget),
+                layout=self.layout,
+                setup=lambda widget, layout: [
+                    widget.setText(filter_settings.get_text()),
+                    widget.clicked.connect(lambda _=i: self.handler(_)),
+                ],
+            )
+            self.filter_widgets.append(filter_widget)
+            self.layout.addWidget(filter_widget)

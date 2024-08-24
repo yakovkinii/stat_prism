@@ -5,6 +5,7 @@ from PySide6.QtWebEngineWidgets import QWebEngineView
 from PySide6.QtWidgets import QHBoxLayout, QTabWidget
 
 from src.common.decorators import log_method, log_method_noarg
+from src.common.registry import DEBTS, DebtType
 from src.common.ui_constructor import icon
 from src.common.unique_qss import set_stylesheet
 from src.data_panel.ui_data import DataPanelClass
@@ -132,6 +133,9 @@ class MainWindowClass(QtWidgets.QMainWindow):
     @log_method
     def action_activate_panel_by_index(self, index):
         if index is not None:
+            for debt in DEBTS:
+                if debt.debt_type == DebtType.ON_STUDY_CHANGE:
+                    debt.resolve()
             self.settings_panel.stacked_widget.setCurrentIndex(index)
 
     @log_method

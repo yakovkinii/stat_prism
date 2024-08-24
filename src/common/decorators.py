@@ -9,7 +9,7 @@ def log_method(method):
     A decorator to log the name of a class method when it is executed.
     """
 
-    def wrapper(self, *args, **kwargs):
+    def decorator(self, *args, **kwargs):
         global level
         class_name = self.__class__.__name__
         ident = "⋅ " * level
@@ -38,7 +38,7 @@ def log_method(method):
         # logging.debug(ident+f"<{class_name}.{method.__name__}")
         return result
 
-    return wrapper
+    return decorator
 
 
 def log_method_noarg(method):
@@ -48,7 +48,7 @@ def log_method_noarg(method):
     To use when Qt passes different number of arguments depending on signature.
     """
 
-    def wrapper(self):
+    def decorator(self):
         global level
         class_name = self.__class__.__name__
         ident = "⋅ " * level
@@ -74,4 +74,4 @@ def log_method_noarg(method):
         # logging.debug(ident+f"<{class_name}.{method.__name__}")
         return result
 
-    return wrapper
+    return decorator

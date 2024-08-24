@@ -4,15 +4,19 @@ from typing import Dict, List, Union
 import pandas as pd
 import qtawesome as qta
 from PySide6.QtCore import QAbstractTableModel, QModelIndex, Qt
+from PySide6.QtGui import QColor
 
 from src.common.column_flags import ColumnFlags, ColumnFlagsRegistry
 from src.common.constant import COLORS, COLUMN_TYPE_ICONS
 from src.common.decorators import log_method, log_method_noarg
+from src.data_panel.const import DataPanelState
 
 
 class DataModel(QAbstractTableModel):
     def __init__(self, parent=None):
         super().__init__(parent)
+        self.state = DataPanelState.DEFAULT
+        self.filtered_rows = []
         self._df: pd.DataFrame = pd.DataFrame()
         self.column_flags: Dict[str, ColumnFlags] = {}
         self.hide_headers_mode = False
@@ -35,7 +39,7 @@ class DataModel(QAbstractTableModel):
             elif pd.api.types.is_integer_dtype(dataframe[column]):
                 dataframe[column] = dataframe[column].astype(int)
             else:
-                logging.error(f"Unknown type detectedfor {column}")
+                logging.error(f"Unknown type detected for {column}")
                 logging.info("Trying to convert to string")
                 dataframe[column] = dataframe[column].astype(str)
 
@@ -65,12 +69,19 @@ class DataModel(QAbstractTableModel):
     def columnCount(self, parent=None):
         return self._df.shape[1]
 
+    @log_method
+    def set_state(self, state: DataPanelState):
+        self.state = state
+        self.data_changed()
+
     def data(self, index, role=Qt.ItemDataRole.DisplayRole):
         if index.isValid():
             if role in [Qt.ItemDataRole.DisplayRole, Qt.ItemDataRole.EditRole]:
                 return str(self._df.iloc[index.row(), index.column()])
-            # elif role == Qt.BackgroundRole:
-            #     return QColor(0, 0, 255)
+            elif role == Qt.ItemDataRole.ForegroundRole:
+                if self.state == DataPanelState.FILTER:
+                    if index.row() in self.filtered_rows:
+                        return QColor("#f66")
         return None
 
     def headerData(self, section, orientation, role=Qt.ItemDataRole.DisplayRole):
@@ -166,6 +177,10 @@ class DataModel(QAbstractTableModel):
         column_name = self._df.columns[column_index]
         self._df[column_name] = values
         self.dataChanged.emit(self.index(0, column_index), self.index(self.rowCount() - 1, column_index))
+
+    @log_method_noarg
+    def data_changed(self, role=Qt.ItemDataRole.DisplayRole):
+        self.dataChanged.emit(self.index(0, 0), self.index(self.rowCount() - 1, self.columnCount() - 1), role)
 
     @log_method_noarg
     def get_data(self):

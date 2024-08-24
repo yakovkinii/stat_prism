@@ -7,6 +7,7 @@ from PySide6.QtWidgets import QScrollArea, QVBoxLayout
 
 from src.common.constant import DEBUG_LAYOUT
 from src.common.decorators import log_method, log_method_noarg
+from src.common.registry import DEBTS, DebtType
 from src.common.size import Font, SettingsPanelSize
 from src.common.ui_constructor import create_tool_button_qta
 from src.common.unique_qss import set_stylesheet
@@ -159,6 +160,10 @@ class BaseSettingsPanel:
     @log_method_noarg
     def activate_caller(self):
         if self.caller_index is not None:
+            for debt in DEBTS:
+                if DebtType.ON_STUDY_CHANGE in debt.debt_type:
+                    debt.resolve()
+
             self.root_class.action_activate_panel_by_index(self.caller_index)
         else:
             logging.error(f"Trying to activate caller {self.caller_index=}")
