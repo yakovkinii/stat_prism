@@ -39,7 +39,6 @@ class LeftAlignHeaderView(QtWidgets.QHeaderView):
                     headerText,
                     4,
                 )
-                logging.info("full height")
             else:
                 rect = metrics.boundingRect(
                     QtCore.QRect(0, 0, maxWidth, 5000),
@@ -47,7 +46,6 @@ class LeftAlignHeaderView(QtWidgets.QHeaderView):
                     headerText,
                     4,
                 )
-                logging.info("not full height")
 
             if len(headerIcons) > 0:
                 rect_expanded = rect.adjusted(

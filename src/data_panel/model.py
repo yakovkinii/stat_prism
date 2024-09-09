@@ -7,7 +7,7 @@ from PySide6.QtCore import QAbstractTableModel, QModelIndex, Qt
 from PySide6.QtGui import QColor
 
 from src.common.column_flags import ColumnFlags, ColumnFlagsRegistry
-from src.common.constant import COLORS, COLUMN_TYPE_ICONS
+from src.common.constant import COLORS, COLUMN_TYPE_ICONS, ColumnType
 from src.common.decorators import log_method, log_method_noarg
 from src.data_panel.const import DataPanelState
 
@@ -33,17 +33,18 @@ class DataModel(QAbstractTableModel):
         column_name = self.get_column_name(column_index)
         try:
             self._df = self._df.astype({column_name: int})
+            self.column_flags[column_name].set_flag(ColumnFlagsRegistry.column_type, ColumnType.NUMERIC)
         except ValueError:
             try:
                 self._df = self._df.astype({column_name: float})
+                self.column_flags[column_name].set_flag(ColumnFlagsRegistry.column_type, ColumnType.NUMERIC)
             except ValueError:
                 try:
                     self._df = self._df.astype({column_name: str})
+                    self.column_flags[column_name].set_flag(ColumnFlagsRegistry.column_type, ColumnType.NOMINAL)
                 except ValueError:
                     logging.error(f"Could not cast column {column_name} to any type")
                     return
-
-        self.column_flags[column_name] = ColumnFlags(dtype=self.get_column_dtype(self._df.columns.get_loc(column_name)))
 
         if emit_data_changed:
             self.data_changed()

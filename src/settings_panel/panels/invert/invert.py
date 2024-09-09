@@ -50,7 +50,7 @@ class Inverse(BasePanel):
             column_name = self.tabledata.get_column_name(index)
             self.tabledata.set_column(
                 index,
-                self.max_plus_min - column,
+                self.elements["invert_visualizer"].max_plus_min - column,
             )
             self.tabledata.toggle_column_flag(
                 column_name=column_name,

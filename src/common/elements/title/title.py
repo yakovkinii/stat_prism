@@ -10,8 +10,9 @@ class Title(BasePanelElement):
 
     def setup(self):
         self.widget = QtWidgets.QLabel(self.parent_widget)
-        font = QtGui.QFont("Freestyle Script")
-        font.setPointSize(18)
+        # font = QtGui.QFont("Freestyle Script")
+        font = QtGui.QFont("Segoe UI")
+        font.setPointSize(12)
         self.widget.setFont(font)
         self.widget.setAlignment(QtCore.Qt.AlignmentFlag.AlignHCenter | QtCore.Qt.AlignmentFlag.AlignVCenter)
         self.widget.setText(self.label_text)

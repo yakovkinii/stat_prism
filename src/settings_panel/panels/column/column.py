@@ -150,3 +150,12 @@ class Column(BasePanel):
                 self.delete_column_handler()
             elif message.caller_id == "color":
                 self.color_pressed(message.payload)
+            else:
+                super().handler(message)
+        elif message.message_type == MessageType.EDITING_FINISHED:
+            if message.caller_id == "title":
+                self.finish_editing_title(message.payload)
+            else:
+                super().handler(message)
+        else:
+            super().handler(message)

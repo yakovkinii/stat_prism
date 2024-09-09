@@ -7,6 +7,7 @@ from src.common.constant import ColumnType
 class ColumnFlagsRegistry:
     inverted = "inverted"
     color = "color"
+    column_type = "column_type"
 
 
 class ColumnFlags:
@@ -19,7 +20,7 @@ class ColumnFlags:
             "inverted": self.inverted,
         }
 
-    def set_flag(self, flag: str, value: bool):
+    def set_flag(self, flag: str, value):
         self._flags[flag] = value
 
     def get_flag(self, flag: str):

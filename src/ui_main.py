@@ -33,15 +33,6 @@ class MainWindowClass(QtWidgets.QMainWindow):
         self.central_widget_layout.setContentsMargins(0, 0, 0, 0)
         self.central_widget_layout.setSpacing(0)
 
-        # dummy = QWebEngineView(self.central_widget)
-        # dummy.setHtml('dummy')
-        # self.central_widget_layout.addWidget(dummy)
-        # dummy.showMaximized()
-
-        # # Delete dummy
-        # self.central_widget_layout.removeWidget(dummy)
-        # dummy.deleteLater()
-
         self.splitter = QtWidgets.QSplitter(self.central_widget)
         self.tab_widget = QTabWidget(self.splitter)
 

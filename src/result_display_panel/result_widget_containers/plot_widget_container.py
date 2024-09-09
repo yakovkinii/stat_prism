@@ -1,4 +1,5 @@
 import pyqtgraph as pg
+from PySide6.QtCore import Qt
 from PySide6.QtGui import QFont
 from PySide6.QtWidgets import QLabel, QSizePolicy, QVBoxLayout, QWidget
 
@@ -6,6 +7,7 @@ from src.common.constant import MARKER_SHAPE_MAP, PEN_STYLE_MAP
 from src.common.elements.resizeable_plot_widget.resizeable_plot_widget import ResizablePlotWidget
 from src.common.elements.utility.layout_helpers import empty_widget
 from src.common.result.classes.plot_result import Band, Line, PlotResultElement, Scatter
+from src.common.unique_qss import set_stylesheet
 
 
 class PlotResultElementWidgetContainer:
@@ -32,7 +34,11 @@ class PlotResultElementWidgetContainer:
             12,
         )
         self.label.setFont(font)
-        self.label.setSizePolicy(QSizePolicy(QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Minimum))
+        self.label.setSizePolicy(QSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum))
+        self.label.setWordWrap(True)
+        self.label.setTextInteractionFlags(
+            self.label.textInteractionFlags() | Qt.TextInteractionFlag.TextSelectableByMouse
+        )
 
         self.widget_layout.addWidget(self.label)
 
@@ -42,12 +48,9 @@ class PlotResultElementWidgetContainer:
         self.widget_layout.addWidget(self.plot_container)
 
         self.plot_widget = ResizablePlotWidget(self.plot_container, self.result_element)
+        set_stylesheet(self.plot_widget, f"#id{{border: 2px solid #ccc;}}")
         self.plot_widget.plotItem.setDefaultPadding(0.1)
-        # l = pg.GraphicsLayout()
-        # l.layout.setContentsMargins(10, 10, 10, 10)
-        # self.plot_widget.setLayout(l)
 
-        # add margins around the contents of plot_widget
         self.plot_widget.plotItem.layout.setContentsMargins(20, 20, 20, 20)
 
         self.plot_widget.setBackground(self.result_element.general_plot_config.background_color)

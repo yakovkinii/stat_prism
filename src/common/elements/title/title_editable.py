@@ -21,5 +21,5 @@ class ColumnNameEditable(BasePanelElement):
         self.widget.editingFinished.connect(self.editing_finished_handler)
 
     def editing_finished_handler(self):
-        message = Message(message_type=MessageType.EDITING_FINISHED, caller_id=self.element_id, payload=None)
+        message = Message(message_type=MessageType.EDITING_FINISHED, caller_id=self.element_id, payload=True)
         self.handler(message)
