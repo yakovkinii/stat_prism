@@ -169,6 +169,7 @@ class BaseModulePanel:
         else:
             logging.error(f"Trying to activate caller {self.caller_index=}")
 
+    @log_method
     def handler(self, message: Message):
         if message.message_type == MessageType.STATE_CHANGED:
             if self.configuring:

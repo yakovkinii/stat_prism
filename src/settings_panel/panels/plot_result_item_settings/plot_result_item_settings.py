@@ -76,6 +76,7 @@ class PlotResultItemSettings(BasePanel):
         if message.message_type == MessageType.STATE_CHANGED:
             if message.caller_id == "general_plot_settings":
                 RESULTS[self.result_id].result_elements[self.element_id].general_plot_config = message.payload
+                self.elements["general_plot_settings"].configure(message.payload)
                 self.root_class.results_panel.refresh()
                 return
             if message.caller_id == "scatter_plot_settings":

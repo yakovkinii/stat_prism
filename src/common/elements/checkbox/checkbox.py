@@ -15,7 +15,9 @@ class LargeCheckbox(BasePanelElement):
         self.widget = QCheckBox(self.parent_widget)
         self.widget.setText(self.label_text)
         self.widget.stateChanged.connect(
-            lambda: Message(message_type=MessageType.STATE_CHANGED, caller_id=self.element_id, payload=None)
+            lambda: self.handler(
+                Message(message_type=MessageType.STATE_CHANGED, caller_id=self.element_id, payload=None)
+            )
         )
 
         set_stylesheet(
