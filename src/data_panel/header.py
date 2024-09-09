@@ -8,7 +8,6 @@ from src.data_panel.model import DataModel
 
 
 class LeftAlignHeaderView(QtWidgets.QHeaderView):
-    edit_column_name = QtCore.Signal(int)
     mouse_up = QtCore.Signal()
 
     def __init__(self, orientation, parent=None):
@@ -22,6 +21,8 @@ class LeftAlignHeaderView(QtWidgets.QHeaderView):
         self._spacing = 5
         self._icon_height = 18
 
+        self.full_height = True
+
     def sectionSizeFromContents(self, logicalIndex):
         if self.model():
             headerText = self.model().headerData(logicalIndex, self.orientation(), QtCore.Qt.ItemDataRole.DisplayRole)
@@ -30,12 +31,24 @@ class LeftAlignHeaderView(QtWidgets.QHeaderView):
             )
             metrics = QtGui.QFontMetrics(self.font())
             maxWidth = self.sectionSize(logicalIndex)
-            rect = metrics.boundingRect(
-                QtCore.QRect(0, 0, maxWidth, 5000),
-                int(self.defaultAlignment()) | QtCore.Qt.TextFlag.TextWordWrap | QtCore.Qt.TextFlag.TextExpandTabs,
-                headerText,
-                4,
-            )
+
+            if self.full_height:
+                rect = metrics.boundingRect(
+                    QtCore.QRect(0, 0, maxWidth, 5000),
+                    int(self.defaultAlignment()) | QtCore.Qt.TextFlag.TextWordWrap | QtCore.Qt.TextFlag.TextExpandTabs,
+                    headerText,
+                    4,
+                )
+                logging.info("full height")
+            else:
+                rect = metrics.boundingRect(
+                    QtCore.QRect(0, 0, maxWidth, 5000),
+                    int(self.defaultAlignment()) | QtCore.Qt.TextFlag.TextExpandTabs,
+                    headerText,
+                    4,
+                )
+                logging.info("not full height")
+
             if len(headerIcons) > 0:
                 rect_expanded = rect.adjusted(
                     -self._padding, -self._padding, self._padding, self._padding + self._icon_height + self._spacing
@@ -75,7 +88,7 @@ class LeftAlignHeaderView(QtWidgets.QHeaderView):
                 # painter.fillRect(QtCore.QRectF(rect), QColor(240, 240, 250))
 
             painter.save()
-            painter.setPen(QtGui.QPen(QColor(170, 170, 200)))
+            painter.setPen(QtGui.QPen(QColor(200, 200, 200, 100)))
             painter.drawLine(rect.topRight(), rect.bottomRight())
             painter.restore()
             if len(headerIcons) > 0:
@@ -127,8 +140,10 @@ class LeftAlignHeaderView(QtWidgets.QHeaderView):
         index = self.logicalIndexAt(event.pos())
         if index >= 0:
             logging.info("emitting edit_column_name")
-            self.edit_column_name.emit(index)
-        super().mouseDoubleClickEvent(event)
+            self.full_height = not self.full_height
+            for section in range(self.count()):
+                self.resizeSection(section, self.sectionSize(section) + 1)
+                self.resizeSection(section, self.sectionSize(section) - 1)
 
     def mouseReleaseEvent(self, event):
         self.mouse_up.emit()

@@ -70,10 +70,6 @@ class DataPanelClass:
         self.tableview.verticalHeader().setHighlightSections(False)
 
         self.header.mouse_up.connect(self.on_selection_changed)
-        # self.header.clicked.connect(self.on_selection_changed)
-        # self.tableview.selectionModel().selectionChanged.connect(self.on_selection_changed)
-        # self.header.
-        self.header.edit_column_name.connect(self.on_selection_double_clicked)
         self.tableview.copy_signal.connect(self.copy_selection)
         self.tableview.paste_signal.connect(self.paste_selection)
 
@@ -173,11 +169,6 @@ class DataPanelClass:
                 self.tabledata.setItem(selected_row + row_index, selected_column + column_index, cell)
         self.tabledata.endResetModel()
         logging.info("Table pasted from clipboard")
-
-    @log_method
-    def on_selection_double_clicked(self, column):
-        logging.info(f"Double clicked column: {column}")
-        self.root_class.action_current_column_begin_edit_title()
 
 
 logging.debug("data loaded")

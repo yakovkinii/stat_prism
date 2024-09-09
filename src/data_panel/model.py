@@ -97,7 +97,12 @@ class DataModel(QAbstractTableModel):
     def data(self, index, role=Qt.ItemDataRole.DisplayRole):
         if index.isValid():
             if role in [Qt.ItemDataRole.DisplayRole, Qt.ItemDataRole.EditRole]:
+                if pd.isna(self._df.iloc[index.row(), index.column()]):
+                    return ""
+                if self._df.iloc[index.row(), index.column()] in [None, "nan"]:
+                    return ""
                 return str(self._df.iloc[index.row(), index.column()])
+
             elif role == Qt.ItemDataRole.ForegroundRole:
                 if self.state == DataPanelState.FILTER:
                     if index.row() in self.filtered_rows:
