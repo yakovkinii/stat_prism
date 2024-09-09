@@ -1,10 +1,11 @@
-from PySide6 import QtCore
-from PySide6.QtWidgets import QWidget
+import qtawesome as qta
+from PySide6 import QtWidgets
+from PySide6.QtCore import QSize
 
 from src.common.elements.base.base import BasePanelElement
 from src.common.messages import Message, MessageType
 from src.common.size import Font
-from src.common.ui_constructor import create_label, create_tool_button_qta
+from src.common.unique_qss import set_stylesheet
 
 
 class SmallButton(BasePanelElement):
@@ -21,26 +22,28 @@ class SmallButton(BasePanelElement):
         self._height = 41
 
     def setup(self):
-        self.widget = QWidget(self.parent_widget)
-
-        self.widget.setFixedHeight(self._height + self._margin)
-        self.widget.setFixedWidth(140)
-
-        self.button = create_tool_button_qta(
-            parent=self.widget,
-            button_geometry=QtCore.QRect(self._margin_left, self._margin, self._height, self._height),
-            icon_path=self.icon_path,
-            icon_size=QtCore.QSize(35, 35),
+        self.widget = QtWidgets.QPushButton(self.label_text)
+        set_stylesheet(
+            self.widget,
+            "#id{"
+            "margin-top: 2px;"
+            "font-family: Segoe UI;"
+            "background-color: rgba(255,255,255, 50);"
+            f"font-size: {Font.size}pt;"
+            # align left
+            "text-align: left;"
+            "border: 1px solid #ddd;"
+            "}"
+            "#id:hover{"
+            "background-color: rgb(229,241,251);"
+            "border: 1px solid rgb(0,120,215)"
+            "}",
         )
-        self.label = create_label(
-            parent=self.widget,
-            label_geometry=QtCore.QRect(50, self._margin, 80, self._height),
-            font_size=Font.size,
-            alignment=QtCore.Qt.AlignmentFlag.AlignLeft | QtCore.Qt.AlignmentFlag.AlignVCenter,
-        )
-        self.label.setText(self.label_text)
-
-        self.button.clicked.connect(self.clicked)
+        icon = qta.icon(self.icon_path)
+        self.widget.setIcon(icon)
+        self.widget.setIconSize(QSize(40, 40))
+        self.widget.setFixedHeight(50)
+        self.widget.clicked.connect(self.clicked)
 
     def clicked(self):
         message = Message(message_type=MessageType.CLICKED, caller_id=self.element_id, payload=None)

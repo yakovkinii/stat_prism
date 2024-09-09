@@ -1,17 +1,18 @@
-from PySide6 import QtCore
-from PySide6.QtWidgets import QWidget
+import qtawesome as qta
+from PySide6 import QtWidgets
+from PySide6.QtCore import QSize
 
 from src.common.elements.base.base import BasePanelElement
 from src.common.messages import Message, MessageType
-from src.common.size import Font, SettingsPanelSize
-from src.common.ui_constructor import create_label, create_tool_button_qta
+from src.common.size import Font
+from src.common.unique_qss import set_stylesheet
 
 
 class LargeButton(BasePanelElement):
     def __init__(self, label_text, icon_path):
         super().__init__()
         self.label = None
-        self.button = None
+        self.widget = None
 
         self.label_text = label_text
         self.icon_path = icon_path if icon_path is not None else "msc.blank"
@@ -20,25 +21,28 @@ class LargeButton(BasePanelElement):
         self._height = 81
 
     def setup(self):
-        self.widget = QWidget(self.parent_widget)
-
-        self.widget.setFixedHeight(self._height + self._margin)
-
-        self.button = create_tool_button_qta(
-            parent=self.widget,
-            button_geometry=QtCore.QRect(self._margin, self._margin, self._height, self._height),
-            icon_path=self.icon_path,
-            icon_size=QtCore.QSize(60, 60),
+        self.widget = QtWidgets.QPushButton(self.label_text)
+        set_stylesheet(
+            self.widget,
+            "#id{"
+            "margin-top: 2px;"
+            "font-family: Segoe UI;"
+            "background-color: rgba(255,255,255, 50);"
+            f"font-size: {Font.size_big}pt;"
+            # align left
+            "text-align: left;"
+            "border: 1px solid #ddd;"
+            "}"
+            "#id:hover{"
+            "background-color: rgb(229,241,251);"
+            "border: 1px solid rgb(0,120,215)"
+            "}",
         )
-        self.label = create_label(
-            parent=self.widget,
-            label_geometry=QtCore.QRect(120, self._margin, SettingsPanelSize.width - 120, self._height),
-            font_size=Font.size_big,
-            alignment=QtCore.Qt.AlignmentFlag.AlignLeft | QtCore.Qt.AlignmentFlag.AlignVCenter,
-        )
-        self.label.setText(self.label_text)
-
-        self.button.clicked.connect(self.clicked)
+        icon = qta.icon(self.icon_path)
+        self.widget.setIcon(icon)
+        self.widget.setIconSize(QSize(60, 60))
+        self.widget.setFixedHeight(70)
+        self.widget.clicked.connect(self.clicked)
 
     def clicked(self):
         message = Message(message_type=MessageType.CLICKED, caller_id=self.element_id, payload=None)
