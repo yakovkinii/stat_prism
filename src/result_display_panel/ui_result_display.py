@@ -38,6 +38,11 @@ class ResultDisplayClass:
         self.result_id = None
 
     def display(self, result_id: int, element_id: str = None):
+        if result_id is None:
+            logging.error("Result ID is None")
+            self.display_none()
+            return
+
         logging.info(f"Displaying result {result_id} element {element_id}")
         if self.element_widget_container is not None:
             self.layout.removeWidget(self.element_widget_container.widget)

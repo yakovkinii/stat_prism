@@ -2,7 +2,7 @@ import qtawesome as qta
 from PySide6 import QtCore, QtGui, QtWidgets
 
 import resources_rc
-from src.common.subclassed_widgets import EditableLabelWordwrap
+from src.common.elements.utility.primitive_elements import EditableLabelWordwrap
 
 
 def icon(path):

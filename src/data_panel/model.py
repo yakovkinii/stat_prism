@@ -28,6 +28,26 @@ class DataModel(QAbstractTableModel):
     def unhideHeaders(self):
         self.hide_headers_mode = False
 
+    def try_casting_column_type(self, column_index: int, emit_data_changed: bool = True):
+        # try casting to int. if fail - cast to float. if fail - cast to str
+        column_name = self.get_column_name(column_index)
+        try:
+            self._df = self._df.astype({column_name: int})
+        except ValueError:
+            try:
+                self._df = self._df.astype({column_name: float})
+            except ValueError:
+                try:
+                    self._df = self._df.astype({column_name: str})
+                except ValueError:
+                    logging.error(f"Could not cast column {column_name} to any type")
+                    return
+
+        self.column_flags[column_name] = ColumnFlags(dtype=self.get_column_dtype(self._df.columns.get_loc(column_name)))
+
+        if emit_data_changed:
+            self.data_changed()
+
     @log_method
     def load_data(self, dataframe: pd.DataFrame):
         # make sure that there are no mixed types
@@ -140,6 +160,7 @@ class DataModel(QAbstractTableModel):
         if role == Qt.ItemDataRole.EditRole:
             self._df.iloc[index.row(), index.column()] = value
             self.dataChanged.emit(index, index)
+            self.try_casting_column_type(index.column(), emit_data_changed=False)
             return True
         return False
 
@@ -176,6 +197,7 @@ class DataModel(QAbstractTableModel):
         assert len(values) == self.rowCount()
         column_name = self._df.columns[column_index]
         self._df[column_name] = values
+        self.try_casting_column_type(column_index, emit_data_changed=False)
         self.dataChanged.emit(self.index(0, column_index), self.index(self.rowCount() - 1, column_index))
 
     @log_method_noarg

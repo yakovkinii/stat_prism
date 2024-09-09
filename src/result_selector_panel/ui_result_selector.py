@@ -12,6 +12,7 @@ from src.common.size import Font, SettingsPanelSize
 from src.common.unique_qss import set_stylesheet
 from src.result_selector_panel.const import ClickAction
 from src.result_selector_panel.result_item import ResultItemWidget
+from src.settings_panel.panels.registry import PanelRegistry
 
 if TYPE_CHECKING:
     from src.ui_main import MainWindowClass
@@ -76,7 +77,7 @@ class ResultSelectorPanelClass:
         self.add_result_button.setFixedHeight(60)
         self.add_result_button.clicked.connect(
             lambda: self.parent_class.action_activate_panel_by_index(
-                self.parent_class.settings_panel.select_study_panel_index
+                PanelRegistry.SELECT_STUDY.settings_stacked_widget_index
             )
         )
 
@@ -122,13 +123,28 @@ class ResultSelectorPanelClass:
     def item_handler(self, action: ClickAction, result_id: int, element_id: str):
         logging.info(f"Item handler: {action} {result_id} {element_id}")
         if action == ClickAction.ACTIVATE:
-            self.parent_class.settings_panel.panels[RESULTS[result_id].settings_panel_index].configure(result_id)
-            self.parent_class.action_activate_panel_by_index(RESULTS[result_id].settings_panel_index)
-            self.parent_class.results_panel.display(result_id=result_id, element_id=element_id)
-            self.selected_result = result_id
-            self.selected_element = element_id
-            self.refresh()
-            self.root_class.tab_widget.setCurrentIndex(1)
+            if element_id is None:
+                self.parent_class.settings_panel.panels[RESULTS[result_id].settings_panel_index].configure(result_id)
+                self.parent_class.action_activate_panel_by_index(RESULTS[result_id].settings_panel_index)
+                self.parent_class.results_panel.display(result_id=result_id, element_id=element_id)
+                self.selected_result = result_id
+                self.selected_element = element_id
+                self.refresh()
+                self.root_class.tab_widget.setCurrentIndex(1)
+            else:
+                # self.parent_class.settings_panel.panels[RESULTS[result_id].settings_panel_index].configure(result_id)
+                self.parent_class.action_activate_panel_by_index(
+                    RESULTS[result_id].result_elements[element_id].settings_panel_index
+                )
+                self.parent_class.settings_panel.panels[
+                    RESULTS[result_id].result_elements[element_id].settings_panel_index
+                ].configure(result_id, element_id)
+
+                self.parent_class.results_panel.display(result_id=result_id, element_id=element_id)
+                self.selected_result = result_id
+                self.selected_element = element_id
+                self.refresh()
+                self.root_class.tab_widget.setCurrentIndex(1)
         elif action == ClickAction.DELETE:
             if element_id is None:
                 raise NotImplementedError()

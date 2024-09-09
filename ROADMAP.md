@@ -71,27 +71,31 @@ For plots, the customization is mostly regarding the color scheme.</g>
 [//]: # (<details>)
 <summary></summary>
 
-* Color column selector according to the column category
-* Custom column inversion calibration
-* Change column type and dtype
+* <y>(Adjourned) Color column selector according to the column category</y>
+* <y>(Adjourned) Custom column inversion calibration</y>
+* <y>(Adjourned) UI for changing column type and dtype</y>
 * <g>Advanced filters</g>
 * <g>Group column values into custom categories</g>
-* <g>Add plots</g> and plot tools
+* <g>Add plots and plot tools</g>
 * <g>Unify result styles</g>
-* Refactor the modules
+* <g>Refactor the modules</g>
+* <g>Add some way of copying plots</g>
+* <g>Fix plot size resetting</g>
+* <g>Make correlations feature-complete</g>
 
 [//]: # (</details>)
 
 ### Checklist for unfreezing:
 
-<details>
+[//]: # (<details>)
 <summary></summary>
 
-* Correlations are fully functional and feature-complete, 
-including customization and export of result elements.
-* Refactoring debt is mostly paid off.
+* <g>Correlations are fully functional and feature-complete, 
+including customization</g>
+* <g>At least some way to export of each result element.</g>
+* <g>Technical debt is mostly paid off.</g>
 
-</details>
+[//]: # (</details>)
 
 ---
 
@@ -102,7 +106,7 @@ including customization and export of result elements.
 
 * Undo functionality
 * All basic analyses (ANOVA, EFA, CFA, etc.)
-* Table slicing and rotated copying
+* Table slicing on export and rotated copying
 * Try-except handling
 
 </details>

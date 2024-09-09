@@ -11,6 +11,7 @@ from src.common.unique_qss import set_stylesheet
 from src.data_panel.ui_data import DataPanelClass
 from src.result_display_panel.ui_result_display import ResultDisplayClass
 from src.result_selector_panel.ui_result_selector import ResultSelectorPanelClass
+from src.settings_panel.panels.registry import PanelRegistry
 from src.settings_panel.ui_settings import SettingsPanelClass
 
 
@@ -114,24 +115,25 @@ class MainWindowClass(QtWidgets.QMainWindow):
 
     @log_method
     def action_activate_column_panel(self, column_index):
-        if (self.settings_panel.stacked_widget.currentIndex == self.settings_panel.column_panel_index) and (
-            self.settings_panel.column_panel.column_index == column_index
+        if (self.settings_panel.stacked_widget.currentIndex == PanelRegistry.COLUMN.settings_stacked_widget_index) and (
+            PanelRegistry.COLUMN.ui_instance.column_index == column_index
         ):
             return
         logging.info("configuring column panel")
-        self.settings_panel.stacked_widget.setCurrentIndex(self.settings_panel.column_panel_index)
-        self.settings_panel.column_panel.configure(column_index)
+        self.settings_panel.stacked_widget.setCurrentIndex(PanelRegistry.COLUMN.settings_stacked_widget_index)
+        PanelRegistry.COLUMN.ui_instance.configure(column_index)
 
     @log_method
     def action_current_column_begin_edit_title(self):
-        self.settings_panel.column_panel.begin_edit_title()
+        PanelRegistry.COLUMN.ui_instance.begin_edit_title()
 
     @log_method_noarg
     def action_activate_home_panel(self):
         for debt in DEBTS:
             if debt.debt_type == DebtType.ON_STUDY_CHANGE:
                 debt.resolve()
-        self.settings_panel.stacked_widget.setCurrentIndex(self.settings_panel.home_panel_index)
+
+        self.settings_panel.stacked_widget.setCurrentIndex(PanelRegistry.HOME.settings_stacked_widget_index)
 
     @log_method
     def action_activate_panel_by_index(self, index):
@@ -147,18 +149,22 @@ class MainWindowClass(QtWidgets.QMainWindow):
 
     @log_method
     def action_activate_columns_panel(self, column_indexes):
-        if (self.settings_panel.stacked_widget.currentIndex == self.settings_panel.columns_panel_index) and (
-            self.settings_panel.columns_panel.column_indexes == column_indexes
-        ):
+        if (
+            self.settings_panel.stacked_widget.currentIndex == PanelRegistry.COLUMNS.settings_stacked_widget_index
+        ) and (PanelRegistry.COLUMNS.ui_instance.column_indexes == column_indexes):
             return
 
-        self.settings_panel.stacked_widget.setCurrentIndex(self.settings_panel.columns_panel_index)
-        self.settings_panel.columns_panel.configure(column_indexes)
+        self.settings_panel.stacked_widget.setCurrentIndex(PanelRegistry.COLUMNS.settings_stacked_widget_index)
+        PanelRegistry.COLUMNS.ui_instance.configure(column_indexes)
 
     @log_method_noarg
     def on_tab_changed(self):
         if self.tab_widget.currentIndex() == 1:
             self.splitter.setSizes([1, 1])
+
+    @log_method_noarg
+    def action_hide_result_selector(self):
+        self.splitter.setSizes([1, 0])
 
     @log_method_noarg
     def action_activate_results_panel(self):

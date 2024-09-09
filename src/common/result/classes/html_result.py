@@ -1,5 +1,8 @@
+import logging
 from typing import List, Union
 
+from src.common.constant import TABLE_OR_PLOT_ID_PLACEHOLDER
+from src.common.decorators import log_method
 from src.common.result.classes.base_result import BaseResultElement
 
 
@@ -44,6 +47,7 @@ class Row:
 
 class HTMLTable:
     def __init__(self, rows: List[Row], border_top: bool = True, border_bottom: bool = True):
+        logging.info("Creating HTMLTable Element")
         self.rows: List[Row] = rows
         self.border_top = border_top
         self.border_bottom = border_bottom
@@ -54,8 +58,8 @@ class HTMLTable:
     def get_html(self):
         # Caption
         html = ""
-        html += f'<span class="double-spacing font"><b>Table {self.table_id}.</b></span> <br>'
-        html += f'<span class="double-spacing font">{self.table_caption}</span><br><br>'
+        html += f'<div class="double-spacing font"><b>Table {self.table_id}.</b></div>'
+        html += f'<div class="double-spacing font">{self.table_caption}</div>'
 
         style = ""
         if self.border_top:
@@ -102,7 +106,7 @@ class HTMLTable:
             html += "</tr>"
         html += "</table><br>"
         if self.table_note != "":
-            html += f'<span class="double-spacing font"><i>Note.</i> {self.table_note}</span>'
+            html += f'<div class="double-spacing font"><i>Note.</i> {self.table_note}</div>'
 
         # print(html)
         return html
@@ -124,32 +128,31 @@ class HTMLTable:
 
 class HTMLText:
     def __init__(self, text):
+        logging.info("Creating HTMLText Element")
+
         self.text: str = text
+        self.table_id: str = "1"
 
     def get_html(self):
-        return f'<span class="double-spacing font">{self.text}</span><br><br>'
+        return (
+            f'<div class="double-spacing font">'
+            f"{self.text.replace(TABLE_OR_PLOT_ID_PLACEHOLDER, self.table_id)}"
+            f"</div><br><br>"
+        )
 
 
 class HTMLResultElement(BaseResultElement):
-    def __init__(self, tab_title="HTML Result Element"):
+    def __init__(self, settings_panel_index, tab_title="Table and Description"):
         super().__init__()
+        logging.info("Creating HTML Result Element")
         self.title: str = tab_title
         self.class_id: str = "HTMLResultElement"
         self.items: List[Union[HTMLTable, HTMLText]] = []
+        self.settings_panel_index = settings_panel_index
+        self.table_id: str = "1"
 
-
-STYLES = (
-    "<style>"
-    ".double-spacing{"
-    "line-height: 2;"
-    "}"
-    ".font {"
-    "font-size: 12pt;"
-    "font-family: 'Times New Roman';"
-    "}"
-    "table, th, td, span {"
-    "border-collapse: collapse;"
-    "font-size: 12pt;"
-    "}"
-    "</style>"
-)
+    @log_method
+    def set_table_id(self, table_id):
+        self.table_id = table_id
+        for item in self.items:
+            item.table_id = table_id

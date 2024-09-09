@@ -5,30 +5,12 @@ from PySide6 import QtWidgets
 from PySide6.QtGui import QAction
 from PySide6.QtWidgets import QMenu, QMenuBar, QVBoxLayout
 
-from src.common.constant import DEBUG_LAYOUT
 from src.common.size import SettingsPanelSize
 from src.common.unique_qss import set_stylesheet
-from src.settings_panel.panels.anova import Anova
-from src.settings_panel.panels.binomiallogregression import BinomialLogRegression
-from src.settings_panel.panels.calculate import Calculate
-from src.settings_panel.panels.column import Column
-from src.settings_panel.panels.column_selector import ColumnSelector
-from src.settings_panel.panels.columns import Columns
-from src.settings_panel.panels.correlation import Correlation
-from src.settings_panel.panels.crosstab import Crosstab
-from src.settings_panel.panels.descriptive import Descriptive
-from src.settings_panel.panels.efa import EFA
-from src.settings_panel.panels.filter import Filter
-from src.settings_panel.panels.home import Home
-from src.settings_panel.panels.invert import Inverse
-from src.settings_panel.panels.kruskalwallis import KruskalWallis
-from src.settings_panel.panels.linearregr import Linearregr
-from src.settings_panel.panels.multinomiallogregression import MultinomialLogRegression
-from src.settings_panel.panels.ordnallogregression import OrdnalLogRegression
-from src.settings_panel.panels.partcorrelation import PartCorrelation
-from src.settings_panel.panels.reliability import Reliability
-from src.settings_panel.panels.select_study import SelectStudy
-from src.settings_panel.panels.ttest import TTest
+from src.modules.registry import ModuleRegistry, ModuleRegistryItem
+from src.modules.registry_injector import inject_classes_to_module_registry
+from src.settings_panel.panels.registry import PanelRegistry, PanelRegistryItem
+from src.settings_panel.panels.registry_injector import inject_classes_to_panel_registry
 
 if TYPE_CHECKING:
     from src.ui_main import MainWindowClass
@@ -41,8 +23,6 @@ class SettingsPanelClass:
         self.parent_class: MainWindowClass = parent_class
         self.widget = QtWidgets.QWidget(parent_widget)
 
-        if DEBUG_LAYOUT:
-            set_stylesheet(self.widget, "#id{border: 1px solid red; background-color: #fee;}")
         self.widget_layout = QVBoxLayout(self.widget)
         self.widget_layout.setContentsMargins(0, 0, 0, 0)
         self.widget.setLayout(self.widget_layout)
@@ -59,226 +39,9 @@ class SettingsPanelClass:
         # Definition
         self.stacked_widget = QtWidgets.QStackedWidget(self.widget)
 
-        # Todo move to module
-        self.home_panel_index = 0
-        self.home_panel: Home = Home(
-            parent_widget=self.stacked_widget,
-            parent_class=self,
-            root_class=self.root_class,
-            stacked_widget_index=self.home_panel_index,
-        )
-        # Todo move to module
-        self.column_panel_index = 1
-        self.column_panel: Column = Column(
-            parent_widget=self.stacked_widget,
-            parent_class=self,
-            root_class=self.root_class,
-            stacked_widget_index=self.column_panel_index,
-        )
+        self.max_used_panel_index = None
 
-        # Todo move to module
-        self.inverse_panel_index = 2
-        self.inverse_panel: Inverse = Inverse(
-            parent_widget=self.stacked_widget,
-            parent_class=self,
-            root_class=self.root_class,
-            stacked_widget_index=self.inverse_panel_index,
-        )
-
-        # Todo move to module
-        self.columns_panel_index = 3
-        self.columns_panel: Columns = Columns(
-            parent_widget=self.stacked_widget,
-            parent_class=self,
-            root_class=self.root_class,
-            stacked_widget_index=self.columns_panel_index,
-        )
-
-        # Todo move to module
-        self.select_study_panel_index = 4
-        self.select_study_panel: SelectStudy = SelectStudy(
-            parent_widget=self.stacked_widget,
-            parent_class=self,
-            root_class=self.root_class,
-            stacked_widget_index=self.select_study_panel_index,
-        )
-
-        # Todo move to module
-        self.calculate_panel_index = 5
-        self.calculate_panel: Calculate = Calculate(
-            parent_widget=self.stacked_widget,
-            parent_class=self,
-            root_class=self.root_class,
-            stacked_widget_index=self.calculate_panel_index,
-        )
-
-        # Todo move to module
-        self.descriptive_panel_index = 6
-        self.descriptive_panel: Descriptive = Descriptive(
-            parent_widget=self.stacked_widget,
-            parent_class=self,
-            root_class=self.root_class,
-            stacked_widget_index=self.descriptive_panel_index,
-        )
-
-        self.correlation_panel_index = 7
-        self.correlation_panel: Correlation = Correlation(
-            parent_widget=self.stacked_widget,
-            parent_class=self,
-            root_class=self.root_class,
-            stacked_widget_index=self.correlation_panel_index,
-        )
-
-        self.filter_panel_index = 8
-        self.filter_panel: Filter = Filter(
-            parent_widget=self.stacked_widget,
-            parent_class=self,
-            root_class=self.root_class,
-            stacked_widget_index=self.filter_panel_index,
-        )
-
-        self.crosstab_panel_index = 9
-        self.crosstab_panel: Crosstab = Crosstab(
-            parent_widget=self.stacked_widget,
-            parent_class=self,
-            root_class=self.root_class,
-            stacked_widget_index=self.crosstab_panel_index,
-        )
-
-        self.linearregr_panel_index = 10
-        self.linearregr_panel: Linearregr = Linearregr(
-            parent_widget=self.stacked_widget,
-            parent_class=self,
-            root_class=self.root_class,
-            stacked_widget_index=self.linearregr_panel_index,
-        )
-
-        self.kruskalwallis_panel_index = 11
-        self.kruskalwallis_panel: KruskalWallis = KruskalWallis(
-            parent_widget=self.stacked_widget,
-            parent_class=self,
-            root_class=self.root_class,
-            stacked_widget_index=self.kruskalwallis_panel_index,
-        )
-
-        self.partcorrelation_panel_index = 12
-        self.partcorrelation_panel: PartCorrelation = PartCorrelation(
-            parent_widget=self.stacked_widget,
-            parent_class=self,
-            root_class=self.root_class,
-            stacked_widget_index=self.partcorrelation_panel_index,
-        )
-
-        self.binomiallogregression_panel_index = 13
-        self.binomiallogregression_panel: BinomialLogRegression = BinomialLogRegression(
-            parent_widget=self.stacked_widget,
-            parent_class=self,
-            root_class=self.root_class,
-            stacked_widget_index=self.binomiallogregression_panel_index,
-        )
-
-        self.multinomiallogregression_panel_index = 14
-        self.multinomiallogregression_panel: MultinomialLogRegression = MultinomialLogRegression(
-            parent_widget=self.stacked_widget,
-            parent_class=self,
-            root_class=self.root_class,
-            stacked_widget_index=self.multinomiallogregression_panel_index,
-        )
-
-        self.ordnallogregression_panel_index = 15
-        self.ordnallogregression_panel: OrdnalLogRegression = OrdnalLogRegression(
-            parent_widget=self.stacked_widget,
-            parent_class=self,
-            root_class=self.root_class,
-            stacked_widget_index=self.ordnallogregression_panel_index,
-        )
-
-        self.reliability_panel_index = 16
-        self.reliability_panel: Reliability = Reliability(
-            parent_widget=self.stacked_widget,
-            parent_class=self,
-            root_class=self.root_class,
-            stacked_widget_index=self.reliability_panel_index,
-        )
-
-        self.efa_panel_index = 17
-        self.efa_panel: EFA = EFA(
-            parent_widget=self.stacked_widget,
-            parent_class=self,
-            root_class=self.root_class,
-            stacked_widget_index=self.efa_panel_index,
-        )
-
-        self.ttest_panel_index = 18
-        self.ttest_panel: TTest = TTest(
-            parent_widget=self.stacked_widget,
-            parent_class=self,
-            root_class=self.root_class,
-            stacked_widget_index=self.ttest_panel_index,
-        )
-
-        self.anova_panel_index = 19
-        self.anova_panel: Anova = Anova(
-            parent_widget=self.stacked_widget,
-            parent_class=self,
-            root_class=self.root_class,
-            stacked_widget_index=self.anova_panel_index,
-        )
-
-        self.column_selector_panel_index = 20
-        self.column_selector_panel: ColumnSelector = ColumnSelector(
-            parent_widget=self.stacked_widget,
-            parent_class=self,
-            root_class=self.root_class,
-            stacked_widget_index=self.column_selector_panel_index,
-        )
-
-        self.panels = [
-            self.home_panel,
-            self.column_panel,
-            self.inverse_panel,
-            self.columns_panel,
-            self.select_study_panel,
-            self.calculate_panel,
-            self.descriptive_panel,
-            self.correlation_panel,
-            self.filter_panel,
-            self.crosstab_panel,
-            self.linearregr_panel,
-            self.kruskalwallis_panel,
-            self.partcorrelation_panel,
-            self.binomiallogregression_panel,
-            self.multinomiallogregression_panel,
-            self.ordnallogregression_panel,
-            self.reliability_panel,
-            self.efa_panel,
-            self.ttest_panel,
-            self.anova_panel,
-            self.column_selector_panel,
-        ]
-
-        # Relations
-        self.stacked_widget.addWidget(self.home_panel.widget)  # Todo move to module
-        self.stacked_widget.addWidget(self.column_panel.widget)  # Todo move to module
-        self.stacked_widget.addWidget(self.inverse_panel.widget)  # Todo move to module
-        self.stacked_widget.addWidget(self.columns_panel.widget)  # Todo move to module
-        self.stacked_widget.addWidget(self.select_study_panel.widget)  # Todo move to module
-        self.stacked_widget.addWidget(self.calculate_panel.widget)  # Todo move to module
-        self.stacked_widget.addWidget(self.descriptive_panel.widget)  # Todo move to module
-        self.stacked_widget.addWidget(self.correlation_panel.widget)  # Todo move to module
-        self.stacked_widget.addWidget(self.filter_panel.widget)
-        self.stacked_widget.addWidget(self.crosstab_panel.widget)
-        self.stacked_widget.addWidget(self.linearregr_panel.widget)
-        self.stacked_widget.addWidget(self.kruskalwallis_panel.widget)
-        self.stacked_widget.addWidget(self.partcorrelation_panel.widget)
-        self.stacked_widget.addWidget(self.binomiallogregression_panel.widget)
-        self.stacked_widget.addWidget(self.multinomiallogregression_panel.widget)
-        self.stacked_widget.addWidget(self.ordnallogregression_panel.widget)
-        self.stacked_widget.addWidget(self.reliability_panel.widget)
-        self.stacked_widget.addWidget(self.efa_panel.widget)
-        self.stacked_widget.addWidget(self.ttest_panel.widget)
-        self.stacked_widget.addWidget(self.anova_panel.widget)
-        self.stacked_widget.addWidget(self.column_selector_panel.widget)
+        self.panels = []
 
         self.widget_layout.addWidget(self.stacked_widget)
 
@@ -302,13 +65,54 @@ class SettingsPanelClass:
         file_menu.addAction(save_table_action)
         help_menu.addAction(about_action)
 
-        # Post-init
-        self.stacked_widget.setCurrentIndex(self.home_panel_index)
+        # Add all panels
+        inject_classes_to_panel_registry()
+        for panel in PanelRegistry:
+            self.add_panel(panel.value)
 
-        open_action.triggered.connect(self.home_panel.open_handler)
-        save_action.triggered.connect(self.home_panel.save_handler)
+        # Add all modules
+        inject_classes_to_module_registry()
+        for module in ModuleRegistry:
+            self.add_module(module.value)
+
+        # post-init
+        self.stacked_widget.setCurrentIndex(PanelRegistry.HOME.value.settings_stacked_widget_index)
+
+        open_action.triggered.connect(PanelRegistry.HOME.value.ui_instance.open_handler)
+        save_action.triggered.connect(PanelRegistry.HOME.value.ui_instance.save_handler)
         save_table_action.triggered.connect(self.save_table_handler)
-        about_action.triggered.connect(self.home_panel.about_handler)
+        about_action.triggered.connect(PanelRegistry.HOME.value.ui_instance.about_handler)
+
+    def get_available_index(self):
+        if self.max_used_panel_index is None:
+            self.max_used_panel_index = 0
+            return 0
+        self.max_used_panel_index += 1
+        return self.max_used_panel_index
+
+    def add_module(self, panel_registry_item: ModuleRegistryItem):
+        panel_registry_item.settings_stacked_widget_index = self.get_available_index()
+        panel_registry_item.ui_instance = panel_registry_item.ui_class(
+            parent_widget=self.stacked_widget,
+            parent_class=self,
+            root_class=self.root_class,
+            stacked_widget_index=panel_registry_item.settings_stacked_widget_index,
+        )
+        panel_registry_item.ui_instance.setup_ui()
+        self.panels.append(panel_registry_item.ui_instance)
+        self.stacked_widget.addWidget(panel_registry_item.ui_instance.widget)
+
+    def add_panel(self, panel_registry_item: PanelRegistryItem):
+        panel_registry_item.settings_stacked_widget_index = self.get_available_index()
+        panel_registry_item.ui_instance = panel_registry_item.ui_class(
+            parent_widget=self.stacked_widget,
+            parent_class=self,
+            root_class=self.root_class,
+            stacked_widget_index=panel_registry_item.settings_stacked_widget_index,
+        )
+        panel_registry_item.ui_instance.setup_ui()
+        self.panels.append(panel_registry_item.ui_instance)
+        self.stacked_widget.addWidget(panel_registry_item.ui_instance.widget)
 
     def save_table_handler(self):
         file_path, _ = QtWidgets.QFileDialog.getSaveFileName(

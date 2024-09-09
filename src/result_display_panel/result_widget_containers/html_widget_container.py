@@ -26,6 +26,7 @@ class HTMLResultElementWidgetContainer:
         html = "<HTML>" + STYLES
         html += "<br><br><br>".join([item.get_html() for item in self.result_element.items])
         html += "</HTML>"
+        logging.info(html)
         return html
 
     def copy_for_word(self):
