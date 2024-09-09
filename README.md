@@ -11,3 +11,13 @@ The primary features distinguishing StatPrism from the competitors are the follo
 
 This software is in development and is provided as is, without any guarantees.
 This version of StatPrism is intended for internal testing only.
+
+To install the developer edition:
+
+1. Install Python 3.9.13 from https://www.python.org/downloads/release/python-3913/
+2. Install Git from https://git-scm.com/downloads
+3. Clone the repository:
+ `git clone https://yakovkinii@bitbucket.org/yakovkinii/stat_prism.git`
+4. Create environment by running _CREATE_ENV.bat_.
+5. Update the environment by running _UPDATE.bat_.
+6. Run the software by running _RUN.bat_.
