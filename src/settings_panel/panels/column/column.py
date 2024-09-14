@@ -3,9 +3,11 @@ from typing import TYPE_CHECKING
 
 from PySide6 import QtCore
 
+from src.common.constant import ColumnType
 from src.common.decorators import log_method, log_method_noarg
 from src.common.elements.button.small_button import SmallButton
 from src.common.elements.column_color_selector.column_color_selector import ColumnColorSelector
+from src.common.elements.combo_box.combo_box import ComboBox
 from src.common.elements.title.title import Title
 from src.common.elements.title.title_editable import ColumnNameEditable
 from src.common.messages import Message, MessageType
@@ -26,6 +28,7 @@ class Column(BasePanel):
                 label_text="",
             ),
             "color": ColumnColorSelector(),
+            "column_type": ComboBox(),
             "add_col": SmallButton(
                 label_text="Add",
                 icon_path="mdi.table-column-plus-after",
@@ -42,16 +45,34 @@ class Column(BasePanel):
 
         self.setup(stretch=True)
 
+        self.configuring = True
+        self.elements["column_type"].widget.addItems(
+            [
+                ColumnType.NOMINAL.value,
+                ColumnType.ORDINAL.value,
+                ColumnType.NUMERIC.value,
+            ]
+        )
+        self.configuring = False
+
     @log_method
     def configure(self, column_index, caller_index=None):
+        self.configuring = True
         self.column_index = column_index
         self.caller_index = caller_index
         self.elements["title"].widget.setText(str(self.tabledata.get_column_name(self.column_index)))
 
-        if self.tabledata.get_column_dtype(self.column_index) in ["int"]:
+        self.elements["column_type"].widget.setCurrentText(self.tabledata.get_column_type(self.column_index).value)
+
+        if self.tabledata.get_column_type(self.column_index) in [
+            ColumnType.NUMERIC,
+            ColumnType.ORDINAL,
+            ColumnType.ORDINAL_UNCONFIRMED,
+        ]:
             self.elements["invert"].widget.setEnabled(True)
         else:
             self.elements["invert"].widget.setEnabled(False)
+        self.configuring = False
 
     @log_method_noarg
     def begin_edit_title(self):
@@ -141,6 +162,8 @@ class Column(BasePanel):
 
     @log_method
     def handler(self, message: Message):
+        if self.configuring:
+            return
         if message.message_type == MessageType.CLICKED:
             if message.caller_id == "invert":
                 self.inverse_handler()
@@ -157,5 +180,13 @@ class Column(BasePanel):
                 self.finish_editing_title(message.payload)
             else:
                 super().handler(message)
+        elif message.message_type == MessageType.STATE_CHANGED:
+            if message.caller_id == "column_type":
+                column_type = ColumnType(self.elements["column_type"].widget.currentText())
+                self.tabledata.set_column_type(self.column_index, column_type)
+                self.configure(
+                    column_index=self.column_index,
+                    caller_index=self.caller_index,
+                )
         else:
             super().handler(message)

@@ -1,7 +1,7 @@
 import logging
 from typing import TYPE_CHECKING
 
-from src.common.column_flags import ColumnFlagsRegistry
+from src.common.column_attributes import ColumnAttributesRegistry
 from src.common.decorators import log_method, log_method_noarg
 from src.common.elements.flip.flip import InvertVisualizer
 from src.common.elements.title.title import Title
@@ -54,6 +54,6 @@ class Inverse(BasePanel):
             )
             self.tabledata.toggle_column_flag(
                 column_name=column_name,
-                flag=ColumnFlagsRegistry.inverted,
+                flag=ColumnAttributesRegistry.inverted,
             )
         self.activate_caller()
