@@ -1,6 +1,9 @@
+import os
+
 import pyqtgraph as pg
-from PySide6.QtCore import QSize, Qt
-from PySide6.QtGui import QAction, QCursor, QGuiApplication, QImage, QPainter
+import pyqtgraph.exporters
+from PySide6.QtCore import Qt
+from PySide6.QtGui import QAction, QCursor, QImage
 from PySide6.QtWidgets import QApplication, QMenu
 
 
@@ -85,17 +88,15 @@ class ResizablePlotWidget(pg.PlotWidget):
         event.accept()
 
     def copy_as_image_to_clipboard(self):
-        # Set a more reasonable DPI for better image quality
-        dpi = 96
-        logical_dpi = QGuiApplication.primaryScreen().logicalDotsPerInch()
-        size = QSize(self.width() * dpi / logical_dpi, self.height() * dpi / logical_dpi)
-        image = QImage(size, QImage.Format_ARGB32)
-        image.setDevicePixelRatio(dpi / 96.0)  # 96 DPI is the default DPI
+        exporter = pg.exporters.ImageExporter(self.getPlotItem())
+        exporter.parameters()["width"] = 1280  # (note this also affects height parameter)
+        temp_file_name = "./~tmp.png"
+        exporter.export(temp_file_name)
 
-        painter = QPainter(image)
-        painter.setRenderHint(QPainter.Antialiasing)  # Enable antialiasing
-        self.render(painter)
-        painter.end()
+        image = QImage()
+        image.load(temp_file_name)
 
         clipboard = QApplication.clipboard()
         clipboard.setImage(image)
+
+        os.remove(temp_file_name)
