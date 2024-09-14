@@ -71,9 +71,9 @@ For plots, the customization is mostly regarding the color scheme.</g>
 [//]: # (<details>)
 <summary></summary>
 
-* <y>(Adjourned) Color column selector according to the column category</y>
-* <y>(Adjourned) Custom column inversion calibration</y>
-* <y>(Adjourned) UI for changing column type and dtype</y>
+* <g><s>Color column selector according to the column category</s></g>
+* <g>Custom column inversion calibration</g>
+* <g>UI for changing column type and dtype</g>
 * <g>Advanced filters</g>
 * <g>Group column values into custom categories</g>
 * <g>Add plots and plot tools</g>
@@ -82,6 +82,13 @@ For plots, the customization is mostly regarding the color scheme.</g>
 * <g>Add some way of copying plots</g>
 * <g>Fix plot size resetting</g>
 * <g>Make correlations feature-complete</g>
+* Check and debug UI for filters
+* Add self-explanatory UI decorations for filters
+* Edit table/figure captions
+* Edit Figure axis titles
+* Trace and remove message senders with no sender_id
+* (Optional) Add aliases for columns
+* (Optional) Compile results to single report
 
 [//]: # (</details>)
 
@@ -91,9 +98,10 @@ For plots, the customization is mostly regarding the color scheme.</g>
 <summary></summary>
 
 * <g>Correlations are fully functional and feature-complete, 
-including customization</g>
+including customization.</g>
 * <g>At least some way to export of each result element.</g>
 * <g>Technical debt is mostly paid off.</g>
+* Common UI elements are implemented to a reasonable extent.
 
 [//]: # (</details>)
 
