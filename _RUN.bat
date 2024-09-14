@@ -4,7 +4,13 @@
 
 @set datetime=%datetime:~0,4%%datetime:~4,2%%datetime:~6,2%_%datetime:~8,2%%datetime:~10,2%%datetime:~12,2%
 
-set logfile=log_%datetime%.log
+:: Read the version from about.py
+for /f "tokens=3 delims= " %%v in ('type src\about.py ^| findstr version') do @set version=%%v
+
+:: Remove quotes from the version string
+set version=%version:~1,-1%
+
+set logfile=log_%version%_%datetime%.log
 
 powershell -Command "Start-Transcript -Path %logfile%; venv_39\Scripts\python.exe launcher.py; Stop-Transcript"
 
