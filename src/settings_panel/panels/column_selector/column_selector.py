@@ -27,7 +27,7 @@ class ColumnSelector(BasePanel):
         self.popup = popup
         self.back_button.setEnabled(True)
 
-        self.popup.on_moved_column_handler = self.column_moved
+        self.popup.allow_ok_button_handler = self.allow_ok_button_handler
 
         self.elements["popup_holder"].configure(
             popup=popup,
@@ -46,5 +46,5 @@ class ColumnSelector(BasePanel):
         self.finished_handler()
 
     @log_method_noarg
-    def column_moved(self):
+    def allow_ok_button_handler(self):
         self.ok_button.setEnabled(True)

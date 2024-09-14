@@ -152,7 +152,7 @@ class ColumnSelectorEx(BasePanelElement):
 
 class ColumnSelectorExPopup:
     def __init__(self, parent_widget, fields: List[Field]):
-        self.on_moved_column_handler = None
+        self.allow_ok_button_handler = None
         self.fields = fields
         self.columns: List[Column] = []
         self.column_names: List[str] = []
@@ -171,6 +171,10 @@ class ColumnSelectorExPopup:
                 widget.clicked.connect(self.main_list_clicked),
                 widget.selectionModel().selectionChanged.connect(self.main_list_clicked),
                 widget.setFocusPolicy(Qt.FocusPolicy.NoFocus),
+                widget.setDragEnabled(True),
+                widget.setAcceptDrops(True),
+                widget.setDropIndicatorShown(True),
+                widget.setDefaultDropAction(QtCore.Qt.MoveAction),
                 set_stylesheet(widget, "#id{border: 1px solid #ddd;}"),
             ],
         )
@@ -264,6 +268,10 @@ class ColumnSelectorExPopup:
                         (lambda _: lambda: self.panel_list_clicked(_))(index)
                     ),
                     widget.setFocusPolicy(Qt.FocusPolicy.NoFocus),
+                    widget.setDragEnabled(True),
+                    widget.setAcceptDrops(True),
+                    widget.setDropIndicatorShown(True),
+                    widget.setDefaultDropAction(QtCore.Qt.MoveAction),
                     layout.setContentsMargins(0, 0, 0, 0),
                     set_stylesheet(widget, "#id{border: 1px solid #ddd;}"),
                 ),
@@ -273,6 +281,9 @@ class ColumnSelectorExPopup:
 
             self.panel_list_widgets.append(panel_list)
             self.panel_list_buttons.append(panel_list_button)
+
+            panel_list.dropEvent = lambda event, _=index: self.dropEvent(event, index)
+        self.main_list.dropEvent = lambda event: self.dropEvent(event, -1)
 
     def configure(self, columns: List[Column], selected_columns_list: List[List[str]]):
         clean_up_list_widget(self.main_list)
@@ -314,21 +325,35 @@ class ColumnSelectorExPopup:
                 button.setText("Remove")
                 button.setEnabled(False)
 
-    def button_pressed(self, button_index):
+    def dropEvent(self, event, index):
+        source_list = event.source()
+        target_list = self.panel_list_widgets[index] if index != -1 else self.main_list
+        if target_list == source_list:
+            super(QListWidgetClickable, source_list).dropEvent(event)
+            self.allow_ok_button_handler()
+            event.ignore()
+            return
+
+        if isinstance(target_list, QListWidgetClickable):
+            if source_list == self.main_list:
+                self.button_pressed(index, from_drop=True, remove=False)
+            else:
+                self.button_pressed(index, from_drop=True, remove=True)
+        event.ignore()
+
+    def button_pressed(self, button_index, from_drop=False, remove=False):
         logging.info(f"Button {button_index} pressed")
         button = self.panel_list_buttons[button_index]
         panel_list = self.panel_list_widgets[button_index]
-        if button.text() == "Add":
-            selected_main = self.main_list.selectedItems()
+        if (button.text() == "Add" and not from_drop) or (from_drop and not remove):
+            selected_main = self.main_list.selectedItems() if not from_drop else [self.main_list.currentItem()]
             if selected_main:
-                # check that all column types are ok
                 selected_main_names = [item.text() for item in selected_main]
                 selected_main_types = [
                     self.columns[self.column_names.index(item)].column_type for item in selected_main_names
                 ]
                 panel_type = self.fields[button_index].column_type
                 if not all([selected_main_type == panel_type for selected_main_type in selected_main_types]):
-                    # make the icon flash for a second
                     icon = self.panel_list_icons[button_index]
                     old_pixmap = icon.pixmap()
                     icon.setPixmap(qta.icon("mdi.alert", color="red").pixmap(24, 24))
@@ -340,11 +365,10 @@ class ColumnSelectorExPopup:
                     new_item.setIcon(item.icon())
                     panel_list.addItem(new_item)
                     self.main_list.takeItem(self.main_list.row(item))
-                if self.on_moved_column_handler is not None:
-                    self.on_moved_column_handler()
-        elif button.text() == "Remove":
-            selected_list = panel_list.selectedItems()
-            # selected_list1 = panel_list.currentItem()
+                if self.allow_ok_button_handler is not None:
+                    self.allow_ok_button_handler()
+        elif (button.text() == "Remove" and not from_drop) or (from_drop and remove):
+            selected_list = panel_list.selectedItems() if not remove else [panel_list.currentItem()]
             if selected_list:
                 for item in selected_list:
                     new_item = QListWidgetItem(item.text())
@@ -361,8 +385,8 @@ class ColumnSelectorExPopup:
                     new_item = QListWidgetItem(item)
                     new_item.setIcon(COLUMN_TYPE_ICONS[self.columns[self.column_names.index(item)].column_type])
                     self.main_list.addItem(new_item)
-                if self.on_moved_column_handler is not None:
-                    self.on_moved_column_handler()
+                if self.allow_ok_button_handler is not None:
+                    self.allow_ok_button_handler()
 
 
 class ColumnSelectorPopupHolder(BasePanelElement):
