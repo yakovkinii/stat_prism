@@ -93,9 +93,20 @@ class FilterSetup(BasePanelElement):
         self.filter_settings = None
         self.widget = QWidget(self.parent_widget)
         self.layout = QVBoxLayout(self.widget)
-        self.layout.setContentsMargins(0, 0, 0, 0)
-        self.layout.setSpacing(0)
+        self.layout.setContentsMargins(4, 4, 4, 4)
+        self.layout.setSpacing(4)
         self.widget.setLayout(self.layout)
+        set_stylesheet(self.widget, f"#id{{border: 1px solid #aaa;}}")
+
+        self.label = widget_in_layout(
+            widget=QLabel(self.widget),
+            layout=self.layout,
+            setup=lambda widget, layout: [
+                widget.setText("Add New Filter"),
+                set_stylesheet(widget, f"#id{{font-size: {Font.size_big}px; color: grey;}}"),
+                widget.setAlignment(Qt.AlignmentFlag.AlignCenter),
+            ],
+        )
 
         w1, l1 = empty_widget(
             parent=self.widget,
@@ -161,8 +172,24 @@ class FilterSetup(BasePanelElement):
             layout=l2,
             setup=lambda widget, layout: [
                 set_stylesheet(widget, f"font-size: {Font.size}px;"),
+                widget.setTextInteractionFlags(Qt.TextInteractionFlag.TextSelectableByMouse),
             ],
         )
+
+        self.clear_button = widget_in_layout(
+            widget=QPushButton(w2),
+            layout=l2,
+            setup=lambda widget, layout: [
+                widget.setText(""),
+                widget.setIcon(qta.icon("fa5s.times")),
+                widget.setIconSize(QtCore.QSize(24, 24)),
+                widget.setFixedWidth(32),
+                widget.setFixedHeight(32),
+                widget.setEnabled(True),
+                widget.clicked.connect(self.clear),
+            ],
+        )
+
         self.ok_button = widget_in_layout(
             widget=QPushButton(w2),
             layout=l2,
@@ -178,7 +205,7 @@ class FilterSetup(BasePanelElement):
                         Message(
                             message_type=MessageType.FILTER_ADDED,
                             payload=self.filter_settings,
-                            caller_id="filter",
+                            caller_id=self.element_id,
                         )
                     )
                 ),
@@ -230,6 +257,13 @@ class FilterSetup(BasePanelElement):
             model = self.filter_type_operation.model()
             for index in [1, 2, 3, 4]:
                 model.item(index).setFlags(model.item(index).flags() & ~Qt.ItemFlag.ItemIsEnabled)
+            if self.filter_type_operation.currentText() in [
+                FilterTypeOperation.GREATER.value,
+                FilterTypeOperation.LESS.value,
+                FilterTypeOperation.GREATER_EQUAL.value,
+                FilterTypeOperation.LESS_EQUAL.value,
+            ]:
+                self.filter_type_operation.setCurrentIndex(0)
         else:
             model = self.filter_type_operation.model()
             for index in [1, 2, 3, 4]:
@@ -239,8 +273,33 @@ class FilterSetup(BasePanelElement):
         if self.configuring:
             return
         if self.filter_value.text() == "":
-            self.result_label.setText("")
             self.ok_button.setEnabled(False)
+            self.root_class.data_panel.tabledata.filtered_rows = self.already_filtered_rows
+            self.root_class.data_panel.tabledata.data_changed()
+
+            try:
+                if self.filter_column.currentText() == RESPONDENT_NUMBER:
+                    self.result_label.setText("Example: 0")
+                    return
+
+                unique_values = self.df[self.filter_column.currentText()].unique()
+
+                def format_value(val):
+                    if isinstance(val, str):
+                        return f'"{val}"'
+                    return str(val)
+
+                if self.filter_type_operation.currentText() == FilterTypeOperation.CONTAINS.value:
+                    self.result_label.setText(f"Example: {', '.join([format_value(val) for val in unique_values[:3]])}")
+                elif self.filter_type_operation.currentText() == FilterTypeOperation.EQUAL.value:
+                    self.result_label.setText(f"Example: {format_value(unique_values[0])}")
+                else:
+                    self.result_label.setText(f"Example: {format_value(unique_values[0])}")
+
+            except Exception as e:
+                logging.error(f"Error getting a hint: {e}")
+                self.result_label.setText("Error: \nCould not generate a hint.")
+
             return
 
         initial_population = self.df.shape[0]
@@ -274,6 +333,13 @@ class FilterSetup(BasePanelElement):
             self.result_label.setText(f"Invalid filter:\n{query}")
             self.ok_button.setEnabled(False)
 
+    def clear(self):
+        self.filter_type_remove_keep.setCurrentIndex(0)
+        self.filter_column.setCurrentIndex(0)
+        self.filter_type_operation.setCurrentIndex(0)
+        self.filter_value.setText("")
+        self.filter_changed()
+
 
 class CompiledFilterHistory(BasePanelElement):
     def __init__(self):
@@ -282,22 +348,60 @@ class CompiledFilterHistory(BasePanelElement):
         self.filter_widgets = []
 
     def setup(self):
-        self.widget = QWidget(self.parent_widget)
-        self.layout = QVBoxLayout(self.widget)
-        self.layout.setContentsMargins(0, 0, 0, 0)
-        self.layout.setSpacing(0)
-        self.widget.setLayout(self.layout)
+        self.widget, self.layout = empty_widget(
+            parent=self.parent_widget,
+            inner_layout_class=QVBoxLayout,
+            setup=lambda widget, layout: [
+                layout.setContentsMargins(4, 4, 4, 4),
+                layout.setSpacing(0),
+                set_stylesheet(widget, f"#id{{border: 1px solid #aaa;}}"),
+            ],
+        )
+
+        self.label = widget_in_layout(
+            widget=QLabelClickable(self.widget),
+            layout=self.layout,
+            setup=lambda widget, layout: [
+                widget.setText("No Filters Applied"),
+                set_stylesheet(widget, f"#id{{font-size: {Font.size_big}px; color: grey;}}"),
+                widget.setAlignment(Qt.AlignmentFlag.AlignCenter),
+                widget.clicked.connect(
+                    lambda: self.handler(
+                        Message(
+                            message_type=MessageType.CLICKED,
+                            payload=None,
+                            caller_id=self.element_id,
+                        )
+                    )
+                ),
+            ],
+        )
+
+        self.widget_for_filters, self.layout_for_filters = empty_widget(
+            parent=self.widget,
+            outer_layout=self.layout,
+            inner_layout_class=QVBoxLayout,
+            setup=lambda widget, layout: [
+                layout.setContentsMargins(0, 0, 0, 0),
+                layout.setSpacing(4),
+            ],
+        )
 
     def configure(self, filters: List[FilterSettings]):
         for filter_widget in self.filter_widgets:
-            self.layout.removeWidget(filter_widget)
+            self.layout_for_filters.removeWidget(filter_widget)
             filter_widget.deleteLater()
 
         self.filter_widgets = []
+        if len(filters) == 0:
+            self.label.setText("No Active Filters")
+        else:
+            self.label.setText("Active Filters:")
+
         for i, filter_settings in enumerate(filters):
             filter_widget = widget_in_layout(
-                widget=QLabelClickable(self.widget),
-                layout=self.layout,
+                widget=QLabelClickable(self.widget_for_filters),
+                layout=self.layout_for_filters,
                 setup=lambda widget, layout: [
                     widget.setText(filter_settings.get_text()),
                     widget.clicked.connect(
@@ -305,11 +409,12 @@ class CompiledFilterHistory(BasePanelElement):
                             Message(
                                 message_type=MessageType.FILTER_CLICKED,
                                 payload=_,
-                                caller_id="compiled_filter_history",
+                                caller_id=self.element_id,
                             )
                         )
                     ),
+                    widget.setWordWrap(True),
+                    set_stylesheet(widget, f"#id{{border: 1px solid #ccc;}}"),
                 ],
             )
             self.filter_widgets.append(filter_widget)
-            self.layout.addWidget(filter_widget)

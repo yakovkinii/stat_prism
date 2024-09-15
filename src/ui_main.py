@@ -59,7 +59,7 @@ class MainWindowClass(QtWidgets.QMainWindow):
         self.splitter.addWidget(self.result_selector_panel.widget)
         # increase size of splitter handle
         self.splitter.setHandleWidth(6)
-        # self.splitter.setSizes([1, 0])
+        self.splitter.setSizes([1, 0])
 
         self.tab_widget.addTab(self.data_panel.widget, "Data")
         self.tab_widget.addTab(self.results_panel.widget, "Analysis")

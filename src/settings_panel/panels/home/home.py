@@ -13,6 +13,7 @@ from src.about import version
 from src.common.constant import MDASH, NDASH
 from src.common.decorators import log_method, log_method_noarg
 from src.common.elements.button.large_button import LargeButton
+from src.common.elements.logo.logo import Logo
 from src.common.elements.spacer.spacer import Spacer
 from src.common.messages import MessageType
 from src.common.result.registry import RESULTS
@@ -25,19 +26,20 @@ if TYPE_CHECKING:
 class Home(BasePanel):
     def setup_ui(self):
         self.elements = {
-            "open": LargeButton(
-                label_text="Open",
+            "open_sample": LargeButton(
+                label_text="Open Sample Data",
                 icon_path="msc.folder-opened",
             ),
-            "save": LargeButton(
-                label_text="Save",
-                icon_path="fa.save",
+            "open": LargeButton(
+                label_text="Open / Import",
+                icon_path="msc.folder-opened",
             ),
-            "spacer": Spacer(),
             "about": LargeButton(
                 label_text="About",
                 icon_path="ri.questionnaire-line",
             ),
+            "spacer": Spacer(),
+            "logo": Logo(),
         }
 
         self.setup(stretch=True)
@@ -57,20 +59,21 @@ class Home(BasePanel):
 
         logging.info(f"Opening {file_path}")
 
-        # ask to save current project
-        # need yes/no/cancel dialog
-        msg_box = QMessageBox()
-        msg_box.setWindowTitle("Save project?")
-        msg_box.setText("Do you want to save the current project?")
-        msg_box.setStandardButtons(
-            QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No | QMessageBox.StandardButton.Cancel
-        )
-        msg_box.setDefaultButton(QMessageBox.StandardButton.Yes)
-        ret = msg_box.exec_()
-        if ret == QMessageBox.StandardButton.Cancel:
-            return
-        elif ret == QMessageBox.StandardButton.Yes:
-            self.save_handler()
+        if not self.root_class.data_panel.tabledata.get_data().empty:
+            # ask to save current project
+            # need yes/no/cancel dialog
+            msg_box = QMessageBox()
+            msg_box.setWindowTitle("Save project?")
+            msg_box.setText("Do you want to save the current project?")
+            msg_box.setStandardButtons(
+                QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No | QMessageBox.StandardButton.Cancel
+            )
+            msg_box.setDefaultButton(QMessageBox.StandardButton.Yes)
+            ret = msg_box.exec_()
+            if ret == QMessageBox.StandardButton.Cancel:
+                return
+            elif ret == QMessageBox.StandardButton.Yes:
+                self.save_handler()
 
         if file_path.endswith(".csv"):
             dataframe = pd.read_csv(file_path)
@@ -164,6 +167,9 @@ class Home(BasePanel):
         if message.message_type == MessageType.CLICKED:
             if message.caller_id == "open":
                 self.open_handler()
+            elif message.caller_id == "open_sample":
+                self.root_class.data_panel.tabledata.load_data(pd.read_csv("./data.csv"))
+                self.root_class.splitter.setSizes([1, 1])
             elif message.caller_id == "save":
                 self.save_handler()
             elif message.caller_id == "about":

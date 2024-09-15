@@ -3,7 +3,6 @@ from typing import TYPE_CHECKING
 
 from src.common.constant import ColumnType
 from src.common.decorators import log_method
-from src.common.elements.button.small_button_wide import SmallButtonWide
 from src.common.elements.checkbox.checkbox import LargeCheckbox
 from src.common.elements.column_selector.column_selector import Column, ColumnSelectorEx, Field
 from src.common.elements.combo_box.combo_box import ComboBox
@@ -50,7 +49,6 @@ class Correlation(BaseModulePanel):
                     # ),
                 ],
             ),
-            "filter_button": SmallButtonWide(label_text="Manage Filters", icon_path="fa.filter"),
             "compiled_filters": CompiledFilterHistory(),
         }
         self.setup(stretch=True)
@@ -112,12 +110,14 @@ class Correlation(BaseModulePanel):
     @log_method
     def handler(self, message: Message):
         if message.message_type == MessageType.CLICKED:
-            if message.caller_id == "filter_button":
+            if message.caller_id == "compiled_filters":
                 self.open_filter_handler()
             elif message.caller_id == "column_selector":
                 self.open_column_selector_popup()
             else:
                 super().handler(message)
+        elif message.message_type == MessageType.FILTER_CLICKED:
+            self.open_filter_handler()
         else:
             super().handler(message)
 

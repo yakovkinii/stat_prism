@@ -31,7 +31,7 @@ class Filter(BasePanel):
         self.ok_button.setEnabled(False)
         self.caller_index = caller_index
         self.finished_handler = finished_handler
-        self.filters = filters
+        self.filters = filters.copy()
         self.back_button.setEnabled(True)
 
         self.root_class.data_panel.tabledata.set_state(DataPanelState.FILTER)
@@ -62,6 +62,7 @@ class Filter(BasePanel):
             filter_settings=None,
             already_filtered_rows=removed_rows,
         )
+        self.elements["filter"].filter_changed()
 
     @log_method
     def handler(self, message: Message):

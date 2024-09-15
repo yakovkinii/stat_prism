@@ -7,5 +7,6 @@
     <file>resources/unchecked_disabled.png</file>
     <file>resources/checked.png</file>
     <file>resources/checked_disabled.png</file>
+    <file>resources/watermark.png</file>
   </qresource>
 </RCC>

@@ -20,7 +20,6 @@ class DataModel(QAbstractTableModel):
         self._df: pd.DataFrame = pd.DataFrame()
         self.column_attributes: Dict[str, ColumnAttributes] = {}
         self.hide_headers_mode = False
-        self.load_data(pd.read_csv("data.csv"))
 
     def hideHeaders(self):
         self.hide_headers_mode = True

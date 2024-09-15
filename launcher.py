@@ -35,10 +35,12 @@ if __name__ == "__main__":
     # Set the exception hook to our wrapping function
     sys.excepthook = my_exception_hook
 
-    # Set icon
-    from PySide6.QtGui import QIcon
+    # Set app id for windows taskbar
+    import ctypes
+    from src.about import version
 
-    app.setWindowIcon(QIcon(":/mat/resources/Icon.ico"))
+    myappid = f'stat_prism_{version}'
+    ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(myappid)
 
     # Load all modules
     logging.info("Loading all modules")
