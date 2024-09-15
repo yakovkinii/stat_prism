@@ -94,7 +94,7 @@ class MainWindowClass(QtWidgets.QMainWindow):
 
         self.tab_widget.currentChanged.connect(self.on_tab_changed)
 
-    def init_web_view_and_show_maximized(self):
+    def init_web_view_and_show_maximized(self, file_path=None):
         webview = QWebEngineView(self.central_widget)
         self.central_widget_layout.addWidget(webview)
         webview.setHtml("dummy")
@@ -103,6 +103,9 @@ class MainWindowClass(QtWidgets.QMainWindow):
 
         self.central_widget_layout.removeWidget(webview)
         webview.deleteLater()
+
+        if file_path is not None:
+            PanelRegistry.HOME.ui_instance.open_file(file_path)
 
     @log_method
     def action_activate_column_panel(self, column_index):

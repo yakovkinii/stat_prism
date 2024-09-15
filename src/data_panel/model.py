@@ -1,6 +1,7 @@
 import logging
 from typing import Dict, List, Union
 
+import numpy as np
 import pandas as pd
 import qtawesome as qta
 from PySide6.QtCore import QAbstractTableModel, QModelIndex, Qt
@@ -35,7 +36,7 @@ class DataModel(QAbstractTableModel):
             self._df = self._df.astype({column_name: int})
         except ValueError:
             try:
-                self._df = self._df.astype({column_name: float})
+                self._df[column_name] = self._df[column_name].replace("", np.nan).astype(float)
             except ValueError:
                 try:
                     self._df = self._df.astype({column_name: str})

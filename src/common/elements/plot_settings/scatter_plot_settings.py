@@ -46,7 +46,6 @@ class ScatterPlotSettings(BasePanelElement):
         )
         if color.isValid():
             self.scatter_plot_config.point_color = color
-            print(self.scatter_plot_config.point_color)
             self.handler(
                 Message(MessageType.STATE_CHANGED, payload=self.scatter_plot_config, caller_id=self.element_id)
             )
@@ -57,7 +56,6 @@ class ScatterPlotSettings(BasePanelElement):
         )
         if color.isValid():
             self.scatter_plot_config.outline_color = color
-            print(self.scatter_plot_config.outline_color)
             self.handler(
                 Message(MessageType.STATE_CHANGED, payload=self.scatter_plot_config, caller_id=self.element_id)
             )

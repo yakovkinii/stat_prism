@@ -14,7 +14,13 @@ class ComboBox(BasePanelElement):
         self.widget.addItems(items)
         self.widget.setCurrentIndex(0)
         self.widget.currentTextChanged.connect(
-            self.handler(Message(MessageType.STATE_CHANGED, payload=self.widget.currentIndex()))
+            self.handler(
+                Message(
+                    MessageType.STATE_CHANGED,
+                    payload=self.widget.currentIndex(),
+                    caller_id=self.element_id,
+                )
+            )
         )
 
     def on_index_changed(self):

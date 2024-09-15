@@ -28,7 +28,6 @@ class GeneralPlotSettings(BasePanelElement):
         )
         if color.isValid():
             self.general_plot_config.background_color = color
-            print(self.general_plot_config.background_color)
             self.handler(
                 Message(MessageType.STATE_CHANGED, payload=self.general_plot_config, caller_id=self.element_id)
             )

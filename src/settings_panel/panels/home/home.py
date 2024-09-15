@@ -56,7 +56,10 @@ class Home(BasePanel):
         if not file_path:
             logging.info("No file selected")
             return
+        self.open_file(file_path)
 
+    @log_method
+    def open_file(self, file_path):
         logging.info(f"Opening {file_path}")
 
         if not self.root_class.data_panel.tabledata.get_data().empty:

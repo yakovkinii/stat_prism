@@ -107,8 +107,6 @@ class HTMLTable:
         html += "</table><br>"
         if self.table_note != "":
             html += f'<div class="double-spacing font"><i>Note.</i> {self.table_note}</div>'
-
-        # print(html)
         return html
 
     def add_title_row_apa(self, row: Row):

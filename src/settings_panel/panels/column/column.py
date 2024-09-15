@@ -64,11 +64,7 @@ class Column(BasePanel):
 
         self.elements["column_type"].widget.setCurrentText(self.tabledata.get_column_type(self.column_index).value)
 
-        if self.tabledata.get_column_type(self.column_index) in [
-            ColumnType.NUMERIC,
-            ColumnType.ORDINAL,
-            ColumnType.ORDINAL_UNCONFIRMED,
-        ]:
+        if self.tabledata.get_column_dtype(self.column_index) in ["int", "float"]:
             self.elements["invert"].widget.setEnabled(True)
         else:
             self.elements["invert"].widget.setEnabled(False)

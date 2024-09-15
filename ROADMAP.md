@@ -82,11 +82,11 @@ For plots, the customization is mostly regarding the color scheme.</g>
 * <g>Add some way of copying plots</g>
 * <g>Fix plot size resetting</g>
 * <g>Make correlations feature-complete</g>
-* Check and debug UI for filters
-* Enhance UI for filters
+* <g>Check and debug UI for filters</g>
+* <g>Enhance UI for filters</g>
 * <g>Edit table/figure captions</g>
 * <g>Edit Figure axis titles</g>
-* Trace and remove message senders with no sender_id
+* <g>Trace and remove message senders with no sender_id</g>
 * (Optional) Add aliases for columns
 * (Optional) Compile results to single report
 

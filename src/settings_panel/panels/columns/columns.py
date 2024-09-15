@@ -45,11 +45,7 @@ class Columns(BasePanel):
         self.column_indexes = column_indexes
         self.caller_index = caller_index
 
-        all_numeric = True
-        for index in column_indexes:
-            if self.tabledata.get_column_dtype(index) not in ["int"]:
-                all_numeric = False
-                break
+        all_numeric = all([self.tabledata.get_column_dtype(index) in ["int", "float"] for index in column_indexes])
         self.elements["invert"].widget.setEnabled(all_numeric)
         self.elements["summate"].widget.setEnabled(all_numeric)
 

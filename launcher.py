@@ -20,7 +20,7 @@ if __name__ == "__main__":
 
     from yatools import logging_config
 
-    logging_config.init(logging.DEBUG)
+    logging_config.init(logging.INFO)
 
     # Back up the reference to the exceptionhook
     sys._excepthook = sys.excepthook
@@ -37,9 +37,10 @@ if __name__ == "__main__":
 
     # Set app id for windows taskbar
     import ctypes
+
     from src.about import version
 
-    myappid = f'stat_prism_{version}'
+    myappid = f"stat_prism_{version}"
     ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(myappid)
 
     # Load all modules
@@ -55,5 +56,8 @@ if __name__ == "__main__":
     logging.info(f"Time to load: {delta_time} seconds")
     splash_time = int(max(10.0, 1500 - delta_time * 1000))
     QTimer.singleShot(splash_time, splash.close)
-    QTimer.singleShot(splash_time, main_win.init_web_view_and_show_maximized)
+    QTimer.singleShot(
+        splash_time,
+        lambda: main_win.init_web_view_and_show_maximized(file_path=sys.argv[1] if len(sys.argv) > 1 else None),
+    )
     app.exec()
