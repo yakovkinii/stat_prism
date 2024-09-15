@@ -83,9 +83,9 @@ For plots, the customization is mostly regarding the color scheme.</g>
 * <g>Fix plot size resetting</g>
 * <g>Make correlations feature-complete</g>
 * Check and debug UI for filters
-* Add self-explanatory UI decorations for filters
-* Edit table/figure captions
-* Edit Figure axis titles
+* Enhance UI for filters
+* <g>Edit table/figure captions</g>
+* <g>Edit Figure axis titles</g>
 * Trace and remove message senders with no sender_id
 * (Optional) Add aliases for columns
 * (Optional) Compile results to single report

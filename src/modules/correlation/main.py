@@ -99,6 +99,7 @@ def recalculate_correlation_study(df: pd.DataFrame, result: CorrelationResult) -
     html_result_element.items.append(html_table)
     html_result_element.items.append(HTMLText(verbal))
     html_result_element.set_table_id("1")
+    html_result_element.table_caption = html_table.table_caption
 
     result.title_context = ", ".join([f"{col[:16]}" for col in config.selected_columns])
 

@@ -83,3 +83,12 @@ class PlotResultElement(BaseResultElement):
 
     def set_plot_id(self, plot_id):
         self.plot_id = plot_id
+
+    def set_plot_title(self, plot_title):
+        self.plot_title = plot_title
+
+    def set_x_axis_title(self, x_axis_title):
+        self.x_axis_title = x_axis_title
+
+    def set_y_axis_title(self, y_axis_title):
+        self.y_axis_title = y_axis_title

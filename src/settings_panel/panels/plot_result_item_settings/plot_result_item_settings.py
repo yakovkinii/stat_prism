@@ -2,7 +2,7 @@ from typing import TYPE_CHECKING, cast
 
 from src.common.decorators import log_method, log_method_noarg
 from src.common.elements.combo_box.combo_box import ComboBox
-from src.common.elements.edit.edit import LabeledLineEdit
+from src.common.elements.edit.edit import LabeledLineEdit, LabeledMultilineEdit
 from src.common.elements.plot_settings.band_plot_settings import BandPlotSettings
 from src.common.elements.plot_settings.general_plot_settings import GeneralPlotSettings
 from src.common.elements.plot_settings.line_plot_settings import LinePlotSettings
@@ -24,6 +24,9 @@ class PlotResultItemSettings(BasePanel):
                 label_text="Plot Result Item Settings",
             ),
             "line_edit": LabeledLineEdit("Figure ID:"),
+            "title_edit": LabeledMultilineEdit("Title:"),
+            "x_axis_title_edit": LabeledLineEdit("X Axis Title:"),
+            "y_axis_title_edit": LabeledLineEdit("Y Axis Title:"),
             "general_plot_settings": GeneralPlotSettings(),
             "selector": ComboBox(),
             "scatter_plot_settings": ScatterPlotSettings(),
@@ -32,13 +35,20 @@ class PlotResultItemSettings(BasePanel):
         }
         self.setup(stretch=True)
         self.elements["line_edit"].edit_widget.editingFinished.connect(self.on_edit_finished)
+        self.elements["title_edit"].edit_widget.editingFinished.connect(self.on_edit_finished)
+        self.elements["x_axis_title_edit"].edit_widget.editingFinished.connect(self.on_edit_finished)
+        self.elements["y_axis_title_edit"].edit_widget.editingFinished.connect(self.on_edit_finished)
 
     @log_method
     def configure(self, result_id, element_id):
+        self.configuring = True
         self.result_id = result_id
         self.element_id = element_id
         self.result_element: PlotResultElement = cast(PlotResultElement, RESULTS[result_id].result_elements[element_id])
         self.elements["line_edit"].edit_widget.setText(self.result_element.plot_id)
+        self.elements["title_edit"].edit_widget.setText(self.result_element.plot_title)
+        self.elements["x_axis_title_edit"].edit_widget.setText(self.result_element.x_axis_title)
+        self.elements["y_axis_title_edit"].edit_widget.setText(self.result_element.y_axis_title)
         self.elements["general_plot_settings"].configure(self.result_element.general_plot_config)
 
         plot_elements = self.result_element.items
@@ -63,11 +73,23 @@ class PlotResultItemSettings(BasePanel):
             self.elements["scatter_plot_settings"].widget.setVisible(False)
             self.elements["line_plot_settings"].widget.setVisible(False)
             self.elements["band_plot_settings"].widget.setVisible(False)
+        self.configuring = False
 
     @log_method_noarg
     def on_edit_finished(self):
+        if self.configuring:
+            return
         RESULTS[self.result_id].result_elements[self.element_id].set_plot_id(
             self.elements["line_edit"].edit_widget.text()
+        )
+        RESULTS[self.result_id].result_elements[self.element_id].set_plot_title(
+            self.elements["title_edit"].edit_widget.text()
+        )
+        RESULTS[self.result_id].result_elements[self.element_id].set_x_axis_title(
+            self.elements["x_axis_title_edit"].edit_widget.text()
+        )
+        RESULTS[self.result_id].result_elements[self.element_id].set_y_axis_title(
+            self.elements["y_axis_title_edit"].edit_widget.text()
         )
         self.root_class.results_panel.refresh()
 

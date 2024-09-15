@@ -132,6 +132,7 @@ class HTMLText:
 
         self.text: str = text
         self.table_id: str = "1"
+        self.table_caption = ""
 
     def get_html(self):
         return (
@@ -150,9 +151,16 @@ class HTMLResultElement(BaseResultElement):
         self.items: List[Union[HTMLTable, HTMLText]] = []
         self.settings_panel_index = settings_panel_index
         self.table_id: str = "1"
+        self.table_caption: str = ""
 
     @log_method
     def set_table_id(self, table_id):
         self.table_id = table_id
         for item in self.items:
             item.table_id = table_id
+
+    @log_method
+    def set_table_caption(self, table_caption):
+        self.table_caption = table_caption
+        for item in self.items:
+            item.table_caption = table_caption
