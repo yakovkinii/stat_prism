@@ -2,8 +2,6 @@ from PySide6 import QtCore, QtWidgets
 from PySide6.QtCore import QEvent, Qt, QTimer, Signal
 from PySide6.QtWidgets import QFrame, QLabel, QTextEdit
 
-from src.common.constant import DEBUG_LAYOUT
-from src.common.size import SettingsPanelSize
 from src.common.unique_qss import set_stylesheet
 
 
@@ -58,12 +56,9 @@ class EditableLabelWordwrap(QTextEdit):
 
     def __init__(self, parent):
         super().__init__(parent)
-        self.setFixedWidth(SettingsPanelSize.width - 15)
         self.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
         self.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
-        set_stylesheet(self, "#id{border: none; background-color: rgba(255,255,255,100);}")
-        if DEBUG_LAYOUT:
-            set_stylesheet(self, "#id{border: 1px solid blue; background-color: #eef;}")
+        set_stylesheet(self, "#id{" "border: 1px solid grey;" "background-color: rgba(255,255,255,255);" "}")
         self.textChanged.connect(self.adjustHeightToFitText)
         self.installEventFilter(self)
         self.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
@@ -94,7 +89,7 @@ class EditableLabelWordwrap(QTextEdit):
 
     def adjustHeightToFitText(self):
         doc = self.document()
-        doc.setTextWidth(388.0)
+        doc.setTextWidth(self.width())
         self.setFixedHeight(int(doc.size().height() + 2 * self.frameWidth()))
 
     def scheduleAdjustHeightToFitText(self):
