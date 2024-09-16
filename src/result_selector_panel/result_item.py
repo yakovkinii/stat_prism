@@ -66,6 +66,17 @@ class ResultItemWidget(QFrame):
         for widget in self.element_widgets:
             widget.refresh(selected_result, selected_element)
 
+        if RESULTS[self.result_id].needs_update:
+            set_stylesheet(
+                self.title_widget,
+                "#id{" "font-weight: bold;" "color: #a00;" "}",
+            )
+        else:
+            set_stylesheet(
+                self.title_widget,
+                "#id{" "font-weight: normal;" "color: #000;" "}",
+            )
+
         if self.result_id == selected_result:
             set_stylesheet(
                 self,

@@ -34,7 +34,7 @@ class DataPanelClass:
         self.tableview = DataView(self.widget)
 
         # Set the data model
-        self.tabledata: DataModel = DataModel()
+        self.tabledata: DataModel = DataModel(root_class)
         self.tableview.setModel(self.tabledata)
 
         # self.tabledata = CustomTableWidget(self.widget)

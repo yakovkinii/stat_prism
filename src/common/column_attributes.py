@@ -19,6 +19,7 @@ class ColumnAttributes:
         self.inverted = False
         self.color = None
         self.ordinal_order: Dict[Union[int, float, str], int] = dict()
+        self.original_name: str = ""
 
         self._flags = {
             "inverted": self.inverted,

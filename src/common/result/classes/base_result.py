@@ -24,6 +24,9 @@ class BaseResult:
     def configure(self, *args, **kwargs):
         pass
 
+    def rename_column(self, old_name, new_name):
+        pass
+
 
 class BaseResultElement:
     def __init__(self):

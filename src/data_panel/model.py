@@ -1,5 +1,5 @@
 import logging
-from typing import Dict, List, Union
+from typing import TYPE_CHECKING, Dict, List, Union
 
 import numpy as np
 import pandas as pd
@@ -10,12 +10,17 @@ from PySide6.QtGui import QColor
 from src.common.column_attributes import ColumnAttributes, ColumnAttributesRegistry
 from src.common.constant import COLORS, COLUMN_TYPE_ICONS, ColumnType
 from src.common.decorators import log_method, log_method_noarg
+from src.common.result.registry import RESULTS
 from src.data_panel.const import DataPanelState
+
+if TYPE_CHECKING:
+    from src.ui_main import MainWindowClass
 
 
 class DataModel(QAbstractTableModel):
-    def __init__(self, parent=None):
-        super().__init__(parent)
+    def __init__(self, root_class):
+        super().__init__()
+        self.root_class: MainWindowClass = root_class
         self.state = DataPanelState.DEFAULT
         self.filtered_rows = []
         self._df: pd.DataFrame = pd.DataFrame()
@@ -124,6 +129,7 @@ class DataModel(QAbstractTableModel):
             self.column_attributes[column] = ColumnAttributes(
                 dtype=self.get_column_dtype(dataframe.columns.get_loc(column))
             )
+            self.column_attributes[column].original_name = column
         self.endResetModel()
 
     def rowCount(self, parent=None):
@@ -217,10 +223,16 @@ class DataModel(QAbstractTableModel):
         if new_name in self._df.columns:
             logging.error("Column name already exists")
             return
+        old_name = self.get_column_name(column_index)
 
         self.setHorizontalHeaderLabels(
             [new_name if i == column_index else self._df.columns[i] for i in range(self.columnCount())]
         )
+
+        for result in RESULTS.values():
+            result.rename_column(old_name, new_name)
+
+        self.root_class.result_selector_panel.refresh()
 
     def get_column_name(self, column_index: int):
         if column_index is None:

@@ -8,6 +8,7 @@ from src.common.decorators import log_method, log_method_noarg
 from src.common.elements.button.small_button import SmallButton
 from src.common.elements.column_color_selector.column_color_selector import ColumnColorSelector
 from src.common.elements.combo_box.combo_box import ComboBox
+from src.common.elements.label.label import Label
 from src.common.elements.title.title import Title
 from src.common.elements.title.title_editable import ColumnNameEditable
 from src.common.messages import Message, MessageType
@@ -25,6 +26,9 @@ class Column(BasePanel):
                 label_text="Column properties",
             ),
             "title": ColumnNameEditable(
+                label_text="",
+            ),
+            "original_title": Label(
                 label_text="",
             ),
             "color": ColumnColorSelector(),
@@ -60,7 +64,17 @@ class Column(BasePanel):
         self.configuring = True
         self.column_index = column_index
         self.caller_index = caller_index
-        self.elements["title"].widget.setText(str(self.tabledata.get_column_name(self.column_index)))
+        title = str(self.tabledata.get_column_name(self.column_index))
+        original_title = str(
+            self.tabledata.get_column_flags(column_name=self.tabledata.get_column_name(self.column_index)).original_name
+        )
+        self.elements["title"].widget.setText(title)
+
+        if (title == original_title) or (original_title == ""):
+            self.elements["original_title"].widget.hide()
+        else:
+            self.elements["original_title"].widget.setText("Original name: " + original_title)
+            self.elements["original_title"].widget.show()
 
         self.elements["column_type"].widget.setCurrentText(self.tabledata.get_column_type(self.column_index).value)
 
@@ -100,6 +114,10 @@ class Column(BasePanel):
         if title not in columns:
             self.tabledata.rename_column(column_index=self.column_index, new_name=title)
             self.root_class.action_select_table_column(self.column_index)
+            self.configure(
+                column_index=self.column_index,
+                caller_index=self.caller_index,
+            )
             return
 
         if title == columns[self.column_index]:

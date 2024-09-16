@@ -87,7 +87,7 @@ For plots, the customization is mostly regarding the color scheme.</g>
 * <g>Edit table/figure captions</g>
 * <g>Edit Figure axis titles</g>
 * <g>Trace and remove message senders with no sender_id</g>
-* (Optional) Add aliases for columns
+* <g><s>Add aliases for columns</s> Add hint of original column name</g>  
 * (Optional) Compile results to single report
 
 [//]: # (</details>)

@@ -78,3 +78,7 @@ class CorrelationResult(BaseResult):
         self.result_elements = {"html_element": self.html_element}
         for key, value in self.plot_elements.items():
             self.result_elements[key] = value
+
+    def rename_column(self, old_name, new_name):
+        self.config.selected_columns = [new_name if col == old_name else col for col in self.config.selected_columns]
+        self.needs_update = True
