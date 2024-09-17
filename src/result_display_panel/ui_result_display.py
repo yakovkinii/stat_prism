@@ -5,6 +5,9 @@ from PySide6 import QtWidgets
 
 from src.common.result.registry import RESULTS
 from src.common.unique_qss import set_stylesheet
+from src.result_display_panel.result_widget_containers.combined_result_widget_container import (
+    CombinedResultElementWidgetContainer,
+)
 from src.result_display_panel.result_widget_containers.registry import result_widget_container_registry
 
 if TYPE_CHECKING:
@@ -38,6 +41,12 @@ class ResultDisplayClass:
         self.result_id = None
 
     def display(self, result_id: int, element_id: str = None):
+        if element_id is None:
+            self.result_id = result_id
+            self.element_id = element_id
+            self.display_entire_result(result_id=result_id)
+            return
+
         if result_id is None:
             logging.error("Result ID is None")
             self.display_none()
@@ -58,6 +67,18 @@ class ResultDisplayClass:
 
         self.element_widget_container = result_widget_container_registry[element.class_id](
             parent_widget=self.parent_widget, result_element=element
+        )
+        self.layout.addWidget(self.element_widget_container.widget)
+
+    def display_entire_result(self, result_id):
+        logging.info(f"Displaying all results")
+        if self.element_widget_container is not None:
+            self.layout.removeWidget(self.element_widget_container.widget)
+            self.element_widget_container.widget.deleteLater()
+
+        self.element_widget_container = CombinedResultElementWidgetContainer(
+            parent_widget=self.parent_widget,
+            result_id=result_id,
         )
         self.layout.addWidget(self.element_widget_container.widget)
 

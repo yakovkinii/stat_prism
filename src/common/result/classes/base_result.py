@@ -1,5 +1,9 @@
 from typing import Dict
 
+from src.common.result.classes.base_result_element import BaseResultElement
+from src.common.result.classes.plot_result import PlotResultElement
+from src.result_display_panel.result_widget_containers.plot_widget_container import PlotResultElementWidgetContainer
+
 
 class BaseResult:
     def __init__(self, unique_id):
@@ -27,9 +31,11 @@ class BaseResult:
     def rename_column(self, old_name, new_name):
         pass
 
-
-class BaseResultElement:
-    def __init__(self):
-        self.title: str = ...
-        self.class_id: str = ...
-        self.settings_panel_index: int = ...
+    def get_html(self):
+        htmls = []
+        for element in self.result_elements.values():
+            if isinstance(element, PlotResultElement):
+                htmls.append(element.get_html(renderer=PlotResultElementWidgetContainer))
+            else:
+                htmls.append(element.get_html())
+        return "<br><br><br>".join(htmls)

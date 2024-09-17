@@ -47,3 +47,19 @@ COLUMN_TYPE_ICONS = {
     ColumnType.ORDINAL: qta.icon("ph.chart-bar", color="darkgreen", opacity=0.7),
     ColumnType.ORDINAL_UNCONFIRMED: qta.icon("ph.chart-bar", color="darkgreen", opacity=0.7),
 }
+
+BASE_STYLES = (
+    "<style>"
+    ".double-spacing{"
+    "line-height: 2;"
+    "}"
+    ".font {"
+    "font-size: 12pt;"
+    "font-family: 'Times New Roman';"
+    "}"
+    "table, th, td, span {"
+    "border-collapse: collapse;"
+    "font-size: 12pt;"
+    "}"
+    "</style>"
+)

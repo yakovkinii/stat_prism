@@ -2,7 +2,7 @@ import logging
 from typing import List, Union
 
 from src.common.constant import TABLE_OR_PLOT_ID_PLACEHOLDER
-from src.common.decorators import log_method
+from src.common.decorators import log_method, log_method_noarg
 from src.common.result.classes.base_result import BaseResultElement
 
 
@@ -59,7 +59,7 @@ class HTMLTable:
         # Caption
         html = ""
         html += f'<div class="double-spacing font"><b>Table {self.table_id}.</b></div>'
-        html += f'<div class="double-spacing font">{self.table_caption}</div>'
+        html += f'<div class="double-spacing font"><i>{self.table_caption}</i></div>'
 
         style = ""
         if self.border_top:
@@ -162,3 +162,7 @@ class HTMLResultElement(BaseResultElement):
         self.table_caption = table_caption
         for item in self.items:
             item.table_caption = table_caption
+
+    @log_method_noarg
+    def get_html(self, renderer=None):
+        return "<br><br><br>".join([item.get_html() for item in self.items])

@@ -4,13 +4,11 @@ import numpy as np
 import pandas as pd
 from scipy.stats import kendalltau, linregress, pearsonr, spearmanr
 
-from src.common.result.classes.html_result import HTMLText
-from src.common.result.classes.plot_result import Band, Line, Scatter
+from src.common.result.classes.html_result import HTMLResultElement, HTMLText
+from src.common.result.classes.plot_result import Band, Line, PlotResultElement, Scatter
 from src.modules.correlation.correlation_result import CorrelationResult, CorrelationStudyConfig, CorrelationType
 from src.modules.correlation.report import get_report
 from src.modules.correlation.table import get_table_compact, get_table_full
-from src.result_display_panel.result_widget_containers.html_widget_container import HTMLResultElement
-from src.result_display_panel.result_widget_containers.plot_widget_container import PlotResultElement
 from src.settings_panel.panels.registry import PanelRegistry
 
 

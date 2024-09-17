@@ -92,3 +92,17 @@ class PlotResultElement(BaseResultElement):
 
     def set_y_axis_title(self, y_axis_title):
         self.y_axis_title = y_axis_title
+
+    def render_plot_to_html(self, renderer):
+        result_container = renderer(parent_widget=None, result_element=self)
+        result_container.widget.move(-10000, -10000)
+        result_container.widget.show()
+        html = result_container.plot_widget.render_to_html()
+        result_container.widget.hide()
+        return html
+
+    def get_html(self, renderer=None):
+        return (
+            f"<div><b> Figure {self.plot_id} </b> </div>"
+            f'<div class="double-spacing font"><i>{self.plot_title}</i></div><br><br>'
+        ) + self.render_plot_to_html(renderer)

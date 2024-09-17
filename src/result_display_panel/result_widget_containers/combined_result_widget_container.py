@@ -5,12 +5,12 @@ from PySide6.QtWebEngineWidgets import QWebEngineView
 from PySide6.QtWidgets import QVBoxLayout, QWidget
 
 from src.common.constant import BASE_STYLES
-from src.common.result.classes.html_result import HTMLResultElement
+from src.common.result.registry import RESULTS
 
 
-class HTMLResultElementWidgetContainer:
-    def __init__(self, parent_widget, result_element: HTMLResultElement):
-        self.result_element = result_element
+class CombinedResultElementWidgetContainer:
+    def __init__(self, parent_widget, result_id):
+        self.result_id = result_id
         self.widget = QWidget(parent_widget)
         self.widget_layout = QVBoxLayout(self.widget)
         self.widget_layout.setContentsMargins(0, 0, 0, 0)
@@ -25,9 +25,9 @@ class HTMLResultElementWidgetContainer:
 
     def get_html(self):
         html = "<HTML>" + BASE_STYLES
-        html += self.result_element.get_html()
+        html += RESULTS[self.result_id].get_html()
         html += "</HTML>"
-        logging.info(html)
+        # logging.info(html)
         return html
 
     def copy_for_word(self):

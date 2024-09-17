@@ -1,3 +1,4 @@
+import base64
 import os
 
 import pyqtgraph as pg
@@ -100,3 +101,16 @@ class ResizablePlotWidget(pg.PlotWidget):
         clipboard.setImage(image)
 
         os.remove(temp_file_name)
+
+    def render_to_html(self):
+        exporter = pg.exporters.ImageExporter(self.getPlotItem())
+        exporter.parameters()["width"] = 800  # (note this also affects height parameter)
+        temp_file_name = "./~tmp.png"
+        exporter.export(temp_file_name)
+
+        with open(temp_file_name, "rb") as f:
+            image = f.read()
+            base64_encoded_image = f"data:image/bmp;base64,{base64.b64encode(image).decode('utf-8')}"
+
+        html = f'<img src="{base64_encoded_image}" alt="Plot Image" style="width: 500px; height: auto;">'
+        return html
