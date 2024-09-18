@@ -41,7 +41,7 @@ class ResultDisplayClass:
         self.result_id = None
 
     def display(self, result_id: int, element_id: str = None):
-        if element_id is None:
+        if result_id == -1 or element_id is None:
             self.result_id = result_id
             self.element_id = element_id
             self.display_entire_result(result_id=result_id)

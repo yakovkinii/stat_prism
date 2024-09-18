@@ -84,6 +84,32 @@ class ResultSelectorPanelClass:
         self.widget_layout.addWidget(self.add_result_button)
         self.widget_layout.addWidget(self.scroll_area)
 
+        self.compile_results_button = QtWidgets.QPushButton("View All")
+        set_stylesheet(
+            self.compile_results_button,
+            "#id{"
+            "margin-top: 2px;"
+            "background-color: #fff;"
+            "font-family: Segoe UI;"
+            f"font-size: {Font.size}pt;"
+            "border: 1px solid #ddd;"
+            "}"
+            "#id:hover{"
+            "background-color: rgb(229,241,251);"
+            "border: 1px solid rgb(0,120,215)"
+            "}",
+        )
+        icon = qta.icon("fa5s.list")
+        self.compile_results_button.setIcon(icon)
+        self.compile_results_button.setIconSize(QSize(32, 32))
+        self.compile_results_button.setFixedHeight(60)
+
+        self.compile_results_button.clicked.connect(
+            lambda: self.root_class.results_panel.display(result_id=-1, element_id=None)
+        )
+
+        self.widget_layout.addWidget(self.compile_results_button)
+
         self.result_widgets: Dict[int, ResultItemWidget] = {}
         self.selected_result: Union[int, None] = None
         self.selected_element: Union[str, None] = None

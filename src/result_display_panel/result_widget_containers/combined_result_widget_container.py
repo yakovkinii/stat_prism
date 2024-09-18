@@ -25,7 +25,10 @@ class CombinedResultElementWidgetContainer:
 
     def get_html(self):
         html = "<HTML>" + BASE_STYLES
-        html += RESULTS[self.result_id].get_html()
+        if self.result_id == -1:
+            html += "<hr>".join([result.get_html() for result in RESULTS.values()])
+        else:
+            html += RESULTS[self.result_id].get_html()
         html += "</HTML>"
         # logging.info(html)
         return html

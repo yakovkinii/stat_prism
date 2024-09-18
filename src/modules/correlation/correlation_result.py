@@ -27,7 +27,7 @@ class CorrelationStudyConfig:
         selected_columns: List[str] = None,
         correlation_type: CorrelationType = CorrelationType.PEARSON,
         compact: bool = False,
-        generate_plots: bool = True,
+        generate_plots: bool = False,
         report_only_significant: bool = True,
         filters: List[FilterSettings] = None,
     ):
