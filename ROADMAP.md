@@ -64,7 +64,8 @@ For plots, the customization is mostly regarding the color scheme.</g>
 
 ---
 
-## <g>Unfreezing Preparation (before v0.6)</g> 
+## <g>Unfreezing Preparation (v0.5.x)</g>
+### <g>2024 Aug ME &ndash; 2024 Sept ME</g>
 
 ### <g>Required features before unfreezing:</g>
 
@@ -107,14 +108,25 @@ including customization.</g>
 
 ---
 
-## After Unfreezing (v0.6+; September 2024 ME):
-
+## Adding modules (v0.6.x)
+### 2024 Sept ME &ndash; 2024 Oct ME
 [//]: # (<details>)
 <summary></summary>
 
+* <g>Correlation</g>
+* <g>Cross-correlation</g>
+* ANOVA
+* Binomial Logistic Regression
+* Cross-tabulation
+* Descriptive statistics
+* EFA
+* Kruskal-Wallis
+* Linear Regression
+* Multinomial Logistic Regression
+* Ordinal Logistic Regression
+* Reliability analysis
+* T-test
 * Undo functionality
-* All basic analyses (ANOVA, EFA, CFA, etc.)
 * Table slicing on export and rotated copying
-* Try-except handling
 
 [//]: # (</details>)

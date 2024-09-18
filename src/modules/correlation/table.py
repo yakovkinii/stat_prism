@@ -1,7 +1,7 @@
 from src.common.constant import MDASH
 from src.common.result.classes.html_result import Cell, HTMLTable, Row
 from src.common.utility import smart_comma_join
-from src.modules.correlation.correlation_result import CorrelationType
+from src.modules.correlation.result import CorrelationType
 
 
 def format_r_apa(r, decimals=2):

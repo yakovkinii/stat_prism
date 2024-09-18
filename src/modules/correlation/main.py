@@ -6,8 +6,8 @@ from scipy.stats import kendalltau, linregress, pearsonr, spearmanr
 
 from src.common.result.classes.html_result import HTMLResultElement, HTMLText
 from src.common.result.classes.plot_result import Band, Line, PlotResultElement, Scatter
-from src.modules.correlation.correlation_result import CorrelationResult, CorrelationStudyConfig, CorrelationType
 from src.modules.correlation.report import get_report
+from src.modules.correlation.result import CorrelationResult, CorrelationStudyConfig, CorrelationType
 from src.modules.correlation.table import get_table_compact, get_table_full
 from src.settings_panel.panels.registry import PanelRegistry
 

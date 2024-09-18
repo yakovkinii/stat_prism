@@ -12,18 +12,18 @@ from src.common.elements.title.title import Title
 from src.common.messages import Message, MessageType
 from src.common.result.registry import RESULTS
 from src.modules.base.base import BaseModulePanel
-from src.modules.correlation.correlation_result import CORRELATION_TYPE_MAP, CorrelationStudyConfig
-from src.modules.correlation.main import recalculate_correlation_study
+from src.modules.cross_correlation.main import recalculate_cross_correlation_study
+from src.modules.cross_correlation.result import CROSS_CORRELATION_TYPE_MAP, CrossCorrelationStudyConfig
 from src.settings_panel.panels.registry import PanelRegistry
 
 if TYPE_CHECKING:
     pass
 
 
-class Correlation(BaseModulePanel):
+class CrossCorrelation(BaseModulePanel):
     def setup_ui(self):
         self.elements = {
-            "title": Title(label_text="Correlation"),
+            "title": Title(label_text="Cross-correlation"),
             "spacer": SpacerSmall(),
             "compact": LargeCheckbox(label_text="Compact table"),
             "report_only_significant": LargeCheckbox(label_text="Report only significant correlations"),
@@ -33,16 +33,15 @@ class Correlation(BaseModulePanel):
             "column_selector": ColumnSelectorEx(
                 fields=[
                     Field(
-                        name="Columns:",
+                        name="Columns (1st scale):",
                         column_type=ColumnType.NUMERIC,
                         reasonable_number_of_columns=10,
                     ),
-                    # Field(
-                    #     name="Dummy 1-column:",
-                    #     column_type=ColumnType.NOMINAL,
-                    #     reasonable_number_of_columns=1,
-                    #     allow_only_single_column=True,
-                    # ),
+                    Field(
+                        name="Columns (2nd scale):",
+                        column_type=ColumnType.NUMERIC,
+                        reasonable_number_of_columns=10,
+                    ),
                     # Field(
                     #     name="Dummy long list:",
                     #     column_type=ColumnType.ORDINAL,
@@ -60,7 +59,7 @@ class Correlation(BaseModulePanel):
         self.caller_index = caller_index
         self.result_id = result_id
 
-        self.elements["correlation_type"].configure(list(CORRELATION_TYPE_MAP.keys()))
+        self.elements["correlation_type"].configure(list(CROSS_CORRELATION_TYPE_MAP.keys()))
 
         all_column_names = self.tabledata.get_column_names()
         number_of_columns = len(all_column_names)
@@ -71,7 +70,7 @@ class Correlation(BaseModulePanel):
 
         self.elements["column_selector"].configure(
             columns=all_columns,
-            selected_columns_list=[config.selected_columns, [], []],
+            selected_columns_list=[config.selected_columns1, config.selected_columns2],
         )
 
         self.elements["compiled_filters"].configure(RESULTS[result_id].config.filters)
@@ -79,7 +78,7 @@ class Correlation(BaseModulePanel):
         self.elements["compact"].widget.setChecked(config.compact)
         self.elements["report_only_significant"].widget.setChecked(config.report_only_significant)
         self.elements["generate_plots"].widget.setChecked(config.generate_plots)
-        self.elements["correlation_type"].widget.setCurrentIndex(config.correlation_type.value)
+        self.elements["correlation_type"].widget.setCurrentIndex(config.cross_correlation_type.value)
         self.set_recalculate_button_highlight(RESULTS[result_id].needs_update)
 
         self.configuring = False
@@ -89,17 +88,19 @@ class Correlation(BaseModulePanel):
             logging.error("Recalculate called while configuring.")
             return
 
-        selected_columns = self.elements["column_selector"].get_selected_columns()[0]
-        config = CorrelationStudyConfig(
-            selected_columns=selected_columns,
+        selected_columns1 = self.elements["column_selector"].get_selected_columns()[0]
+        selected_columns2 = self.elements["column_selector"].get_selected_columns()[1]
+        config = CrossCorrelationStudyConfig(
+            selected_columns1=selected_columns1,
+            selected_columns2=selected_columns2,
             compact=self.elements["compact"].widget.isChecked(),
-            correlation_type=CORRELATION_TYPE_MAP[self.elements["correlation_type"].widget.currentText()],
+            cross_correlation_type=CROSS_CORRELATION_TYPE_MAP[self.elements["correlation_type"].widget.currentText()],
             report_only_significant=self.elements["report_only_significant"].widget.isChecked(),
             generate_plots=self.elements["generate_plots"].widget.isChecked(),
             filters=RESULTS[self.result_id].config.filters,
         )
         RESULTS[self.result_id].config = config
-        RESULTS[self.result_id] = recalculate_correlation_study(
+        RESULTS[self.result_id] = recalculate_cross_correlation_study(
             df=self.tabledata.get_data(), result=RESULTS[self.result_id]
         )
 

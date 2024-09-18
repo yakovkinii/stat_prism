@@ -20,6 +20,11 @@ class ModuleRegistry(Enum):
         icon_path="ph.chart-line-up-fill",
     )
 
+    CROSS_CORRELATION = ModuleRegistryItem(
+        display_name="Cross-correlation",
+        icon_path="ph.chart-line-up-fill",
+    )
+
     @property
     def display_name(self):
         return self.value.display_name

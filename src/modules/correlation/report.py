@@ -1,6 +1,6 @@
 from src.common.constant import TABLE_OR_PLOT_ID_PLACEHOLDER
 from src.common.utility import smart_comma_join
-from src.modules.correlation.correlation_result import CorrelationType
+from src.modules.correlation.result import CorrelationType
 
 
 def format_r_apa(r, decimals=2):
