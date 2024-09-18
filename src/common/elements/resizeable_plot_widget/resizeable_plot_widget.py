@@ -104,7 +104,7 @@ class ResizablePlotWidget(pg.PlotWidget):
 
     def render_to_html(self):
         exporter = pg.exporters.ImageExporter(self.getPlotItem())
-        exporter.parameters()["width"] = 800  # (note this also affects height parameter)
+        exporter.parameters()["width"] = 600  # (note this also affects height parameter)
         temp_file_name = "./~tmp.png"
         exporter.export(temp_file_name)
 
@@ -112,5 +112,6 @@ class ResizablePlotWidget(pg.PlotWidget):
             image = f.read()
             base64_encoded_image = f"data:image/bmp;base64,{base64.b64encode(image).decode('utf-8')}"
 
-        html = f'<img src="{base64_encoded_image}" alt="Plot Image" style="width: 500px; height: auto;">'
+        html = f'<img src="{base64_encoded_image}" alt="Plot Image" style="width: 400px; height: auto;">'
+        os.remove(temp_file_name)
         return html

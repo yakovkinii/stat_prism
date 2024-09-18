@@ -1,3 +1,4 @@
+import numpy as np
 import pyqtgraph as pg
 from PySide6.QtCore import Qt
 from PySide6.QtGui import QFont
@@ -47,18 +48,50 @@ class PlotResultElementWidgetContainer:
 
         self.widget_layout.addWidget(self.plot_container)
 
-        self.plot_widget = ResizablePlotWidget(self.plot_container, self.result_element)
+        self.plot_container_class = PlotResultElementWidgetContainerExport(
+            parent_widget=self.plot_container, result_element=self.result_element
+        )
+
+
+class PlotResultElementWidgetContainerExport:
+    def __init__(self, parent_widget, result_element: PlotResultElement):
+        self.result_element = result_element
+
+        self.plot_widget = ResizablePlotWidget(parent_widget, self.result_element)
         set_stylesheet(self.plot_widget, f"#id{{border: 2px solid #ccc;}}")
+
+        self.plot_widget.setBackground(self.result_element.general_plot_config.background_color)
+
         self.plot_widget.plotItem.setDefaultPadding(0.1)
 
         self.plot_widget.plotItem.layout.setContentsMargins(20, 20, 20, 20)
 
-        self.plot_widget.setBackground(self.result_element.general_plot_config.background_color)
-
         self.items = []
         for item in self.result_element.items:
             if isinstance(item, Scatter):
-                plot_item = pg.ScatterPlotItem(item.x, item.y, pen=None, symbol="o", brush="b")
+                np.random.seed(0)
+
+                if item.scatter_plot_config.jitter_x == 0:
+                    x_data = item.x
+                else:
+                    amplitude = (item.x.max() - item.x.min()) * 0.1
+                    if amplitude == 0:
+                        amplitude = item.x.max() * 0.1
+                    x_data = (
+                        item.x + item.scatter_plot_config.jitter_x * (np.random.rand(len(item.x)) - 0.5) * amplitude
+                    )
+
+                if item.scatter_plot_config.jitter_y == 0:
+                    y_data = item.y
+                else:
+                    amplitude = (item.y.max() - item.y.min()) * 0.1
+                    if amplitude == 0:
+                        amplitude = item.y.max() * 0.1
+                    y_data = (
+                        item.y + item.scatter_plot_config.jitter_y * (np.random.rand(len(item.y)) - 0.5) * amplitude
+                    )
+
+                plot_item = pg.ScatterPlotItem(x_data, y_data, pen=None, symbol="o", brush="b")
                 self.plot_widget.addItem(plot_item)
 
                 plot_item.setBrush(pg.mkBrush(item.scatter_plot_config.point_color))
@@ -114,3 +147,4 @@ class PlotResultElementWidgetContainer:
         self.plot_widget.resize(
             self.result_element.general_plot_config.size_x, self.result_element.general_plot_config.size_y
         )
+        self.plot_widget.plotItem.layout.activate()

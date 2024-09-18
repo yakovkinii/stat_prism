@@ -37,6 +37,8 @@ class ScatterPlotConfig:
     outline_color: QColor = QColor(100, 100, 100, 50)
     marker_shape: str = "Circle"
     point_size: int = 8
+    jitter_x: float = 0
+    jitter_y: float = 0
 
 
 @attrs.define
@@ -95,10 +97,7 @@ class PlotResultElement(BaseResultElement):
 
     def render_plot_to_html(self, renderer):
         result_container = renderer(parent_widget=None, result_element=self)
-        result_container.widget.move(-10000, -10000)
-        result_container.widget.show()
         html = result_container.plot_widget.render_to_html()
-        result_container.widget.hide()
         return html
 
     def get_html(self, renderer=None):

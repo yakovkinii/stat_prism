@@ -2,7 +2,9 @@ from typing import Dict
 
 from src.common.result.classes.base_result_element import BaseResultElement
 from src.common.result.classes.plot_result import PlotResultElement
-from src.result_display_panel.result_widget_containers.plot_widget_container import PlotResultElementWidgetContainer
+from src.result_display_panel.result_widget_containers.plot_widget_container import (
+    PlotResultElementWidgetContainerExport,
+)
 
 
 class BaseResult:
@@ -35,7 +37,7 @@ class BaseResult:
         htmls = []
         for element in self.result_elements.values():
             if isinstance(element, PlotResultElement):
-                htmls.append(element.get_html(renderer=PlotResultElementWidgetContainer))
+                htmls.append(element.get_html(renderer=PlotResultElementWidgetContainerExport))
             else:
                 htmls.append(element.get_html())
         return "<br><br><br>".join(htmls)
