@@ -64,11 +64,11 @@ For plots, the customization is mostly regarding the color scheme.</g>
 
 ---
 
-## Unfreezing Preparation (before v0.6) 
+## <g>Unfreezing Preparation (before v0.6)</g> 
 
-### Required features before unfreezing:
+### <g>Required features before unfreezing:</g>
 
-[//]: # (<details>)
+<details>
 <summary></summary>
 
 * <g><s>Color column selector according to the column category</s></g>
@@ -90,26 +90,26 @@ For plots, the customization is mostly regarding the color scheme.</g>
 * <g><s>Add aliases for columns</s> Add hint of original column name</g>  
 * <g>Compile results to single report</g>
 
-[//]: # (</details>)
+</details>
 
-### Checklist for unfreezing:
+### <g>Checklist for unfreezing:</g>
 
-[//]: # (<details>)
+<details>
 <summary></summary>
 
 * <g>Correlations are fully functional and feature-complete, 
 including customization.</g>
 * <g>At least some way to export of each result element.</g>
 * <g>Technical debt is mostly paid off.</g>
-* Common UI elements are implemented to a reasonable extent.
+* <g>Common UI elements are implemented to a reasonable extent.</g>
 
-[//]: # (</details>)
+</details>
 
 ---
 
 ## After Unfreezing (v0.6+; September 2024 ME):
 
-<details>
+[//]: # (<details>)
 <summary></summary>
 
 * Undo functionality
@@ -117,4 +117,4 @@ including customization.</g>
 * Table slicing on export and rotated copying
 * Try-except handling
 
-</details>
+[//]: # (</details>)

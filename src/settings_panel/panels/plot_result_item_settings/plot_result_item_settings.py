@@ -3,10 +3,12 @@ from typing import TYPE_CHECKING, cast
 from src.common.decorators import log_method, log_method_noarg
 from src.common.elements.combo_box.combo_box import ComboBox
 from src.common.elements.edit.edit import LabeledLineEdit, LabeledMultilineEdit
+from src.common.elements.group.group import Group
 from src.common.elements.plot_settings.band_plot_settings import BandPlotSettings
 from src.common.elements.plot_settings.general_plot_settings import GeneralPlotSettings
 from src.common.elements.plot_settings.line_plot_settings import LinePlotSettings
 from src.common.elements.plot_settings.scatter_plot_settings import ScatterPlotSettings
+from src.common.elements.spacer.spacer_small import SpacerSmall
 from src.common.elements.title.title import Title
 from src.common.messages import Message, MessageType
 from src.common.result.classes.plot_result import Band, Line, PlotResultElement, Scatter
@@ -27,11 +29,17 @@ class PlotResultItemSettings(BasePanel):
             "title_edit": LabeledMultilineEdit("Title:"),
             "x_axis_title_edit": LabeledLineEdit("X Axis Title:"),
             "y_axis_title_edit": LabeledLineEdit("Y Axis Title:"),
+            "spacer": SpacerSmall(),
             "general_plot_settings": GeneralPlotSettings(),
-            "selector": ComboBox(),
-            "scatter_plot_settings": ScatterPlotSettings(),
-            "line_plot_settings": LinePlotSettings(),
-            "band_plot_settings": BandPlotSettings(),
+            "spacer2": SpacerSmall(),
+            "group": Group(
+                {
+                    "selector": ComboBox(),
+                    "scatter_plot_settings": ScatterPlotSettings(),
+                    "line_plot_settings": LinePlotSettings(),
+                    "band_plot_settings": BandPlotSettings(),
+                }
+            ),
         }
         self.setup(stretch=True)
         self.elements["line_edit"].edit_widget.editingFinished.connect(self.on_edit_finished)
@@ -53,26 +61,26 @@ class PlotResultItemSettings(BasePanel):
 
         plot_elements = self.result_element.items
         if plot_elements:
-            self.elements["selector"].configure([e.label for e in plot_elements])
+            self.elements["group"].elements["selector"].configure([e.label for e in plot_elements])
             if isinstance(plot_elements[0], Scatter):
-                self.elements["scatter_plot_settings"].configure(plot_elements[0].scatter_plot_config)
-                self.elements["scatter_plot_settings"].widget.setVisible(True)
-                self.elements["line_plot_settings"].widget.setVisible(False)
-                self.elements["band_plot_settings"].widget.setVisible(False)
+                self.elements["group"].elements["scatter_plot_settings"].configure(plot_elements[0].scatter_plot_config)
+                self.elements["group"].elements["scatter_plot_settings"].widget.setVisible(True)
+                self.elements["group"].elements["line_plot_settings"].widget.setVisible(False)
+                self.elements["group"].elements["band_plot_settings"].widget.setVisible(False)
             elif isinstance(plot_elements[0], Line):
-                self.elements["line_plot_settings"].configure(plot_elements[0].line_plot_config)
-                self.elements["scatter_plot_settings"].widget.setVisible(False)
-                self.elements["line_plot_settings"].widget.setVisible(True)
-                self.elements["band_plot_settings"].widget.setVisible(False)
+                self.elements["group"].elements["line_plot_settings"].configure(plot_elements[0].line_plot_config)
+                self.elements["group"].elements["scatter_plot_settings"].widget.setVisible(False)
+                self.elements["group"].elements["line_plot_settings"].widget.setVisible(True)
+                self.elements["group"].elements["band_plot_settings"].widget.setVisible(False)
             elif isinstance(plot_elements[0], Band):
-                self.elements["band_plot_settings"].configure(plot_elements[0].band_plot_config)
-                self.elements["scatter_plot_settings"].widget.setVisible(False)
-                self.elements["line_plot_settings"].widget.setVisible(False)
-                self.elements["band_plot_settings"].widget.setVisible(True)
+                self.elements["group"].elements["band_plot_settings"].configure(plot_elements[0].band_plot_config)
+                self.elements["group"].elements["scatter_plot_settings"].widget.setVisible(False)
+                self.elements["group"].elements["line_plot_settings"].widget.setVisible(False)
+                self.elements["group"].elements["band_plot_settings"].widget.setVisible(True)
         else:
-            self.elements["scatter_plot_settings"].widget.setVisible(False)
-            self.elements["line_plot_settings"].widget.setVisible(False)
-            self.elements["band_plot_settings"].widget.setVisible(False)
+            self.elements["group"].elements["scatter_plot_settings"].widget.setVisible(False)
+            self.elements["group"].elements["line_plot_settings"].widget.setVisible(False)
+            self.elements["group"].elements["band_plot_settings"].widget.setVisible(False)
         self.configuring = False
 
     @log_method_noarg
@@ -103,42 +111,48 @@ class PlotResultItemSettings(BasePanel):
                 return
             if message.caller_id == "scatter_plot_settings":
                 RESULTS[self.result_id].result_elements[self.element_id].items[
-                    self.elements["selector"].widget.currentIndex()
+                    self.elements["group"].elements["selector"].widget.currentIndex()
                 ].scatter_plot_config = message.payload
-                self.elements["scatter_plot_settings"].configure(message.payload)
+                self.elements["group"].elements["scatter_plot_settings"].configure(message.payload)
                 self.root_class.results_panel.refresh()
                 return
             if message.caller_id == "line_plot_settings":
                 RESULTS[self.result_id].result_elements[self.element_id].items[
-                    self.elements["selector"].widget.currentIndex()
+                    self.elements["group"].elements["selector"].widget.currentIndex()
                 ].line_plot_config = message.payload
-                self.elements["line_plot_settings"].configure(message.payload)
+                self.elements["group"].elements["line_plot_settings"].configure(message.payload)
                 self.root_class.results_panel.refresh()
                 return
             if message.caller_id == "band_plot_settings":
                 RESULTS[self.result_id].result_elements[self.element_id].items[
-                    self.elements["selector"].widget.currentIndex()
+                    self.elements["group"].elements["selector"].widget.currentIndex()
                 ].band_plot_config = message.payload
-                self.elements["band_plot_settings"].configure(message.payload)
+                self.elements["group"].elements["band_plot_settings"].configure(message.payload)
                 self.root_class.results_panel.refresh()
                 return
             if message.caller_id == "selector":
                 index = message.payload
                 plot_elements = self.result_element.items
                 if isinstance(plot_elements[index], Scatter):
-                    self.elements["scatter_plot_settings"].configure(plot_elements[index].scatter_plot_config)
-                    self.elements["scatter_plot_settings"].widget.setVisible(True)
-                    self.elements["line_plot_settings"].widget.setVisible(False)
-                    self.elements["band_plot_settings"].widget.setVisible(False)
+                    self.elements["group"].elements["scatter_plot_settings"].configure(
+                        plot_elements[index].scatter_plot_config
+                    )
+                    self.elements["group"].elements["scatter_plot_settings"].widget.setVisible(True)
+                    self.elements["group"].elements["line_plot_settings"].widget.setVisible(False)
+                    self.elements["group"].elements["band_plot_settings"].widget.setVisible(False)
                 elif isinstance(plot_elements[index], Line):
-                    self.elements["line_plot_settings"].configure(plot_elements[index].line_plot_config)
-                    self.elements["scatter_plot_settings"].widget.setVisible(False)
-                    self.elements["line_plot_settings"].widget.setVisible(True)
-                    self.elements["band_plot_settings"].widget.setVisible(False)
+                    self.elements["group"].elements["line_plot_settings"].configure(
+                        plot_elements[index].line_plot_config
+                    )
+                    self.elements["group"].elements["scatter_plot_settings"].widget.setVisible(False)
+                    self.elements["group"].elements["line_plot_settings"].widget.setVisible(True)
+                    self.elements["group"].elements["band_plot_settings"].widget.setVisible(False)
                 elif isinstance(plot_elements[index], Band):
-                    self.elements["band_plot_settings"].configure(plot_elements[index].band_plot_config)
-                    self.elements["scatter_plot_settings"].widget.setVisible(False)
-                    self.elements["line_plot_settings"].widget.setVisible(False)
-                    self.elements["band_plot_settings"].widget.setVisible(True)
+                    self.elements["group"].elements["band_plot_settings"].configure(
+                        plot_elements[index].band_plot_config
+                    )
+                    self.elements["group"].elements["scatter_plot_settings"].widget.setVisible(False)
+                    self.elements["group"].elements["line_plot_settings"].widget.setVisible(False)
+                    self.elements["group"].elements["band_plot_settings"].widget.setVisible(True)
                 return
         super().handler(message)
