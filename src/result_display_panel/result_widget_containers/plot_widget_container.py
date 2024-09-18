@@ -58,6 +58,11 @@ class PlotResultElementWidgetContainerExport:
         self.result_element = result_element
 
         self.plot_widget = ResizablePlotWidget(parent_widget, self.result_element)
+
+        self.restore_axis_ranges()
+
+        self.plot_widget.plotItem.vb.sigRangeChanged.connect(self.on_range_changed)
+
         set_stylesheet(self.plot_widget, f"#id{{border: 2px solid #ccc;}}")
 
         self.plot_widget.setBackground(self.result_element.general_plot_config.background_color)
@@ -148,3 +153,20 @@ class PlotResultElementWidgetContainerExport:
             self.result_element.general_plot_config.size_x, self.result_element.general_plot_config.size_y
         )
         self.plot_widget.plotItem.layout.activate()
+
+    def on_range_changed(self, view_box, new_range):
+        # Get the current ranges from the view box and store them in the config
+        x_range = self.plot_widget.plotItem.viewRange()[0]
+        y_range = self.plot_widget.plotItem.viewRange()[1]
+        self.result_element.general_plot_config.x_range = x_range
+        self.result_element.general_plot_config.y_range = y_range
+
+    def restore_axis_ranges(self):
+        # Restore the stored axis ranges
+        x_range = self.result_element.general_plot_config.x_range
+        y_range = self.result_element.general_plot_config.y_range
+        if x_range and y_range:
+            # self.plot_widget.plotItem.getViewBox().setAutoVisible(y=False)
+            # self.plot_widget.plotItem.getViewBox().setPadding(0)
+            self.plot_widget.plotItem.setXRange(x_range[0], x_range[1], padding=0)
+            self.plot_widget.plotItem.setYRange(y_range[0], y_range[1], padding=0)

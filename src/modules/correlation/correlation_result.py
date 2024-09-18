@@ -27,11 +27,13 @@ class CorrelationStudyConfig:
         selected_columns: List[str] = None,
         correlation_type: CorrelationType = CorrelationType.PEARSON,
         compact: bool = False,
+        generate_plots: bool = True,
         report_only_significant: bool = True,
         filters: List[FilterSettings] = None,
     ):
         self.selected_columns = selected_columns if selected_columns is not None else []
         self.compact = compact
+        self.generate_plots = generate_plots
         self.correlation_type = correlation_type
         self.report_only_significant = report_only_significant
         self.filters: List[FilterSettings] = filters if filters is not None else []

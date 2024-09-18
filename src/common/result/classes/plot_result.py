@@ -59,6 +59,8 @@ class GeneralPlotConfig:
     background_color: QColor = QColor(255, 255, 255, 255)
     size_x: int = 600
     size_y: int = 500
+    x_range: List[float] = None
+    y_range: List[float] = None
 
 
 class PlotResultElement(BaseResultElement):

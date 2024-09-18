@@ -101,6 +101,10 @@ def recalculate_correlation_study(df: pd.DataFrame, result: CorrelationResult) -
 
     result.title_context = ", ".join([f"{col[:16]}" for col in config.selected_columns])
 
+    if not config.generate_plots:
+        result.set_elements(html_result_element, {})
+        return result
+
     plot_result_elements = {}
     # Add plots
     for i, name1 in enumerate(columns):
