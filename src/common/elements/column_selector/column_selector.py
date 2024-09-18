@@ -285,6 +285,10 @@ class ColumnSelectorExPopup:
             panel_list.dropEvent = lambda event, _=index: self.dropEvent(event, index)
         self.main_list.dropEvent = lambda event: self.dropEvent(event, -1)
 
+        self.main_list.itemDoubleClicked.connect(self.handle_double_click)
+        for panel_list in self.panel_list_widgets:
+            panel_list.itemDoubleClicked.connect(self.handle_double_click)
+
     def configure(self, columns: List[Column], selected_columns_list: List[List[str]]):
         clean_up_list_widget(self.main_list)
         self.columns = columns
@@ -341,12 +345,31 @@ class ColumnSelectorExPopup:
                 self.button_pressed(index, from_drop=True, remove=True)
         event.ignore()
 
-    def button_pressed(self, button_index, from_drop=False, remove=False):
+    def handle_double_click(self, item):
+        source_list = item.listWidget()
+        if source_list == self.main_list:
+            # Move item to the first child list
+            if self.panel_list_widgets:
+                self.button_pressed(0, from_double_click=True, remove=False, item=item)
+        else:
+            # Move item back to the main list
+            panel_index = self.panel_list_widgets.index(source_list)
+            self.button_pressed(panel_index, from_double_click=True, remove=True, item=item)
+
+    def button_pressed(self, button_index, from_drop=False, from_double_click=False, remove=False, item=None):
         logging.info(f"Button {button_index} pressed")
         button = self.panel_list_buttons[button_index]
         panel_list = self.panel_list_widgets[button_index]
-        if (button.text() == "Add" and not from_drop) or (from_drop and not remove):
-            selected_main = self.main_list.selectedItems() if not from_drop else [self.main_list.currentItem()]
+        if (
+            (button.text() == "Add" and not from_drop and not from_double_click)
+            or (from_drop and not remove)
+            or (from_double_click and not remove)
+        ):
+            selected_main = (
+                [item]
+                if from_double_click
+                else (self.main_list.selectedItems() if not from_drop else [self.main_list.currentItem()])
+            )
             if selected_main:
                 selected_main_names = [item.text() for item in selected_main]
                 selected_main_types = [
@@ -367,8 +390,16 @@ class ColumnSelectorExPopup:
                     self.main_list.takeItem(self.main_list.row(item))
                 if self.allow_ok_button_handler is not None:
                     self.allow_ok_button_handler()
-        elif (button.text() == "Remove" and not from_drop) or (from_drop and remove):
-            selected_list = panel_list.selectedItems() if not remove else [panel_list.currentItem()]
+        elif (
+            (button.text() == "Remove" and not from_drop and not from_double_click)
+            or (from_drop and remove)
+            or (from_double_click and remove)
+        ):
+            selected_list = (
+                [item]
+                if from_double_click
+                else (panel_list.selectedItems() if not remove else [panel_list.currentItem()])
+            )
             if selected_list:
                 for item in selected_list:
                     new_item = QListWidgetItem(item.text())
