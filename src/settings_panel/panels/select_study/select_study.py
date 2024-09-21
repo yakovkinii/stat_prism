@@ -47,6 +47,7 @@ class SelectStudy(BasePanel):
 
         self.root_class.result_selector_panel.add_result(result_id)
         self.root_class.results_panel.display(result_id)
+        self.root_class.action_activate_results_panel()
 
         module.ui_instance.configure(result_id=result_id, caller_index=self.stacked_widget_index)
         self.root_class.action_activate_panel_by_index(module.settings_stacked_widget_index)

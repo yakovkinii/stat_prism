@@ -49,7 +49,7 @@ def recalculate_cross_correlation_study(df: pd.DataFrame, result: CrossCorrelati
     logging.info("Recalculating correlation study")
 
     config: CrossCorrelationStudyConfig = result.config
-    if len(config.selected_columns1) < 2 or len(config.selected_columns2) < 1:
+    if len(config.selected_columns1) < 1 or len(config.selected_columns2) < 1:
         result.set_elements(
             HTMLResultElement(
                 settings_panel_index=PanelRegistry.HTML_RESULT_ITEM_SETTINGS.settings_stacked_widget_index

@@ -25,6 +25,11 @@ class ModuleRegistry(Enum):
         icon_path="ph.chart-line-up-fill",
     )
 
+    T_TEST = ModuleRegistryItem(
+        display_name="T-Test",
+        icon_path="ph.chart-line-up-fill",
+    )
+
     @property
     def display_name(self):
         return self.value.display_name

@@ -282,7 +282,7 @@ class ColumnSelectorExPopup:
             self.panel_list_widgets.append(panel_list)
             self.panel_list_buttons.append(panel_list_button)
 
-            panel_list.dropEvent = lambda event, _=index: self.dropEvent(event, index)
+            panel_list.dropEvent = lambda event, _=index: self.dropEvent(event, _)
         self.main_list.dropEvent = lambda event: self.dropEvent(event, -1)
 
         self.main_list.itemDoubleClicked.connect(self.handle_double_click)
@@ -359,17 +359,17 @@ class ColumnSelectorExPopup:
     def button_pressed(self, button_index, from_drop=False, from_double_click=False, remove=False, item=None):
         logging.info(f"Button {button_index} pressed")
         button = self.panel_list_buttons[button_index]
-        panel_list = self.panel_list_widgets[button_index]
+        panel_list: QListWidgetClickable = self.panel_list_widgets[button_index]
         if (
             (button.text() == "Add" and not from_drop and not from_double_click)
             or (from_drop and not remove)
             or (from_double_click and not remove)
         ):
-            selected_main = (
-                [item]
-                if from_double_click
-                else (self.main_list.selectedItems() if not from_drop else [self.main_list.currentItem()])
-            )
+            if self.fields[button_index].allow_only_single_column:
+                if panel_list.count() > 0:
+                    return
+
+            selected_main = [item] if from_double_click else (self.main_list.selectedItems())
             if selected_main:
                 selected_main_names = [item.text() for item in selected_main]
                 selected_main_types = [
@@ -395,11 +395,7 @@ class ColumnSelectorExPopup:
             or (from_drop and remove)
             or (from_double_click and remove)
         ):
-            selected_list = (
-                [item]
-                if from_double_click
-                else (panel_list.selectedItems() if not remove else [panel_list.currentItem()])
-            )
+            selected_list = [item] if from_double_click else (panel_list.selectedItems())
             if selected_list:
                 for item in selected_list:
                     new_item = QListWidgetItem(item.text())
