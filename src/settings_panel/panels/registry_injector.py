@@ -1,3 +1,4 @@
+from src.settings_panel.panels.blank.blank import Blank
 from src.settings_panel.panels.column.column import Column
 from src.settings_panel.panels.column_selector.column_selector import ColumnSelector
 from src.settings_panel.panels.columns.columns import Columns
@@ -20,3 +21,4 @@ def inject_classes_to_panel_registry():
     PanelRegistry.INVERSE.value.ui_class = Inverse
     PanelRegistry.HTML_RESULT_ITEM_SETTINGS.value.ui_class = HTMLResultItemSettings
     PanelRegistry.PLOT_RESULT_ITEM_SETTINGS.value.ui_class = PlotResultItemSettings
+    PanelRegistry.BLANK.value.ui_class = Blank

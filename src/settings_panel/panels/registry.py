@@ -21,6 +21,7 @@ class PanelRegistry(Enum):
     COLUMN_SELECTOR = PanelRegistryItem(display_name="Select Columns")
     HTML_RESULT_ITEM_SETTINGS = PanelRegistryItem(display_name="HTML Result Item Settings")
     PLOT_RESULT_ITEM_SETTINGS = PanelRegistryItem(display_name="PLOT Result Item Settings")
+    BLANK = PanelRegistryItem(display_name="Blank")
 
     @property
     def display_name(self):
