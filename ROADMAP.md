@@ -118,14 +118,14 @@ including customization.</g>
 * ANOVA
 * Binomial Logistic Regression
 * Cross-tabulation
-* Descriptive statistics
+* <g>Descriptive statistics</g>
 * EFA
 * Kruskal-Wallis
 * Linear Regression
 * Multinomial Logistic Regression
 * Ordinal Logistic Regression
 * Reliability analysis
-* T-test
+* <g>T-test</g>
 * Undo functionality
 * Table slicing on export and rotated copying
 

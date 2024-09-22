@@ -7,7 +7,7 @@ from PySide6.QtWidgets import QLabel, QSizePolicy, QVBoxLayout, QWidget
 from src.common.constant import MARKER_SHAPE_MAP, PEN_STYLE_MAP
 from src.common.elements.resizeable_plot_widget.resizeable_plot_widget import ResizablePlotWidget
 from src.common.elements.utility.layout_helpers import empty_widget
-from src.common.result.classes.plot_result import Band, Line, PlotResultElement, Scatter
+from src.common.result.classes.plot_result import Band, Bar, Line, PlotResultElement, Scatter
 from src.common.unique_qss import set_stylesheet
 
 
@@ -115,6 +115,16 @@ class PlotResultElementWidgetContainerExport:
                         style=PEN_STYLE_MAP[item.line_plot_config.line_style],
                     )
                 )
+
+            if isinstance(item, Bar):
+                plot_item = pg.BarGraphItem(
+                    x=item.x,
+                    height=item.y,
+                    width=item.width,
+                    brush=pg.mkBrush(item.bar_plot_config.fill_color),
+                    pen=pg.mkPen(item.bar_plot_config.line_color),
+                )
+                self.plot_widget.addItem(plot_item)
 
             if isinstance(item, Band):
                 curve1 = pg.PlotCurveItem(item.x, item.y1, pen=item.band_plot_config.line_color)

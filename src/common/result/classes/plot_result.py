@@ -14,6 +14,15 @@ class Scatter:
         self.scatter_plot_config = scatter_plot_config if scatter_plot_config else ScatterPlotConfig()
 
 
+class Bar:
+    def __init__(self, x, y, width, label, bar_plot_config=None):
+        self.x = x
+        self.y = y
+        self.width = width
+        self.label = label
+        self.bar_plot_config = bar_plot_config if bar_plot_config else BarPlotConfig()
+
+
 class Line:
     def __init__(self, x, y, label, line_plot_config=None):
         self.x = x
@@ -39,6 +48,12 @@ class ScatterPlotConfig:
     point_size: int = 8
     jitter_x: float = 0
     jitter_y: float = 0
+
+
+@attrs.define
+class BarPlotConfig:
+    line_color: QColor = QColor(100, 100, 255, 200)
+    fill_color: QColor = QColor(100, 100, 255, 100)
 
 
 @attrs.define
@@ -78,7 +93,7 @@ class PlotResultElement(BaseResultElement):
         self.general_plot_config = general_plot_config if general_plot_config else GeneralPlotConfig()
         self.title: str = tab_title
         self.class_id: str = "PlotResultElement"
-        self.items: List[Union[Scatter, Line, Band]] = []
+        self.items: List[Union[Scatter, Line, Band, Bar]] = []
         self.plot_id = plot_id
         self.plot_title = plot_title
         self.x_axis_title = x_axis_title

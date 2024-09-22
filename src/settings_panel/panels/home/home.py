@@ -18,6 +18,7 @@ from src.common.elements.spacer.spacer import Spacer
 from src.common.messages import MessageType
 from src.common.result.registry import RESULTS
 from src.settings_panel.panels.base.base import BasePanel
+from src.settings_panel.panels.registry import PanelRegistry
 
 if TYPE_CHECKING:
     pass
@@ -26,6 +27,10 @@ if TYPE_CHECKING:
 class Home(BasePanel):
     def setup_ui(self):
         self.elements = {
+            "add_analysis": LargeButton(
+                label_text="Add Analysis",
+                icon_path="mdi.plus",
+            ),
             "open_sample": LargeButton(
                 label_text="Open Sample Data",
                 icon_path="msc.folder-opened",
@@ -43,6 +48,7 @@ class Home(BasePanel):
         }
 
         self.setup(stretch=True)
+        self.elements["add_analysis"].widget.hide()
 
     @log_method_noarg
     def open_handler(self):
@@ -118,6 +124,7 @@ class Home(BasePanel):
         else:
             logging.error("Not supported file type")
 
+        self.elements["add_analysis"].widget.show()
         self.root_class.action_activate_home_panel()
         self.root_class.action_activate_data_panel()
         self.root_class.action_hide_result_selector()
@@ -173,9 +180,12 @@ class Home(BasePanel):
             elif message.caller_id == "open_sample":
                 self.root_class.data_panel.tabledata.load_data(pd.read_csv("./data.csv"))
                 self.root_class.splitter.setSizes([1, 1])
+                self.elements["add_analysis"].widget.show()
             elif message.caller_id == "save":
                 self.save_handler()
             elif message.caller_id == "about":
                 self.about_handler()
+            elif message.caller_id == "add_analysis":
+                self.root_class.action_activate_panel_by_index(PanelRegistry.SELECT_STUDY.settings_stacked_widget_index)
             return
         super().handler(message)

@@ -376,7 +376,19 @@ class ColumnSelectorExPopup:
                     self.columns[self.column_names.index(item)].column_type for item in selected_main_names
                 ]
                 panel_type = self.fields[button_index].column_type
-                if not all([selected_main_type == panel_type for selected_main_type in selected_main_types]):
+                if panel_type == ColumnType.NOMINAL:
+                    allowed_types = [
+                        ColumnType.NOMINAL,
+                        ColumnType.ORDINAL,
+                        ColumnType.ORDINAL_UNCONFIRMED,
+                        ColumnType.NUMERIC,
+                    ]
+                elif panel_type in [ColumnType.ORDINAL, ColumnType.ORDINAL_UNCONFIRMED]:
+                    allowed_types = [ColumnType.ORDINAL, ColumnType.ORDINAL_UNCONFIRMED, ColumnType.NUMERIC]
+                else:
+                    allowed_types = [ColumnType.NUMERIC]
+
+                if not all([selected_main_type in allowed_types for selected_main_type in selected_main_types]):
                     icon = self.panel_list_icons[button_index]
                     old_pixmap = icon.pixmap()
                     icon.setPixmap(qta.icon("mdi.alert", color="red").pixmap(24, 24))

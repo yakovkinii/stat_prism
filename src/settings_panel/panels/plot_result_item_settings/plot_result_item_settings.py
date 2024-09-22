@@ -5,13 +5,14 @@ from src.common.elements.combo_box.combo_box import ComboBox
 from src.common.elements.edit.edit import LabeledLineEdit, LabeledMultilineEdit
 from src.common.elements.group.group import Group
 from src.common.elements.plot_settings.band_plot_settings import BandPlotSettings
+from src.common.elements.plot_settings.bar_plot_settings import BarPlotSettings
 from src.common.elements.plot_settings.general_plot_settings import GeneralPlotSettings
 from src.common.elements.plot_settings.line_plot_settings import LinePlotSettings
 from src.common.elements.plot_settings.scatter_plot_settings import ScatterPlotSettings
 from src.common.elements.spacer.spacer_small import SpacerSmall
 from src.common.elements.title.title import Title
 from src.common.messages import Message, MessageType
-from src.common.result.classes.plot_result import Band, Line, PlotResultElement, Scatter
+from src.common.result.classes.plot_result import Band, Bar, Line, PlotResultElement, Scatter
 from src.common.result.registry import RESULTS
 from src.settings_panel.panels.base.base import BasePanel
 
@@ -38,6 +39,7 @@ class PlotResultItemSettings(BasePanel):
                     "scatter_plot_settings": ScatterPlotSettings(),
                     "line_plot_settings": LinePlotSettings(),
                     "band_plot_settings": BandPlotSettings(),
+                    "bar_plot_settings": BarPlotSettings(),
                 }
             ),
         }
@@ -67,16 +69,25 @@ class PlotResultItemSettings(BasePanel):
                 self.elements["group"].elements["scatter_plot_settings"].widget.setVisible(True)
                 self.elements["group"].elements["line_plot_settings"].widget.setVisible(False)
                 self.elements["group"].elements["band_plot_settings"].widget.setVisible(False)
+                self.elements["group"].elements["bar_plot_settings"].widget.setVisible(False)
             elif isinstance(plot_elements[0], Line):
                 self.elements["group"].elements["line_plot_settings"].configure(plot_elements[0].line_plot_config)
                 self.elements["group"].elements["scatter_plot_settings"].widget.setVisible(False)
                 self.elements["group"].elements["line_plot_settings"].widget.setVisible(True)
                 self.elements["group"].elements["band_plot_settings"].widget.setVisible(False)
+                self.elements["group"].elements["bar_plot_settings"].widget.setVisible(False)
             elif isinstance(plot_elements[0], Band):
                 self.elements["group"].elements["band_plot_settings"].configure(plot_elements[0].band_plot_config)
                 self.elements["group"].elements["scatter_plot_settings"].widget.setVisible(False)
                 self.elements["group"].elements["line_plot_settings"].widget.setVisible(False)
                 self.elements["group"].elements["band_plot_settings"].widget.setVisible(True)
+                self.elements["group"].elements["bar_plot_settings"].widget.setVisible(False)
+            elif isinstance(plot_elements[0], Bar):
+                self.elements["group"].elements["bar_plot_settings"].configure(plot_elements[0].bar_plot_config)
+                self.elements["group"].elements["scatter_plot_settings"].widget.setVisible(False)
+                self.elements["group"].elements["line_plot_settings"].widget.setVisible(False)
+                self.elements["group"].elements["band_plot_settings"].widget.setVisible(False)
+                self.elements["group"].elements["bar_plot_settings"].widget.setVisible(True)
         else:
             self.elements["group"].elements["scatter_plot_settings"].widget.setVisible(False)
             self.elements["group"].elements["line_plot_settings"].widget.setVisible(False)
@@ -130,6 +141,13 @@ class PlotResultItemSettings(BasePanel):
                 self.elements["group"].elements["band_plot_settings"].configure(message.payload)
                 self.root_class.results_panel.refresh()
                 return
+            if message.caller_id == "bar_plot_settings":
+                RESULTS[self.result_id].result_elements[self.element_id].items[
+                    self.elements["group"].elements["selector"].widget.currentIndex()
+                ].bar_plot_config = message.payload
+                self.elements["group"].elements["bar_plot_settings"].configure(message.payload)
+                self.root_class.results_panel.refresh()
+                return
             if message.caller_id == "selector":
                 index = message.payload
                 plot_elements = self.result_element.items
@@ -154,5 +172,11 @@ class PlotResultItemSettings(BasePanel):
                     self.elements["group"].elements["scatter_plot_settings"].widget.setVisible(False)
                     self.elements["group"].elements["line_plot_settings"].widget.setVisible(False)
                     self.elements["group"].elements["band_plot_settings"].widget.setVisible(True)
+                elif isinstance(plot_elements[index], Bar):
+                    self.elements["group"].elements["bar_plot_settings"].configure(plot_elements[index].bar_plot_config)
+                    self.elements["group"].elements["scatter_plot_settings"].widget.setVisible(False)
+                    self.elements["group"].elements["line_plot_settings"].widget.setVisible(False)
+                    self.elements["group"].elements["band_plot_settings"].widget.setVisible(False)
+                    self.elements["group"].elements["bar_plot_settings"].widget.setVisible(True)
                 return
         super().handler(message)
