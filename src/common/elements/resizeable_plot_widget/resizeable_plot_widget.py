@@ -23,11 +23,11 @@ class ResizablePlotWidget(pg.PlotWidget):
         width, height = self.width(), self.height()
 
         if width - x <= self.edge_threshold and height - y <= self.edge_threshold:
-            self.setCursor(QCursor(Qt.SizeFDiagCursor))
+            self.setCursor(QCursor(Qt.CursorShape.SizeFDiagCursor))
         elif width - x <= self.edge_threshold:
-            self.setCursor(QCursor(Qt.SizeHorCursor))
+            self.setCursor(QCursor(Qt.CursorShape.SizeHorCursor))
         elif height - y <= self.edge_threshold:
-            self.setCursor(QCursor(Qt.SizeVerCursor))
+            self.setCursor(QCursor(Qt.CursorShape.SizeVerCursor))
         else:
             self.unsetCursor()
 
@@ -50,7 +50,7 @@ class ResizablePlotWidget(pg.PlotWidget):
         x, y = event.position().x(), event.position().y()
         width, height = self.width(), self.height()
 
-        if event.button() == Qt.LeftButton:
+        if event.button() == Qt.MouseButton.LeftButton:
             if width - x <= self.edge_threshold and height - y <= self.edge_threshold:
                 self.dragging = True
                 self.resizeDirection = "both"

@@ -11,7 +11,7 @@ class Label(BasePanelElement):
     def setup(self):
         self.widget = QtWidgets.QLabel(self.parent_widget)
         self.widget.setWordWrap(True)
-        self.widget.setTextInteractionFlags(QtCore.Qt.TextSelectableByMouse)
+        self.widget.setTextInteractionFlags(QtCore.Qt.TextInteractionFlag.TextSelectableByMouse)
         font = QtGui.QFont("Segoe UI")
         font.setPointSize(8)
         self.widget.setFont(font)

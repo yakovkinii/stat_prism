@@ -102,7 +102,10 @@ class ColumnSelectorEx(BasePanelElement):
                 setup=lambda widget, layout: (
                     widget.setSelectionMode(QtWidgets.QAbstractItemView.SelectionMode.NoSelection),
                     widget.setFocusPolicy(Qt.FocusPolicy.NoFocus),
-                    set_stylesheet(widget, "#id{border: 1px solid #ddd;}"),
+                    set_stylesheet(
+                        widget,
+                        "#id{border: 1px solid #ddd;}" "#id:hover{" "border: 1px solid rgb(0,120,215)" "}",
+                    ),
                 ),
             )
             panel_list.reasonable_number_of_columns = field.reasonable_number_of_columns
@@ -174,7 +177,7 @@ class ColumnSelectorExPopup:
                 widget.setDragEnabled(True),
                 widget.setAcceptDrops(True),
                 widget.setDropIndicatorShown(True),
-                widget.setDefaultDropAction(QtCore.Qt.MoveAction),
+                widget.setDefaultDropAction(QtCore.Qt.DropAction.MoveAction),
                 set_stylesheet(widget, "#id{border: 1px solid #ddd;}"),
             ],
         )
@@ -271,7 +274,7 @@ class ColumnSelectorExPopup:
                     widget.setDragEnabled(True),
                     widget.setAcceptDrops(True),
                     widget.setDropIndicatorShown(True),
-                    widget.setDefaultDropAction(QtCore.Qt.MoveAction),
+                    widget.setDefaultDropAction(QtCore.Qt.DropAction.MoveAction),
                     layout.setContentsMargins(0, 0, 0, 0),
                     set_stylesheet(widget, "#id{border: 1px solid #ddd;}"),
                 ),

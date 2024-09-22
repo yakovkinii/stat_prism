@@ -53,25 +53,10 @@ class CorrelationResult(BaseResult):
         self.result_elements = {"html_element": self.html_element}
 
         self.title = title
-        # Display title context (result display)
-        # if title_context is None:
-        #     if config is None:
-        #         title_context = ""
-        #     else:
-        #         title_context = ", ".join([f"{col[:8]}" if len(col) > 8 else col for col in config.selected_columns])
+
         self.title_context = title_context
-        # Settings panel index for activating the result
         self.settings_panel_index = settings_panel_index
-        # Result config
-        # if config is None:
-        #     self.config: CorrelationStudyConfig = CorrelationStudyConfig(
-        #         selected_columns=[],
-        #         compact=False,
-        #         report_only_significant=True,
-        #     )
-        # else:
         self.config: CorrelationStudyConfig = config
-        # Flag for updating the result
         self.needs_update: bool = False
 
     def set_elements(self, html_element: HTMLResultElement, plot_elements: Dict[str, PlotResultElement]):

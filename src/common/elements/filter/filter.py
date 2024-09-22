@@ -342,8 +342,9 @@ class FilterSetup(BasePanelElement):
 
 
 class CompiledFilterHistory(BasePanelElement):
-    def __init__(self):
+    def __init__(self, hover_highlight=True):
         super().__init__()
+        self.hover_highlight = hover_highlight
         self.layout = None
         self.filter_widgets = []
 
@@ -354,7 +355,11 @@ class CompiledFilterHistory(BasePanelElement):
             setup=lambda widget, layout: [
                 layout.setContentsMargins(4, 4, 4, 4),
                 layout.setSpacing(0),
-                set_stylesheet(widget, f"#id{{border: 1px solid #aaa;}}"),
+                set_stylesheet(
+                    widget, "#id{border: 1px solid #aaa;}" "#id:hover{" "border: 1px solid rgb(0,120,215)" "}"
+                )
+                if self.hover_highlight
+                else set_stylesheet(widget, "#id{border: 1px solid #aaa;}"),
             ],
         )
 

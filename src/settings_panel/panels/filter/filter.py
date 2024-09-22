@@ -19,7 +19,7 @@ class Filter(BasePanel):
             "title": Title(
                 label_text="Filter Population",
             ),
-            "compiled_filters": CompiledFilterHistory(),
+            "compiled_filters": CompiledFilterHistory(hover_highlight=False),
             "spacer": SpacerSmall(),
             "filter": FilterSetup(),
         }

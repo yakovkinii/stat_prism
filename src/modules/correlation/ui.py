@@ -37,17 +37,6 @@ class Correlation(BaseModulePanel):
                         column_type=ColumnType.NUMERIC,
                         reasonable_number_of_columns=10,
                     ),
-                    # Field(
-                    #     name="Dummy 1-column:",
-                    #     column_type=ColumnType.NOMINAL,
-                    #     reasonable_number_of_columns=1,
-                    #     allow_only_single_column=True,
-                    # ),
-                    # Field(
-                    #     name="Dummy long list:",
-                    #     column_type=ColumnType.ORDINAL,
-                    #     reasonable_number_of_columns=10,
-                    # ),
                 ],
             ),
             "compiled_filters": CompiledFilterHistory(),

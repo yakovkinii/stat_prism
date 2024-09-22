@@ -21,7 +21,7 @@ class Logo(BasePanelElement):
             widget=QLabel(self.widget),
             setup=lambda widget, layout: [
                 widget.setPixmap(QIcon(":/mat/resources/watermark.png").pixmap(250, 250)),
-                widget.setAlignment(QtCore.Qt.AlignCenter),
+                widget.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter),
                 self.widget.setFixedHeight(500),
             ],
         )

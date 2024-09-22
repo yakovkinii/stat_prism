@@ -170,8 +170,7 @@ class DataModel(QAbstractTableModel):
                 return str(section)
         elif role == Qt.ItemDataRole.DecorationRole and orientation == Qt.Orientation.Horizontal:
             column_name = self._df.columns[section]
-            icons = []
-            icons.append(COLUMN_TYPE_ICONS[self.column_attributes[column_name].column_type])
+            icons = [COLUMN_TYPE_ICONS[self.column_attributes[column_name].column_type]]
 
             if self.column_attributes[column_name].get_flag(ColumnAttributesRegistry.inverted):
                 icons.append(qta.icon("ri.arrow-up-down-line"))

@@ -42,11 +42,6 @@ class CrossCorrelation(BaseModulePanel):
                         column_type=ColumnType.NUMERIC,
                         reasonable_number_of_columns=10,
                     ),
-                    # Field(
-                    #     name="Dummy long list:",
-                    #     column_type=ColumnType.ORDINAL,
-                    #     reasonable_number_of_columns=10,
-                    # ),
                 ],
             ),
             "compiled_filters": CompiledFilterHistory(),
