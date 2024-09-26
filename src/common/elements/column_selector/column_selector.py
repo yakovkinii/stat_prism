@@ -343,9 +343,28 @@ class ColumnSelectorExPopup:
 
         if isinstance(target_list, QListWidgetClickable):
             if source_list == self.main_list:
+                # index != -1
                 self.button_pressed(index, from_drop=True, remove=False)
             else:
-                self.button_pressed(index, from_drop=True, remove=True)
+                index_of_source_list = self.panel_list_widgets.index(source_list)
+                if index == -1:
+                    # index_of_source_list -> main
+                    self.button_pressed(index_of_source_list, from_drop=True, remove=True)
+                else:
+                    # index_of_source_list -> index
+                    # index != -1
+                    selected_items = source_list.selectedItems()
+                    selected_items_text = [item.text() for item in selected_items]
+                    self.button_pressed(index_of_source_list, from_drop=True, remove=True)
+                    selected_items_in_main_list = [
+                        self.main_list.item(i)
+                        for i in range(self.main_list.count())
+                        if self.main_list.item(i).text() in selected_items_text
+                    ]
+                    for item in selected_items_in_main_list:
+                        item.setSelected(True)
+                    self.button_pressed(index, from_drop=True, remove=False)
+
         event.ignore()
 
     def handle_double_click(self, item):
@@ -429,6 +448,8 @@ class ColumnSelectorExPopup:
                     self.main_list.addItem(new_item)
                 if self.allow_ok_button_handler is not None:
                     self.allow_ok_button_handler()
+        for panel_list in self.panel_list_widgets:
+            panel_list.updateGeometry()
 
 
 class ColumnSelectorPopupHolder(BasePanelElement):

@@ -24,9 +24,10 @@ class Bar:
 
 
 class Line:
-    def __init__(self, x, y, label, line_plot_config=None):
+    def __init__(self, x, y, label, legend_string: str = "", line_plot_config=None):
         self.x = x
         self.y = y
+        self.legend_string = legend_string
         self.label = label
         self.line_plot_config = line_plot_config if line_plot_config else LinePlotConfig()
 
@@ -48,6 +49,25 @@ class ScatterPlotConfig:
     point_size: int = 8
     jitter_x: float = 0
     jitter_y: float = 0
+
+
+class Colors:
+    def __init__(self):
+        self.colors = [
+            [100, 100, 255],
+            [255, 100, 100],
+            [100, 255, 100],
+            [255, 255, 100],
+            [255, 100, 255],
+            [100, 255, 255],
+            [255, 255, 255],
+        ]
+        self.index = 0
+
+    def get_color_list(self):
+        color = self.colors[self.index]
+        self.index += 1
+        return color
 
 
 @attrs.define

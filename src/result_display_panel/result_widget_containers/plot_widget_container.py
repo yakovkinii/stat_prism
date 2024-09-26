@@ -58,6 +58,7 @@ class PlotResultElementWidgetContainerExport:
         self.result_element = result_element
 
         self.plot_widget = ResizablePlotWidget(parent_widget, self.result_element)
+        legend = None
 
         self.restore_axis_ranges()
 
@@ -106,7 +107,12 @@ class PlotResultElementWidgetContainerExport:
 
             if isinstance(item, Line):
                 plot_item = self.plot_widget.plot(item.x, item.y)
-
+                if item.legend_string != "":
+                    if legend is None:
+                        legend = pg.LegendItem()  # Create a LegendItem object
+                        legend.setParentItem(self.plot_widget.plotItem)
+                        legend.anchor((1, 0), (1, 0))
+                    legend.addItem(plot_item, item.legend_string)
                 plot_item.setBrush(pg.mkBrush(item.line_plot_config.line_color))
                 plot_item.setPen(
                     pg.mkPen(
