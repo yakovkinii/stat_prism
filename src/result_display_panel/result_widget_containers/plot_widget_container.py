@@ -7,8 +7,9 @@ from PySide6.QtWidgets import QLabel, QSizePolicy, QVBoxLayout, QWidget
 from src.common.constant import MARKER_SHAPE_MAP, PEN_STYLE_MAP
 from src.common.elements.resizeable_plot_widget.resizeable_plot_widget import ResizablePlotWidget
 from src.common.elements.utility.layout_helpers import empty_widget
-from src.common.result.classes.plot_result import Band, Bar, Line, PlotResultElement, Scatter
+from src.common.result.classes.plot_result import Band, Bar, Line, PlotResultElement, Scatter, Box
 from src.common.unique_qss import set_stylesheet
+from src.result_display_panel.result_widget_containers.custom.box_plot import BoxPlotItem
 
 
 class PlotResultElementWidgetContainer:
@@ -132,6 +133,19 @@ class PlotResultElementWidgetContainerExport:
                 )
                 self.plot_widget.addItem(plot_item)
 
+            if isinstance(item, Box):
+                plot_item = BoxPlotItem(
+                    x_value=item.x_value,
+                    q1=item.q1,
+                    q3=item.q3,
+                    median=item.median,
+                    lower_whisker=item.lower_whisker,
+                    upper_whisker=item.upper_whisker,
+                    brush=pg.mkBrush(item.box_plot_config.fill_color),
+                    pen=pg.mkPen(item.box_plot_config.line_color),
+                )
+                self.plot_widget.addItem(plot_item)
+
             if isinstance(item, Band):
                 curve1 = pg.PlotCurveItem(item.x, item.y1, pen=item.band_plot_config.line_color)
                 curve2 = pg.PlotCurveItem(item.x, item.y2, pen=item.band_plot_config.line_color)
@@ -139,8 +153,6 @@ class PlotResultElementWidgetContainerExport:
                 self.plot_widget.addItem(curve1)
                 self.plot_widget.addItem(curve2)
                 self.plot_widget.addItem(fill)
-                # plot_item.setBrush(pg.mkBrush(item.band_plot_config.fill_color))
-                # plot_item.setPen(pg.mkPen(item.band_plot_config.line_color))
 
         # Get the plot item
         plot_item = self.plot_widget.getPlotItem()

@@ -8,7 +8,8 @@ from scipy.stats import gaussian_kde
 
 from src.common.constant import MDASH
 from src.common.result.classes.html_result import HTMLResultElement
-from src.common.result.classes.plot_result import Bar, BarPlotConfig, Colors, Line, LinePlotConfig, PlotResultElement
+from src.common.result.classes.plot_result import Bar, BarPlotConfig, Colors, Line, LinePlotConfig, PlotResultElement, \
+    Box
 from src.modules.descriptive.result import DescriptiveResult, DescriptiveStudyConfig
 from src.modules.descriptive.table import get_descriptive_table_groupby, get_descriptive_table_no_groupby
 from src.settings_panel.panels.registry import PanelRegistry
@@ -39,6 +40,8 @@ def calculate_descriptive_study_no_groupby(df, config, result):
         if not is_numeric:
             continue
 
+        # Histogram
+
         kde = gaussian_kde(df[col].dropna())
         x_vals = np.linspace(df[col].min(), df[col].max(), 500)
         y_vals = kde(x_vals)
@@ -66,6 +69,30 @@ def calculate_descriptive_study_no_groupby(df, config, result):
             y_axis_title="Density",
         )
         plot_result.items = [plot_line, plot_bar]
+        name = f"{col}"
+        while name in plot_result_elements:
+            name += "_"
+        plot_result_elements[name] = plot_result
+
+        # Box plot
+        plot_box = Box(
+x_value=0,
+q1=np.percentile(df[col], 25),
+q3=np.percentile(df[col], 75),
+median=np.median(df[col]),
+lower_whisker=np.min(df[col]),
+upper_whisker=np.max(df[col]),
+            label=f"Box: {col}",
+        )
+
+        plot_result = PlotResultElement(
+            settings_panel_index=PanelRegistry.PLOT_RESULT_ITEM_SETTINGS.settings_stacked_widget_index,
+            tab_title=f"Plot: Box Plot of {col}",
+            plot_title=f"Box Plot of {col}",
+            x_axis_title="",
+            y_axis_title=col,
+        )
+        plot_result.items = [plot_box]
         name = f"{col}"
         while name in plot_result_elements:
             name += "_"

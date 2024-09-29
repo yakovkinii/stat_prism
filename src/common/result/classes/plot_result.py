@@ -23,6 +23,28 @@ class Bar:
         self.bar_plot_config = bar_plot_config if bar_plot_config else BarPlotConfig()
 
 
+class Box:
+    def __init__(
+        self,
+        x_value,
+        q1: float,
+        q3: float,
+        median: float,
+        lower_whisker: float,
+        upper_whisker: float,
+        label,
+        box_plot_config=None,
+    ):
+        self.x_value = x_value
+        self.q1 = q1
+        self.q3 = q3
+        self.median = median
+        self.lower_whisker = lower_whisker
+        self.upper_whisker = upper_whisker
+        self.label = label
+        self.box_plot_config = box_plot_config if box_plot_config else BoxPlotConfig()
+
+
 class Line:
     def __init__(self, x, y, label, legend_string: str = "", line_plot_config=None):
         self.x = x
@@ -72,6 +94,12 @@ class Colors:
 
 @attrs.define
 class BarPlotConfig:
+    line_color: QColor = QColor(100, 100, 255, 200)
+    fill_color: QColor = QColor(100, 100, 255, 100)
+
+
+@attrs.define
+class BoxPlotConfig:
     line_color: QColor = QColor(100, 100, 255, 200)
     fill_color: QColor = QColor(100, 100, 255, 100)
 
