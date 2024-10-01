@@ -1,8 +1,8 @@
 from typing import Optional
 
-import PySide6
-from PySide6 import QtWidgets, QtGui, QtCore
 import pyqtgraph as pg
+import PySide6
+from PySide6 import QtCore, QtGui, QtWidgets
 
 
 class BoxPlotItem(pg.GraphicsObject):
@@ -14,7 +14,8 @@ class BoxPlotItem(pg.GraphicsObject):
         median: float,
         lower_whisker: float,
         upper_whisker: float,
-        pen: QtGui.QPen,
+        pen1: QtGui.QPen,
+        pen2: QtGui.QPen,
         brush: QtGui.QBrush,
     ):
         super().__init__()
@@ -25,7 +26,8 @@ class BoxPlotItem(pg.GraphicsObject):
         self.median = median
         self.lower_whisker = lower_whisker
         self.upper_whisker = upper_whisker
-        self.pen = pen
+        self.pen1 = pen1
+        self.pen2 = pen2
         self.brush = brush
 
         self.picture = None
@@ -34,20 +36,29 @@ class BoxPlotItem(pg.GraphicsObject):
     def generatePicture(self):
         self.picture = QtGui.QPicture()
         painter = QtGui.QPainter(self.picture)
-        painter.setPen(self.pen)
+        painter.setPen(self.pen1)
         painter.setBrush(self.brush)
 
         # Box representing IQR
         painter.drawRect(QtCore.QRectF(self.x_value - 0.2, self.q1, 0.4, self.q3 - self.q1))
 
+        painter.setPen(self.pen2)
+
+        margin = 0
+
         # Median line
         painter.drawLine(
-            QtCore.QPointF(self.x_value - 0.2, self.median), QtCore.QPointF(self.x_value + 0.2, self.median)
+            QtCore.QPointF(self.x_value - 0.2 + margin, self.median),
+            QtCore.QPointF(self.x_value + 0.2 - margin, self.median),
         )
 
         # Whiskers
-        painter.drawLine(QtCore.QPointF(self.x_value, self.lower_whisker), QtCore.QPointF(self.x_value, self.q1))
-        painter.drawLine(QtCore.QPointF(self.x_value, self.q3), QtCore.QPointF(self.x_value, self.upper_whisker))
+        painter.drawLine(
+            QtCore.QPointF(self.x_value, self.lower_whisker + margin), QtCore.QPointF(self.x_value, self.q1 - margin)
+        )
+        painter.drawLine(
+            QtCore.QPointF(self.x_value, self.q3 + margin), QtCore.QPointF(self.x_value, self.upper_whisker - margin)
+        )
 
         # Whisker caps
         painter.drawLine(
@@ -64,8 +75,8 @@ class BoxPlotItem(pg.GraphicsObject):
     def paint(
         self,
         painter: PySide6.QtGui.QPainter,
-        option: PySide6.QtWidgets.QStyleOptionGraphicsItem,
-        widget: Optional[PySide6.QtWidgets.QWidget] = ...,
+        option: QtWidgets.QStyleOptionGraphicsItem,
+        widget: Optional[QtWidgets.QWidget] = ...,
     ) -> None:
         if self.picture is None:
             self.generatePicture()

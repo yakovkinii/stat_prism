@@ -1,26 +1,25 @@
-from typing import List, Union
+from typing import List, Tuple, Union
 
 import attrs
-from PySide6.QtGui import QColor
 
 from src.common.result.classes.base_result import BaseResultElement
 
 
 class Scatter:
-    def __init__(self, x, y, label, scatter_plot_config=None):
+    def __init__(self, x, y, label, config=None):
         self.x = x
         self.y = y
         self.label = label
-        self.scatter_plot_config = scatter_plot_config if scatter_plot_config else ScatterPlotConfig()
+        self.config = config if config else ScatterPlotConfig()
 
 
 class Bar:
-    def __init__(self, x, y, width, label, bar_plot_config=None):
+    def __init__(self, x, y, width, label, config=None):
         self.x = x
         self.y = y
         self.width = width
         self.label = label
-        self.bar_plot_config = bar_plot_config if bar_plot_config else BarPlotConfig()
+        self.config = config if config else BarPlotConfig()
 
 
 class Box:
@@ -33,7 +32,7 @@ class Box:
         lower_whisker: float,
         upper_whisker: float,
         label,
-        box_plot_config=None,
+        config=None,
     ):
         self.x_value = x_value
         self.q1 = q1
@@ -42,35 +41,25 @@ class Box:
         self.lower_whisker = lower_whisker
         self.upper_whisker = upper_whisker
         self.label = label
-        self.box_plot_config = box_plot_config if box_plot_config else BoxPlotConfig()
+        self.config = config if config else BoxPlotConfig()
 
 
 class Line:
-    def __init__(self, x, y, label, legend_string: str = "", line_plot_config=None):
+    def __init__(self, x, y, label, legend_string: str = "", config=None):
         self.x = x
         self.y = y
         self.legend_string = legend_string
         self.label = label
-        self.line_plot_config = line_plot_config if line_plot_config else LinePlotConfig()
+        self.config = config if config else LinePlotConfig()
 
 
 class Band:
-    def __init__(self, x, y1, y2, label, band_plot_config=None):
+    def __init__(self, x, y1, y2, label, config=None):
         self.x = x
         self.y1 = y1
         self.y2 = y2
         self.label = label
-        self.band_plot_config = band_plot_config if band_plot_config else BandPlotConfig()
-
-
-@attrs.define
-class ScatterPlotConfig:
-    point_color: QColor = QColor(100, 100, 255, 200)
-    outline_color: QColor = QColor(100, 100, 100, 50)
-    marker_shape: str = "Circle"
-    point_size: int = 8
-    jitter_x: float = 0
-    jitter_y: float = 0
+        self.config = config if config else BandPlotConfig()
 
 
 class Colors:
@@ -89,37 +78,55 @@ class Colors:
     def get_color_list(self):
         color = self.colors[self.index]
         self.index += 1
+        if self.index >= len(self.colors):
+            self.index = 0
         return color
 
 
 @attrs.define
+class ScatterPlotConfig:
+    color: Tuple[int, int, int] = Colors().get_color_list()
+    fill_alpha: int = 50
+    line_alpha: int = 200
+    marker_shape: str = "Circle"
+    point_size: int = 8
+    jitter_x: float = 0
+    jitter_y: float = 0
+
+
+@attrs.define
 class BarPlotConfig:
-    line_color: QColor = QColor(100, 100, 255, 200)
-    fill_color: QColor = QColor(100, 100, 255, 100)
+    color: Tuple[int, int, int] = Colors().get_color_list()
+    fill_alpha: int = 50
+    line_alpha: int = 200
 
 
 @attrs.define
 class BoxPlotConfig:
-    line_color: QColor = QColor(100, 100, 255, 200)
-    fill_color: QColor = QColor(100, 100, 255, 100)
+    color: Tuple[int, int, int] = Colors().get_color_list()
+    fill_alpha: int = 50
+    line_alpha: int = 200
 
 
 @attrs.define
 class LinePlotConfig:
-    line_color: QColor = QColor(255, 0, 0, 200)
+    color: Tuple[int, int, int] = Colors().get_color_list()
+    line_alpha: int = 200
     line_width: int = 4
     line_style: str = "Solid"
 
 
 @attrs.define
 class BandPlotConfig:
-    line_color: QColor = QColor(100, 100, 100, 50)
-    fill_color: QColor = QColor(255, 0, 0, 50)
+    color: Tuple[int, int, int] = Colors().get_color_list()
+    fill_alpha: int = 50
+    line_alpha: int = 200
 
 
 @attrs.define
 class GeneralPlotConfig:
-    background_color: QColor = QColor(255, 255, 255, 255)
+    color: Tuple[int, int, int] = [255, 255, 255]
+    alpha: int = 255
     size_x: int = 600
     size_y: int = 500
     x_range: List[float] = None
@@ -136,6 +143,7 @@ class PlotResultElement(BaseResultElement):
         plot_title="Correlation plot",
         x_axis_title="",
         y_axis_title="",
+        x_axis_items=None,
     ):
         super().__init__()
         self.general_plot_config = general_plot_config if general_plot_config else GeneralPlotConfig()
@@ -147,6 +155,7 @@ class PlotResultElement(BaseResultElement):
         self.x_axis_title = x_axis_title
         self.y_axis_title = y_axis_title
         self.settings_panel_index = settings_panel_index
+        self.x_axis_items = x_axis_items
 
     def set_plot_id(self, plot_id):
         self.plot_id = plot_id
