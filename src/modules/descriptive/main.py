@@ -214,17 +214,32 @@ def calculate_descriptive_study_groupby(df, config, result):
 
             # Box plot
             box_plot_config = BoxPlotConfig(color=color)
+            iqr = np.percentile(df[col], 75) - np.percentile(df[col], 25)
+            lower_whisker = np.max([np.min(df[col]), np.percentile(df[col], 25) - 1.5 * iqr])
+            upper_whisker = np.min([np.max(df[col]), np.percentile(df[col], 75) + 1.5 * iqr])
+
             plot_box = Box(
                 x_value=i,
                 q1=np.percentile(df_subset[col], 25),
                 q3=np.percentile(df_subset[col], 75),
                 median=np.median(df_subset[col]),
-                lower_whisker=np.min(df_subset[col]),
-                upper_whisker=np.max(df_subset[col]),
+                lower_whisker=lower_whisker,
+                upper_whisker=upper_whisker,
                 label=f"{groupby_value}",
                 config=box_plot_config,
             )
             box_plots.append(plot_box)
+
+
+            outliers = df_subset[col][(df_subset[col] < lower_whisker) | (df_subset[col] > upper_whisker)]
+            if len(outliers) > 0:
+                box_plots.append(Scatter(
+                    x=0 * outliers,
+                    y=outliers,
+                    label=f"Line: Distribution",
+                ))
+
+
 
         plot_result = PlotResultElement(
             settings_panel_index=PanelRegistry.PLOT_RESULT_ITEM_SETTINGS.settings_stacked_widget_index,
