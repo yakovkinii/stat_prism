@@ -57,7 +57,7 @@ def calculate_descriptive_study_no_groupby(df, config, result):
         plot_line = Line(
             x=x_vals,
             y=y_vals,
-            label=f"Line: Distribution",
+            label=f"Distribution",
         )
 
         y, x = np.histogram(df[col], bins="auto", density=True)
@@ -66,7 +66,7 @@ def calculate_descriptive_study_no_groupby(df, config, result):
             x=x[:-1] + (x[1] - x[0]) / 2,
             y=y,
             width=0.9 * (x[1] - x[0]),
-            label=f"Bar: Distribution",
+            label=f"Distribution",
         )
 
         plot_result = PlotResultElement(
@@ -94,14 +94,14 @@ def calculate_descriptive_study_no_groupby(df, config, result):
             median=np.median(df[col]),
             lower_whisker=lower_whisker,
             upper_whisker=upper_whisker,
-            label=f"Box: {col}",
+            label=f"{col}",
         )
         outliers = df[col][(df[col] < lower_whisker) | (df[col] > upper_whisker)]
         if len(outliers) > 0:
             plot_outliers = Scatter(
                 x=0 * outliers,
                 y=outliers,
-                label=f"Line: Distribution",
+                label=f"{col}",
             )
         else:
             plot_outliers = None
@@ -152,7 +152,7 @@ def calculate_descriptive_study_groupby(df, config, result):
         var_results = {}
         for groupby_value in groupby_values:
             df_subset = df.loc[df[groupby_column] == groupby_value]
-            if is_numeric and df_subset[col].count() < 3:
+            if not is_numeric or df_subset[col].count() < 3:
                 shapiro_wilk_w, shapiro_wilk_p = MDASH, MDASH
             else:
                 shapiro_wilk_w, shapiro_wilk_p = stats.shapiro(df_subset[col].dropna())
@@ -194,7 +194,7 @@ def calculate_descriptive_study_groupby(df, config, result):
             plot_line = Line(
                 x=x_vals,
                 y=y_vals,
-                label=f"Line: Distribution {groupby_value}",
+                label=f"{groupby_value}",
                 config=line_plot_config,
                 legend_string=f"{groupby_value}",
             )
@@ -207,7 +207,7 @@ def calculate_descriptive_study_groupby(df, config, result):
                 x=x[:-1] + offset + i * width,
                 y=y,
                 width=width,
-                label=f"Bar: Distribution {groupby_value}",
+                label=f"{groupby_value}",
                 config=bar_plot_config,
             )
             plots.append(plot_bar)
@@ -236,7 +236,7 @@ def calculate_descriptive_study_groupby(df, config, result):
                 box_plots.append(Scatter(
                     x=0 * outliers,
                     y=outliers,
-                    label=f"Line: Distribution",
+                    label=f"{groupby_value}",
                 ))
 
 
