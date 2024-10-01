@@ -214,9 +214,9 @@ def calculate_descriptive_study_groupby(df, config, result):
 
             # Box plot
             box_plot_config = BoxPlotConfig(color=color)
-            iqr = np.percentile(df[col], 75) - np.percentile(df[col], 25)
-            lower_whisker = np.max([np.min(df[col]), np.percentile(df[col], 25) - 1.5 * iqr])
-            upper_whisker = np.min([np.max(df[col]), np.percentile(df[col], 75) + 1.5 * iqr])
+            iqr = np.percentile(df_subset[col], 75) - np.percentile(df_subset[col], 25)
+            lower_whisker = np.max([np.min(df_subset[col]), np.percentile(df_subset[col], 25) - 1.5 * iqr])
+            upper_whisker = np.min([np.max(df_subset[col]), np.percentile(df_subset[col], 75) + 1.5 * iqr])
 
             plot_box = Box(
                 x_value=i,

@@ -53,22 +53,21 @@ class BoxPlotItem(pg.GraphicsObject):
         )
 
         # Whiskers
-        painter.drawLine(
-            QtCore.QPointF(self.x_value, self.lower_whisker + margin), QtCore.QPointF(self.x_value, self.q1 - margin)
-        )
-        painter.drawLine(
-            QtCore.QPointF(self.x_value, self.q3 + margin), QtCore.QPointF(self.x_value, self.upper_whisker - margin)
-        )
-
-        # Whisker caps
-        painter.drawLine(
-            QtCore.QPointF(self.x_value - 0.1, self.lower_whisker),
-            QtCore.QPointF(self.x_value + 0.1, self.lower_whisker),
-        )
-        painter.drawLine(
-            QtCore.QPointF(self.x_value - 0.1, self.upper_whisker),
-            QtCore.QPointF(self.x_value + 0.1, self.upper_whisker),
-        )
+        if self.lower_whisker != self.q1:
+            painter.drawLine(QtCore.QPointF(self.x_value, self.lower_whisker), QtCore.QPointF(self.x_value, self.q1))
+            painter.drawLine(
+                QtCore.QPointF(self.x_value - 0.1, self.lower_whisker),
+                QtCore.QPointF(self.x_value + 0.1, self.lower_whisker),
+            )
+        if self.upper_whisker != self.q3:
+            painter.drawLine(
+                QtCore.QPointF(self.x_value, self.q3 + margin),
+                QtCore.QPointF(self.x_value, self.upper_whisker - margin),
+            )
+            painter.drawLine(
+                QtCore.QPointF(self.x_value - 0.1, self.upper_whisker),
+                QtCore.QPointF(self.x_value + 0.1, self.upper_whisker),
+            )
 
         painter.end()
 
