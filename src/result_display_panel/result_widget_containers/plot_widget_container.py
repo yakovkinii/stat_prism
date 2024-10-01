@@ -7,8 +7,10 @@ from PySide6.QtWidgets import QLabel, QSizePolicy, QVBoxLayout, QWidget
 from src.common.constant import MARKER_SHAPE_MAP, PEN_STYLE_MAP
 from src.common.elements.resizeable_plot_widget.resizeable_plot_widget import ResizablePlotWidget
 from src.common.elements.utility.layout_helpers import empty_widget
-from src.common.result.classes.plot_result import Band, Bar, Line, PlotResultElement, Scatter
+from src.common.qcolor import color_from_rgb_and_a
+from src.common.result.classes.plot_result import Band, Bar, Box, Line, PlotResultElement, Scatter
 from src.common.unique_qss import set_stylesheet
+from src.result_display_panel.result_widget_containers.custom.box_plot import BoxPlotItem
 
 
 class PlotResultElementWidgetContainer:
@@ -66,81 +68,115 @@ class PlotResultElementWidgetContainerExport:
 
         set_stylesheet(self.plot_widget, f"#id{{border: 2px solid #ccc;}}")
 
-        self.plot_widget.setBackground(self.result_element.general_plot_config.background_color)
+        self.plot_widget.setBackground(
+            color_from_rgb_and_a(
+                self.result_element.general_plot_config.color, self.result_element.general_plot_config.alpha
+            )
+        )
 
         self.plot_widget.plotItem.setDefaultPadding(0.1)
 
         self.plot_widget.plotItem.layout.setContentsMargins(20, 20, 20, 20)
+
+        if self.result_element.x_axis_items is not None:
+            self.plot_widget.plotItem.getAxis("bottom").setTicks(
+                [[(i, label) for i, label in enumerate(self.result_element.x_axis_items)]]
+            )
+            # calculate height from font size
+            height = 30
+            self.plot_widget.plotItem.getAxis("bottom").setHeight(height)
+            self.plot_widget.plotItem.setXRange(-1, len(self.result_element.x_axis_items), padding=0)
 
         self.items = []
         for item in self.result_element.items:
             if isinstance(item, Scatter):
                 np.random.seed(0)
 
-                if item.scatter_plot_config.jitter_x == 0:
+                if item.config.jitter_x == 0:
                     x_data = item.x
                 else:
                     amplitude = (item.x.max() - item.x.min()) * 0.1
                     if amplitude == 0:
-                        amplitude = item.x.max() * 0.1
-                    x_data = (
-                        item.x + item.scatter_plot_config.jitter_x * (np.random.rand(len(item.x)) - 0.5) * amplitude
-                    )
+                        amplitude = (abs(item.x.max()) + 1) * 0.1
+                    x_data = item.x + item.config.jitter_x * (np.random.rand(len(item.x)) - 0.5) * amplitude
 
-                if item.scatter_plot_config.jitter_y == 0:
+                if item.config.jitter_y == 0:
                     y_data = item.y
                 else:
                     amplitude = (item.y.max() - item.y.min()) * 0.1
                     if amplitude == 0:
-                        amplitude = item.y.max() * 0.1
-                    y_data = (
-                        item.y + item.scatter_plot_config.jitter_y * (np.random.rand(len(item.y)) - 0.5) * amplitude
-                    )
+                        amplitude = (abs(item.y.max()) + 1) * 0.1
+                    y_data = item.y + item.config.jitter_y * (np.random.rand(len(item.y)) - 0.5) * amplitude
 
                 plot_item = pg.ScatterPlotItem(x_data, y_data, pen=None, symbol="o", brush="b")
                 self.plot_widget.addItem(plot_item)
 
-                plot_item.setBrush(pg.mkBrush(item.scatter_plot_config.point_color))
-                plot_item.setPen(pg.mkPen(item.scatter_plot_config.outline_color))
-                plot_item.setSymbol(MARKER_SHAPE_MAP[item.scatter_plot_config.marker_shape])
-                plot_item.setSize(item.scatter_plot_config.point_size)
+                line_color = color_from_rgb_and_a(item.config.color, item.config.line_alpha)
+                fill_color = color_from_rgb_and_a(item.config.color, item.config.fill_alpha)
+
+                plot_item.setBrush(pg.mkBrush(fill_color))
+                plot_item.setPen(pg.mkPen(line_color), width=2)
+                plot_item.setSymbol(MARKER_SHAPE_MAP[item.config.marker_shape])
+                plot_item.setSize(item.config.point_size)
 
             if isinstance(item, Line):
                 plot_item = self.plot_widget.plot(item.x, item.y)
+
+                line_color = color_from_rgb_and_a(item.config.color, item.config.line_alpha)
+
                 if item.legend_string != "":
                     if legend is None:
                         legend = pg.LegendItem()  # Create a LegendItem object
                         legend.setParentItem(self.plot_widget.plotItem)
                         legend.anchor((1, 0), (1, 0))
                     legend.addItem(plot_item, item.legend_string)
-                plot_item.setBrush(pg.mkBrush(item.line_plot_config.line_color))
                 plot_item.setPen(
                     pg.mkPen(
-                        item.line_plot_config.line_color,
-                        width=item.line_plot_config.line_width,
-                        style=PEN_STYLE_MAP[item.line_plot_config.line_style],
+                        line_color,
+                        width=item.config.line_width,
+                        style=PEN_STYLE_MAP[item.config.line_style],
                     )
                 )
 
             if isinstance(item, Bar):
+                line_color = color_from_rgb_and_a(item.config.color, item.config.line_alpha)
+                fill_color = color_from_rgb_and_a(item.config.color, item.config.fill_alpha)
+
                 plot_item = pg.BarGraphItem(
                     x=item.x,
                     height=item.y,
                     width=item.width,
-                    brush=pg.mkBrush(item.bar_plot_config.fill_color),
-                    pen=pg.mkPen(item.bar_plot_config.line_color),
+                    brush=pg.mkBrush(fill_color),
+                    pen=pg.mkPen(line_color, width=2),
+                )
+                self.plot_widget.addItem(plot_item)
+
+            if isinstance(item, Box):
+                line_color = color_from_rgb_and_a(item.config.color, item.config.line_alpha)
+                fill_color = color_from_rgb_and_a(item.config.color, item.config.fill_alpha)
+
+                plot_item = BoxPlotItem(
+                    x_value=item.x_value,
+                    q1=item.q1,
+                    q3=item.q3,
+                    median=item.median,
+                    lower_whisker=item.lower_whisker,
+                    upper_whisker=item.upper_whisker,
+                    brush=pg.mkBrush(fill_color),
+                    pen1=pg.mkPen(line_color, width=2),
+                    pen2=pg.mkPen(line_color, width=3),
                 )
                 self.plot_widget.addItem(plot_item)
 
             if isinstance(item, Band):
-                curve1 = pg.PlotCurveItem(item.x, item.y1, pen=item.band_plot_config.line_color)
-                curve2 = pg.PlotCurveItem(item.x, item.y2, pen=item.band_plot_config.line_color)
-                fill = pg.FillBetweenItem(curve1, curve2, brush=item.band_plot_config.fill_color)
+                line_color = color_from_rgb_and_a(item.config.color, item.config.line_alpha)
+                fill_color = color_from_rgb_and_a(item.config.color, item.config.fill_alpha)
+                curve1 = pg.PlotCurveItem(item.x, item.y1, pen=pg.mkPen(line_color, width=1))
+                curve2 = pg.PlotCurveItem(item.x, item.y2, pen=pg.mkPen(line_color, width=1))
+                fill = pg.FillBetweenItem(curve1, curve2, brush=pg.mkBrush(fill_color))
                 self.plot_widget.addItem(curve1)
                 self.plot_widget.addItem(curve2)
                 self.plot_widget.addItem(fill)
-                # plot_item.setBrush(pg.mkBrush(item.band_plot_config.fill_color))
-                # plot_item.setPen(pg.mkPen(item.band_plot_config.line_color))
 
         # Get the plot item
         plot_item = self.plot_widget.getPlotItem()

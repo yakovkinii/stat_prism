@@ -2,13 +2,22 @@ import logging
 
 import numpy as np
 import pandas as pd
-from PySide6.QtGui import QColor
 from scipy import stats
 from scipy.stats import gaussian_kde
 
 from src.common.constant import MDASH
 from src.common.result.classes.html_result import HTMLResultElement
-from src.common.result.classes.plot_result import Bar, BarPlotConfig, Colors, Line, LinePlotConfig, PlotResultElement
+from src.common.result.classes.plot_result import (
+    Bar,
+    BarPlotConfig,
+    Box,
+    BoxPlotConfig,
+    Colors,
+    Line,
+    LinePlotConfig,
+    PlotResultElement,
+    Scatter,
+)
 from src.modules.descriptive.result import DescriptiveResult, DescriptiveStudyConfig
 from src.modules.descriptive.table import get_descriptive_table_groupby, get_descriptive_table_no_groupby
 from src.settings_panel.panels.registry import PanelRegistry
@@ -39,6 +48,8 @@ def calculate_descriptive_study_no_groupby(df, config, result):
         if not is_numeric:
             continue
 
+        # Histogram
+
         kde = gaussian_kde(df[col].dropna())
         x_vals = np.linspace(df[col].min(), df[col].max(), 500)
         y_vals = kde(x_vals)
@@ -46,7 +57,7 @@ def calculate_descriptive_study_no_groupby(df, config, result):
         plot_line = Line(
             x=x_vals,
             y=y_vals,
-            label=f"Line: Distribution",
+            label=f"Distribution",
         )
 
         y, x = np.histogram(df[col], bins="auto", density=True)
@@ -55,7 +66,7 @@ def calculate_descriptive_study_no_groupby(df, config, result):
             x=x[:-1] + (x[1] - x[0]) / 2,
             y=y,
             width=0.9 * (x[1] - x[0]),
-            label=f"Bar: Distribution",
+            label=f"Distribution",
         )
 
         plot_result = PlotResultElement(
@@ -66,6 +77,43 @@ def calculate_descriptive_study_no_groupby(df, config, result):
             y_axis_title="Density",
         )
         plot_result.items = [plot_line, plot_bar]
+        name = f"{col}"
+        while name in plot_result_elements:
+            name += "_"
+        plot_result_elements[name] = plot_result
+
+        # Box plot
+        iqr = np.percentile(df[col], 75) - np.percentile(df[col], 25)
+        lower_whisker = np.max([np.min(df[col]), np.percentile(df[col], 25) - 1.5 * iqr])
+        upper_whisker = np.min([np.max(df[col]), np.percentile(df[col], 75) + 1.5 * iqr])
+
+        plot_box = Box(
+            x_value=0,
+            q1=np.percentile(df[col], 25),
+            q3=np.percentile(df[col], 75),
+            median=np.median(df[col]),
+            lower_whisker=lower_whisker,
+            upper_whisker=upper_whisker,
+            label=f"{col}",
+        )
+        outliers = df[col][(df[col] < lower_whisker) | (df[col] > upper_whisker)]
+        if len(outliers) > 0:
+            plot_outliers = Scatter(
+                x=0 * outliers,
+                y=outliers,
+                label=f"{col}",
+            )
+        else:
+            plot_outliers = None
+        plot_result = PlotResultElement(
+            settings_panel_index=PanelRegistry.PLOT_RESULT_ITEM_SETTINGS.settings_stacked_widget_index,
+            tab_title=f"Plot: Box Plot of {col}",
+            plot_title=f"Box Plot of {col}",
+            x_axis_title="",
+            y_axis_title=col,
+            x_axis_items=[f"{col}"],
+        )
+        plot_result.items = [plot_box, plot_outliers] if plot_outliers is not None else [plot_box]
         name = f"{col}"
         while name in plot_result_elements:
             name += "_"
@@ -104,7 +152,7 @@ def calculate_descriptive_study_groupby(df, config, result):
         var_results = {}
         for groupby_value in groupby_values:
             df_subset = df.loc[df[groupby_column] == groupby_value]
-            if is_numeric and df_subset[col].count() < 3:
+            if not is_numeric or df_subset[col].count() < 3:
                 shapiro_wilk_w, shapiro_wilk_p = MDASH, MDASH
             else:
                 shapiro_wilk_w, shapiro_wilk_p = stats.shapiro(df_subset[col].dropna())
@@ -127,7 +175,7 @@ def calculate_descriptive_study_groupby(df, config, result):
             continue
 
         plots = []
-
+        box_plots = []
         n_items = len(groupby_values)
 
         _, x_all = np.histogram(df[col], bins="auto", density=True)
@@ -141,31 +189,57 @@ def calculate_descriptive_study_groupby(df, config, result):
             df_subset = df.loc[df[groupby_column] == groupby_value]
             kde = gaussian_kde(df_subset[col].dropna())
             y_vals = kde(x_vals)
-            color_list = colors.get_color_list()
-            line_plot_config = LinePlotConfig(line_color=QColor(color_list[0], color_list[1], color_list[2], 200))
+            color = colors.get_color_list()
+            line_plot_config = LinePlotConfig(color=color)
             plot_line = Line(
                 x=x_vals,
                 y=y_vals,
-                label=f"Line: Distribution {groupby_value}",
-                line_plot_config=line_plot_config,
+                label=f"{groupby_value}",
+                config=line_plot_config,
                 legend_string=f"{groupby_value}",
             )
             plots.append(plot_line)
 
             y, x = np.histogram(df_subset[col], bins=x_all, density=True)
-            bar_plot_config = BarPlotConfig(
-                fill_color=QColor(color_list[0], color_list[1], color_list[2], 100),
-                line_color=QColor(color_list[0], color_list[1], color_list[2], 200),
-            )
+            bar_plot_config = BarPlotConfig(color=color)
             # bar plot
             plot_bar = Bar(
                 x=x[:-1] + offset + i * width,
                 y=y,
                 width=width,
-                label=f"Bar: Distribution {groupby_value}",
-                bar_plot_config=bar_plot_config,
+                label=f"{groupby_value}",
+                config=bar_plot_config,
             )
             plots.append(plot_bar)
+
+            # Box plot
+            box_plot_config = BoxPlotConfig(color=color)
+            iqr = np.percentile(df_subset[col], 75) - np.percentile(df_subset[col], 25)
+            lower_whisker = np.max([np.min(df_subset[col]), np.percentile(df_subset[col], 25) - 1.5 * iqr])
+            upper_whisker = np.min([np.max(df_subset[col]), np.percentile(df_subset[col], 75) + 1.5 * iqr])
+
+            plot_box = Box(
+                x_value=i,
+                q1=np.percentile(df_subset[col], 25),
+                q3=np.percentile(df_subset[col], 75),
+                median=np.median(df_subset[col]),
+                lower_whisker=lower_whisker,
+                upper_whisker=upper_whisker,
+                label=f"{groupby_value}",
+                config=box_plot_config,
+            )
+            box_plots.append(plot_box)
+
+
+            outliers = df_subset[col][(df_subset[col] < lower_whisker) | (df_subset[col] > upper_whisker)]
+            if len(outliers) > 0:
+                box_plots.append(Scatter(
+                    x=0 * outliers,
+                    y=outliers,
+                    label=f"{groupby_value}",
+                ))
+
+
 
         plot_result = PlotResultElement(
             settings_panel_index=PanelRegistry.PLOT_RESULT_ITEM_SETTINGS.settings_stacked_widget_index,
@@ -179,6 +253,20 @@ def calculate_descriptive_study_groupby(df, config, result):
         while name in plot_result_elements:
             name += "_"
         plot_result_elements[name] = plot_result
+
+        box_plot_result = PlotResultElement(
+            settings_panel_index=PanelRegistry.PLOT_RESULT_ITEM_SETTINGS.settings_stacked_widget_index,
+            tab_title=f"Plot: Box Plot of {col}",
+            plot_title=f"Box Plot of {col}",
+            x_axis_title="",
+            y_axis_title=col,
+            x_axis_items=groupby_values,
+        )
+        box_plot_result.items = box_plots
+        name = f"{col}"
+        while name in plot_result_elements:
+            name += "_"
+        plot_result_elements[name] = box_plot_result
 
     html_table = get_descriptive_table_groupby(
         descriptive_results,

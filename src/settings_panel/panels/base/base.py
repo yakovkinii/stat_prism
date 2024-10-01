@@ -65,7 +65,7 @@ class BasePanel:
 
         # Definition
         self.widget_for_elements = QtWidgets.QWidget()
-        self.widget_for_elements.setFixedWidth(SettingsPanelSize.width)
+        # self.widget_for_elements.setFixedWidth(SettingsPanelSize.width)
 
         self.widget_for_elements_layout = QVBoxLayout(self.widget)
         self.widget_for_elements.setLayout(self.widget_for_elements_layout)
@@ -75,6 +75,7 @@ class BasePanel:
         set_stylesheet(self.scroll_area, "#id{border: none;}")
 
         self.scroll_area.setWidget(self.widget_for_elements)
+        self.scroll_area.setFixedWidth(SettingsPanelSize.width)
 
         self.widget_layout.addWidget(self.scroll_area)
         set_stylesheet(self.widget, "#id>QScrollBar{width: 15px;}")

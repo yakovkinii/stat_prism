@@ -3,6 +3,7 @@ import os
 
 import pyqtgraph as pg
 import pyqtgraph.exporters
+from PIL import Image
 from PySide6.QtCore import Qt
 from PySide6.QtGui import QAction, QCursor, QImage
 from PySide6.QtWidgets import QApplication, QMenu
@@ -103,15 +104,30 @@ class ResizablePlotWidget(pg.PlotWidget):
         os.remove(temp_file_name)
 
     def render_to_html(self):
+        # Export plot as PNG using pyqtgraph's ImageExporter
         exporter = pg.exporters.ImageExporter(self.getPlotItem())
-        exporter.parameters()["width"] = 600  # (note this also affects height parameter)
-        temp_file_name = "./~tmp.png"
-        exporter.export(temp_file_name)
+        exporter.parameters()["width"] = self.result_element.general_plot_config.size_x
+        temp_png_file_name = "./~tmp.png"
+        temp_jpg_file_name = "./~tmp.jpg"
+        exporter.export(temp_png_file_name)
 
-        with open(temp_file_name, "rb") as f:
+        # Convert PNG to JPEG to reduce size
+        with Image.open(temp_png_file_name) as img:
+            img = img.convert("RGB")  # Ensure the image is in RGB mode for JPEG conversion
+            img.save(
+                temp_jpg_file_name, format="JPEG", quality=85
+            )  # Adjust quality if necessary to balance size and quality
+
+        # Read the JPEG image and encode it to base64
+        with open(temp_jpg_file_name, "rb") as f:
             image = f.read()
-            base64_encoded_image = f"data:image/bmp;base64,{base64.b64encode(image).decode('utf-8')}"
+            base64_encoded_image = f"data:image/jpeg;base64,{base64.b64encode(image).decode('utf-8')}"
 
+        # Create HTML with base64 JPEG image
         html = f'<img src="{base64_encoded_image}" alt="Plot Image" style="width: 400px; height: auto;">'
-        os.remove(temp_file_name)
+
+        # Clean up temporary files
+        os.remove(temp_png_file_name)
+        os.remove(temp_jpg_file_name)
+
         return html
