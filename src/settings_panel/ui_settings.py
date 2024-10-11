@@ -52,9 +52,10 @@ class SettingsPanelClass:
 
         file_menu = QMenu("File", self.widget)
         help_menu = QMenu("Help", self.widget)
-        open_action = QAction("Open", self.widget)
-        save_action = QAction("Save project", self.widget)
-        save_table_action = QAction("Export Table", self.widget)
+        open_action = QAction("Open...", self.widget)
+        save_action = QAction("Save", self.widget)
+        save_as_action = QAction("Save As...", self.widget)
+        save_table_action = QAction("Export Table...", self.widget)
         about_action = QAction("About", self.widget)
 
         menu_bar.addMenu(file_menu)
@@ -62,6 +63,7 @@ class SettingsPanelClass:
 
         file_menu.addAction(open_action)
         file_menu.addAction(save_action)
+        file_menu.addAction(save_as_action)
         file_menu.addAction(save_table_action)
         help_menu.addAction(about_action)
 
@@ -80,6 +82,7 @@ class SettingsPanelClass:
 
         open_action.triggered.connect(PanelRegistry.HOME.value.ui_instance.open_handler)
         save_action.triggered.connect(PanelRegistry.HOME.value.ui_instance.save_handler)
+        save_as_action.triggered.connect(PanelRegistry.HOME.value.ui_instance.save_as_handler)
         save_table_action.triggered.connect(self.save_table_handler)
         about_action.triggered.connect(PanelRegistry.HOME.value.ui_instance.about_handler)
 

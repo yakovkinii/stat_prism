@@ -24,12 +24,37 @@ if __name__ == "__main__":
 
     # Back up the reference to the exceptionhook
     sys._excepthook = sys.excepthook
+    main_win = None
 
     def my_exception_hook(exctype, value, traceback):
+        global win_main
         # Print the error and traceback
         print(exctype, value, traceback)
         # Call the normal Exception hook after
         sys._excepthook(exctype, value, traceback)
+
+        if main_win is not None:
+            logging.info("Recovering the project after crash ...")
+            if main_win.current_file_path is not None:
+                main_win.current_file_path += ".recovered.sp"
+            else:
+                import os
+
+                main_win.current_file_path = os.path.abspath("recovered.sp")
+
+            logging.debug("Saving recovered project to:")
+            logging.debug(main_win.current_file_path)
+
+            from src.settings_panel.panels.registry import PanelRegistry
+
+            PanelRegistry.HOME.ui_instance.save_handler()
+            main_win.hide()
+            logging.error(
+                f"StatPrism crashed, but the project was recovered and saved to: {main_win.current_file_path}"
+            )
+
+        logging.error("Press Enter to exit ...")
+        input()
         sys.exit(1)
 
     # Set the exception hook to our wrapping function

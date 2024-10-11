@@ -4,6 +4,7 @@ from PySide6 import QtWidgets
 from PySide6.QtWebEngineWidgets import QWebEngineView
 from PySide6.QtWidgets import QHBoxLayout, QTabWidget
 
+from src.about import version
 from src.common.decorators import log_method, log_method_noarg
 from src.common.registry import DEBTS, DebtType
 from src.common.ui_constructor import icon
@@ -23,9 +24,12 @@ class MainWindowClass(QtWidgets.QMainWindow):
     def __init__(self):
         super().__init__()
 
+        # Special
+        self.current_file_path = None
+
         # Setup
         self.widget = self  # split class and widget for clarity
-        self.setWindowTitle("StatPrism")
+        self.setWindowTitle(f"StatPrism v{version}")
 
         # Definitions
         self.central_widget = QtWidgets.QWidget(self.widget)
@@ -106,6 +110,15 @@ class MainWindowClass(QtWidgets.QMainWindow):
 
         if file_path is not None:
             PanelRegistry.HOME.ui_instance.open_file(file_path)
+            if file_path.endswith(".sp"):
+                self.set_current_file_path(file_path)
+
+    def set_current_file_path(self, file_path):
+        self.current_file_path = file_path
+        if file_path is None:
+            self.setWindowTitle(f"StatPrism v{version}")
+        else:
+            self.setWindowTitle(f"StatPrism v{version}: {file_path}")
 
     @log_method
     def action_activate_column_panel(self, column_index):

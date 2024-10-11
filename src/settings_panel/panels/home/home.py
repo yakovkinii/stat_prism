@@ -84,6 +84,7 @@ class Home(BasePanel):
             self.root_class.result_selector_panel.delete_all_results()
             RESULTS.clear()
 
+            self.root_class.set_current_file_path(None)
             self.root_class.data_panel.tabledata.load_data(dataframe)
         elif file_path.endswith(".xlsx"):
             dataframe = pd.read_excel(file_path, sheet_name=0)
@@ -92,6 +93,7 @@ class Home(BasePanel):
             self.root_class.result_selector_panel.delete_all_results()
             RESULTS.clear()
 
+            self.root_class.set_current_file_path(None)
             self.root_class.data_panel.tabledata.load_data(dataframe)
         elif file_path.endswith(".sp"):
             with tempfile.TemporaryDirectory() as temp_dir:
@@ -113,6 +115,7 @@ class Home(BasePanel):
                     for result in results.values():
                         RESULTS[result.unique_id] = result
                         self.root_class.result_selector_panel.add_result(result.unique_id)
+            self.root_class.set_current_file_path(file_path)
 
         else:
             logging.error("Not supported file type")
@@ -123,15 +126,22 @@ class Home(BasePanel):
         logging.info(f"Opened {file_path}")
 
     @log_method_noarg
-    def save_handler(self):
-        file_path, _ = QtWidgets.QFileDialog.getSaveFileName(
-            self.widget,
-            "Chose",
-            "",
-            "StatPrism project (*.sp);;",
-        )
-        if not file_path:
-            return
+    def save_as_handler(self):
+        self.save_handler(save_as=True)
+
+    @log_method
+    def save_handler(self, save_as=False):
+        if self.root_class.current_file_path is None or save_as is True:
+            file_path, _ = QtWidgets.QFileDialog.getSaveFileName(
+                self.widget,
+                "Chose",
+                "",
+                "StatPrism project (*.sp);;",
+            )
+            if not file_path:
+                return
+        else:
+            file_path = self.root_class.current_file_path
 
         with tempfile.TemporaryDirectory() as temp_dir:
             self.tabledata.get_data().to_parquet(f"{temp_dir}/tabledata_df.parquet")
@@ -144,6 +154,9 @@ class Home(BasePanel):
                 zipf.write(f"{temp_dir}/tabledata_df.parquet", "tabledata_df.parquet")
                 zipf.write(f"{temp_dir}/tabledata_column_flags.pkl", "tabledata_column_flags.pkl")
                 zipf.write(f"{temp_dir}/results.pkl", "results.pkl")
+
+        if file_path.endswith(".sp"):
+            self.root_class.set_current_file_path(file_path)
 
     @log_method_noarg
     def about_handler(self):
