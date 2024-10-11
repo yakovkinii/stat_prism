@@ -22,6 +22,7 @@ class PanelRegistry(Enum):
     HTML_RESULT_ITEM_SETTINGS = PanelRegistryItem(display_name="HTML Result Item Settings")
     PLOT_RESULT_ITEM_SETTINGS = PanelRegistryItem(display_name="PLOT Result Item Settings")
     BLANK = PanelRegistryItem(display_name="Blank")
+    ORDER = PanelRegistryItem(display_name="Confirm Order")
 
     @property
     def display_name(self):

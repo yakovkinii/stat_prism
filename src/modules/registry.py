@@ -15,23 +15,18 @@ class ModuleRegistryItem:
 
 
 class ModuleRegistry(Enum):
-    CORRELATION = ModuleRegistryItem(
-        display_name="Correlation",
-        icon_path="ph.chart-line-up-fill",
-    )
-
-    CROSS_CORRELATION = ModuleRegistryItem(
-        display_name="Cross-correlation",
-        icon_path="ph.chart-line-up-fill",
-    )
-
-    T_TEST = ModuleRegistryItem(
-        display_name="T-Test",
-        icon_path="ph.chart-line-up-fill",
-    )
-
     DESCRIPTIVE = ModuleRegistryItem(
         display_name="Descriptive Statistics",
+        icon_path="ph.chart-line-up-fill",
+    )
+
+    MEAN_COMPARISON = ModuleRegistryItem(
+        display_name="Mean Comparison",
+        icon_path="ph.chart-line-up-fill",
+    )
+
+    CORRELATION = ModuleRegistryItem(
+        display_name="Correlation",
         icon_path="ph.chart-line-up-fill",
     )
 

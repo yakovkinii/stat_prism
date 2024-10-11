@@ -1,3 +1,5 @@
+import logging
+
 import numpy as np
 import pyqtgraph as pg
 from PySide6.QtCore import Qt
@@ -55,6 +57,39 @@ class PlotResultElementWidgetContainer:
         )
 
 
+class RotatedAxisItem(pg.AxisItem):
+    def __init__(self, orientation, *args, **kwargs):
+        super().__init__(orientation, *args, **kwargs)
+        self.suppress = True
+
+    def tickStrings(self, values, scale, spacing):
+        if self.suppress:
+            return [""] * len(values)
+        else:
+            return super().tickStrings(values, scale, spacing)
+
+    def drawPicture(self, p, axisSpec, tickSpecs, textSpecs):
+        # Draw the axis line and ticks
+        self.suppress = True
+        super().drawPicture(p, axisSpec, tickSpecs, [])
+        self.suppress = False
+
+        # Draw all text
+        if self.style["tickFont"] is not None:
+            p.setFont(self.style["tickFont"])
+        p.setPen(self.textPen())
+        bounding = self.boundingRect().toAlignedRect()
+        p.setClipRect(bounding)
+
+        for rect, flags, text in textSpecs:
+            p.save()
+            p.translate(rect.left() + rect.width() / 2, rect.top())
+            p.rotate(-15)
+            p.translate(-rect.width(), +rect.height())
+            p.drawText(0, 0, text)
+            p.restore()
+
+
 class PlotResultElementWidgetContainerExport:
     def __init__(self, parent_widget, result_element: PlotResultElement):
         self.result_element = result_element
@@ -77,15 +112,6 @@ class PlotResultElementWidgetContainerExport:
         self.plot_widget.plotItem.setDefaultPadding(0.1)
 
         self.plot_widget.plotItem.layout.setContentsMargins(20, 20, 20, 20)
-
-        if self.result_element.x_axis_items is not None:
-            self.plot_widget.plotItem.getAxis("bottom").setTicks(
-                [[(i, label) for i, label in enumerate(self.result_element.x_axis_items)]]
-            )
-            # calculate height from font size
-            height = 30
-            self.plot_widget.plotItem.getAxis("bottom").setHeight(height)
-            self.plot_widget.plotItem.setXRange(-1, len(self.result_element.x_axis_items), padding=0)
 
         self.items = []
         for item in self.result_element.items:
@@ -165,6 +191,7 @@ class PlotResultElementWidgetContainerExport:
                     brush=pg.mkBrush(fill_color),
                     pen1=pg.mkPen(line_color, width=2),
                     pen2=pg.mkPen(line_color, width=3),
+                    whiskers_only=item.whiskers_only,
                 )
                 self.plot_widget.addItem(plot_item)
 
@@ -191,6 +218,24 @@ class PlotResultElementWidgetContainerExport:
         axis_font.setPointSize(14)  # Set the font size for axis labels and tick marks
         plot_item.getAxis("left").setTickFont(axis_font)
         plot_item.getAxis("bottom").setTickFont(axis_font)
+
+        if self.result_element.x_axis_items is not None:
+            if self.result_element.general_plot_config.tilt_x_axis_labels:
+                axis = RotatedAxisItem(orientation="bottom")
+                axis.setPen(pg.mkPen(color="black", width=2))
+                axis.setTickFont(axis_font)
+                plot_item.setAxisItems({"bottom": axis})
+
+                longest_label = max(self.result_element.x_axis_items, key=len)
+                font_width = QFont().pointSize() * 0.5
+                height = int(len(longest_label) * font_width)
+                logging.error(f"height: {height}")
+                plot_item.getAxis("bottom").setHeight(50 + height * 0.6)
+
+            plot_item.getAxis("bottom").setTicks(
+                [[(i, label) for i, label in enumerate(self.result_element.x_axis_items)]]
+            )
+            plot_item.setXRange(-1, len(self.result_element.x_axis_items), padding=0)
 
         # Customize the labels themselves
         plot_item.getAxis("left").setLabel(

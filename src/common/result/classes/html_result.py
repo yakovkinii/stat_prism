@@ -58,7 +58,11 @@ class HTMLTable:
     def get_html(self):
         # Caption
         html = ""
-        html += f'<div class="double-spacing font"><b>Table {self.table_id}.</b></div>'
+        html += f"""
+            <div class="double-spacing font"><b>
+            Table {self.table_id + "." if self.table_id != "" else ""}
+            </b></div>
+        """
         html += f'<div class="double-spacing font"><i>{self.table_caption}</i></div>'
 
         style = ""
@@ -104,7 +108,7 @@ class HTMLTable:
                     style += "white-space: nowrap;"
                 html += f'<td style="{style}" {attributes}>{cell.text}</td>'
             html += "</tr>"
-        html += "</table><br>"
+        html += "</table>"
         if self.table_note != "":
             html += f'<div class="double-spacing font"><i>Note.</i> {self.table_note}</div>'
         return html
@@ -129,26 +133,26 @@ class HTMLText:
         logging.info("Creating HTMLText Element")
 
         self.text: str = text
-        self.table_id: str = "1"
+        self.table_id: str = ""
         self.table_caption = ""
 
     def get_html(self):
         return (
             f'<div class="double-spacing font">'
             f"{self.text.replace(TABLE_OR_PLOT_ID_PLACEHOLDER, self.table_id)}"
-            f"</div><br><br>"
+            f"</div><br>"
         )
 
 
 class HTMLResultElement(BaseResultElement):
-    def __init__(self, settings_panel_index, tab_title="Table and Description"):
+    def __init__(self, settings_panel_index, items=None, tab_title="Table and Description"):
         super().__init__()
         logging.info("Creating HTML Result Element")
         self.title: str = tab_title
         self.class_id: str = "HTMLResultElement"
-        self.items: List[Union[HTMLTable, HTMLText]] = []
+        self.items: List[Union[HTMLTable, HTMLText]] = items if items is not None else []
         self.settings_panel_index = settings_panel_index
-        self.table_id: str = "1"
+        self.table_id: str = ""
         self.table_caption: str = ""
 
     @log_method
@@ -165,4 +169,4 @@ class HTMLResultElement(BaseResultElement):
 
     @log_method_noarg
     def get_html(self, renderer=None):
-        return "<br><br><br>".join([item.get_html() for item in self.items])
+        return "<br>".join([item.get_html() for item in self.items])

@@ -1,6 +1,6 @@
 import qtawesome as qta
 from PySide6.QtCore import Qt
-from PySide6.QtWidgets import QColorDialog, QHBoxLayout, QLabel, QPushButton, QSlider, QVBoxLayout, QWidget
+from PySide6.QtWidgets import QCheckBox, QColorDialog, QHBoxLayout, QLabel, QPushButton, QSlider, QVBoxLayout, QWidget
 
 from src.common.elements.base.base import BasePanelElement
 from src.common.messages import Message, MessageType
@@ -33,6 +33,10 @@ class GeneralPlotSettings(BasePanelElement):
         self.alpha_layout.addWidget(self.alpha_slider)
         self.layout.addLayout(self.alpha_layout)
 
+        self.tilt_checkbox = QCheckBox("Tilt x-axis labels")
+        self.tilt_checkbox.stateChanged.connect(self.tilt_x_axis_labels)
+        self.layout.addWidget(self.tilt_checkbox)
+
     def configure(self, general_plot_config: GeneralPlotConfig):
         self.general_plot_config = general_plot_config
         self.background_color_button_icon = qta.icon(
@@ -40,6 +44,7 @@ class GeneralPlotSettings(BasePanelElement):
         )
         self.background_color_button.setIcon(self.background_color_button_icon)
         self.alpha_slider.setValue(self.general_plot_config.alpha // 5)
+        self.tilt_checkbox.setChecked(self.general_plot_config.tilt_x_axis_labels)
 
     def select_background_color(self):
         color = QColorDialog.getColor(
@@ -53,4 +58,8 @@ class GeneralPlotSettings(BasePanelElement):
 
     def select_alpha(self, value):
         self.general_plot_config.alpha = value * 5
+        self.handler(Message(MessageType.STATE_CHANGED, payload=self.general_plot_config, caller_id=self.element_id))
+
+    def tilt_x_axis_labels(self, state):
+        self.general_plot_config.tilt_x_axis_labels = state
         self.handler(Message(MessageType.STATE_CHANGED, payload=self.general_plot_config, caller_id=self.element_id))

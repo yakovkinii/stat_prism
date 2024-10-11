@@ -34,7 +34,7 @@ class ResultItemWidget(QFrame):
         # self.titles = []
         # self.class_ids = []
         # self.widgets = []
-        for element_id, element in result.result_elements.items():
+        for element_id, element in enumerate(result.result_elements):
             element_widget = ResultElementWidget(
                 result_id=result_id,
                 element_id=element_id,

@@ -12,11 +12,11 @@ class ResultElementWidget(QWidget):
     def __init__(
         self,
         result_id: int,
-        element_id: str,
+        element_id: int,
         parent_widget,
         handler: Callable,
         selected_result: int,
-        selected_element: str,
+        selected_element: int,
     ):
         super().__init__(parent_widget)
 

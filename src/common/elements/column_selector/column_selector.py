@@ -218,15 +218,23 @@ class ColumnSelectorExPopup:
                 ],
             )
             title_layout.addStretch()
-            icon = widget_in_layout(
-                widget=QLabel(title),
-                layout=title_layout,
-                setup=lambda widget, layout: [
-                    set_stylesheet(widget, f"font-size: {Font.size_big}px;"),
-                    widget.setPixmap(COLUMN_TYPE_ICONS[field.column_type].pixmap(24, 24)),
-                ],
-            )
-            self.panel_list_icons.append(icon)
+
+            pixmaps = [COLUMN_TYPE_ICONS[field.column_type].pixmap(24, 24)]
+            if field.column_type == ColumnType.ORDINAL:
+                pixmaps.append(COLUMN_TYPE_ICONS[ColumnType.NUMERIC].pixmap(24, 24))
+            elif field.column_type == ColumnType.NOMINAL:
+                pixmaps.append(COLUMN_TYPE_ICONS[ColumnType.ORDINAL].pixmap(24, 24))
+                pixmaps.append(COLUMN_TYPE_ICONS[ColumnType.NUMERIC].pixmap(24, 24))
+
+            for pixmap in pixmaps:
+                icon = widget_in_layout(
+                    widget=QLabel(title),
+                    layout=title_layout,
+                    setup=lambda widget, layout: [
+                        widget.setPixmap(pixmap),
+                    ],
+                )
+                self.panel_list_icons.append(icon)
 
             button_list, button_list_layout = empty_widget(
                 parent=panel,
@@ -402,11 +410,10 @@ class ColumnSelectorExPopup:
                     allowed_types = [
                         ColumnType.NOMINAL,
                         ColumnType.ORDINAL,
-                        ColumnType.ORDINAL_UNCONFIRMED,
                         ColumnType.NUMERIC,
                     ]
-                elif panel_type in [ColumnType.ORDINAL, ColumnType.ORDINAL_UNCONFIRMED]:
-                    allowed_types = [ColumnType.ORDINAL, ColumnType.ORDINAL_UNCONFIRMED, ColumnType.NUMERIC]
+                elif panel_type == ColumnType.ORDINAL:
+                    allowed_types = [ColumnType.ORDINAL, ColumnType.NUMERIC]
                 else:
                     allowed_types = [ColumnType.NUMERIC]
 

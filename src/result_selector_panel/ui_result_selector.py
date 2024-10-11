@@ -146,7 +146,7 @@ class ResultSelectorPanelClass:
             widget.refresh(self.selected_result, self.selected_element)
 
     @log_method
-    def item_handler(self, action: ClickAction, result_id: int, element_id: str):
+    def item_handler(self, action: ClickAction, result_id: int, element_id: int):
         logging.info(f"Item handler: {action} {result_id} {element_id}")
         if action == ClickAction.ACTIVATE:
             if element_id is None:

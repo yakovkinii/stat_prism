@@ -33,6 +33,10 @@ class Column(BasePanel):
             ),
             "color": ColumnColorSelector(),
             "column_type": ComboBox(),
+            "order": SmallButton(
+                label_text="Change Order",
+                icon_path="ri.arrow-up-down-line",
+            ),
             "add_col": SmallButton(
                 label_text="Add",
                 icon_path="mdi.table-column-plus-after",
@@ -82,6 +86,13 @@ class Column(BasePanel):
             self.elements["invert"].widget.setEnabled(True)
         else:
             self.elements["invert"].widget.setEnabled(False)
+
+        column_type = self.tabledata.get_column_type(self.column_index)
+        if column_type == ColumnType.ORDINAL:
+            self.elements["order"].widget.show()
+        else:
+            self.elements["order"].widget.hide()
+
         self.configuring = False
 
     @log_method_noarg
@@ -152,6 +163,13 @@ class Column(BasePanel):
         self.root_class.action_activate_column_panel(self.column_index + 1)
 
     @log_method_noarg
+    def order_handler(self):
+        PanelRegistry.ORDER.ui_instance.configure(
+            column_index=self.column_index, caller_index=self.stacked_widget_index
+        )
+        self.root_class.action_activate_panel_by_index(PanelRegistry.ORDER.settings_stacked_widget_index)
+
+    @log_method_noarg
     def delete_column_handler(self):
         self.tabledata.delete_column(self.column_index)
 
@@ -187,6 +205,8 @@ class Column(BasePanel):
                 self.delete_column_handler()
             elif message.caller_id == "color":
                 self.color_pressed(message.payload)
+            elif message.caller_id == "order":
+                self.order_handler()
             else:
                 super().handler(message)
         elif message.message_type == MessageType.EDITING_FINISHED:

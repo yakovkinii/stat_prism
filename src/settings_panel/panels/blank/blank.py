@@ -1,5 +1,6 @@
 from src.common.elements.logo.logo import Logo
 from src.settings_panel.panels.base.base import BasePanel
+from src.settings_panel.panels.registry import PanelRegistry
 
 
 class Blank(BasePanel):
@@ -9,3 +10,8 @@ class Blank(BasePanel):
         }
 
         self.setup(stretch=False)
+        self.elements["logo"].widget.clicked.connect(
+            lambda: self.root_class.action_activate_panel_by_index(
+                PanelRegistry.SELECT_STUDY.settings_stacked_widget_index
+            )
+        )

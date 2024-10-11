@@ -4,6 +4,7 @@ from PySide6.QtWidgets import QLabel, QVBoxLayout
 
 from src.common.elements.base.base import BasePanelElement
 from src.common.elements.utility.layout_helpers import empty_widget, widget_in_layout
+from src.common.elements.utility.primitive_elements import QWidgetClickable
 
 
 class Logo(BasePanelElement):
@@ -12,6 +13,7 @@ class Logo(BasePanelElement):
 
     def setup(self):
         self.widget, self.layout = empty_widget(
+            widget_class=QWidgetClickable,
             parent=self.parent_widget,
             inner_layout_class=QVBoxLayout,
         )
@@ -22,6 +24,6 @@ class Logo(BasePanelElement):
             setup=lambda widget, layout: [
                 widget.setPixmap(QIcon(":/mat/resources/watermark.png").pixmap(250, 250)),
                 widget.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter),
-                self.widget.setFixedHeight(500),
+                widget.setFixedHeight(500),
             ],
         )

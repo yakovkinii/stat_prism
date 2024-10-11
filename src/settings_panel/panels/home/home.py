@@ -13,7 +13,6 @@ from src.about import version
 from src.common.constant import MDASH, NDASH
 from src.common.decorators import log_method, log_method_noarg
 from src.common.elements.button.large_button import LargeButton
-from src.common.elements.logo.logo import Logo
 from src.common.elements.spacer.spacer import Spacer
 from src.common.messages import MessageType
 from src.common.result.registry import RESULTS
@@ -40,11 +39,9 @@ class Home(BasePanel):
                 icon_path="ri.questionnaire-line",
             ),
             "spacer": Spacer(),
-            "logo": Logo(),
         }
 
         self.setup(stretch=True)
-        self.elements["logo"].widget.hide()
 
     @log_method_noarg
     def open_handler(self):

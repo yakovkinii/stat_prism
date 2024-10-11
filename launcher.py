@@ -20,7 +20,7 @@ if __name__ == "__main__":
 
     from yatools import logging_config
 
-    logging_config.init(logging.INFO)
+    logging_config.init(logging.DEBUG)
 
     # Back up the reference to the exceptionhook
     sys._excepthook = sys.excepthook

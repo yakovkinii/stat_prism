@@ -114,13 +114,13 @@ including customization.</g>
 <summary></summary>
 
 * <g>Correlation</g>
-* <g>Cross-correlation</g>
-* ANOVA
+* <s>Cross-correlation</s>
+* <g>ANOVA</g>
 * Binomial Logistic Regression
 * Cross-tabulation
 * <g>Descriptive statistics</g>
 * EFA
-* Kruskal-Wallis
+* <g>Kruskal-Wallis</g>
 * Linear Regression
 * Multinomial Logistic Regression
 * Ordinal Logistic Regression

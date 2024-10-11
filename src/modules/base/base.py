@@ -9,11 +9,11 @@ from PySide6.QtWidgets import QScrollArea, QVBoxLayout
 from src.common.constant import DEBUG_LAYOUT
 from src.common.decorators import log_method, log_method_noarg
 from src.common.messages import Message, MessageType
-from src.common.registry import DEBTS, DebtType
 from src.common.result.registry import RESULTS
 from src.common.size import SettingsPanelSize
 from src.common.ui_constructor import create_tool_button_qta
 from src.common.unique_qss import set_stylesheet
+from src.settings_panel.panels.registry import PanelRegistry
 
 if TYPE_CHECKING:
     from src.ui_main import MainWindowClass
@@ -31,8 +31,7 @@ class BaseModulePanel:
         # Setup
         self.study_index = None
         self.result_id: Union[int, None] = None
-        self.caller_index = None
-        self.configuring = False
+        self.configuring = True
         self.stretch = stretch
         self.stacked_widget_index = stacked_widget_index
         self.root_class: MainWindowClass = root_class
@@ -158,17 +157,6 @@ class BaseModulePanel:
         else:
             logging.error(f"{self.stacked_widget_index=}")
 
-    @log_method_noarg
-    def activate_caller(self):
-        if self.caller_index is not None:
-            for debt in DEBTS:
-                if DebtType.ON_STUDY_CHANGE in debt.debt_type:
-                    debt.resolve()
-
-            self.root_class.action_activate_panel_by_index(self.caller_index)
-        else:
-            logging.error(f"Trying to activate caller {self.caller_index=}")
-
     @log_method
     def handler(self, message: Message):
         if message.message_type == MessageType.STATE_CHANGED:
@@ -185,3 +173,29 @@ class BaseModulePanel:
             return
 
         logging.error(f"Handler not implemented for {message=}")
+
+    def open_column_selector_popup(self):
+        self.elements["column_selector"].configure_popup()
+        PanelRegistry.COLUMN_SELECTOR.ui_instance.configure(
+            caller_index=self.stacked_widget_index,
+            finished_handler=self.popup_closed_handler,
+            popup=self.elements["column_selector"].popup,
+        )
+        self.root_class.action_activate_panel_by_index(PanelRegistry.COLUMN_SELECTOR.settings_stacked_widget_index)
+
+    def open_filter_handler(self):
+        PanelRegistry.FILTER.ui_instance.configure(
+            caller_index=self.stacked_widget_index,
+            finished_handler=self.filter_closed_handler,
+            filters=RESULTS[self.result_id].config.filters,
+        )
+        self.root_class.action_activate_panel_by_index(PanelRegistry.FILTER.settings_stacked_widget_index)
+
+    def popup_closed_handler(self):
+        self.elements["column_selector"].configure_from_popup()
+
+    @log_method
+    def filter_closed_handler(self, filters):
+        RESULTS[self.result_id].config.filters = filters
+        self.elements["compiled_filters"].configure(filters)
+        self.handler(Message(message_type=MessageType.STATE_CHANGED, payload=None, caller_id="filter"))

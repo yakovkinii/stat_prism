@@ -17,6 +17,7 @@ class BoxPlotItem(pg.GraphicsObject):
         pen1: QtGui.QPen,
         pen2: QtGui.QPen,
         brush: QtGui.QBrush,
+        whiskers_only: bool,
     ):
         super().__init__()
 
@@ -29,6 +30,7 @@ class BoxPlotItem(pg.GraphicsObject):
         self.pen1 = pen1
         self.pen2 = pen2
         self.brush = brush
+        self.whiskers_only = whiskers_only
 
         self.picture = None
         self.generatePicture()
@@ -40,34 +42,53 @@ class BoxPlotItem(pg.GraphicsObject):
         painter.setBrush(self.brush)
 
         # Box representing IQR
-        painter.drawRect(QtCore.QRectF(self.x_value - 0.2, self.q1, 0.4, self.q3 - self.q1))
+        if not self.whiskers_only:
+            painter.drawRect(QtCore.QRectF(self.x_value - 0.2, self.q1, 0.4, self.q3 - self.q1))
 
         painter.setPen(self.pen2)
 
         margin = 0
 
-        # Median line
-        painter.drawLine(
-            QtCore.QPointF(self.x_value - 0.2 + margin, self.median),
-            QtCore.QPointF(self.x_value + 0.2 - margin, self.median),
-        )
-
         # Whiskers
-        if self.lower_whisker != self.q1:
-            painter.drawLine(QtCore.QPointF(self.x_value, self.lower_whisker), QtCore.QPointF(self.x_value, self.q1))
+        if self.whiskers_only:
+            painter.drawLine(
+                QtCore.QPointF(self.x_value - 0.05 + margin, self.median),
+                QtCore.QPointF(self.x_value + 0.05 - margin, self.median),
+            )
+            painter.drawLine(
+                QtCore.QPointF(self.x_value, self.lower_whisker),
+                QtCore.QPointF(self.x_value, self.upper_whisker),
+            )
             painter.drawLine(
                 QtCore.QPointF(self.x_value - 0.1, self.lower_whisker),
                 QtCore.QPointF(self.x_value + 0.1, self.lower_whisker),
-            )
-        if self.upper_whisker != self.q3:
-            painter.drawLine(
-                QtCore.QPointF(self.x_value, self.q3 + margin),
-                QtCore.QPointF(self.x_value, self.upper_whisker - margin),
             )
             painter.drawLine(
                 QtCore.QPointF(self.x_value - 0.1, self.upper_whisker),
                 QtCore.QPointF(self.x_value + 0.1, self.upper_whisker),
             )
+        else:
+            painter.drawLine(
+                QtCore.QPointF(self.x_value - 0.2 + margin, self.median),
+                QtCore.QPointF(self.x_value + 0.2 - margin, self.median),
+            )
+            if self.lower_whisker != self.q1:
+                painter.drawLine(
+                    QtCore.QPointF(self.x_value, self.lower_whisker), QtCore.QPointF(self.x_value, self.q1)
+                )
+                painter.drawLine(
+                    QtCore.QPointF(self.x_value - 0.1, self.lower_whisker),
+                    QtCore.QPointF(self.x_value + 0.1, self.lower_whisker),
+                )
+            if self.upper_whisker != self.q3:
+                painter.drawLine(
+                    QtCore.QPointF(self.x_value, self.q3 + margin),
+                    QtCore.QPointF(self.x_value, self.upper_whisker - margin),
+                )
+                painter.drawLine(
+                    QtCore.QPointF(self.x_value - 0.1, self.upper_whisker),
+                    QtCore.QPointF(self.x_value + 0.1, self.upper_whisker),
+                )
 
         painter.end()
 

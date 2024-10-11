@@ -75,3 +75,35 @@ def log_method_noarg(method):
         return result
 
     return decorator
+
+
+def log_function(function):
+    """
+    A decorator to log the name of a function when it is executed.
+    """
+
+    def decorator(*args, **kwargs):
+        global level
+        ident = "⋅ " * level
+
+        logger = logging.getLogger()
+        source_file = inspect.getsourcefile(function)
+        line_number = inspect.getsourcelines(function)[1]
+        lr = logger.makeRecord(
+            logger.name,
+            logging.DEBUG,
+            source_file,
+            line_number,
+            ident + f"{function.__name__}",
+            {},
+            None,
+            "",
+        )
+        logger.handle(lr)
+
+        level += 1
+        result = function(*args, **kwargs)
+        level -= 1
+        return result
+
+    return decorator

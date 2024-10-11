@@ -10,6 +10,7 @@ from PySide6.QtGui import QColor
 from src.common.column_attributes import ColumnAttributes, ColumnAttributesRegistry
 from src.common.constant import COLORS, COLUMN_TYPE_ICONS, ColumnType
 from src.common.decorators import log_method, log_method_noarg
+from src.common.elements.column_selector.column_selector import Column
 from src.common.result.registry import RESULTS
 from src.data_panel.const import DataPanelState
 
@@ -79,17 +80,13 @@ class DataModel(QAbstractTableModel):
                 )
 
                 logging.warning(f"Value {value} added to ordinal_order with order {order}")
-
                 self.column_attributes[self.get_column_name(column_index)].ordinal_order[value] = order
-
-        logging.warning("Column type changed to ordinal_unconfirmed")
-        self.column_attributes[self.get_column_name(column_index)].column_type = ColumnType.ORDINAL_UNCONFIRMED
 
     @log_method
     def set_column_type(self, column_index: int, column_type: ColumnType):
         column_name = self.get_column_name(column_index)
         self.column_attributes[column_name].column_type = column_type
-        if column_type not in [ColumnType.ORDINAL, ColumnType.ORDINAL_UNCONFIRMED]:
+        if column_type != ColumnType.ORDINAL:
             self.column_attributes[column_name].ordinal_order = {}
         self.check_and_update_column_type(column_index)
         self.headerDataChanged.emit(Qt.Orientation.Horizontal, column_index, column_index)
@@ -150,6 +147,13 @@ class DataModel(QAbstractTableModel):
                     return ""
                 if self._df.iloc[index.row(), index.column()] in [None, "nan"]:
                     return ""
+                if (role == Qt.ItemDataRole.DisplayRole) and (
+                    self.column_attributes[self.get_column_name(index.column())].column_type == ColumnType.ORDINAL
+                ):
+                    order = self.column_attributes[self.get_column_name(index.column())].ordinal_order[
+                        self._df.iloc[index.row(), index.column()]
+                    ]
+                    return f"[{order}] {self._df.iloc[index.row(), index.column()]}"
                 return str(self._df.iloc[index.row(), index.column()])
 
             elif role == Qt.ItemDataRole.ForegroundRole:
@@ -242,6 +246,32 @@ class DataModel(QAbstractTableModel):
     def get_column_names(self) -> List[str]:
         return [str(column) for column in self._df.columns]
 
+    def get_column_ordinal_order(self, column_index: int) -> Dict[Union[int, float, str], int]:
+        return self.column_attributes[self.get_column_name(column_index)].ordinal_order
+
+    def get_column_ordinal_order_from_column_name(self, column_name: str) -> Dict[Union[int, float, str], int]:
+        return self.column_attributes[column_name].ordinal_order
+
+    def set_column_ordinal_order(self, column_index: int, order: Dict[Union[int, float, str], int]):
+        assert set(order.keys()) == set(self.get_column(column_index).unique())
+        self.column_attributes[self.get_column_name(column_index)].ordinal_order = order
+
+        old_name = self.get_column_name(column_index)
+
+        for result in RESULTS.values():
+            result.rename_column(old_name, old_name)
+
+        self.beginResetModel()
+        self.endResetModel()
+        self.root_class.result_selector_panel.refresh()
+
+    def get_all_columns_as_column_types(self):
+        all_column_names = self.get_column_names()
+        number_of_columns = len(all_column_names)
+        types = [self.get_column_type(i) for i in range(number_of_columns)]
+        all_columns = [Column(name=col, column_type=column_type) for col, column_type in zip(all_column_names, types)]
+        return all_columns
+
     @log_method
     def get_column(self, column_index: int):
         assert 0 <= column_index < self.columnCount()
@@ -306,6 +336,10 @@ class DataModel(QAbstractTableModel):
     @log_method
     def get_column_type(self, column_index: int):
         return self.column_attributes[self.get_column_name(column_index)].column_type
+
+    @log_method
+    def get_column_type_from_column_name(self, column_name: str):
+        return self.column_attributes[column_name].column_type
 
     @log_method
     def add_column(self, column_to_the_left_index):

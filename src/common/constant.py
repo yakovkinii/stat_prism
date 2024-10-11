@@ -38,14 +38,12 @@ class ColumnType(Enum):
     NOMINAL = "Nominal"
     NUMERIC = "Numeric"
     ORDINAL = "Ordinal"
-    ORDINAL_UNCONFIRMED = "Ordinal (unconfirmed)"
 
 
 COLUMN_TYPE_ICONS = {
     ColumnType.NUMERIC: qta.icon("mdi.numeric", color="darkblue", opacity=0.7),
     ColumnType.NOMINAL: qta.icon("mdi6.alphabetical-variant", color="darkred", opacity=0.7),
     ColumnType.ORDINAL: qta.icon("ph.chart-bar", color="darkgreen", opacity=0.7),
-    ColumnType.ORDINAL_UNCONFIRMED: qta.icon("ph.chart-bar", color="darkgreen", opacity=0.7),
 }
 
 BASE_STYLES = (

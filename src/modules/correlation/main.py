@@ -1,9 +1,11 @@
 import logging
+from typing import Dict, Union
 
 import numpy as np
 import pandas as pd
 from scipy.stats import kendalltau, linregress, pearsonr, spearmanr
 
+from src.common.decorators import log_function
 from src.common.result.classes.html_result import HTMLResultElement, HTMLText
 from src.common.result.classes.plot_result import Band, Line, PlotResultElement, Scatter
 from src.modules.correlation.report import get_report
@@ -46,31 +48,40 @@ def calculate_correlations(df, kind: CorrelationType):
     return correlation_matrix, p_matrix, df_matrix
 
 
-def recalculate_correlation_study(df: pd.DataFrame, result: CorrelationResult) -> CorrelationResult:
+@log_function
+def recalculate_correlation_study(
+    df: pd.DataFrame, result: CorrelationResult, ordinal_orders: Dict[str, Dict[Union[int, float, str], int]]
+) -> CorrelationResult:
     logging.info("Recalculating correlation study")
+
+    # Todo
+    # RESULTS[self.result_id].needs_update = False
+    # self.set_recalculate_button_highlight(False)
 
     config: CorrelationStudyConfig = result.config
     if len(config.selected_columns) < 2:
-        result.set_elements(
-            HTMLResultElement(
-                settings_panel_index=PanelRegistry.HTML_RESULT_ITEM_SETTINGS.settings_stacked_widget_index
-            ),
-            {},
-        )
-        logging.info("Not enough columns selected")
+        msg = "Please select at least two Variables"
+        result.set_placeholder(msg)
+        logging.debug(msg)
         return result
 
     if len(config.filters) > 0:
         for filter_settings in config.filters:
-            df = df.query(filter_settings.get_query())
+            query = filter_settings.get_query()
+            logging.debug(f"Applying Filter: {query}")
+            df = df.query(query)
     else:
-        logging.info("No filter applied")
-
-    df = df[config.selected_columns]
+        logging.debug("No filter applied")
 
     compact = config.compact
     report_only_significant = config.report_only_significant
     kind = config.correlation_type
+
+    df = df[config.selected_columns].copy()
+
+    for col, ordinal_order in ordinal_orders.items():
+        df[col] = df[col].map(ordinal_order)
+
     columns = list(df.columns)
 
     correlation_matrix, p_matrix, df_matrix = calculate_correlations(df, kind)
@@ -93,19 +104,22 @@ def recalculate_correlation_study(df: pd.DataFrame, result: CorrelationResult) -
     html_result_element = HTMLResultElement(
         settings_panel_index=PanelRegistry.HTML_RESULT_ITEM_SETTINGS.settings_stacked_widget_index
     )
+    if (len(ordinal_orders) > 0) and (kind == CorrelationType.PEARSON):
+        msg = "Warning: Ordinal data detected. Pearson correlation is not suitable for ordinal data."
+        logging.warning(msg)
+        html_result_element.items.append(HTMLText(msg))
 
     html_result_element.items.append(html_table)
     html_result_element.items.append(HTMLText(verbal))
-    html_result_element.set_table_id("1")
     html_result_element.table_caption = html_table.table_caption
 
     result.title_context = ", ".join([f"{col[:16]}" for col in config.selected_columns])
 
     if not config.generate_plots:
-        result.set_elements(html_result_element, {})
+        result.result_elements = [html_result_element]
         return result
 
-    plot_result_elements = {}
+    plot_result_elements = []
     # Add plots
     for i, name1 in enumerate(columns):
         for j, name2 in enumerate(columns):
@@ -157,11 +171,7 @@ def recalculate_correlation_study(df: pd.DataFrame, result: CorrelationResult) -
                     y_axis_title=name2,
                 )
                 plot_result.items = [plot, plot_band, plot_line]
-                name = f"{i}_{j}"
-                while name in plot_result_elements:
-                    name += "_"
-                plot_result_elements[name] = plot_result
+                plot_result_elements.append(plot_result)
 
-    result.set_elements(html_result_element, plot_result_elements)
-
+    result.result_elements = [html_result_element] + plot_result_elements
     return result

@@ -1,6 +1,7 @@
 from typing import List, Tuple, Union
 
 import attrs
+import numpy as np
 
 from src.common.result.classes.base_result import BaseResultElement
 
@@ -32,6 +33,7 @@ class Box:
         lower_whisker: float,
         upper_whisker: float,
         label,
+        whiskers_only=False,
         config=None,
     ):
         self.x_value = x_value
@@ -42,6 +44,48 @@ class Box:
         self.upper_whisker = upper_whisker
         self.label = label
         self.config = config if config else BoxPlotConfig()
+        self.whiskers_only = whiskers_only
+
+    @staticmethod
+    def from_data(data, index, label, color):
+        box_plot_config = BoxPlotConfig(color=color)
+        iqr = np.percentile(data, 75) - np.percentile(data, 25)
+        lower_whisker = np.max([np.min(data), np.percentile(data, 25) - 1.5 * iqr])
+        upper_whisker = np.min([np.max(data), np.percentile(data, 75) + 1.5 * iqr])
+
+        plot_box = Box(
+            x_value=index,
+            q1=np.percentile(data, 25),
+            q3=np.percentile(data, 75),
+            median=np.median(data),
+            lower_whisker=lower_whisker,
+            upper_whisker=upper_whisker,
+            label=label,
+            config=box_plot_config,
+        )
+        return plot_box
+
+    @staticmethod
+    def from_data_mean_std(data, index, label, color):
+        box_plot_config = BoxPlotConfig(color=color)
+
+        mean = np.mean(data)
+        std = np.std(data)
+        lower_whisker = mean - std
+        upper_whisker = mean + std
+
+        plot_box = Box(
+            x_value=index,
+            q1=0,
+            q3=0,
+            median=mean,
+            lower_whisker=lower_whisker,
+            upper_whisker=upper_whisker,
+            label=label,
+            config=box_plot_config,
+            whiskers_only=True,
+        )
+        return plot_box
 
 
 class Line:
@@ -67,11 +111,11 @@ class Colors:
         self.colors = [
             [100, 100, 255],
             [255, 100, 100],
-            [100, 255, 100],
-            [255, 255, 100],
-            [255, 100, 255],
-            [100, 255, 255],
-            [255, 255, 255],
+            [100, 200, 100],
+            [255, 100, 0],
+            [200, 100, 200],
+            [100, 200, 200],
+            [100, 100, 100],
         ]
         self.index = 0
 
@@ -131,6 +175,7 @@ class GeneralPlotConfig:
     size_y: int = 500
     x_range: List[float] = None
     y_range: List[float] = None
+    tilt_x_axis_labels: bool = False
 
 
 class PlotResultElement(BaseResultElement):
@@ -139,7 +184,7 @@ class PlotResultElement(BaseResultElement):
         settings_panel_index,
         general_plot_config: GeneralPlotConfig = None,
         tab_title="Plot Result Element",
-        plot_id="1",
+        plot_id="",
         plot_title="Correlation plot",
         x_axis_title="",
         y_axis_title="",
@@ -149,7 +194,7 @@ class PlotResultElement(BaseResultElement):
         self.general_plot_config = general_plot_config if general_plot_config else GeneralPlotConfig()
         self.title: str = tab_title
         self.class_id: str = "PlotResultElement"
-        self.items: List[Union[Scatter, Line, Band, Bar]] = []
+        self.items: List[Union[Scatter, Line, Band, Bar, Box]] = []
         self.plot_id = plot_id
         self.plot_title = plot_title
         self.x_axis_title = x_axis_title
@@ -177,5 +222,5 @@ class PlotResultElement(BaseResultElement):
     def get_html(self, renderer=None):
         return (
             f"<div><b> Figure {self.plot_id} </b> </div>"
-            f'<div class="double-spacing font"><i>{self.plot_title}</i></div><br><br>'
+            f'<div class="double-spacing font"><i>{self.plot_title}</i></div><br>'
         ) + self.render_plot_to_html(renderer)
