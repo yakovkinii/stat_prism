@@ -160,9 +160,9 @@ def process_non_homogeneous_t_test(
             [
                 Cell(),
                 Cell("Mean", center=True),
-                Cell("STD", center=True),
+                Cell("SD", center=True),
                 Cell("Mean", center=True),
-                Cell("STD", center=True),
+                Cell("SD", center=True),
                 Cell("t-statistic", center=True),
                 Cell("p-value", center=True),
                 Cell("df", center=True),
@@ -244,9 +244,9 @@ def process_homogeneous_t_test(
             [
                 Cell(),
                 Cell("Mean", center=True),
-                Cell("STD", center=True),
+                Cell("SD", center=True),
                 Cell("Mean", center=True),
-                Cell("STD", center=True),
+                Cell("SD", center=True),
                 Cell("t-statistic", center=True),
                 Cell("p-value", center=True),
                 Cell("df", center=True),

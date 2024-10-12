@@ -3,37 +3,45 @@ from typing import TYPE_CHECKING
 from src.common.constant import ColumnType
 from src.common.decorators import log_method
 from src.common.elements.column_selector.column_selector import ColumnSelectorEx, Field
-from src.common.elements.combo_box.combo_box import ComboBox
 from src.common.elements.filter.filter import CompiledFilterHistory
 from src.common.elements.spacer.spacer_small import SpacerSmall
 from src.common.elements.title.title import Title
 from src.common.messages import Message, MessageType
 from src.common.result.registry import RESULTS
 from src.modules.base.base import BaseModulePanel
-from src.modules.correlation.result import CORRELATION_TYPE_MAP
-from src.modules.reliability.main import recalculate_reliability_study
-from src.modules.reliability.result import ReliabilityStudyConfig
+from src.modules.regression.main import recalculate_regression_study
+from src.modules.regression.result import RegressionStudyConfig
 
 if TYPE_CHECKING:
     pass
 
 
-class Reliability(BaseModulePanel):
+class Regression(BaseModulePanel):
     def setup_ui(self):
         self.elements = {
-            "title": Title(label_text="Reliability"),
+            "title": Title(label_text="Regression"),
             "spacer": SpacerSmall(),
-            "correlation_type": ComboBox("Correlation type: "),
-            "spacer2": SpacerSmall(),
             "column_selector": ColumnSelectorEx(
                 fields=[
                     Field(
-                        name="Underlying Questions:",
+                        name="Dependent Variable:",
                         column_type=ColumnType.ORDINAL,
-                        reasonable_number_of_columns=10,
+                        reasonable_number_of_columns=1,
+                        allow_only_single_column=True,
                     ),
                     Field(
-                        name="Scale (optional):",
+                        name="Independent Variable(s):",
+                        column_type=ColumnType.ORDINAL,
+                        reasonable_number_of_columns=5,
+                    ),
+                    Field(
+                        name="Moderator Variable (optional):",
+                        column_type=ColumnType.ORDINAL,
+                        reasonable_number_of_columns=1,
+                        allow_only_single_column=True,
+                    ),
+                    Field(
+                        name="Mediator Variable (optional):",
                         column_type=ColumnType.ORDINAL,
                         reasonable_number_of_columns=1,
                         allow_only_single_column=True,
@@ -43,7 +51,6 @@ class Reliability(BaseModulePanel):
             "compiled_filters": CompiledFilterHistory(),
         }
         self.setup(stretch=True)
-        self.elements["correlation_type"].configure(list(CORRELATION_TYPE_MAP.keys()))
 
     @log_method
     def configure(self, result_id: int):
@@ -52,13 +59,14 @@ class Reliability(BaseModulePanel):
 
         self.elements["column_selector"].configure(
             selected_columns_list=[
-                RESULTS[result_id].config.selected_columns,
-                [RESULTS[result_id].config.scale_column] if RESULTS[result_id].config.scale_column is not None else [],
+                [RESULTS[result_id].config.dependent_column] if RESULTS[result_id].config.dependent_column else [],
+                RESULTS[result_id].config.independent_columns,
+                [RESULTS[result_id].config.moderator_column] if RESULTS[result_id].config.moderator_column else [],
+                [RESULTS[result_id].config.mediator_column] if RESULTS[result_id].config.mediator_column else [],
             ],
             columns=self.tabledata.get_all_columns_as_column_types(),
         )
         self.elements["compiled_filters"].configure(RESULTS[result_id].config.filters)
-        self.elements["correlation_type"].combo_box.setCurrentIndex(RESULTS[result_id].config.correlation_type.value)
         self.set_recalculate_button_highlight(RESULTS[result_id].needs_update)
 
         self.configuring = False
@@ -67,25 +75,34 @@ class Reliability(BaseModulePanel):
         if self.configuring:
             return
 
-        RESULTS[self.result_id].config = ReliabilityStudyConfig(
-            selected_columns=self.elements["column_selector"].get_selected_columns()[0],
-            selected_columns_types=[
-                self.tabledata.get_column_type_from_column_name(col)
-                for col in self.elements["column_selector"].get_selected_columns()[0]
-            ],
-            scale_column=self.elements["column_selector"].get_selected_columns()[1][0]
-            if len(self.elements["column_selector"].get_selected_columns()[1]) == 1
+        RESULTS[self.result_id].config = RegressionStudyConfig(
+            dependent_column=self.elements["column_selector"].get_selected_columns()[0][0]
+            if len(self.elements["column_selector"].get_selected_columns()[0]) == 1
             else None,
-            correlation_type=CORRELATION_TYPE_MAP[self.elements["correlation_type"].combo_box.currentText()],
+            independent_columns=self.elements["column_selector"].get_selected_columns()[1],
+            moderator_column=self.elements["column_selector"].get_selected_columns()[2][0]
+            if len(self.elements["column_selector"].get_selected_columns()[2]) == 1
+            else None,
+            mediator_column=self.elements["column_selector"].get_selected_columns()[3][0]
+            if len(self.elements["column_selector"].get_selected_columns()[3]) == 1
+            else None,
             filters=RESULTS[self.result_id].config.filters,
         )
 
+        all_columns = [
+            RESULTS[self.result_id].config.dependent_column,
+        ] + RESULTS[self.result_id].config.independent_columns
+        if RESULTS[self.result_id].config.moderator_column is not None:
+            all_columns.append(RESULTS[self.result_id].config.moderator_column)
+        if RESULTS[self.result_id].config.mediator_column is not None:
+            all_columns.append(RESULTS[self.result_id].config.mediator_column)
+
         ordinal_orders = {
             col: self.tabledata.get_column_ordinal_order_from_column_name(col)
-            for col in RESULTS[self.result_id].config.selected_columns
+            for col in all_columns
             if self.tabledata.get_column_type_from_column_name(col) == ColumnType.ORDINAL
         }
-        RESULTS[self.result_id] = recalculate_reliability_study(
+        RESULTS[self.result_id] = recalculate_regression_study(
             df=self.tabledata.get_data(),
             result=RESULTS[self.result_id],
             ordinal_orders=ordinal_orders,

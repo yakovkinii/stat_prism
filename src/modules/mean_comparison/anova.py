@@ -157,7 +157,7 @@ def process_non_homogeneous_anova(
         Row(
             [
                 Cell(),
-                *[Cell("Mean", center=True), Cell("STD", center=True)] * len(group_names),
+                *[Cell("Mean", center=True), Cell("SD", center=True)] * len(group_names),
                 Cell("Welch's F", center=True),
                 Cell("p-value", center=True),
                 Cell("df1", center=True),
@@ -244,7 +244,7 @@ def process_homogeneous_anova(
         Row(
             [
                 Cell(),
-                *[Cell("Mean", center=True), Cell("STD", center=True)] * len(group_names),
+                *[Cell("Mean", center=True), Cell("SD", center=True)] * len(group_names),
                 Cell("F-statistic", center=True),
                 Cell("p-value", center=True),
                 Cell("df1", center=True),

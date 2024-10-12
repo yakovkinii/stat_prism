@@ -5,6 +5,8 @@ from src.modules.descriptive.ui import Descriptive
 from src.modules.mean_comparison.result import MeanComparisonResult, MeanComparisonStudyConfig
 from src.modules.mean_comparison.ui import MeanComparison
 from src.modules.registry import ModuleRegistry
+from src.modules.regression.result import RegressionResult, RegressionStudyConfig
+from src.modules.regression.ui import Regression
 from src.modules.reliability.result import ReliabilityResult, ReliabilityStudyConfig
 from src.modules.reliability.ui import Reliability
 
@@ -25,3 +27,7 @@ def inject_classes_to_module_registry():
     ModuleRegistry.RELIABILITY.value.ui_class = Reliability
     ModuleRegistry.RELIABILITY.value.result_class = ReliabilityResult
     ModuleRegistry.RELIABILITY.value.config_class = ReliabilityStudyConfig
+
+    ModuleRegistry.REGRESSION.value.ui_class = Regression
+    ModuleRegistry.REGRESSION.value.result_class = RegressionResult
+    ModuleRegistry.REGRESSION.value.config_class = RegressionStudyConfig

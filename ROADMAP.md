@@ -120,8 +120,8 @@ including customization.</g>
 * <g>T-test</g>
 * <g>Kruskal-Wallis</g>
 * <g>Reliability analysis</g>
+* <g>Linear Regression</g>
 * Binomial Logistic Regression
-* Linear Regression
 * Multinomial Logistic Regression
 * Ordinal Logistic Regression
 * Cross-tabulation

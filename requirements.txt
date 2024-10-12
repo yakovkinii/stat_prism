@@ -11,3 +11,4 @@ Jinja2
 pyqtgraph
 scikit-learn
 pillow
+statsmodels
