@@ -32,7 +32,7 @@ class Column(BasePanel):
                 label_text="",
             ),
             "color": ColumnColorSelector(),
-            "column_type": ComboBox(),
+            "column_type": ComboBox("Column type: "),
             "order": SmallButton(
                 label_text="Change Order",
                 icon_path="ri.arrow-up-down-line",
@@ -54,7 +54,7 @@ class Column(BasePanel):
         self.setup(stretch=True)
 
         self.configuring = True
-        self.elements["column_type"].widget.addItems(
+        self.elements["column_type"].combo_box.addItems(
             [
                 ColumnType.NOMINAL.value,
                 ColumnType.ORDINAL.value,
@@ -80,7 +80,7 @@ class Column(BasePanel):
             self.elements["original_title"].widget.setText("Original name: " + original_title)
             self.elements["original_title"].widget.show()
 
-        self.elements["column_type"].widget.setCurrentText(self.tabledata.get_column_type(self.column_index).value)
+        self.elements["column_type"].combo_box.setCurrentText(self.tabledata.get_column_type(self.column_index).value)
 
         if self.tabledata.get_column_dtype(self.column_index) in ["int", "float"]:
             self.elements["invert"].widget.setEnabled(True)
@@ -216,7 +216,7 @@ class Column(BasePanel):
                 super().handler(message)
         elif message.message_type == MessageType.STATE_CHANGED:
             if message.caller_id == "column_type":
-                column_type = ColumnType(self.elements["column_type"].widget.currentText())
+                column_type = ColumnType(self.elements["column_type"].combo_box.currentText())
                 self.tabledata.set_column_type(self.column_index, column_type)
                 self.configure(
                     column_index=self.column_index,

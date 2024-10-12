@@ -53,8 +53,8 @@ if __name__ == "__main__":
                 f"StatPrism crashed, but the project was recovered and saved to: {main_win.current_file_path}"
             )
 
-        logging.error("Press Enter to exit ...")
-        input()
+        # logging.error("Press Enter to exit ...")
+        # input()
         sys.exit(1)
 
     # Set the exception hook to our wrapping function

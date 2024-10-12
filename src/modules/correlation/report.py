@@ -1,3 +1,5 @@
+import numpy as np
+
 from src.common.constant import TABLE_OR_PLOT_ID_PLACEHOLDER
 from src.common.utility import smart_comma_join
 from src.modules.correlation.result import CorrelationType
@@ -32,20 +34,22 @@ def format_p_apa(p, decimals=3):
         return f"p = {round(p, decimals):.{decimals}f}".replace("0.", ".")
 
 
-def format_apa(r, p, df):
-    return f"r({df}) = {format_r_apa(r)}, {format_p_apa(p)}"
+def format_apa(r, p, df, letter):
+    if np.isnan(df):
+        return f"{letter} = {format_r_apa(r)}, {format_p_apa(p)}"
+    return f"{letter}({df}) = {format_r_apa(r)}, {format_p_apa(p)}"
 
 
-def get_statement_2_items(r, p, df):
+def get_statement_2_items(r, p, df, letter):
     if p > 0.05:
         return (
             f"The results indicated that the relationship between the two variables "
-            f"was not significant, {format_apa(r, p, df)}. "
+            f"was not significant, {format_apa(r, p, df,letter)}. "
         )
     else:
         text = (
             f"There was a {get_strength(r)} {get_sign(r)} correlation between "
-            f"the two variables, {format_apa(r, p, df)}. "
+            f"the two variables, {format_apa(r, p, df,letter)}. "
         )
 
         if abs(r) < 0.1:
@@ -53,22 +57,24 @@ def get_statement_2_items(r, p, df):
     return text
 
 
-def get_statement_multiple_items(r, p, df, var1, var2, id1, id2, id3):
+def get_statement_multiple_items(r, p, df, var1, var2, id1, id2, id3, letter):
     if p > 0.05:
         return [
-            f"The correlation between '{var1}' and '{var2}' was found to be non-significant, {format_apa(r, p, df)}. ",
+            f"The correlation between '{var1}' and '{var2}' was found to be non-significant,"
+            f" {format_apa(r, p, df,letter)}. ",
             f"The results indicated that the relationship between the variables '{var1}' and '{var2}' "
-            f"was not significant, {format_apa(r, p, df)}. ",
-            f"There was no significant correlation identified between '{var1}' and '{var2}', {format_apa(r, p, df)}. ",
+            f"was not significant, {format_apa(r, p, df,letter)}. ",
+            f"There was no significant correlation identified between '{var1}' and '{var2}', "
+            f"{format_apa(r, p, df,letter)}. ",
         ][id1.get() % 3]
     else:
         text = [
             f"There was a {get_strength(r)} {get_sign(r)} correlation between the the "
-            f"variables '{var1}' and '{var2}', {format_apa(r, p, df)}. ",
+            f"variables '{var1}' and '{var2}', {format_apa(r, p, df,letter)}. ",
             f"A {get_strength(r)} and {get_sign(r)} correlation was observed between '{var1}' and '{var2}',"
-            f" {format_apa(r, p, df)}. ",
+            f" {format_apa(r, p, df,letter)}. ",
             f"The variables '{var1}' and '{var2}' showed a {get_strength(r)} and {get_sign(r)} correlation, "
-            f"{format_apa(r, p, df)}. ",
+            f"{format_apa(r, p, df,letter)}. ",
         ][id2.get() % 3]
 
         if abs(r) < 0.1:
@@ -95,10 +101,19 @@ def get_report(columns, correlation_matrix, p_matrix, df_matrix, report_non_sign
     id3 = ID()
     if kind == CorrelationType.PEARSON:
         correlation_name = "Pearson correlation coefficient"
+        letter = "r"
     elif kind == CorrelationType.SPEARMAN:
         correlation_name = "Spearman rank correlation coefficient"
+        letter = "ρ"
     elif kind == CorrelationType.KENDALL:
         correlation_name = "Kendall rank correlation coefficient"
+        letter = "τ"
+    elif kind == CorrelationType.PHI:
+        correlation_name = "Phi binary correlation coefficient"
+        letter = "φ"
+    elif kind == CorrelationType.TETRACHORIC:
+        correlation_name = "Tetrachoric binary correlation coefficient"
+        letter = "ρ<sub>t</sub>"
     else:
         raise ValueError(f"Unknown correlation type: {kind}")
 
@@ -113,6 +128,7 @@ def get_report(columns, correlation_matrix, p_matrix, df_matrix, report_non_sign
             r=correlation_matrix.loc[columns[1], columns[0]],
             p=p_matrix.loc[columns[1], columns[0]],
             df=df_matrix.loc[columns[1], columns[0]],
+            letter=letter,
         )
 
     if p_matrix.min().min() > 0.05 and not report_non_significant:
@@ -131,5 +147,6 @@ def get_report(columns, correlation_matrix, p_matrix, df_matrix, report_non_sign
                         id1=id1,
                         id2=id2,
                         id3=id3,
+                        letter=letter,
                     )
     return text

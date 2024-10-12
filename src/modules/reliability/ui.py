@@ -2,7 +2,6 @@ from typing import TYPE_CHECKING
 
 from src.common.constant import ColumnType
 from src.common.decorators import log_method
-from src.common.elements.checkbox.checkbox import LargeCheckbox
 from src.common.elements.column_selector.column_selector import ColumnSelectorEx, Field
 from src.common.elements.combo_box.combo_box import ComboBox
 from src.common.elements.filter.filter import CompiledFilterHistory
@@ -11,29 +10,33 @@ from src.common.elements.title.title import Title
 from src.common.messages import Message, MessageType
 from src.common.result.registry import RESULTS
 from src.modules.base.base import BaseModulePanel
-from src.modules.correlation.main import recalculate_correlation_study
-from src.modules.correlation.result import CORRELATION_TYPE_MAP, CorrelationStudyConfig
+from src.modules.correlation.result import CORRELATION_TYPE_MAP
+from src.modules.reliability.main import recalculate_reliability_study
+from src.modules.reliability.result import ReliabilityStudyConfig
 
 if TYPE_CHECKING:
     pass
 
 
-class Correlation(BaseModulePanel):
+class Reliability(BaseModulePanel):
     def setup_ui(self):
         self.elements = {
-            "title": Title(label_text="Correlation"),
+            "title": Title(label_text="Mean Comparison"),
             "spacer": SpacerSmall(),
-            "compact": LargeCheckbox(label_text="Compact table"),
-            "report_only_significant": LargeCheckbox(label_text="Report only significant correlations"),
-            "generate_plots": LargeCheckbox(label_text="Generate plots"),
             "correlation_type": ComboBox("Correlation type: "),
             "spacer2": SpacerSmall(),
             "column_selector": ColumnSelectorEx(
                 fields=[
                     Field(
-                        name="Variables:",
+                        name="Underlying Questions:",
                         column_type=ColumnType.ORDINAL,
                         reasonable_number_of_columns=10,
+                    ),
+                    Field(
+                        name="Scale (optional):",
+                        column_type=ColumnType.ORDINAL,
+                        reasonable_number_of_columns=1,
+                        allow_only_single_column=True,
                     ),
                 ],
             ),
@@ -48,13 +51,13 @@ class Correlation(BaseModulePanel):
         self.result_id = result_id
 
         self.elements["column_selector"].configure(
+            selected_columns_list=[
+                RESULTS[result_id].config.selected_columns,
+                [RESULTS[result_id].config.scale_column] if RESULTS[result_id].config.scale_column is not None else [],
+            ],
             columns=self.tabledata.get_all_columns_as_column_types(),
-            selected_columns_list=[RESULTS[result_id].config.selected_columns],
         )
         self.elements["compiled_filters"].configure(RESULTS[result_id].config.filters)
-        self.elements["compact"].widget.setChecked(RESULTS[result_id].config.compact)
-        self.elements["report_only_significant"].widget.setChecked(RESULTS[result_id].config.report_only_significant)
-        self.elements["generate_plots"].widget.setChecked(RESULTS[result_id].config.generate_plots)
         self.elements["correlation_type"].combo_box.setCurrentIndex(RESULTS[result_id].config.correlation_type.value)
         self.set_recalculate_button_highlight(RESULTS[result_id].needs_update)
 
@@ -64,12 +67,16 @@ class Correlation(BaseModulePanel):
         if self.configuring:
             return
 
-        RESULTS[self.result_id].config = CorrelationStudyConfig(
+        RESULTS[self.result_id].config = ReliabilityStudyConfig(
             selected_columns=self.elements["column_selector"].get_selected_columns()[0],
-            compact=self.elements["compact"].widget.isChecked(),
+            selected_columns_types=[
+                self.tabledata.get_column_type_from_column_name(col)
+                for col in self.elements["column_selector"].get_selected_columns()[0]
+            ],
+            scale_column=self.elements["column_selector"].get_selected_columns()[1][0]
+            if len(self.elements["column_selector"].get_selected_columns()[1]) == 1
+            else None,
             correlation_type=CORRELATION_TYPE_MAP[self.elements["correlation_type"].combo_box.currentText()],
-            report_only_significant=self.elements["report_only_significant"].widget.isChecked(),
-            generate_plots=self.elements["generate_plots"].widget.isChecked(),
             filters=RESULTS[self.result_id].config.filters,
         )
 
@@ -78,8 +85,10 @@ class Correlation(BaseModulePanel):
             for col in RESULTS[self.result_id].config.selected_columns
             if self.tabledata.get_column_type_from_column_name(col) == ColumnType.ORDINAL
         }
-        RESULTS[self.result_id] = recalculate_correlation_study(
-            df=self.tabledata.get_data(), result=RESULTS[self.result_id], ordinal_orders=ordinal_orders
+        RESULTS[self.result_id] = recalculate_reliability_study(
+            df=self.tabledata.get_data(),
+            result=RESULTS[self.result_id],
+            ordinal_orders=ordinal_orders,
         )
 
         RESULTS[self.result_id].needs_update = False

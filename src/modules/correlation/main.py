@@ -8,6 +8,7 @@ from scipy.stats import kendalltau, linregress, pearsonr, spearmanr
 from src.common.decorators import log_function
 from src.common.result.classes.html_result import HTMLResultElement, HTMLText
 from src.common.result.classes.plot_result import Band, Line, PlotResultElement, Scatter
+from src.modules.correlation.binary_correlations import phi_coefficient, tetrachoric_corr_2x2_table
 from src.modules.correlation.report import get_report
 from src.modules.correlation.result import CorrelationResult, CorrelationStudyConfig, CorrelationType
 from src.modules.correlation.table import get_table_compact, get_table_full
@@ -30,15 +31,21 @@ def calculate_correlations(df, kind: CorrelationType):
             if kind == CorrelationType.PEARSON:
                 # Compute correlation and p-value
                 corr, p_value = pearsonr(valid_data[col1], valid_data[col2])
+                degrees_of_freedom = len(valid_data) - 2
             elif kind == CorrelationType.SPEARMAN:
                 corr, p_value = spearmanr(valid_data[col1], valid_data[col2])
+                degrees_of_freedom = np.nan  # Not available
             elif kind == CorrelationType.KENDALL:
                 corr, p_value = kendalltau(valid_data[col1], valid_data[col2])
+                degrees_of_freedom = np.nan  # Not available
+            elif kind == CorrelationType.PHI:
+                corr, p_value, degrees_of_freedom = phi_coefficient(valid_data[col1], valid_data[col2])
+            elif kind == CorrelationType.TETRACHORIC:
+                corr, _, p_value, degrees_of_freedom = tetrachoric_corr_2x2_table(
+                    table=pd.crosstab(df.iloc[:, 0], df.iloc[:, 1]).values
+                )
             else:
                 raise ValueError(f"Invalid correlation type: {kind}")
-
-            # Calculate degrees of freedom (n - 2)
-            degrees_of_freedom = len(valid_data) - 2
 
             # Fill the square matrix
             correlation_matrix.loc[col1, col2] = corr
@@ -53,10 +60,6 @@ def recalculate_correlation_study(
     df: pd.DataFrame, result: CorrelationResult, ordinal_orders: Dict[str, Dict[Union[int, float, str], int]]
 ) -> CorrelationResult:
     logging.info("Recalculating correlation study")
-
-    # Todo
-    # RESULTS[self.result_id].needs_update = False
-    # self.set_recalculate_button_highlight(False)
 
     config: CorrelationStudyConfig = result.config
     if len(config.selected_columns) < 2:
@@ -81,6 +84,13 @@ def recalculate_correlation_study(
 
     for col, ordinal_order in ordinal_orders.items():
         df[col] = df[col].map(ordinal_order)
+
+    if kind in [CorrelationType.PHI, CorrelationType.TETRACHORIC]:
+        if not all(df[col].nunique() <= 2 for col in df.columns):
+            msg = f"All columns must have at most 2 unique values for {kind.name} correlation."
+            result.set_placeholder(msg)
+            logging.debug(msg)
+            return result
 
     columns = list(df.columns)
 

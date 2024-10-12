@@ -113,19 +113,19 @@ including customization.</g>
 [//]: # (<details>)
 <summary></summary>
 
+* <g>Descriptive statistics</g>
 * <g>Correlation</g>
 * <s>Cross-correlation</s>
 * <g>ANOVA</g>
-* Binomial Logistic Regression
-* Cross-tabulation
-* <g>Descriptive statistics</g>
-* EFA
+* <g>T-test</g>
 * <g>Kruskal-Wallis</g>
+* <g>Reliability analysis</g>
+* Binomial Logistic Regression
 * Linear Regression
 * Multinomial Logistic Regression
 * Ordinal Logistic Regression
-* Reliability analysis
-* <g>T-test</g>
+* Cross-tabulation
+* EFA
 * Undo functionality
 * Table slicing on export and rotated copying
 

@@ -30,6 +30,11 @@ class ModuleRegistry(Enum):
         icon_path="ph.chart-line-up-fill",
     )
 
+    RELIABILITY = ModuleRegistryItem(
+        display_name="Reliability",
+        icon_path="ph.chart-line-up-fill",
+    )
+
     @property
     def display_name(self):
         return self.value.display_name

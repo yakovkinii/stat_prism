@@ -1,27 +1,20 @@
 DESCRIPTION = """
-<h2> Correlation</h2>
+<h2> Reliability Analysis</h2>
 <h3> Description </h3>
 <div>
-    Generate correlation coefficients between the selected variables.
+    Reliability analysis (Cronbach's Alpha) is used to assess the consistency of a measure.
 </div>
 <h3> Inputs </h3>
+
 <div>
-    <b>Variables:</b><br>
-    The variables to correlate.
+    <b>Underlying Questions:</b><br>
+    The questions that form the scale. It is assumed that the scale is a <b>sum</b> of the underlying questions.
+</div>
+<div>
+    <b>Scale:</b><br>
+    The scale for which the consistency is measured. Used only to get the name of the scale for reporting.
 </div>
 <h3> Options </h3>
-<div>
-    <b>Compact table:</b><br>
-    Generate compact table format.
-</div>
-<div>
-    <b>Report only significant correlations:</b><br>
-    Mention only significant correlations in the text.
-</div>
-<div>
-    <b>Generate plots:</b><br>
-    Generate pairwise correlation plots.
-</div>
 <div>
     <b>Correlation type:</b><br>
     <ul>
@@ -32,4 +25,5 @@ DESCRIPTION = """
         <li>Tetrachoric: Binary correlation &ndash; binary variables with underlying continuous variables</li>
     </ul>
 </div>
+
 """
