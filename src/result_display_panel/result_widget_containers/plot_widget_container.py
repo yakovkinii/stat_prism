@@ -152,7 +152,7 @@ class PlotResultElementWidgetContainerExport:
 
                 if item.legend_string != "":
                     if self.legend is None:
-                        self.legend = pg.LegendItem(labelTextSize='14pt')  # Create a LegendItem object
+                        self.legend = pg.LegendItem(labelTextSize="14pt")  # Create a LegendItem object
                         self.legend.setParentItem(self.plot_widget.plotItem)
                         self.legend.anchor((1, 0), (1, 0))
                     self.legend.addItem(plot_item, item.legend_string)

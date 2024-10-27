@@ -80,7 +80,7 @@ def recalculate_regression_study(
 
     mediator_model = None
     if config.mediator_column:
-        print("Performing Mediation Analysis...\n")
+        logging.info("Performing Mediation Analysis...\n")
         # Step 1: Regress mediator on independent variables
         X_mediator = sm.add_constant(df[independent_cols])
         mediator_model = sm.OLS(df[config.mediator_column], X_mediator).fit()
@@ -301,7 +301,6 @@ def recalculate_regression_study(
             )
             plot_result_element.items.append(plot_band)
             plot_result_element.items.append(line_direct)
-
 
         else:
             line = Line(

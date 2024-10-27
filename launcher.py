@@ -27,9 +27,12 @@ if __name__ == "__main__":
     main_win = None
 
     def my_exception_hook(exctype, value, traceback):
+        import traceback as tb
+
         global win_main
-        # Print the error and traceback
-        print(exctype, value, traceback)
+
+        logging.error("".join(tb.format_exception(exctype, value, traceback)))
+
         # Call the normal Exception hook after
         sys._excepthook(exctype, value, traceback)
 
@@ -48,13 +51,26 @@ if __name__ == "__main__":
             from src.settings_panel.panels.registry import PanelRegistry
 
             PanelRegistry.HOME.ui_instance.save_handler()
-            main_win.hide()
+
             logging.error(
                 f"StatPrism crashed, but the project was recovered and saved to: {main_win.current_file_path}"
             )
 
-        # logging.error("Press Enter to exit ...")
-        # input()
+            from PySide6.QtWidgets import QMessageBox
+
+            msg = QMessageBox()
+            msg.setIcon(QMessageBox.Icon.Critical)
+            msg.setText(f"StatPrism crashed. The project was recovered and saved to:\n{main_win.current_file_path}")
+            msg.setWindowTitle("Oops... StatPrism crashed")
+            msg.setDetailedText("\n".join(tb.format_exception(exctype, value, traceback)))
+
+            msg.setStandardButtons(QMessageBox.StandardButton.Ignore | QMessageBox.StandardButton.Abort)
+            msg.setDefaultButton(QMessageBox.StandardButton.Ignore)
+            ret = msg.exec()
+            if ret == QMessageBox.StandardButton.Ignore:
+                logging.warning("Ignoring the crash")
+                return
+
         sys.exit(1)
 
     # Set the exception hook to our wrapping function

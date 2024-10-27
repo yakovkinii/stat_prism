@@ -395,11 +395,12 @@ class ColumnSelectorExPopup:
             or (from_drop and not remove)
             or (from_double_click and not remove)
         ):
+            selected_main = [item] if from_double_click else (self.main_list.selectedItems())
+
             if self.fields[button_index].allow_only_single_column:
-                if panel_list.count() > 0:
+                if (panel_list.count() > 0) or (len(selected_main) > 1):
                     return
 
-            selected_main = [item] if from_double_click else (self.main_list.selectedItems())
             if selected_main:
                 selected_main_names = [item.text() for item in selected_main]
                 selected_main_types = [
