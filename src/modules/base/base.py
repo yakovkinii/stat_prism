@@ -143,7 +143,7 @@ class BaseModulePanel:
     def delete(self):
         self.root_class.results_panel.display_none()
         self.root_class.result_selector_panel.delete_result(self.result_id)
-        self.root_class.action_activate_home_panel()
+        self.root_class.action_activate_data_panel()
         RESULTS.pop(self.result_id)
 
     @log_method_noarg

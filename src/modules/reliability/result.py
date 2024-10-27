@@ -30,7 +30,7 @@ class ReliabilityResult(BaseResult):
         # Unique integer id, not for display
         self.unique_id: int = unique_id
 
-        self.title = "Mean Comparison"
+        self.title = "Reliability"
         self.title_context = ""
         self.settings_panel_index = settings_panel_index
         self.config: ReliabilityStudyConfig = config

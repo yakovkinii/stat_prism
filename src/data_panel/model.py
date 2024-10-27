@@ -76,7 +76,7 @@ class DataModel(QAbstractTableModel):
                 order = (
                     max(self.column_attributes[self.get_column_name(column_index)].ordinal_order.values()) + 1
                     if len(self.column_attributes[self.get_column_name(column_index)].ordinal_order) > 0
-                    else 0
+                    else 1
                 )
 
                 logging.warning(f"Value {value} added to ordinal_order with order {order}")

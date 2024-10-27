@@ -6,7 +6,7 @@ import pandas as pd
 import statsmodels.api as sm
 
 from src.common.decorators import log_function
-from src.common.result.classes.html_result import Cell, HTMLResultElement, HTMLTable, Row
+from src.common.result.classes.html_result import Cell, HTMLResultElement, HTMLTable, Row, HTMLText
 from src.common.result.classes.plot_result import Colors, Line, LinePlotConfig, PlotResultElement, Scatter
 from src.common.utility import format_statistic_apa
 from src.modules.regression.result import RegressionResult, RegressionStudyConfig
@@ -107,6 +107,8 @@ def recalculate_regression_study(
             ]
         )
     )
+    fit_text = HTMLText("")
+    fit_text.text = "Fit Text Trololo"
 
     # Create coefficients table
     coefficients_table = HTMLTable([])
@@ -123,6 +125,8 @@ def recalculate_regression_study(
         )
     )
 
+    coefficients_text = HTMLText("")
+
     for param_name, param_value in model.params.items():
         coefficients_table.add_single_row_apa(
             Row(
@@ -135,8 +139,10 @@ def recalculate_regression_study(
                 ]
             )
         )
+        coefficients_text.text+=f"Param {param_name} is {param_value}. "
 
     mediator_table = None
+    mediator_text = None
     if config.mediator_column:
         mediator_table = HTMLTable([])
         mediator_table.table_caption = "Path Estimates"
@@ -151,6 +157,7 @@ def recalculate_regression_study(
                 ]
             )
         )
+        mediator_text = HTMLText("")
 
         for param_name, param_value in mediator_model.params.items():
             if param_name == "const":
@@ -166,6 +173,7 @@ def recalculate_regression_study(
                     ]
                 )
             )
+            mediator_text.text+=f"{param_name} is {param_value}. "
         for i, (param_name, param_value) in enumerate(model.params.items()):
             if param_name == "const":
                 continue
@@ -184,9 +192,10 @@ def recalculate_regression_study(
     html_result_element = HTMLResultElement(
         settings_panel_index=PanelRegistry.HTML_RESULT_ITEM_SETTINGS.settings_stacked_widget_index
     )
-    html_result_element.items = [fit_table, coefficients_table]
+    html_result_element.items = [fit_table, fit_text, coefficients_table, coefficients_text]
     if mediator_table:
         html_result_element.items.append(mediator_table)
+        html_result_element.items.append(mediator_text)
 
     plot_result_element = None
     if len(config.independent_columns) == 1:
