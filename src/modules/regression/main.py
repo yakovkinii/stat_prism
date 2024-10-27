@@ -7,7 +7,15 @@ import statsmodels.api as sm
 
 from src.common.decorators import log_function
 from src.common.result.classes.html_result import Cell, HTMLResultElement, HTMLTable, Row
-from src.common.result.classes.plot_result import Colors, Line, LinePlotConfig, PlotResultElement, Scatter
+from src.common.result.classes.plot_result import (
+    Band,
+    BandPlotConfig,
+    Colors,
+    Line,
+    LinePlotConfig,
+    PlotResultElement,
+    Scatter,
+)
 from src.common.utility import format_statistic_apa
 from src.modules.regression.result import RegressionResult, RegressionStudyConfig
 from src.settings_panel.panels.registry import PanelRegistry
@@ -232,24 +240,68 @@ def recalculate_regression_study(
                 )
                 plot_result_element.items.append(line)
         elif config.mediator_column:
-            mean = df[config.mediator_column].mean()
-            std = df[config.mediator_column].std()
             colors = Colors()
-            for number_of_sds in [-1, 0, 1]:
-                x_values = x_values_original.copy()
-                x_values[config.mediator_column] = mean + number_of_sds * std
-                line = Line(
-                    x=x_values[config.independent_columns[0]],
-                    y=model.predict(x_values),
-                    label=f"{config.mediator_column}: mean"
-                    if number_of_sds == 0
-                    else f"{config.mediator_column}: mean {number_of_sds:+} SD",
-                    legend_string=f"{config.mediator_column}: mean"
-                    if number_of_sds == 0
-                    else f"{config.mediator_column}: mean {number_of_sds:+} SD",
-                    config=LinePlotConfig(color=colors.get_color_list()),
-                )
-                plot_result_element.items.append(line)
+            # ============================ DIRECT ================================
+            x_values = x_values_original.copy()
+            x_values[config.mediator_column] = df[config.mediator_column].mean()
+            xx = x_values_original[config.independent_columns[0]]
+
+            # Calculate the confidence intervals
+            conf_static = model.bse["const"]
+            conf_direct = model.bse[config.independent_columns[0]]
+            conf_mediator_static = mediator_model.bse["const"]
+            conf_mediator_dynamic = mediator_model.bse[config.independent_columns[0]] * abs(xx - xx.mean())
+            conf_mediator_total = np.sqrt(conf_mediator_static**2 + conf_mediator_dynamic**2)
+            conf_indirect = np.sqrt(
+                (conf_mediator_total**2) * (model.params[config.mediator_column] ** 2)
+                + model.bse[config.mediator_column] ** 2
+            )
+            conf_interval = np.sqrt(conf_static**2 + conf_direct**2 + conf_indirect**2)
+
+            yy = model.predict(sm.add_constant(x_values))
+
+            color = colors.get_color_list()
+            plot_band = Band(
+                x=xx,
+                y1=yy - conf_interval,
+                y2=yy + conf_interval,
+                label="Band: Standard Error",
+                config=BandPlotConfig(color=color),
+            )
+            line_direct = Line(
+                x=xx,
+                y=yy,
+                label="Direct Effect",
+                legend_string="Direct Effect (corrected for mediation)",
+                config=LinePlotConfig(color=color),
+            )
+            plot_result_element.items.append(line_direct)
+            plot_result_element.items.append(plot_band)
+
+            # ============================ TOTAL ================================
+            x_values = x_values_original.copy()
+            x_values[config.mediator_column] = mediator_model.predict(sm.add_constant(x_values))
+            yy = model.predict(sm.add_constant(x_values))
+
+            color = colors.get_color_list()
+            plot_band = Band(
+                x=xx,
+                y1=yy - conf_interval,
+                y2=yy + conf_interval,
+                label="Band: Standard Error",
+                config=BandPlotConfig(color=color),
+            )
+
+            line_direct = Line(
+                x=x_values_original[config.independent_columns[0]],
+                y=model.predict(sm.add_constant(x_values)),
+                label="Total Effect",
+                legend_string="Total Effect",
+                config=LinePlotConfig(color=color),
+            )
+            plot_result_element.items.append(plot_band)
+            plot_result_element.items.append(line_direct)
+
 
         else:
             line = Line(

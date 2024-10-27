@@ -95,7 +95,7 @@ class PlotResultElementWidgetContainerExport:
         self.result_element = result_element
 
         self.plot_widget = ResizablePlotWidget(parent_widget, self.result_element)
-        legend = None
+        self.legend = None
 
         self.restore_axis_ranges()
 
@@ -151,11 +151,11 @@ class PlotResultElementWidgetContainerExport:
                 line_color = color_from_rgb_and_a(item.config.color, item.config.line_alpha)
 
                 if item.legend_string != "":
-                    if legend is None:
-                        legend = pg.LegendItem()  # Create a LegendItem object
-                        legend.setParentItem(self.plot_widget.plotItem)
-                        legend.anchor((1, 0), (1, 0))
-                    legend.addItem(plot_item, item.legend_string)
+                    if self.legend is None:
+                        self.legend = pg.LegendItem(labelTextSize='14pt')  # Create a LegendItem object
+                        self.legend.setParentItem(self.plot_widget.plotItem)
+                        self.legend.anchor((1, 0), (1, 0))
+                    self.legend.addItem(plot_item, item.legend_string)
                 plot_item.setPen(
                     pg.mkPen(
                         line_color,
@@ -198,8 +198,8 @@ class PlotResultElementWidgetContainerExport:
             if isinstance(item, Band):
                 line_color = color_from_rgb_and_a(item.config.color, item.config.line_alpha)
                 fill_color = color_from_rgb_and_a(item.config.color, item.config.fill_alpha)
-                curve1 = pg.PlotCurveItem(item.x, item.y1, pen=pg.mkPen(line_color, width=1))
-                curve2 = pg.PlotCurveItem(item.x, item.y2, pen=pg.mkPen(line_color, width=1))
+                curve1 = pg.PlotCurveItem(np.array(item.x), np.array(item.y1), pen=pg.mkPen(line_color, width=1))
+                curve2 = pg.PlotCurveItem(np.array(item.x), np.array(item.y2), pen=pg.mkPen(line_color, width=1))
                 fill = pg.FillBetweenItem(curve1, curve2, brush=pg.mkBrush(fill_color))
                 self.plot_widget.addItem(curve1)
                 self.plot_widget.addItem(curve2)
