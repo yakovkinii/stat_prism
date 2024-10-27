@@ -29,7 +29,7 @@ class OrderVisualizer(BasePanelElement):
         for i in range(self.widget.count()):
             item = self.widget.item(i)
             widget = cast(CustomListWidgetItem, self.widget.itemWidget(item))
-            order_dict[widget.value] = i
+            order_dict[widget.value] = i + 1
         return order_dict
 
 
