@@ -18,15 +18,12 @@ PEN_STYLE_MAP = {
     "Dash": Qt.PenStyle.DashLine,
     "Dot": Qt.PenStyle.DotLine,
     "Dash-dot": Qt.PenStyle.DashDotLine,
-    "Dash-dot-dot": Qt.PenStyle.DashDotDotLine,
     "None": Qt.PenStyle.NoPen,
 }
 
 MARKER_SHAPE_MAP = {
     "Circle": "o",
     "Square": "s",
-    "Triangle-up": "t",
-    "Triangle-down": "d",
     "Diamond": "d",
     "Plus": "+",
     "Cross": "x",

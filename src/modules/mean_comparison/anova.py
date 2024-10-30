@@ -1,4 +1,4 @@
-from typing import Dict, List, Tuple, Union
+from typing import Dict, Tuple, Union
 
 import pandas as pd
 from scipy import stats
@@ -6,12 +6,10 @@ from scipy import stats
 from src.common.constant import ColumnType
 from src.common.decorators import log_function
 from src.common.result.classes.html_result import Cell, HTMLResultElement, HTMLTable, HTMLText, Row
-from src.common.result.classes.plot_result import PlotResultElement
 from src.common.utility import format_p_apa, format_statistic_apa
 from src.common.verbal.test import describe_test
 from src.modules.common.homogeneity import process_homogeneity_check
 from src.modules.common.normality import process_normality_check
-from src.modules.mean_comparison.plot import create_mean_comparison_plot
 from src.modules.mean_comparison.result import MeanComparisonResult, MeanComparisonStudyConfig
 from src.settings_panel.panels.registry import PanelRegistry
 
@@ -26,7 +24,6 @@ def recalculate_mean_comparison_anova(
     html_result_element = HTMLResultElement(
         settings_panel_index=PanelRegistry.HTML_RESULT_ITEM_SETTINGS.settings_stacked_widget_index
     )
-    plot_result_elements = []
 
     numeric_columns = [
         col
@@ -68,26 +65,24 @@ def recalculate_mean_comparison_anova(
         html_result_element.items.append(text)
 
     if len(non_homogeneous_columns) > 0:
-        table, text, plots = process_non_homogeneous_anova(
+        table, text = process_non_homogeneous_anova(
             df=df,
             columns=non_homogeneous_columns,
             grouping_column=config.grouping_column,
         )
         html_result_element.items.append(table)
         html_result_element.items.append(text)
-        plot_result_elements += plots
 
     if len(homogeneous_columns) > 0:
-        table, text, plots = process_homogeneous_anova(
+        table, text = process_homogeneous_anova(
             df=df,
             columns=homogeneous_columns,
             grouping_column=config.grouping_column,
         )
         html_result_element.items.append(table)
         html_result_element.items.append(text)
-        plot_result_elements += plots
 
-    result.result_elements = [html_result_element] + plot_result_elements
+    result.result_elements = [html_result_element]
     return result
 
 
@@ -137,9 +132,7 @@ def process_non_normal_anova(
     return table, text
 
 
-def process_non_homogeneous_anova(
-    df: pd.DataFrame, columns, grouping_column
-) -> Tuple[HTMLTable, HTMLText, List[PlotResultElement]]:
+def process_non_homogeneous_anova(df: pd.DataFrame, columns, grouping_column) -> Tuple[HTMLTable, HTMLText]:
     table = HTMLTable([])
     table.table_caption = "Welch's ANOVA results"
 
@@ -168,7 +161,6 @@ def process_non_homogeneous_anova(
 
     accepted_columns = []
     rejected_columns = []
-    plots = []
 
     for col in columns:
         group_data = [df[df[grouping_column] == name][col].dropna() for name in group_names]
@@ -202,14 +194,6 @@ def process_non_homogeneous_anova(
                 ]
             )
         )
-        plots.append(
-            create_mean_comparison_plot(
-                groups=group_data,
-                group_names=group_names,
-                column=col,
-                grouping_column=grouping_column,
-            )
-        )
 
     text = HTMLText(
         describe_test(
@@ -220,12 +204,10 @@ def process_non_homogeneous_anova(
             rejected_property="do not have equal means",
         )
     )
-    return table, text, plots
+    return table, text
 
 
-def process_homogeneous_anova(
-    df: pd.DataFrame, columns, grouping_column
-) -> Tuple[HTMLTable, HTMLText, List[PlotResultElement]]:
+def process_homogeneous_anova(df: pd.DataFrame, columns, grouping_column) -> Tuple[HTMLTable, HTMLText]:
     table = HTMLTable([])
     table.table_caption = "One-Way ANOVA results"
 
@@ -254,7 +236,6 @@ def process_homogeneous_anova(
     )
     accepted_columns = []
     rejected_columns = []
-    plots = []
 
     for col in columns:
         group_data = [df[df[grouping_column] == name][col].dropna() for name in group_names]
@@ -289,14 +270,6 @@ def process_homogeneous_anova(
                 ]
             )
         )
-        plots.append(
-            create_mean_comparison_plot(
-                groups=group_data,
-                group_names=group_names,
-                column=col,
-                grouping_column=grouping_column,
-            )
-        )
 
     text = HTMLText(
         describe_test(
@@ -308,4 +281,4 @@ def process_homogeneous_anova(
         )
     )
 
-    return table, text, plots
+    return table, text

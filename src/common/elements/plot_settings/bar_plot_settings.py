@@ -1,12 +1,11 @@
 import qtawesome as qta
 from PySide6.QtCore import Qt
-from PySide6.QtWidgets import QColorDialog, QHBoxLayout, QLabel, QPushButton, QSlider, QVBoxLayout, QWidget
+from PySide6.QtWidgets import QColorDialog, QGroupBox, QHBoxLayout, QLabel, QPushButton, QSlider, QVBoxLayout
 
 from src.common.elements.base.base import BasePanelElement
 from src.common.messages import Message, MessageType
 from src.common.qcolor import color_from_rgb_and_a
 from src.common.result.classes.plot_result import BarPlotConfig
-from src.common.unique_qss import set_stylesheet
 
 
 class BarPlotSettings(BasePanelElement):
@@ -15,48 +14,37 @@ class BarPlotSettings(BasePanelElement):
         super().__init__()
 
     def setup(self):
-        self.widget = QWidget(self.parent_widget)
+        self.widget = QGroupBox("Bar", self.parent_widget)
         self.layout = QVBoxLayout(self.widget)
-        set_stylesheet(self.widget, "#id{border: 1px solid #ddd;}"),
 
-        self.label = QLabel("Bar Settings:")
-        self.layout.addWidget(self.label)
+        self.top_layout = QHBoxLayout()
+        self.layout.addLayout(self.top_layout)
 
         self.line_color_button = QPushButton("Color")
         self.line_color_button.clicked.connect(self.select_line_color)
-        self.layout.addWidget(self.line_color_button)
+        self.top_layout.addWidget(self.line_color_button)
 
         self.fill_alpha_layout = QHBoxLayout()
-        self.fill_alpha_label = QLabel("Fill Opacity:")
-        self.fill_alpha_label.setFixedWidth(70)
+        self.fill_alpha_label = QLabel("Opacity:")
+        self.fill_alpha_label.setAlignment(Qt.AlignmentFlag.AlignRight)
         self.fill_alpha_slider = QSlider(Qt.Orientation.Horizontal)
         self.fill_alpha_slider.setMinimum(0)
-        self.fill_alpha_slider.setMaximum(51)
+        self.fill_alpha_slider.setMaximum(5)
         self.fill_alpha_slider.valueChanged.connect(self.select_fill_alpha)
         self.fill_alpha_layout.addWidget(self.fill_alpha_label)
         self.fill_alpha_layout.addWidget(self.fill_alpha_slider)
-        self.layout.addLayout(self.fill_alpha_layout)
+        self.top_layout.addLayout(self.fill_alpha_layout)
 
-        self.line_alpha_layout = QHBoxLayout()
-        self.line_alpha_label = QLabel("Line Opacity:")
-        self.line_alpha_label.setFixedWidth(70)
-        self.line_alpha_slider = QSlider(Qt.Orientation.Horizontal)
-        self.line_alpha_slider.setMinimum(0)
-        self.line_alpha_slider.setMaximum(51)
-        self.line_alpha_slider.valueChanged.connect(self.select_line_alpha)
-        self.line_alpha_layout.addWidget(self.line_alpha_label)
-        self.line_alpha_layout.addWidget(self.line_alpha_slider)
-        self.layout.addLayout(self.line_alpha_layout)
+        self.top_layout.setStretch(0, 1)
+        self.top_layout.setStretch(1, 1)
 
     def configure(self, bar_plot_config: BarPlotConfig):
         self.bar_plot_config = bar_plot_config
-        self.label.setText(f"Bar Settings ({self.label_text}):")
         self.bar_line_color_button_icon = qta.icon(
             "ei.stop", color=color_from_rgb_and_a(self.bar_plot_config.color, 255)
         )
         self.line_color_button.setIcon(self.bar_line_color_button_icon)
-        self.fill_alpha_slider.setValue(self.bar_plot_config.fill_alpha // 5)
-        self.line_alpha_slider.setValue(self.bar_plot_config.line_alpha // 5)
+        self.fill_alpha_slider.setValue(self.bar_plot_config.fill_alpha // 50)
 
     def select_line_color(self):
         color = QColorDialog.getColor(
@@ -67,9 +55,5 @@ class BarPlotSettings(BasePanelElement):
             self.handler(Message(MessageType.STATE_CHANGED, payload=self.bar_plot_config, caller_id=self.element_id))
 
     def select_fill_alpha(self, value):
-        self.bar_plot_config.fill_alpha = value * 5
-        self.handler(Message(MessageType.STATE_CHANGED, payload=self.bar_plot_config, caller_id=self.element_id))
-
-    def select_line_alpha(self, value):
-        self.bar_plot_config.line_alpha = value * 5
+        self.bar_plot_config.fill_alpha = value * 50
         self.handler(Message(MessageType.STATE_CHANGED, payload=self.bar_plot_config, caller_id=self.element_id))

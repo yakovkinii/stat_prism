@@ -1,9 +1,8 @@
 from typing import List
 
-import numpy as np
 import pandas as pd
 
-from src.common.result.classes.plot_result import Box, Colors, PlotResultElement, Scatter
+from src.common.result.classes.plot_result import Box, Colors, PlotResultElement
 from src.settings_panel.panels.registry import PanelRegistry
 
 
@@ -24,19 +23,6 @@ def create_box_plot(
     colors = Colors()
     for i, (group, group_name) in enumerate(zip(groups, group_names)):
         color = colors.get_color_list()
-
-        iqr = np.percentile(group, 75) - np.percentile(group, 25)
-        lower_whisker = np.max([np.min(group), np.percentile(group, 25) - 1.5 * iqr])
-        upper_whisker = np.min([np.max(group), np.percentile(group, 75) + 1.5 * iqr])
-
         plot_result.items.append(Box.from_data(group, index=i, label=group_name, color=color))
-        outliers = group[(group < lower_whisker) | (group > upper_whisker)]
-        if len(outliers) > 0:
-            plot_result.items.append(
-                Scatter(
-                    x=0 * outliers,
-                    y=outliers,
-                    label=f"Outliers for {group_name}",
-                )
-            )
+
     return plot_result

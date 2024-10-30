@@ -2,10 +2,6 @@ from typing import List
 
 from src.common.result.classes.base_result_element import BaseResultElement
 from src.common.result.classes.html_result import HTMLResultElement, HTMLText
-from src.common.result.classes.plot_result import PlotResultElement
-from src.result_display_panel.result_widget_containers.plot_widget_container import (
-    PlotResultElementWidgetContainerExport,
-)
 from src.settings_panel.panels.registry import PanelRegistry
 
 
@@ -67,8 +63,5 @@ class BaseResult:
     def get_html(self):
         htmls = []
         for element in self.result_elements:
-            if isinstance(element, PlotResultElement):
-                htmls.append(element.get_html(renderer=PlotResultElementWidgetContainerExport))
-            else:
-                htmls.append(element.get_html())
+            htmls.append(element.get_html())
         return "<br>".join(htmls)

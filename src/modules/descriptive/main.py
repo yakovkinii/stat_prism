@@ -138,8 +138,10 @@ def calculate_descriptive_study_groupby(df, config, result):
 
         _, x_all = np.histogram(df[col], bins="auto", density=True)
         x_vals = np.linspace(df[col].min(), df[col].max(), 500)
+
+        # | g 1 g 2 g |
         width = (x_all[1] - x_all[0]) * 0.9 / n_items
-        offset = ((x_all[1] - x_all[0]) - (x_all[1] - x_all[0]) * 0.9 / n_items) / 2
+        gap = ((x_all[1] - x_all[0]) - width * len(groupby_values)) / (len(groupby_values) + 1)
 
         colors = Colors()
 
@@ -160,9 +162,9 @@ def calculate_descriptive_study_groupby(df, config, result):
 
             y, x = np.histogram(df_subset[col], bins=x_all, density=True)
             bar_plot_config = BarPlotConfig(color=color)
-            # bar plot
+            # bar plot # | g 1 g 2 g |
             plot_bar = Bar(
-                x=x[:-1] + offset + i * width,
+                x=x[:-1] + gap + width / 2 + i * (width + gap),
                 y=y,
                 width=width,
                 label=f"{groupby_value}",

@@ -1,41 +1,29 @@
 import qtawesome as qta
-from PySide6.QtCore import Qt
-from PySide6.QtWidgets import QCheckBox, QColorDialog, QHBoxLayout, QLabel, QPushButton, QSlider, QVBoxLayout, QWidget
+from PySide6.QtWidgets import QCheckBox, QColorDialog, QGridLayout, QGroupBox, QPushButton
 
 from src.common.elements.base.base import BasePanelElement
 from src.common.messages import Message, MessageType
 from src.common.qcolor import color_from_rgb_and_a
 from src.common.result.classes.plot_result import GeneralPlotConfig
-from src.common.unique_qss import set_stylesheet
 
 
 class GeneralPlotSettings(BasePanelElement):
     def setup(self):
-        self.widget = QWidget(self.parent_widget)
-        self.layout = QVBoxLayout(self.widget)
-        set_stylesheet(self.widget, "#id{border: 1px solid #ddd;}"),
+        self.widget = QGroupBox("General", self.parent_widget)
+        self.layout = QGridLayout(self.widget)
 
-        self.label = QLabel("General Settings:")
-        self.layout.addWidget(self.label)
-
-        self.background_color_button = QPushButton("Background color")
+        self.background_color_button = QPushButton("Background")
         self.background_color_button.clicked.connect(self.select_background_color)
-        self.layout.addWidget(self.background_color_button)
+        self.layout.addWidget(self.background_color_button, 0, 0)
 
-        self.alpha_layout = QHBoxLayout()
-        self.alpha_label = QLabel("Opacity:")
-        self.alpha_label.setFixedWidth(70)
-        self.alpha_slider = QSlider(Qt.Orientation.Horizontal)
-        self.alpha_slider.setMinimum(0)
-        self.alpha_slider.setMaximum(51)
-        self.alpha_slider.valueChanged.connect(self.select_alpha)
-        self.alpha_layout.addWidget(self.alpha_label)
-        self.alpha_layout.addWidget(self.alpha_slider)
-        self.layout.addLayout(self.alpha_layout)
+        self.transparent_checkbox = QCheckBox("Transparent")
+        self.transparent_checkbox.setEnabled(False)
+        self.transparent_checkbox.stateChanged.connect(self.transparent)
+        self.layout.addWidget(self.transparent_checkbox, 0, 1)
 
         self.tilt_checkbox = QCheckBox("Tilt x-axis labels")
         self.tilt_checkbox.stateChanged.connect(self.tilt_x_axis_labels)
-        self.layout.addWidget(self.tilt_checkbox)
+        self.layout.addWidget(self.tilt_checkbox, 1, 0)
 
     def configure(self, general_plot_config: GeneralPlotConfig):
         self.general_plot_config = general_plot_config
@@ -43,7 +31,7 @@ class GeneralPlotSettings(BasePanelElement):
             "ei.stop", color=color_from_rgb_and_a(self.general_plot_config.color, 255)
         )
         self.background_color_button.setIcon(self.background_color_button_icon)
-        self.alpha_slider.setValue(self.general_plot_config.alpha // 5)
+        self.transparent_checkbox.setChecked(self.general_plot_config.transparent)
         self.tilt_checkbox.setChecked(self.general_plot_config.tilt_x_axis_labels)
 
     def select_background_color(self):
@@ -62,4 +50,8 @@ class GeneralPlotSettings(BasePanelElement):
 
     def tilt_x_axis_labels(self, state):
         self.general_plot_config.tilt_x_axis_labels = state
+        self.handler(Message(MessageType.STATE_CHANGED, payload=self.general_plot_config, caller_id=self.element_id))
+
+    def transparent(self, state):
+        self.general_plot_config.transparent = state
         self.handler(Message(MessageType.STATE_CHANGED, payload=self.general_plot_config, caller_id=self.element_id))

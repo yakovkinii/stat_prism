@@ -1,4 +1,4 @@
-from typing import Dict, List, Tuple, Union
+from typing import Dict, Tuple, Union
 
 import pandas as pd
 from scipy import stats
@@ -6,12 +6,10 @@ from scipy import stats
 from src.common.constant import ColumnType
 from src.common.decorators import log_function
 from src.common.result.classes.html_result import Cell, HTMLResultElement, HTMLTable, HTMLText, Row
-from src.common.result.classes.plot_result import PlotResultElement
 from src.common.utility import format_p_apa, format_statistic_apa, get_reasonable_digits
 from src.common.verbal.test import describe_test
 from src.modules.common.homogeneity import process_homogeneity_check
 from src.modules.common.normality import process_normality_check
-from src.modules.mean_comparison.plot import create_mean_comparison_plot
 from src.modules.mean_comparison.result import MeanComparisonResult, MeanComparisonStudyConfig
 from src.settings_panel.panels.registry import PanelRegistry
 
@@ -26,7 +24,6 @@ def recalculate_mean_comparison_t_test(
     html_result_element = HTMLResultElement(
         settings_panel_index=PanelRegistry.HTML_RESULT_ITEM_SETTINGS.settings_stacked_widget_index
     )
-    plot_result_elements = []
 
     numeric_columns = [
         col
@@ -67,26 +64,24 @@ def recalculate_mean_comparison_t_test(
         html_result_element.items.append(text)
 
     if len(non_homogeneous_columns) > 0:
-        table, text, plots = process_non_homogeneous_t_test(
+        table, text = process_non_homogeneous_t_test(
             df=df,
             columns=non_homogeneous_columns,
             grouping_column=config.grouping_column,
         )
         html_result_element.items.append(table)
         html_result_element.items.append(text)
-        plot_result_elements += plots
 
     if len(homogeneous_columns) > 0:
-        table, text, plots = process_homogeneous_t_test(
+        table, text = process_homogeneous_t_test(
             df=df,
             columns=homogeneous_columns,
             grouping_column=config.grouping_column,
         )
         html_result_element.items.append(table)
         html_result_element.items.append(text)
-        plot_result_elements += plots
 
-    result.result_elements = [html_result_element] + plot_result_elements
+    result.result_elements = [html_result_element]
     return result
 
 
@@ -137,9 +132,7 @@ def process_non_normal_t_test(
     return table, text
 
 
-def process_non_homogeneous_t_test(
-    df: pd.DataFrame, columns, grouping_column
-) -> Tuple[HTMLTable, HTMLText, List[PlotResultElement]]:
+def process_non_homogeneous_t_test(df: pd.DataFrame, columns, grouping_column) -> Tuple[HTMLTable, HTMLText]:
     table = HTMLTable([])
     table.table_caption = "Independent Samples T-test"
 
@@ -172,7 +165,6 @@ def process_non_homogeneous_t_test(
 
     accepted_columns = []
     rejected_columns = []
-    plots = []
 
     for col in columns:
         digits = get_reasonable_digits(df[col])
@@ -199,14 +191,6 @@ def process_non_homogeneous_t_test(
                 ]
             )
         )
-        plots.append(
-            create_mean_comparison_plot(
-                groups=[group1, group2],
-                group_names=[group1_name, group2_name],
-                column=col,
-                grouping_column=grouping_column,
-            )
-        )
 
     text = HTMLText(
         describe_test(
@@ -217,12 +201,10 @@ def process_non_homogeneous_t_test(
             rejected_property="are significantly different",
         )
     )
-    return table, text, plots
+    return table, text
 
 
-def process_homogeneous_t_test(
-    df: pd.DataFrame, columns, grouping_column
-) -> Tuple[HTMLTable, HTMLText, List[PlotResultElement]]:
+def process_homogeneous_t_test(df: pd.DataFrame, columns, grouping_column) -> Tuple[HTMLTable, HTMLText]:
     # inhomogeneous => Welch's t-test
     table = HTMLTable([])
     table.table_caption = "Welch's T-test results"
@@ -256,7 +238,6 @@ def process_homogeneous_t_test(
 
     accepted_columns = []
     rejected_columns = []
-    plots = []
 
     for col in columns:
         digits = get_reasonable_digits(df[col])
@@ -284,14 +265,6 @@ def process_homogeneous_t_test(
                 ]
             )
         )
-        plots.append(
-            create_mean_comparison_plot(
-                groups=[group1, group2],
-                group_names=[group1_name, group2_name],
-                column=col,
-                grouping_column=grouping_column,
-            )
-        )
 
     text = HTMLText(
         describe_test(
@@ -302,4 +275,4 @@ def process_homogeneous_t_test(
             rejected_property="are significantly different",
         )
     )
-    return table, text, plots
+    return table, text

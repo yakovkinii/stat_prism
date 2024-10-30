@@ -8,7 +8,7 @@ attrs
 openpyxl
 pyarrow
 Jinja2
-pyqtgraph
 scikit-learn
 pillow
 statsmodels
+matplotlib
