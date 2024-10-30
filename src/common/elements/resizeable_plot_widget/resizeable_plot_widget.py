@@ -4,7 +4,7 @@ import os
 import pyqtgraph as pg
 import pyqtgraph.exporters
 from PIL import Image
-from PySide6.QtCore import Qt
+from PySide6.QtCore import Qt, QMimeData
 from PySide6.QtGui import QAction, QCursor, QImage
 from PySide6.QtWidgets import QApplication, QMenu
 
@@ -90,44 +90,42 @@ class ResizablePlotWidget(pg.PlotWidget):
         event.accept()
 
     def copy_as_image_to_clipboard(self):
-        exporter = pg.exporters.ImageExporter(self.getPlotItem())
-        exporter.parameters()["width"] = 1280  # (note this also affects height parameter)
-        temp_file_name = "./~tmp.png"
+        exporter = pg.exporters.SVGExporter(self.getPlotItem())
+        exporter.parameters()["width"] = self.width()
+        temp_file_name = "./~tmp.svg"
         exporter.export(temp_file_name)
 
-        image = QImage()
-        image.load(temp_file_name)
+        # Read the SVG data from the temporary file
+        with open(temp_file_name, "r", encoding="utf-8") as f:
+            svg_data = f.read()
 
+        # Set up MIME data for SVG
+        mime_data = QMimeData()
+        mime_data.setData("image/svg+xml", svg_data.encode("utf-8"))  # Set SVG data with proper MIME type
+
+        # Copy to clipboard
         clipboard = QApplication.clipboard()
-        clipboard.setImage(image)
+        clipboard.setMimeData(mime_data)
 
+        # Clean up temporary file
         os.remove(temp_file_name)
 
     def render_to_html(self):
-        # Export plot as PNG using pyqtgraph's ImageExporter
-        exporter = pg.exporters.ImageExporter(self.getPlotItem())
-        exporter.parameters()["width"] = self.result_element.general_plot_config.size_x
-        temp_png_file_name = "./~tmp.png"
-        temp_jpg_file_name = "./~tmp.jpg"
-        exporter.export(temp_png_file_name)
+        # Step 1: Export plot as SVG using SVGExporter
+        exporter = pg.exporters.SVGExporter(self.getPlotItem())
+        exporter.parameters()["width"] = self.width()
+        temp_svg_file_name = "./~tmp.svg"
+        exporter.export(temp_svg_file_name)
 
-        # Convert PNG to JPEG to reduce size
-        with Image.open(temp_png_file_name) as img:
-            img = img.convert("RGB")  # Ensure the image is in RGB mode for JPEG conversion
-            img.save(
-                temp_jpg_file_name, format="JPEG", quality=85
-            )  # Adjust quality if necessary to balance size and quality
+        # Step 2: Read the SVG file and encode it to base64
+        with open(temp_svg_file_name, "r", encoding="utf-8") as f:
+            svg_data = f.read()
+            base64_encoded_svg = f"data:image/svg+xml;base64,{base64.b64encode(svg_data.encode('utf-8')).decode('utf-8')}"
 
-        # Read the JPEG image and encode it to base64
-        with open(temp_jpg_file_name, "rb") as f:
-            image = f.read()
-            base64_encoded_image = f"data:image/jpeg;base64,{base64.b64encode(image).decode('utf-8')}"
+        # Step 3: Create HTML with base64 SVG image
+        html = f'<img src="{base64_encoded_svg}" alt="Plot Image" style="width: 400px; height: auto;">'
 
-        # Create HTML with base64 JPEG image
-        html = f'<img src="{base64_encoded_image}" alt="Plot Image" style="width: 400px; height: auto;">'
-
-        # Clean up temporary files
-        os.remove(temp_png_file_name)
-        os.remove(temp_jpg_file_name)
+        # Clean up temporary file
+        os.remove(temp_svg_file_name)
 
         return html
