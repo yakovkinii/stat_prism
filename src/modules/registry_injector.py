@@ -1,3 +1,5 @@
+from src.modules.contingency.result import ContingencyResult, ContingencyStudyConfig
+from src.modules.contingency.ui import Contingency
 from src.modules.correlation.result import CorrelationResult, CorrelationStudyConfig
 from src.modules.correlation.ui import Correlation
 from src.modules.descriptive.result import DescriptiveResult, DescriptiveStudyConfig
@@ -31,3 +33,7 @@ def inject_classes_to_module_registry():
     ModuleRegistry.REGRESSION.value.ui_class = Regression
     ModuleRegistry.REGRESSION.value.result_class = RegressionResult
     ModuleRegistry.REGRESSION.value.config_class = RegressionStudyConfig
+
+    ModuleRegistry.CONTINGENCY.value.ui_class = Contingency
+    ModuleRegistry.CONTINGENCY.value.result_class = ContingencyResult
+    ModuleRegistry.CONTINGENCY.value.config_class = ContingencyStudyConfig

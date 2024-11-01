@@ -52,10 +52,10 @@ def process_homogeneity_check(
     text = HTMLText(
         describe_test(
             test_name="Levene's test",
-            accepted_columns=homogeneous_columns,
-            rejected_columns=non_homogeneous_columns,
-            accepted_property="have homogeneity of variance",
-            rejected_property="do not have homogeneity of variance",
+            yes_columns=homogeneous_columns,
+            no_columns=non_homogeneous_columns,
+            yes_property="have homogeneity of variance",
+            no_property="do not have homogeneity of variance",
         )
     )
 

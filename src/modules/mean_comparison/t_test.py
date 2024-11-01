@@ -123,10 +123,10 @@ def process_non_normal_t_test(
     text = HTMLText(
         describe_test(
             test_name="Mann-Whitney U test",
-            accepted_columns=accepted_columns,
-            rejected_columns=rejected_columns,
-            accepted_property="are not significantly different",
-            rejected_property="are significantly different",
+            yes_columns=rejected_columns,
+            no_columns=accepted_columns,
+            yes_property="are significantly different",
+            no_property="are not significantly different",
         )
     )
     return table, text
@@ -195,10 +195,10 @@ def process_homogeneous_t_test(df: pd.DataFrame, columns, grouping_column) -> Tu
     text = HTMLText(
         describe_test(
             test_name="Independent Samples T-test",
-            accepted_columns=accepted_columns,
-            rejected_columns=rejected_columns,
-            accepted_property="are not significantly different",
-            rejected_property="are significantly different",
+            yes_columns=rejected_columns,
+            no_columns=accepted_columns,
+            yes_property="are significantly different",
+            no_property="are not significantly different",
         )
     )
     return table, text
@@ -269,10 +269,10 @@ def process_non_homogeneous_t_test(df: pd.DataFrame, columns, grouping_column) -
     text = HTMLText(
         describe_test(
             test_name="Welch's T-test",
-            accepted_columns=accepted_columns,
-            rejected_columns=rejected_columns,
-            accepted_property="are not significantly different",
-            rejected_property="are significantly different",
+            yes_columns=rejected_columns,
+            no_columns=accepted_columns,
+            yes_property="are significantly different",
+            no_property="are not significantly different",
         )
     )
     return table, text

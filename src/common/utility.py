@@ -20,7 +20,7 @@ def smart_comma_join(items):
 def format_statistic_apa(statistic, decimals=2):
     if np.isnan(statistic) or statistic is None:
         return MDASH
-    return str(f"{round(statistic, decimals):.{decimals}f}".replace("0.", "."))
+    return str(f"{round(statistic, decimals):.{decimals}f}")
 
 
 def format_p_apa(p, decimals=3):
@@ -30,6 +30,24 @@ def format_p_apa(p, decimals=3):
         return "&lt;&nbsp;.001"
     else:
         return f"{round(p, decimals):.{decimals}f}".replace("0.", ".")
+
+
+def format_p_apa_full(p, decimals=3):
+    if np.isnan(p) or p is None:
+        return MDASH
+    if p < 0.001:
+        return "p&lt;.001"
+    else:
+        return f"p={round(p, decimals):.{decimals}f}".replace("0.", ".")
+
+
+def format_p_gost_full(p, decimals=3):
+    if np.isnan(p) or p is None:
+        return MDASH
+    if p < 0.001:
+        return "p&lt;0.001"
+    else:
+        return f"p={round(p, decimals):.{decimals}f}"
 
 
 def get_stars(p):

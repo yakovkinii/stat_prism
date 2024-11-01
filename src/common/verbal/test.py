@@ -3,35 +3,33 @@ from src.common.utility import smart_comma_join
 
 def describe_test(
     test_name: str,
-    accepted_columns: list[str],
-    rejected_columns: list[str],
-    accepted_property: str,
-    rejected_property: str,
+    yes_columns: list[str],
+    no_columns: list[str],
+    yes_property: str,
+    no_property: str,
 ):
-    if len(rejected_columns) == 0:
-        return "The " + test_name + " has shown that all variables " + accepted_property + "."
-    if len(accepted_columns) == 0:
-        return "The " + test_name + " has shown that no variables " + accepted_property + "."
+    if len(no_columns) == 0:
+        return "The " + test_name + " has shown that all variables " + yes_property + "."
+    if len(yes_columns) == 0:
+        return "The " + test_name + " has shown that no variables " + yes_property + "."
 
     text = ""
-    if len(accepted_columns) == 1:
-        text += (
-            "The " + test_name + " has shown that the variable " + accepted_columns[0] + " " + accepted_property + ". "
-        )
+    if len(yes_columns) == 1:
+        text += "The " + test_name + " has shown that the variable " + yes_columns[0] + " " + yes_property + ". "
     else:
         text += (
             "The "
             + test_name
             + " has shown that the variables "
-            + smart_comma_join(accepted_columns)
+            + smart_comma_join(yes_columns)
             + " "
-            + accepted_property
+            + yes_property
             + ". "
         )
 
-    if len(rejected_columns) == 1:
-        text += "The variable " + rejected_columns[0] + " is " + rejected_property + "."
+    if len(no_columns) == 1:
+        text += "The variable " + no_columns[0] + " is " + no_property + "."
     else:
-        text += "The variables " + smart_comma_join(rejected_columns) + " " + rejected_property + "."
+        text += "The variables " + smart_comma_join(no_columns) + " " + no_property + "."
 
     return text

@@ -55,10 +55,10 @@ def process_normality_check(
     text = HTMLText(
         describe_test(
             test_name="Shapiro-Wilk test",
-            accepted_columns=normal_columns,
-            rejected_columns=non_normal_columns,
-            accepted_property="are normally distributed",
-            rejected_property="are not normally distributed",
+            yes_columns=normal_columns,
+            no_columns=non_normal_columns,
+            yes_property="are normally distributed",
+            no_property="are not normally distributed",
         )
     )
 

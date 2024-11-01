@@ -25,6 +25,11 @@ class ModuleRegistry(Enum):
         icon_path="ph.chart-line-up-fill",
     )
 
+    CONTINGENCY = ModuleRegistryItem(
+        display_name="Contingency Table",
+        icon_path="ph.chart-line-up-fill",
+    )
+
     CORRELATION = ModuleRegistryItem(
         display_name="Correlation",
         icon_path="ph.chart-line-up-fill",

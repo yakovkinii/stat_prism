@@ -122,10 +122,10 @@ def process_non_normal_anova(
     text = HTMLText(
         describe_test(
             test_name="Kruskal-Wallis test",
-            accepted_columns=accepted_columns,
-            rejected_columns=rejected_columns,
-            accepted_property="have equal means",
-            rejected_property="do not have equal means",
+            yes_columns=rejected_columns,
+            no_columns=accepted_columns,
+            yes_property="have different means",
+            no_property="have equal means",
         )
     )
 
@@ -198,10 +198,10 @@ def process_non_homogeneous_anova(df: pd.DataFrame, columns, grouping_column) ->
     text = HTMLText(
         describe_test(
             test_name="Welch's ANOVA",
-            accepted_columns=accepted_columns,
-            rejected_columns=rejected_columns,
-            accepted_property="have equal means",
-            rejected_property="do not have equal means",
+            yes_columns=rejected_columns,
+            no_columns=accepted_columns,
+            yes_property="have different means",
+            no_property="have equal means",
         )
     )
     return table, text
@@ -274,10 +274,10 @@ def process_homogeneous_anova(df: pd.DataFrame, columns, grouping_column) -> Tup
     text = HTMLText(
         describe_test(
             test_name="One-Way ANOVA",
-            accepted_columns=accepted_columns,
-            rejected_columns=rejected_columns,
-            accepted_property="have equal means",
-            rejected_property="do not have equal means",
+            yes_columns=rejected_columns,
+            no_columns=accepted_columns,
+            yes_property="have different means",
+            no_property="have equal means",
         )
     )
 
