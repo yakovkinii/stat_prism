@@ -132,7 +132,7 @@ def process_non_normal_t_test(
     return table, text
 
 
-def process_non_homogeneous_t_test(df: pd.DataFrame, columns, grouping_column) -> Tuple[HTMLTable, HTMLText]:
+def process_homogeneous_t_test(df: pd.DataFrame, columns, grouping_column) -> Tuple[HTMLTable, HTMLText]:
     table = HTMLTable([])
     table.table_caption = "Independent Samples T-test"
 
@@ -204,7 +204,7 @@ def process_non_homogeneous_t_test(df: pd.DataFrame, columns, grouping_column) -
     return table, text
 
 
-def process_homogeneous_t_test(df: pd.DataFrame, columns, grouping_column) -> Tuple[HTMLTable, HTMLText]:
+def process_non_homogeneous_t_test(df: pd.DataFrame, columns, grouping_column) -> Tuple[HTMLTable, HTMLText]:
     # inhomogeneous => Welch's t-test
     table = HTMLTable([])
     table.table_caption = "Welch's T-test results"
