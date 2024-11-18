@@ -1,3 +1,7 @@
+#
+#  Copyright (c) 2024 Ivan I. Yakovkin. All rights reserved.
+#
+
 from typing import Dict, Union
 
 from src.common.result.classes.base_result import BaseResult

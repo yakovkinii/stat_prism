@@ -1,3 +1,7 @@
+#
+#  Copyright (c) 2024 Ivan I. Yakovkin. All rights reserved.
+#
+
 from src.modules.contingency.result import ContingencyResult, ContingencyStudyConfig
 from src.modules.contingency.ui import Contingency
 from src.modules.correlation.result import CorrelationResult, CorrelationStudyConfig

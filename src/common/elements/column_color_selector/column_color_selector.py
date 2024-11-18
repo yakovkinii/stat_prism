@@ -1,3 +1,7 @@
+#
+#  Copyright (c) 2024 Ivan I. Yakovkin. All rights reserved.
+#
+
 from PySide6 import QtCore, QtWidgets
 from PySide6.QtWidgets import QGridLayout, QWidget
 

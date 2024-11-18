@@ -1,3 +1,7 @@
+#
+#  Copyright (c) 2024 Ivan I. Yakovkin. All rights reserved.
+#
+
 from typing import Tuple
 
 from PySide6.QtGui import QColor

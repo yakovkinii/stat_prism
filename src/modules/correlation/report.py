@@ -1,3 +1,7 @@
+#
+#  Copyright (c) 2024 Ivan I. Yakovkin. All rights reserved.
+#
+
 import numpy as np
 
 from src.common.constant import TABLE_OR_PLOT_ID_PLACEHOLDER

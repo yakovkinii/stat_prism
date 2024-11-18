@@ -1,3 +1,7 @@
+#
+#  Copyright (c) 2024 Ivan I. Yakovkin. All rights reserved.
+#
+
 from typing import TYPE_CHECKING, List
 
 from src.common.decorators import log_method, log_method_noarg

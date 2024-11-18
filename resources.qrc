@@ -1,3 +1,9 @@
+<!--
+  -
+  - Copyright (c) 2024 Ivan I. Yakovkin. All rights reserved.
+  -
+  -->
+
 <RCC>
   <qresource prefix="/mat">
     <file>resources/StatPrism_splash.png</file>

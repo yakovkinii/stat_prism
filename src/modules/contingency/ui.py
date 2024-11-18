@@ -1,3 +1,7 @@
+#
+#  Copyright (c) 2024 Ivan I. Yakovkin. All rights reserved.
+#
+
 from typing import TYPE_CHECKING
 
 from src.common.constant import ColumnType

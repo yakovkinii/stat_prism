@@ -1,3 +1,7 @@
+#
+#  Copyright (c) 2024 Ivan I. Yakovkin. All rights reserved.
+#
+
 from PySide6.QtWidgets import QComboBox, QHBoxLayout, QLabel
 
 from src.common.elements.base.base import BasePanelElement

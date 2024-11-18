@@ -1,3 +1,7 @@
+#
+#  Copyright (c) 2024 Ivan I. Yakovkin. All rights reserved.
+#
+
 import os
 
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas

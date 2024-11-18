@@ -1,3 +1,7 @@
+#
+#  Copyright (c) 2024 Ivan I. Yakovkin. All rights reserved.
+#
+
 from src.common.constant import MDASH
 from src.common.result.classes.html_result import Cell, HTMLTable, Row
 from src.common.utility import smart_comma_join

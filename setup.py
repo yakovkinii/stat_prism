@@ -1,3 +1,7 @@
+#
+#  Copyright (c) 2024 Ivan I. Yakovkin. All rights reserved.
+#
+
 # python setup.py build
 # python setup.py bdist_msi
 import sys

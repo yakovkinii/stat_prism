@@ -1,3 +1,8 @@
+#
+#  Copyright (c) 2024 Ivan I. Yakovkin. All rights reserved.
+#
+
+
 class BaseResultElement:
     def __init__(self):
         self.title: str = ...

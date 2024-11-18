@@ -1,3 +1,7 @@
+#
+#  Copyright (c) 2024 Ivan I. Yakovkin. All rights reserved.
+#
+
 from PySide6 import QtCore
 from PySide6.QtGui import QColor, QPalette
 from PySide6.QtWidgets import QTableView

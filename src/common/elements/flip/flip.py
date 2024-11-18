@@ -1,3 +1,7 @@
+#
+#  Copyright (c) 2024 Ivan I. Yakovkin. All rights reserved.
+#
+
 import qtawesome as qta
 from PySide6 import QtGui, QtWidgets
 from PySide6.QtCore import Qt

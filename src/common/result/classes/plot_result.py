@@ -1,3 +1,7 @@
+#
+#  Copyright (c) 2024 Ivan I. Yakovkin. All rights reserved.
+#
+
 import base64
 import os
 from typing import List, Tuple, Union
@@ -9,6 +13,8 @@ from matplotlib import pyplot as plt
 
 from src.common.qcolor import rgba_tuple_from_rgb_and_a
 from src.common.result.classes.base_result import BaseResultElement
+from src.common.utility import get_stars
+from src.modules.correlation.table import format_r_apa
 
 
 class Scatter:
@@ -75,6 +81,14 @@ class Band:
         self.y2 = y2
         self.label = label
         self.config = config if config else BandPlotConfig()
+
+
+class Heatmap:
+    def __init__(self, df, p, label, config=None):
+        self.df = df
+        self.p = p
+        self.label = label
+        self.config = config if config else HeatmapPlotConfig()
 
 
 class Colors:
@@ -151,6 +165,11 @@ class LinePlotConfig:
 class BandPlotConfig:
     color: Tuple[int, int, int] = Colors().get_color_list()
     fill_alpha: int = 50
+
+
+@attrs.define
+class HeatmapPlotConfig:
+    _ = None
 
 
 @attrs.define
@@ -320,6 +339,19 @@ class PlotResultElement(BaseResultElement):
                     color=fill_color,
                     linewidth=0,
                 )
+
+            if isinstance(item, Heatmap):
+                ax.imshow(item.df, cmap="coolwarm", vmin=-1, vmax=1, interpolation="nearest")
+                plt.xticks(range(len(item.df.columns)), item.df.columns)
+                plt.yticks(range(len(item.df.index)), item.df.index)
+
+                data = item.df
+                # Adding annotations
+                for i in range(len(data.index)):
+                    for j in range(len(data.columns)):
+                        text = format_r_apa(data.iloc[i, j]) + get_stars(item.p.iloc[i, j])
+
+                        plt.text(j, i, text, ha="center", va="center", color="grey", fontsize=14)
 
         # increase font size, set Times New Roman
         ax.tick_params(axis="both", which="major", labelsize=14, colors="grey")

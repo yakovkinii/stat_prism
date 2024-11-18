@@ -1,3 +1,7 @@
+#
+#  Copyright (c) 2024 Ivan I. Yakovkin. All rights reserved.
+#
+
 from PySide6.QtWidgets import QWidget
 
 from src.common.elements.base.base import BasePanelElement

@@ -1,3 +1,7 @@
+#
+#  Copyright (c) 2024 Ivan I. Yakovkin. All rights reserved.
+#
+
 from src.settings_panel.panels.blank.blank import Blank
 from src.settings_panel.panels.column.column import Column
 from src.settings_panel.panels.column_selector.column_selector import ColumnSelector

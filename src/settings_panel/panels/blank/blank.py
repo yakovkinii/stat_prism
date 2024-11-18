@@ -1,3 +1,7 @@
+#
+#  Copyright (c) 2024 Ivan I. Yakovkin. All rights reserved.
+#
+
 from src.common.elements.logo.logo import Logo
 from src.settings_panel.panels.base.base import BasePanel
 from src.settings_panel.panels.registry import PanelRegistry

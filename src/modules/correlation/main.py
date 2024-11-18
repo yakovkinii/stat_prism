@@ -1,3 +1,7 @@
+#
+#  Copyright (c) 2024 Ivan I. Yakovkin. All rights reserved.
+#
+
 import logging
 from typing import Dict, Union
 
@@ -7,7 +11,7 @@ from scipy.stats import kendalltau, linregress, pearsonr, spearmanr
 
 from src.common.decorators import log_function
 from src.common.result.classes.html_result import HTMLResultElement, HTMLText
-from src.common.result.classes.plot_result import Band, Line, PlotResultElement, Scatter
+from src.common.result.classes.plot_result import Band, Heatmap, Line, PlotResultElement, Scatter
 from src.modules.correlation.binary_correlations import phi_coefficient, tetrachoric_corr_2x2_table
 from src.modules.correlation.report import get_report
 from src.modules.correlation.result import CorrelationResult, CorrelationStudyConfig, CorrelationType
@@ -102,6 +106,18 @@ def recalculate_correlation_study(
     else:
         html_table = get_table_full(columns, correlation_matrix, p_matrix, df_matrix, kind=kind)
 
+    def to_full_matrix(df: pd.DataFrame) -> pd.DataFrame:
+        full_matrix = df.copy()
+        for i, col1 in enumerate(df.columns):
+            for j, col2 in enumerate(df.columns):
+                if i > j:
+                    full_matrix.loc[col2, col1] = df.loc[col1, col2]
+                elif i == j:
+                    full_matrix.loc[col1, col2] = 1
+
+        full_matrix = full_matrix.astype(float)
+        return full_matrix
+
     # Verbal
     verbal = get_report(
         columns,
@@ -125,63 +141,75 @@ def recalculate_correlation_study(
 
     result.title_context = ", ".join([f"{col[:16]}" for col in config.selected_columns])
 
-    if not config.generate_plots:
-        result.result_elements = [html_result_element]
-        return result
+    result.result_elements = [html_result_element]
 
-    plot_result_elements = []
-    # Add plots
-    for i, name1 in enumerate(columns):
-        for j, name2 in enumerate(columns):
-            if i < j:
-                if report_only_significant and p_matrix.loc[name1, name2] > 0.05:
-                    continue
-                plot = Scatter(x=df[name1], y=df[name2], label=f"Scatter: data points")
+    plot_heatmap = Heatmap(
+        df=to_full_matrix(correlation_matrix),
+        p=to_full_matrix(p_matrix),
+        label="Band: Standard Error",
+    )
 
-                # Calculate the regression line
-                result_linregress = linregress(df[name1], df[name2])
-                slope, intercept, _, _, std_err, intercept_std_err = (
-                    result_linregress.slope,
-                    result_linregress.intercept,
-                    result_linregress.rvalue,
-                    result_linregress.pvalue,
-                    result_linregress.stderr,
-                    result_linregress.intercept_stderr,
-                )
-                x_min = df[name1].min()
-                x_max = df[name1].max()
-                x_min, x_max = x_min - 0.1 * (x_max - x_min), x_max + 0.1 * (x_max - x_min)
+    plot_result_heatmap = PlotResultElement(
+        settings_panel_index=PanelRegistry.PLOT_RESULT_ITEM_SETTINGS.settings_stacked_widget_index,
+        tab_title=f"Plot: Heatmap",
+        plot_title=f"Correlation heatmap",
+        x_axis_title="",
+        y_axis_title="",
+    )
+    plot_result_heatmap.items = [plot_heatmap]
+    result.result_elements.append(plot_result_heatmap)
 
-                x_pred = np.linspace(x_min, x_max, 100)
-                y_pred = intercept + slope * x_pred
+    if config.generate_plots:
+        for i, name1 in enumerate(columns):
+            for j, name2 in enumerate(columns):
+                if i < j:
+                    if report_only_significant and p_matrix.loc[name1, name2] > 0.05:
+                        continue
+                    plot = Scatter(x=df[name1], y=df[name2], label=f"Scatter: data points")
 
-                # Calculate the confidence intervals
-                conf_static = intercept_std_err
-                conf_dynamic = std_err * abs(x_pred - df[name1].mean())
-                conf_interval = np.sqrt(conf_static**2 + conf_dynamic**2)
+                    # Calculate the regression line
+                    result_linregress = linregress(df[name1], df[name2])
+                    slope, intercept, _, _, std_err, intercept_std_err = (
+                        result_linregress.slope,
+                        result_linregress.intercept,
+                        result_linregress.rvalue,
+                        result_linregress.pvalue,
+                        result_linregress.stderr,
+                        result_linregress.intercept_stderr,
+                    )
+                    x_min = df[name1].min()
+                    x_max = df[name1].max()
+                    x_min, x_max = x_min - 0.1 * (x_max - x_min), x_max + 0.1 * (x_max - x_min)
 
-                plot_line = Line(
-                    x=x_pred[1:-1],
-                    y=y_pred[1:-1],
-                    label=f"Line: linear regression",
-                )
+                    x_pred = np.linspace(x_min, x_max, 100)
+                    y_pred = intercept + slope * x_pred
 
-                plot_band = Band(
-                    x=x_pred,
-                    y1=y_pred - conf_interval,
-                    y2=y_pred + conf_interval,
-                    label="Band: Standard Error",
-                )
+                    # Calculate the confidence intervals
+                    conf_static = intercept_std_err
+                    conf_dynamic = std_err * abs(x_pred - df[name1].mean())
+                    conf_interval = np.sqrt(conf_static**2 + conf_dynamic**2)
 
-                plot_result = PlotResultElement(
-                    settings_panel_index=PanelRegistry.PLOT_RESULT_ITEM_SETTINGS.settings_stacked_widget_index,
-                    tab_title=f"Plot: {name1[:16]} vs {name2[:16]}",
-                    plot_title=f"Correlation between {name1} and {name2}",
-                    x_axis_title=name1,
-                    y_axis_title=name2,
-                )
-                plot_result.items = [plot, plot_band, plot_line]
-                plot_result_elements.append(plot_result)
+                    plot_line = Line(
+                        x=x_pred[1:-1],
+                        y=y_pred[1:-1],
+                        label=f"Line: linear regression",
+                    )
 
-    result.result_elements = [html_result_element] + plot_result_elements
+                    plot_band = Band(
+                        x=x_pred,
+                        y1=y_pred - conf_interval,
+                        y2=y_pred + conf_interval,
+                        label="Band: Standard Error",
+                    )
+
+                    plot_result = PlotResultElement(
+                        settings_panel_index=PanelRegistry.PLOT_RESULT_ITEM_SETTINGS.settings_stacked_widget_index,
+                        tab_title=f"Plot: {name1[:16]} vs {name2[:16]}",
+                        plot_title=f"Correlation between {name1} and {name2}",
+                        x_axis_title=name1,
+                        y_axis_title=name2,
+                    )
+                    plot_result.items = [plot, plot_band, plot_line]
+                    result.result_elements.append(plot_result)
+
     return result

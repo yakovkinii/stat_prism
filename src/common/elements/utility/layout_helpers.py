@@ -1,3 +1,7 @@
+#
+#  Copyright (c) 2024 Ivan I. Yakovkin. All rights reserved.
+#
+
 from typing import Callable
 
 from PySide6.QtWidgets import QVBoxLayout, QWidget

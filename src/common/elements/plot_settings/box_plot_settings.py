@@ -1,3 +1,7 @@
+#
+#  Copyright (c) 2024 Ivan I. Yakovkin. All rights reserved.
+#
+
 import qtawesome as qta
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QColorDialog, QGroupBox, QHBoxLayout, QLabel, QPushButton, QSlider, QVBoxLayout

@@ -1,5 +1,9 @@
 # -*- coding: utf-8 -*-
 
+#
+#  Copyright (c) 2024 Ivan I. Yakovkin. All rights reserved.
+#
+
 # Resource object code
 #
 # Created by: The Resource Compiler for PyQt5 (Qt v5.15.2)

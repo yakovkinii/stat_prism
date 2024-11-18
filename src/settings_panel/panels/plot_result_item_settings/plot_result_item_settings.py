@@ -1,3 +1,7 @@
+#
+#  Copyright (c) 2024 Ivan I. Yakovkin. All rights reserved.
+#
+
 import logging
 from typing import TYPE_CHECKING, cast
 
@@ -72,7 +76,9 @@ class PlotResultItemSettings(BasePanel):
             elif isinstance(plot_element, Box):
                 plot_settings = BoxPlotSettings(plot_element.label)
             else:
-                raise ValueError(f"Unknown plot element type: {type(plot_element)}")
+                self.configuring = False
+                return
+                # raise ValueError(f"Unknown plot element type: {type(plot_element)}")
 
             plot_settings.inject(
                 parent_widget=self.elements["group"].widget, handler=self.handler, element_id=str(plot_element_id)
