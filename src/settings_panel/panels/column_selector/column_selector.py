@@ -49,6 +49,6 @@ class ColumnSelector(BasePanel):
         self.activate_caller()
         self.finished_handler()
 
-    @log_method_noarg
-    def allow_ok_button_handler(self):
-        self.ok_button.setEnabled(True)
+    @log_method
+    def allow_ok_button_handler(self, allow: bool):
+        self.ok_button.setEnabled(allow)

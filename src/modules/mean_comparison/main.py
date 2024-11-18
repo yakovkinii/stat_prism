@@ -7,8 +7,10 @@ from typing import Dict, Union
 
 import pandas as pd
 
+from src.common.constant import ColumnType
 from src.common.decorators import log_function
 from src.modules.mean_comparison.anova import recalculate_mean_comparison_anova
+from src.modules.mean_comparison.constant import MeanComparisonMethod
 from src.modules.mean_comparison.result import MeanComparisonResult, MeanComparisonStudyConfig
 from src.modules.mean_comparison.t_test import recalculate_mean_comparison_t_test
 
@@ -18,12 +20,19 @@ def recalculate_mean_comparison_study(
     df: pd.DataFrame, result: MeanComparisonResult, ordinal_orders: Dict[str, Dict[Union[int, float, str], int]]
 ) -> MeanComparisonResult:
     config: MeanComparisonStudyConfig = result.config
+    result.update_header()
 
     if len(config.selected_columns) < 1 or config.grouping_column is None:
         msg = "Please select one Grouping Column and at least one Variable"
         result.set_placeholder(msg)
         logging.debug(msg)
         return result
+
+    if config.method in [MeanComparisonMethod.HOMOGENEOUS, MeanComparisonMethod.INHOMOGENEOUS]:
+        if any([col_type == ColumnType.NOMINAL for col_type in config.selected_columns_types]):
+            msg = "Cannot perform parametric test on nominal columns"
+            result.set_placeholder(msg)
+            logging.debug(msg)
 
     if len(config.filters) > 0:
         for filter_settings in config.filters:

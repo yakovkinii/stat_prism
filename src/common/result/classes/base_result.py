@@ -28,6 +28,18 @@ class BaseResult:
 
         self.description = ""
 
+        self.header = ""
+
+    def init_header(self, title):
+        self.header = f"""
+        <div style="color:#333; font-size:16pt"><b>{title}</b></div>
+        """
+
+    def add_header_info(self, text):
+        self.header += f"""
+        <div style="color:#333; font-size:9pt">{text}</div>
+        """
+
     @staticmethod
     def format_additional_info_html(text) -> str:
         return f"""
@@ -65,7 +77,7 @@ class BaseResult:
         pass
 
     def get_html(self):
-        htmls = []
+        htmls = [self.header]
         for element in self.result_elements:
             htmls.append(element.get_html())
         return "<br>".join(htmls)

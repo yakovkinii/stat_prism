@@ -14,6 +14,7 @@ from src.common.utility import format_p_apa, format_statistic_apa, get_reasonabl
 from src.common.verbal.test import describe_test
 from src.modules.common.homogeneity import process_homogeneity_check
 from src.modules.common.normality import process_normality_check
+from src.modules.mean_comparison.constant import MeanComparisonMethod
 from src.modules.mean_comparison.result import MeanComparisonResult, MeanComparisonStudyConfig
 from src.settings_panel.panels.registry import PanelRegistry
 
@@ -36,25 +37,35 @@ def recalculate_mean_comparison_t_test(
     ]
     non_numeric_columns = [col for col in config.selected_columns if col not in numeric_columns]
 
-    normal_columns, non_normal_columns, normality_table, normality_text = process_normality_check(
-        df=df,
-        selected_columns=numeric_columns,
-        grouping_column=config.grouping_column,
-    )
+    normal_columns, non_normal_columns = [], []
+    if config.method in [MeanComparisonMethod.HOMOGENEOUS, MeanComparisonMethod.INHOMOGENEOUS]:
+        normal_columns, non_normal_columns = config.selected_columns, []
+    elif config.method == MeanComparisonMethod.NON_PARAMETRIC:
+        normal_columns, non_normal_columns = [], config.selected_columns
+    elif config.method == MeanComparisonMethod.AUTO:
+        normal_columns, non_normal_columns, normality_table, normality_text = process_normality_check(
+            df=df,
+            selected_columns=numeric_columns,
+            grouping_column=config.grouping_column,
+        )
+        if len(numeric_columns) > 0:
+            html_result_element.items.append(normality_table)
+            html_result_element.items.append(normality_text)
 
-    if len(numeric_columns) > 0:
-        html_result_element.items.append(normality_table)
-        html_result_element.items.append(normality_text)
-
-    homogeneous_columns, non_homogeneous_columns, homogeneity_table, homogeneity_text = process_homogeneity_check(
-        df=df,
-        selected_columns=normal_columns,
-        grouping_column=config.grouping_column,
-    )
-
-    if len(normal_columns) > 0:
-        html_result_element.items.append(homogeneity_table)
-        html_result_element.items.append(homogeneity_text)
+    homogeneous_columns, non_homogeneous_columns = [], []
+    if config.method == MeanComparisonMethod.HOMOGENEOUS:
+        homogeneous_columns, non_homogeneous_columns = normal_columns, []
+    elif config.method == MeanComparisonMethod.INHOMOGENEOUS:
+        homogeneous_columns, non_homogeneous_columns = [], normal_columns
+    elif config.method == MeanComparisonMethod.AUTO:
+        homogeneous_columns, non_homogeneous_columns, homogeneity_table, homogeneity_text = process_homogeneity_check(
+            df=df,
+            selected_columns=normal_columns,
+            grouping_column=config.grouping_column,
+        )
+        if len(normal_columns) > 0:
+            html_result_element.items.append(homogeneity_table)
+            html_result_element.items.append(homogeneity_text)
 
     if len(non_numeric_columns + non_normal_columns) > 0:
         table, text = process_non_normal_t_test(

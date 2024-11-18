@@ -33,6 +33,7 @@ class Field:
     column_type: ColumnType
     reasonable_number_of_columns: int = 5
     allow_only_single_column: bool = False
+    minimum_columns: int = 0
 
 
 class ColumnSelectorEx(BasePanelElement):
@@ -349,7 +350,6 @@ class ColumnSelectorExPopup:
         target_list = self.panel_list_widgets[index] if index != -1 else self.main_list
         if target_list == source_list:
             super(QListWidgetClickable, source_list).dropEvent(event)
-            self.allow_ok_button_handler()
             event.ignore()
             return
 
@@ -434,8 +434,7 @@ class ColumnSelectorExPopup:
                     new_item.setIcon(item.icon())
                     panel_list.addItem(new_item)
                     self.main_list.takeItem(self.main_list.row(item))
-                if self.allow_ok_button_handler is not None:
-                    self.allow_ok_button_handler()
+                self.update_ok_button()
         elif (
             (button.text() == "Remove" and not from_drop and not from_double_click)
             or (from_drop and remove)
@@ -458,10 +457,18 @@ class ColumnSelectorExPopup:
                     new_item = QListWidgetItem(item)
                     new_item.setIcon(COLUMN_TYPE_ICONS[self.columns[self.column_names.index(item)].column_type])
                     self.main_list.addItem(new_item)
-                if self.allow_ok_button_handler is not None:
-                    self.allow_ok_button_handler()
+                self.update_ok_button()
         for panel_list in self.panel_list_widgets:
             panel_list.updateGeometry()
+
+    def update_ok_button(self):
+        if self.allow_ok_button_handler is None:
+            return
+        for panel_list in self.panel_list_widgets:
+            if panel_list.count() < self.fields[0].minimum_columns:
+                self.allow_ok_button_handler(False)
+                return
+        self.allow_ok_button_handler(True)
 
 
 class ColumnSelectorPopupHolder(BasePanelElement):
