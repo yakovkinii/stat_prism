@@ -27,6 +27,8 @@ def format_value_apa(value, decimals=1):
     if np.isnan(value) or value is None:
         return MDASH
     return str(f"{round(value, decimals):.{decimals}f}")
+
+
 def format_statistic_apa(statistic, decimals=2):
     if isinstance(statistic, str):
         return statistic
@@ -37,13 +39,13 @@ def format_statistic_apa(statistic, decimals=2):
 
 def format_p_apa(p, decimals=3, add_equals=False):
     if isinstance(p, str):
-        return "= "*add_equals +p
+        return "= " * add_equals + p
     if np.isnan(p) or p is None:
         return MDASH
     if p < 0.001:
         return "&lt;&nbsp;.001"
     else:
-        return "= "*add_equals +f"{round(p, decimals):.{decimals}f}".replace("0.", ".")
+        return "= " * add_equals + f"{round(p, decimals):.{decimals}f}".replace("0.", ".")
 
 
 def format_p_apa_full(p, decimals=3):

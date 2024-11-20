@@ -1,9 +1,9 @@
 #
 #  Copyright (c) 2023 -- 2024 StatPrism Team. All rights reserved.
 #
-from typing import Union, List, Dict
+from typing import Dict, List, Union
 
-from src.common.utility import smart_comma_join, format_statistic_apa, format_p_apa, format_value_apa
+from src.common.utility import format_p_apa, format_statistic_apa, format_value_apa, smart_comma_join
 
 
 class TestResult:
@@ -26,14 +26,17 @@ class TestResult:
             text = []
             for i, (letter, stat) in enumerate(zip(self.letter, self.statistic)):
                 if i == 0:
+                    snippet = ""
                     if self.df is not None:
-                        text.append(f"{letter}({self.df}) = {format_statistic_apa(stat)}")
+                        snippet += f"{letter}({self.df}) = {format_statistic_apa(stat)}"
                     else:
-                        text.append(f"{letter} = {format_statistic_apa(stat)}")
+                        snippet += f"{letter} = {format_statistic_apa(stat)}"
                     if self.p is not None:
-                        text += f", p {format_p_apa(self.p, add_equals=True)}"
+                        snippet += f", p {format_p_apa(self.p, add_equals=True)}"
+                    text.append(snippet)
                 else:
                     text.append(f"{letter} = {format_statistic_apa(stat)}")
+
             return ", ".join(text)
         else:
             if self.df is not None:
@@ -57,7 +60,8 @@ def describe_single_test_multiple_variables(
     text = "<div class='meta'>[Compact description]</div>" if subgroup_results is not None else ""
     text += f"""The {test_name} was used to check the {test_check} and has shown that """
 
-    _wrap_with_parentheses = lambda x: f" ({x})" if str(x) != "" else ""
+    def _wrap_with_parentheses(x):
+        return f" ({x})" if str(x) != "" else ""
 
     # If all variables have the same property, return a simple message
     suffix = ""

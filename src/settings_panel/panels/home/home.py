@@ -126,7 +126,7 @@ class Home(BasePanel):
 
         self.root_class.action_activate_panel_by_index(PanelRegistry.BLANK.settings_stacked_widget_index)
         self.root_class.action_activate_data_panel()
-        self.root_class.action_hide_result_selector()
+        # self.root_class.action_hide_result_selector()
         logging.info(f"Opened {file_path}")
 
     @log_method_noarg

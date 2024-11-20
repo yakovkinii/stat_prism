@@ -6,6 +6,7 @@ from typing import TYPE_CHECKING
 
 from src.common.constant import ColumnType
 from src.common.decorators import log_method
+from src.common.elements.checkbox.checkbox import LargeCheckbox
 from src.common.elements.column_selector.column_selector import ColumnSelectorEx, Field
 from src.common.elements.combo_box.combo_box import ComboBox
 from src.common.elements.filter.filter import CompiledFilterHistory
@@ -30,6 +31,7 @@ class MeanComparison(BaseModulePanel):
             "method": ComboBox(
                 label_text="Method:",
             ),
+            "effect_size": LargeCheckbox(label_text="Effect size"),
             "column_selector": ColumnSelectorEx(
                 fields=[
                     Field(
@@ -58,6 +60,7 @@ class MeanComparison(BaseModulePanel):
         self.result_id = result_id
 
         self.elements["method"].combo_box.setCurrentText(RESULTS[result_id].config.method.value)
+        self.elements["effect_size"].widget.setChecked(RESULTS[result_id].config.effect_size)
         self.elements["column_selector"].configure(
             columns=self.tabledata.get_all_columns_as_column_types(),
             selected_columns_list=[
@@ -78,6 +81,7 @@ class MeanComparison(BaseModulePanel):
 
         RESULTS[self.result_id].config = MeanComparisonStudyConfig(
             method=MeanComparisonMethod(self.elements["method"].combo_box.currentText()),
+            effect_size=self.elements["effect_size"].widget.isChecked(),
             selected_columns=self.elements["column_selector"].get_selected_columns()[0],
             selected_columns_types=[
                 self.tabledata.get_column_type_from_column_name(col)

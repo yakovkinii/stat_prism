@@ -10,7 +10,7 @@ from scipy.stats._morestats import LeveneResult
 
 from src.common.result.classes.html_result import Cell, HTMLTable, HTMLText, Row
 from src.common.utility import format_p_apa, format_statistic_apa
-from src.common.verbal.test import describe_single_test_multiple_variables, TestResult
+from src.common.verbal.test import TestResult, describe_single_test_multiple_variables
 
 
 def process_homogeneity_check(
@@ -38,7 +38,7 @@ def process_homogeneity_check(
     for index, col in enumerate(selected_columns):
         levene_result = cast(
             LeveneResult,
-            stats.levene(*[group[col].dropna() for name, group in df.groupby(grouping_column)]),
+            stats.levene(*[group[col].dropna() for name, group in df.groupby(grouping_column)], center="mean"),
         )
 
         table.add_single_row_apa(

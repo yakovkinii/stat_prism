@@ -7,11 +7,11 @@ from typing import Dict, Tuple, Union
 import pandas as pd
 from scipy import stats
 
-from src.common.constant import ColumnType, MDASH
+from src.common.constant import MDASH, ColumnType
 from src.common.decorators import log_function
 from src.common.result.classes.html_result import Cell, HTMLResultElement, HTMLTable, HTMLText, Row
-from src.common.utility import format_p_apa, format_statistic_apa, get_reasonable_digits, format_value_apa
-from src.common.verbal.test import describe_single_test_multiple_variables, TestResult, NonTestResult
+from src.common.utility import format_p_apa, format_statistic_apa, format_value_apa
+from src.common.verbal.test import TestResult, describe_single_test_multiple_variables
 from src.modules.common.homogeneity import process_homogeneity_check
 from src.modules.common.normality import process_normality_check
 from src.modules.mean_comparison.constant import MeanComparisonMethod
@@ -74,6 +74,7 @@ def recalculate_mean_comparison_t_test(
             ordinal_orders=ordinal_orders,
             non_normal_columns=non_normal_columns,
             grouping_column=config.grouping_column,
+            effect_size=config.effect_size,
         )
         html_result_element.items.append(table)
         html_result_element.items.append(text)
@@ -83,6 +84,7 @@ def recalculate_mean_comparison_t_test(
             df=df,
             columns=non_homogeneous_columns,
             grouping_column=config.grouping_column,
+            effect_size=config.effect_size,
         )
         html_result_element.items.append(table)
         html_result_element.items.append(text)
@@ -92,6 +94,7 @@ def recalculate_mean_comparison_t_test(
             df=df,
             columns=homogeneous_columns,
             grouping_column=config.grouping_column,
+            effect_size=config.effect_size,
         )
         html_result_element.items.append(table)
         html_result_element.items.append(text)
@@ -101,12 +104,14 @@ def recalculate_mean_comparison_t_test(
 
 
 def process_non_normal_t_test(
-    df: pd.DataFrame, non_numeric_columns, ordinal_orders, non_normal_columns, grouping_column
+    df: pd.DataFrame, non_numeric_columns, ordinal_orders, non_normal_columns, grouping_column, effect_size
 ) -> Tuple[HTMLTable, HTMLText]:
     table = HTMLTable([])
     table.table_caption = "Mann-Whitney U test"
     mean_column = len(non_normal_columns) > 0
     median_column = len(non_numeric_columns) > 0
+    if len(non_normal_columns) == 0:
+        effect_size = False
     group1_name = df[grouping_column].unique()[0]
     group2_name = df[grouping_column].unique()[1]
 
@@ -116,6 +121,7 @@ def process_non_normal_t_test(
             + [Cell(), Cell()]
             + [Cell(group1_name, center=True, col_span=2 * mean_column + 2 * median_column, border_bottom=True)]
             + [Cell(group2_name, center=True, col_span=2 * mean_column + 2 * median_column, border_bottom=True)]
+            + [Cell()] * effect_size
         )
     )
 
@@ -146,6 +152,10 @@ def process_non_normal_t_test(
                 Cell("IQR", center=True),
             ]
             * median_column
+            + [
+                Cell("r<sub>rb</sub>", center=True),
+            ]
+            * effect_size
         )
     )
 
@@ -164,35 +174,45 @@ def process_non_normal_t_test(
             group1 = group1.map(ordinal_order)
             group2 = group2.map(ordinal_order)
 
-        u_stat, p_val = stats.mannwhitneyu(group1, group2)
+        u1_stat, p_val = stats.mannwhitneyu(group1, group2)
+        u2_stat = len(group1) * len(group2) - u1_stat
+        u_stat = min(u1_stat, u2_stat)
         mean, std = [group.mean() for group in [group1, group2]], [group.std() for group in [group1, group2]]
         median, iqr = [group.median() for group in [group1, group2]], [
             group.quantile(0.75) - group.quantile(0.25) for group in [group1, group2]
         ]
-
+        rank_biserial_correlation = 1 - 2 * u_stat / (len(group1) * len(group2))
         if col in non_numeric_columns:
             mean = [MDASH, MDASH]
             std = [MDASH, MDASH]
 
+        if effect_size:
+            test_result = TestResult(
+                variable=col, letter=["U", "r<sub>rb</sub>"], statistic=[u_stat, rank_biserial_correlation], p=p_val
+            )
+        else:
+            test_result = TestResult(variable=col, letter="U", statistic=u_stat, p=p_val)
+
         if p_val > 0.05:
-                accepted_columns.append(
-                    TestResult(variable=col, letter="U", statistic=u_stat, p=p_val)
-                )
+            accepted_columns.append(test_result)
+        else:
+            rejected_columns.append(test_result)
+
+        if p_val > 0.05:
+            accepted_columns.append(TestResult(variable=col, letter="U", statistic=u_stat, p=p_val))
 
         else:
-                rejected_columns.append(
-                    TestResult(variable=col, letter="U", statistic=u_stat, p=p_val)
+            rejected_columns.append(TestResult(variable=col, letter="U", statistic=u_stat, p=p_val))
 
-                )
         if col in non_numeric_columns:
             subgroup_results[col] = [
-                TestResult(variable=group1_name, letter=['Median', 'IQR'], statistic=[median[0], iqr[0]]),
-                TestResult(variable=group2_name, letter=['Median', 'IQR'], statistic=[median[1], iqr[1]]),
+                TestResult(variable=group1_name, letter=["Median", "IQR"], statistic=[median[0], iqr[0]]),
+                TestResult(variable=group2_name, letter=["Median", "IQR"], statistic=[median[1], iqr[1]]),
             ]
         else:
             subgroup_results[col] = [
-                TestResult(variable=group1_name, letter=['M', 'SD'], statistic=[mean[0], std[0]]),
-                TestResult(variable=group2_name, letter=['M', 'SD'], statistic=[mean[1], std[1]]),
+                TestResult(variable=group1_name, letter=["M", "SD"], statistic=[mean[0], std[0]]),
+                TestResult(variable=group2_name, letter=["M", "SD"], statistic=[mean[1], std[1]]),
             ]
 
         table.add_single_row_apa(
@@ -222,6 +242,10 @@ def process_non_normal_t_test(
                     Cell(format_value_apa(iqr[1]), center=True),
                 ]
                 * median_column
+                + [
+                    Cell(format_statistic_apa(rank_biserial_correlation), center=True),
+                ]
+                * effect_size
             )
         )
 
@@ -239,7 +263,7 @@ def process_non_normal_t_test(
     return table, text
 
 
-def process_homogeneous_t_test(df: pd.DataFrame, columns, grouping_column) -> Tuple[HTMLTable, HTMLText]:
+def process_homogeneous_t_test(df: pd.DataFrame, columns, grouping_column, effect_size) -> Tuple[HTMLTable, HTMLText]:
     table = HTMLTable([])
     table.table_caption = "Independent Samples T-test"
 
@@ -252,6 +276,7 @@ def process_homogeneous_t_test(df: pd.DataFrame, columns, grouping_column) -> Tu
             + [Cell(), Cell(), Cell()]
             + [Cell(group1_name, center=True, col_span=2, border_bottom=True)]
             + [Cell(group2_name, center=True, col_span=2, border_bottom=True)]
+            + [Cell()] * effect_size
         )
     )
 
@@ -267,6 +292,7 @@ def process_homogeneous_t_test(df: pd.DataFrame, columns, grouping_column) -> Tu
                 Cell("Mean", center=True),
                 Cell("SD", center=True),
             ]
+            + [Cell("Cohen's d", center=True)] * effect_size
         )
     )
 
@@ -280,17 +306,24 @@ def process_homogeneous_t_test(df: pd.DataFrame, columns, grouping_column) -> Tu
         t_test_result = stats.ttest_ind(group1, group2)
         t_stat, p_val, deg_free = t_test_result.statistic, t_test_result.pvalue, t_test_result.df
         mean, std = [group.mean() for group in [group1, group2]], [group.std() for group in [group1, group2]]
-        if p_val > 0.05:
-            accepted_columns.append(
-                TestResult(variable=col, letter="t", statistic=t_stat,  p=p_val, df=deg_free)
+        cohen_s = (
+            (std[0] ** 2 * (len(group1) - 1) + std[1] ** 2 * (len(group2) - 1)) / (len(group1) + len(group2) - 2)
+        ) ** 0.5
+        cohen_d = (mean[0] - mean[1]) / cohen_s
+        if effect_size:
+            test_result = TestResult(
+                variable=col, letter=["t", "Cohen's d"], statistic=[t_stat, cohen_d], p=p_val, df=f"{deg_free:.1f}"
             )
         else:
-            rejected_columns.append(
-                TestResult(variable=col, letter="t", statistic=t_stat, p=p_val, df=deg_free)
-            )
+            test_result = TestResult(variable=col, letter="t", statistic=t_stat, p=p_val, df=f"{deg_free:.0f}")
+
+        if p_val > 0.05:
+            accepted_columns.append(test_result)
+        else:
+            rejected_columns.append(test_result)
         subgroup_results[col] = [
-            TestResult(variable=group1_name, letter=['M', 'SD'], statistic=[mean[0], std[0]]),
-            TestResult(variable=group2_name, letter=['M', 'SD'], statistic=[mean[1], std[1]]),
+            TestResult(variable=group1_name, letter=["M", "SD"], statistic=[mean[0], std[0]]),
+            TestResult(variable=group2_name, letter=["M", "SD"], statistic=[mean[1], std[1]]),
         ]
         table.add_single_row_apa(
             Row(
@@ -304,6 +337,10 @@ def process_homogeneous_t_test(df: pd.DataFrame, columns, grouping_column) -> Tu
                     Cell(format_value_apa(mean[1]), center=True),
                     Cell(format_value_apa(std[1]), center=True),
                 ]
+                + [
+                    Cell(format_statistic_apa(cohen_d), center=True),
+                ]
+                * effect_size
             )
         )
 
@@ -321,7 +358,9 @@ def process_homogeneous_t_test(df: pd.DataFrame, columns, grouping_column) -> Tu
     return table, text
 
 
-def process_non_homogeneous_t_test(df: pd.DataFrame, columns, grouping_column) -> Tuple[HTMLTable, HTMLText]:
+def process_non_homogeneous_t_test(
+    df: pd.DataFrame, columns, grouping_column, effect_size
+) -> Tuple[HTMLTable, HTMLText]:
     # inhomogeneous => Welch's t-test
     table = HTMLTable([])
     table.table_caption = "Welch's T-test results"
@@ -335,6 +374,7 @@ def process_non_homogeneous_t_test(df: pd.DataFrame, columns, grouping_column) -
             + [Cell(), Cell(), Cell()]
             + [Cell(group1_name, center=True, col_span=2, border_bottom=True)]
             + [Cell(group2_name, center=True, col_span=2, border_bottom=True)]
+            + [Cell()] * effect_size
         )
     )
 
@@ -350,6 +390,7 @@ def process_non_homogeneous_t_test(df: pd.DataFrame, columns, grouping_column) -
                 Cell("Mean", center=True),
                 Cell("SD", center=True),
             ]
+            + [Cell("Cohen's d", center=True)] * effect_size
         )
     )
 
@@ -363,19 +404,25 @@ def process_non_homogeneous_t_test(df: pd.DataFrame, columns, grouping_column) -
         t_test_result = stats.ttest_ind(group1, group2, equal_var=False)
         t_stat, p_val, deg_free = t_test_result.statistic, t_test_result.pvalue, t_test_result.df
         mean, std = [group.mean() for group in [group1, group2]], [group.std() for group in [group1, group2]]
-        if p_val > 0.05:
-            accepted_columns.append(
-                TestResult(variable=col, letter="t", statistic=t_stat, p=p_val, df=f"{deg_free:.1f}")
+        cohen_s = (
+            (std[0] ** 2 * (len(group1) - 1) + std[1] ** 2 * (len(group2) - 1)) / (len(group1) + len(group2) - 2)
+        ) ** 0.5
+        cohen_d = (mean[0] - mean[1]) / cohen_s
 
+        if effect_size:
+            test_result = TestResult(
+                variable=col, letter=["t", "Cohen's d"], statistic=[t_stat, cohen_d], p=p_val, df=f"{deg_free:.1f}"
             )
         else:
-            rejected_columns.append(
-                TestResult(variable=col, letter="t", statistic=t_stat, p=p_val, df=f"{deg_free:.1f}")
+            test_result = TestResult(variable=col, letter="t", statistic=t_stat, p=p_val, df=f"{deg_free:.0f}")
 
-            )
+        if p_val > 0.05:
+            accepted_columns.append(test_result)
+        else:
+            rejected_columns.append(test_result)
         subgroup_results[col] = [
-            TestResult(variable=group1_name, letter=['M', 'SD'], statistic=[mean[0], std[0]]),
-            TestResult(variable=group2_name, letter=['M', 'SD'], statistic=[mean[1], std[1]]),
+            TestResult(variable=group1_name, letter=["M", "SD"], statistic=[mean[0], std[0]]),
+            TestResult(variable=group2_name, letter=["M", "SD"], statistic=[mean[1], std[1]]),
         ]
 
         table.add_single_row_apa(
@@ -390,6 +437,7 @@ def process_non_homogeneous_t_test(df: pd.DataFrame, columns, grouping_column) -
                     Cell(format_value_apa(mean[1]), center=True),
                     Cell(format_value_apa(std[1]), center=True),
                 ]
+                + [Cell(format_statistic_apa(cohen_d), center=True)] * effect_size
             )
         )
 

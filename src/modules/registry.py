@@ -25,7 +25,7 @@ class ModuleRegistry(Enum):
     )
 
     MEAN_COMPARISON = ModuleRegistryItem(
-        display_name="Mean Comparison",
+        display_name="T-Test/ANOVA",
         icon_path="ph.chart-line-up-fill",
     )
 

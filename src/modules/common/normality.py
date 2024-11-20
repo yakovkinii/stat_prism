@@ -10,7 +10,7 @@ from scipy.stats._morestats import ShapiroResult
 
 from src.common.result.classes.html_result import Cell, HTMLTable, HTMLText, Row
 from src.common.utility import format_p_apa, format_statistic_apa
-from src.common.verbal.test import describe_single_test_multiple_variables, TestResult
+from src.common.verbal.test import TestResult, describe_single_test_multiple_variables
 
 
 def process_normality_check(

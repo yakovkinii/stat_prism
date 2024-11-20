@@ -39,7 +39,6 @@ DESCRIPTION = """
 """
 
 
-
 class MeanComparisonMethod(Enum):
     AUTO = "Detect automatically"
     HOMOGENEOUS = "Parametric homogeneous (t-test/ANOVA)"
