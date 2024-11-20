@@ -1,5 +1,5 @@
 #
-#  Copyright (c) 2024 Ivan I. Yakovkin. All rights reserved.
+#  Copyright (c) 2023 -- 2024 StatPrism Team. All rights reserved.
 #
 
 import logging
@@ -174,7 +174,9 @@ class Home(BasePanel):
             "\n"
             "This software is in development and is provided as is, without any guarantees.\n"
             "\n"
-            f"Copyright 2023 {NDASH} 2024"
+            f"Copyright 2023 {NDASH} 2024 StatPrism Team:\n"
+            f"Alexandra Balashevych (model design)\n"
+            f"Ivan Yakovkin (software development)\n"
         )
 
         msg_box.setWindowIcon(QIcon(":/mat/resources/StatPrism_icon_small.ico"))

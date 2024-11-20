@@ -1,5 +1,5 @@
 #
-#  Copyright (c) 2024 Ivan I. Yakovkin. All rights reserved.
+#  Copyright (c) 2023 -- 2024 StatPrism Team. All rights reserved.
 #
 
 from typing import cast
@@ -10,7 +10,7 @@ from scipy.stats._morestats import LeveneResult
 
 from src.common.result.classes.html_result import Cell, HTMLTable, HTMLText, Row
 from src.common.utility import format_p_apa, format_statistic_apa
-from src.common.verbal.test import describe_test
+from src.common.verbal.test import describe_single_test_multiple_variables, TestResult
 
 
 def process_homogeneity_check(
@@ -32,6 +32,8 @@ def process_homogeneity_check(
 
     non_homogeneous_columns = []
     homogeneous_columns = []
+    non_homogeneous_columns_classes = []
+    homogeneous_columns_classes = []
 
     for index, col in enumerate(selected_columns):
         levene_result = cast(
@@ -50,16 +52,33 @@ def process_homogeneity_check(
         )
         if levene_result.pvalue <= 0.05:
             non_homogeneous_columns.append(col)
+            non_homogeneous_columns_classes.append(
+                TestResult(
+                    variable=col,
+                    letter="F",
+                    statistic=levene_result.statistic,
+                    p=levene_result.pvalue,
+                )
+            )
         else:
             homogeneous_columns.append(col)
+            homogeneous_columns_classes.append(
+                TestResult(
+                    variable=col,
+                    letter="F",
+                    statistic=levene_result.statistic,
+                    p=levene_result.pvalue,
+                )
+            )
 
     text = HTMLText(
-        describe_test(
+        describe_single_test_multiple_variables(
             test_name="Levene's test",
-            yes_columns=homogeneous_columns,
-            no_columns=non_homogeneous_columns,
+            test_check="homogeneity of variance",
+            yes_columns=homogeneous_columns_classes,
+            no_columns=non_homogeneous_columns_classes,
             yes_property="have homogeneity of variance",
-            no_property="do not have homogeneity of variance",
+            no_property="have inhomogeneous variance",
         )
     )
 

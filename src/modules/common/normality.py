@@ -1,5 +1,5 @@
 #
-#  Copyright (c) 2024 Ivan I. Yakovkin. All rights reserved.
+#  Copyright (c) 2023 -- 2024 StatPrism Team. All rights reserved.
 #
 
 from typing import cast
@@ -10,7 +10,7 @@ from scipy.stats._morestats import ShapiroResult
 
 from src.common.result.classes.html_result import Cell, HTMLTable, HTMLText, Row
 from src.common.utility import format_p_apa, format_statistic_apa
-from src.common.verbal.test import describe_test
+from src.common.verbal.test import describe_single_test_multiple_variables, TestResult
 
 
 def process_normality_check(
@@ -34,6 +34,9 @@ def process_normality_check(
     non_normal_columns = []
     normal_columns = []
 
+    non_normal_columns_classes = []
+    normal_columns_classes = []
+
     for index, col in enumerate(selected_columns):
         all_normal = True
         for i, (group_name, group) in enumerate(df.groupby(grouping_column)):
@@ -53,16 +56,19 @@ def process_normality_check(
 
         if all_normal:
             normal_columns.append(col)
+            normal_columns_classes.append(TestResult(variable=col, letter=[], statistic=[]))
         else:
             non_normal_columns.append(col)
+            non_normal_columns_classes.append(TestResult(variable=col, letter=[], statistic=[]))
 
     text = HTMLText(
-        describe_test(
+        describe_single_test_multiple_variables(
             test_name="Shapiro-Wilk test",
-            yes_columns=normal_columns,
-            no_columns=non_normal_columns,
-            yes_property="are normally distributed",
-            no_property="are not normally distributed",
+            test_check="normality within groups",
+            yes_columns=normal_columns_classes,
+            no_columns=non_normal_columns_classes,
+            yes_property="are normally distributed (p > 0.05)",
+            no_property="are not normally distributed (p < 0.05)",
         )
     )
 

@@ -1,5 +1,5 @@
 #
-#  Copyright (c) 2024 Ivan I. Yakovkin. All rights reserved.
+#  Copyright (c) 2023 -- 2024 StatPrism Team. All rights reserved.
 #
 
 from typing import Dict, Tuple, Union
@@ -11,7 +11,7 @@ from src.common.constant import ColumnType
 from src.common.decorators import log_function
 from src.common.result.classes.html_result import Cell, HTMLResultElement, HTMLTable, HTMLText, Row
 from src.common.utility import format_p_apa, format_statistic_apa
-from src.common.verbal.test import describe_test
+from src.common.verbal.test import describe_single_test_multiple_variables
 from src.modules.common.homogeneity import process_homogeneity_check
 from src.modules.common.normality import process_normality_check
 from src.modules.mean_comparison.constant import MeanComparisonMethod
@@ -135,8 +135,9 @@ def process_non_normal_anova(
         )
 
     text = HTMLText(
-        describe_test(
+        describe_single_test_multiple_variables(
             test_name="Kruskal-Wallis test",
+            test_check="",
             yes_columns=rejected_columns,
             no_columns=accepted_columns,
             yes_property="have different means",
@@ -211,8 +212,9 @@ def process_non_homogeneous_anova(df: pd.DataFrame, columns, grouping_column) ->
         )
 
     text = HTMLText(
-        describe_test(
+        describe_single_test_multiple_variables(
             test_name="Welch's ANOVA",
+            test_check="",
             yes_columns=rejected_columns,
             no_columns=accepted_columns,
             yes_property="have different means",
@@ -287,8 +289,9 @@ def process_homogeneous_anova(df: pd.DataFrame, columns, grouping_column) -> Tup
         )
 
     text = HTMLText(
-        describe_test(
+        describe_single_test_multiple_variables(
             test_name="One-Way ANOVA",
+            test_check="",
             yes_columns=rejected_columns,
             no_columns=accepted_columns,
             yes_property="have different means",

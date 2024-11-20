@@ -1,5 +1,5 @@
 #
-#  Copyright (c) 2024 Ivan I. Yakovkin. All rights reserved.
+#  Copyright (c) 2023 -- 2024 StatPrism Team. All rights reserved.
 #
 
 from enum import Enum
@@ -59,6 +59,10 @@ BASE_STYLES = (
     "table, th, td, span {"
     "border-collapse: collapse;"
     "font-size: 12pt;"
+    "}"
+    ".meta {"
+    "font-size: 10pt;"
+    "color: blue;"
     "}"
     "</style>"
 )

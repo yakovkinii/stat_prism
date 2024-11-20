@@ -1,5 +1,5 @@
 #
-#  Copyright (c) 2024 Ivan I. Yakovkin. All rights reserved.
+#  Copyright (c) 2023 -- 2024 StatPrism Team. All rights reserved.
 #
 
 from typing import Dict, Tuple, Union
@@ -7,11 +7,11 @@ from typing import Dict, Tuple, Union
 import pandas as pd
 from scipy import stats
 
-from src.common.constant import ColumnType
+from src.common.constant import ColumnType, MDASH
 from src.common.decorators import log_function
 from src.common.result.classes.html_result import Cell, HTMLResultElement, HTMLTable, HTMLText, Row
-from src.common.utility import format_p_apa, format_statistic_apa, get_reasonable_digits
-from src.common.verbal.test import describe_test
+from src.common.utility import format_p_apa, format_statistic_apa, get_reasonable_digits, format_value_apa
+from src.common.verbal.test import describe_single_test_multiple_variables, TestResult, NonTestResult
 from src.modules.common.homogeneity import process_homogeneity_check
 from src.modules.common.normality import process_normality_check
 from src.modules.mean_comparison.constant import MeanComparisonMethod
@@ -105,11 +105,55 @@ def process_non_normal_t_test(
 ) -> Tuple[HTMLTable, HTMLText]:
     table = HTMLTable([])
     table.table_caption = "Mann-Whitney U test"
-    table.add_title_row_apa(Row([Cell(), Cell("Mann-Whitney U", center=True), Cell("p-value", center=True)]))
+    mean_column = len(non_normal_columns) > 0
+    median_column = len(non_numeric_columns) > 0
+    group1_name = df[grouping_column].unique()[0]
+    group2_name = df[grouping_column].unique()[1]
+
+    table.add_single_row_apa(
+        Row(
+            [Cell()]
+            + [Cell(), Cell()]
+            + [Cell(group1_name, center=True, col_span=2 * mean_column + 2 * median_column, border_bottom=True)]
+            + [Cell(group2_name, center=True, col_span=2 * mean_column + 2 * median_column, border_bottom=True)]
+        )
+    )
+
+    table.add_title_row_apa(
+        Row(
+            [
+                Cell(),
+                Cell("Mann-Whitney U", center=True),
+                Cell("p-value", center=True),
+            ]
+            + [
+                Cell("Mean", center=True),
+                Cell("SD", center=True),
+            ]
+            * mean_column
+            + [
+                Cell("Median", center=True),
+                Cell("IQR", center=True),
+            ]
+            * median_column
+            + [
+                Cell("Mean", center=True),
+                Cell("SD", center=True),
+            ]
+            * mean_column
+            + [
+                Cell("Median", center=True),
+                Cell("IQR", center=True),
+            ]
+            * median_column
+        )
+    )
+
     columns = non_numeric_columns + non_normal_columns
 
     accepted_columns = []
     rejected_columns = []
+    subgroup_results = {}
 
     for col in columns:
         group1 = df[df[grouping_column] == df[grouping_column].unique()[0]][col]
@@ -121,10 +165,36 @@ def process_non_normal_t_test(
             group2 = group2.map(ordinal_order)
 
         u_stat, p_val = stats.mannwhitneyu(group1, group2)
+        mean, std = [group.mean() for group in [group1, group2]], [group.std() for group in [group1, group2]]
+        median, iqr = [group.median() for group in [group1, group2]], [
+            group.quantile(0.75) - group.quantile(0.25) for group in [group1, group2]
+        ]
+
+        if col in non_numeric_columns:
+            mean = [MDASH, MDASH]
+            std = [MDASH, MDASH]
+
         if p_val > 0.05:
-            accepted_columns.append(col)
+                accepted_columns.append(
+                    TestResult(variable=col, letter="U", statistic=u_stat, p=p_val)
+                )
+
         else:
-            rejected_columns.append(col)
+                rejected_columns.append(
+                    TestResult(variable=col, letter="U", statistic=u_stat, p=p_val)
+
+                )
+        if col in non_numeric_columns:
+            subgroup_results[col] = [
+                TestResult(variable=group1_name, letter=['Median', 'IQR'], statistic=[median[0], iqr[0]]),
+                TestResult(variable=group2_name, letter=['Median', 'IQR'], statistic=[median[1], iqr[1]]),
+            ]
+        else:
+            subgroup_results[col] = [
+                TestResult(variable=group1_name, letter=['M', 'SD'], statistic=[mean[0], std[0]]),
+                TestResult(variable=group2_name, letter=['M', 'SD'], statistic=[mean[1], std[1]]),
+            ]
+
         table.add_single_row_apa(
             Row(
                 [
@@ -132,16 +202,38 @@ def process_non_normal_t_test(
                     Cell(format_statistic_apa(u_stat), center=True),
                     Cell(format_p_apa(p_val), center=True),
                 ]
+                + [
+                    Cell(format_value_apa(mean[0]), center=True),
+                    Cell(format_value_apa(std[0]), center=True),
+                ]
+                * mean_column
+                + [
+                    Cell(format_value_apa(median[0]), center=True),
+                    Cell(format_value_apa(iqr[0]), center=True),
+                ]
+                * median_column
+                + [
+                    Cell(format_value_apa(mean[1]), center=True),
+                    Cell(format_value_apa(std[1]), center=True),
+                ]
+                * mean_column
+                + [
+                    Cell(format_value_apa(median[1]), center=True),
+                    Cell(format_value_apa(iqr[1]), center=True),
+                ]
+                * median_column
             )
         )
 
     text = HTMLText(
-        describe_test(
+        describe_single_test_multiple_variables(
             test_name="Mann-Whitney U test",
+            test_check="difference between the groups",
             yes_columns=rejected_columns,
             no_columns=accepted_columns,
-            yes_property="are significantly different",
-            no_property="are not significantly different",
+            yes_property="are significantly different across the groups",
+            no_property="are not significantly different across the groups",
+            subgroup_results=subgroup_results,
         )
     )
     return table, text
@@ -157,9 +249,9 @@ def process_homogeneous_t_test(df: pd.DataFrame, columns, grouping_column) -> Tu
     table.add_single_row_apa(
         Row(
             [Cell()]
+            + [Cell(), Cell(), Cell()]
             + [Cell(group1_name, center=True, col_span=2, border_bottom=True)]
             + [Cell(group2_name, center=True, col_span=2, border_bottom=True)]
-            + [Cell(), Cell(), Cell()]
         )
     )
 
@@ -167,53 +259,63 @@ def process_homogeneous_t_test(df: pd.DataFrame, columns, grouping_column) -> Tu
         Row(
             [
                 Cell(),
-                Cell("Mean", center=True),
-                Cell("SD", center=True),
-                Cell("Mean", center=True),
-                Cell("SD", center=True),
                 Cell("t-statistic", center=True),
                 Cell("p-value", center=True),
                 Cell("df", center=True),
+                Cell("Mean", center=True),
+                Cell("SD", center=True),
+                Cell("Mean", center=True),
+                Cell("SD", center=True),
             ]
         )
     )
 
     accepted_columns = []
     rejected_columns = []
+    subgroup_results = {}
 
     for col in columns:
-        digits = get_reasonable_digits(df[col])
         group1 = df[df[grouping_column] == df[grouping_column].unique()[0]][col]
         group2 = df[df[grouping_column] == df[grouping_column].unique()[1]][col]
         t_test_result = stats.ttest_ind(group1, group2)
         t_stat, p_val, deg_free = t_test_result.statistic, t_test_result.pvalue, t_test_result.df
-        if p_val > 0.05:
-            accepted_columns.append(col)
-        else:
-            rejected_columns.append(col)
         mean, std = [group.mean() for group in [group1, group2]], [group.std() for group in [group1, group2]]
+        if p_val > 0.05:
+            accepted_columns.append(
+                TestResult(variable=col, letter="t", statistic=t_stat,  p=p_val, df=deg_free)
+            )
+        else:
+            rejected_columns.append(
+                TestResult(variable=col, letter="t", statistic=t_stat, p=p_val, df=deg_free)
+            )
+        subgroup_results[col] = [
+            TestResult(variable=group1_name, letter=['M', 'SD'], statistic=[mean[0], std[0]]),
+            TestResult(variable=group2_name, letter=['M', 'SD'], statistic=[mean[1], std[1]]),
+        ]
         table.add_single_row_apa(
             Row(
                 [
                     Cell(col, push_to_left=True),
-                    Cell(f"{mean[0]:.{digits}f}", center=True),
-                    Cell(f"{std[0]:.{digits}f}", center=True),
-                    Cell(f"{mean[1]:.{digits}f}", center=True),
-                    Cell(f"{std[1]:.{digits}f}", center=True),
                     Cell(format_statistic_apa(t_stat), center=True),
                     Cell(format_p_apa(p_val), center=True),
                     Cell(f"{deg_free:.0f}", center=True),
+                    Cell(format_value_apa(mean[0]), center=True),
+                    Cell(format_value_apa(std[0]), center=True),
+                    Cell(format_value_apa(mean[1]), center=True),
+                    Cell(format_value_apa(std[1]), center=True),
                 ]
             )
         )
 
     text = HTMLText(
-        describe_test(
+        describe_single_test_multiple_variables(
             test_name="Independent Samples T-test",
+            test_check="equality of means",
             yes_columns=rejected_columns,
             no_columns=accepted_columns,
-            yes_property="are significantly different",
-            no_property="are not significantly different",
+            yes_property="are significantly different across the groups",
+            no_property="are not significantly different across the groups",
+            subgroup_results=subgroup_results,
         )
     )
     return table, text
@@ -230,9 +332,9 @@ def process_non_homogeneous_t_test(df: pd.DataFrame, columns, grouping_column) -
     table.add_single_row_apa(
         Row(
             [Cell()]
+            + [Cell(), Cell(), Cell()]
             + [Cell(group1_name, center=True, col_span=2, border_bottom=True)]
             + [Cell(group2_name, center=True, col_span=2, border_bottom=True)]
-            + [Cell(), Cell(), Cell()]
         )
     )
 
@@ -240,54 +342,66 @@ def process_non_homogeneous_t_test(df: pd.DataFrame, columns, grouping_column) -
         Row(
             [
                 Cell(),
-                Cell("Mean", center=True),
-                Cell("SD", center=True),
-                Cell("Mean", center=True),
-                Cell("SD", center=True),
                 Cell("t-statistic", center=True),
                 Cell("p-value", center=True),
                 Cell("df", center=True),
+                Cell("Mean", center=True),
+                Cell("SD", center=True),
+                Cell("Mean", center=True),
+                Cell("SD", center=True),
             ]
         )
     )
 
     accepted_columns = []
     rejected_columns = []
+    subgroup_results = {}
 
     for col in columns:
-        digits = get_reasonable_digits(df[col])
         group1 = df[df[grouping_column] == df[grouping_column].unique()[0]][col]
         group2 = df[df[grouping_column] == df[grouping_column].unique()[1]][col]
         t_test_result = stats.ttest_ind(group1, group2, equal_var=False)
         t_stat, p_val, deg_free = t_test_result.statistic, t_test_result.pvalue, t_test_result.df
-        if p_val > 0.05:
-            accepted_columns.append(col)
-        else:
-            rejected_columns.append(col)
-
         mean, std = [group.mean() for group in [group1, group2]], [group.std() for group in [group1, group2]]
+        if p_val > 0.05:
+            accepted_columns.append(
+                TestResult(variable=col, letter="t", statistic=t_stat, p=p_val, df=f"{deg_free:.1f}")
+
+            )
+        else:
+            rejected_columns.append(
+                TestResult(variable=col, letter="t", statistic=t_stat, p=p_val, df=f"{deg_free:.1f}")
+
+            )
+        subgroup_results[col] = [
+            TestResult(variable=group1_name, letter=['M', 'SD'], statistic=[mean[0], std[0]]),
+            TestResult(variable=group2_name, letter=['M', 'SD'], statistic=[mean[1], std[1]]),
+        ]
+
         table.add_single_row_apa(
             Row(
                 [
                     Cell(col, push_to_left=True),
-                    Cell(f"{mean[0]:.{digits}f}", center=True),
-                    Cell(f"{std[0]:.{digits}f}", center=True),
-                    Cell(f"{mean[1]:.{digits}f}", center=True),
-                    Cell(f"{std[1]:.{digits}f}", center=True),
                     Cell(format_statistic_apa(t_stat), center=True),
                     Cell(format_p_apa(p_val), center=True),
                     Cell(f"{deg_free:.0f}", center=True),
+                    Cell(format_value_apa(mean[0]), center=True),
+                    Cell(format_value_apa(std[0]), center=True),
+                    Cell(format_value_apa(mean[1]), center=True),
+                    Cell(format_value_apa(std[1]), center=True),
                 ]
             )
         )
 
     text = HTMLText(
-        describe_test(
+        describe_single_test_multiple_variables(
             test_name="Welch's T-test",
+            test_check="equality of means",
             yes_columns=rejected_columns,
             no_columns=accepted_columns,
-            yes_property="are significantly different",
-            no_property="are not significantly different",
+            yes_property="are significantly different across the groups",
+            no_property="are not significantly different across the groups",
+            subgroup_results=subgroup_results,
         )
     )
     return table, text
