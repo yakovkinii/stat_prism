@@ -109,7 +109,7 @@ including customization.</g>
 ---
 
 ## Adding modules (v0.6.x)
-### 2024 Sept ME &ndash; 2024 Oct ME
+### 2024 Sept ME &ndash; 2024 Dec ME
 [//]: # (<details>)
 <summary></summary>
 

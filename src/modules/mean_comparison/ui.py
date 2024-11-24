@@ -31,7 +31,8 @@ class MeanComparison(BaseModulePanel):
             "method": ComboBox(
                 label_text="Method:",
             ),
-            "effect_size": LargeCheckbox(label_text="Effect size"),
+            "effect_size": LargeCheckbox(label_text="Effect size/Post-hoc"),
+            "means": LargeCheckbox(label_text="Means/Medians"),
             "column_selector": ColumnSelectorEx(
                 fields=[
                     Field(
@@ -60,6 +61,7 @@ class MeanComparison(BaseModulePanel):
         self.result_id = result_id
 
         self.elements["method"].combo_box.setCurrentText(RESULTS[result_id].config.method.value)
+        self.elements["means"].widget.setChecked(RESULTS[result_id].config.means)
         self.elements["effect_size"].widget.setChecked(RESULTS[result_id].config.effect_size)
         self.elements["column_selector"].configure(
             columns=self.tabledata.get_all_columns_as_column_types(),
@@ -81,6 +83,7 @@ class MeanComparison(BaseModulePanel):
 
         RESULTS[self.result_id].config = MeanComparisonStudyConfig(
             method=MeanComparisonMethod(self.elements["method"].combo_box.currentText()),
+            means=self.elements["means"].widget.isChecked(),
             effect_size=self.elements["effect_size"].widget.isChecked(),
             selected_columns=self.elements["column_selector"].get_selected_columns()[0],
             selected_columns_types=[

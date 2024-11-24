@@ -12,3 +12,4 @@ scikit-learn
 pillow
 statsmodels
 matplotlib
+pingouin
