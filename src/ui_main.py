@@ -85,14 +85,14 @@ class MainWindowClass(QtWidgets.QMainWindow):
             font-size: 12pt;
             font-family: Segoe UI;
             font-weight: bold;
-            width: 20px;
+            width: 40px;
             border:none;
         }
         QTabWidget#id>QTabBar::tab:!selected {
             background: #eee;
             font-size: 12pt;
             font-family: Segoe UI;
-            width: 20px;
+            width: 40px;
             border:none;
         }
         """,
