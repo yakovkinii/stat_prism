@@ -13,3 +13,4 @@ pillow
 statsmodels
 matplotlib
 pingouin
+scikit_posthocs
