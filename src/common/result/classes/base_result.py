@@ -10,7 +10,7 @@ from src.settings_panel.panels.registry import PanelRegistry
 
 
 class BaseResult:
-    def __init__(self, unique_id):
+    def __init__(self, unique_id, v2=False):
         # Unique integer id, not for display
         self.unique_id: int = unique_id
         # Result elements, each takes one tab
@@ -19,8 +19,9 @@ class BaseResult:
         self.title: str = ...
         # Display title context (result display)
         self.title_context: str = ...
-        # Settings panel index for activating the result
-        self.settings_panel_index: int = ...
+        if not v2:
+            # Settings panel index for activating the result
+            self.settings_panel_index: int = ...
         # Result config
         self.config = ...
         # Flag for updating the result

@@ -11,6 +11,7 @@ from src.modules.descriptive.result import DescriptiveResult
 from src.modules.mean_comparison.result import MeanComparisonResult
 from src.modules.regression.result import RegressionResult
 from src.modules.reliability.result import ReliabilityResult
+from src.modules.v2.result import V2Result
 
 RESULTS: Dict[
     int,
@@ -22,5 +23,6 @@ RESULTS: Dict[
         ReliabilityResult,
         RegressionResult,
         ContingencyResult,
+        V2Result,
     ],
 ] = {}

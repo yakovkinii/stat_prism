@@ -6,10 +6,13 @@ from enum import Enum
 
 import attrs
 
+from src.common.result.classes.html_result import HTMLTableV2
+
 
 @attrs.define
 class PanelRegistryItem:
     display_name: str
+    content_class: any = None  # E.g. HTMLTableV2
     ui_class: any = None
     ui_instance: any = None
     settings_stacked_widget_index: int = None
@@ -24,6 +27,7 @@ class PanelRegistry(Enum):
     FILTER = PanelRegistryItem(display_name="Filter Properties")
     COLUMN_SELECTOR = PanelRegistryItem(display_name="Select Columns")
     HTML_RESULT_ITEM_SETTINGS = PanelRegistryItem(display_name="HTML Result Item Settings")
+    HTML_TABLE_V2_SETTINGS = PanelRegistryItem(display_name="HTMLTableV2 Settings", content_class=HTMLTableV2)
     PLOT_RESULT_ITEM_SETTINGS = PanelRegistryItem(display_name="PLOT Result Item Settings")
     BLANK = PanelRegistryItem(display_name="Blank")
     ORDER = PanelRegistryItem(display_name="Confirm Order")

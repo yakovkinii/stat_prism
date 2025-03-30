@@ -174,3 +174,128 @@ class HTMLResultElement(BaseResultElement):
     @log_method_noarg
     def get_html(self, renderer=None):
         return "<br>".join([item.get_html() for item in self.items])
+
+
+class HTMLTableV2(BaseResultElement):
+    settings_panel_index = None
+
+    def __init__(
+        self,
+        rows: List[Row] = None,
+        tab_title="Table",
+        border_top: bool = True,
+        border_bottom: bool = True,
+        table_id="",
+        table_caption="(Table caption)",
+        table_note="",
+    ):
+        super().__init__(v2=True)
+        logging.info("Creating HTMLTableV2")
+        self.title: str = tab_title
+        self.class_id: str = "HTMLTableV2"
+        self.rows: List[Row] = rows if rows is not None else []
+        self.border_top = border_top
+        self.border_bottom = border_bottom
+        self.table_id: str = table_id
+        self.table_caption: str = table_caption
+        self.table_note: str = table_note
+
+    @log_method_noarg
+    def get_html(self, renderer=None):
+        # Caption
+        html = ""
+        html += f"""
+            <div class="double-spacing font"><b>
+            Table {self.table_id + "." if self.table_id != "" else ""}
+            </b></div>
+        """
+        html += f'<div class="double-spacing font"><i>{self.table_caption}</i></div>'
+
+        style = ""
+        if self.border_top:
+            style += "border-top: 2px solid black;"
+        if self.border_bottom:
+            style += "border-bottom: 2px solid black;"
+
+        html += f'<table style="{style}" class="font">'
+
+        for row in self.rows:
+            html += "<tr>"
+            for cell in row.cells:
+                style = "padding: 5px;"
+                attributes = ""
+                if cell.is_doubled:
+                    style += "width: 40px;"
+                else:
+                    style += "width: 80px;"
+                if cell.is_bold:
+                    style += "font-weight: bold;"
+                if cell.is_italic:
+                    style += "font-style: italic;"
+                if cell.border_left:
+                    style += f"border-left: 1px solid black;"
+                if cell.border_right:
+                    style += f"border-right: 1px solid black;"
+                if cell.border_top:
+                    style += f"border-top: 1px solid black;"
+                if cell.border_bottom:
+                    style += f"border-bottom: 1px solid black;"
+                if cell.col_span > 1:
+                    attributes += f' colspan="{cell.col_span}"'
+                if cell.row_span > 1:
+                    attributes += f' rowspan="{cell.row_span}"'
+                if cell.push_to_right:
+                    style += "text-align: right; padding-right: 0px; margin-right:0px;"
+                if cell.push_to_left:
+                    style += "text-align: left; padding-left: 0px; margin-left:0px;"
+                if cell.center:
+                    style += "text-align: center;"
+                if cell.no_wrap:
+                    style += "white-space: nowrap;"
+                html += f'<td style="{style}" {attributes}>{cell.text}</td>'
+            html += "</tr>"
+        html += "</table>"
+        if self.table_note != "":
+            html += f'<div class="double-spacing font"><i>Note.</i> {self.table_note}</div>'
+        return html
+
+    def add_title_row_apa(self, row: Row):
+        for cell in row.cells:
+            cell.border_bottom = True
+        self.rows.append(row)
+
+    def add_single_row_apa(self, row: Row):
+        self.rows.append(row)
+
+    def add_multirow_apa(self, rows: List[Row]):
+        for cell in rows[0].cells:
+            cell.border_top = True
+        for row in rows:
+            self.rows.append(row)
+
+    @log_method
+    def set_table_id(self, table_id):
+        self.table_id = table_id
+
+    @log_method
+    def set_table_caption(self, table_caption):
+        self.table_caption = table_caption
+
+    @log_method
+    def split_table(self, max_cols: int):  # Todo maybe return as multitable (group by as same tab)
+        new_tables = []
+        num_cols = len(self.rows[0].cells)
+
+        if num_cols <= max_cols:
+            return [self]
+
+        for i in range(1, num_cols, max_cols):
+            new_table = HTMLTableV2(
+                rows=[Row(cells=[row.cells[0]] + row.cells[i : i + max_cols]) for row in self.rows],
+                table_id=self.table_id + (" (cont.)" if i > 1 else ""),
+                table_caption=self.table_caption if i == 1 else "",
+                table_note=self.table_note if i == 1 else "",
+            )
+            new_tables.append(new_table)
+
+        return new_tables

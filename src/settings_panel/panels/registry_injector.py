@@ -28,3 +28,4 @@ def inject_classes_to_panel_registry():
     PanelRegistry.PLOT_RESULT_ITEM_SETTINGS.value.ui_class = PlotResultItemSettings
     PanelRegistry.BLANK.value.ui_class = Blank
     PanelRegistry.ORDER.value.ui_class = Order
+    PanelRegistry.HTML_TABLE_V2_SETTINGS.value.ui_class = HTMLResultItemSettings
