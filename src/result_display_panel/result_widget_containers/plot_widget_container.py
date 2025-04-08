@@ -10,11 +10,11 @@ from PySide6.QtGui import QAction, QFont, QImage
 from PySide6.QtWidgets import QApplication, QLabel, QMenu, QSizePolicy, QVBoxLayout, QWidget
 
 from src.common.elements.utility.layout_helpers import empty_widget
-from src.common.result.classes.plot_result import PlotResultElement
+from src.common.result.classes.plot_result import PlotV2
 
 
 class PlotResultElementWidgetContainer:
-    def __init__(self, parent_widget, result_element: PlotResultElement):
+    def __init__(self, parent_widget, result_element: PlotV2):
         self.result_element = result_element
         self.widget, self.widget_layout = empty_widget(
             parent=parent_widget,
@@ -61,7 +61,7 @@ class PlotResultElementWidgetContainer:
 
 
 class MatplotlibCanvas(FigureCanvas):
-    def __init__(self, parent, result_element: PlotResultElement):
+    def __init__(self, parent, result_element: PlotV2):
         self.result_element = result_element
         self.fig, self.ax = self.result_element.create_figure()
         super().__init__(self.fig)

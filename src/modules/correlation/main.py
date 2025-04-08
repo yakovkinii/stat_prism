@@ -3,120 +3,47 @@
 #
 
 import logging
-from typing import Dict, Union
 
 import numpy as np
 import pandas as pd
-from scipy.stats import kendalltau, linregress, pearsonr, spearmanr
+from scipy.stats import linregress
 
+from src.common.constant import ColumnType
 from src.common.decorators import log_function
-from src.common.result.classes.html_result import HTMLResultElement, HTMLText
-from src.common.result.classes.plot_result import Band, Heatmap, Line, PlotResultElement, Scatter
-from src.modules.correlation.binary_correlations import phi_coefficient, tetrachoric_corr_2x2_table
+from src.common.result.classes.plot_result import Band, Heatmap, Line, PlotV2, Scatter
+from src.data_panel.data import Data
+from src.mathematics.correlation.correlation import calculate_correlations
 from src.modules.correlation.report import get_report
-from src.modules.correlation.result import CorrelationResult, CorrelationStudyConfig, CorrelationType
+from src.modules.correlation.result import CorrelationResult, CorrelationType
 from src.modules.correlation.table import get_table_compact, get_table_full
-from src.settings_panel.panels.registry import PanelRegistry
 
 
-def calculate_correlations(df, kind: CorrelationType):
-    correlation_matrix = pd.DataFrame(index=df.columns, columns=df.columns)
-    p_matrix = pd.DataFrame(index=df.columns, columns=df.columns)
-    df_matrix = pd.DataFrame(index=df.columns, columns=df.columns)
+def to_full_matrix(df: pd.DataFrame) -> pd.DataFrame:
+    full_matrix = df.copy()
+    for i, col1 in enumerate(df.columns):
+        for j, col2 in enumerate(df.columns):
+            if i > j:
+                full_matrix.loc[col2, col1] = df.loc[col1, col2]
+            elif i == j:
+                full_matrix.loc[col1, col2] = 1
 
-    # Calculate correlation, p-values, and degrees of freedom for each pair of columns
-    for i1, col1 in enumerate(df.columns):
-        for i2, col2 in enumerate(df.columns):
-            if i1 <= i2:
-                continue
-            # Drop NA values for the pair of columns
-            valid_data = df[[col1, col2]].dropna()
-
-            if kind == CorrelationType.PEARSON:
-                # Compute correlation and p-value
-                corr, p_value = pearsonr(valid_data[col1], valid_data[col2])
-                degrees_of_freedom = len(valid_data) - 2
-            elif kind == CorrelationType.SPEARMAN:
-                corr, p_value = spearmanr(valid_data[col1], valid_data[col2])
-                degrees_of_freedom = np.nan  # Not available
-            elif kind == CorrelationType.KENDALL:
-                corr, p_value = kendalltau(valid_data[col1], valid_data[col2])
-                degrees_of_freedom = np.nan  # Not available
-            elif kind == CorrelationType.PHI:
-                corr, p_value, degrees_of_freedom = phi_coefficient(valid_data[col1], valid_data[col2])
-            elif kind == CorrelationType.TETRACHORIC:
-                corr, _, p_value, degrees_of_freedom = tetrachoric_corr_2x2_table(
-                    table=pd.crosstab(df.iloc[:, 0], df.iloc[:, 1]).values
-                )
-            else:
-                raise ValueError(f"Invalid correlation type: {kind}")
-
-            # Fill the square matrix
-            correlation_matrix.loc[col1, col2] = corr
-            p_matrix.loc[col1, col2] = p_value
-            df_matrix.loc[col1, col2] = degrees_of_freedom
-
-    return correlation_matrix, p_matrix, df_matrix
+    full_matrix = full_matrix.astype(float)
+    return full_matrix
 
 
 @log_function
-def recalculate_correlation_study(
-    df: pd.DataFrame, result: CorrelationResult, ordinal_orders: Dict[str, Dict[Union[int, float, str], int]]
-) -> CorrelationResult:
-    logging.info("Recalculating correlation study")
-
-    config: CorrelationStudyConfig = result.config
-    if len(config.selected_columns) < 2:
-        msg = "Please select at least two Variables"
-        result.set_placeholder(msg)
-        logging.debug(msg)
-        return result
-
-    if len(config.filters) > 0:
-        for filter_settings in config.filters:
-            query = filter_settings.get_query()
-            logging.debug(f"Applying Filter: {query}")
-            df = df.query(query)
-    else:
-        logging.debug("No filter applied")
-
-    compact = config.compact
-    report_only_significant = config.report_only_significant
-    kind = config.correlation_type
-
-    df = df[config.selected_columns].copy()
-
-    for col, ordinal_order in ordinal_orders.items():
-        df[col] = df[col].map(ordinal_order)
-
-    if kind in [CorrelationType.PHI, CorrelationType.TETRACHORIC]:
-        if not all(df[col].nunique() <= 2 for col in df.columns):
-            msg = f"All columns must have at most 2 unique values for {kind.name} correlation."
-            result.set_placeholder(msg)
-            logging.debug(msg)
-            return result
+def recalculate_correlation_study(data: Data, result: CorrelationResult) -> CorrelationResult:
+    cfg = result.config
+    df = data.get_dataframe(filters=result.config.filters, columns=result.config.selected_columns, map_ordinal=True)
 
     columns = list(df.columns)
 
-    correlation_matrix, p_matrix, df_matrix = calculate_correlations(df, kind)
+    correlation_matrix, p_matrix, df_matrix = calculate_correlations(df, cfg.correlation_type)
 
-    # html_table = get_table(columns, correlation_matrix, p_matrix, df_matrix, compact, table_name)
-    if compact:
-        html_table = get_table_compact(columns, correlation_matrix, p_matrix, kind=kind)
+    if cfg.compact:
+        html_table = get_table_compact(columns, correlation_matrix, p_matrix, kind=cfg.correlation_type)
     else:
-        html_table = get_table_full(columns, correlation_matrix, p_matrix, df_matrix, kind=kind)
-
-    def to_full_matrix(df: pd.DataFrame) -> pd.DataFrame:
-        full_matrix = df.copy()
-        for i, col1 in enumerate(df.columns):
-            for j, col2 in enumerate(df.columns):
-                if i > j:
-                    full_matrix.loc[col2, col1] = df.loc[col1, col2]
-                elif i == j:
-                    full_matrix.loc[col1, col2] = 1
-
-        full_matrix = full_matrix.astype(float)
-        return full_matrix
+        html_table = get_table_full(columns, correlation_matrix, p_matrix, df_matrix, kind=cfg.correlation_type)
 
     # Verbal
     verbal = get_report(
@@ -124,46 +51,40 @@ def recalculate_correlation_study(
         correlation_matrix,
         p_matrix,
         df_matrix,
-        report_non_significant=not report_only_significant,
-        kind=kind,
+        report_non_significant=not cfg.report_only_significant,
+        kind=cfg.correlation_type,
     )
-    html_result_element = HTMLResultElement(
-        settings_panel_index=PanelRegistry.HTML_RESULT_ITEM_SETTINGS.settings_stacked_widget_index
-    )
-    if (len(ordinal_orders) > 0) and (kind == CorrelationType.PEARSON):
+    html_table.add_text(verbal)
+
+    if any([data[col].column_type == ColumnType.ORDINAL for col in columns]) and (
+        cfg.correlation_type == CorrelationType.PEARSON
+    ):
         msg = "Warning: Ordinal data detected. Pearson correlation is not suitable for ordinal data."
         logging.warning(msg)
-        html_result_element.items.append(HTMLText(msg))
+        html_table.add_text(msg)
 
-    html_result_element.items.append(html_table)
-    html_result_element.items.append(HTMLText(verbal))
-    html_result_element.table_caption = html_table.table_caption
+    result.title_context = ", ".join([f"{col[:16]}" for col in cfg.selected_columns])
 
-    result.title_context = ", ".join([f"{col[:16]}" for col in config.selected_columns])
-
-    result.result_elements = [html_result_element]
-
-    plot_heatmap = Heatmap(
-        df=to_full_matrix(correlation_matrix),
-        p=to_full_matrix(p_matrix),
-        label="Band: Standard Error",
+    heatmap_plot = PlotV2(
+        items=[
+            Heatmap(
+                df=to_full_matrix(correlation_matrix),
+                p=to_full_matrix(p_matrix),
+                label="Band: Standard Error",
+            )
+        ],
+        tab_title="Plot: Correlation Matrix",
+        plot_title="Correlation Matrix",
+        x_axis_title="Variable",
+        y_axis_title="Variable",
     )
+    result.result_elements = [html_table, heatmap_plot]
 
-    plot_result_heatmap = PlotResultElement(
-        settings_panel_index=PanelRegistry.PLOT_RESULT_ITEM_SETTINGS.settings_stacked_widget_index,
-        tab_title=f"Plot: Heatmap",
-        plot_title=f"Correlation heatmap",
-        x_axis_title="",
-        y_axis_title="",
-    )
-    plot_result_heatmap.items = [plot_heatmap]
-    result.result_elements.append(plot_result_heatmap)
-
-    if config.generate_plots:
+    if cfg.generate_plots:
         for i, name1 in enumerate(columns):
             for j, name2 in enumerate(columns):
                 if i < j:
-                    if report_only_significant and p_matrix.loc[name1, name2] > 0.05:
+                    if cfg.report_only_significant and p_matrix.loc[name1, name2] > 0.05:
                         continue
                     plot = Scatter(x=df[name1], y=df[name2], label=f"Scatter: data points")
 
@@ -202,14 +123,13 @@ def recalculate_correlation_study(
                         label="Band: Standard Error",
                     )
 
-                    plot_result = PlotResultElement(
-                        settings_panel_index=PanelRegistry.PLOT_RESULT_ITEM_SETTINGS.settings_stacked_widget_index,
+                    plot_result = PlotV2(
+                        items=[plot, plot_band, plot_line],
                         tab_title=f"Plot: {name1[:16]} vs {name2[:16]}",
                         plot_title=f"Correlation between {name1} and {name2}",
                         x_axis_title=name1,
                         y_axis_title=name2,
                     )
-                    plot_result.items = [plot, plot_band, plot_line]
                     result.result_elements.append(plot_result)
 
     return result

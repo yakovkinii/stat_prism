@@ -33,4 +33,4 @@ def inject_classes_to_panel_registry():
     PanelRegistry.HTML_TABLE_V2_SETTINGS.value.ui_class = HTMLResultItemSettings
     PanelRegistry.HTML_MULTI_TABLE_V2_SETTINGS.value.ui_class = HTMLResultItemSettings
     PanelRegistry.RESULT_ITEM_SETTINGS_V2.value.ui_class = ResultItemSettingsV2
-    PanelRegistry.RESULT_ITEM_SETTINGS_V2.value.content_class=[HTMLTableV2, PlotV2]
+    PanelRegistry.RESULT_ITEM_SETTINGS_V2.value.content_class = [HTMLTableV2, PlotV2]

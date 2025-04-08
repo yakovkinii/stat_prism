@@ -5,7 +5,6 @@
 import logging
 from typing import TYPE_CHECKING, Dict, List, Union
 
-import numpy as np
 import pandas as pd
 import qtawesome as qta
 from PySide6.QtCore import QAbstractTableModel, QModelIndex, Qt
@@ -181,12 +180,12 @@ class DataModel(QAbstractTableModel):
         return self._data.columns  # todo deprecate and maybe copy()
 
     @log_method
-    def get_column(self, column_index: int): # Todo deprecate and use rich classes instead
+    def get_column(self, column_index: int):  # Todo deprecate and use rich classes instead
         assert 0 <= column_index < self.columnCount()
         return self._data[column_index].data_series
 
     @log_method
-    def get_column_v2(self, column_index: int)-> DataColumn:
+    def get_column_v2(self, column_index: int) -> DataColumn:
         return self._data[column_index].copy()
 
     @log_method
@@ -210,7 +209,7 @@ class DataModel(QAbstractTableModel):
         return self._data.get_dataframe()
 
     @log_method_noarg
-    def get_data_v2(self)->Data:
+    def get_data_v2(self) -> Data:
         return self._data.copy()
 
     @log_method

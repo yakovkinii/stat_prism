@@ -7,8 +7,6 @@ from enum import Enum
 import attrs
 
 
-
-
 @attrs.define
 class PanelRegistryItem:
     display_name: str

@@ -2,12 +2,11 @@
 #  Copyright (c) 2023 -- 2024 StatPrism Team. All rights reserved.
 #
 
-from typing import List, Dict
+from typing import Dict
 
-from PySide6.QtWidgets import QVBoxLayout, QTabWidget
+from PySide6.QtWidgets import QTabWidget
 
 from src.common.elements.base.base import BasePanelElement
-from src.common.elements.utility.layout_helpers import empty_widget
 
 
 class Tab(BasePanelElement):
@@ -19,7 +18,7 @@ class Tab(BasePanelElement):
         self.widget = QTabWidget(self.parent_widget)
         self.widget.setTabPosition(QTabWidget.TabPosition.East)
 
-    def add_element(self, name:str, element: BasePanelElement):
+    def add_element(self, name: str, element: BasePanelElement):
         self._elements[name] = element
         element.widget.show()
         self.widget.addTab(element.widget, name)

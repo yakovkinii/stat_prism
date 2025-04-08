@@ -93,7 +93,9 @@ class Filter(BasePanel):
             root_class=self.root_class,
             df=self.tabledata.get_data(),
             column_names=self.tabledata.get_column_names(),
-            dtypes=[self.tabledata.get_column_v2(i).column_dtype for i in range(len(self.tabledata.get_column_names()))],
+            dtypes=[
+                self.tabledata.get_column_v2(i).column_dtype for i in range(len(self.tabledata.get_column_names()))
+            ],
             filter_settings=None,
             already_filtered_rows=removed_rows,
         )
@@ -121,7 +123,9 @@ class Filter(BasePanel):
             root_class=self.root_class,
             df=self.tabledata.get_data(),
             column_names=self.tabledata.get_column_names(),
-            dtypes=[self.tabledata.get_column_v2(i).column_dtype for i in range(len(self.tabledata.get_column_names()))],
+            dtypes=[
+                self.tabledata.get_column_v2(i).column_dtype for i in range(len(self.tabledata.get_column_names()))
+            ],
             filter_settings=clicked_filter,
             already_filtered_rows=removed_rows,
         )

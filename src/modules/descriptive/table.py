@@ -6,7 +6,7 @@ from typing import Any, Dict, List
 
 import pandas as pd
 
-from src.common.result.classes.html_result import Cell, HTMLTable, Row
+from src.common.result.classes.html_result import Cell, HTMLTableV2, Row
 
 
 def format_w_apa(r, decimals=3):
@@ -39,10 +39,8 @@ def get_descriptive_table_no_groupby(
     df: pd.DataFrame,
     caption: str,
     note: str = "",
-) -> HTMLTable:
-    table = HTMLTable([])
-
-    table.table_caption = caption
+) -> HTMLTableV2:
+    table = HTMLTableV2(table_caption=caption)
 
     # Add header1
     table.add_single_row_apa(
@@ -95,10 +93,8 @@ def get_descriptive_table_groupby(
     groupby_values: List[str],
     caption: str,
     note: str = "",
-) -> HTMLTable:
-    table = HTMLTable([])
-
-    table.table_caption = caption
+) -> HTMLTableV2:
+    table = HTMLTableV2(table_caption=caption)
 
     # Add header1
     table.add_single_row_apa(

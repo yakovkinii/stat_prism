@@ -2,8 +2,6 @@
 #  Copyright (c) 2023 -- 2024 StatPrism Team. All rights reserved.
 #
 
-import logging
-
 import numpy as np
 import pandas as pd
 from scipy import stats
@@ -11,24 +9,25 @@ from scipy.stats import gaussian_kde
 
 from src.common.constant import MDASH, ColumnType
 from src.common.decorators import log_function
-from src.common.result.classes.html_result import HTMLResultElement
-from src.common.result.classes.plot_result import Bar, BarPlotConfig, Colors, Line, LinePlotConfig, PlotResultElement
+from src.common.result.classes.plot_result import Bar, BarPlotConfig, Colors, Line, LinePlotConfig, PlotV2
+from src.data_panel.data import Data
 from src.modules.descriptive.plot import create_box_plot
-from src.modules.descriptive.result import DescriptiveResult, DescriptiveStudyConfig
+from src.modules.descriptive.result import DescriptiveResult
 from src.modules.descriptive.table import get_descriptive_table_groupby, get_descriptive_table_no_groupby
-from src.settings_panel.panels.registry import PanelRegistry
 
 
-def calculate_descriptive_study_no_groupby(df, config, result):
-    numeric_columns = [
-        col
-        for col, col_type in zip(config.selected_columns, config.selected_columns_types)
-        if col_type == ColumnType.NUMERIC
-    ]
+def calculate_descriptive_study_no_groupby(data: Data, result: DescriptiveResult):
+    cfg = result.config
+    df = data.get_dataframe(
+        filters=result.config.filters,
+        columns=cfg.selected_columns,
+    )
+
+    numeric_columns = [col for col in cfg.selected_columns if data[col].column_type == ColumnType.NUMERIC]
 
     descriptive_results = []
     plot_result_elements = []
-    for col in config.selected_columns:
+    for col in cfg.selected_columns:
         is_numeric = col in numeric_columns
 
         shapiro_wilk_w, shapiro_wilk_p = stats.shapiro(df[col].dropna()) if is_numeric else (MDASH, MDASH)
@@ -71,45 +70,38 @@ def calculate_descriptive_study_no_groupby(df, config, result):
             label=f"Distribution",
         )
 
-        plot_result = PlotResultElement(
-            settings_panel_index=PanelRegistry.PLOT_RESULT_ITEM_SETTINGS.settings_stacked_widget_index,
+        plot_result = PlotV2(
+            items=[plot_line, plot_bar],
             tab_title=f"Plot: Distribution of {col}",
             plot_title=f"Distribution of {col}",
             x_axis_title=col,
             y_axis_title="Density",
         )
-        plot_result.items = [plot_line, plot_bar]
         plot_result_elements.append(plot_result)
 
     descriptive_df = pd.DataFrame(descriptive_results)
 
     html_table = get_descriptive_table_no_groupby(descriptive_df, caption="Descriptive statistics")
-    html_result_element = HTMLResultElement(
-        settings_panel_index=PanelRegistry.HTML_RESULT_ITEM_SETTINGS.settings_stacked_widget_index
-    )
 
-    html_result_element.items.append(html_table)
-    html_result_element.set_table_id("1")
-    html_result_element.table_caption = html_table.table_caption
-
-    result.title_context = ", ".join([f"{col[:16]}" for col in config.selected_columns])
-    result.result_elements = [html_result_element] + plot_result_elements
+    result.title_context = ", ".join([f"{col[:16]}" for col in cfg.selected_columns])
+    result.result_elements = [html_table] + plot_result_elements
     return result
 
 
-def calculate_descriptive_study_groupby(df, config, result):
-    groupby_column = config.grouping_column
+def calculate_descriptive_study_groupby(data: Data, result: DescriptiveResult):
+    cfg = result.config
+    df = data.get_dataframe(
+        filters=result.config.filters,
+        columns=cfg.selected_columns + [cfg.grouping_column],
+    )
+    groupby_column = cfg.grouping_column
     groupby_values = df[groupby_column].drop_duplicates().values
 
-    numeric_columns = [
-        col
-        for col, col_type in zip(config.selected_columns, config.selected_columns_types)
-        if col_type == ColumnType.NUMERIC
-    ]
+    numeric_columns = [col for col in cfg.selected_columns if data[col].column_type == ColumnType.NUMERIC]
 
     descriptive_results = []
     plot_result_elements = []
-    for col in config.selected_columns:
+    for col in cfg.selected_columns:
         is_numeric = col in numeric_columns
 
         var_results = {}
@@ -176,14 +168,13 @@ def calculate_descriptive_study_groupby(df, config, result):
             )
             plots.append(plot_bar)
 
-        plot_result = PlotResultElement(
-            settings_panel_index=PanelRegistry.PLOT_RESULT_ITEM_SETTINGS.settings_stacked_widget_index,
+        plot_result = PlotV2(
+            items=plots,
             tab_title=f"Plot: Distribution of {col}",
             plot_title=f"Distribution of {col}",
             x_axis_title=col,
             y_axis_title="Density",
         )
-        plot_result.items = plots
         plot_result_elements.append(plot_result)
 
         box_plot_result = create_box_plot(
@@ -201,50 +192,21 @@ def calculate_descriptive_study_groupby(df, config, result):
         groupby_values=groupby_values,
         caption="Descriptive statistics",
     )
-    html_result_element = HTMLResultElement(
-        settings_panel_index=PanelRegistry.HTML_RESULT_ITEM_SETTINGS.settings_stacked_widget_index
-    )
-
-    html_result_element.items.append(html_table)
-    html_result_element.set_table_id("1")
-    html_result_element.table_caption = html_table.table_caption
 
     result.title_context = (
-        ", ".join([f"{col[:16]}" for col in config.selected_columns]) + "\n" + f"{config.grouping_column[:16]}"
-        if config.grouping_column is not None
+        ", ".join([f"{col[:16]}" for col in cfg.selected_columns]) + "\n" + f"{cfg.grouping_column[:16]}"
+        if cfg.grouping_column is not None
         else ""
     )
-    result.result_elements = [html_result_element] + plot_result_elements
+    result.result_elements = [html_table] + plot_result_elements
     return result
 
 
 @log_function
-def recalculate_descriptive_study(df: pd.DataFrame, result: DescriptiveResult) -> DescriptiveResult:
-    config: DescriptiveStudyConfig = result.config
-
-    if len(config.selected_columns) < 1:
-        msg = "Please select one Grouping Column and at least one Variable"
-        result.set_placeholder(msg)
-        logging.debug(msg)
-        return result
-
-    if len(config.filters) > 0:
-        for filter_settings in config.filters:
-            query = filter_settings.get_query()
-            logging.debug(f"Applying Filter: {query}")
-            df = df.query(query)
+def recalculate_descriptive_study(data: Data, result: DescriptiveResult) -> DescriptiveResult:
+    if result.config.grouping_column is None:
+        result = calculate_descriptive_study_no_groupby(data, result)
     else:
-        logging.debug("No filter applied")
-
-    df = (
-        df[config.selected_columns + [config.grouping_column]]
-        if config.grouping_column
-        else df[config.selected_columns]
-    )
-
-    if config.grouping_column is None:
-        result = calculate_descriptive_study_no_groupby(df, config, result)
-    else:
-        result = calculate_descriptive_study_groupby(df, config, result)
+        result = calculate_descriptive_study_groupby(data, result)
 
     return result

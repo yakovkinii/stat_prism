@@ -8,8 +8,7 @@ from typing import List, Union
 from src.common.constant import TABLE_OR_PLOT_ID_PLACEHOLDER
 from src.common.decorators import log_method, log_method_noarg
 from src.common.result.classes.base_result import BaseResultElement
-from src.settings_panel.panels.result_item_settings_v2.classes import SingleLineTextResultItemSetting, \
-    NumberCaptionResultItemSetting
+from src.settings_panel.panels.result_item_settings_v2.classes import NumberCaptionResultItemSetting
 
 
 class Cell:
@@ -199,18 +198,19 @@ class HTMLTableV2(BaseResultElement):
         self.border_top = border_top
         self.border_bottom = border_bottom
         self.table_note: str = table_note
-        self.number_caption = NumberCaptionResultItemSetting(
-            current_number=table_id, current_caption=table_caption
-        )
-        self.display_settings = {'General': self.number_caption}
+        self.number_caption = NumberCaptionResultItemSetting(current_number=table_id, current_caption=table_caption)
+        self.display_settings = {"General": self.number_caption}
+        self.texts: List[str] = []
 
     @log_method_noarg
     def get_html(self, renderer=None):
+        table_id = self.number_caption.get_number() + "." if self.number_caption.get_number() != "" else ""
+
         # Caption
         html = ""
         html += f"""
             <div class="double-spacing font"><b>
-            Table {self.number_caption.get_number() + "." if self.number_caption.get_number() != "" else ""}
+            Table {table_id}
             </b></div>
         """
         html += f'<div class="double-spacing font"><i>{self.number_caption.get_caption()}</i></div>'
@@ -258,9 +258,17 @@ class HTMLTableV2(BaseResultElement):
                     style += "white-space: nowrap;"
                 html += f'<td style="{style}" {attributes}>{cell.text}</td>'
             html += "</tr>"
-        html += "</table>"
+        html += "</table>\n"
         if self.table_note != "":
-            html += f'<div class="double-spacing font"><i>Note.</i> {self.table_note}</div>'
+            html += f'<div class="double-spacing font"><i>Note.</i> {self.table_note}</div>\n'
+
+        for text in self.texts:
+            html += (
+                "<br><br>\n"
+                f'<div class="double-spacing font"> \n'
+                f"{text.replace(TABLE_OR_PLOT_ID_PLACEHOLDER, table_id)}\n"
+                f"</div><br>\n"
+            )
         return html
 
     def add_title_row_apa(self, row: Row):
@@ -276,6 +284,9 @@ class HTMLTableV2(BaseResultElement):
             cell.border_top = True
         for row in rows:
             self.rows.append(row)
+
+    def add_text(self, text=None):
+        self.texts.append(text)
 
     @log_method
     def split_table(self, max_cols: int):  # Todo maybe return as multitable (group by as same tab)
@@ -295,6 +306,7 @@ class HTMLTableV2(BaseResultElement):
             new_tables.append(new_table)
 
         return HTMLMultiTableV2(new_tables)
+
 
 class HTMLMultiTableV2(BaseResultElement):
     def __init__(self, tables: List[HTMLTableV2], tab_title="Table"):

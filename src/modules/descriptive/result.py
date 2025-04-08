@@ -4,7 +4,6 @@
 
 from typing import List
 
-from src.common.constant import ColumnType
 from src.common.elements.filter.filter import FilterSettings
 from src.common.result.classes.base_result import BaseResult
 from src.modules.descriptive.constant import DESCRIPTION
@@ -14,12 +13,10 @@ class DescriptiveStudyConfig:
     def __init__(
         self,
         selected_columns: List[str] = None,
-        selected_columns_types: List[ColumnType] = None,
         grouping_column: str = None,
         filters: List[FilterSettings] = None,
     ):
         self.selected_columns = selected_columns if selected_columns is not None else []
-        self.selected_columns_types = selected_columns_types if selected_columns_types is not None else []
         self.grouping_column = grouping_column
         self.filters: List[FilterSettings] = filters if filters is not None else []
 

@@ -2,18 +2,13 @@
 #  Copyright (c) 2023 -- 2024 StatPrism Team. All rights reserved.
 #
 from PySide6.QtCore import Qt
-from PySide6.QtWidgets import (
-    QHBoxLayout,
-    QLabel,
-    QSlider, QVBoxLayout,
-)
+from PySide6.QtWidgets import QHBoxLayout, QLabel, QSlider, QVBoxLayout
 
 from src.common.elements.base.base import BasePanelElement
-from src.common.elements.edit.edit import LabeledLineEdit, LabeledMultilineEdit
+from src.common.elements.edit.edit import LabeledLineEdit
 from src.common.elements.utility.layout_helpers import empty_widget, widget_in_layout
 from src.common.messages import Message, MessageType
 from src.common.size import SettingsPanelSize
-from src.common.unique_qss import set_stylesheet
 
 
 class SingleLineTextResultItemSetting(BasePanelElement):
@@ -47,13 +42,14 @@ class NumberCaptionResultItemSetting(BasePanelElement):
         super().__init__()
         self.number = SingleLineTextResultItemSetting("Number:", current_number)
         self.caption = SingleLineTextResultItemSetting("Caption:", current_caption)
-        
+
     def setup(self):
         self.widget, self.layout = empty_widget(
             parent=self.parent_widget,
             inner_layout_class=QVBoxLayout,
             setup=lambda widget, layout: [
-                layout.setContentsMargins(0, 5, 0, 5), layout.setSpacing(10),
+                layout.setContentsMargins(0, 5, 0, 5),
+                layout.setSpacing(10),
             ],
         )
 
@@ -88,10 +84,7 @@ class SliderResultItemSetting(BasePanelElement):
         self.widget, self.layout = empty_widget(
             parent=self.parent_widget,
             inner_layout_class=QVBoxLayout,
-            setup=lambda widget, layout: [
-                (layout.setContentsMargins(0, 0, 0, 0),
-                 layout.setSpacing(0))
-            ],
+            setup=lambda widget, layout: [(layout.setContentsMargins(0, 0, 0, 0), layout.setSpacing(0))],
         )
         self.layout_hbox = QHBoxLayout()
 

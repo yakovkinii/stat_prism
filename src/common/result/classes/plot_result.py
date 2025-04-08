@@ -420,7 +420,7 @@ class PlotV2(BaseResultElement):
 
     def __init__(
         self,
-        items: List[Union[Scatter, Line, Band, Bar, Box]] = None,
+        items: List[Union[Scatter, Line, Band, Bar, Box, Heatmap]] = None,
         tab_title="Plot Result Element",
         plot_id="",
         plot_title="Correlation plot",
@@ -430,7 +430,7 @@ class PlotV2(BaseResultElement):
     ):
         super().__init__(v2=True)
         self.title: str = tab_title
-        self.class_id: str = "PlotResultElement"
+        self.class_id: str = "PlotV2"
         self.items = items if items else []
         self.plot_id = plot_id
         self.plot_title = plot_title

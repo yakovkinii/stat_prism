@@ -10,7 +10,6 @@ from src.common.elements.column_selector.column_selector import ColumnSelectorEx
 from src.common.elements.filter.filter import CompiledFilterHistory
 from src.common.elements.spacer.spacer_small import SpacerSmall
 from src.common.elements.title.title import Title
-from src.common.messages import Message, MessageType
 from src.common.result.registry import RESULTS
 from src.modules.base.base import BaseModulePanel
 from src.modules.v2.main import recalculate_v2_study
@@ -72,11 +71,3 @@ class V2(BaseModulePanel):
         self.root_class.result_selector_panel.refresh_result(result_id=self.result_id)
         self.root_class.results_panel.display(result_id=self.result_id)
         self.root_class.action_activate_results_panel()
-
-    @log_method
-    def handler(self, message: Message):
-        if message.message_type == MessageType.CLICKED:
-            if message.caller_id == "column_selector":
-                self.open_column_selector_popup()
-                return
-        super().handler(message)

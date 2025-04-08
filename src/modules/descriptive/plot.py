@@ -6,8 +6,7 @@ from typing import List
 
 import pandas as pd
 
-from src.common.result.classes.plot_result import Box, Colors, PlotResultElement
-from src.settings_panel.panels.registry import PanelRegistry
+from src.common.result.classes.plot_result import Box, Colors, PlotV2
 
 
 def create_box_plot(
@@ -15,9 +14,8 @@ def create_box_plot(
     group_names: List[str],
     column: str,
     grouping_column: str,
-) -> PlotResultElement:
-    plot_result = PlotResultElement(
-        settings_panel_index=PanelRegistry.PLOT_RESULT_ITEM_SETTINGS.settings_stacked_widget_index,
+) -> PlotV2:
+    plot_result = PlotV2(
         tab_title=f"Box Plot: Comparison of {column} within {grouping_column}",
         plot_title=f"Comparison of {column} within {grouping_column}",
         x_axis_title=grouping_column,

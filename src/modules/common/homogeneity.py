@@ -8,7 +8,7 @@ import pandas as pd
 from scipy import stats
 from scipy.stats._morestats import LeveneResult
 
-from src.common.result.classes.html_result import Cell, HTMLTable, HTMLText, Row
+from src.common.result.classes.html_result import Cell, HTMLTableV2, Row
 from src.common.utility import format_p_apa, format_statistic_apa
 from src.common.verbal.test import TestResult, describe_single_test_multiple_variables
 
@@ -18,8 +18,7 @@ def process_homogeneity_check(
     selected_columns,
     grouping_column,
 ):
-    table = HTMLTable([])
-    table.table_caption = "Levene's test for homogeneity of variance"
+    table = HTMLTableV2(table_caption="Levene's test for homogeneity of variance")
     table.add_title_row_apa(
         Row(
             [
@@ -71,7 +70,7 @@ def process_homogeneity_check(
                 )
             )
 
-    text = HTMLText(
+    table.add_text(
         describe_single_test_multiple_variables(
             test_name="Levene's test",
             test_check="homogeneity of variance",
@@ -82,4 +81,4 @@ def process_homogeneity_check(
         )
     )
 
-    return homogeneous_columns, non_homogeneous_columns, table, text
+    return homogeneous_columns, non_homogeneous_columns, table

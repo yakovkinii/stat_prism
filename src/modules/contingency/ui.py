@@ -1,8 +1,7 @@
 #
 #  Copyright (c) 2023 -- 2024 StatPrism Team. All rights reserved.
 #
-
-from typing import TYPE_CHECKING
+import logging
 
 from src.common.constant import ColumnType
 from src.common.decorators import log_method
@@ -10,14 +9,10 @@ from src.common.elements.column_selector.column_selector import ColumnSelectorEx
 from src.common.elements.filter.filter import CompiledFilterHistory
 from src.common.elements.spacer.spacer_small import SpacerSmall
 from src.common.elements.title.title import Title
-from src.common.messages import Message, MessageType
 from src.common.result.registry import RESULTS
 from src.modules.base.base import BaseModulePanel
 from src.modules.contingency.main import recalculate_contingency_study
 from src.modules.contingency.result import ContingencyStudyConfig
-
-if TYPE_CHECKING:
-    pass
 
 
 class Contingency(BaseModulePanel):
@@ -53,12 +48,8 @@ class Contingency(BaseModulePanel):
         self.elements["column_selector"].configure(
             columns=self.tabledata.get_all_columns_as_column_types(),
             selected_columns_list=[
-                [RESULTS[result_id].config.selected_column1]
-                if RESULTS[result_id].config.selected_column1 is not None
-                else [],
-                [RESULTS[result_id].config.selected_column2]
-                if RESULTS[result_id].config.selected_column2 is not None
-                else [],
+                [RESULTS[result_id].config.selected_column1],
+                [RESULTS[result_id].config.selected_column2],
             ],
         )
         self.elements["compiled_filters"].configure(RESULTS[result_id].config.filters)
@@ -66,22 +57,30 @@ class Contingency(BaseModulePanel):
 
         self.configuring = False
 
+    def check(self):
+        if self.elements["column_selector"].get_selected_columns()[0][0] == [None]:
+            logging.info("No column selected for Variable 1")
+            return False
+        if self.elements["column_selector"].get_selected_columns()[1][0] == [None]:
+            logging.info("No column selected for Variable 2")
+            return False
+        return True
+
     def recalculate(self):
         if self.configuring:
             return
 
+        if not self.check():
+            return
+
         RESULTS[self.result_id].config = ContingencyStudyConfig(
-            selected_column1=self.elements["column_selector"].get_selected_columns()[0][0]
-            if len(self.elements["column_selector"].get_selected_columns()[1]) == 1
-            else None,
-            selected_column2=self.elements["column_selector"].get_selected_columns()[1][0]
-            if len(self.elements["column_selector"].get_selected_columns()[1]) == 1
-            else None,
+            selected_column1=self.elements["column_selector"].get_selected_columns()[0][0],
+            selected_column2=self.elements["column_selector"].get_selected_columns()[1][0],
             filters=RESULTS[self.result_id].config.filters,
         )
 
         RESULTS[self.result_id] = recalculate_contingency_study(
-            df=self.tabledata.get_data(),
+            data=self.tabledata.get_data_v2(),
             result=RESULTS[self.result_id],
         )
 
@@ -90,17 +89,3 @@ class Contingency(BaseModulePanel):
         self.root_class.result_selector_panel.refresh_result(result_id=self.result_id)
         self.root_class.results_panel.display(result_id=self.result_id)
         self.root_class.action_activate_results_panel()
-
-    @log_method
-    def handler(self, message: Message):
-        if message.message_type == MessageType.CLICKED:
-            if message.caller_id == "compiled_filters":
-                self.open_filter_handler()
-            elif message.caller_id == "column_selector":
-                self.open_column_selector_popup()
-            else:
-                super().handler(message)
-        elif message.message_type == MessageType.FILTER_CLICKED:
-            self.open_filter_handler()
-        else:
-            super().handler(message)

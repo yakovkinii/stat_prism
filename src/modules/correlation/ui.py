@@ -1,8 +1,7 @@
 #
 #  Copyright (c) 2023 -- 2024 StatPrism Team. All rights reserved.
 #
-
-from typing import TYPE_CHECKING
+import logging
 
 from src.common.constant import ColumnType
 from src.common.decorators import log_method
@@ -17,9 +16,6 @@ from src.common.result.registry import RESULTS
 from src.modules.base.base import BaseModulePanel
 from src.modules.correlation.main import recalculate_correlation_study
 from src.modules.correlation.result import CORRELATION_TYPE_MAP, CorrelationStudyConfig
-
-if TYPE_CHECKING:
-    pass
 
 
 class Correlation(BaseModulePanel):
@@ -64,6 +60,18 @@ class Correlation(BaseModulePanel):
 
         self.configuring = False
 
+    def check(self):
+        if len(self.elements["column_selector"].get_selected_columns()[0]) < 2:
+            logging.info("Please select at least 2 columns")
+            return False
+
+        #     if kind in [CorrelationType.PHI, CorrelationType.TETRACHORIC]:
+        #         if not all(df[col].nunique() <= 2 for col in df.columns):
+        #             msg = f"All columns must have at most 2 unique values for {kind.name} correlation."
+        #             result.set_placeholder(msg)
+        #             logging.debug(msg)
+        #             return result
+
     def recalculate(self):
         if self.configuring:
             return
@@ -77,13 +85,9 @@ class Correlation(BaseModulePanel):
             filters=RESULTS[self.result_id].config.filters,
         )
 
-        ordinal_orders = {
-            col: self.tabledata.get_column_ordinal_order_from_column_name(col)
-            for col in RESULTS[self.result_id].config.selected_columns
-            if self.tabledata.get_column_type_from_column_name(col) == ColumnType.ORDINAL
-        }
         RESULTS[self.result_id] = recalculate_correlation_study(
-            df=self.tabledata.get_data(), result=RESULTS[self.result_id], ordinal_orders=ordinal_orders
+            data=self.tabledata.get_data_v2(),
+            result=RESULTS[self.result_id],
         )
 
         RESULTS[self.result_id].needs_update = False

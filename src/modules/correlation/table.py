@@ -3,7 +3,7 @@
 #
 
 from src.common.constant import MDASH
-from src.common.result.classes.html_result import Cell, HTMLTable, Row
+from src.common.result.classes.html_result import Cell, HTMLTableV2, Row
 from src.common.utility import smart_comma_join
 from src.modules.correlation.result import CorrelationType
 
@@ -30,23 +30,42 @@ def format_p_apa(p, decimals=3):
         return f"{round(p, decimals):.{decimals}f}".replace("0.", ".")
 
 
-def get_table_compact(columns, correlation_matrix, p_matrix, kind: CorrelationType) -> HTMLTable:
-    table = HTMLTable([])
-
+def get_correlation_name(kind: CorrelationType) -> str:
     if kind == CorrelationType.PEARSON:
-        correlation_name = "Pearson correlations"
+        return "Pearson's r"
     elif kind == CorrelationType.SPEARMAN:
-        correlation_name = "Spearman rank correlations"
+        return "Spearman's r"
     elif kind == CorrelationType.KENDALL:
-        correlation_name = "Kendall rank correlations"
+        return "Kendall's τ"
     elif kind == CorrelationType.PHI:
-        correlation_name = "Phi correlations"
+        return "Phi φ"
     elif kind == CorrelationType.TETRACHORIC:
-        correlation_name = "Tetrachoric correlations"
+        return "Tetrachoric ρt"
     else:
-        raise ValueError(f"Unknown correlation type: {kind}")
+        raise ValueError(f"Invalid correlation type: {kind}")
 
-    table.table_caption = f"{correlation_name} between " + smart_comma_join([f"'{var}'" for var in columns]) + "."
+
+def get_correlation_short_name(kind: CorrelationType) -> str:
+    if kind == CorrelationType.PEARSON:
+        return "r"
+    elif kind == CorrelationType.SPEARMAN:
+        return "rs"
+    elif kind == CorrelationType.KENDALL:
+        return "τ"
+    elif kind == CorrelationType.PHI:
+        return "φ"
+    elif kind == CorrelationType.TETRACHORIC:
+        return "ρt"
+    else:
+        raise ValueError(f"Invalid correlation type: {kind}")
+
+
+def get_table_compact(columns, correlation_matrix, p_matrix, kind: CorrelationType) -> HTMLTableV2:
+    table = HTMLTableV2(
+        table_caption=(
+            f"{get_correlation_name(kind)} between " + smart_comma_join([f"'{var}'" for var in columns]) + "."
+        )
+    )
 
     # Add header
     table.add_title_row_apa(Row([Cell()] + [Cell(column, col_span=2, center=True) for column in columns]))
@@ -78,44 +97,24 @@ def get_table_compact(columns, correlation_matrix, p_matrix, kind: CorrelationTy
     return table
 
 
-def get_table_full(columns, correlation_matrix, p_matrix, df_matrix, kind: CorrelationType) -> HTMLTable:
+def get_table_full(columns, correlation_matrix, p_matrix, df_matrix, kind: CorrelationType) -> HTMLTableV2:
+    table = HTMLTableV2(
+        table_caption=(
+            f"{get_correlation_name(kind)} between " + smart_comma_join([f"'{var}'" for var in columns]) + "."
+        )
+    )
+
     hide_df_matrix = all(df_matrix.isnull().values.flatten())
-
-    if kind == CorrelationType.PEARSON:
-        correlation_short_name = "Pearson's&nbsp;r"
-    elif kind == CorrelationType.SPEARMAN:
-        correlation_short_name = "Spearman's&nbsp;r"
-    elif kind == CorrelationType.KENDALL:
-        correlation_short_name = "Kendall's&nbsp;τ"
-    elif kind == CorrelationType.PHI:
-        correlation_short_name = "Phi&nbsp;φ"
-    elif kind == CorrelationType.TETRACHORIC:
-        correlation_short_name = "Tetrachoric&nbsp;ρ<sub>t</sub>"
-    else:
-        raise ValueError(f"Invalid correlation type: {kind}")
-    if kind == CorrelationType.PEARSON:
-        correlation_name = "Pearson correlations"
-    elif kind == CorrelationType.SPEARMAN:
-        correlation_name = "Spearman rank correlations"
-    elif kind == CorrelationType.KENDALL:
-        correlation_name = "Kendall rank correlations"
-    elif kind == CorrelationType.PHI:
-        correlation_name = "Phi binary correlations"
-    elif kind == CorrelationType.TETRACHORIC:
-        correlation_name = "Tetrachoric binary correlations"
-    else:
-        raise ValueError(f"Unknown correlation type: {kind}")
-
-    table = HTMLTable([])
-
-    table.table_caption = f"{correlation_name} between " + smart_comma_join([f"'{var}'" for var in columns]) + "."
 
     # Add header
     table.add_title_row_apa(Row([Cell(col_span=2)] + [Cell(column, col_span=2, center=True) for column in columns]))
 
     # Add matrix
     for i_row, row in enumerate(columns):
-        table_row_1 = [Cell(row, row_span=3 if not hide_df_matrix else 2), Cell(correlation_short_name, no_wrap=True)]
+        table_row_1 = [
+            Cell(row, row_span=3 if not hide_df_matrix else 2),
+            Cell(get_correlation_short_name(kind), no_wrap=True),
+        ]
         for i_column, column in enumerate(columns):
             if i_column < i_row:
                 table_row_1.append(

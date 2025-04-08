@@ -8,7 +8,7 @@ import pandas as pd
 from scipy import stats
 from scipy.stats._morestats import ShapiroResult
 
-from src.common.result.classes.html_result import Cell, HTMLTable, HTMLText, Row
+from src.common.result.classes.html_result import Cell, HTMLTableV2, Row
 from src.common.utility import format_p_apa, format_statistic_apa
 from src.common.verbal.test import TestResult, describe_single_test_multiple_variables
 
@@ -18,8 +18,7 @@ def process_normality_check(
     selected_columns,
     grouping_column,
 ):
-    table = HTMLTable([])
-    table.table_caption = "Shapiro-Wilk normality test"
+    table = HTMLTableV2(table_caption="Shapiro-Wilk normality test")
     table.add_title_row_apa(
         Row(
             [
@@ -61,7 +60,7 @@ def process_normality_check(
             non_normal_columns.append(col)
             non_normal_columns_classes.append(TestResult(variable=col, letter=[], statistic=[]))
 
-    text = HTMLText(
+    table.add_text(
         describe_single_test_multiple_variables(
             test_name="Shapiro-Wilk test",
             test_check="normality within groups",
@@ -72,4 +71,4 @@ def process_normality_check(
         )
     )
 
-    return normal_columns, non_normal_columns, table, text
+    return normal_columns, non_normal_columns, table

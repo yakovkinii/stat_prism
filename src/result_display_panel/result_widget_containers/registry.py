@@ -9,5 +9,5 @@ result_widget_container_registry = {
     "HTMLResultElement": HTMLResultElementWidgetContainer,
     "HTMLTableV2": HTMLResultElementWidgetContainer,
     "HTMLMultiTableV2": HTMLResultElementWidgetContainer,
-    "PlotResultElement": PlotResultElementWidgetContainer,
+    "PlotV2": PlotResultElementWidgetContainer,
 }

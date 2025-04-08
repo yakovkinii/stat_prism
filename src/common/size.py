@@ -14,5 +14,3 @@ class SettingsPanelSize:
     tab_width: int = 300
     even_col_width: int = 130
     max_col_width: int = 200
-
-

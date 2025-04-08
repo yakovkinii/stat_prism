@@ -179,6 +179,9 @@ class BaseModulePanel:
             if message.caller_id == "compiled_filters":
                 self.open_filter_handler()
                 return
+            if message.caller_id == "column_selector":
+                self.open_column_selector_popup()
+                return
         elif message.message_type == MessageType.FILTER_CLICKED:
             self.open_filter_handler()
             return

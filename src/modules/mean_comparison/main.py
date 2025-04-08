@@ -3,65 +3,41 @@
 #
 
 import logging
-from typing import Dict, Union
 
-import pandas as pd
-
-from src.common.constant import ColumnType
 from src.common.decorators import log_function
+from src.data_panel.data import Data
 from src.modules.mean_comparison.anova import recalculate_mean_comparison_anova
-from src.modules.mean_comparison.constant import MeanComparisonMethod
-from src.modules.mean_comparison.result import MeanComparisonResult, MeanComparisonStudyConfig
+from src.modules.mean_comparison.result import MeanComparisonResult
 from src.modules.mean_comparison.t_test import recalculate_mean_comparison_t_test
 
 
 @log_function
-def recalculate_mean_comparison_study(
-    df: pd.DataFrame, result: MeanComparisonResult, ordinal_orders: Dict[str, Dict[Union[int, float, str], int]]
-) -> MeanComparisonResult:
-    config: MeanComparisonStudyConfig = result.config
+def recalculate_mean_comparison_study(data: Data, result: MeanComparisonResult) -> MeanComparisonResult:
+    cfg = result.config
     result.update_header()
+    result.result_elements = []
 
-    if len(config.selected_columns) < 1 or config.grouping_column is None:
-        msg = "Please select one Grouping Column and at least one Variable"
-        result.set_placeholder(msg)
-        logging.debug(msg)
-        return result
+    df = data.get_dataframe(filters=result.config.filters, columns=cfg.selected_columns + [cfg.grouping_column])
 
-    if config.method in [MeanComparisonMethod.HOMOGENEOUS, MeanComparisonMethod.INHOMOGENEOUS]:
-        if any([col_type == ColumnType.NOMINAL for col_type in config.selected_columns_types]):
-            msg = "Cannot perform parametric test on nominal columns"
-            result.set_placeholder(msg)
-            logging.debug(msg)
-
-    if len(config.filters) > 0:
-        for filter_settings in config.filters:
-            query = filter_settings.get_query()
-            logging.debug(f"Applying Filter: {query}")
-            df = df.query(query)
-    else:
-        logging.debug("No filter applied")
-
-    df = df[config.selected_columns + [config.grouping_column]]
-    n_unique_values_in_grouping_column = len(df[config.grouping_column].unique())
+    n_unique_values_in_grouping_column = len(df[cfg.grouping_column].unique())
     if n_unique_values_in_grouping_column < 2:
-        msg = f"Not enough unique values in grouping column: {df[config.grouping_column].unique()}"
+        msg = f"Not enough unique values in grouping column: {df[cfg.grouping_column].unique()}"
         result.set_placeholder(msg)
         logging.debug(msg)
         return result
     elif n_unique_values_in_grouping_column == 2:
-        n_rows_per_group = df.groupby(config.grouping_column).size()
+        n_rows_per_group = df.groupby(cfg.grouping_column).size()
         if n_rows_per_group.min() < 3:
             msg = f"Insufficient population in some groups: {n_rows_per_group.to_dict()}"
             result.set_placeholder(msg)
             logging.debug(msg)
             return result
-        return recalculate_mean_comparison_t_test(df, config, result, ordinal_orders)
+        return recalculate_mean_comparison_t_test(data, result)
     else:
-        n_rows_per_group = df.groupby(config.grouping_column).size()
+        n_rows_per_group = df.groupby(cfg.grouping_column).size()
         if n_rows_per_group.min() < 3:
             msg = f"Insufficient population in some groups: {n_rows_per_group.to_dict()}"
             result.set_placeholder(msg)
             logging.debug(msg)
             return result
-        return recalculate_mean_comparison_anova(df, config, result, ordinal_orders)
+        return recalculate_mean_comparison_anova(data, result)

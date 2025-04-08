@@ -2,13 +2,15 @@
 #  Copyright (c) 2023 -- 2024 StatPrism Team. All rights reserved.
 #
 import logging
-from typing import Callable, Dict, List, Union
+from typing import Dict, List, Union
 
 import numpy as np
 import pandas as pd
 
 from src.common.constant import ColumnType
 from src.common.elements.filter.filter import FilterSettings
+
+ORDER_COLUMN = "__ORDER__"
 
 
 class DataColumn:
@@ -154,7 +156,7 @@ class Data:
     def update_lookups(self):
         self.name_to_index = {col.column_name: i for i, col in enumerate(self.columns)}
 
-    def __getitem__(self, item)->DataColumn:
+    def __getitem__(self, item) -> DataColumn:
         if isinstance(item, str):
             return self.columns[self.name_to_index[item]]
         return self.columns[item]
@@ -178,7 +180,7 @@ class Data:
     def copy(self):
         return Data([col.copy() for col in self.columns])
 
-    def get_dataframe(self, filters: List[FilterSettings]=None, columns: List[str]=None):
+    def get_dataframe(self, filters: List[FilterSettings] = None, columns: List[str] = None, map_ordinal: bool = False):
         df = pd.DataFrame({col.column_name: col.data_series for col in self.columns})
         if filters is not None and len(filters) > 0:
             for filter_settings in filters:
@@ -190,4 +192,17 @@ class Data:
 
         if columns is not None:
             df = df[columns]
+
+        # sort using order dicts
+        for col in df.columns:
+            column = self[col]
+            if len(column.order) > 0:
+                if map_ordinal and column.column_type == ColumnType.ORDINAL:
+                    df[col] = df[col].map(column.order)
+                    df = df.sort_values(col)
+                else:
+                    df[ORDER_COLUMN] = df[col].map(column.order)
+                    df = df.sort_values(ORDER_COLUMN)
+                    df = df.drop(ORDER_COLUMN, axis=1)
+
         return df

@@ -2,7 +2,6 @@
 #  Copyright (c) 2023 -- 2024 StatPrism Team. All rights reserved.
 #
 
-from typing import TYPE_CHECKING
 
 from src.common.constant import ColumnType
 from src.common.decorators import log_method
@@ -10,14 +9,10 @@ from src.common.elements.column_selector.column_selector import ColumnSelectorEx
 from src.common.elements.filter.filter import CompiledFilterHistory
 from src.common.elements.spacer.spacer_small import SpacerSmall
 from src.common.elements.title.title import Title
-from src.common.messages import Message, MessageType
 from src.common.result.registry import RESULTS
 from src.modules.base.base import BaseModulePanel
 from src.modules.regression.main import recalculate_regression_study
 from src.modules.regression.result import RegressionStudyConfig
-
-if TYPE_CHECKING:
-    pass
 
 
 class Regression(BaseModulePanel):
@@ -63,10 +58,10 @@ class Regression(BaseModulePanel):
 
         self.elements["column_selector"].configure(
             selected_columns_list=[
-                [RESULTS[result_id].config.dependent_column] if RESULTS[result_id].config.dependent_column else [],
+                [RESULTS[result_id].config.dependent_column],
                 RESULTS[result_id].config.independent_columns,
-                [RESULTS[result_id].config.moderator_column] if RESULTS[result_id].config.moderator_column else [],
-                [RESULTS[result_id].config.mediator_column] if RESULTS[result_id].config.mediator_column else [],
+                [RESULTS[result_id].config.moderator_column],
+                [RESULTS[result_id].config.mediator_column],
             ],
             columns=self.tabledata.get_all_columns_as_column_types(),
         )
@@ -75,41 +70,38 @@ class Regression(BaseModulePanel):
 
         self.configuring = False
 
+    def check(self):
+        return True
+        #  if (cfg.dependent_column is None) or (len(cfg.independent_columns) < 1):
+        #         msg = "Please select one Dependent Variable and at least one Independent Variable"
+        #         result.set_placeholder(msg)
+        #         logging.debug(msg)
+        #         return result
+        #
+        #     if (cfg.mediator_column is not None) and (cfg.moderator_column is not None):
+        #         msg = "Please select either a Mediator or a Moderator, not both"
+        #         result.set_placeholder(msg)
+        #         logging.debug(msg)
+        #         return result
+
     def recalculate(self):
         if self.configuring:
             return
 
+        if not self.check():
+            return
+
         RESULTS[self.result_id].config = RegressionStudyConfig(
-            dependent_column=self.elements["column_selector"].get_selected_columns()[0][0]
-            if len(self.elements["column_selector"].get_selected_columns()[0]) == 1
-            else None,
+            dependent_column=self.elements["column_selector"].get_selected_columns()[0][0],
             independent_columns=self.elements["column_selector"].get_selected_columns()[1],
-            moderator_column=self.elements["column_selector"].get_selected_columns()[2][0]
-            if len(self.elements["column_selector"].get_selected_columns()[2]) == 1
-            else None,
-            mediator_column=self.elements["column_selector"].get_selected_columns()[3][0]
-            if len(self.elements["column_selector"].get_selected_columns()[3]) == 1
-            else None,
+            moderator_column=self.elements["column_selector"].get_selected_columns()[2][0],
+            mediator_column=self.elements["column_selector"].get_selected_columns()[3][0],
             filters=RESULTS[self.result_id].config.filters,
         )
 
-        all_columns = [
-            RESULTS[self.result_id].config.dependent_column,
-        ] + RESULTS[self.result_id].config.independent_columns
-        if RESULTS[self.result_id].config.moderator_column is not None:
-            all_columns.append(RESULTS[self.result_id].config.moderator_column)
-        if RESULTS[self.result_id].config.mediator_column is not None:
-            all_columns.append(RESULTS[self.result_id].config.mediator_column)
-
-        ordinal_orders = {
-            col: self.tabledata.get_column_ordinal_order_from_column_name(col)
-            for col in all_columns
-            if self.tabledata.get_column_type_from_column_name(col) == ColumnType.ORDINAL
-        }
         RESULTS[self.result_id] = recalculate_regression_study(
-            df=self.tabledata.get_data(),
+            data=self.tabledata.get_data_v2(),
             result=RESULTS[self.result_id],
-            ordinal_orders=ordinal_orders,
         )
 
         RESULTS[self.result_id].needs_update = False
@@ -117,17 +109,3 @@ class Regression(BaseModulePanel):
         self.root_class.result_selector_panel.refresh_result(result_id=self.result_id)
         self.root_class.results_panel.display(result_id=self.result_id)
         self.root_class.action_activate_results_panel()
-
-    @log_method
-    def handler(self, message: Message):
-        if message.message_type == MessageType.CLICKED:
-            if message.caller_id == "compiled_filters":
-                self.open_filter_handler()
-            elif message.caller_id == "column_selector":
-                self.open_column_selector_popup()
-            else:
-                super().handler(message)
-        elif message.message_type == MessageType.FILTER_CLICKED:
-            self.open_filter_handler()
-        else:
-            super().handler(message)

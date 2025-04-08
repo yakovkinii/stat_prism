@@ -116,7 +116,7 @@ class ColumnSelectorEx(BasePanelElement):
         self.columns = columns
         for panel_list, selected_columns in zip(self.panel_list_widgets, selected_columns_list):
             clean_up_list_widget(panel_list)
-            panel_list.addItems(selected_columns)
+            panel_list.addItems(selected_columns if selected_columns not in [None, [None]] else [])
 
     def configure_popup(self):
         selected_columns_list = [
@@ -149,7 +149,8 @@ class ColumnSelectorEx(BasePanelElement):
 
     def get_selected_columns(self):
         return [
-            [list_widget.item(i).text() for i in range(list_widget.count())] for list_widget in self.panel_list_widgets
+            [list_widget.item(i).text() for i in range(list_widget.count())] if list_widget.count() > 0 else [None]
+            for list_widget in self.panel_list_widgets
         ]
 
 
@@ -377,9 +378,10 @@ class ColumnSelectorExPopup:
     def handle_double_click(self, item):
         source_list = item.listWidget()
         if source_list == self.main_list:
-            # Move item to the first child list
-            if self.panel_list_widgets:
-                self.button_pressed(0, from_double_click=True, remove=False, item=item)
+            for i, panel_list in enumerate(self.panel_list_widgets):
+                if panel_list.count() == 0 or not self.fields[i].allow_only_single_column:
+                    self.button_pressed(i, from_double_click=True, remove=False, item=item)
+                    break
         else:
             # Move item back to the main list
             panel_index = self.panel_list_widgets.index(source_list)

@@ -2,115 +2,105 @@
 #  Copyright (c) 2023 -- 2024 StatPrism Team. All rights reserved.
 #
 
-from typing import Dict, Tuple, Union
-
 import pandas as pd
 from scipy import stats
 
 from src.common.constant import ColumnType
 from src.common.decorators import log_function
-from src.common.result.classes.html_result import Cell, HTMLResultElement, HTMLTable, HTMLText, Row
+from src.common.result.classes.html_result import Cell, HTMLTableV2, Row
 from src.common.utility import format_p_apa, format_statistic_apa, format_value_apa
 from src.common.verbal.test import TestResult, describe_single_test_multiple_variables
+from src.data_panel.data import Data
 from src.modules.common.homogeneity import process_homogeneity_check
 from src.modules.common.normality import process_normality_check
 from src.modules.mean_comparison.constant import MeanComparisonMethod
-from src.modules.mean_comparison.result import MeanComparisonResult, MeanComparisonStudyConfig
-from src.settings_panel.panels.registry import PanelRegistry
+from src.modules.mean_comparison.result import MeanComparisonResult
 
 
 @log_function
 def recalculate_mean_comparison_t_test(
-    df: pd.DataFrame,
-    config: MeanComparisonStudyConfig,
+    data: Data,
     result: MeanComparisonResult,
-    ordinal_orders: Dict[str, Dict[Union[int, float, str], int]],
 ) -> MeanComparisonResult:
-    html_result_element = HTMLResultElement(
-        settings_panel_index=PanelRegistry.HTML_RESULT_ITEM_SETTINGS.settings_stacked_widget_index
-    )
+    cfg = result.config
+    df = data.get_dataframe(filters=result.config.filters, columns=cfg.selected_columns + [cfg.grouping_column])
 
-    numeric_columns = [
-        col
-        for col, col_type in zip(config.selected_columns, config.selected_columns_types)
-        if col_type == ColumnType.NUMERIC
-    ]
-    non_numeric_columns = [col for col in config.selected_columns if col not in numeric_columns]
+    numeric_columns = [col for col in cfg.selected_columns if data[col].column_type == ColumnType.NUMERIC]
+    non_numeric_columns = [col for col in cfg.selected_columns if col not in numeric_columns]
 
     normal_columns, non_normal_columns = [], []
-    if config.method in [MeanComparisonMethod.HOMOGENEOUS, MeanComparisonMethod.INHOMOGENEOUS]:
-        normal_columns, non_normal_columns = config.selected_columns, []
-    elif config.method == MeanComparisonMethod.NON_PARAMETRIC:
-        normal_columns, non_normal_columns = [], config.selected_columns
-    elif config.method == MeanComparisonMethod.AUTO:
-        normal_columns, non_normal_columns, normality_table, normality_text = process_normality_check(
+    if cfg.method in [MeanComparisonMethod.HOMOGENEOUS, MeanComparisonMethod.INHOMOGENEOUS]:
+        normal_columns, non_normal_columns = cfg.selected_columns, []
+    elif cfg.method == MeanComparisonMethod.NON_PARAMETRIC:
+        normal_columns, non_normal_columns = [], cfg.selected_columns
+    elif cfg.method == MeanComparisonMethod.AUTO:
+        normal_columns, non_normal_columns, normality_table = process_normality_check(
             df=df,
             selected_columns=numeric_columns,
-            grouping_column=config.grouping_column,
+            grouping_column=cfg.grouping_column,
         )
         if len(numeric_columns) > 0:
-            html_result_element.items.append(normality_table)
-            html_result_element.items.append(normality_text)
+            result.result_elements.append(normality_table)
 
     homogeneous_columns, non_homogeneous_columns = [], []
-    if config.method == MeanComparisonMethod.HOMOGENEOUS:
+    if cfg.method == MeanComparisonMethod.HOMOGENEOUS:
         homogeneous_columns, non_homogeneous_columns = normal_columns, []
-    elif config.method == MeanComparisonMethod.INHOMOGENEOUS:
+    elif cfg.method == MeanComparisonMethod.INHOMOGENEOUS:
         homogeneous_columns, non_homogeneous_columns = [], normal_columns
-    elif config.method == MeanComparisonMethod.AUTO:
-        homogeneous_columns, non_homogeneous_columns, homogeneity_table, homogeneity_text = process_homogeneity_check(
+    elif cfg.method == MeanComparisonMethod.AUTO:
+        homogeneous_columns, non_homogeneous_columns, homogeneity_table = process_homogeneity_check(
             df=df,
             selected_columns=normal_columns,
-            grouping_column=config.grouping_column,
+            grouping_column=cfg.grouping_column,
         )
         if len(normal_columns) > 0:
-            html_result_element.items.append(homogeneity_table)
-            html_result_element.items.append(homogeneity_text)
+            result.result_elements.append(homogeneity_table)
 
     if len(non_numeric_columns + non_normal_columns) > 0:
-        table, text = process_non_normal_t_test(
-            df=df,
-            non_numeric_columns=non_numeric_columns,
-            ordinal_orders=ordinal_orders,
-            non_normal_columns=non_normal_columns,
-            grouping_column=config.grouping_column,
-            means=config.means,
-            effect_size=config.effect_size,
+        result.result_elements.append(
+            process_non_normal_t_test(
+                df=data.get_dataframe(
+                    filters=result.config.filters,
+                    columns=cfg.selected_columns + [cfg.grouping_column],
+                    map_ordinal=True,
+                ),
+                non_numeric_columns=non_numeric_columns,
+                non_normal_columns=non_normal_columns,
+                grouping_column=cfg.grouping_column,
+                means=cfg.means,
+                effect_size=cfg.effect_size,
+            )
         )
-        html_result_element.items.append(table)
-        html_result_element.items.append(text)
 
     if len(non_homogeneous_columns) > 0:
-        table, text = process_non_homogeneous_t_test(
-            df=df,
-            columns=non_homogeneous_columns,
-            grouping_column=config.grouping_column,
-            means=config.means,
-            effect_size=config.effect_size,
+        result.result_elements.append(
+            process_non_homogeneous_t_test(
+                df=df,
+                columns=non_homogeneous_columns,
+                grouping_column=cfg.grouping_column,
+                means=cfg.means,
+                effect_size=cfg.effect_size,
+            )
         )
-        html_result_element.items.append(table)
-        html_result_element.items.append(text)
 
     if len(homogeneous_columns) > 0:
-        table, text = process_homogeneous_t_test(
-            df=df,
-            columns=homogeneous_columns,
-            grouping_column=config.grouping_column,
-            means=config.means,
-            effect_size=config.effect_size,
+        result.result_elements.append(
+            process_homogeneous_t_test(
+                df=df,
+                columns=homogeneous_columns,
+                grouping_column=cfg.grouping_column,
+                means=cfg.means,
+                effect_size=cfg.effect_size,
+            )
         )
-        html_result_element.items.append(table)
-        html_result_element.items.append(text)
 
-    result.result_elements = [html_result_element]
     return result
 
 
 def process_non_normal_t_test(
-    df: pd.DataFrame, non_numeric_columns, ordinal_orders, non_normal_columns, grouping_column, means, effect_size
-) -> Tuple[HTMLTable, HTMLText]:
-    table = HTMLTable([])
-    table.table_caption = "Mann-Whitney U test"
+    df: pd.DataFrame, non_numeric_columns, non_normal_columns, grouping_column, means, effect_size
+) -> HTMLTableV2:
+    table = HTMLTableV2(table_caption="Mann-Whitney U test")
     group1_name = df[grouping_column].unique()[0]
     group2_name = df[grouping_column].unique()[1]
 
@@ -157,11 +147,6 @@ def process_non_normal_t_test(
     for col in columns:
         group1 = df[df[grouping_column] == df[grouping_column].unique()[0]][col]
         group2 = df[df[grouping_column] == df[grouping_column].unique()[1]][col]
-
-        if col in ordinal_orders:
-            ordinal_order = ordinal_orders[col]
-            group1 = group1.map(ordinal_order)
-            group2 = group2.map(ordinal_order)
 
         u1_stat, p_val = stats.mannwhitneyu(group1, group2)
         u2_stat = len(group1) * len(group2) - u1_stat
@@ -212,7 +197,7 @@ def process_non_normal_t_test(
             )
         )
 
-    text = HTMLText(
+    table.add_text(
         describe_single_test_multiple_variables(
             test_name="Mann-Whitney U test",
             test_check="difference between the groups",
@@ -223,14 +208,11 @@ def process_non_normal_t_test(
             subgroup_results=subgroup_results if means else None,
         )
     )
-    return table, text
+    return table
 
 
-def process_homogeneous_t_test(
-    df: pd.DataFrame, columns, grouping_column, means, effect_size
-) -> Tuple[HTMLTable, HTMLText]:
-    table = HTMLTable([])
-    table.table_caption = "Independent Samples T-test"
+def process_homogeneous_t_test(df: pd.DataFrame, columns, grouping_column, means, effect_size) -> HTMLTableV2:
+    table = HTMLTableV2(table_caption="Independent Samples T-test")
 
     group1_name = df[grouping_column].unique()[0]
     group2_name = df[grouping_column].unique()[1]
@@ -315,7 +297,7 @@ def process_homogeneous_t_test(
             )
         )
 
-    text = HTMLText(
+    table.add_text(
         describe_single_test_multiple_variables(
             test_name="Independent Samples T-test",
             test_check="equality of means",
@@ -326,15 +308,12 @@ def process_homogeneous_t_test(
             subgroup_results=subgroup_results if means else None,
         )
     )
-    return table, text
+    return table
 
 
-def process_non_homogeneous_t_test(
-    df: pd.DataFrame, columns, grouping_column, means, effect_size
-) -> Tuple[HTMLTable, HTMLText]:
+def process_non_homogeneous_t_test(df: pd.DataFrame, columns, grouping_column, means, effect_size) -> HTMLTableV2:
     # inhomogeneous => Welch's t-test
-    table = HTMLTable([])
-    table.table_caption = "Welch's T-test results"
+    table = HTMLTableV2(table_caption="Welch's T-test results")
 
     group1_name = df[grouping_column].unique()[0]
     group2_name = df[grouping_column].unique()[1]
@@ -418,7 +397,7 @@ def process_non_homogeneous_t_test(
             )
         )
 
-    text = HTMLText(
+    table.add_text(
         describe_single_test_multiple_variables(
             test_name="Welch's T-test",
             test_check="equality of means",
@@ -429,4 +408,4 @@ def process_non_homogeneous_t_test(
             subgroup_results=subgroup_results if means else None,
         )
     )
-    return table, text
+    return table
