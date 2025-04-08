@@ -72,27 +72,24 @@ class Column(BasePanel):
         self.configuring = True
         self.column_index = column_index
         self.caller_index = caller_index
-        title = str(self.tabledata.get_column_name(self.column_index))
-        original_title = str(
-            self.tabledata.get_column_flags(column_name=self.tabledata.get_column_name(self.column_index)).original_name
-        )
-        self.elements["title"].widget.setText(title)
+        column = self.tabledata.get_column_v2(column_index)
 
-        if (title == original_title) or (original_title == ""):
+        self.elements["title"].widget.setText(column.column_name)
+
+        if (column.column_name == column.original_name) or (column.original_name == ""):
             self.elements["original_title"].widget.hide()
         else:
-            self.elements["original_title"].widget.setText("Original name: " + original_title)
+            self.elements["original_title"].widget.setText("Original name: " + column.original_name)
             self.elements["original_title"].widget.show()
 
-        self.elements["column_type"].combo_box.setCurrentText(self.tabledata.get_column_type(self.column_index).value)
+        self.elements["column_type"].combo_box.setCurrentText(column.column_type.value)
 
-        if self.tabledata.get_column_dtype(self.column_index) in ["int", "float"]:
+        if column.is_numeric:
             self.elements["invert"].widget.setEnabled(True)
         else:
             self.elements["invert"].widget.setEnabled(False)
 
-        column_type = self.tabledata.get_column_type(self.column_index)
-        if column_type == ColumnType.ORDINAL:
+        if column.column_type in [ColumnType.ORDINAL, ColumnType.NOMINAL]:
             self.elements["order"].widget.show()
         else:
             self.elements["order"].widget.hide()
@@ -102,9 +99,6 @@ class Column(BasePanel):
     @log_method_noarg
     def begin_edit_title(self):
         self.elements["title"].widget.setFocus()
-        # select all after small delay
-
-        # self.elements["title"].widget.selectAll()
         QtCore.QTimer.singleShot(100, self.elements["title"].widget.selectAll)
 
     @log_method

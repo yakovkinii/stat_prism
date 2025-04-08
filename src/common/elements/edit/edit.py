@@ -3,11 +3,13 @@
 #
 
 from PySide6 import QtCore, QtWidgets
+from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QHBoxLayout, QLabel, QLineEdit
 
 from src.common.elements.base.base import BasePanelElement
 from src.common.elements.utility.layout_helpers import empty_widget
 from src.common.elements.utility.primitive_elements import EditableLabelWordwrap
+from src.common.size import SettingsPanelSize
 from src.common.unique_qss import set_stylesheet
 
 
@@ -26,12 +28,19 @@ class LabeledLineEdit(BasePanelElement):
             ],
         )
         self.label = QLabel(self.label_text)
+        # self.label.setFixedWidth(SettingsPanelSize.col_width)
+        self.label.setAlignment(Qt.AlignmentFlag.AlignRight),
+
         self.edit_widget = QLineEdit(self.parent_widget)
+        self.edit_widget.setMaximumWidth(SettingsPanelSize.max_col_width)
+        self.edit_widget.setAlignment(Qt.AlignmentFlag.AlignLeft),
+
         set_stylesheet(
             self.edit_widget, "#id{" "border: 1px solid grey;" "background-color: rgba(255,255,255,255);" "}"
         )
         self.layout.addWidget(self.label)
         self.layout.addWidget(self.edit_widget)
+        return self
 
 
 class LabeledMultilineEdit(BasePanelElement):

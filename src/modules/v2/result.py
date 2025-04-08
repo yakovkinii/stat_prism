@@ -20,7 +20,7 @@ class V2StudyConfig:
 
 class V2Result(BaseResult):
     def __init__(self, unique_id, settings_panel_index, config: V2StudyConfig):
-        super().__init__(unique_id, v2=False)
+        super().__init__(unique_id)
         # Unique integer id, not for display
         self.unique_id: int = unique_id
 

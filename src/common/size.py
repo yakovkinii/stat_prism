@@ -11,3 +11,8 @@ class Font:
 
 class SettingsPanelSize:
     width: int = 320
+    tab_width: int = 300
+    even_col_width: int = 130
+    max_col_width: int = 200
+
+

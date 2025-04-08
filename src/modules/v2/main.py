@@ -7,36 +7,54 @@ from typing import Dict, Union
 
 import pandas as pd
 
+from src.common.constant import MDASH
 from src.common.decorators import log_function
 from src.common.result.classes.html_result import Cell, HTMLTableV2, Row
-from src.modules.v2.result import V2Result, V2StudyConfig
+from src.common.result.classes.plot_result import PlotV2, Line
+from src.data_panel.data import Data
+from src.modules.v2.result import V2Result
 
 
 @log_function
 def recalculate_v2_study(
-    df: pd.DataFrame, result: V2Result, ordinal_orders: Dict[str, Dict[Union[int, float, str], int]]
+    data: Data, result: V2Result
 ) -> V2Result:
-    config: V2StudyConfig = result.config
     result.update_header()
+    df = data.get_dataframe(filters=result.config.filters, columns=result.config.selected_columns)
 
-    if len(config.filters) > 0:
-        for filter_settings in config.filters:
-            query = filter_settings.get_query()
-            logging.debug(f"Applying Filter: {query}")
-            df = df.query(query)
-    else:
-        logging.debug("No filter applied")
-
-    df = df[config.selected_columns]
-
-    table = HTMLTableV2(table_caption="Stats Value")
+    table = HTMLTableV2(table_caption="Column Parameters")
     table.add_title_row_apa(
-        Row([Cell("Column"), Cell("First Value"), Cell("Max Value"), Cell("Min Value"), Cell("Mean Value")])
+        Row([Cell("Column"),
+             Cell("Type"),
+             Cell("Dtype"),
+             Cell("Numeric"),
+             Cell("Order"),
+             Cell("First Value"),
+             Cell("Max Value"),
+             Cell("Min Value"),
+             Cell("Mean Value")])
     )
-    for col in config.selected_columns:
+
+    for col in result.config.selected_columns:
         table.add_single_row_apa(
-            Row([Cell(col), Cell(df[col].iloc[0]), Cell(df[col].max()), Cell(df[col].min()), Cell(df[col].mean())])
+            Row([Cell(col),
+                 Cell(data[col].column_type),
+                 Cell(data[col].column_dtype),
+                 Cell(data[col].is_numeric),
+                 Cell(data[col].order),
+                 Cell(df[col].iloc[0]),
+                 Cell(df[col].max()),
+                 Cell(df[col].min()),
+                 Cell(df[col].mean()) if data[col].is_numeric else Cell(MDASH)
+                 ])
         )
 
-    result.result_elements = [table] + table.split_table(max_cols=2)
+    plot = PlotV2(
+items=[Line(x=df.iloc[:,0], y=df.iloc[:,1], label="Line 1")],
+        tab_title="Plot",
+        x_axis_title="X",
+        y_axis_title="y"
+    )
+
+    result.result_elements = [table, plot] #, table.split_table(max_cols=4)]
     return result

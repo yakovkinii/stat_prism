@@ -51,9 +51,9 @@ class PlotResultElementWidgetContainer:
         self.widget_layout.addWidget(self.plot_container)
 
         self.canvas = MatplotlibCanvas(parent=self.plot_container, result_element=self.result_element)
-        self.canvas.setFixedSize(
-            self.result_element.general_plot_config.size_x, self.result_element.general_plot_config.size_y
-        )
+        # self.canvas.setFixedSize(
+        #     self.result_element.general_plot_config.size_x, self.result_element.general_plot_config.size_y
+        # )
 
         self.plot_container.setLayout(QVBoxLayout())
         self.plot_container.layout().addWidget(self.canvas)
@@ -101,8 +101,8 @@ class MatplotlibCanvas(FigureCanvas):
             self.ax.set_xlim(xlim[0] - dx, xlim[1] - dx)
             self.ax.set_ylim(ylim[0] + dy, ylim[1] + dy)
 
-            self.result_element.general_plot_config.x_range = self.ax.get_xlim()
-            self.result_element.general_plot_config.y_range = self.ax.get_ylim()
+            # self.result_element.general_plot_config.x_range = self.ax.get_xlim()
+            # self.result_element.general_plot_config.y_range = self.ax.get_ylim()
 
             self.draw()
 
@@ -136,8 +136,8 @@ class MatplotlibCanvas(FigureCanvas):
             self.ax.set_xlim(new_xlim)
             self.ax.set_ylim(new_ylim)
 
-            self.result_element.general_plot_config.x_range = self.ax.get_xlim()
-            self.result_element.general_plot_config.y_range = self.ax.get_ylim()
+            # self.result_element.general_plot_config.x_range = self.ax.get_xlim()
+            # self.result_element.general_plot_config.y_range = self.ax.get_ylim()
 
             self.draw()
 

@@ -8,5 +8,6 @@ from src.result_display_panel.result_widget_containers.plot_widget_container imp
 result_widget_container_registry = {
     "HTMLResultElement": HTMLResultElementWidgetContainer,
     "HTMLTableV2": HTMLResultElementWidgetContainer,
+    "HTMLMultiTableV2": HTMLResultElementWidgetContainer,
     "PlotResultElement": PlotResultElementWidgetContainer,
 }

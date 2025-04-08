@@ -24,7 +24,7 @@ if __name__ == "__main__":
 
     from yatools import logging_config
 
-    logging_config.init(logging.DEBUG)
+    logging_config.init(logging.ERROR)
 
     # Back up the reference to the exceptionhook
     sys._excepthook = sys.excepthook

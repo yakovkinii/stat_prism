@@ -11,12 +11,11 @@ import qtawesome as qta
 from PySide6.QtCore import QAbstractTableModel, QModelIndex, Qt
 from PySide6.QtGui import QColor
 
-from src.common.column_attributes import ColumnAttributes, ColumnAttributesRegistry
 from src.common.constant import COLORS, COLUMN_TYPE_ICONS, ColumnType
 from src.common.decorators import log_method, log_method_noarg
-from src.common.elements.column_selector.column_selector import Column
 from src.common.result.registry import RESULTS
 from src.data_panel.const import DataPanelState
+from src.data_panel.data import Data, DataColumn
 
 if TYPE_CHECKING:
     from src.ui_main import MainWindowClass
@@ -27,9 +26,8 @@ class DataModel(QAbstractTableModel):
         super().__init__()
         self.root_class: MainWindowClass = root_class
         self.state = DataPanelState.DEFAULT
+        self._data: Union[Data, None] = None
         self.filtered_rows = []
-        self._df: pd.DataFrame = pd.DataFrame()
-        self.column_attributes: Dict[str, ColumnAttributes] = {}
         self.hide_headers_mode = False
 
     def hideHeaders(self):
@@ -39,105 +37,27 @@ class DataModel(QAbstractTableModel):
         self.hide_headers_mode = False
 
     @log_method
-    def check_and_update_column_dtype(self, column_index: int):
-        # try casting to int. if fail - cast to float. if fail - cast to str
-        column_name = self.get_column_name(column_index)
-        try:
-            self._df = self._df.astype({column_name: int})
-        except ValueError:
-            try:
-                self._df[column_name] = self._df[column_name].replace("", np.nan).astype(float)
-            except ValueError:
-                try:
-                    self._df = self._df.astype({column_name: str})
-                except ValueError:
-                    logging.error(f"Could not cast column {column_name} to any type")
-                    raise ValueError(f"Could not cast column {column_name} to any type")
-
-    @log_method
-    def check_and_update_column_type(self, column_index: int):
-        old_type = self.column_attributes[self.get_column_name(column_index)].column_type
-        if old_type == ColumnType.NOMINAL:
-            return
-        if old_type == ColumnType.NUMERIC:
-            if self.get_column_dtype(column_index) == "str":
-                logging.warning("Column type changed to nominal")
-                self.column_attributes[self.get_column_name(column_index)].column_type = ColumnType.NOMINAL
-            return
-
-        unique_values = self.get_column(column_index).unique()
-        all_values_in_order = all(
-            [
-                value in self.column_attributes[self.get_column_name(column_index)].ordinal_order
-                for value in unique_values
-            ]
-        )
-        if all_values_in_order:
-            return
-
-        for value in sorted(unique_values):
-            if value not in self.column_attributes[self.get_column_name(column_index)].ordinal_order:
-                order = (
-                    max(self.column_attributes[self.get_column_name(column_index)].ordinal_order.values()) + 1
-                    if len(self.column_attributes[self.get_column_name(column_index)].ordinal_order) > 0
-                    else 1
-                )
-
-                logging.warning(f"Value {value} added to ordinal_order with order {order}")
-                self.column_attributes[self.get_column_name(column_index)].ordinal_order[value] = order
+    def check_and_update_column_type_and_dtype(self, column_index: int):
+        self._data[column_index].check_and_update_column_dtype()
+        self._data[column_index].automatically_update_order()
 
     @log_method
     def set_column_type(self, column_index: int, column_type: ColumnType):
-        column_name = self.get_column_name(column_index)
-        self.column_attributes[column_name].column_type = column_type
-        if column_type != ColumnType.ORDINAL:
-            self.column_attributes[column_name].ordinal_order = {}
-        self.check_and_update_column_type(column_index)
+        self._data[column_index].column_type = column_type
+        self.check_and_update_column_type_and_dtype(column_index)
         self.headerDataChanged.emit(Qt.Orientation.Horizontal, column_index, column_index)
 
     @log_method
     def load_data(self, dataframe: pd.DataFrame):
-        # make sure that there are no mixed types
-        for column in dataframe.columns:
-            if pd.api.types.is_string_dtype(dataframe[column]):
-                dataframe[column] = dataframe[column].astype(str)
-            elif pd.api.types.is_float_dtype(dataframe[column]):
-                dataframe[column] = dataframe[column].astype(float)
-            elif pd.api.types.is_integer_dtype(dataframe[column]):
-                dataframe[column] = dataframe[column].astype(int)
-            else:
-                logging.error(f"Unknown type detected for {column}")
-                logging.info("Trying to convert to string")
-                dataframe[column] = dataframe[column].astype(str)
-
-        if len(set(dataframe.columns)) != len(dataframe.columns):
-            logging.warning("Duplicate column names detected")
-            columns = list(dataframe.columns)
-            new_columns = []
-            for column in columns:
-                if new_columns.count(column) > 0:
-                    new_columns.append(f"{column} ({new_columns.count(column)})")
-                else:
-                    new_columns.append(column)
-
-            dataframe.columns = new_columns
-
-        dataframe.columns = pd.Index([str(column) for column in dataframe.columns])
         self.beginResetModel()
-        self._df = dataframe.copy()
-        self.column_attributes = {}
-        for column in dataframe.columns:
-            self.column_attributes[column] = ColumnAttributes(
-                dtype=self.get_column_dtype(dataframe.columns.get_loc(column))
-            )
-            self.column_attributes[column].original_name = column
+        self._data = Data.initialize_from_dataframe(dataframe)
         self.endResetModel()
 
     def rowCount(self, parent=None):
-        return self._df.shape[0]
+        return len(self._data[0].data_series) if self._data is not None else 0
 
     def columnCount(self, parent=None):
-        return self._df.shape[1]
+        return len(self._data.columns) if self._data is not None else 0
 
     @log_method
     def set_state(self, state: DataPanelState):
@@ -147,18 +67,16 @@ class DataModel(QAbstractTableModel):
     def data(self, index, role=Qt.ItemDataRole.DisplayRole):
         if index.isValid():
             if role in [Qt.ItemDataRole.DisplayRole, Qt.ItemDataRole.EditRole]:
-                if pd.isna(self._df.iloc[index.row(), index.column()]):
+                if pd.isna(self._data[index.column()][index.row()]):
                     return ""
-                if self._df.iloc[index.row(), index.column()] in [None, "nan"]:
+                if self._data[index.column()][index.row()] in [None, "nan"]:
                     return ""
                 if (role == Qt.ItemDataRole.DisplayRole) and (
-                    self.column_attributes[self.get_column_name(index.column())].column_type == ColumnType.ORDINAL
+                    self._data[index.column()].column_type == ColumnType.ORDINAL
                 ):
-                    order = self.column_attributes[self.get_column_name(index.column())].ordinal_order[
-                        self._df.iloc[index.row(), index.column()]
-                    ]
-                    return f"[{order}] {self._df.iloc[index.row(), index.column()]}"
-                return str(self._df.iloc[index.row(), index.column()])
+                    order = self._data[index.column()].order[self._data[index.column()][index.row()]]
+                    return f"[{order}] {self._data[index.column()][index.row()]}"
+                return str(self._data[index.column()][index.row()])
 
             elif role == Qt.ItemDataRole.ForegroundRole:
                 if self.state == DataPanelState.FILTER:
@@ -172,17 +90,13 @@ class DataModel(QAbstractTableModel):
                 if self.hide_headers_mode:
                     return None
                 else:
-                    return str(self._df.columns[section])
-
+                    return str(self._data[section].column_name)
             if orientation == Qt.Orientation.Vertical:
                 return str(section)
         elif role == Qt.ItemDataRole.DecorationRole and orientation == Qt.Orientation.Horizontal:
-            column_name = self._df.columns[section]
-            icons = [COLUMN_TYPE_ICONS[self.column_attributes[column_name].column_type]]
-
-            if self.column_attributes[column_name].get_flag(ColumnAttributesRegistry.inverted):
+            icons = [COLUMN_TYPE_ICONS[self._data[section].column_type]]
+            if self._data[section].inverted:
                 icons.append(qta.icon("ri.arrow-up-down-line"))
-
             return icons
         return None
 
@@ -191,50 +105,47 @@ class DataModel(QAbstractTableModel):
 
     @log_method
     def setRowCount(self, count):
-        logging.error("setRowCount called")
         raise NotImplementedError
 
     @log_method
     def setColumnCount(self, count):
-        logging.warning("setColumnCount called")
         raise NotImplementedError
 
     @log_method
     def setHorizontalHeaderLabels(self, labels):
-        assert len(labels) == self._df.shape[1]
+        assert len(labels) == len(self._data.columns)
         assert len(set(labels)) == len(labels)
         self.beginResetModel()
-        old_labels = self._df.columns
-        self._df = self._df.rename(columns=dict(zip(old_labels, labels)))
-        for i, column in enumerate(old_labels):
-            self.column_attributes[labels[i]] = self.column_attributes.pop(column)
+        for i, label in enumerate(labels):
+            self._data[i].column_name = label
         self.endResetModel()
 
     @log_method
     def setItem(self, row, col, value):
         logging.warning("setItem called")
-        self._df.iloc[row, col] = value
+        self._data[col][row] = value
         self.dataChanged.emit(self.index(row, col), self.index(row, col))
 
     @log_method
     def setData(self, index, value, role=Qt.ItemDataRole.EditRole):
         if role == Qt.ItemDataRole.EditRole:
-            self._df.iloc[index.row(), index.column()] = value
+            self._data[index.column()][index.row()] = value
             self.dataChanged.emit(index, index)
-            self.check_and_update_column_dtype(index.column())
+            self.check_and_update_column_type_and_dtype(index.column())
             return True
         return False
 
     @log_method
     def rename_column(self, column_index: int, new_name: str):
-        if new_name in self._df.columns:
+        if new_name in self._data.column_names():
             logging.error("Column name already exists")
             return
-        old_name = self.get_column_name(column_index)
+        old_name = self._data[column_index].column_name
 
         self.setHorizontalHeaderLabels(
-            [new_name if i == column_index else self._df.columns[i] for i in range(self.columnCount())]
+            [new_name if i == column_index else self._data.column_names()[i] for i in range(self.columnCount())]
         )
+        # todo why is _data not modified here?
 
         for result in RESULTS.values():
             result.rename_column(old_name, new_name)
@@ -245,52 +156,49 @@ class DataModel(QAbstractTableModel):
         if column_index is None:
             logging.error("column_index is None")
         assert 0 <= column_index < self.columnCount()
-        return str(self._df.columns[column_index])
+        return self._data[column_index].column_name
 
     def get_column_names(self) -> List[str]:
-        return [str(column) for column in self._df.columns]
+        return self._data.column_names()
 
     def get_column_ordinal_order(self, column_index: int) -> Dict[Union[int, float, str], int]:
-        return self.column_attributes[self.get_column_name(column_index)].ordinal_order
+        return self._data[column_index].order
 
     def get_column_ordinal_order_from_column_name(self, column_name: str) -> Dict[Union[int, float, str], int]:
-        return self.column_attributes[column_name].ordinal_order
+        index = self._data.name_to_index[column_name]
+        return self._data[index].order
 
     def set_column_ordinal_order(self, column_index: int, order: Dict[Union[int, float, str], int]):
         assert set(order.keys()) == set(self.get_column(column_index).unique())
-        self.column_attributes[self.get_column_name(column_index)].ordinal_order = order
-
-        old_name = self.get_column_name(column_index)
-
-        for result in RESULTS.values():
-            result.rename_column(old_name, old_name)
-
         self.beginResetModel()
+        self._data[column_index].order = order
+        for result in RESULTS.values():  # todo make explicit update
+            result.rename_column(self._data[column_index].column_name, self._data[column_index].column_name)
         self.endResetModel()
         self.root_class.result_selector_panel.refresh()
 
     def get_all_columns_as_column_types(self):
-        all_column_names = self.get_column_names()
-        number_of_columns = len(all_column_names)
-        types = [self.get_column_type(i) for i in range(number_of_columns)]
-        all_columns = [Column(name=col, column_type=column_type) for col, column_type in zip(all_column_names, types)]
-        return all_columns
+        return self._data.columns  # todo deprecate and maybe copy()
 
     @log_method
-    def get_column(self, column_index: int):
+    def get_column(self, column_index: int): # Todo deprecate and use rich classes instead
         assert 0 <= column_index < self.columnCount()
-        return self._df.iloc[:, column_index]
+        return self._data[column_index].data_series
+
+    @log_method
+    def get_column_v2(self, column_index: int)-> DataColumn:
+        return self._data[column_index].copy()
 
     @log_method
     def get_columns(self, column_names: List[str]):
-        return self._df[column_names]
+        column_indexes = [self._data.name_to_index[name] for name in column_names]
+        return pd.concat([self._data[index] for index in column_indexes], axis=1)
 
     @log_method
     def set_column(self, column_index: int, values: Union[List, pd.Series]):
         assert len(values) == self.rowCount()
-        column_name = self._df.columns[column_index]
-        self._df[column_name] = values
-        self.check_and_update_column_dtype(column_index)
+        self._data[column_index].data_series = pd.Series(values)
+        self.check_and_update_column_type_and_dtype(column_index)
         self.dataChanged.emit(self.index(0, column_index), self.index(self.rowCount() - 1, column_index))
 
     @log_method_noarg
@@ -298,111 +206,60 @@ class DataModel(QAbstractTableModel):
         self.dataChanged.emit(self.index(0, 0), self.index(self.rowCount() - 1, self.columnCount() - 1), role)
 
     @log_method_noarg
-    def get_data(self):
-        return self._df.copy()
+    def get_data(self):  # Todo deprecate and use rich classes instead
+        return self._data.get_dataframe()
 
     @log_method_noarg
-    def get_flags(self):
-        return self.column_attributes
-
-    @log_method
-    def load_flags(self, flags: Dict[str, ColumnAttributes]):
-        try:
-            for column_name in flags.keys():
-                assert column_name in self._df.columns
-            self.column_attributes = flags
-        except AssertionError as e:
-            logging.error("Column names in flags do not match the column names in the dataframe" + str(e))
-
-    def get_column_flags(self, column_name: str):
-        return self.column_attributes[column_name]
-
-    @log_method
-    def set_column_flag(self, column_name: str, flag: str, value: bool):
-        self.column_attributes[column_name].set_flag(flag, value)
-        self.headerDataChanged.emit(Qt.Orientation.Horizontal, 0, self.columnCount())
-
-    @log_method
-    def toggle_column_flag(self, column_name: str, flag: str):
-        self.set_column_flag(column_name, flag, not self.column_attributes[column_name].get_flag(flag))
-        self.headerDataChanged.emit(Qt.Orientation.Horizontal, 0, self.columnCount())
-
-    @log_method
-    def get_column_dtype(self, column_index: int):
-        if pd.api.types.is_integer_dtype(self._df.iloc[:, column_index]):
-            return "int"
-        if pd.api.types.is_float_dtype(self._df.iloc[:, column_index]):
-            return "float"
-        if pd.api.types.is_string_dtype(self._df.iloc[:, column_index]):
-            return "str"
-        raise ValueError("Unknown dtype")
+    def get_data_v2(self)->Data:
+        return self._data.copy()
 
     @log_method
     def get_column_type(self, column_index: int):
-        return self.column_attributes[self.get_column_name(column_index)].column_type
+        return self._data[column_index].column_type
 
     @log_method
     def get_column_type_from_column_name(self, column_name: str):
-        return self.column_attributes[column_name].column_type
+        index = self._data.name_to_index[column_name]
+        return self._data[index].column_type
 
     @log_method
     def add_column(self, column_to_the_left_index):
-        new_column_name = "New column "
-        suffix = 1
-        while new_column_name + str(suffix) in self._df.columns:
-            suffix += 1
-        new_column_name = "New column " + str(suffix)
-
         self.beginInsertColumns(QModelIndex(), column_to_the_left_index + 1, column_to_the_left_index + 1)
-        self._df.insert(column_to_the_left_index + 1, new_column_name, "")
-        self.column_attributes[new_column_name] = ColumnAttributes(
-            dtype=self.get_column_dtype(column_to_the_left_index + 1)
-        )
+        self._data.add_new_column(column_to_the_left_index)
         self.endInsertColumns()
 
     @log_method
     def delete_column(self, column_index):
-        column_name = self.get_column_name(column_index)
         self.beginRemoveColumns(QModelIndex(), column_index, column_index)
-        self._df.drop(columns=[column_name], inplace=True)
-        self.column_attributes.pop(column_name)
+        self._data.columns = self._data.columns[:column_index] + self._data.columns[column_index + 1 :]
+        self._data.update_lookups()
         self.endRemoveColumns()
 
     @log_method
     def delete_columns(self, column_indexes):
-        column_names = [self.get_column_name(index) for index in column_indexes]
         self.beginRemoveColumns(QModelIndex(), min(column_indexes), max(column_indexes))
-        self._df.drop(columns=column_names, inplace=True)
-        for column_name in column_names:
-            self.column_attributes.pop(column_name)
+        for index in column_indexes:
+            self.delete_column(index)
         self.endRemoveColumns()
 
     def get_column_color(self, column_index):
-        try:
-            column_name = self.get_column_name(column_index)
-            return self.column_attributes[column_name].color
-        except KeyError as e:
-            logging.error(f"{self._df.columns=}")
-            logging.error(f"{self.column_attributes=}")
-            raise KeyError(e)
+        return self._data[column_index].color
 
     @log_method
     def set_column_color(self, column_index, color):
-        column_name = self.get_column_name(column_index)
-        self.column_attributes[column_name].color = color
+        self._data[column_index].color = color
         self.headerDataChanged.emit(Qt.Orientation.Horizontal, column_index, column_index)
 
     @log_method
     def save_as_xlsx(self, filename):
         def apply_style(column):
-            if column in self.column_attributes:
-                color = self.column_attributes[column].color
-                if color is not None:
-                    return f"background-color: {COLORS[color]};"
+            color = self._data[column].color
+            if color is not None:
+                return f"background-color: {COLORS[color]};"
             return "background-color: #eee;"
 
         try:
-            self._df.style.applymap_index(apply_style, axis=1).to_excel(filename, engine="openpyxl", index=False)
+            self.get_data().style.applymap_index(apply_style, axis=1).to_excel(filename, engine="openpyxl", index=False)
         except Exception as e:
             logging.error(e)
         logging.info(f"Saved to {filename}")

@@ -28,6 +28,7 @@ class GroupExplicit(BasePanelElement):
     def add_element(self, element: BasePanelElement):
         self._elements.append(element)
         self.layout.addWidget(element.widget)
+        element.widget.show()
 
     def get_elements(self, index: int) -> BasePanelElement:
         assert 0 <= index < len(self._elements), f"Index {index} out of bounds"
@@ -38,4 +39,10 @@ class GroupExplicit(BasePanelElement):
             self.layout.removeWidget(element.widget)
             element.widget.deleteLater()
 
+        self._elements = []
+
+    def clear_elements_soft(self):
+        for element in self._elements:
+            self.layout.removeWidget(element.widget)
+            element.widget.hide()
         self._elements = []

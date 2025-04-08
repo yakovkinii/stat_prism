@@ -19,12 +19,7 @@ from src.common.messages import Message, MessageType
 from src.common.size import Font
 from src.common.ui_constructor import create_tool_button_qta
 from src.common.unique_qss import set_stylesheet
-
-
-@attrs.define
-class Column:
-    name: str
-    column_type: ColumnType
+from src.data_panel.data import DataColumn
 
 
 @attrs.define
@@ -117,7 +112,7 @@ class ColumnSelectorEx(BasePanelElement):
 
             self.panel_list_widgets.append(panel_list)
 
-    def configure(self, columns: List[Column], selected_columns_list):
+    def configure(self, columns: List[DataColumn], selected_columns_list):
         self.columns = columns
         for panel_list, selected_columns in zip(self.panel_list_widgets, selected_columns_list):
             clean_up_list_widget(panel_list)
@@ -162,7 +157,7 @@ class ColumnSelectorExPopup:
     def __init__(self, parent_widget, fields: List[Field]):
         self.allow_ok_button_handler = None
         self.fields = fields
-        self.columns: List[Column] = []
+        self.columns: List[DataColumn] = []
         self.column_names: List[str] = []
         self.success = False
         self.widget, self.layout = empty_widget(
@@ -305,11 +300,11 @@ class ColumnSelectorExPopup:
         for panel_list in self.panel_list_widgets:
             panel_list.itemDoubleClicked.connect(self.handle_double_click)
 
-    def configure(self, columns: List[Column], selected_columns_list: List[List[str]]):
+    def configure(self, columns: List[DataColumn], selected_columns_list: List[List[str]]):
         clean_up_list_widget(self.main_list)
         self.columns = columns
-        self.column_names = [column.name for column in columns]
-        main_list_names = [column.name for column in columns]
+        self.column_names = [column.column_name for column in columns]
+        main_list_names = [column.column_name for column in columns]
 
         for panel_list, selected_columns in zip(self.panel_list_widgets, selected_columns_list):
             clean_up_list_widget(panel_list)

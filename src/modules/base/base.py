@@ -175,7 +175,13 @@ class BaseModulePanel:
                 self.set_recalculate_button_highlight(True)
             self.root_class.result_selector_panel.refresh_result(result_id=self.result_id)
             return
-
+        if message.message_type == MessageType.CLICKED:
+            if message.caller_id == "compiled_filters":
+                self.open_filter_handler()
+                return
+        elif message.message_type == MessageType.FILTER_CLICKED:
+            self.open_filter_handler()
+            return
         logging.error(f"Handler not implemented for {message=}")
 
     def open_column_selector_popup(self):

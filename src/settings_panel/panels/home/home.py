@@ -111,9 +111,6 @@ class Home(BasePanel):
 
                 self.tabledata.load_data(pd.read_parquet(f"{temp_dir}/tabledata_df.parquet"))
 
-                with open(f"{temp_dir}/tabledata_column_flags.pkl", "rb") as file:
-                    self.tabledata.load_flags(pickle.load(file))
-
                 with open(f"{temp_dir}/results.pkl", "rb") as file:
                     results = pickle.load(file)
                     for result in results.values():
@@ -149,14 +146,11 @@ class Home(BasePanel):
 
         with tempfile.TemporaryDirectory() as temp_dir:
             self.tabledata.get_data().to_parquet(f"{temp_dir}/tabledata_df.parquet")
-            with open(f"{temp_dir}/tabledata_column_flags.pkl", "wb") as file:
-                pickle.dump(self.tabledata.get_flags(), file)
             with open(f"{temp_dir}/results.pkl", "wb") as file:
                 pickle.dump(RESULTS, file)
             # Zip all files
             with zipfile.ZipFile(file_path, "w") as zipf:
                 zipf.write(f"{temp_dir}/tabledata_df.parquet", "tabledata_df.parquet")
-                zipf.write(f"{temp_dir}/tabledata_column_flags.pkl", "tabledata_column_flags.pkl")
                 zipf.write(f"{temp_dir}/results.pkl", "results.pkl")
 
         if file_path.endswith(".sp"):

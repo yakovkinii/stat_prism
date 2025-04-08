@@ -112,7 +112,8 @@ class SettingsPanelClass:
     def add_panel(self, panel_registry_item: PanelRegistryItem):
         panel_registry_item.settings_stacked_widget_index = self.get_available_index()
         if panel_registry_item.content_class is not None:
-            panel_registry_item.content_class.settings_panel_index = panel_registry_item.settings_stacked_widget_index
+            for content_class in panel_registry_item.content_class:
+                content_class.settings_panel_index = panel_registry_item.settings_stacked_widget_index
         panel_registry_item.ui_instance = panel_registry_item.ui_class(
             parent_widget=self.stacked_widget,
             parent_class=self,
