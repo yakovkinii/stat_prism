@@ -20,6 +20,9 @@ class SingleLineTextResultItemSetting(BasePanelElement):
         # ---
         self.line_edit = None
 
+    def get_current_value(self):
+        return self.current_value
+
     def setup(self):
         self.widget, self.layout = empty_widget(
             parent=self.parent_widget,
@@ -38,10 +41,11 @@ class SingleLineTextResultItemSetting(BasePanelElement):
 
 
 class NumberCaptionResultItemSetting(BasePanelElement):
-    def __init__(self, current_number, current_caption):
+    def __init__(self, current_number, current_caption, add_stretch=False):
         super().__init__()
         self.number = SingleLineTextResultItemSetting("Number:", current_number)
         self.caption = SingleLineTextResultItemSetting("Caption:", current_caption)
+        self.add_stretch = add_stretch
 
     def setup(self):
         self.widget, self.layout = empty_widget(
@@ -60,7 +64,8 @@ class NumberCaptionResultItemSetting(BasePanelElement):
         self.caption.inject(self.widget, self.handler, self.element_id)
         self.caption.setup()
         self.layout.addWidget(self.caption.widget)
-        self.layout.addStretch()
+        if self.add_stretch:
+            self.layout.addStretch()
 
     def get_number(self):
         return self.number.current_value
@@ -69,14 +74,38 @@ class NumberCaptionResultItemSetting(BasePanelElement):
         return self.caption.current_value
 
 
+class ContainerResultItemSetting(BasePanelElement):
+    def __init__(self, items, add_stretch=False):
+        super().__init__()
+        self.items = items
+        self.add_stretch = add_stretch
+
+    def setup(self):
+        self.widget, self.layout = empty_widget(
+            parent=self.parent_widget,
+            inner_layout_class=QVBoxLayout,
+            setup=lambda widget, layout: [
+                layout.setContentsMargins(0, 5, 0, 5),
+                layout.setSpacing(10),
+            ],
+        )
+        for item in self.items:
+            item.inject(self.widget, self.handler, self.element_id)
+            item.setup()
+            self.layout.addWidget(item.widget)
+        if self.add_stretch:
+            self.layout.addStretch()
+
+
 class SliderResultItemSetting(BasePanelElement):
-    def __init__(self, label, current_value, min_value, max_value, step):
+    def __init__(self, label, current_value, min_value, max_value, step, add_stretch=False):
         super().__init__()
         self.label = label
         self.current_value = current_value
         self.min_value = min_value
         self.max_value = max_value
         self.step = step
+        self.add_stretch = add_stretch
         # ---
         self.slider = None
 
@@ -110,7 +139,8 @@ class SliderResultItemSetting(BasePanelElement):
                 widget.setMaximumWidth(SettingsPanelSize.max_col_width),
             ],
         )
-        self.layout.addStretch()
+        if self.add_stretch:
+            self.layout.addStretch()
 
     def slider_value_changed(self, value):
         self.current_value = self.min_value + value * self.step

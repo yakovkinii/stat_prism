@@ -206,7 +206,7 @@ class DataModel(QAbstractTableModel):
 
     @log_method_noarg
     def get_data(self):  # Todo deprecate and use rich classes instead
-        return self._data.get_dataframe()
+        return self._data.get_dataframe() if self._data is not None else pd.DataFrame()
 
     @log_method_noarg
     def get_data_v2(self) -> Data:

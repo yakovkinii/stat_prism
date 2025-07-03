@@ -28,6 +28,7 @@ class MeanComparison(BaseModulePanel):
             ),
             "effect_size": LargeCheckbox(label_text="Effect size/Post-hoc"),
             "means": LargeCheckbox(label_text="Means/Medians"),
+            "plots": LargeCheckbox(label_text="Plots"),
             "column_selector": ColumnSelectorEx(
                 fields=[
                     Field(
@@ -57,6 +58,7 @@ class MeanComparison(BaseModulePanel):
 
         self.elements["method"].combo_box.setCurrentText(RESULTS[result_id].config.method.value)
         self.elements["means"].widget.setChecked(RESULTS[result_id].config.means)
+        self.elements["plots"].widget.setChecked(RESULTS[result_id].config.plots)
         self.elements["effect_size"].widget.setChecked(RESULTS[result_id].config.effect_size)
         self.elements["column_selector"].configure(
             columns=self.tabledata.get_all_columns_as_column_types(),
@@ -118,6 +120,7 @@ class MeanComparison(BaseModulePanel):
             method=MeanComparisonMethod(self.elements["method"].combo_box.currentText()),
             means=self.elements["means"].widget.isChecked(),
             effect_size=self.elements["effect_size"].widget.isChecked(),
+            plots=self.elements["plots"].widget.isChecked(),
             selected_columns=self.elements["column_selector"].get_selected_columns()[0],
             selected_columns_types=[
                 self.tabledata.get_column_type_from_column_name(col)

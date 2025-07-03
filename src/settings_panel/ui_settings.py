@@ -9,6 +9,8 @@ from PySide6 import QtWidgets
 from PySide6.QtGui import QAction
 from PySide6.QtWidgets import QMenu, QMenuBar, QVBoxLayout
 
+from src.common.decorators import log_method
+from src.common.languages import Languages, LANGUAGE
 from src.common.size import SettingsPanelSize
 from src.common.unique_qss import set_stylesheet
 from src.modules.registry import ModuleRegistry, ModuleRegistryItem
@@ -55,7 +57,15 @@ class SettingsPanelClass:
         set_stylesheet(menu_bar, "#id{border-bottom: 1px solid #ddd; background-color: #eee;}")
 
         file_menu = QMenu("File", self.widget)
+        language_menu = QMenu("Language", self.widget)
         help_menu = QMenu("Help", self.widget)
+
+        # EN and UA checkable actions
+        self.en_action = QAction("English", self.widget)
+        self.ua_action = QAction("Українська", self.widget)
+        self.en_action.setCheckable(True)
+        self.ua_action.setCheckable(True)
+        self.en_action.setChecked(True)  # Default to English
         open_action = QAction("Open...", self.widget)
         save_action = QAction("Save", self.widget)
         save_as_action = QAction("Save As...", self.widget)
@@ -63,12 +73,15 @@ class SettingsPanelClass:
         about_action = QAction("About", self.widget)
 
         menu_bar.addMenu(file_menu)
+        menu_bar.addMenu(language_menu)
         menu_bar.addMenu(help_menu)
 
         file_menu.addAction(open_action)
         file_menu.addAction(save_action)
         file_menu.addAction(save_as_action)
         file_menu.addAction(save_table_action)
+        language_menu.addAction(self.en_action)
+        language_menu.addAction(self.ua_action)
         help_menu.addAction(about_action)
 
         # Add all panels
@@ -86,9 +99,21 @@ class SettingsPanelClass:
 
         open_action.triggered.connect(PanelRegistry.HOME.value.ui_instance.open_handler)
         save_action.triggered.connect(PanelRegistry.HOME.value.ui_instance.save_handler)
+        self.en_action.triggered.connect(self.set_language_EN)
+        self.ua_action.triggered.connect(self.set_language_UA)
         save_as_action.triggered.connect(PanelRegistry.HOME.value.ui_instance.save_as_handler)
         save_table_action.triggered.connect(self.save_table_handler)
         about_action.triggered.connect(PanelRegistry.HOME.value.ui_instance.about_handler)
+
+    def set_language_EN(self):
+        LANGUAGE.set_language(Languages.EN)
+        self.en_action.setChecked(True)
+        self.ua_action.setChecked(False)
+
+    def set_language_UA(self):
+        LANGUAGE.set_language(Languages.UA)
+        self.en_action.setChecked(False)
+        self.ua_action.setChecked(True)
 
     def get_available_index(self):
         if self.max_used_panel_index is None:

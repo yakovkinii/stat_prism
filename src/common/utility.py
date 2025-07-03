@@ -44,8 +44,11 @@ def format_p_apa(p, decimals=3, add_equals=False):
         return MDASH
     if p < 0.001:
         return "&lt;&nbsp;.001"
-    else:
-        return "= " * add_equals + f"{round(p, decimals):.{decimals}f}".replace("0.", ".")
+    if p < 0.01:
+        return "&lt;&nbsp;.01"
+    if p < 0.05:
+        return "&lt;&nbsp;.05"
+    return "= " * add_equals + f"{round(p, decimals):.{decimals}f}".replace("0.", ".")
 
 
 def format_p_apa_full(p, decimals=3):
@@ -53,17 +56,11 @@ def format_p_apa_full(p, decimals=3):
         return MDASH
     if p < 0.001:
         return "p&lt;.001"
-    else:
-        return f"p={round(p, decimals):.{decimals}f}".replace("0.", ".")
-
-
-def format_p_gost_full(p, decimals=3):
-    if np.isnan(p) or p is None:
-        return MDASH
-    if p < 0.001:
-        return "p&lt;0.001"
-    else:
-        return f"p={round(p, decimals):.{decimals}f}"
+    if p < 0.01:
+        return "p&lt;.01"
+    if p < 0.05:
+        return "p&lt;.05"
+    return f"p={round(p, decimals):.{decimals}f}".replace("0.", ".")
 
 
 def get_stars(p):

@@ -1,0 +1,23 @@
+#
+#  Copyright (c) 2023 -- 2024 StatPrism Team. All rights reserved.
+#
+
+#
+#
+from typing import Callable
+
+from PySide6.QtWidgets import QVBoxLayout, QWidget, QHBoxLayout
+
+
+class HBoxLayout(QHBoxLayout):
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.setContentsMargins(0, 0, 0, 0)
+        self.setSpacing(0)
+
+
+class VBoxLayout(QVBoxLayout):
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.setContentsMargins(0, 0, 0, 0)
+        self.setSpacing(0)

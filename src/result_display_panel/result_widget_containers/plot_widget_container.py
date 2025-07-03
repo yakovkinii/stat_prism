@@ -28,8 +28,8 @@ class PlotResultElementWidgetContainer:
         self.label = QLabel(self.widget)
         self.label.setText(
             f"""
-            <div><b> Figure {self.result_element.plot_id} </b> </div>
-            <div><i> {self.result_element.plot_title} </i> </div>
+            <div><b> Figure {self.result_element.number_caption.get_number()} </b> </div>
+            <div><i> {self.result_element.number_caption.get_caption()} </i> </div>
             """
         )
         font = QFont(
@@ -51,9 +51,7 @@ class PlotResultElementWidgetContainer:
         self.widget_layout.addWidget(self.plot_container)
 
         self.canvas = MatplotlibCanvas(parent=self.plot_container, result_element=self.result_element)
-        # self.canvas.setFixedSize(
-        #     self.result_element.general_plot_config.size_x, self.result_element.general_plot_config.size_y
-        # )
+        self.canvas.setFixedSize(result_element.plot_x_size, result_element.plot_y_size)
 
         self.plot_container.setLayout(QVBoxLayout())
         self.plot_container.layout().addWidget(self.canvas)
@@ -101,8 +99,8 @@ class MatplotlibCanvas(FigureCanvas):
             self.ax.set_xlim(xlim[0] - dx, xlim[1] - dx)
             self.ax.set_ylim(ylim[0] + dy, ylim[1] + dy)
 
-            # self.result_element.general_plot_config.x_range = self.ax.get_xlim()
-            # self.result_element.general_plot_config.y_range = self.ax.get_ylim()
+            self.result_element.x_range = self.ax.get_xlim()
+            self.result_element.y_range = self.ax.get_ylim()
 
             self.draw()
 
@@ -136,8 +134,8 @@ class MatplotlibCanvas(FigureCanvas):
             self.ax.set_xlim(new_xlim)
             self.ax.set_ylim(new_ylim)
 
-            # self.result_element.general_plot_config.x_range = self.ax.get_xlim()
-            # self.result_element.general_plot_config.y_range = self.ax.get_ylim()
+            self.result_element.x_range = self.ax.get_xlim()
+            self.result_element.y_range = self.ax.get_ylim()
 
             self.draw()
 

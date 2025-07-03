@@ -16,6 +16,7 @@ class MeanComparisonStudyConfig:
         method: MeanComparisonMethod = None,
         means: bool = True,
         effect_size: bool = True,
+        plots: bool = False,
         selected_columns: List[str] = None,
         selected_columns_types: List[ColumnType] = None,
         grouping_column: str = None,
@@ -24,6 +25,7 @@ class MeanComparisonStudyConfig:
         self.method = method if method is not None else MeanComparisonMethod.AUTO
         self.means = means
         self.effect_size = effect_size
+        self.plots = plots
         self.selected_columns = selected_columns if selected_columns is not None else []
         self.selected_columns_types = selected_columns_types if selected_columns_types is not None else []
         self.grouping_column = grouping_column

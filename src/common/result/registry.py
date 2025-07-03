@@ -1,7 +1,6 @@
 #
 #  Copyright (c) 2023 -- 2024 StatPrism Team. All rights reserved.
 #
-
 from typing import Dict, Union
 
 from src.common.result.classes.base_result import BaseResult
@@ -26,3 +25,5 @@ RESULTS: Dict[
         V2Result,
     ],
 ] = {}
+
+

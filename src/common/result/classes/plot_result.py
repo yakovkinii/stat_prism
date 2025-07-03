@@ -3,6 +3,7 @@
 #
 
 import base64
+import io
 import os
 from typing import List, Tuple, Union
 
@@ -10,15 +11,25 @@ import attrs
 import numpy as np
 from matplotlib import cbook
 from matplotlib import pyplot as plt
+from mpl_toolkits.axes_grid1 import make_axes_locatable
 
 from src.common.qcolor import rgba_tuple_from_rgb_and_a
 from src.common.result.classes.base_result import BaseResultElement
 from src.common.utility import get_stars
 from src.modules.correlation.table import format_r_apa
 from src.settings_panel.panels.result_item_settings_v2.classes import (
+    ContainerResultItemSetting,
     NumberCaptionResultItemSetting,
+    SingleLineTextResultItemSetting,
     SliderResultItemSetting,
 )
+
+
+class ContingencyPlot:
+    def __init__(self, contingency_table, label, config=None):
+        self.contingency_table = contingency_table
+        self.label = label
+        self.config = config if config else ContingencyPlotConfig()
 
 
 class Scatter:
@@ -98,13 +109,13 @@ class Heatmap:
 class Colors:
     def __init__(self):
         self.colors = [
-            [100, 100, 255],
-            [255, 100, 100],
-            [100, 200, 100],
-            [255, 100, 0],
-            [200, 100, 200],
-            [100, 200, 200],
-            [100, 100, 100],
+            (100, 100, 255),
+            (255, 100, 100),
+            (100, 200, 100),
+            (255, 100, 0),
+            (200, 100, 200),
+            (100, 200, 200),
+            (100, 100, 100),
         ]
         self.index = 0
 
@@ -132,6 +143,18 @@ LINE_STYLE_TO_MATPLOTLIB = {
     "Dash-dot": "-.",
     "None": "",
 }
+
+
+@attrs.define
+class ContingencyPlotConfig:
+    ...
+    # color: Tuple[int, int, int] = Colors().get_color_list()
+    # fill_alpha: int = 100
+    # line_alpha: int = 0
+    # marker_shape: str = "Circle"
+    # point_size: int = 8
+    # jitter_x: float = 0
+    # jitter_y: float = 0
 
 
 @attrs.define
@@ -420,7 +443,7 @@ class PlotV2(BaseResultElement):
 
     def __init__(
         self,
-        items: List[Union[Scatter, Line, Band, Bar, Box, Heatmap]] = None,
+        items: List[Union[Scatter, Line, Band, Bar, Box, Heatmap, ContingencyPlot]] = None,
         tab_title="Plot Result Element",
         plot_id="",
         plot_title="Correlation plot",
@@ -429,35 +452,41 @@ class PlotV2(BaseResultElement):
         x_axis_items=None,
     ):
         super().__init__(v2=True)
+        # Static for now
+        self.plot_x_size = 600
+        self.plot_y_size = 500
+
+        self.x_range = None
+        self.y_range = None
+
+        # Dynamic
         self.title: str = tab_title
         self.class_id: str = "PlotV2"
         self.items = items if items else []
         self.plot_id = plot_id
         self.plot_title = plot_title
-        self.x_axis_title = x_axis_title
-        self.y_axis_title = y_axis_title
         self.x_axis_items = x_axis_items
         self.number_caption = NumberCaptionResultItemSetting(current_number=plot_id, current_caption=plot_title)
+        self.x_axis_title = SingleLineTextResultItemSetting(label="X axis title", current_value=x_axis_title)
+        self.y_axis_title = SingleLineTextResultItemSetting(label="Y axis title", current_value=y_axis_title)
         self.tilt_x_axis_labels = SliderResultItemSetting(
-            label="Tilt X Axis Labels",
+            label="Rotate X Axis Labels",
             current_value=0,
             min_value=0,
             max_value=90,
             step=15,
         )
-        self.display_settings = {"General": self.number_caption, "X Axis": self.tilt_x_axis_labels}
-
-    def set_plot_id(self, plot_id):
-        self.plot_id = plot_id
-
-    def set_plot_title(self, plot_title):
-        self.plot_title = plot_title
-
-    def set_x_axis_title(self, x_axis_title):
-        self.x_axis_title = x_axis_title
-
-    def set_y_axis_title(self, y_axis_title):
-        self.y_axis_title = y_axis_title
+        self.display_settings = {
+            "General": ContainerResultItemSetting(
+                items=[
+                    self.number_caption,
+                    self.x_axis_title,
+                    self.y_axis_title,
+                    self.tilt_x_axis_labels,
+                ],
+                add_stretch=True,
+            ),
+        }
 
     def create_figure(self):
         plt.close("all")
@@ -467,10 +496,8 @@ class PlotV2(BaseResultElement):
         fig.patch.set_facecolor(rgba_tuple_from_rgb_and_a(face_color, 255))
         ax.set_facecolor(rgba_tuple_from_rgb_and_a(face_color, 255))
 
-        size_x = 600
-        size_y = 500
         dpi = fig.get_dpi()
-        fig.set_size_inches(size_x / dpi, size_y / dpi)
+        fig.set_size_inches(self.plot_x_size / dpi, self.plot_y_size / dpi)
         self.legend = False
 
         for item in self.items:
@@ -594,6 +621,64 @@ class PlotV2(BaseResultElement):
 
                         plt.text(j, i, text, ha="center", va="center", color="grey", fontsize=14)
 
+            if isinstance(item, ContingencyPlot):
+                contingency_table = item.contingency_table
+                total_number = contingency_table.sum().sum()
+                # Create a 100% stacked bar chart
+                data_pct = contingency_table / contingency_table.sum() * 100
+                totals_frac = contingency_table.sum(axis=1) / total_number * 100
+                bar_widths = contingency_table.sum() / total_number
+                positions_non_centered = (bar_widths.cumsum() + bar_widths.cumsum().shift(1, fill_value=0)) / 2
+                positions = [bar_width - bar_widths.iloc[0] / 2 for bar_width in positions_non_centered]
+                color_manager = Colors()
+                colors = [rgba_tuple_from_rgb_and_a(color_manager.get_color_list(), 255) for _ in range(len(data_pct))]
+
+                # Plot the stacked bar chart accounting for widths of each bar
+                for j, col in enumerate(data_pct.columns):
+                    bottom = 0
+                    for i, row in enumerate(data_pct.index):
+                        ax.bar(
+                            positions[j],
+                            data_pct.iloc[i, j],
+                            bottom=bottom,
+                            color=colors[i],
+                            align="center",
+                            edgecolor="white",
+                            width=bar_widths[col],
+                            label=col if i == 0 else None,  # Only label the first bar
+                        )
+                        bottom += data_pct.iloc[i, j]
+                # Set the x-ticks to the positions of the bars
+                ax.set_xticks(positions)
+                ax.set_xticklabels(data_pct.columns)
+
+                ax.set_ylim(0, 100)
+                ax.set_xlim(-bar_widths.iloc[0] / 2, positions[-1] + bar_widths.iloc[-1] / 2)
+
+                divider = make_axes_locatable(ax)
+                ax2 = divider.append_axes("right", size="5%", pad=0.1)
+
+                ax2.set_anchor("S")
+                bottom = 0
+                midpoints = []
+                for frac, c in zip(totals_frac, colors):
+                    ax2.bar(0, frac, bottom=bottom, color=c, edgecolor="white", width=0.1)
+                    midpoints.append(bottom + frac / 2)
+                    bottom += frac
+                # Clean up
+                ax2.set_xlim(-0.05, 0.05)
+                ax2.set_xticks([])
+                ax2.set_ylim(0, 100)
+                # place one tick per segment, at its midpoint
+                ax2.set_yticks(midpoints)
+                ax2.set_yticklabels(contingency_table.index)
+                # y ticks on the right
+                ax2.yaxis.tick_right()
+                ax2.spines["left"].set_visible(False)
+                ax2.spines["right"].set_color("grey")
+                ax2.spines["top"].set_visible(False)
+                ax2.spines["bottom"].set_visible(False)
+
         # increase font size, set Times New Roman
         ax.tick_params(axis="both", which="major", labelsize=14, colors="grey")
         ax.spines["top"].set_color("grey")
@@ -608,44 +693,69 @@ class PlotV2(BaseResultElement):
         ax.tick_params(axis="x", rotation=self.tilt_x_axis_labels.current_value)
 
         # axis titles
-        ax.set_xlabel(self.x_axis_title)
-        ax.set_ylabel(self.y_axis_title)
+        ax.set_xlabel(self.x_axis_title.get_current_value())
+        ax.set_ylabel(self.y_axis_title.get_current_value())
         ax.xaxis.label.set_fontsize(18)
         ax.yaxis.label.set_fontsize(18)
         # set axis label font
         ax.xaxis.label.set_fontname("Times New Roman")
         ax.yaxis.label.set_fontname("Times New Roman")
 
-        # if self.general_plot_config.x_range is not None:
-        #     ax.set_xlim(*self.general_plot_config.x_range)
-        # if self.general_plot_config.y_range is not None:
-        #     ax.set_ylim(*self.general_plot_config.y_range)
+        # set axis ranges
+        if self.x_range is not None:
+            ax.set_xlim(*self.x_range)
+        if self.y_range is not None:
+            ax.set_ylim(*self.y_range)
 
         if self.legend:
             ax.legend()
 
-        # set tight layout
         fig.tight_layout()
         return fig, ax
 
+    # def get_html(self):
+    #     fig, _ = self.create_figure()
+    #
+    #     temp_svg_file_name = "./~tmp.svg"
+    #     fig.savefig(temp_svg_file_name, format="svg", bbox_inches="tight")
+    #     plt.close(fig)
+    #
+    #     with open(temp_svg_file_name, "r", encoding="utf-8") as f:
+    #         svg_data = f.read()
+    #         base64_encoded_svg = (
+    #             f"data:image/svg+xml;base64,{base64.b64encode(svg_data.encode('utf-8')).decode('utf-8')}"
+    #         )
+    #
+    #     os.remove(temp_svg_file_name)
+    #
+    #     result = f"""
+    #         <div><b> Figure {self.number_caption.get_number()} </b> </div>
+    #         <div class="double-spacing font"><i>{self.number_caption.get_caption()}</i></div><br>
+    #         <img src="{base64_encoded_svg}" alt="Plot Image" style="width: 400px; height: auto;">
+    #     """
+    #     return result
+
     def get_html(self):
+        # 1) create your figure as before
         fig, _ = self.create_figure()
 
-        temp_svg_file_name = "./~tmp.svg"
-        fig.savefig(temp_svg_file_name, format="svg", bbox_inches="tight")
+        # 2) dump it into an in-memory bytes buffer as PNG
+        buf = io.BytesIO()
+        fig.savefig(buf, format="png", bbox_inches="tight", dpi=150)
         plt.close(fig)
+        buf.seek(0)
 
-        with open(temp_svg_file_name, "r", encoding="utf-8") as f:
-            svg_data = f.read()
-            base64_encoded_svg = (
-                f"data:image/svg+xml;base64,{base64.b64encode(svg_data.encode('utf-8')).decode('utf-8')}"
-            )
+        # 3) base64-encode the PNG bytes
+        png_bytes = buf.getvalue()
+        base64_png = base64.b64encode(png_bytes).decode("ascii")
+        buf.close()
 
-        os.remove(temp_svg_file_name)
-
-        result = f"""
-            <div><b> Figure {self.plot_id} </b> </div>
-            <div class="double-spacing font"><i>{self.plot_title}</i></div><br>
-            <img src="{base64_encoded_svg}" alt="Plot Image" style="width: 400px; height: auto;">
+        # 4) embed into an <img> tag
+        html = f"""
+        <div><b>Figure {self.number_caption.get_number()}</b></div>
+        <div class="double-spacing font"><i>{self.number_caption.get_caption()}</i></div><br>
+        <img src="data:image/png;base64,{base64_png}"
+             alt="Plot Image"
+             style="width:400px; height:auto;">
         """
-        return result
+        return html

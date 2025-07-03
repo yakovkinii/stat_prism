@@ -1,18 +1,21 @@
 #
 #  Copyright (c) 2023 -- 2024 StatPrism Team. All rights reserved.
 #
-
+import numpy as np
 import pandas as pd
 from scipy import stats
+from scipy.stats import gaussian_kde
 
 from src.common.constant import ColumnType
 from src.common.decorators import log_function
 from src.common.result.classes.html_result import Cell, HTMLTableV2, Row
+from src.common.result.classes.plot_result import Colors, LinePlotConfig, Line, BarPlotConfig, Bar, PlotV2
 from src.common.utility import format_p_apa, format_statistic_apa, format_value_apa
 from src.common.verbal.test import TestResult, describe_single_test_multiple_variables
 from src.data_panel.data import Data
 from src.modules.common.homogeneity import process_homogeneity_check
 from src.modules.common.normality import process_normality_check
+from src.modules.descriptive.plot import create_box_plot
 from src.modules.mean_comparison.constant import MeanComparisonMethod
 from src.modules.mean_comparison.result import MeanComparisonResult
 
@@ -93,7 +96,76 @@ def recalculate_mean_comparison_t_test(
                 effect_size=cfg.effect_size,
             )
         )
+    if not cfg.plots:
+        return result
 
+    groupby_column = cfg.grouping_column
+    groupby_values = df[groupby_column].drop_duplicates().values
+    numeric_columns = [col for col in cfg.selected_columns if data[col].column_type == ColumnType.NUMERIC]
+    plot_result_elements = []
+    for col in cfg.selected_columns:
+        is_numeric = col in numeric_columns
+
+        if not is_numeric:
+            continue
+
+        plots = []
+        n_items = len(groupby_values)
+
+        _, x_all = np.histogram(df[col], bins="auto", density=True)
+        x_vals = np.linspace(df[col].min(), df[col].max(), 500)
+
+        # | g 1 g 2 g |
+        width = (x_all[1] - x_all[0]) * 0.9 / n_items
+        gap = ((x_all[1] - x_all[0]) - width * len(groupby_values)) / (len(groupby_values) + 1)
+
+        colors = Colors()
+
+        for i, groupby_value in enumerate(groupby_values):
+            df_subset = df.loc[df[groupby_column] == groupby_value]
+            kde = gaussian_kde(df_subset[col].dropna())
+            y_vals = kde(x_vals)
+            color = colors.get_color_list()
+            line_plot_config = LinePlotConfig(color=color)
+            plot_line = Line(
+                x=x_vals,
+                y=y_vals,
+                label=f"{groupby_value}",
+                config=line_plot_config,
+                legend_string=f"{groupby_value}",
+            )
+            plots.append(plot_line)
+
+            y, x = np.histogram(df_subset[col], bins=x_all, density=True)
+            bar_plot_config = BarPlotConfig(color=color)
+            # bar plot # | g 1 g 2 g |
+            plot_bar = Bar(
+                x=x[:-1] + gap + width / 2 + i * (width + gap),
+                y=y,
+                width=width,
+                label=f"{groupby_value}",
+                config=bar_plot_config,
+            )
+            plots.append(plot_bar)
+
+        plot_result = PlotV2(
+            items=plots,
+            tab_title=f"Plot: Distribution of {col}",
+            plot_title=f"Distribution of {col}",
+            x_axis_title=col,
+            y_axis_title="Density",
+        )
+        plot_result_elements.append(plot_result)
+
+        box_plot_result = create_box_plot(
+            groups=[df.loc[df[groupby_column] == groupby_value][col] for groupby_value in groupby_values],
+            group_names=groupby_values,
+            column=col,
+            grouping_column=groupby_column,
+        )
+
+        plot_result_elements.append(box_plot_result)
+    result.result_elements.extend(plot_result_elements)
     return result
 
 

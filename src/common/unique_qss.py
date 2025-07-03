@@ -11,7 +11,8 @@ def get_id():
     return f"id{LATEST_ID}"
 
 
-def set_stylesheet(element, style: str):
+def set_stylesheet(element, *args):
+    style = "\n".join(args)
     unique_id = get_id()
     element.setObjectName(unique_id)
     element.setStyleSheet(style.replace("#id", "#" + unique_id))

@@ -25,7 +25,7 @@ def recalculate_mean_comparison_study(data: Data, result: MeanComparisonResult) 
         result.set_placeholder(msg)
         logging.debug(msg)
         return result
-    elif n_unique_values_in_grouping_column == 2:
+    if n_unique_values_in_grouping_column == 2:
         n_rows_per_group = df.groupby(cfg.grouping_column).size()
         if n_rows_per_group.min() < 3:
             msg = f"Insufficient population in some groups: {n_rows_per_group.to_dict()}"
@@ -33,11 +33,11 @@ def recalculate_mean_comparison_study(data: Data, result: MeanComparisonResult) 
             logging.debug(msg)
             return result
         return recalculate_mean_comparison_t_test(data, result)
-    else:
-        n_rows_per_group = df.groupby(cfg.grouping_column).size()
-        if n_rows_per_group.min() < 3:
-            msg = f"Insufficient population in some groups: {n_rows_per_group.to_dict()}"
-            result.set_placeholder(msg)
-            logging.debug(msg)
-            return result
-        return recalculate_mean_comparison_anova(data, result)
+
+    n_rows_per_group = df.groupby(cfg.grouping_column).size()
+    if n_rows_per_group.min() < 3:
+        msg = f"Insufficient population in some groups: {n_rows_per_group.to_dict()}"
+        result.set_placeholder(msg)
+        logging.debug(msg)
+        return result
+    return recalculate_mean_comparison_anova(data, result)

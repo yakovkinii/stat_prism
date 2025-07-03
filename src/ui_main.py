@@ -14,6 +14,8 @@ from src.common.registry import DEBTS, DebtType
 from src.common.ui_constructor import icon
 from src.common.unique_qss import set_stylesheet
 from src.data_panel.ui_data import DataPanelClass
+from src.pyside_ext.custom_widgets.main_tab_widget import main_tab_widget
+from src.pyside_ext.layout import HBoxLayout
 from src.result_display_panel.ui_result_display import ResultDisplayClass
 from src.result_selector_panel.ui_result_selector import ResultSelectorPanelClass
 from src.settings_panel.panels.registry import PanelRegistry
@@ -37,12 +39,10 @@ class MainWindowClass(QtWidgets.QMainWindow):
 
         # Definitions
         self.central_widget = QtWidgets.QWidget(self.widget)
-        self.central_widget_layout = QHBoxLayout(self.central_widget)
-        self.central_widget_layout.setContentsMargins(0, 0, 0, 0)
-        self.central_widget_layout.setSpacing(0)
+        self.central_widget_layout = HBoxLayout(self.central_widget)
 
         self.splitter = QtWidgets.QSplitter(self.central_widget)
-        self.tab_widget = QTabWidget(self.splitter)
+        self.tab_widget = main_tab_widget(self.splitter)
 
         self.data_panel: DataPanelClass = DataPanelClass(
             parent_widget=self.tab_widget, parent_class=self.widget, root_class=self
@@ -71,32 +71,10 @@ class MainWindowClass(QtWidgets.QMainWindow):
 
         self.tab_widget.addTab(self.data_panel.widget, "Data")
         self.tab_widget.addTab(self.results_panel.widget, "Analysis")
-        self.tab_widget.setTabPosition(QtWidgets.QTabWidget.TabPosition.West)
-        self.tab_widget.tabBar().setDocumentMode(True)
-        self.tab_widget.tabBar().setExpanding(True)
 
         # Misc
         self.setWindowIcon(icon(":/mat/resources/StatPrism_icon_small.ico"))
-        set_stylesheet(
-            self.tab_widget,
-            """
-        QTabWidget#id>QTabBar::tab:selected{
-            background: #fff;
-            font-size: 12pt;
-            font-family: Segoe UI;
-            font-weight: bold;
-            width: 40px;
-            border:none;
-        }
-        QTabWidget#id>QTabBar::tab:!selected {
-            background: #eee;
-            font-size: 12pt;
-            font-family: Segoe UI;
-            width: 40px;
-            border:none;
-        }
-        """,
-        )
+
         # Post-init
         self.tab_widget.setCurrentIndex(0)
 
