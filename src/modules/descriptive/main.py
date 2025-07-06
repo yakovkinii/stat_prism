@@ -9,7 +9,8 @@ from scipy.stats import gaussian_kde
 
 from src.common.constant import MDASH, ColumnType
 from src.common.decorators import log_function
-from src.common.result.classes.plot_result import Bar, BarPlotConfig, Colors, Line, LinePlotConfig, PlotV2
+from src.common.result.classes.plot_result import Bar, BarPlotConfig, Line, LinePlotConfig, PlotV2
+from src.common.qcolor import Colors
 from src.data_panel.data import Data
 from src.modules.descriptive.plot import create_box_plot
 from src.modules.descriptive.result import DescriptiveResult

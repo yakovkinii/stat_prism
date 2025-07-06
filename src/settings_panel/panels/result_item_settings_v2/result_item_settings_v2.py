@@ -49,7 +49,7 @@ class ResultItemSettingsV2(BasePanel):
     def handler(self, message: Message):
         if self.configuring:
             return
-        if message.message_type == MessageType.EDITING_FINISHED:
+        if message.message_type in [MessageType.EDITING_FINISHED, MessageType.STATE_CHANGED]:
             self.root_class.results_panel.refresh()
             return
         super().handler(message)

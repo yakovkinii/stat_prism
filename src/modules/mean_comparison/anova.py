@@ -11,7 +11,8 @@ from scipy.stats import gaussian_kde
 from src.common.constant import MDASH, ColumnType
 from src.common.decorators import log_function
 from src.common.result.classes.html_result import Cell, HTMLTableV2, Row
-from src.common.result.classes.plot_result import Colors, LinePlotConfig, Line, BarPlotConfig, Bar, PlotV2
+from src.common.result.classes.plot_result import LinePlotConfig, Line, BarPlotConfig, Bar, PlotV2
+from src.common.qcolor import Colors
 from src.common.utility import format_p_apa, format_p_apa_full, format_statistic_apa, format_value_apa, smart_comma_join
 from src.common.verbal.test import TestResult, describe_single_test_multiple_variables
 from src.data_panel.data import Data

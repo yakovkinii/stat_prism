@@ -10,7 +10,8 @@ import statsmodels.api as sm
 
 from src.common.decorators import log_function
 from src.common.result.classes.html_result import Cell, HTMLTableV2, Row
-from src.common.result.classes.plot_result import Band, BandPlotConfig, Colors, Line, LinePlotConfig, PlotV2, Scatter
+from src.common.result.classes.plot_result import Band, BandPlotConfig, Line, LinePlotConfig, PlotV2, Scatter
+from src.common.qcolor import Colors
 from src.common.utility import format_statistic_apa
 from src.data_panel.data import Data
 from src.modules.regression.result import RegressionResult, RegressionStudyConfig
@@ -160,18 +161,13 @@ def recalculate_regression_study(data: Data, result: RegressionResult) -> Regres
 
     plot_result_element = None
     if len(cfg.independent_columns) == 1:
-        plot_result_element = PlotV2(
-            tab_title=f"Regression Plot: {cfg.dependent_column} vs {cfg.independent_columns[0]}",
-            plot_title=f"Regression Plot: {cfg.dependent_column} vs {cfg.independent_columns[0]}",
-            x_axis_title=cfg.independent_columns[0],
-            y_axis_title=cfg.dependent_column,
-        )
+
         scatter = Scatter(
             x=df[cfg.independent_columns[0]],
             y=df[cfg.dependent_column],
-            label="Value",
+            label="Data points",
         )
-        plot_result_element.items = [scatter]
+        items = [scatter]
 
         x_values_original = np.linspace(df[cfg.independent_columns[0]].min(), df[cfg.independent_columns[0]].max(), 100)
         x_values_original = pd.DataFrame(
@@ -197,7 +193,7 @@ def recalculate_regression_study(data: Data, result: RegressionResult) -> Regres
                     legend_string=f"Regression Line ({number_of_sds} SD)",
                     config=LinePlotConfig(color=colors.get_color_list()),
                 )
-                plot_result_element.items.append(line)
+                items.append(line)
         elif cfg.mediator_column:
             colors = Colors()
             # ============================ DIRECT ================================
@@ -234,8 +230,8 @@ def recalculate_regression_study(data: Data, result: RegressionResult) -> Regres
                 legend_string="Direct Effect (corrected for mediation)",
                 config=LinePlotConfig(color=color),
             )
-            plot_result_element.items.append(line_direct)
-            plot_result_element.items.append(plot_band)
+            items.append(line_direct)
+            items.append(plot_band)
 
             # ============================ TOTAL ================================
             x_values = x_values_original.copy()
@@ -258,8 +254,8 @@ def recalculate_regression_study(data: Data, result: RegressionResult) -> Regres
                 legend_string="Total Effect",
                 config=LinePlotConfig(color=color),
             )
-            plot_result_element.items.append(plot_band)
-            plot_result_element.items.append(line_direct)
+            items.append(plot_band)
+            items.append(line_direct)
 
         else:
             line = Line(
@@ -267,7 +263,14 @@ def recalculate_regression_study(data: Data, result: RegressionResult) -> Regres
                 y=model.predict(sm.add_constant(x_values_original)),
                 label="Regression Line",
             )
-            plot_result_element.items.append(line)
+            items.append(line)
+        plot_result_element = PlotV2(
+            items=items,
+            tab_title=f"Regression Plot: {cfg.dependent_column} vs {cfg.independent_columns[0]}",
+            plot_title=f"Regression Plot: {cfg.dependent_column} vs {cfg.independent_columns[0]}",
+            x_axis_title=cfg.independent_columns[0],
+            y_axis_title=cfg.dependent_column,
+        )
 
     if plot_result_element:
         result.result_elements.append(plot_result_element)

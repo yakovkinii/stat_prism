@@ -4,6 +4,7 @@
 
 import os
 
+from matplotlib import pyplot as plt
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from PySide6.QtCore import Qt
 from PySide6.QtGui import QAction, QFont, QImage
@@ -57,6 +58,10 @@ class PlotResultElementWidgetContainer:
         self.plot_container.layout().addWidget(self.canvas)
         self.plot_container.layout().addStretch()
 
+    def __del__(self):
+        self.canvas.close()
+
+
 
 class MatplotlibCanvas(FigureCanvas):
     def __init__(self, parent, result_element: PlotV2):
@@ -69,6 +74,9 @@ class MatplotlibCanvas(FigureCanvas):
         self.dragged_after_click = False
         self.is_zooming = False
         self.last_mouse_position = None
+
+        # Enable delete-on-close for safety
+        self.setAttribute(Qt.WA_DeleteOnClose)
 
     def mousePressEvent(self, event):
         if event.button() == Qt.MouseButton.LeftButton:
@@ -152,7 +160,10 @@ class MatplotlibCanvas(FigureCanvas):
         context_menu = QMenu(self)
         copy_action = QAction("Copy", self)
         copy_action.triggered.connect(self.copy_as_image_to_clipboard)
+        pop_out_action = QAction("Pop Out", self)
+        pop_out_action.triggered.connect(self.pop_out)
         context_menu.addAction(copy_action)
+        context_menu.addAction(pop_out_action)
         context_menu.exec(event.globalPos())
         event.accept()
 
@@ -167,3 +178,25 @@ class MatplotlibCanvas(FigureCanvas):
         clipboard.setImage(image)
 
         os.remove(temp_file_name)
+
+    def pop_out(self):
+        fig, ax = self.result_element.create_figure()
+        fig.show()
+
+
+    def closeEvent(self, event):
+        """When the widget is closed, make absolutely sure we clear and close."""
+        # 1) Disconnect any Matplotlib callbacks (if you had any)
+        try:
+            self.fig.canvas.mpl_disconnect
+        except Exception:
+            pass
+
+        # 2) Clear the figure to free all artists
+        self.fig.clear()
+
+        # 3) Tell Matplotlib to close the figure
+        plt.close(self.fig)
+
+        # Proceed with normal Qt teardown
+        super().closeEvent(event)

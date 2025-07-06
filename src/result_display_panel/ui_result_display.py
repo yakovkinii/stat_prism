@@ -36,13 +36,20 @@ class ResultDisplayClass:
         self.element_id = None
         self.result_id = None
 
-    def display_none(self):
+        # ====
+        self._keep_from_gc = None
+
+    def cleanup(self):
         if self.element_widget_container is not None:
             self.layout.removeWidget(self.element_widget_container.widget)
             self.element_widget_container.widget.deleteLater()
-        self.element_widget_container = None
-        self.element_id = None
+            self._keep_from_gc = self.element_widget_container
+            self.element_widget_container = None
         self.result_id = None
+        self.element_id = None
+
+    def display_none(self):
+        self.cleanup()
 
     def display(self, result_id: int, element_id: str = None):
         if result_id == -1 or element_id is None:
@@ -57,9 +64,7 @@ class ResultDisplayClass:
             return
 
         logging.info(f"Displaying result {result_id} element {element_id}")
-        if self.element_widget_container is not None:
-            self.layout.removeWidget(self.element_widget_container.widget)
-            self.element_widget_container.widget.deleteLater()
+        self.cleanup()
 
         self.result_id = result_id
         self.element_id = element_id
@@ -76,9 +81,7 @@ class ResultDisplayClass:
 
     def display_entire_result(self, result_id):
         logging.info(f"Displaying all results")
-        if self.element_widget_container is not None:
-            self.layout.removeWidget(self.element_widget_container.widget)
-            self.element_widget_container.widget.deleteLater()
+        self.cleanup()
 
         self.element_widget_container = CombinedResultElementWidgetContainer(
             parent_widget=self.parent_widget,
