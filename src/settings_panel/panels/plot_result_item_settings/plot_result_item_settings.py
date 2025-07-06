@@ -51,7 +51,8 @@
 #         self.configuring = True
 #         self.result_id = result_id
 #         self.element_id = element_id
-#         self.result_element: PlotResultElement = cast(PlotResultElement, RESULTS[result_id].result_elements[element_id])
+#         self.result_element: PlotResultElement = cast(PlotResultElement,
+#         RESULTS[result_id].result_elements[element_id])
 #
 #         self.elements["line_edit"].edit_widget.setText(self.result_element.plot_id)
 #         self.elements["title_edit"].edit_widget.setText(self.result_element.plot_title)

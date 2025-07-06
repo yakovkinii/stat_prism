@@ -12,6 +12,7 @@ from src.settings_panel.panels.home.home import Home
 from src.settings_panel.panels.html_result_item_settings.html_result_item_settings import HTMLResultItemSettings
 from src.settings_panel.panels.invert.invert import Inverse
 from src.settings_panel.panels.order.order import Order
+
 # from src.settings_panel.panels.plot_result_item_settings.plot_result_item_settings import PlotResultItemSettings
 from src.settings_panel.panels.registry import PanelRegistry
 from src.settings_panel.panels.result_item_settings_v2.result_item_settings_v2 import ResultItemSettingsV2

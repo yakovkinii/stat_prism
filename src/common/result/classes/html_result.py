@@ -7,8 +7,8 @@ from typing import List, Union
 
 from src.common.constant import TABLE_OR_PLOT_ID_PLACEHOLDER
 from src.common.decorators import log_method, log_method_noarg
-from src.common.result.classes.base_result import BaseResultElement
 from src.common.languages import LANGUAGE
+from src.common.result.classes.base_result import BaseResultElement
 from src.settings_panel.panels.result_item_settings_v2.classes import NumberCaptionResultItemSetting
 
 
@@ -199,7 +199,9 @@ class HTMLTableV2(BaseResultElement):
         self.border_top = border_top
         self.border_bottom = border_bottom
         self.table_note: str = table_note
-        self.number_caption = NumberCaptionResultItemSetting(current_number=table_id, current_caption=table_caption, add_stretch=True)
+        self.number_caption = NumberCaptionResultItemSetting(
+            current_number=table_id, current_caption=table_caption, add_stretch=True
+        )
         self.display_settings = {"General": self.number_caption}
         self.texts: List[str] = []
 
@@ -217,7 +219,7 @@ class HTMLTableV2(BaseResultElement):
             {table_str} {table_id}
             </b></div>
         """
-        html += f'<div class="double-spacing font"><i>{self.number_caption.get_caption()}</i></div>'
+        html += f'<div class="double-spacing font"><i>{self.number_caption.get_caption()}</i></div><br>'
 
         style = ""
         if self.border_top:

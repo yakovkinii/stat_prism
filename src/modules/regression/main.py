@@ -9,9 +9,9 @@ import pandas as pd
 import statsmodels.api as sm
 
 from src.common.decorators import log_function
+from src.common.qcolor import Colors
 from src.common.result.classes.html_result import Cell, HTMLTableV2, Row
 from src.common.result.classes.plot_result import Band, BandPlotConfig, Line, LinePlotConfig, PlotV2, Scatter
-from src.common.qcolor import Colors
 from src.common.utility import format_statistic_apa
 from src.data_panel.data import Data
 from src.modules.regression.result import RegressionResult, RegressionStudyConfig
@@ -161,7 +161,6 @@ def recalculate_regression_study(data: Data, result: RegressionResult) -> Regres
 
     plot_result_element = None
     if len(cfg.independent_columns) == 1:
-
         scatter = Scatter(
             x=df[cfg.independent_columns[0]],
             y=df[cfg.dependent_column],
@@ -266,7 +265,7 @@ def recalculate_regression_study(data: Data, result: RegressionResult) -> Regres
             items.append(line)
         plot_result_element = PlotV2(
             items=items,
-            tab_title=f"Regression Plot: {cfg.dependent_column} vs {cfg.independent_columns[0]}",
+            title=f"Regression Plot: {cfg.dependent_column} vs {cfg.independent_columns[0]}",
             plot_title=f"Regression Plot: {cfg.dependent_column} vs {cfg.independent_columns[0]}",
             x_axis_title=cfg.independent_columns[0],
             y_axis_title=cfg.dependent_column,

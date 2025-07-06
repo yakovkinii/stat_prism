@@ -9,7 +9,7 @@ from src.common.constant import NDASH
 from src.common.decorators import log_function
 from src.common.languages import LANGUAGE
 from src.common.result.classes.html_result import Cell, HTMLTableV2, Row
-from src.common.result.classes.plot_result import PlotV2, ContingencyPlot
+from src.common.result.classes.plot_result import ContingencyPlot, PlotV2
 from src.common.utility import format_p_apa, format_p_apa_full, format_statistic_apa
 from src.data_panel.data import Data
 from src.modules.contingency.result import ContingencyResult
@@ -181,11 +181,12 @@ def recalculate_contingency_study(data: Data, result: ContingencyResult) -> Cont
     chi2_table.add_text(chi2_table_text)
 
     plot = PlotV2(
-        items=[ContingencyPlot(
-            contingency_table=contingency_table,
-            label='Contingency Plot',
-
-        )],
+        items=[
+            ContingencyPlot(
+                contingency_table=contingency_table,
+                label="Contingency Plot",
+            )
+        ],
         plot_title=f"Contingency Plot: {cfg.selected_column1} vs {cfg.selected_column2}",
         x_axis_title=cfg.selected_column2,
         y_axis_title=cfg.selected_column1 + " (%)",

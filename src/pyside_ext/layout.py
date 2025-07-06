@@ -4,9 +4,8 @@
 
 #
 #
-from typing import Callable
 
-from PySide6.QtWidgets import QVBoxLayout, QWidget, QHBoxLayout
+from PySide6.QtWidgets import QHBoxLayout, QVBoxLayout
 
 
 class HBoxLayout(QHBoxLayout):

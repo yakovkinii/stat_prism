@@ -9,8 +9,7 @@ from PySide6 import QtWidgets
 from PySide6.QtGui import QAction
 from PySide6.QtWidgets import QMenu, QMenuBar, QVBoxLayout
 
-from src.common.decorators import log_method
-from src.common.languages import Languages, LANGUAGE
+from src.common.languages import LANGUAGE, Languages
 from src.common.size import SettingsPanelSize
 from src.common.unique_qss import set_stylesheet
 from src.modules.registry import ModuleRegistry, ModuleRegistryItem
@@ -140,8 +139,6 @@ class SettingsPanelClass:
             for content_class in panel_registry_item.content_class:
                 content_class.settings_panel_index = panel_registry_item.settings_stacked_widget_index
 
-        if panel_registry_item.ui_class is None:
-            a=2
         panel_registry_item.ui_instance = panel_registry_item.ui_class(
             parent_widget=self.stacked_widget,
             parent_class=self,

@@ -250,6 +250,11 @@ class DataModel(QAbstractTableModel):
         self.headerDataChanged.emit(Qt.Orientation.Horizontal, column_index, column_index)
 
     @log_method
+    def toggle_column_inverted(self, column_index):
+        self._data[column_index].inverted = not self._data[column_index].inverted
+        self.headerDataChanged.emit(Qt.Orientation.Horizontal, column_index, column_index)
+
+    @log_method
     def save_as_xlsx(self, filename):
         def apply_style(column):
             color = self._data[column].color

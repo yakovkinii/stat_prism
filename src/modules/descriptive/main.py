@@ -9,8 +9,8 @@ from scipy.stats import gaussian_kde
 
 from src.common.constant import MDASH, ColumnType
 from src.common.decorators import log_function
-from src.common.result.classes.plot_result import Bar, BarPlotConfig, Line, LinePlotConfig, PlotV2
 from src.common.qcolor import Colors
+from src.common.result.classes.plot_result import Bar, BarPlotConfig, Line, LinePlotConfig, PlotV2
 from src.data_panel.data import Data
 from src.modules.descriptive.plot import create_box_plot
 from src.modules.descriptive.result import DescriptiveResult
@@ -73,7 +73,7 @@ def calculate_descriptive_study_no_groupby(data: Data, result: DescriptiveResult
 
         plot_result = PlotV2(
             items=[plot_line, plot_bar],
-            tab_title=f"Plot: Distribution of {col}",
+            title=f"Plot: Distribution of {col}",
             plot_title=f"Distribution of {col}",
             x_axis_title=col,
             y_axis_title="Density",
@@ -171,7 +171,7 @@ def calculate_descriptive_study_groupby(data: Data, result: DescriptiveResult):
 
         plot_result = PlotV2(
             items=plots,
-            tab_title=f"Plot: Distribution of {col}",
+            title=f"Plot: Distribution of {col}",
             plot_title=f"Distribution of {col}",
             x_axis_title=col,
             y_axis_title="Density",

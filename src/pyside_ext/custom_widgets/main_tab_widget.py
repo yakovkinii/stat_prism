@@ -9,7 +9,7 @@ from PySide6 import QtWidgets
 from PySide6.QtWidgets import QTabWidget
 
 from src.common.unique_qss import set_stylesheet
-from src.pyside_ext.styling import css, Style
+from src.pyside_ext.styling import Style, css
 
 MAIN_TAB_WIDTH = "40px"
 

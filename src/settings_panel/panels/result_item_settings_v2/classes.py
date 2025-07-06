@@ -1,7 +1,6 @@
 #
 #  Copyright (c) 2023 -- 2024 StatPrism Team. All rights reserved.
 #
-import logging
 from typing import Tuple
 
 from PySide6 import QtGui
@@ -26,7 +25,7 @@ class ColorGridItemSetting(BasePanelElement):
         self.current_color = current_color
         self.add_stretch = add_stretch
 
-    def get_current_color(self):
+    def get_current_value(self):
         return self.current_color
 
     def setup(self):
@@ -209,7 +208,7 @@ class SliderResultItemSetting(BasePanelElement):
                     layout.setContentsMargins(5, 0, 5, 0),
                     layout.setSpacing(10),
                     layout.setStretch(1, 1),
-                    layout.setStretch(0, 0)
+                    layout.setStretch(0, 0),
                 )
             ],
         )
@@ -261,4 +260,3 @@ class CheckboxResultItemSetting(BasePanelElement):
     def on_checkbox_state_changed(self, state):
         self.current_value = state == Qt.CheckState.Checked.value
         self.handler(Message(MessageType.EDITING_FINISHED, payload=None, caller_id=self.element_id))
-

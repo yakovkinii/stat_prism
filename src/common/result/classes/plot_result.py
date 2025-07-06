@@ -11,9 +11,9 @@ import attrs
 import numpy as np
 from matplotlib import cbook
 from matplotlib import pyplot as plt
-from matplotlib.colors import Normalize
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 
+from src.common.elements.base.base import BasePanelElement
 from src.common.qcolor import Colors, rgba_tuple_from_rgb_and_a
 from src.common.result.classes.base_result import BaseResultElement
 from src.modules.correlation.table import format_r_apa
@@ -21,7 +21,6 @@ from src.settings_panel.panels.result_item_settings_v2.classes import (
     CheckboxResultItemSetting,
     ColorGridItemSetting,
     ContainerResultItemSetting,
-    NumberCaptionResultItemSetting,
     SingleLineTextResultItemSetting,
     SliderResultItemSetting,
 )
@@ -32,7 +31,6 @@ class ContingencyPlot:
         self.contingency_table = contingency_table
         self.label = label
         self.config = config if config else ContingencyPlotConfig()
-        self.display_settings = None
 
 
 class Scatter:
@@ -41,17 +39,6 @@ class Scatter:
         self.y = y
         self.label = label
         self.config: ScatterPlotConfig = config if config else ScatterPlotConfig()
-        self.display_settings = ContainerResultItemSetting(
-            items=[
-                self.config.color,
-                self.config.fill_alpha,
-                self.config.line_alpha,
-                self.config.point_size,
-                self.config.jitter_x,
-                self.config.jitter_y,
-            ],
-            add_stretch=True,
-        )
 
 
 class Bar:
@@ -61,7 +48,6 @@ class Bar:
         self.width = width
         self.label = label
         self.config = config if config else BarPlotConfig()
-        self.display_settings = None
 
 
 class Box:
@@ -76,7 +62,6 @@ class Box:
         self.stats = stats
         self.label = label
         self.config = config if config else BoxPlotConfig()
-        self.display_settings = None
 
     @staticmethod
     def from_data(data, index, label, color):
@@ -103,14 +88,6 @@ class Line:
         self.legend_string = legend_string
         self.label = label
         self.config = config if config else LinePlotConfig()
-        self.display_settings = ContainerResultItemSetting(
-            items=[
-                self.config.color,
-                self.config.line_alpha,
-                self.config.line_width,
-            ],
-            add_stretch=True,
-        )
 
 
 class Band:
@@ -120,7 +97,6 @@ class Band:
         self.y2 = y2
         self.label = label
         self.config = config if config else BandPlotConfig()
-        self.display_settings = None
 
 
 class Heatmap:
@@ -129,10 +105,6 @@ class Heatmap:
         self.p = p
         self.label = label
         self.config = config if config else HeatmapPlotConfig()
-        self.display_settings = ContainerResultItemSetting(
-            items=[self.config.symmetric_color_scale, self.config.alpha, self.config.font_size],
-            add_stretch=True,
-        )
 
 
 MARKER_SHAPE_TO_MATPLOTLIB = {
@@ -153,19 +125,29 @@ LINE_STYLE_TO_MATPLOTLIB = {
 }
 
 
-@attrs.define
-class ContingencyPlotConfig:
-    ...
-    # color: Tuple[int, int, int] = Colors().get_color_list()
-    # fill_alpha: int = 100
-    # line_alpha: int = 0
-    # marker_shape: str = "Circle"
-    # point_size: int = 8
-    # jitter_x: float = 0
-    # jitter_y: float = 0
+class BasePlotConfig:
+    def __init__(self, **kwargs):
+        self.display_settings = None
+
+    def __getstate__(self):
+        state = self.__dict__.copy()
+        state.pop("display_settings", None)
+
+        for k, v in state.items():
+            if isinstance(v, BasePanelElement):  # Todo make intermediate subclass
+                state[k] = v.get_current_value()
+        logging.warning(f"{state=}")
+        return state
+
+    def __setstate__(self, state):
+        self.__init__(**state)
 
 
-class ScatterPlotConfig:
+class ContingencyPlotConfig(BasePlotConfig):
+    pass
+
+
+class ScatterPlotConfig(BasePlotConfig):
     def __init__(
         self,
         color: Tuple[int, int, int] = Colors().get_color_list(),
@@ -176,6 +158,7 @@ class ScatterPlotConfig:
         jitter_x: float = 0,
         jitter_y: float = 0,
     ):
+        super().__init__()
         self.color: ColorGridItemSetting = ColorGridItemSetting(current_color=color)
         self.fill_alpha: SliderResultItemSetting = SliderResultItemSetting(
             label="Fill Alpha", current_value=fill_alpha, min_value=0, max_value=250, step=50
@@ -193,21 +176,46 @@ class ScatterPlotConfig:
         self.jitter_y: SliderResultItemSetting = SliderResultItemSetting(
             label="Jitter Y", current_value=jitter_y, min_value=0, max_value=2, step=0.2
         )
+        self.display_settings = ContainerResultItemSetting(
+            items=[
+                self.color,
+                self.fill_alpha,
+                self.line_alpha,
+                self.point_size,
+                self.jitter_x,
+                self.jitter_y,
+            ],
+            add_stretch=True,
+        )
 
 
-@attrs.define
-class BarPlotConfig:
-    color: Tuple[int, int, int] = Colors().get_color_list()
-    fill_alpha: int = 50
+class BarPlotConfig(BasePlotConfig):
+    def __init__(self, color: Tuple[int, int, int] = Colors().get_color_list(), fill_alpha: int = 50):
+        super().__init__()
+        self.color: ColorGridItemSetting = ColorGridItemSetting(current_color=color)
+        self.fill_alpha: SliderResultItemSetting = SliderResultItemSetting(
+            label="Fill Alpha", current_value=fill_alpha, min_value=0, max_value=250, step=50
+        )
+        self.display_settings = ContainerResultItemSetting(
+            items=[self.color, self.fill_alpha],
+            add_stretch=True,
+        )
 
 
-@attrs.define
-class BoxPlotConfig:
-    color: Tuple[int, int, int] = Colors().get_color_list()
-    fill_alpha: int = 50
+class BoxPlotConfig(BasePlotConfig):
+    def __init__(self, color: Tuple[int, int, int] = Colors().get_color_list(), fill_alpha: int = 50):
+        super().__init__()
+        self.color: ColorGridItemSetting = ColorGridItemSetting(current_color=color)
+        self.fill_alpha: SliderResultItemSetting = SliderResultItemSetting(
+            label="Fill Alpha", current_value=fill_alpha, min_value=0, max_value=250, step=50
+        )
+        self.display_settings = ContainerResultItemSetting(
+            items=[self.color, self.fill_alpha],
+            add_stretch=True,
+        )
 
 
-class LinePlotConfig:
+class LinePlotConfig(BasePlotConfig):
     def __init__(
         self,
         color: Tuple[int, int, int] = Colors().get_color_list(),
@@ -215,6 +223,7 @@ class LinePlotConfig:
         line_width: int = 3,
         line_style: str = "Solid",
     ):
+        super().__init__()
         self.color: ColorGridItemSetting = ColorGridItemSetting(current_color=color)
         self.line_alpha: SliderResultItemSetting = SliderResultItemSetting(
             label="Line Alpha", current_value=line_alpha, min_value=0, max_value=250, step=50
@@ -223,19 +232,37 @@ class LinePlotConfig:
             label="Line Width", current_value=line_width, min_value=0, max_value=8, step=1
         )
         self.line_style = line_style
+        self.display_settings = ContainerResultItemSetting(
+            items=[self.color, self.line_alpha, self.line_width],
+            add_stretch=True,
+        )
 
 
-@attrs.define
-class BandPlotConfig:
-    color: Tuple[int, int, int] = Colors().get_color_list()
-    fill_alpha: int = 50
+class BandPlotConfig(BasePlotConfig):
+    def __init__(self, color: Tuple[int, int, int] = Colors().get_color_list(), fill_alpha: int = 50):
+        super().__init__()
+        self.color: ColorGridItemSetting = ColorGridItemSetting(current_color=color)
+        self.fill_alpha: SliderResultItemSetting = SliderResultItemSetting(
+            label="Fill Alpha", current_value=fill_alpha, min_value=0, max_value=250, step=50
+        )
+        self.display_settings = ContainerResultItemSetting(
+            items=[self.color, self.fill_alpha],
+            add_stretch=True,
+        )
 
 
-class HeatmapPlotConfig:
-    def __init__(self, symmetric_color_scale: bool = True, alpha: float = 0.5, font_size=10):
+class HeatmapPlotConfig(BasePlotConfig):
+    def __init__(
+        self, symmetric_color_scale: bool = True, only_significant: bool = True, alpha: float = 0.5, font_size=10
+    ):
+        super().__init__()
         self.symmetric_color_scale: CheckboxResultItemSetting = CheckboxResultItemSetting(
             label="Symmetric Color Scale",
             current_value=symmetric_color_scale,
+        )
+        self.only_significant: CheckboxResultItemSetting = CheckboxResultItemSetting(
+            label="Significant Only",
+            current_value=only_significant,
         )
         self.alpha: SliderResultItemSetting = SliderResultItemSetting(
             label="Alpha",
@@ -251,10 +278,19 @@ class HeatmapPlotConfig:
             max_value=20,
             step=1,
         )
+        self.display_settings = ContainerResultItemSetting(
+            items=[
+                self.symmetric_color_scale,
+                self.only_significant,
+                self.alpha,
+                self.font_size,
+            ],
+            add_stretch=True,
+        )
 
 
 @attrs.define
-class GeneralPlotConfig:
+class GeneralPlotConfig:  # Todo remove
     color: Tuple[int, int, int] = [255, 255, 255]
     transparent: bool = False
     size_x: int = 600
@@ -270,34 +306,35 @@ class PlotV2(BaseResultElement):
     def __init__(
         self,
         items: List[Union[Scatter, Line, Band, Bar, Box, Heatmap, ContingencyPlot]],
-        tab_title="Plot Result Element",
+        title="Plot Result Element",
         plot_id="",
         plot_title="Correlation plot",
         x_axis_title="",
         y_axis_title="",
         x_axis_items=None,
+        plot_x_size=600,
+        plot_y_size=500,
+        x_range: Tuple[float, float] = None,
+        y_range: Tuple[float, float] = None,
+        tilt_x_axis_labels=0,
     ):
         super().__init__(v2=True)
-        # Static for now
-        self.plot_x_size = 600
-        self.plot_y_size = 500
+        self.plot_x_size = plot_x_size
+        self.plot_y_size = plot_y_size
+        self.x_range = x_range
+        self.y_range = y_range
 
-        self.x_range = None
-        self.y_range = None
-
-        # Dynamic
-        self.title: str = tab_title
+        self.title: str = title
         self.class_id: str = "PlotV2"
         self.items = items if items else []
-        self.plot_id = plot_id
-        self.plot_title = plot_title
         self.x_axis_items = x_axis_items
-        self.number_caption = NumberCaptionResultItemSetting(current_number=plot_id, current_caption=plot_title)
+        self.plot_id = SingleLineTextResultItemSetting(label="Number:", current_value=plot_id)
+        self.plot_title = SingleLineTextResultItemSetting(label="Title:", current_value=plot_title)
         self.x_axis_title = SingleLineTextResultItemSetting(label="X axis title", current_value=x_axis_title)
         self.y_axis_title = SingleLineTextResultItemSetting(label="Y axis title", current_value=y_axis_title)
         self.tilt_x_axis_labels = SliderResultItemSetting(
             label="Rotate X Axis Labels",
-            current_value=0,
+            current_value=tilt_x_axis_labels,
             min_value=0,
             max_value=90,
             step=15,
@@ -305,7 +342,8 @@ class PlotV2(BaseResultElement):
         self.display_settings = {
             "General": ContainerResultItemSetting(
                 items=[
-                    self.number_caption,
+                    self.plot_id,
+                    self.plot_title,
                     self.x_axis_title,
                     self.y_axis_title,
                     self.tilt_x_axis_labels,
@@ -316,15 +354,30 @@ class PlotV2(BaseResultElement):
 
         for item in self.items:
             # if item has display_settings, add it
-            if item.display_settings is not None:
+            if item.config.display_settings is not None:
                 class_name = item.__class__.__name__
                 label = class_name + ": " + item.label
                 if label in self.display_settings:
                     raise ValueError(f"duplicated label found: {label}")
-                self.display_settings[label] = item.display_settings
+                self.display_settings[label] = item.config.display_settings
 
         # ===
         self._gc_ignore = []
+
+    def __getstate__(self):
+        state = self.__dict__.copy()
+        state.pop("display_settings", None)
+        state.pop("class_id", None)
+        state.pop("_gc_ignore", None)
+
+        for k, v in state.items():
+            if issubclass(type(v), BasePanelElement):
+                state[k] = v.get_current_value()
+        logging.warning(f"{state=}")
+        return state
+
+    def __setstate__(self, state):
+        self.__init__(**state)
 
     def create_figure(self):
         plt.close("all")
@@ -339,7 +392,7 @@ class PlotV2(BaseResultElement):
 
         dpi = fig.get_dpi()
         fig.set_size_inches(self.plot_x_size / dpi, self.plot_y_size / dpi)
-        self.legend = False
+        legend = False
 
         for item in self.items:
             if isinstance(item, Scatter):
@@ -368,10 +421,10 @@ class PlotV2(BaseResultElement):
                     )
 
                 line_color = rgba_tuple_from_rgb_and_a(
-                    item.config.color.get_current_color(), item.config.line_alpha.get_current_value()
+                    item.config.color.get_current_value(), item.config.line_alpha.get_current_value()
                 )
                 fill_color = rgba_tuple_from_rgb_and_a(
-                    item.config.color.get_current_color(), item.config.fill_alpha.get_current_value()
+                    item.config.color.get_current_value(), item.config.fill_alpha.get_current_value()
                 )
 
                 ax.scatter(
@@ -386,11 +439,11 @@ class PlotV2(BaseResultElement):
 
             if isinstance(item, Line):
                 line_color = rgba_tuple_from_rgb_and_a(
-                    item.config.color.get_current_color(), item.config.line_alpha.get_current_value()
+                    item.config.color.get_current_value(), item.config.line_alpha.get_current_value()
                 )
 
                 if item.legend_string != "":
-                    self.legend = True
+                    legend = True
 
                 ax.plot(
                     item.x,
@@ -403,7 +456,9 @@ class PlotV2(BaseResultElement):
                 )
 
             if isinstance(item, Bar):
-                fill_color = rgba_tuple_from_rgb_and_a(item.config.color, item.config.fill_alpha)
+                fill_color = rgba_tuple_from_rgb_and_a(
+                    item.config.color.get_current_value(), item.config.fill_alpha.get_current_value()
+                )
 
                 ax.bar(
                     item.x,
@@ -414,8 +469,10 @@ class PlotV2(BaseResultElement):
                 )
 
             if isinstance(item, Box):
-                line_color = rgba_tuple_from_rgb_and_a(item.config.color, 255)
-                fill_color = rgba_tuple_from_rgb_and_a(item.config.color, item.config.fill_alpha)
+                line_color = rgba_tuple_from_rgb_and_a(item.config.color.get_current_value(), 255)
+                fill_color = rgba_tuple_from_rgb_and_a(
+                    item.config.color.get_current_value(), item.config.fill_alpha.get_current_value()
+                )
                 ax.bxp(
                     item.stats,
                     positions=[item.x_value],
@@ -451,7 +508,9 @@ class PlotV2(BaseResultElement):
                 )
 
             if isinstance(item, Band):
-                fill_color = rgba_tuple_from_rgb_and_a(item.config.color, item.config.fill_alpha)
+                fill_color = rgba_tuple_from_rgb_and_a(
+                    item.config.color.get_current_value(), item.config.fill_alpha.get_current_value()
+                )
 
                 ax.fill_between(
                     item.x,
@@ -492,7 +551,7 @@ class PlotV2(BaseResultElement):
                 # Adding annotations
                 for i in range(len(data.index)):
                     for j in range(len(data.columns)):
-                        if item.p.iloc[i, j] < 0.05:
+                        if item.p.iloc[i, j] < 0.05 or not item.config.only_significant.get_current_value():
                             text = format_r_apa(data.iloc[i, j])  # + get_stars(item.p.iloc[i, j])
 
                             self._gc_ignore.append(
@@ -503,8 +562,7 @@ class PlotV2(BaseResultElement):
                                     ha="center",
                                     va="center",
                                     color="black",
-                                    fontsize= item.config.font_size.get_current_value(),
-                                    # bbox=dict(facecolor="white", alpha=0.6, boxstyle="round,pad=0.2", edgecolor='none'),
+                                    fontsize=item.config.font_size.get_current_value(),
                                 )
                             )
 
@@ -594,7 +652,7 @@ class PlotV2(BaseResultElement):
         if self.y_range is not None:
             ax.set_ylim(*self.y_range)
 
-        if self.legend:
+        if legend:
             ax.legend()
 
         fig.tight_layout()
@@ -639,8 +697,8 @@ class PlotV2(BaseResultElement):
 
         # 4) embed into an <img> tag
         html = f"""
-        <div><b>Figure {self.number_caption.get_number()}</b></div>
-        <div class="double-spacing font"><i>{self.number_caption.get_caption()}</i></div><br>
+        <div><b>Figure {self.plot_id.get_current_value()}</b></div>
+        <div class="double-spacing font"><i>{self.plot_title.get_current_value()}</i></div><br>
         <img src="data:image/png;base64,{base64_png}"
              alt="Plot Image"
              style="width:400px; height:auto;">

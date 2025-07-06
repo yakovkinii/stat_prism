@@ -10,9 +10,9 @@ from scipy.stats import gaussian_kde
 
 from src.common.constant import MDASH, ColumnType
 from src.common.decorators import log_function
-from src.common.result.classes.html_result import Cell, HTMLTableV2, Row
-from src.common.result.classes.plot_result import LinePlotConfig, Line, BarPlotConfig, Bar, PlotV2
 from src.common.qcolor import Colors
+from src.common.result.classes.html_result import Cell, HTMLTableV2, Row
+from src.common.result.classes.plot_result import Bar, BarPlotConfig, Line, LinePlotConfig, PlotV2
 from src.common.utility import format_p_apa, format_p_apa_full, format_statistic_apa, format_value_apa, smart_comma_join
 from src.common.verbal.test import TestResult, describe_single_test_multiple_variables
 from src.data_panel.data import Data
@@ -152,7 +152,7 @@ def recalculate_mean_comparison_anova(
 
         plot_result = PlotV2(
             items=plots,
-            tab_title=f"Plot: Distribution of {col}",
+            title=f"Plot: Distribution of {col}",
             plot_title=f"Distribution of {col}",
             x_axis_title=col,
             y_axis_title="Density",

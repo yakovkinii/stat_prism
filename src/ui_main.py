@@ -6,13 +6,11 @@ import logging
 
 from PySide6 import QtWidgets
 from PySide6.QtWebEngineWidgets import QWebEngineView
-from PySide6.QtWidgets import QHBoxLayout, QTabWidget
 
 from src.about import version
 from src.common.decorators import log_method, log_method_noarg
 from src.common.registry import DEBTS, DebtType
 from src.common.ui_constructor import icon
-from src.common.unique_qss import set_stylesheet
 from src.data_panel.ui_data import DataPanelClass
 from src.pyside_ext.custom_widgets.main_tab_widget import main_tab_widget
 from src.pyside_ext.layout import HBoxLayout

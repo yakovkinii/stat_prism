@@ -49,7 +49,7 @@ class ResultDisplayClass:
                 logging.error("Failed to remove widget from layout", exc_info=True)
             try:
                 # Explicitly close the widget if it has a close method
-                if hasattr(self.element_widget_container.widget, 'close'):
+                if hasattr(self.element_widget_container.widget, "close"):
                     self.element_widget_container.widget.close()
             except Exception:
                 logging.error("Failed to close widget", exc_info=True)

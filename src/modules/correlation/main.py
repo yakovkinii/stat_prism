@@ -64,21 +64,23 @@ def recalculate_correlation_study(data: Data, result: CorrelationResult) -> Corr
         html_table.add_text(msg)
 
     result.title_context = ", ".join([f"{col[:16]}" for col in cfg.selected_columns])
+    result.result_elements = [html_table]
 
-    heatmap_plot = PlotV2(
-        items=[
-            Heatmap(
-                df=to_full_matrix(correlation_matrix),
-                p=to_full_matrix(p_matrix),
-                label="Band: Standard Error",
-            )
-        ],
-        tab_title="Plot: Correlation Matrix",
-        plot_title="Correlation Matrix",
-        x_axis_title="Variable",
-        y_axis_title="Variable",
-    )
-    result.result_elements = [html_table, heatmap_plot]
+    if cfg.generate_heatmap:
+        heatmap_plot = PlotV2(
+            items=[
+                Heatmap(
+                    df=to_full_matrix(correlation_matrix),
+                    p=to_full_matrix(p_matrix),
+                    label="Correlations",
+                )
+            ],
+            title="Correlation Matrix",
+            plot_title="Correlation Matrix",
+            x_axis_title="",
+            y_axis_title="",
+        )
+        result.result_elements.append(heatmap_plot)
 
     if cfg.generate_plots:
         for i, name1 in enumerate(columns):
@@ -125,7 +127,7 @@ def recalculate_correlation_study(data: Data, result: CorrelationResult) -> Corr
 
                     plot_result = PlotV2(
                         items=[plot, plot_band, plot_line],
-                        tab_title=f"Plot: {name1[:16]} vs {name2[:16]}",
+                        title=f"Plot: {name1[:16]} vs {name2[:16]}",
                         plot_title=f"Correlation between {name1} and {name2}",
                         x_axis_title=name1,
                         y_axis_title=name2,

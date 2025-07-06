@@ -5,7 +5,6 @@
 import logging
 from typing import TYPE_CHECKING
 
-from src.common.column_attributes import ColumnAttributesRegistry
 from src.common.decorators import log_method, log_method_noarg
 from src.common.elements.flip.flip import InvertVisualizer
 from src.common.elements.title.title import Title
@@ -56,9 +55,7 @@ class Inverse(BasePanel):
                 index,
                 self.elements["invert_visualizer"].max_plus_min - column,
             )
-            # TOdo
-            self.tabledata.toggle_column_flag(
+            self.tabledata.toggle_column_inverted(
                 column_name=column_name,
-                flag=ColumnAttributesRegistry.inverted,
             )
         self.activate_caller()

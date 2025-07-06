@@ -2,8 +2,8 @@
 #  Copyright (c) 2023 -- 2024 StatPrism Team. All rights reserved.
 #
 
-import os
 import logging
+import os
 
 from matplotlib import pyplot as plt
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
@@ -30,8 +30,8 @@ class PlotResultElementWidgetContainer:
         self.label = QLabel(self.widget)
         self.label.setText(
             f"""
-            <div><b> Figure {self.result_element.number_caption.get_number()} </b> </div>
-            <div><i> {self.result_element.number_caption.get_caption()} </i> </div>
+            <div><b> Figure {self.result_element.plot_id.get_current_value()} </b> </div>
+            <div><i> {self.result_element.plot_title.get_current_value()} </i> </div>
             """
         )
         font = QFont(
@@ -62,7 +62,7 @@ class PlotResultElementWidgetContainer:
     def __del__(self):
         # Ensure canvas is closed and deleted
         try:
-            if hasattr(self, 'canvas') and self.canvas is not None:
+            if hasattr(self, "canvas") and self.canvas is not None:
                 self.canvas.setParent(None)
                 self.canvas.close()
                 self.canvas.deleteLater()
@@ -89,7 +89,7 @@ class MatplotlibCanvas(FigureCanvas):
         self.last_mouse_position = None
 
         # Enable delete-on-close for safety
-        self.setAttribute(Qt.WA_DeleteOnClose)
+        self.setAttribute(Qt.WidgetAttribute.WA_DeleteOnClose)
 
     def mousePressEvent(self, event):
         if event.button() == Qt.MouseButton.LeftButton:

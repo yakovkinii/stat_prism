@@ -25,7 +25,8 @@ class Correlation(BaseModulePanel):
             "spacer": SpacerSmall(),
             "compact": LargeCheckbox(label_text="Compact table"),
             "report_only_significant": LargeCheckbox(label_text="Report only significant correlations"),
-            "generate_plots": LargeCheckbox(label_text="Generate plots"),
+            "generate_heatmap": LargeCheckbox(label_text="Heatmap"),
+            "generate_plots": LargeCheckbox(label_text="Pairwise plots"),
             "correlation_type": ComboBox("Correlation type: "),
             "spacer2": SpacerSmall(),
             "column_selector": ColumnSelectorEx(
@@ -54,6 +55,7 @@ class Correlation(BaseModulePanel):
         self.elements["compiled_filters"].configure(RESULTS[result_id].config.filters)
         self.elements["compact"].widget.setChecked(RESULTS[result_id].config.compact)
         self.elements["report_only_significant"].widget.setChecked(RESULTS[result_id].config.report_only_significant)
+        self.elements["generate_heatmap"].widget.setChecked(RESULTS[result_id].config.generate_heatmap)
         self.elements["generate_plots"].widget.setChecked(RESULTS[result_id].config.generate_plots)
         self.elements["correlation_type"].combo_box.setCurrentIndex(RESULTS[result_id].config.correlation_type.value)
         self.set_recalculate_button_highlight(RESULTS[result_id].needs_update)
@@ -81,6 +83,7 @@ class Correlation(BaseModulePanel):
             compact=self.elements["compact"].widget.isChecked(),
             correlation_type=CORRELATION_TYPE_MAP[self.elements["correlation_type"].combo_box.currentText()],
             report_only_significant=self.elements["report_only_significant"].widget.isChecked(),
+            generate_heatmap=self.elements["generate_heatmap"].widget.isChecked(),
             generate_plots=self.elements["generate_plots"].widget.isChecked(),
             filters=RESULTS[self.result_id].config.filters,
         )

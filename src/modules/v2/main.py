@@ -51,7 +51,7 @@ def recalculate_v2_study(data: Data, result: V2Result) -> V2Result:
 
     plot = PlotV2(
         items=[Line(x=df.iloc[:, 0], y=df.iloc[:, 1], label="Line 1")],
-        tab_title="Plot",
+        title="Plot",
         x_axis_title="X",
         y_axis_title="y",
     )
