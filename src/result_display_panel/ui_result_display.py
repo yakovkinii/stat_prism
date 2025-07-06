@@ -40,10 +40,26 @@ class ResultDisplayClass:
         self._keep_from_gc = None
 
     def cleanup(self):
+        # Remove and delete the element widget container and its widget
         if self.element_widget_container is not None:
-            self.layout.removeWidget(self.element_widget_container.widget)
-            self.element_widget_container.widget.deleteLater()
-            self._keep_from_gc = self.element_widget_container
+            try:
+                # Remove from layout
+                self.layout.removeWidget(self.element_widget_container.widget)
+            except Exception:
+                logging.error("Failed to remove widget from layout", exc_info=True)
+            try:
+                # Explicitly close the widget if it has a close method
+                if hasattr(self.element_widget_container.widget, 'close'):
+                    self.element_widget_container.widget.close()
+            except Exception:
+                logging.error("Failed to close widget", exc_info=True)
+            try:
+                # Delete the widget later (Qt safe)
+                self.element_widget_container.widget.deleteLater()
+            except Exception:
+                logging.error("Failed to delete widget", exc_info=True)
+            # Remove strong references
+            self._keep_from_gc = None
             self.element_widget_container = None
         self.result_id = None
         self.element_id = None

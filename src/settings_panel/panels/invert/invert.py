@@ -56,6 +56,7 @@ class Inverse(BasePanel):
                 index,
                 self.elements["invert_visualizer"].max_plus_min - column,
             )
+            # TOdo
             self.tabledata.toggle_column_flag(
                 column_name=column_name,
                 flag=ColumnAttributesRegistry.inverted,

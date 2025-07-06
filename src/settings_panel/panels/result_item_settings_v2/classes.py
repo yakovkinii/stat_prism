@@ -1,6 +1,7 @@
 #
 #  Copyright (c) 2023 -- 2024 StatPrism Team. All rights reserved.
 #
+import logging
 from typing import Tuple
 
 from PySide6 import QtGui
@@ -258,6 +259,6 @@ class CheckboxResultItemSetting(BasePanelElement):
         self.large_checkbox.widget.stateChanged.connect(self.on_checkbox_state_changed)
 
     def on_checkbox_state_changed(self, state):
-        self.current_value = state == Qt.CheckState.Checked
+        self.current_value = state == Qt.CheckState.Checked.value
         self.handler(Message(MessageType.EDITING_FINISHED, payload=None, caller_id=self.element_id))
 

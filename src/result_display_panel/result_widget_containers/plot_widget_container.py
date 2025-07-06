@@ -3,6 +3,7 @@
 #
 
 import os
+import logging
 
 from matplotlib import pyplot as plt
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
@@ -59,8 +60,20 @@ class PlotResultElementWidgetContainer:
         self.plot_container.layout().addStretch()
 
     def __del__(self):
-        self.canvas.close()
-
+        # Ensure canvas is closed and deleted
+        try:
+            if hasattr(self, 'canvas') and self.canvas is not None:
+                self.canvas.setParent(None)
+                self.canvas.close()
+                self.canvas.deleteLater()
+        except Exception as e:
+            logging.error(f"Error during PlotResultElementWidgetContainer cleanup: {e}")
+        self.canvas = None
+        self.result_element = None
+        self.label = None
+        self.plot_container = None
+        self.widget = None
+        self.widget_layout = None
 
 
 class MatplotlibCanvas(FigureCanvas):
@@ -183,20 +196,28 @@ class MatplotlibCanvas(FigureCanvas):
         fig, ax = self.result_element.create_figure()
         fig.show()
 
-
     def closeEvent(self, event):
         """When the widget is closed, make absolutely sure we clear and close."""
         # 1) Disconnect any Matplotlib callbacks (if you had any)
         try:
             self.fig.canvas.mpl_disconnect
         except Exception:
-            pass
+            logging.error("Error disconnecting Matplotlib callbacks during closeEvent.")
 
         # 2) Clear the figure to free all artists
-        self.fig.clear()
+        try:
+            self.fig.clear()
+        except Exception:
+            logging.error("Error clearing the figure during closeEvent.")
 
         # 3) Tell Matplotlib to close the figure
-        plt.close(self.fig)
+        try:
+            plt.close(self.fig)
+        except Exception:
+            logging.error("Error closing the figure during closeEvent.")
 
-        # Proceed with normal Qt teardown
+        # Remove references
+        self.fig = None
+        self.ax = None
+        self.result_element = None
         super().closeEvent(event)

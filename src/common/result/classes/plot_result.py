@@ -11,6 +11,7 @@ import attrs
 import numpy as np
 from matplotlib import cbook
 from matplotlib import pyplot as plt
+from matplotlib.colors import Normalize
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 
 from src.common.qcolor import Colors, rgba_tuple_from_rgb_and_a
@@ -129,7 +130,7 @@ class Heatmap:
         self.label = label
         self.config = config if config else HeatmapPlotConfig()
         self.display_settings = ContainerResultItemSetting(
-            items=[self.config.symmetric_color_scale, self.config.color_scale_padding],
+            items=[self.config.symmetric_color_scale, self.config.alpha, self.config.font_size],
             add_stretch=True,
         )
 
@@ -231,17 +232,24 @@ class BandPlotConfig:
 
 
 class HeatmapPlotConfig:
-    def __init__(self, symmetric_color_scale: bool = True, scale_padding: float = 0.5):
+    def __init__(self, symmetric_color_scale: bool = True, alpha: float = 0.5, font_size=10):
         self.symmetric_color_scale: CheckboxResultItemSetting = CheckboxResultItemSetting(
             label="Symmetric Color Scale",
             current_value=symmetric_color_scale,
         )
-        self.color_scale_padding: SliderResultItemSetting = SliderResultItemSetting(
-            label="Scale Padding",
-            current_value=scale_padding,
+        self.alpha: SliderResultItemSetting = SliderResultItemSetting(
+            label="Alpha",
+            current_value=alpha,
             min_value=0,
             max_value=1,
             step=0.1,
+        )
+        self.font_size: SliderResultItemSetting = SliderResultItemSetting(
+            label="Font Size",
+            current_value=font_size,
+            min_value=5,
+            max_value=20,
+            step=1,
         )
 
 
@@ -455,7 +463,7 @@ class PlotV2(BaseResultElement):
 
             if isinstance(item, Heatmap):
                 is_symmetric = item.config.symmetric_color_scale.get_current_value()
-                scale_padding = item.config.color_scale_padding.get_current_value()
+                alpha = item.config.alpha.get_current_value()
                 if is_symmetric:
                     vmin = -max(abs(item.df.values.min()), abs(item.df.values.max()))
                     vmax = max(abs(item.df.values.min()), abs(item.df.values.max()))
@@ -463,14 +471,19 @@ class PlotV2(BaseResultElement):
                     vmin = item.df.values.min()
                     vmax = item.df.values.max()
 
-
-                if scale_padding == 1:
-                    a=1
-                self._gc_ignore.append(ax.imshow(
-                    item.df, cmap="bwr", vmin=vmin - scale_padding, vmax=vmax + scale_padding, interpolation="nearest"
-                ))
+                self._gc_ignore.append(
+                    ax.imshow(
+                        item.df,
+                        cmap="bwr",
+                        vmin=vmin,
+                        vmax=vmax,
+                        interpolation="nearest",
+                        alpha=alpha,
+                    )
+                )
                 # add colorbar
-                # fig.colorbar(ax.images[0], ax=ax, orientation="vertical", fraction=0.046, pad=0.04)
+                ax.images[0].set_clim(vmin, vmax)
+                fig.colorbar(ax.images[0], ax=ax, orientation="vertical")
 
                 plt.xticks(range(len(item.df.columns)), item.df.columns)
                 plt.yticks(range(len(item.df.index)), item.df.index)
@@ -482,16 +495,18 @@ class PlotV2(BaseResultElement):
                         if item.p.iloc[i, j] < 0.05:
                             text = format_r_apa(data.iloc[i, j])  # + get_stars(item.p.iloc[i, j])
 
-                            self._gc_ignore.append(plt.text(
-                                j,
-                                i,
-                                text,
-                                ha="center",
-                                va="center",
-                                color="black",
-                                fontsize=8,
-                                # bbox=dict(facecolor="white", alpha=0.6, boxstyle="round,pad=0.2", edgecolor='none'),
-                            ))
+                            self._gc_ignore.append(
+                                plt.text(
+                                    j,
+                                    i,
+                                    text,
+                                    ha="center",
+                                    va="center",
+                                    color="black",
+                                    fontsize= item.config.font_size.get_current_value(),
+                                    # bbox=dict(facecolor="white", alpha=0.6, boxstyle="round,pad=0.2", edgecolor='none'),
+                                )
+                            )
 
             if isinstance(item, ContingencyPlot):
                 contingency_table = item.contingency_table
