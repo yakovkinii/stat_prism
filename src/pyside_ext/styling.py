@@ -18,7 +18,7 @@ class Style:
         Window = "palette(Window)"  # light gray - The general background for widgets
         WindowText = "palette(WindowText)"  # black - Main text drawn on WINDOW surfaces
         Button = "palette(Button)"  # light gray - Background for buttons, checkboxes, radio buttons
-        ButtonText = "palette(ButtonText)"  # black - Text on buttons (and the “caption” of many controls)
+        # ButtonText = "palette(ButtonText)"  # black - Text on buttons (and the “caption” of many controls)
         Base = "palette(Base)"  # white - Background for editable fields
         AlternateBase = "palette(AlternateBase)"  # lighter gray - Alternate background
         Text = "palette(Text)"  # black - Main text on Base surfaces

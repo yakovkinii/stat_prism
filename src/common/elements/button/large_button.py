@@ -10,6 +10,7 @@ from src.common.elements.base.base import BasePanelElement
 from src.common.messages import Message, MessageType
 from src.common.size import Font
 from src.common.unique_qss import set_stylesheet
+from src.pyside_ext.styling import css, Style
 
 
 class LargeButton(BasePanelElement):
@@ -28,19 +29,21 @@ class LargeButton(BasePanelElement):
         self.widget = QtWidgets.QPushButton(self.label_text)
         set_stylesheet(
             self.widget,
-            "#id{"
-            "margin-top: 2px;"
-            "font-family: Segoe UI;"
-            "background-color: rgba(255,255,255, 50);"
-            f"font-size: {Font.size_big}pt;"
-            # align left
-            "text-align: left;"
-            "border: 1px solid #ddd;"
-            "}"
-            "#id:hover{"
-            "background-color: rgb(229,241,251);"
-            "border: 1px solid rgb(0,120,215)"
-            "}",
+            css(
+                margin_top="2px",
+                font_family=Style.FontFamily.SegoeUI,
+                background_color=Style.Color.Base,
+                font_size=Style.FontSize.larger,
+                text_align="left",
+                border = "2px solid",
+                border_color=Style.Color.Button
+
+            ),
+            css(
+                "#id:hover",
+                border="2px solid",
+                border_color=Style.Color.Highlight
+            )
         )
         icon = qta.icon(self.icon_path)
         self.widget.setIcon(icon)

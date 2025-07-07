@@ -1,6 +1,7 @@
 #
 #  Copyright (c) 2023 -- 2024 StatPrism Team. All rights reserved.
 #
+import logging
 
 from PySide6 import QtCore, QtWidgets
 from PySide6.QtCore import Qt
@@ -11,6 +12,7 @@ from src.common.elements.utility.layout_helpers import empty_widget
 from src.common.elements.utility.primitive_elements import EditableLabelWordwrap
 from src.common.size import SettingsPanelSize
 from src.common.unique_qss import set_stylesheet
+from src.pyside_ext.styling import Style, css
 
 
 class LabeledLineEdit(BasePanelElement):
@@ -36,7 +38,13 @@ class LabeledLineEdit(BasePanelElement):
         self.edit_widget.setAlignment(Qt.AlignmentFlag.AlignLeft),
 
         set_stylesheet(
-            self.edit_widget, "#id{" "border: 1px solid grey;" "background-color: rgba(255,255,255,255);" "}"
+            self.edit_widget,
+            css(
+                border="1px solid",
+                border_color=Style.Color.Button,
+                background_color=Style.Color.Base,
+            )
+
         )
         self.layout.addWidget(self.label)
         self.layout.addWidget(self.edit_widget)
@@ -46,6 +54,7 @@ class LabeledLineEdit(BasePanelElement):
 class LabeledMultilineEdit(BasePanelElement):
     def __init__(self, label_text):
         super().__init__()
+        logging.warning('LabeledMultilineEdit is deprecated')
         self.label_text = label_text
 
     def setup(self):

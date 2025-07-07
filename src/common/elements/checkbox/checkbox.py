@@ -8,6 +8,7 @@ from src.common.elements.base.base import BasePanelElement
 from src.common.messages import Message, MessageType
 from src.common.size import Font
 from src.common.unique_qss import set_stylesheet
+from src.pyside_ext.styling import css, Style
 
 
 class LargeCheckbox(BasePanelElement):
@@ -26,24 +27,29 @@ class LargeCheckbox(BasePanelElement):
 
         set_stylesheet(
             self.widget,
-            "#id{"
-            f"    font-family: 'Segoe UI';"
-            f"   font-size: {Font.size}pt;"
-            "}"
-            "#id::indicator {"
-            f"    width: 20px;"
-            f"    height: 20px;"
-            "}"
-            "#id::indicator:checked {"
-            "    image: url(:/mat/resources/checked.png);"
-            "}"
-            "#id::indicator:unchecked {"
-            "    image: url(:/mat/resources/unchecked.png);"
-            "}"
-            "#id::indicator:checked:disabled {"
-            "    image: url(:/mat/resources/checked_disabled.png);"
-            "}"
-            "#id::indicator:unchecked:disabled {"
-            "    image: url(:/mat/resources/unchecked_disabled.png);"
-            "}",
+            css(
+                font_family=Style.FontFamily.SegoeUI,
+                font_size=Style.FontSize.regular,
+            ),
+            css(
+                "#id::indicator",
+                width="20px",
+                height="20px",
+            ),
+            css(
+                "#id::indicator:checked",
+                image="url(:/mat/resources/checked.png)",
+            ),
+            css(
+                "#id::indicator:unchecked",
+                image="url(:/mat/resources/unchecked.png)",
+            ),
+            css(
+                "#id::indicator:checked:disabled",
+                image="url(:/mat/resources/checked_disabled.png)",
+            ),
+            css(
+                "#id::indicator:unchecked:disabled",
+                image="url(:/mat/resources/unchecked_disabled.png)",
+            ),
         )

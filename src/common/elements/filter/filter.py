@@ -16,8 +16,8 @@ from src.common.elements.base.base import BasePanelElement
 from src.common.elements.utility.layout_helpers import empty_widget, widget_in_layout
 from src.common.elements.utility.primitive_elements import QLabelClickable
 from src.common.messages import Message, MessageType
-from src.common.size import Font
 from src.common.unique_qss import set_stylesheet
+from src.pyside_ext.styling import Style, css
 
 RESPONDENT_NUMBER = "[respondent #]"
 
@@ -100,14 +100,19 @@ class FilterSetup(BasePanelElement):
         self.layout.setContentsMargins(4, 4, 4, 4)
         self.layout.setSpacing(4)
         self.widget.setLayout(self.layout)
-        set_stylesheet(self.widget, f"#id{{border: 1px solid #aaa;}}")
-
+        set_stylesheet(
+            self.widget,
+            css(
+                border="1px solid",
+                border_color=Style.Color.Button,
+            ),
+        )
         self.label = widget_in_layout(
             widget=QLabel(self.widget),
             layout=self.layout,
             setup=lambda widget, layout: [
                 widget.setText("Add New Filter"),
-                set_stylesheet(widget, f"#id{{font-size: {Font.size_big}px; color: grey;}}"),
+                set_stylesheet(widget, css(font_size=Style.FontSize.regular, color=Style.Color.Text)),
                 widget.setAlignment(Qt.AlignmentFlag.AlignCenter),
             ],
         )
@@ -132,7 +137,12 @@ class FilterSetup(BasePanelElement):
             layout=l1,
             setup=lambda widget, layout: [
                 widget.setText(" respondents with"),
-                set_stylesheet(widget, f"font-size: {Font.size}px;"),
+                set_stylesheet(
+                    widget,
+                    css(
+                        font_size=Style.FontSize.regular,
+                    ),
+                ),
             ],
         )
         l1.addStretch()
@@ -175,7 +185,10 @@ class FilterSetup(BasePanelElement):
             widget=QLabel(w2),
             layout=l2,
             setup=lambda widget, layout: [
-                set_stylesheet(widget, f"font-size: {Font.size}px;"),
+                set_stylesheet(
+                    widget,
+                    css(font_size=Style.FontSize.regular),
+                ),
                 widget.setTextInteractionFlags(Qt.TextInteractionFlag.TextSelectableByMouse),
             ],
         )
@@ -360,10 +373,25 @@ class CompiledFilterHistory(BasePanelElement):
                 layout.setContentsMargins(4, 4, 4, 4),
                 layout.setSpacing(0),
                 set_stylesheet(
-                    widget, "#id{border: 1px solid #aaa;}" "#id:hover{" "border: 1px solid rgb(0,120,215)" "}"
+                    widget,
+                    css(
+                        border="1px solid",
+                        border_color=Style.Color.Button,
+                    ),
+                    css(
+                        "#id:hover{",
+                        border="1px solid",
+                        border_color=Style.Color.Highlight,
+                    ),
                 )
                 if self.hover_highlight
-                else set_stylesheet(widget, "#id{border: 1px solid #aaa;}"),
+                else set_stylesheet(
+                    widget,
+                    css(
+                        border="1px solid",
+                        border_color=Style.Color.Button,
+                    ),
+                ),
             ],
         )
 
@@ -372,7 +400,13 @@ class CompiledFilterHistory(BasePanelElement):
             layout=self.layout,
             setup=lambda widget, layout: [
                 widget.setText("No Filters Applied"),
-                set_stylesheet(widget, f"#id{{font-size: {Font.size_big}px; color: grey;}}"),
+                set_stylesheet(
+                    widget,
+                    css(
+                        font_size=Style.FontSize.larger,
+                        color=Style.Color.Text,
+                    ),
+                ),
                 widget.setAlignment(Qt.AlignmentFlag.AlignCenter),
                 widget.clicked.connect(
                     lambda: self.handler(
@@ -423,7 +457,13 @@ class CompiledFilterHistory(BasePanelElement):
                         )
                     ),
                     widget.setWordWrap(True),
-                    set_stylesheet(widget, f"#id{{border: 1px solid #ccc;}}"),
+                    set_stylesheet(
+                        widget,
+                        css(
+                            border="1px solid",
+                            border_color=Style.Color.Button,
+                        ),
+                    ),
                 ],
             )
             self.filter_widgets.append(filter_widget)

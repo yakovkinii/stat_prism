@@ -14,7 +14,6 @@ class Title(BasePanelElement):
 
     def setup(self):
         self.widget = QtWidgets.QLabel(self.parent_widget)
-        # font = QtGui.QFont("Freestyle Script")
         font = QtGui.QFont("Segoe UI")
         font.setPointSize(12)
         self.widget.setFont(font)

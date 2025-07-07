@@ -20,6 +20,7 @@ from src.common.size import Font
 from src.common.ui_constructor import create_tool_button_qta
 from src.common.unique_qss import set_stylesheet
 from src.data_panel.data import DataColumn
+from src.pyside_ext.styling import Style, css
 
 
 @attrs.define
@@ -91,7 +92,10 @@ class ColumnSelectorEx(BasePanelElement):
                 layout=title_layout,
                 setup=lambda widget, layout: [
                     widget.setText(field.name),
-                    set_stylesheet(widget, f"font-size: {Font.size_big}px;"),
+                    set_stylesheet(
+                        widget,
+                        css(font_size=Style.FontSize.larger),  # this style was without ID
+                    ),
                 ],
             )
             title_layout.addStretch()
@@ -104,7 +108,14 @@ class ColumnSelectorEx(BasePanelElement):
                     widget.setFocusPolicy(Qt.FocusPolicy.NoFocus),
                     set_stylesheet(
                         widget,
-                        "#id{border: 1px solid #ddd;}" "#id:hover{" "border: 1px solid rgb(0,120,215)" "}",
+                        css(
+                            border="1px solid",
+                            border_color=Style.Color.Button,
+                        ),
+                        css(
+                            border="1px solid",
+                            border_color=Style.Color.Highlight,
+                        ),
                     ),
                 ),
             )
@@ -135,7 +146,6 @@ class ColumnSelectorEx(BasePanelElement):
             clean_up_list_widget(panel_list)
             items = [popup_panel_list.item(i).text() for i in range(popup_panel_list.count())]
             panel_list.addItems(items)
-            logging.info(f"Adding {items} to panel list")
             # tell layout to recalculate heights
             panel_list.updateGeometry()
 
@@ -179,7 +189,12 @@ class ColumnSelectorExPopup:
                 widget.setAcceptDrops(True),
                 widget.setDropIndicatorShown(True),
                 widget.setDefaultDropAction(QtCore.Qt.DropAction.MoveAction),
-                set_stylesheet(widget, "#id{border: 1px solid #ddd;}"),
+                set_stylesheet(widget,
+                               css(
+                                   border="1px solid",
+                                      border_color=Style.Color.Button,
+                               )
+                               )
             ],
         )
         self.main_list.reasonable_number_of_columns = 16
@@ -215,7 +230,11 @@ class ColumnSelectorExPopup:
                 layout=title_layout,
                 setup=lambda widget, layout: [
                     widget.setText(field.name),
-                    set_stylesheet(widget, f"font-size: {Font.size_big}px;"),
+                    set_stylesheet(widget,
+                                   css(
+                                        font_size=Style.FontSize.larger,  # this style was without ID
+                                   )
+                                   )
                 ],
             )
             title_layout.addStretch()
@@ -285,8 +304,13 @@ class ColumnSelectorExPopup:
                     widget.setDropIndicatorShown(True),
                     widget.setDefaultDropAction(QtCore.Qt.DropAction.MoveAction),
                     layout.setContentsMargins(0, 0, 0, 0),
-                    set_stylesheet(widget, "#id{border: 1px solid #ddd;}"),
-                ),
+                    set_stylesheet(widget,
+                                   css(
+                                        border="1px solid",
+                                        border_color=Style.Color.Button,
+                                   )
+
+                                   )                ),
             )
             panel_list.reasonable_number_of_columns = field.reasonable_number_of_columns
             list_stretch_layout.addStretch()
@@ -314,7 +338,6 @@ class ColumnSelectorExPopup:
                 item = QListWidgetItem(column)
                 item.setIcon(COLUMN_TYPE_ICONS[columns[self.column_names.index(column)].column_type])
                 panel_list.addItem(item)
-            # panel_list.addItems(selected_columns)
 
         for column in main_list_names:
             item = QListWidgetItem(column)
@@ -323,14 +346,12 @@ class ColumnSelectorExPopup:
         self.success = False
 
     def main_list_clicked(self):
-        logging.info("Main list clicked")
         for button in self.panel_list_buttons:
             button.setIcon(qta.icon("ph.arrow-bend-down-right"))
             button.setText("Add")
             button.setEnabled(True)
 
     def panel_list_clicked(self, panel_index):
-        logging.info(f"Panel {panel_index} clicked")
         for button_index, button in enumerate(self.panel_list_buttons):
             if button_index == panel_index:
                 button.setIcon(qta.icon("ph.arrow-bend-left-up"))
@@ -388,7 +409,6 @@ class ColumnSelectorExPopup:
             self.button_pressed(panel_index, from_double_click=True, remove=True, item=item)
 
     def button_pressed(self, button_index, from_drop=False, from_double_click=False, remove=False, item=None):
-        logging.info(f"Button {button_index} pressed")
         button = self.panel_list_buttons[button_index]
         panel_list: QListWidgetClickable = self.panel_list_widgets[button_index]
         if (

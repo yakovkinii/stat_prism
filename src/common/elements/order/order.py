@@ -51,10 +51,10 @@ class CustomListWidget(QListWidget):
         super().__init__(parent)
 
         # Enable drag and drop
-        self.setDragDropMode(QListWidget.InternalMove)
+        self.setDragDropMode(QListWidget.DragDropMode.InternalMove)
 
         # Set selection mode to single
-        self.setSelectionMode(QListWidget.SingleSelection)
+        self.setSelectionMode(QListWidget.SelectionMode.SingleSelection)
 
     def add_custom_item(self, value, text):
         # Create QListWidgetItem

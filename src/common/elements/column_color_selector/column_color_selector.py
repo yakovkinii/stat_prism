@@ -9,6 +9,7 @@ from src.common.constant import COLORS
 from src.common.elements.base.base import BasePanelElement
 from src.common.messages import Message, MessageType
 from src.common.unique_qss import set_stylesheet
+from src.pyside_ext.styling import css
 
 
 class ColumnColorSelector(BasePanelElement):
@@ -30,7 +31,10 @@ class ColumnColorSelector(BasePanelElement):
             button.setFixedWidth(35)
             button.setFixedHeight(35)
             button.setText("")
-            set_stylesheet(button, "#id{" + f"background-color: {color}" + "}")
+            set_stylesheet(
+                button,
+                css(background_color=str(color)),
+            )
             button.setToolButtonStyle(QtCore.Qt.ToolButtonStyle.ToolButtonIconOnly)
             self.buttons.append(button)
             self.layout.addWidget(button, i // 6, i % 6)

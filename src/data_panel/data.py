@@ -73,7 +73,6 @@ class DataColumn:
         for value in sorted(unique_values):
             if value not in self.order:
                 order = max(self.order.values()) + 1 if len(self.order) > 0 else 1
-                logging.warning(f"Value {value} added to ordinal_order with order {order}")
                 self.order[value] = order
         return self
 
