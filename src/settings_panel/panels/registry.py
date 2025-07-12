@@ -27,7 +27,6 @@ class PanelRegistry(Enum):
     HTML_RESULT_ITEM_SETTINGS = PanelRegistryItem(display_name="HTML Result Item Settings")
     HTML_TABLE_V2_SETTINGS = PanelRegistryItem(display_name="HTMLTableV2 Settings")
     HTML_MULTI_TABLE_V2_SETTINGS = PanelRegistryItem(display_name="HTMLTableV2 Settings")
-    # PLOT_RESULT_ITEM_SETTINGS = PanelRegistryItem(display_name="PLOT Result Item Settings")
     RESULT_ITEM_SETTINGS_V2 = PanelRegistryItem(display_name="Result Item Settings V2")
     BLANK = PanelRegistryItem(display_name="Blank")
     ORDER = PanelRegistryItem(display_name="Confirm Order")
