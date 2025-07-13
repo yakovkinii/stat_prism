@@ -9,11 +9,9 @@ from src.settings_panel.panels.column_selector.column_selector import ColumnSele
 from src.settings_panel.panels.columns.columns import Columns
 from src.settings_panel.panels.filter.filter import Filter
 from src.settings_panel.panels.home.home import Home
-from src.settings_panel.panels.html_result_item_settings.html_result_item_settings import HTMLResultItemSettings
 from src.settings_panel.panels.invert.invert import Inverse
 from src.settings_panel.panels.order.order import Order
 
-# from src.settings_panel.panels.plot_result_item_settings.plot_result_item_settings import PlotResultItemSettings
 from src.settings_panel.panels.registry import PanelRegistry
 from src.settings_panel.panels.result_item_settings_v2.result_item_settings_v2 import ResultItemSettingsV2
 from src.settings_panel.panels.select_study.select_study import SelectStudy
@@ -29,7 +27,7 @@ def inject_classes_to_panel_registry():
     PanelRegistry.INVERSE.value.ui_class = Inverse
     PanelRegistry.BLANK.value.ui_class = Blank
     PanelRegistry.ORDER.value.ui_class = Order
-    PanelRegistry.HTML_TABLE_V2_SETTINGS.value.ui_class = HTMLResultItemSettings
-    PanelRegistry.HTML_MULTI_TABLE_V2_SETTINGS.value.ui_class = HTMLResultItemSettings
+    PanelRegistry.HTML_TABLE_V2_SETTINGS.value.ui_class = ResultItemSettingsV2
+    PanelRegistry.HTML_MULTI_TABLE_V2_SETTINGS.value.ui_class = ResultItemSettingsV2
     PanelRegistry.RESULT_ITEM_SETTINGS_V2.value.ui_class = ResultItemSettingsV2
     PanelRegistry.RESULT_ITEM_SETTINGS_V2.value.content_class = [HTMLTableV2, PlotV2]

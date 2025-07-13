@@ -10,7 +10,8 @@ from src.common.constant import TABLE_OR_PLOT_ID_PLACEHOLDER
 from src.common.decorators import log_method, log_method_noarg
 from src.common.languages import LANGUAGE
 from src.common.result.base_result import BaseResultElement
-from src.settings_panel.panels.result_item_settings_v2.classes import NumberCaptionResultItemSetting
+from src.settings_panel.panels.result_item_settings_v2.classes import NumberCaptionResultItemSetting, \
+    SingleLineTextResultItemSetting, ContainerResultItemSetting
 
 
 class Cell:
@@ -74,15 +75,27 @@ class HTMLTableV2(BaseResultElement):
         self.border_top = border_top
         self.border_bottom = border_bottom
         self.table_note: str = table_note
-        self.number_caption = NumberCaptionResultItemSetting(
-            current_number=table_id, current_caption=table_caption, add_stretch=True
-        )
-        self.display_settings = {"General": self.number_caption}
+
         self.texts: List[str] = texts if texts is not None else []
+
+        self.table_id = SingleLineTextResultItemSetting(label="Number:", current_value=table_id)
+        self.table_caption = SingleLineTextResultItemSetting(label="Title:", current_value=table_caption)
+
+        self.display_settings = {
+            "General": ContainerResultItemSetting(
+                items=[
+                    self.table_id,
+                    self.table_caption,
+                ],
+                add_stretch=True,
+            ),
+        }
+
+
 
     @log_method_noarg
     def get_html(self, renderer=None):
-        table_id = self.number_caption.get_number() + "." if self.number_caption.get_number() != "" else ""
+        table_id = self.table_id.get_current_value() + "." if self.table_id.get_current_value() != "" else ""
 
         table_str = "Таблиця" if LANGUAGE.is_ua() else "Table"
         note_str = "Нотатка" if LANGUAGE.is_ua() else "Note"
@@ -94,7 +107,7 @@ class HTMLTableV2(BaseResultElement):
             {table_str} {table_id}
             </b></div>
         """
-        html += f'<div class="double-spacing font"><i>{self.number_caption.get_caption()}</i></div><br>'
+        html += f'<div class="double-spacing font"><i>{self.table_caption.get_current_value()}</i></div><br>'
 
         style = ""
         if self.border_top:
@@ -181,7 +194,7 @@ class HTMLTableV2(BaseResultElement):
         for i in range(1, num_cols, max_cols):
             new_table = HTMLTableV2(
                 rows=[Row(cells=[row.cells[0]] + row.cells[i : i + max_cols]) for row in self.rows],
-                table_id=self.table_id,
+                table_id=self.table_id.get_current_value(),
                 table_caption=self.table_caption if i == 1 else "",
                 table_note=self.table_note if i == 1 else "",
             )
