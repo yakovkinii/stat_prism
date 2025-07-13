@@ -1,12 +1,12 @@
 #
-#  Copyright (c) 2023 -- 2024 StatPrism Team. All rights reserved.
+#  Copyright (c) 2023 -- 2025 StatPrism Team. All rights reserved.
 #
 
 import numpy as np
 import pandas as pd
 from scipy.stats import kendalltau, pearsonr, spearmanr
 
-from src.modules.correlation.binary_correlations import phi_coefficient, tetrachoric_corr_2x2_table
+from src.modules.common.mathematics.correlation.binary_correlations import phi_coefficient, tetrachoric_corr_2x2_table
 from src.modules.correlation.result import CorrelationType
 
 

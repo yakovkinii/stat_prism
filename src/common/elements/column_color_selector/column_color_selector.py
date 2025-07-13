@@ -1,5 +1,5 @@
 #
-#  Copyright (c) 2023 -- 2024 StatPrism Team. All rights reserved.
+#  Copyright (c) 2023 -- 2025 StatPrism Team. All rights reserved.
 #
 
 from PySide6 import QtCore, QtWidgets
@@ -8,8 +8,8 @@ from PySide6.QtWidgets import QGridLayout, QWidget
 from src.common.constant import COLORS
 from src.common.elements.base.base import BasePanelElement
 from src.common.messages import Message, MessageType
-from src.common.unique_qss import set_stylesheet
-from src.pyside_ext.styling import css
+from src.pyside_ext.markup import css
+from src.pyside_ext.unique_qss import set_stylesheet
 
 
 class ColumnColorSelector(BasePanelElement):

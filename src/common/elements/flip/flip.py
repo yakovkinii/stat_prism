@@ -1,15 +1,15 @@
 #
-#  Copyright (c) 2023 -- 2024 StatPrism Team. All rights reserved.
+#  Copyright (c) 2023 -- 2025 StatPrism Team. All rights reserved.
 #
 
 import qtawesome as qta
-from PySide6 import QtGui, QtWidgets
+from PySide6 import QtWidgets
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QGridLayout, QHBoxLayout, QVBoxLayout
 
 from src.common.elements.base.base import BasePanelElement
 from src.common.elements.utility.layout_helpers import empty_widget
-from src.common.size import Font
+from src.pyside_ext.styling import Style
 
 
 class InvertVisualizer(BasePanelElement):
@@ -17,9 +17,6 @@ class InvertVisualizer(BasePanelElement):
         super().__init__()
         self.children = []
         self.layout_for_values = None
-
-        self.font = QtGui.QFont("Segoe UI")
-        self.font.setPointSize(Font.size)
 
     def setup(self):
         self.widget, self.layout = empty_widget(parent=self.parent_widget, inner_layout_class=QVBoxLayout)
@@ -56,7 +53,7 @@ class InvertVisualizer(BasePanelElement):
         for i, value in enumerate(unique_values):
             label_left = QtWidgets.QLabel(self.v_widget)
             label_left.setText(str(value))
-            label_left.setFont(self.font)
+            label_left.setFont(Style.font_regular)
             label_left.setAlignment(Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignVCenter)
 
             label_center = QtWidgets.QLabel(self.v_widget)
@@ -66,7 +63,7 @@ class InvertVisualizer(BasePanelElement):
 
             label_right = QtWidgets.QLabel(self.v_widget)
             label_right.setText(str(max_plus_min - value))
-            label_right.setFont(self.font)
+            label_right.setFont(Style.font_regular)
             label_right.setAlignment(Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter)
 
             self.children.append(label_left)

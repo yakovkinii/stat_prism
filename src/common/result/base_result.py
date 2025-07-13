@@ -1,12 +1,14 @@
 #
-#  Copyright (c) 2023 -- 2024 StatPrism Team. All rights reserved.
+#  Copyright (c) 2023 -- 2025 StatPrism Team. All rights reserved.
 #
+
 
 from typing import List
 
-from src.common.result.classes.base_result_element import BaseResultElement
-from src.common.result.classes.html_result import HTMLResultElement, HTMLText
-from src.settings_panel.panels.registry import PanelRegistry
+from src.common.result.base_result_element import BaseResultElement
+from src.common.result.html_result import HTMLTableV2
+from src.pyside_ext.markup import HTML
+from src.pyside_ext.styling import Style
 
 
 class BaseResult:
@@ -31,42 +33,31 @@ class BaseResult:
         self.header = ""
 
     def init_header(self, title):
-        self.header = f"""
-        <div style="color:#333; font-size:16pt"><b>{title}</b></div>
-        """
+        self.header = HTML.div(HTML.bold(title), font_size=Style.FontSize.regular)
 
     def add_header_info(self, text):
-        self.header += f"""
-        <div style="color:#333; font-size:9pt">{text}</div>
-        """
+        self.header += HTML.div(text, font_size=Style.FontSize.smaller)
 
     @staticmethod
     def format_additional_info_html(text) -> str:
-        return f"""
-        <div style="color:#700; font-size:12pt"><b>{text}</b></div>
-        <hr>
-        """
+        return HTML.div(HTML.bold(text), font_size=Style.FontSize.smaller)
 
     @staticmethod
     def format_description_html(text):
-        return f"""
-        <div style="color:#333">{text}</div>
-        """
+        return HTML.div(text)
 
     def set_placeholder(
         self,
         additional_info_html: str = "Please configure the analysis using the panel on the right",
     ):
         self.result_elements = [
-            HTMLResultElement(
-                settings_panel_index=PanelRegistry.HTML_RESULT_ITEM_SETTINGS.settings_stacked_widget_index,
-                items=[
-                    HTMLText(
+            HTMLTableV2(
+                texts=[
+                    (
                         self.format_additional_info_html(additional_info_html)
                         + self.format_description_html(self.description)
                     )
-                ],
-                tab_title="Information",
+                ]
             )
         ]
 

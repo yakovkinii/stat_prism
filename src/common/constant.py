@@ -1,5 +1,5 @@
 #
-#  Copyright (c) 2023 -- 2024 StatPrism Team. All rights reserved.
+#  Copyright (c) 2023 -- 2025 StatPrism Team. All rights reserved.
 #
 
 from enum import Enum
@@ -7,9 +7,11 @@ from enum import Enum
 import qtawesome as qta
 from PySide6.QtCore import Qt
 
-DEBUG_LAYOUT = False
+from src.pyside_ext.styling import Style
 
-COLORS = ["#eee", "#ffcccc", "#ccffcc", "#bbbbff", "#ffffbb", "#ffbbff"]
+DEBUG_LAYOUT = False  # Todo remove
+
+COLORS = ["#eee", "#ffcccc", "#ccffcc", "#bbbbff", "#ffffbb", "#ffbbff"]  # Todo merge with qcolor.py
 COLORS_SELECTION = ["#ddd", "#ffbbbb", "#aaffaa", "#aaaaff", "#ffffaa", "#ffaaff"]
 
 MDASH = "—"
@@ -53,16 +55,22 @@ BASE_STYLES = (
     "line-height: 2;"
     "}"
     ".font {"
-    "font-size: 12pt;"
+    f"font-size: {Style.FontSize.regular};"
     "font-family: 'Times New Roman';"
     "}"
     "table, th, td, span {"
     "border-collapse: collapse;"
-    "font-size: 12pt;"
+    f"font-size: {Style.FontSize.regular};"
     "}"
     ".meta {"
-    "font-size: 10pt;"
-    "color: blue;"
+    f"font-size: {Style.FontSize.smaller};"
     "}"
     "</style>"
 )
+
+
+class SettingsPanelSize:
+    width: int = 320
+    tab_width: int = 300
+    even_col_width: int = 130
+    max_col_width: int = 200

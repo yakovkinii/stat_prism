@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 #
-#  Copyright (c) 2023 -- 2024 StatPrism Team. All rights reserved.
+#  Copyright (c) 2023 -- 2025 StatPrism Team. All rights reserved.
 #
 
 # Resource object code

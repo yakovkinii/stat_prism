@@ -1,5 +1,5 @@
 #
-#  Copyright (c) 2023 -- 2024 StatPrism Team. All rights reserved.
+#  Copyright (c) 2023 -- 2025 StatPrism Team. All rights reserved.
 #
 
 import logging
@@ -12,7 +12,7 @@ from PySide6.QtGui import QAction, QFont, QImage
 from PySide6.QtWidgets import QApplication, QLabel, QMenu, QSizePolicy, QVBoxLayout, QWidget
 
 from src.common.elements.utility.layout_helpers import empty_widget
-from src.common.result.classes.plot_result import PlotV2
+from src.common.result.plot_result import PlotV2
 
 
 class PlotResultElementWidgetContainer:

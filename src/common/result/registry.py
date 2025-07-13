@@ -1,9 +1,9 @@
 #
-#  Copyright (c) 2023 -- 2024 StatPrism Team. All rights reserved.
+#  Copyright (c) 2023 -- 2025 StatPrism Team. All rights reserved.
 #
 from typing import Dict, Union
 
-from src.common.result.classes.base_result import BaseResult
+from src.common.result.base_result import BaseResult
 from src.modules.contingency.result import ContingencyResult
 from src.modules.correlation.result import CorrelationResult
 from src.modules.descriptive.result import DescriptiveResult
@@ -25,3 +25,7 @@ RESULTS: Dict[
         V2Result,
     ],
 ] = {}
+
+
+def get_unique_result_id():
+    return max(RESULTS.keys()) + 1 if len(RESULTS) > 0 else 1

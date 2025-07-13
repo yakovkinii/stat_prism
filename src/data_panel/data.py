@@ -1,5 +1,5 @@
 #
-#  Copyright (c) 2023 -- 2024 StatPrism Team. All rights reserved.
+#  Copyright (c) 2023 -- 2025 StatPrism Team. All rights reserved.
 #
 import logging
 from typing import Dict, List, Union
@@ -131,7 +131,7 @@ class Data:
             elif pd.api.types.is_integer_dtype(dataframe[column]):
                 dataframe[column] = dataframe[column].astype(int)
             else:
-                logging.error(f"Unknown type detected for {column}")
+                logging.warning(f"Unknown type detected for {column}")
                 logging.info("Trying to convert to string")
                 dataframe[column] = dataframe[column].astype(str)
 

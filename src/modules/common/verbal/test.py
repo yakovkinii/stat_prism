@@ -1,9 +1,9 @@
 #
-#  Copyright (c) 2023 -- 2024 StatPrism Team. All rights reserved.
+#  Copyright (c) 2023 -- 2025 StatPrism Team. All rights reserved.
 #
 from typing import Dict, List, Union
 
-from src.common.utility import format_p_apa, format_statistic_apa, format_value_apa, smart_comma_join
+from src.modules.common.utility import format_p_apa, format_statistic_apa, smart_comma_join
 
 
 class TestResult:
@@ -102,26 +102,4 @@ def describe_single_test_multiple_variables(
                 + smart_comma_join([f"{result.variable}{_wrap_with_parentheses(result)}" for result in no_columns])
                 + f" {no_property}."
             )
-    return text
-
-
-class NonTestResult:
-    def __init__(self, variable: str, letters: List[str], values: List[float]):
-        self.variable = variable
-        self.letters = letters
-        self.values = values
-
-    def __str__(self):
-        text = []
-        for letter, value in zip(self.letters, self.values):
-            text.append(f"{letter} = {format_value_apa(value)}")
-        return ", ".join(text)
-
-
-def describe_single_non_test_multiple_variables(
-    statistic_name: str,
-    columns: list[NonTestResult],
-):
-    text = f"""The {statistic_name} are """
-    text += smart_comma_join([f"{result} for {result.variable}" for result in columns]) + f"."
     return text

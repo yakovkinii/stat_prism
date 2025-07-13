@@ -1,11 +1,11 @@
 #
-#  Copyright (c) 2023 -- 2024 StatPrism Team. All rights reserved.
+#  Copyright (c) 2023 -- 2025 StatPrism Team. All rights reserved.
 #
 
 from src.common.constant import MDASH
 from src.common.decorators import log_function
-from src.common.result.classes.html_result import Cell, HTMLTableV2, Row
-from src.common.result.classes.plot_result import Line, PlotV2
+from src.common.result.html_result import Cell, HTMLTableV2, Row
+from src.common.result.plot_result import Line, PlotV2
 from src.data_panel.data import Data
 from src.modules.v2.result import V2Result
 

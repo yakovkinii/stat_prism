@@ -1,14 +1,12 @@
 #
-#  Copyright (c) 2023 -- 2024 StatPrism Team. All rights reserved.
+#  Copyright (c) 2023 -- 2025 StatPrism Team. All rights reserved.
 #
 
 from typing import Union, cast
 
-from PySide6 import QtGui
 from PySide6.QtWidgets import QHBoxLayout, QLabel, QListWidget, QListWidgetItem, QWidget
 
 from src.common.elements.base.base import BasePanelElement
-from src.common.size import Font
 
 
 class OrderVisualizer(BasePanelElement):
@@ -16,9 +14,6 @@ class OrderVisualizer(BasePanelElement):
         super().__init__()
         self.children = []
         self.layout_for_values = None
-
-        self.font = QtGui.QFont("Segoe UI")
-        self.font.setPointSize(Font.size)
 
     def setup(self):
         self.widget = CustomListWidget(self.parent_widget)

@@ -1,5 +1,5 @@
 #
-#  Copyright (c) 2023 -- 2024 StatPrism Team. All rights reserved.
+#  Copyright (c) 2023 -- 2025 StatPrism Team. All rights reserved.
 #
 from typing import Tuple
 
@@ -8,15 +8,15 @@ from PySide6.QtCore import Qt
 from PySide6.QtGui import QColor
 from PySide6.QtWidgets import QGridLayout, QHBoxLayout, QLabel, QPushButton, QSlider, QVBoxLayout
 
+from src.common.constant import SettingsPanelSize
 from src.common.elements.base.base import BasePanelElement
 from src.common.elements.checkbox.checkbox import LargeCheckbox
 from src.common.elements.edit.edit import LabeledLineEdit
 from src.common.elements.utility.layout_helpers import empty_widget, widget_in_layout
 from src.common.messages import Message, MessageType
 from src.common.qcolor import Colors
-from src.common.size import SettingsPanelSize
-from src.common.unique_qss import set_stylesheet
-from src.pyside_ext.styling import css
+from src.pyside_ext.markup import css
+from src.pyside_ext.unique_qss import set_stylesheet
 
 
 class ColorGridItemSetting(BasePanelElement):

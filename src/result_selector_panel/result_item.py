@@ -1,5 +1,5 @@
 #
-#  Copyright (c) 2023 -- 2024 StatPrism Team. All rights reserved.
+#  Copyright (c) 2023 -- 2025 StatPrism Team. All rights reserved.
 #
 
 from typing import TYPE_CHECKING, Callable
@@ -8,7 +8,9 @@ from PySide6 import QtWidgets
 from PySide6.QtWidgets import QFrame
 
 from src.common.result.registry import RESULTS
-from src.common.unique_qss import set_stylesheet
+from src.pyside_ext.markup import css
+from src.pyside_ext.styling import Style
+from src.pyside_ext.unique_qss import set_stylesheet
 from src.result_selector_panel.const import ClickAction
 from src.result_selector_panel.result_element_item import ResultElementWidget
 
@@ -35,9 +37,6 @@ class ResultItemWidget(QFrame):
         self.layout.addWidget(self.context_widget)
 
         self.element_widgets = []
-        # self.titles = []
-        # self.class_ids = []
-        # self.widgets = []
         for element_id, element in enumerate(result.result_elements):
             element_widget = ResultElementWidget(
                 result_id=result_id,
@@ -56,16 +55,6 @@ class ResultItemWidget(QFrame):
         self.handler(action=ClickAction.ACTIVATE, result_id=self.result_id, element_id=None)
         super().mousePressEvent(event)
 
-    # def contextMenuEvent(self, event):
-    #     context_menu = QMenu(self)
-    #     delete_action = QAction("Delete", self)
-    #     context_menu.addAction(delete_action)
-    #
-    #     delete_action.triggered.connect(
-    #         lambda: self.handler(action=ClickAction.DELETE, result_id=self.result_id, element_id=None)
-    #     )
-    #     context_menu.exec_(event.globalPos())
-
     def refresh(self, selected_result: int, selected_element: str):
         for widget in self.element_widgets:
             widget.refresh(selected_result, selected_element)
@@ -73,33 +62,57 @@ class ResultItemWidget(QFrame):
         if RESULTS[self.result_id].needs_update:
             set_stylesheet(
                 self.title_widget,
-                "#id{" "font-weight: bold;" "color: #a00;" "}",
+                css(
+                    font_weight="bold",
+                    color=Style.Color.Danger,
+                ),
             )
         else:
             set_stylesheet(
                 self.title_widget,
-                "#id{" "font-weight: normal;" "color: #000;" "}",
+                css(
+                    font_weight="normal",
+                    color=Style.Color.Text,
+                ),
             )
 
         if self.result_id == selected_result:
-            set_stylesheet(
-                self,
-                "#id{"
-                "margin-top: 2px;"
-                "background-color: #fff;"
-                "font-family: Segoe UI;"
-                "border: 2px solid #eee;"
-                "border-left: 4px solid #7af;"
-                "}",
-            )
+            if selected_element is None:
+                set_stylesheet(
+                    self,
+                    css(
+                        margin_top="2px",
+                        background_color=Style.Color.Background,
+                        font_family=Style.FontFamily.SegoeUI,
+                        border=Style.General.border,
+                        border_color=Style.Color.Highlight,
+                        border_left="4px solid",
+                        border_left_color=Style.Color.Highlight,
+                    ),
+                )
+            else:
+                set_stylesheet(
+                    self,
+                    css(
+                        margin_top="2px",
+                        background_color=Style.Color.Background,
+                        font_family=Style.FontFamily.SegoeUI,
+                        border=Style.General.border,
+                        border_color=Style.Color.Border,
+                        border_left="4px solid",
+                        border_left_color=Style.Color.Highlight,
+                    ),
+                )
         else:
             set_stylesheet(
                 self,
-                "#id{"
-                "margin-top: 2px;"
-                "background-color: #fff;"
-                "font-family: Segoe UI;"
-                "border: 2px solid #eee;"
-                "border-left: 4px solid #ddd;"
-                "}",
+                css(
+                    margin_top="2px",
+                    background_color=Style.Color.Background,
+                    font_family=Style.FontFamily.SegoeUI,
+                    border=Style.General.border,
+                    border_color=Style.Color.Border,
+                    border_left="4px solid",
+                    border_left_color=Style.Color.Border,
+                ),
             )

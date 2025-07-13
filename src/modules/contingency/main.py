@@ -1,5 +1,5 @@
 #
-#  Copyright (c) 2023 -- 2024 StatPrism Team. All rights reserved.
+#  Copyright (c) 2023 -- 2025 StatPrism Team. All rights reserved.
 #
 
 import pandas as pd
@@ -8,10 +8,10 @@ from scipy import stats
 from src.common.constant import NDASH
 from src.common.decorators import log_function
 from src.common.languages import LANGUAGE
-from src.common.result.classes.html_result import Cell, HTMLTableV2, Row
-from src.common.result.classes.plot_result import ContingencyPlot, PlotV2
-from src.common.utility import format_p_apa, format_p_apa_full, format_statistic_apa
+from src.common.result.html_result import Cell, HTMLTableV2, Row
+from src.common.result.plot_result import ContingencyPlot, PlotV2
 from src.data_panel.data import Data
+from src.modules.common.utility import format_p_apa, format_p_apa_full, format_statistic_apa
 from src.modules.contingency.result import ContingencyResult
 
 

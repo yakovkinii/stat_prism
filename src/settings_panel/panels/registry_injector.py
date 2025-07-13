@@ -1,8 +1,8 @@
 #
-#  Copyright (c) 2023 -- 2024 StatPrism Team. All rights reserved.
+#  Copyright (c) 2023 -- 2025 StatPrism Team. All rights reserved.
 #
-from src.common.result.classes.html_result import HTMLTableV2
-from src.common.result.classes.plot_result import PlotV2
+from src.common.result.html_result import HTMLTableV2
+from src.common.result.plot_result import PlotV2
 from src.settings_panel.panels.blank.blank import Blank
 from src.settings_panel.panels.column.column import Column
 from src.settings_panel.panels.column_selector.column_selector import ColumnSelector
@@ -27,8 +27,6 @@ def inject_classes_to_panel_registry():
     PanelRegistry.COLUMNS.value.ui_class = Columns
     PanelRegistry.COLUMN.value.ui_class = Column
     PanelRegistry.INVERSE.value.ui_class = Inverse
-    PanelRegistry.HTML_RESULT_ITEM_SETTINGS.value.ui_class = HTMLResultItemSettings
-    # PanelRegistry.PLOT_RESULT_ITEM_SETTINGS.value.ui_class = PlotResultItemSettings
     PanelRegistry.BLANK.value.ui_class = Blank
     PanelRegistry.ORDER.value.ui_class = Order
     PanelRegistry.HTML_TABLE_V2_SETTINGS.value.ui_class = HTMLResultItemSettings

@@ -1,16 +1,16 @@
 #
-#  Copyright (c) 2023 -- 2024 StatPrism Team. All rights reserved.
+#  Copyright (c) 2023 -- 2025 StatPrism Team. All rights reserved.
 #
 
 from typing import TYPE_CHECKING
 
+from src.common.constant import SettingsPanelSize
 from src.common.decorators import log_method
 from src.common.elements.tab.tab import Tab
 from src.common.elements.title.title import Title
 from src.common.messages import Message, MessageType
-from src.common.result.classes.html_result import HTMLTableV2
+from src.common.result.html_result import HTMLTableV2
 from src.common.result.registry import RESULTS
-from src.common.size import SettingsPanelSize
 from src.settings_panel.panels.base.base import BasePanel
 
 if TYPE_CHECKING:

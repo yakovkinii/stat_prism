@@ -1,5 +1,5 @@
 #
-#  Copyright (c) 2023 -- 2024 StatPrism Team. All rights reserved.
+#  Copyright (c) 2023 -- 2025 StatPrism Team. All rights reserved.
 #
 
 import logging
@@ -16,8 +16,9 @@ from src.common.elements.base.base import BasePanelElement
 from src.common.elements.utility.layout_helpers import empty_widget, widget_in_layout
 from src.common.elements.utility.primitive_elements import QLabelClickable
 from src.common.messages import Message, MessageType
-from src.common.unique_qss import set_stylesheet
-from src.pyside_ext.styling import Style, css
+from src.pyside_ext.markup import css
+from src.pyside_ext.styling import Style
+from src.pyside_ext.unique_qss import set_stylesheet
 
 RESPONDENT_NUMBER = "[respondent #]"
 
@@ -103,8 +104,8 @@ class FilterSetup(BasePanelElement):
         set_stylesheet(
             self.widget,
             css(
-                border="1px solid",
-                border_color=Style.Color.Button,
+                border=Style.General.border,
+                border_color=Style.Color.BorderElevated,
             ),
         )
         self.label = widget_in_layout(
@@ -112,7 +113,12 @@ class FilterSetup(BasePanelElement):
             layout=self.layout,
             setup=lambda widget, layout: [
                 widget.setText("Add New Filter"),
-                set_stylesheet(widget, css(font_size=Style.FontSize.regular, color=Style.Color.Text)),
+                set_stylesheet(
+                    widget,
+                    css(
+                        font_size=Style.FontSize.regular,
+                    ),
+                ),
                 widget.setAlignment(Qt.AlignmentFlag.AlignCenter),
             ],
         )
@@ -375,12 +381,12 @@ class CompiledFilterHistory(BasePanelElement):
                 set_stylesheet(
                     widget,
                     css(
-                        border="1px solid",
-                        border_color=Style.Color.Button,
+                        border=Style.General.border,
+                        border_color=Style.Color.BorderElevated,
                     ),
                     css(
-                        "#id:hover{",
-                        border="1px solid",
+                        "#id:hover",
+                        border=Style.General.border,
                         border_color=Style.Color.Highlight,
                     ),
                 )
@@ -388,8 +394,8 @@ class CompiledFilterHistory(BasePanelElement):
                 else set_stylesheet(
                     widget,
                     css(
-                        border="1px solid",
-                        border_color=Style.Color.Button,
+                        border=Style.General.border,
+                        border_color=Style.Color.BorderElevated,
                     ),
                 ),
             ],
@@ -403,8 +409,7 @@ class CompiledFilterHistory(BasePanelElement):
                 set_stylesheet(
                     widget,
                     css(
-                        font_size=Style.FontSize.larger,
-                        color=Style.Color.Text,
+                        font_size=Style.FontSize.regular,
                     ),
                 ),
                 widget.setAlignment(Qt.AlignmentFlag.AlignCenter),
@@ -460,8 +465,8 @@ class CompiledFilterHistory(BasePanelElement):
                     set_stylesheet(
                         widget,
                         css(
-                            border="1px solid",
-                            border_color=Style.Color.Button,
+                            border=Style.General.border,
+                            border_color=Style.Color.BorderElevated,
                         ),
                     ),
                 ],

@@ -1,12 +1,15 @@
 #
-#  Copyright (c) 2023 -- 2024 StatPrism Team. All rights reserved.
+#  Copyright (c) 2023 -- 2025 StatPrism Team. All rights reserved.
 #
+import logging
 
 from PySide6 import QtCore, QtWidgets
 from PySide6.QtCore import QEvent, Qt, QTimer, Signal
 from PySide6.QtWidgets import QFrame, QLabel, QTextEdit
 
-from src.common.unique_qss import set_stylesheet
+from src.pyside_ext.markup import css
+from src.pyside_ext.styling import Style
+from src.pyside_ext.unique_qss import set_stylesheet
 
 
 class QWidgetClickable(QFrame):
@@ -59,10 +62,18 @@ class EditableLabelWordwrap(QTextEdit):
     editingFinished = Signal(bool)
 
     def __init__(self, parent):
+        logging.warning("EditableLabelWordwrap is deprecated.")
         super().__init__(parent)
         self.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
         self.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
-        set_stylesheet(self, "#id{" "border: 1px solid grey;" "background-color: rgba(255,255,255,255);" "}")
+        set_stylesheet(
+            self,
+            css(
+                border=Style.General.border,
+                border_color=Style.Color.BorderElevated,
+                background_color=Style.Color.BackgroundEdit,
+            ),
+        )
         self.textChanged.connect(self.adjustHeightToFitText)
         self.installEventFilter(self)
         self.setFocusPolicy(Qt.FocusPolicy.StrongFocus)

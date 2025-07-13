@@ -1,13 +1,13 @@
 #
-#  Copyright (c) 2023 -- 2024 StatPrism Team. All rights reserved.
+#  Copyright (c) 2023 -- 2025 StatPrism Team. All rights reserved.
 #
+
 
 import base64
 import io
 import logging
 from typing import List, Tuple, Union
 
-import attrs
 import numpy as np
 from matplotlib import cbook
 from matplotlib import pyplot as plt
@@ -15,7 +15,7 @@ from mpl_toolkits.axes_grid1 import make_axes_locatable
 
 from src.common.elements.base.base import BasePanelElement
 from src.common.qcolor import Colors, rgba_tuple_from_rgb_and_a
-from src.common.result.classes.base_result import BaseResultElement
+from src.common.result.base_result import BaseResultElement
 from src.modules.correlation.table import format_r_apa
 from src.settings_panel.panels.result_item_settings_v2.classes import (
     CheckboxResultItemSetting,
@@ -253,7 +253,7 @@ class BandPlotConfig(BasePlotConfig):
 
 class HeatmapPlotConfig(BasePlotConfig):
     def __init__(
-        self, symmetric_color_scale: bool = True, only_significant: bool = True, alpha: float = 0.5, font_size=10
+        self, symmetric_color_scale: bool = True, only_significant: bool = False, alpha: float = 0.5, font_size=10
     ):
         super().__init__()
         self.symmetric_color_scale: CheckboxResultItemSetting = CheckboxResultItemSetting(
@@ -289,17 +289,6 @@ class HeatmapPlotConfig(BasePlotConfig):
         )
 
 
-@attrs.define
-class GeneralPlotConfig:  # Todo remove
-    color: Tuple[int, int, int] = [255, 255, 255]
-    transparent: bool = False
-    size_x: int = 600
-    size_y: int = 500
-    x_range: Tuple[float, float] = None
-    y_range: Tuple[float, float] = None
-    tilt_x_axis_labels: bool = False
-
-
 class PlotV2(BaseResultElement):
     settings_panel_index = None
 
@@ -318,7 +307,7 @@ class PlotV2(BaseResultElement):
         y_range: Tuple[float, float] = None,
         tilt_x_axis_labels=0,
     ):
-        super().__init__(v2=True)
+        super().__init__()
         self.plot_x_size = plot_x_size
         self.plot_y_size = plot_y_size
         self.x_range = x_range

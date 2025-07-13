@@ -1,6 +1,7 @@
 #
-#  Copyright (c) 2023 -- 2024 StatPrism Team. All rights reserved.
+#  Copyright (c) 2023 -- 2025 StatPrism Team. All rights reserved.
 #
+
 
 #
 #
@@ -8,8 +9,9 @@
 from PySide6 import QtWidgets
 from PySide6.QtWidgets import QTabWidget
 
-from src.common.unique_qss import set_stylesheet
-from src.pyside_ext.styling import Style, css
+from src.pyside_ext.markup import css
+from src.pyside_ext.styling import Style
+from src.pyside_ext.unique_qss import set_stylesheet
 
 MAIN_TAB_WIDTH = "40px"
 
@@ -24,7 +26,7 @@ def main_tab_widget(parent=None):
         tab_widget,
         css(
             "QTabWidget#id>QTabBar::tab:selected",
-            background=Style.Color.Base,
+            background=Style.Color.Background,
             font_size=Style.FontSize.regular,
             font_family=Style.FontFamily.SegoeUI,
             font_weight="bold",
@@ -33,7 +35,7 @@ def main_tab_widget(parent=None):
         ),
         css(
             "QTabWidget#id>QTabBar::tab:!selected",
-            background=Style.Color.AlternateBase,
+            background=Style.Color.BackgroundElevated,
             font_size=Style.FontSize.regular,
             font_family=Style.FontFamily.SegoeUI,
             width=MAIN_TAB_WIDTH,

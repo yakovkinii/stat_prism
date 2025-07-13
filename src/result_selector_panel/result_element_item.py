@@ -1,5 +1,5 @@
 #
-#  Copyright (c) 2023 -- 2024 StatPrism Team. All rights reserved.
+#  Copyright (c) 2023 -- 2025 StatPrism Team. All rights reserved.
 #
 
 from typing import Callable
@@ -8,7 +8,9 @@ from PySide6 import QtWidgets
 from PySide6.QtWidgets import QWidget
 
 from src.common.result.registry import RESULTS
-from src.common.unique_qss import set_stylesheet
+from src.pyside_ext.markup import css
+from src.pyside_ext.styling import Style
+from src.pyside_ext.unique_qss import set_stylesheet
 from src.result_selector_panel.const import ClickAction
 
 
@@ -46,22 +48,26 @@ class ResultElementWidget(QWidget):
         if (self.element_id == selected_element) and (self.result_id == selected_result):
             set_stylesheet(
                 self.widget,
-                "#id{"
-                "margin-top: 2px;"
-                "font-family: Segoe UI;"
-                "background-color: #f2f2f2;"
-                "border: 1px solid #eee;"
-                "border-left: 4px solid #7af;"
-                "}",
+                css(
+                    margin_top="2px",
+                    font_family=Style.FontFamily.SegoeUI,
+                    background_color=Style.Color.Background,
+                    border=Style.General.border,
+                    border_color=Style.Color.Highlight,
+                    border_left="4px solid",
+                    border_left_color=Style.Color.Highlight,
+                ),
             )
         else:
             set_stylesheet(
                 self.widget,
-                "#id{"
-                "margin-top: 2px;"
-                "font-family: Segoe UI;"
-                "background-color: #f2f2f2;"
-                "border: 1px solid #eee;"
-                "border-left: 4px solid #ddd;"
-                "}",
+                css(
+                    margin_top="2px",
+                    font_family=Style.FontFamily.SegoeUI,
+                    background_color=Style.Color.Background,
+                    border=Style.General.border,
+                    border_color=Style.Color.Border,
+                    border_left="4px solid",
+                    border_left_color=Style.Color.Border,
+                ),
             )

@@ -1,5 +1,5 @@
 #
-#  Copyright (c) 2023 -- 2024 StatPrism Team. All rights reserved.
+#  Copyright (c) 2023 -- 2025 StatPrism Team. All rights reserved.
 #
 
 import qtawesome as qta
@@ -7,6 +7,7 @@ from PySide6 import QtCore, QtGui, QtWidgets
 
 import resources_rc
 from src.common.elements.utility.primitive_elements import EditableLabelWordwrap
+from src.pyside_ext.styling import Style
 
 
 def icon(path):
@@ -42,11 +43,9 @@ def create_label(parent, label_geometry, font_size, alignment):
     return label
 
 
-def create_label_editable_wordwrap(parent, font_size, alignment):
+def create_label_editable_wordwrap(parent, alignment):
     label = EditableLabelWordwrap(parent)
-    font = QtGui.QFont("Segoe UI")
-    font.setPointSize(font_size)
-    label.setFont(font)
+    label.setFont(Style.font_regular)
     label.setAlignment(alignment)
     return label
 

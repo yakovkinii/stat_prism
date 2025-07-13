@@ -1,12 +1,12 @@
 #
-#  Copyright (c) 2023 -- 2024 StatPrism Team. All rights reserved.
+#  Copyright (c) 2023 -- 2025 StatPrism Team. All rights reserved.
 #
 import logging
 from typing import List
 
 from src.common.constant import ColumnType
 from src.common.elements.filter.filter import FilterSettings
-from src.common.result.classes.base_result import BaseResult
+from src.common.result.base_result import BaseResult
 from src.modules.mean_comparison.constant import DESCRIPTION, MeanComparisonMethod
 
 

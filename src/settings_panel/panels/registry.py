@@ -1,5 +1,5 @@
 #
-#  Copyright (c) 2023 -- 2024 StatPrism Team. All rights reserved.
+#  Copyright (c) 2023 -- 2025 StatPrism Team. All rights reserved.
 #
 
 from enum import Enum
@@ -24,7 +24,6 @@ class PanelRegistry(Enum):
     SELECT_STUDY = PanelRegistryItem(display_name="New Analysis")
     FILTER = PanelRegistryItem(display_name="Filter Properties")
     COLUMN_SELECTOR = PanelRegistryItem(display_name="Select Columns")
-    HTML_RESULT_ITEM_SETTINGS = PanelRegistryItem(display_name="HTML Result Item Settings")
     HTML_TABLE_V2_SETTINGS = PanelRegistryItem(display_name="HTMLTableV2 Settings")
     HTML_MULTI_TABLE_V2_SETTINGS = PanelRegistryItem(display_name="HTMLTableV2 Settings")
     RESULT_ITEM_SETTINGS_V2 = PanelRegistryItem(display_name="Result Item Settings V2")

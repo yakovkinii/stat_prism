@@ -1,14 +1,15 @@
 #
-#  Copyright (c) 2023 -- 2024 StatPrism Team. All rights reserved.
+#  Copyright (c) 2023 -- 2025 StatPrism Team. All rights reserved.
 #
 
+
 import logging
-from typing import List, Union
+from typing import List
 
 from src.common.constant import TABLE_OR_PLOT_ID_PLACEHOLDER
 from src.common.decorators import log_method, log_method_noarg
 from src.common.languages import LANGUAGE
-from src.common.result.classes.base_result import BaseResultElement
+from src.common.result.base_result import BaseResultElement
 from src.settings_panel.panels.result_item_settings_v2.classes import NumberCaptionResultItemSetting
 
 
@@ -51,133 +52,6 @@ class Row:
         self.cells: List[Cell] = cells
 
 
-class HTMLTable:
-    def __init__(self, rows: List[Row], border_top: bool = True, border_bottom: bool = True):
-        logging.info("Creating HTMLTable Element")
-        self.rows: List[Row] = rows
-        self.border_top = border_top
-        self.border_bottom = border_bottom
-        self.table_id: str = ""
-        self.table_caption: str = ""
-        self.table_note: str = ""
-
-    def get_html(self):
-        # Caption
-        html = ""
-        html += f"""
-            <div class="double-spacing font"><b>
-            Table {self.table_id + "." if self.table_id != "" else ""}
-            </b></div>
-        """
-        html += f'<div class="double-spacing font"><i>{self.table_caption}</i></div>'
-
-        style = ""
-        if self.border_top:
-            style += "border-top: 2px solid black;"
-        if self.border_bottom:
-            style += "border-bottom: 2px solid black;"
-
-        html += f'<table style="{style}" class="font">'
-
-        for row in self.rows:
-            html += "<tr>"
-            for cell in row.cells:
-                style = "padding: 5px;"
-                attributes = ""
-                if cell.is_doubled:
-                    style += "width: 40px;"
-                else:
-                    style += "width: 80px;"
-                if cell.is_bold:
-                    style += "font-weight: bold;"
-                if cell.is_italic:
-                    style += "font-style: italic;"
-                if cell.border_left:
-                    style += f"border-left: 1px solid black;"
-                if cell.border_right:
-                    style += f"border-right: 1px solid black;"
-                if cell.border_top:
-                    style += f"border-top: 1px solid black;"
-                if cell.border_bottom:
-                    style += f"border-bottom: 1px solid black;"
-                if cell.col_span > 1:
-                    attributes += f' colspan="{cell.col_span}"'
-                if cell.row_span > 1:
-                    attributes += f' rowspan="{cell.row_span}"'
-                if cell.push_to_right:
-                    style += "text-align: right; padding-right: 0px; margin-right:0px;"
-                if cell.push_to_left:
-                    style += "text-align: left; padding-left: 0px; margin-left:0px;"
-                if cell.center:
-                    style += "text-align: center;"
-                if cell.no_wrap:
-                    style += "white-space: nowrap;"
-                html += f'<td style="{style}" {attributes}>{cell.text}</td>'
-            html += "</tr>"
-        html += "</table>"
-        if self.table_note != "":
-            html += f'<div class="double-spacing font"><i>Note.</i> {self.table_note}</div>'
-        return html
-
-    def add_title_row_apa(self, row: Row):
-        for cell in row.cells:
-            cell.border_bottom = True
-        self.rows.append(row)
-
-    def add_single_row_apa(self, row: Row):
-        self.rows.append(row)
-
-    def add_multirow_apa(self, rows: List[Row]):
-        for cell in rows[0].cells:
-            cell.border_top = True
-        for row in rows:
-            self.rows.append(row)
-
-
-class HTMLText:
-    def __init__(self, text):
-        logging.info("Creating HTMLText Element")
-
-        self.text: str = text
-        self.table_id: str = ""
-        self.table_caption = ""
-
-    def get_html(self):
-        return (
-            f'<div class="double-spacing font">'
-            f"{self.text.replace(TABLE_OR_PLOT_ID_PLACEHOLDER, self.table_id)}"
-            f"</div><br>"
-        )
-
-
-class HTMLResultElement(BaseResultElement):
-    def __init__(self, settings_panel_index, items=None, tab_title="Table and Description"):
-        super().__init__()
-        logging.info("Creating HTML Result Element")
-        self.title: str = tab_title
-        self.class_id: str = "HTMLResultElement"
-        self.items: List[Union[HTMLTable, HTMLText]] = items if items is not None else []
-        self.settings_panel_index = settings_panel_index
-        self.table_id: str = ""
-        self.table_caption: str = ""
-
-    @log_method
-    def set_table_id(self, table_id):
-        self.table_id = table_id
-        for item in self.items:
-            item.table_id = table_id
-
-    @log_method
-    def set_table_caption(self, table_caption):
-        self.table_caption = table_caption
-        for item in self.items:
-            item.table_caption = table_caption
-
-    @log_method_noarg
-    def get_html(self, renderer=None):
-        return "<br>".join([item.get_html() for item in self.items])
-
-
 class HTMLTableV2(BaseResultElement):
     settings_panel_index = None
 
@@ -190,8 +64,9 @@ class HTMLTableV2(BaseResultElement):
         table_id="",
         table_caption="(Table caption)",
         table_note="",
+        texts: List[str] = None,
     ):
-        super().__init__(v2=True)
+        super().__init__()
         logging.info("Creating HTMLTableV2")
         self.title: str = tab_title
         self.class_id: str = "HTMLTableV2"
@@ -203,7 +78,7 @@ class HTMLTableV2(BaseResultElement):
             current_number=table_id, current_caption=table_caption, add_stretch=True
         )
         self.display_settings = {"General": self.number_caption}
-        self.texts: List[str] = []
+        self.texts: List[str] = texts if texts is not None else []
 
     @log_method_noarg
     def get_html(self, renderer=None):
@@ -296,6 +171,7 @@ class HTMLTableV2(BaseResultElement):
 
     @log_method
     def split_table(self, max_cols: int):  # Todo maybe return as multitable (group by as same tab)
+        logging.warning("HTMLTableV2.split_table is deprecated")
         new_tables = []
         num_cols = len(self.rows[0].cells)
 
@@ -316,7 +192,8 @@ class HTMLTableV2(BaseResultElement):
 
 class HTMLMultiTableV2(BaseResultElement):
     def __init__(self, tables: List[HTMLTableV2], tab_title="Table"):
-        super().__init__(v2=True)
+        logging.warning("HTMLMultiTableV2 is deprecated")
+        super().__init__()
         logging.info("Creating HTMLMultiTableV2")
         self.title: str = tab_title
         self.class_id: str = "HTMLMultiTableV2"

@@ -1,5 +1,5 @@
 #
-#  Copyright (c) 2023 -- 2024 StatPrism Team. All rights reserved.
+#  Copyright (c) 2023 -- 2025 StatPrism Team. All rights reserved.
 #
 
 import inspect
@@ -39,7 +39,6 @@ def log_method(method):
         else:
             result = method(self)
         level -= 1
-        # logging.debug(ident+f"<{class_name}.{method.__name__}")
         return result
 
     return decorator
@@ -75,7 +74,6 @@ def log_method_noarg(method):
         level += 1
         result = method(self)
         level -= 1
-        # logging.debug(ident+f"<{class_name}.{method.__name__}")
         return result
 
     return decorator

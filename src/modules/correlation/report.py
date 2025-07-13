@@ -1,11 +1,11 @@
 #
-#  Copyright (c) 2023 -- 2024 StatPrism Team. All rights reserved.
+#  Copyright (c) 2023 -- 2025 StatPrism Team. All rights reserved.
 #
 
 import numpy as np
 
 from src.common.constant import TABLE_OR_PLOT_ID_PLACEHOLDER
-from src.common.utility import smart_comma_join
+from src.modules.common.utility import smart_comma_join
 from src.modules.correlation.result import CorrelationType
 
 

@@ -1,12 +1,12 @@
 #
-#  Copyright (c) 2023 -- 2024 StatPrism Team. All rights reserved.
+#  Copyright (c) 2023 -- 2025 StatPrism Team. All rights reserved.
 #
 
 from typing import Any, Dict, List
 
 import pandas as pd
 
-from src.common.result.classes.html_result import Cell, HTMLTableV2, Row
+from src.common.result.html_result import Cell, HTMLTableV2, Row
 
 
 def format_w_apa(r, decimals=3):

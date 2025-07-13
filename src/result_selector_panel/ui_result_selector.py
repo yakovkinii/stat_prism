@@ -1,5 +1,5 @@
 #
-#  Copyright (c) 2023 -- 2024 StatPrism Team. All rights reserved.
+#  Copyright (c) 2023 -- 2025 StatPrism Team. All rights reserved.
 #
 
 import logging
@@ -10,10 +10,12 @@ from PySide6 import QtWidgets
 from PySide6.QtCore import QSize
 from PySide6.QtWidgets import QVBoxLayout
 
+from src.common.constant import SettingsPanelSize
 from src.common.decorators import log_method, log_method_noarg
 from src.common.result.registry import RESULTS
-from src.common.size import Font, SettingsPanelSize
-from src.common.unique_qss import set_stylesheet
+from src.pyside_ext.markup import css
+from src.pyside_ext.styling import Style
+from src.pyside_ext.unique_qss import set_stylesheet
 from src.result_selector_panel.const import ClickAction
 from src.result_selector_panel.result_item import ResultItemWidget
 from src.settings_panel.panels.registry import PanelRegistry
@@ -31,7 +33,7 @@ class ResultSelectorPanelClass:
         self.widget = QtWidgets.QWidget(parent_widget)
         self.widget.setFixedWidth(SettingsPanelSize.width)
         self.widget.setContentsMargins(2, 0, 2, 0)
-        set_stylesheet(self.widget, "#id{background-color: #fff;}")
+        set_stylesheet(self.widget, css(background_color=Style.Color.Background))
 
         self.widget_layout = QVBoxLayout(self.widget)
         self.widget_layout.setContentsMargins(0, 0, 0, 0)
@@ -40,10 +42,10 @@ class ResultSelectorPanelClass:
 
         self.scroll_area = QtWidgets.QScrollArea(self.widget)
         self.scroll_area.setWidgetResizable(True)
-        set_stylesheet(self.scroll_area, "#id{border: none; background-color: #fff;}")
+        set_stylesheet(self.scroll_area, css(border="none", background_color=Style.Color.Background))
 
         self.scroll_area_widget = QtWidgets.QWidget(self.scroll_area)
-        set_stylesheet(self.scroll_area_widget, "#id{background-color: #fff;}")
+        set_stylesheet(self.scroll_area_widget, css(background_color=Style.Color.Background))
         self.scroll_area.setWidget(self.scroll_area_widget)
         self.scroll_area_layout = QVBoxLayout(self.scroll_area_widget)
         self.scroll_area_layout.setContentsMargins(0, 0, 0, 0)
@@ -63,17 +65,18 @@ class ResultSelectorPanelClass:
         self.add_result_button = QtWidgets.QPushButton("Add Analysis")
         set_stylesheet(
             self.add_result_button,
-            "#id{"
-            "margin-top: 2px;"
-            "background-color: #fff;"
-            "font-family: Segoe UI;"
-            f"font-size: {Font.size}pt;"
-            "border: 1px solid #ddd;"
-            "}"
-            "#id:hover{"
-            "background-color: rgb(229,241,251);"
-            "border: 1px solid rgb(0,120,215)"
-            "}",
+            css(
+                margin_top="2px",
+                background_color=Style.Color.Background,
+                font_family=Style.FontFamily.SegoeUI,
+                font_size=Style.FontSize.larger,
+                border=Style.General.border,
+                border_color=Style.Color.Border,
+            ),
+            css(
+                "#id:hover",
+                border_color=Style.Color.Highlight,
+            ),
         )
         icon = qta.icon("fa5s.plus")
         self.add_result_button.setIcon(icon)
@@ -91,17 +94,18 @@ class ResultSelectorPanelClass:
         self.compile_results_button = QtWidgets.QPushButton("View All")
         set_stylesheet(
             self.compile_results_button,
-            "#id{"
-            "margin-top: 2px;"
-            "background-color: #fff;"
-            "font-family: Segoe UI;"
-            f"font-size: {Font.size}pt;"
-            "border: 1px solid #ddd;"
-            "}"
-            "#id:hover{"
-            "background-color: rgb(229,241,251);"
-            "border: 1px solid rgb(0,120,215)"
-            "}",
+            css(
+                margin_top="2px",
+                background_color=Style.Color.Background,
+                font_family=Style.FontFamily.SegoeUI,
+                font_size=Style.FontSize.larger,
+                border=Style.General.border,
+                border_color=Style.Color.Border,
+            ),
+            css(
+                "#id:hover",
+                border_color=Style.Color.Highlight,
+            ),
         )
         icon = qta.icon("fa5s.list")
         self.compile_results_button.setIcon(icon)

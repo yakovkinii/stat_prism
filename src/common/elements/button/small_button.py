@@ -1,5 +1,5 @@
 #
-#  Copyright (c) 2023 -- 2024 StatPrism Team. All rights reserved.
+#  Copyright (c) 2023 -- 2025 StatPrism Team. All rights reserved.
 #
 
 import qtawesome as qta
@@ -8,9 +8,9 @@ from PySide6.QtCore import QSize
 
 from src.common.elements.base.base import BasePanelElement
 from src.common.messages import Message, MessageType
-from src.common.size import Font
-from src.common.unique_qss import set_stylesheet
-from src.pyside_ext.styling import css, Style
+from src.pyside_ext.markup import css
+from src.pyside_ext.styling import Style
+from src.pyside_ext.unique_qss import set_stylesheet
 
 
 class SmallButton(BasePanelElement):
@@ -33,18 +33,12 @@ class SmallButton(BasePanelElement):
             css(
                 margin_top="2px",
                 font_family=Style.FontFamily.SegoeUI,
-                background_color=Style.Color.Base,
                 font_size=Style.FontSize.larger,
                 text_align="left",
-                border = "2px solid",
-                border_color=Style.Color.Button
-
+                border=Style.General.border,
+                border_color=Style.Color.BorderElevated,
             ),
-            css(
-                "#id:hover",
-                border="2px solid",
-                border_color=Style.Color.Highlight
-            )
+            css("#id:hover", border_color=Style.Color.Highlight),
         )
         icon = qta.icon(self.icon_path)
         self.widget.setIcon(icon)

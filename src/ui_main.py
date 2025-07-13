@@ -1,5 +1,5 @@
 #
-#  Copyright (c) 2023 -- 2024 StatPrism Team. All rights reserved.
+#  Copyright (c) 2023 -- 2025 StatPrism Team. All rights reserved.
 #
 
 import logging
@@ -8,11 +8,11 @@ from PySide6 import QtWidgets
 from PySide6.QtWebEngineWidgets import QWebEngineView
 
 from src.about import version
+from src.common.debt import DEBTS, DebtType
 from src.common.decorators import log_method, log_method_noarg
-from src.common.registry import DEBTS, DebtType
+from src.common.elements.tab.main_tab_widget import main_tab_widget
 from src.common.ui_constructor import icon
 from src.data_panel.ui_data import DataPanelClass
-from src.pyside_ext.custom_widgets.main_tab_widget import main_tab_widget
 from src.pyside_ext.layout import HBoxLayout
 from src.result_display_panel.ui_result_display import ResultDisplayClass
 from src.result_selector_panel.ui_result_selector import ResultSelectorPanelClass
@@ -148,6 +148,8 @@ class MainWindowClass(QtWidgets.QMainWindow):
     def on_tab_changed(self):
         if self.tab_widget.currentIndex() == 1:
             self.splitter.setSizes([1, 1])
+        else:
+            self.splitter.setSizes([1, 0])
 
     @log_method_noarg
     def action_hide_result_selector(self):

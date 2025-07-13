@@ -1,5 +1,5 @@
 #
-#  Copyright (c) 2023 -- 2024 StatPrism Team. All rights reserved.
+#  Copyright (c) 2023 -- 2025 StatPrism Team. All rights reserved.
 #
 
 import logging
@@ -9,11 +9,11 @@ from PySide6.QtWebEngineWidgets import QWebEngineView
 from PySide6.QtWidgets import QVBoxLayout, QWidget
 
 from src.common.constant import BASE_STYLES
-from src.common.result.classes.html_result import HTMLResultElement
+from src.common.result.html_result import HTMLTableV2
 
 
 class HTMLResultElementWidgetContainer:
-    def __init__(self, parent_widget, result_element: HTMLResultElement):
+    def __init__(self, parent_widget, result_element: HTMLTableV2):
         self.result_element = result_element
         self.widget = QWidget(parent_widget)
         self.widget_layout = QVBoxLayout(self.widget)

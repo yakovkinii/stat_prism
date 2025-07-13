@@ -1,8 +1,7 @@
 #
-#  Copyright (c) 2023 -- 2024 StatPrism Team. All rights reserved.
+#  Copyright (c) 2023 -- 2025 StatPrism Team. All rights reserved.
 #
 
-import logging
 from typing import List
 
 import attrs
@@ -16,11 +15,11 @@ from src.common.elements.base.base import BasePanelElement
 from src.common.elements.utility.layout_helpers import clean_up_list_widget, empty_widget, widget_in_layout
 from src.common.elements.utility.primitive_elements import QListWidgetClickable, QWidgetClickable
 from src.common.messages import Message, MessageType
-from src.common.size import Font
 from src.common.ui_constructor import create_tool_button_qta
-from src.common.unique_qss import set_stylesheet
 from src.data_panel.data import DataColumn
-from src.pyside_ext.styling import Style, css
+from src.pyside_ext.markup import css
+from src.pyside_ext.styling import Style
+from src.pyside_ext.unique_qss import set_stylesheet
 
 
 @attrs.define
@@ -94,7 +93,7 @@ class ColumnSelectorEx(BasePanelElement):
                     widget.setText(field.name),
                     set_stylesheet(
                         widget,
-                        css(font_size=Style.FontSize.larger),  # this style was without ID
+                        css(font_size=Style.FontSize.regular),
                     ),
                 ],
             )
@@ -109,11 +108,11 @@ class ColumnSelectorEx(BasePanelElement):
                     set_stylesheet(
                         widget,
                         css(
-                            border="1px solid",
-                            border_color=Style.Color.Button,
+                            border=Style.General.border,
+                            border_color=Style.Color.BorderElevated,
                         ),
                         css(
-                            border="1px solid",
+                            border=Style.General.border,
                             border_color=Style.Color.Highlight,
                         ),
                     ),
@@ -139,7 +138,6 @@ class ColumnSelectorEx(BasePanelElement):
         )
 
     def configure_from_popup(self):
-        logging.info("Popup closed")
         if not self.popup.success:
             return
         for panel_list, popup_panel_list in zip(self.panel_list_widgets, self.popup.panel_list_widgets):
@@ -189,12 +187,13 @@ class ColumnSelectorExPopup:
                 widget.setAcceptDrops(True),
                 widget.setDropIndicatorShown(True),
                 widget.setDefaultDropAction(QtCore.Qt.DropAction.MoveAction),
-                set_stylesheet(widget,
-                               css(
-                                   border="1px solid",
-                                      border_color=Style.Color.Button,
-                               )
-                               )
+                set_stylesheet(
+                    widget,
+                    css(
+                        border=Style.General.border,
+                        border_color=Style.Color.BorderElevated,
+                    ),
+                ),
             ],
         )
         self.main_list.reasonable_number_of_columns = 16
@@ -230,11 +229,12 @@ class ColumnSelectorExPopup:
                 layout=title_layout,
                 setup=lambda widget, layout: [
                     widget.setText(field.name),
-                    set_stylesheet(widget,
-                                   css(
-                                        font_size=Style.FontSize.larger,  # this style was without ID
-                                   )
-                                   )
+                    set_stylesheet(
+                        widget,
+                        css(
+                            font_size=Style.FontSize.regular,
+                        ),
+                    ),
                 ],
             )
             title_layout.addStretch()
@@ -304,13 +304,14 @@ class ColumnSelectorExPopup:
                     widget.setDropIndicatorShown(True),
                     widget.setDefaultDropAction(QtCore.Qt.DropAction.MoveAction),
                     layout.setContentsMargins(0, 0, 0, 0),
-                    set_stylesheet(widget,
-                                   css(
-                                        border="1px solid",
-                                        border_color=Style.Color.Button,
-                                   )
-
-                                   )                ),
+                    set_stylesheet(
+                        widget,
+                        css(
+                            border=Style.General.border,
+                            border_color=Style.Color.BorderElevated,
+                        ),
+                    ),
+                ),
             )
             panel_list.reasonable_number_of_columns = field.reasonable_number_of_columns
             list_stretch_layout.addStretch()

@@ -1,15 +1,15 @@
 #
-#  Copyright (c) 2023 -- 2024 StatPrism Team. All rights reserved.
+#  Copyright (c) 2023 -- 2025 StatPrism Team. All rights reserved.
 #
 
 from typing import TYPE_CHECKING, List
 
+from src.common.debt import DEBTS, Debt, DebtType
 from src.common.decorators import log_method, log_method_noarg
 from src.common.elements.filter.filter import CompiledFilterHistory, FilterSettings, FilterSetup
 from src.common.elements.spacer.spacer_small import SpacerSmall
 from src.common.elements.title.title import Title
 from src.common.messages import Message, MessageType
-from src.common.registry import DEBTS, Debt, DebtType
 from src.data_panel.const import DataPanelState
 from src.settings_panel.panels.base.base import BasePanel
 

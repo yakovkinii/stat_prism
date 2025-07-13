@@ -1,5 +1,5 @@
 #
-#  Copyright (c) 2023 -- 2024 StatPrism Team. All rights reserved.
+#  Copyright (c) 2023 -- 2025 StatPrism Team. All rights reserved.
 #
 
 import logging
@@ -10,13 +10,15 @@ from PySide6 import QtCore, QtWidgets
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QScrollArea, QVBoxLayout
 
-from src.common.constant import DEBUG_LAYOUT
+from src.common.constant import SettingsPanelSize
 from src.common.decorators import log_method, log_method_noarg
 from src.common.messages import Message, MessageType
 from src.common.result.registry import RESULTS
-from src.common.size import SettingsPanelSize
 from src.common.ui_constructor import create_tool_button_qta
-from src.common.unique_qss import set_stylesheet
+from src.pyside_ext.layout import VBoxLayout
+from src.pyside_ext.markup import css
+from src.pyside_ext.styling import Style
+from src.pyside_ext.unique_qss import set_stylesheet
 from src.settings_panel.panels.registry import PanelRegistry
 
 if TYPE_CHECKING:
@@ -42,16 +44,19 @@ class BaseModulePanel:
         self.parent_class = parent_class
         self.tabledata = self.root_class.data_panel.tabledata
         self.widget = QtWidgets.QWidget(parent_widget)
-        if DEBUG_LAYOUT:
-            set_stylesheet(self.widget, "#id{border: 1px solid green; background-color: #efe;}")
-        self.widget_layout = QVBoxLayout(self.widget)
-        self.widget_layout.setContentsMargins(0, 0, 0, 0)
-        self.widget_layout.setSpacing(0)
+
+        self.widget_layout = VBoxLayout(self.widget)
         self.widget.setLayout(self.widget_layout)
 
         self.study_widget = QtWidgets.QWidget(self.widget)
         self.study_widget.setFixedHeight(80)
-        set_stylesheet(self.study_widget, "#id{border-bottom: 1px solid #ddd;}")
+        set_stylesheet(
+            self.study_widget,
+            css(
+                border_bottom=Style.General.border,
+                border_color=Style.Color.BorderElevated,
+            ),
+        )
 
         self.widget_layout.addWidget(self.study_widget)
 
@@ -92,12 +97,12 @@ class BaseModulePanel:
 
         self.scroll_area = QScrollArea()
         self.scroll_area.setWidgetResizable(True)
-        set_stylesheet(self.scroll_area, "#id{border: none;}")
+        set_stylesheet(self.scroll_area, css(border="none"))
 
         self.scroll_area.setWidget(self.widget_for_elements)
 
         self.widget_layout.addWidget(self.scroll_area)
-        set_stylesheet(self.widget, "#id>QScrollBar{width: 15px;}")
+        set_stylesheet(self.widget, css("#id>QScrollBar", width="15px"))
         self.scroll_area.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAsNeeded)
         self.scroll_area.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
         self.elements = {}

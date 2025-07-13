@@ -1,5 +1,5 @@
 #
-#  Copyright (c) 2023 -- 2024 StatPrism Team. All rights reserved.
+#  Copyright (c) 2023 -- 2025 StatPrism Team. All rights reserved.
 #
 
 import logging
@@ -9,13 +9,15 @@ from PySide6 import QtCore, QtWidgets
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QScrollArea, QVBoxLayout
 
+from src.common.constant import SettingsPanelSize
+from src.common.debt import DEBTS, DebtType
 from src.common.decorators import log_method, log_method_noarg
 from src.common.elements.base.base import BasePanelElement
 from src.common.messages import Message
-from src.common.registry import DEBTS, DebtType
-from src.common.size import SettingsPanelSize
 from src.common.ui_constructor import create_tool_button_qta
-from src.common.unique_qss import set_stylesheet
+from src.pyside_ext.markup import css
+from src.pyside_ext.styling import Style
+from src.pyside_ext.unique_qss import set_stylesheet
 
 if TYPE_CHECKING:
     from src.ui_main import MainWindowClass
@@ -47,8 +49,13 @@ class BasePanel:
 
         self.navigation_widget = QtWidgets.QWidget(self.widget)
         self.navigation_widget.setFixedHeight(80)
-        set_stylesheet(self.navigation_widget, "#id{border-bottom: 1px solid #ddd;}")
-
+        set_stylesheet(
+            self.navigation_widget,
+            css(
+                border_bottom=Style.General.border,
+                border_color=Style.Color.BorderElevated,
+            ),
+        )
         self.widget_layout.addWidget(self.navigation_widget)
 
         self.back_button = create_tool_button_qta(
@@ -76,13 +83,13 @@ class BasePanel:
 
         self.scroll_area = QScrollArea()
         self.scroll_area.setWidgetResizable(True)
-        set_stylesheet(self.scroll_area, "#id{border: none;}")
+        set_stylesheet(self.scroll_area, css(border="none"))
 
         self.scroll_area.setWidget(self.widget_for_elements)
         self.scroll_area.setFixedWidth(SettingsPanelSize.width)
 
         self.widget_layout.addWidget(self.scroll_area)
-        set_stylesheet(self.widget, "#id>QScrollBar{width: 15px;}")
+        # set_stylesheet(self.widget, "#id>QScrollBar{width: 15px;}")
         self.scroll_area.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAsNeeded)
         self.scroll_area.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
         self.elements: Dict[str, BasePanelElement] = {}

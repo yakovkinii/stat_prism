@@ -1,5 +1,5 @@
 #
-#  Copyright (c) 2023 -- 2024 StatPrism Team. All rights reserved.
+#  Copyright (c) 2023 -- 2025 StatPrism Team. All rights reserved.
 #
 
 import logging
@@ -8,12 +8,13 @@ from typing import TYPE_CHECKING
 from PySide6 import QtCore, QtWidgets
 from PySide6.QtWidgets import QMessageBox, QVBoxLayout
 
-from src.common.constant import DEBUG_LAYOUT
 from src.common.decorators import log_method, log_method_noarg
-from src.common.unique_qss import set_stylesheet
 from src.data_panel.header import LeftAlignHeaderView
 from src.data_panel.model import DataModel
 from src.data_panel.view import DataView
+from src.pyside_ext.markup import css
+from src.pyside_ext.styling import Style
+from src.pyside_ext.unique_qss import set_stylesheet
 
 if TYPE_CHECKING:
     from src.ui_main import MainWindowClass
@@ -26,10 +27,8 @@ class DataPanelClass:
         self.parent_class: MainWindowClass = parent_class
         self.widget = QtWidgets.QWidget(parent_widget)
         self.widget.setContentsMargins(10, 0, 0, 0)
-        set_stylesheet(self.widget, "#id{background-color: white;}")
+        set_stylesheet(self.widget, css(background_color=Style.Color.BackgroundEdit))
 
-        if DEBUG_LAYOUT:
-            set_stylesheet(self.widget, "#id{border: 1px solid blue; background-color: #eef;}")
         self.widget_layout = QVBoxLayout(self.widget)
         self.widget_layout.setContentsMargins(0, 0, 0, 0)
         self.widget.setLayout(self.widget_layout)
@@ -46,8 +45,6 @@ class DataPanelClass:
 
         self.tableview.setAutoFillBackground(False)
         self.tableview.setFrameShape(QtWidgets.QFrame.Shape.NoFrame)
-        # self.tabledata.setSelectionBehavior(QtWidgets.QAbstractItemView.SelectItems)
-        # self.tabledata.setHorizontalScrollMode(QtWidgets.QAbstractItemView.ScrollPerPixel)
         self.tableview.setShowGrid(True)
         self.tableview.setGridStyle(QtCore.Qt.PenStyle.SolidLine)
         self.header = LeftAlignHeaderView(QtCore.Qt.Orientation.Horizontal, self.tableview)
@@ -65,10 +62,21 @@ class DataPanelClass:
         self.tableview.verticalHeader().setStretchLastSection(False)
         set_stylesheet(
             self.tableview,
-            "#id{outline:0;}"
-            "#id>QHeaderView{background-color: white;}"
-            "#id::item:selected:focus { background:#eee;}"  # Required for outline:0
-            "#id::item:!selected:focus { background:transparent; }",  # Required for outline:0
+            css(
+                outline="0",
+            ),
+            css(
+                "#id>QHeaderView",
+                background_color=Style.Color.BackgroundEdit,
+            ),
+            css(
+                "#id::item:selected:focus",
+                background_color=Style.Color.BackgroundEdit,
+            ),
+            css(
+                "#id::item:!selected:focus",
+                background_color="transparent",
+            ),
         )
 
         self.tableview.verticalHeader().setHighlightSections(False)

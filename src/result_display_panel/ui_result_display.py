@@ -1,5 +1,5 @@
 #
-#  Copyright (c) 2023 -- 2024 StatPrism Team. All rights reserved.
+#  Copyright (c) 2023 -- 2025 StatPrism Team. All rights reserved.
 #
 
 import logging
@@ -8,7 +8,9 @@ from typing import TYPE_CHECKING
 from PySide6 import QtWidgets
 
 from src.common.result.registry import RESULTS
-from src.common.unique_qss import set_stylesheet
+from src.pyside_ext.markup import css
+from src.pyside_ext.styling import Style
+from src.pyside_ext.unique_qss import set_stylesheet
 from src.result_display_panel.result_widget_containers.combined_result_widget_container import (
     CombinedResultElementWidgetContainer,
 )
@@ -26,7 +28,7 @@ class ResultDisplayClass:
         self.parent_widget = parent_widget
 
         self.widget = QtWidgets.QWidget(self.parent_widget)
-        set_stylesheet(self.widget, "#id{background-color: #fff;}")
+        set_stylesheet(self.widget, css(background_color=Style.Color.Background))
         self.widget.setContentsMargins(0, 0, 0, 0)
         self.layout = QtWidgets.QVBoxLayout(self.widget)
         self.layout.setContentsMargins(0, 0, 0, 0)

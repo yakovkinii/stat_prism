@@ -1,5 +1,5 @@
 #
-#  Copyright (c) 2023 -- 2024 StatPrism Team. All rights reserved.
+#  Copyright (c) 2023 -- 2025 StatPrism Team. All rights reserved.
 #
 
 from typing import TYPE_CHECKING
@@ -8,8 +8,7 @@ from src.common.decorators import log_method
 from src.common.elements.button.large_button import LargeButton
 from src.common.elements.title.title import Title
 from src.common.messages import Message, MessageType
-from src.common.result.methods import get_unique_result_id
-from src.common.result.registry import RESULTS
+from src.common.result.registry import RESULTS, get_unique_result_id
 from src.modules.registry import ModuleRegistry, ModuleRegistryItem
 from src.settings_panel.panels.base.base import BasePanel
 

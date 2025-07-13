@@ -1,14 +1,14 @@
 #
-#  Copyright (c) 2023 -- 2024 StatPrism Team. All rights reserved.
+#  Copyright (c) 2023 -- 2025 StatPrism Team. All rights reserved.
 #
 
 from PySide6.QtWidgets import QCheckBox
 
 from src.common.elements.base.base import BasePanelElement
 from src.common.messages import Message, MessageType
-from src.common.size import Font
-from src.common.unique_qss import set_stylesheet
-from src.pyside_ext.styling import css, Style
+from src.pyside_ext.markup import css
+from src.pyside_ext.styling import Style
+from src.pyside_ext.unique_qss import set_stylesheet
 
 
 class LargeCheckbox(BasePanelElement):
@@ -33,8 +33,8 @@ class LargeCheckbox(BasePanelElement):
             ),
             css(
                 "#id::indicator",
-                width="20px",
-                height="20px",
+                width="16px",
+                height="16px",
             ),
             css(
                 "#id::indicator:checked",

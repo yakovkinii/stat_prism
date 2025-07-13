@@ -1,5 +1,5 @@
 #
-#  Copyright (c) 2023 -- 2024 StatPrism Team. All rights reserved.
+#  Copyright (c) 2023 -- 2025 StatPrism Team. All rights reserved.
 #
 
 import logging
@@ -9,11 +9,13 @@ from PySide6 import QtWidgets
 from PySide6.QtGui import QAction
 from PySide6.QtWidgets import QMenu, QMenuBar, QVBoxLayout
 
+from src.common.constant import SettingsPanelSize
 from src.common.languages import LANGUAGE, Languages
-from src.common.size import SettingsPanelSize
-from src.common.unique_qss import set_stylesheet
 from src.modules.registry import ModuleRegistry, ModuleRegistryItem
 from src.modules.registry_injector import inject_classes_to_module_registry
+from src.pyside_ext.markup import css
+from src.pyside_ext.styling import Style
+from src.pyside_ext.unique_qss import set_stylesheet
 from src.settings_panel.panels.registry import PanelRegistry, PanelRegistryItem
 from src.settings_panel.panels.registry_injector import inject_classes_to_panel_registry
 
@@ -53,7 +55,14 @@ class SettingsPanelClass:
         # Create a file menu and add actions
         menu_bar = QMenuBar(self.widget)
         self.widget_layout.setMenuBar(menu_bar)
-        set_stylesheet(menu_bar, "#id{border-bottom: 1px solid #ddd; background-color: #eee;}")
+        set_stylesheet(
+            menu_bar,
+            css(
+                border_bottom=Style.General.border,
+                border_bottom_color=Style.Color.BorderElevated,
+                background_color=Style.Color.BackgroundElevated,
+            ),
+        )
 
         file_menu = QMenu("File", self.widget)
         language_menu = QMenu("Language", self.widget)
