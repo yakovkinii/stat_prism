@@ -118,6 +118,31 @@ class ResultSelectorPanelClass:
 
         self.widget_layout.addWidget(self.compile_results_button)
 
+        self.show_table = QtWidgets.QPushButton("View Table")
+        set_stylesheet(
+            self.show_table,
+            css(
+                margin_top="2px",
+                background_color=Style.Color.Background,
+                font_family=Style.FontFamily.SegoeUI,
+                font_size=Style.FontSize.larger,
+                border=Style.General.border,
+                border_color=Style.Color.Border,
+            ),
+            css(
+                "#id:hover",
+                border_color=Style.Color.Highlight,
+            ),
+        )
+        icon = qta.icon("fa5s.list")
+        self.show_table.setIcon(icon)
+        self.show_table.setIconSize(QSize(32, 32))
+        self.show_table.setFixedHeight(60)
+
+        self.show_table.clicked.connect(self.root_class.action_show_table)
+
+        self.widget_layout.addWidget(self.show_table)
+
         self.result_widgets: Dict[int, ResultItemWidget] = {}
         self.selected_result: Union[int, None] = None
         self.selected_element: Union[str, None] = None

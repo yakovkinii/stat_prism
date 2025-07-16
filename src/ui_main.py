@@ -4,7 +4,7 @@
 
 import logging
 
-from PySide6 import QtWidgets
+from PySide6 import QtWidgets, QtCore
 from PySide6.QtWebEngineWidgets import QWebEngineView
 
 from src.about import version
@@ -40,19 +40,20 @@ class MainWindowClass(QtWidgets.QMainWindow):
         self.central_widget_layout = HBoxLayout(self.central_widget)
 
         self.splitter = QtWidgets.QSplitter(self.central_widget)
-        self.tab_widget = main_tab_widget(self.splitter)
+        # self.tab_widget = main_tab_widget(self.splitter)
 
+        self.popup = QtWidgets.QDialog(self)
         self.data_panel: DataPanelClass = DataPanelClass(
-            parent_widget=self.tab_widget, parent_class=self.widget, root_class=self
+            parent_widget=self.popup, parent_class=self.widget, root_class=self
         )
         self.results_panel: ResultDisplayClass = ResultDisplayClass(
-            parent_widget=self.tab_widget, parent_class=self.widget, root_class=self
+            parent_widget=self.central_widget, parent_class=self.widget, root_class=self
         )
         self.result_selector_panel: ResultSelectorPanelClass = ResultSelectorPanelClass(
-            parent_widget=self.tab_widget, parent_class=self.widget, root_class=self
+            parent_widget=self.central_widget, parent_class=self.widget, root_class=self
         )
         self.settings_panel: SettingsPanelClass = SettingsPanelClass(
-            parent_widget=self.tab_widget, parent_class=self.widget, root_class=self
+            parent_widget=self.central_widget, parent_class=self.widget, root_class=self
         )
 
         # Relations
@@ -61,22 +62,32 @@ class MainWindowClass(QtWidgets.QMainWindow):
         self.central_widget_layout.addWidget(self.splitter)
         self.central_widget_layout.addWidget(self.settings_panel.widget)
 
-        self.splitter.addWidget(self.tab_widget)
+        self.splitter.addWidget(self.results_panel.widget)
         self.splitter.addWidget(self.result_selector_panel.widget)
         # increase size of splitter handle
         self.splitter.setHandleWidth(6)
         self.splitter.setSizes([1, 0])
 
-        self.tab_widget.addTab(self.data_panel.widget, "Data")
-        self.tab_widget.addTab(self.results_panel.widget, "Analysis")
+        # self.data_panel.widget.hide()
+        self.popup.setWindowTitle("Data Table")
+        self.popup.setWindowIcon(icon(":/mat/resources/StatPrism_icon_small.ico"))
+        self.popup.setLayout(HBoxLayout())
+        self.popup.layout().addWidget(self.data_panel.widget)
+        self.popup.setMinimumSize(800, 600)
+        self.popup.setWindowModality(QtCore.Qt.WindowModality.ApplicationModal)
+        self.popup.setWindowFlags(self.popup.windowFlags() | QtCore.Qt.WindowType.WindowStaysOnTopHint)
+
+
+        # self.tab_widget.addTab(self.data_panel.widget, "Data")
+        # self.tab_widget.addTab(self.results_panel.widget, "Analysis")
 
         # Misc
         self.setWindowIcon(icon(":/mat/resources/StatPrism_icon_small.ico"))
 
         # Post-init
-        self.tab_widget.setCurrentIndex(0)
+        # self.tab_widget.setCurrentIndex(0)
 
-        self.tab_widget.currentChanged.connect(self.on_tab_changed)
+        # self.tab_widget.currentChanged.connect(self.on_tab_changed)
 
     def init_web_view_and_show_maximized(self, file_path=None):
         webview = QWebEngineView(self.central_widget)
@@ -144,21 +155,28 @@ class MainWindowClass(QtWidgets.QMainWindow):
         self.settings_panel.stacked_widget.setCurrentIndex(PanelRegistry.COLUMNS.settings_stacked_widget_index)
         PanelRegistry.COLUMNS.ui_instance.configure(column_indexes)
 
-    @log_method_noarg
-    def on_tab_changed(self):
-        if self.tab_widget.currentIndex() == 1:
-            self.splitter.setSizes([1, 1])
-        else:
-            self.splitter.setSizes([1, 0])
+    # @log_method_noarg
+    # def on_tab_changed(self):
+    #     if self.tab_widget.currentIndex() == 1:
+    #         self.splitter.setSizes([1, 1])
+    #     else:
+    #         self.splitter.setSizes([1, 0])
+
+    # @log_method_noarg
+    # def action_hide_result_selector(self):
+    #     self.splitter.setSizes([1, 0])
 
     @log_method_noarg
-    def action_hide_result_selector(self):
-        self.splitter.setSizes([1, 0])
+    def action_show_table(self):
+        self.popup.showMaximized()
+
 
     @log_method_noarg
     def action_activate_results_panel(self):
-        self.tab_widget.setCurrentIndex(1)
+        logging.error("action_activate_results_panel is deprecated")
+        # self.tab_widget.setCurrentIndex(1)
 
     @log_method_noarg
     def action_activate_data_panel(self):
-        self.tab_widget.setCurrentIndex(0)
+        logging.error("action_activate_data_panel is deprecated")
+        # self.tab_widget.setCurrentIndex(0)

@@ -15,8 +15,6 @@ from src.modules.regression.result import RegressionResult, RegressionStudyConfi
 from src.modules.regression.ui import Regression
 from src.modules.reliability.result import ReliabilityResult, ReliabilityStudyConfig
 from src.modules.reliability.ui import Reliability
-from src.modules.v2.result import V2Result, V2StudyConfig
-from src.modules.v2.ui import V2
 
 
 def inject_classes_to_module_registry():
@@ -43,7 +41,3 @@ def inject_classes_to_module_registry():
     ModuleRegistry.CONTINGENCY.value.ui_class = Contingency
     ModuleRegistry.CONTINGENCY.value.result_class = ContingencyResult
     ModuleRegistry.CONTINGENCY.value.config_class = ContingencyStudyConfig
-
-    ModuleRegistry.V2.value.ui_class = V2
-    ModuleRegistry.V2.value.result_class = V2Result
-    ModuleRegistry.V2.value.config_class = V2StudyConfig

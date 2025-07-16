@@ -49,10 +49,7 @@ class ModuleRegistry(Enum):
         icon_path="ph.chart-line-up-fill",
     )
 
-    V2 = ModuleRegistryItem(
-        display_name="V2",
-        icon_path="ph.chart-line-up-fill",
-    )
+
 
     @property
     def display_name(self):
