@@ -46,7 +46,7 @@ class CustomHeader(QtWidgets.QHeaderView):
         x = int(event.position().x())
         idx = self.logicalIndexAt(x)
         if idx >= 0:
-            sx = self.sectionPosition(idx)
+            sx = self.sectionViewportPosition(idx)  # FIX: use viewport position
             sw = self.sectionSize(idx)
             rect = QtCore.QRect(sx, 0, sw, self.height())
             text = str(self.model().headerData(idx, self.orientation(), QtCore.Qt.DisplayRole))
@@ -109,9 +109,19 @@ class CopyableTableView(QtWidgets.QTableView):
             super().mouseDoubleClickEvent(event)
 
     def wheelEvent(self, event):
+        # On scroll, close any open cell editor
+        if self._editingIndex is not None:
+            self.closePersistentEditor(self._editingIndex)
+            self._editingIndex = None
+        # Also close header editor if open
+        hdr = self.horizontalHeader()
+        if hasattr(hdr, "_editor") and hdr._editor:
+            hdr._editor.deleteLater()
+            hdr._editor = None
+
         pos = event.position().toPoint()
         if pos.y() < self.horizontalHeader().height():
-            delta = event.angleDelta().y()/ 4   # slow horizontal scroll
+            delta = event.angleDelta().y() / 2  # slow horizontal scroll
             sb = self.horizontalScrollBar()
             sb.setValue(sb.value() - delta)
             event.accept()
@@ -136,13 +146,19 @@ class TablePreviewPopup(QtWidgets.QWidget):
         self.popup.move((parent.width() - w) // 2, (parent.height() - h) // 2)
         self.popup.setStyleSheet("background:white;")
         self.popup.mousePressEvent = lambda e: e.accept()
-        layout = QtWidgets.QVBoxLayout(self.popup)
-        layout.setContentsMargins(0, 0, 0, 0)
-        layout.setSpacing(0)
+        popup_layout = QtWidgets.QVBoxLayout(self.popup)
+        popup_layout.setContentsMargins(0, 0, 0, 0)
+        popup_layout.setSpacing(0)
+        # padding widget
+        padding_widget = QtWidgets.QWidget(self.popup)
+        padding_layout = QtWidgets.QVBoxLayout(padding_widget)
+        padding_layout.setContentsMargins(5, 5, 5, 5)
+        padding_layout.setSpacing(0)
         # table
         table = CopyableTableView()
         self.setup_table(table, model)
-        layout.addWidget(table)
+        padding_layout.addWidget(table)
+        popup_layout.addWidget(padding_widget)
         self.show()
 
     def setup_table(self, table, model):
@@ -193,10 +209,20 @@ class MainWindow(QtWidgets.QMainWindow):
         cols = self.preview_model.columnCount()
         rows = self.preview_model.rowCount()
         total_w = sum(self.preview_table.columnWidth(i) for i in range(cols))
-        total_h = self.preview_table.horizontalHeader().height() + sum(
-            self.preview_table.rowHeight(i) for i in range(rows)
-        )
-        self.preview_table.setFixedSize(total_w, total_h)
+        # Correct preview table height calculation
+        header = self.preview_table.horizontalHeader()
+        total_h = header.sizeHint().height()
+        for i in range(rows):
+            if not self.preview_table.isRowHidden(i):
+                total_h += self.preview_table.rowHeight(i)
+        # Add horizontal scroll bar height if visible
+        if self.preview_table.horizontalScrollBar().isVisible():
+            total_h += self.preview_table.horizontalScrollBar().height()
+        # Add frame width if needed
+        if self.preview_table.frameWidth():
+            total_h += 2 * self.preview_table.frameWidth()
+        self.preview_table.setFixedHeight(total_h)
+        self.preview_table.setFixedWidth(total_w)
         # connect clicks to show full
         self.preview_table.clicked.connect(self.show_full)
         self.preview_table.horizontalHeader().sectionClicked.connect(self.show_full)
