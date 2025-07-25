@@ -1,6 +1,6 @@
-#
-#  Copyright (c) 2023 -- 2025 StatPrism Team. All rights reserved.
-#
+#  Copyright (c) 2023 StatPrism Team. All rights reserved.
+
+
 
 
 import base64
@@ -649,20 +649,16 @@ class PlotV2(BaseResultElement):
 
     # def get_html(self):
     #     fig, _ = self.create_figure()
-    #
-    #     temp_svg_file_name = "./~tmp.svg"
+        #     temp_svg_file_name = "./~tmp.svg"
     #     fig.savefig(temp_svg_file_name, format="svg", bbox_inches="tight")
     #     plt.close(fig)
-    #
-    #     with open(temp_svg_file_name, "r", encoding="utf-8") as f:
+        #     with open(temp_svg_file_name, "r", encoding="utf-8") as f:
     #         svg_data = f.read()
     #         base64_encoded_svg = (
     #             f"data:image/svg+xml;base64,{base64.b64encode(svg_data.encode('utf-8')).decode('utf-8')}"
     #         )
-    #
-    #     os.remove(temp_svg_file_name)
-    #
-    #     result = f"""
+        #     os.remove(temp_svg_file_name)
+        #     result = f"""
     #         <div><b> Figure {self.number_caption.get_number()} </b> </div>
     #         <div class="double-spacing font"><i>{self.number_caption.get_caption()}</i></div><br>
     #         <img src="{base64_encoded_svg}" alt="Plot Image" style="width: 400px; height: auto;">

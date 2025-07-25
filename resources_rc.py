@@ -1,9 +1,10 @@
 # -*- coding: utf-8 -*-
 
+#  Copyright (c) 2023 StatPrism Team. All rights reserved.
+
+
 # Resource object code
-#
 # Created by: The Resource Compiler for PyQt5 (Qt v5.15.2)
-#
 # WARNING! All changes made in this file will be lost!
 
 from PySide6 import QtCore

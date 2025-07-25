@@ -1,6 +1,6 @@
-#
-#  Copyright (c) 2023 -- 2025 StatPrism Team. All rights reserved.
-#
+#  Copyright (c) 2023 StatPrism Team. All rights reserved.
+
+
 
 import logging
 import pickle
@@ -20,6 +20,7 @@ from src.common.elements.button.large_button import LargeButton
 from src.common.elements.spacer.spacer import Spacer
 from src.common.messages import MessageType
 from src.common.result.registry import RESULTS
+from src.main_area_panel.basic_main_area_panels.data_processing_panel import DataProcessingConfig
 from src.settings_panel.panels.base.base import BasePanel
 from src.settings_panel.panels.registry import PanelRegistry
 
@@ -83,18 +84,30 @@ class Home(BasePanel):
 
         if file_path.endswith(".csv"):
             dataframe = pd.read_csv(file_path)
+            config = DataProcessingConfig(
+                unique_id=0,
+                caption="Data Processing",
+                dataframe=dataframe,
+            )
+            self.root_class.main_area_panel.add_data_processing(config)
 
-            self.root_class.results_panel.display_none()
-            self.root_class.result_selector_panel.delete_all_results()
+            # self.root_class.results_panel.display_none()
+            # self.root_class.result_selector_panel.delete_all_results()
             RESULTS.clear()
 
             self.root_class.set_current_file_path(None)
             self.root_class.data_panel.tabledata.load_data(dataframe)
         elif file_path.endswith(".xlsx"):
             dataframe = pd.read_excel(file_path, sheet_name=0)
+            config = DataProcessingConfig(
+                unique_id=0,
+                caption="Data Processing",
+                dataframe=dataframe,
+            )
+            self.root_class.main_area_panel.add_data_processing(config)
 
-            self.root_class.results_panel.display_none()
-            self.root_class.result_selector_panel.delete_all_results()
+            # self.root_class.results_panel.display_none()
+            # self.root_class.result_selector_panel.delete_all_results()
             RESULTS.clear()
 
             self.root_class.set_current_file_path(None)
@@ -183,8 +196,9 @@ class Home(BasePanel):
             if message.caller_id == "open":
                 self.open_handler()
             elif message.caller_id == "open_sample":
-                self.root_class.data_panel.tabledata.load_data(pd.read_csv("./data.csv"))
-                self.root_class.splitter.setSizes([1, 1])
+                # self.root_class.data_panel.tabledata.load_data(pd.read_csv("./data.csv"))
+                self.open_file("./data.csv")
+                # self.root_class.splitter.setSizes([1, 1])
                 self.root_class.action_activate_panel_by_index(PanelRegistry.BLANK.settings_stacked_widget_index)
 
             elif message.caller_id == "save":

@@ -1,6 +1,6 @@
-#
-#  Copyright (c) 2023 -- 2025 StatPrism Team. All rights reserved.
-#
+#  Copyright (c) 2023 StatPrism Team. All rights reserved.
+
+
 from src.common.result.html_result import HTMLTableV2
 from src.common.result.plot_result import PlotV2
 from src.settings_panel.panels.blank.blank import Blank

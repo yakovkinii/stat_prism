@@ -1,6 +1,6 @@
-#
-#  Copyright (c) 2023 -- 2025 StatPrism Team. All rights reserved.
-#
+#  Copyright (c) 2023 StatPrism Team. All rights reserved.
+
+
 
 DESCRIPTION = """
 <h2> Correlation</h2>

@@ -1,3 +1,6 @@
+#  Copyright (c) 2023 StatPrism Team. All rights reserved.
+
+
 import sys
 import random
 import string

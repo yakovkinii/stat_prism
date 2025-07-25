@@ -1,20 +1,128 @@
 #  Copyright (c) 2023 StatPrism Team. All rights reserved.
 
 
-
 import random
 import string
-import sys
 
+import attrs
+import pandas as pd
 from PySide6 import QtCore, QtGui, QtWidgets
+from PySide6.QtCore import QSize
+from PySide6.QtWidgets import QLabel, QHBoxLayout
 
-from PySide6.QtWidgets import QLabel
-
+from src.common.elements.button.large_button import LargeButton
+from src.common.elements.label.label import Label
 from src.common.elements.utility.layout_helpers import empty_widget
-from src.main_area_panel.panels.base import MainAreaItem
+from src.pyside_ext.layout import VBoxLayout, HBoxLayout
 from src.pyside_ext.markup import css
 from src.pyside_ext.styling import Style
 from src.pyside_ext.unique_qss import set_stylesheet
+
+import qtawesome as qta
+@attrs.define()
+class DataProcessingConfig:
+    unique_id: int
+    caption: str
+    dataframe: pd.DataFrame  # Will be data model
+
+
+class DataProcessing:
+    def __init__(self, config: DataProcessingConfig, parent_widget, parent_class, root_class):
+        self.config = config
+        self.parent_widget = parent_widget
+        self.parent_class = parent_class
+        self.root_class = root_class
+
+        self.full_model = self.create_model(self.config.dataframe)
+
+        self.table_window = TableWindow(parent_widget=parent_widget, root_class=root_class, full_model=self.full_model,
+                                  )
+
+        self.widget, self.layout = empty_widget(
+            parent=parent_widget,
+            inner_layout_class=QHBoxLayout,
+        )
+        set_stylesheet(self.widget, css(background_color=Style.Color.BackgroundElevated))
+
+        self.title = QLabel(self.config.caption)
+        set_stylesheet(
+            self.title,
+            css(
+                font_family=Style.FontFamily.SegoeUI,
+                font_size=Style.FontSize.larger,
+                text_align="left",
+                margin="5px"
+            ),
+        )
+        # self.title.setup()
+        self.layout.addWidget(self.title)
+
+        self.layout.addWidget(self.table_window.button)
+        self.layout.addStretch()
+
+    def create_model(self, df: pd.DataFrame):
+        # model = QtGui.QStandardItemModel(rows, cols)
+        # for r in range(rows):
+        #     for c in range(cols):
+        #         text = "".join(random.choices(string.ascii_letters, k=random.randint(5, 20)))
+        #         model.setItem(r, c, QtGui.QStandardItem(text))
+
+        model = QtGui.QStandardItemModel(len(df), len(df.columns))
+        for r in range(len(df)):
+            for c in range(len(df.columns)):
+                item = QtGui.QStandardItem(str(df.iat[r, c]))
+                model.setItem(r, c, item)
+
+        # Set the header labels
+        model.setHorizontalHeaderLabels(df.columns.tolist())
+
+
+        return model
+
+    def copy_model(self, src, dest, rows, cols):
+        for r in range(rows):
+            for c in range(cols):
+                dest.setItem(r, c, src.item(r, c).clone())
+
+
+class TableWindow(QtWidgets.QWidget):
+    def __init__(
+            self,
+            parent_widget,
+            root_class,
+            full_model,
+    ):
+        super().__init__(parent_widget)
+        self.root_class = root_class
+
+        # full model
+        self.full_model = full_model
+
+        self.button = QtWidgets.QPushButton()
+        set_stylesheet(
+            self.button,
+            css(
+                margin_top="2px",
+                font_family=Style.FontFamily.SegoeUI,
+                font_size=Style.FontSize.larger,
+                text_align="left",
+                border=Style.General.border,
+                border_color=Style.Color.BorderElevated,
+            ),
+            css(
+                "#id:hover",
+                border_color=Style.Color.Highlight,
+            ),
+        )
+        icon = qta.icon("msc.table")
+        self.button.setIcon(icon)
+        self.button.setIconSize(QSize(60, 60))
+        self.button.setFixedHeight(60)
+        self.button.setFixedWidth(60)
+        self.button.clicked.connect(self.show_full)
+
+    def show_full(self):
+        _ = TablePreviewPopup(self.root_class, self.full_model)
 
 
 class ReadOnlyDelegate(QtWidgets.QStyledItemDelegate):
@@ -191,104 +299,5 @@ class TablePreviewPopup(QtWidgets.QWidget):
     def mousePressEvent(self, event):
         if not self.popup.geometry().contains(event.position().toPoint()):
             self.close()
-
-
-
-class DataItem(MainAreaItem):
-    def add_to_head(self):
-        window, layout = empty_widget(
-            parent=self.head,
-            outer_layout=self.head_layout,
-            widget_class=TableWindow,
-            # setup=lambda w, l: [
-            #     w.setText("Raw Data"),
-            #     set_stylesheet(w, css(font_size=Style.FontSize.regular)),
-            # ],
-        )
-        window.set_root_class(self.root_class)
-        self.gc_retainer.append(window)
-        self.gc_retainer.append(layout)
-
-class TableWindow(QtWidgets.QWidget):
-
-    def set_root_class(self, root_class):
-        self.root_class = root_class
-    def __init__(self, parent):
-        super().__init__(parent)
-
-        # full model
-        self.full_model = self.create_model(5, 5)
-        labels = [str(i + 1) for i in range(self.full_model.columnCount())]
-        self.full_model.setHorizontalHeaderLabels(labels)
-        # central
-        # central = QtWidgets.QWidget()
-        # self.setCentralWidget(central)
-        layout = QtWidgets.QVBoxLayout(self)
-        layout.setContentsMargins(10, 10, 10, 10)
-        layout.setSpacing(10)
-        # preview model
-        self.preview_model = QtGui.QStandardItemModel(5, 5)
-        self.copy_model(self.full_model, self.preview_model, 5, 5)
-        self.preview_model.setHorizontalHeaderLabels(labels[:5])
-        # preview table
-        self.preview_table = CopyableTableView()
-        self.setup_table(self.preview_table, self.preview_model)
-        self.preview_table.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
-        self.preview_table.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
-        self.preview_table.resizeColumnsToContents()
-        self.preview_table.resizeRowsToContents()
-        cols = self.preview_model.columnCount()
-        rows = self.preview_model.rowCount()
-        total_w = sum(self.preview_table.columnWidth(i) for i in range(cols))
-        # Correct preview table height calculation
-        header = self.preview_table.horizontalHeader()
-        total_h = header.sizeHint().height()
-        for i in range(rows):
-            if not self.preview_table.isRowHidden(i):
-                total_h += self.preview_table.rowHeight(i)
-        # Add horizontal scroll bar height if visible
-        if self.preview_table.horizontalScrollBar().isVisible():
-            total_h += self.preview_table.horizontalScrollBar().height()
-        # Add frame width if needed
-        if self.preview_table.frameWidth():
-            total_h += 2 * self.preview_table.frameWidth()
-        self.preview_table.setFixedHeight(total_h)
-        self.preview_table.setFixedWidth(total_w)
-        # connect clicks to show full
-        self.preview_table.clicked.connect(self.show_full)
-        self.preview_table.horizontalHeader().sectionClicked.connect(self.show_full)
-        layout.addWidget(self.preview_table, alignment=QtCore.Qt.AlignLeft)
-        btn = QtWidgets.QPushButton("View Full Table")
-        btn.clicked.connect(self.show_full)
-        layout.addWidget(btn, alignment=QtCore.Qt.AlignRight)
-
-    def create_model(self, rows, cols):
-        model = QtGui.QStandardItemModel(rows, cols)
-        for r in range(rows):
-            for c in range(cols):
-                text = "".join(random.choices(string.ascii_letters, k=random.randint(5, 20)))
-                model.setItem(r, c, QtGui.QStandardItem(text))
-        return model
-
-    def copy_model(self, src, dest, rows, cols):
-        for r in range(rows):
-            for c in range(cols):
-                dest.setItem(r, c, src.item(r, c).clone())
-
-    def setup_table(self, table, model):
-        table.setModel(model)
-        table.setEditTriggers(QtWidgets.QAbstractItemView.NoEditTriggers)
-        table.setSelectionMode(QtWidgets.QAbstractItemView.NoSelection)
-        table.setFocusPolicy(QtCore.Qt.NoFocus)
-        table.verticalHeader().hide()
-        table.setHorizontalHeader(CustomHeader(QtCore.Qt.Horizontal, table))
-        table.horizontalHeader().setHighlightSections(False)
-        table.setItemDelegate(ReadOnlyDelegate(table))
-        table.setTextElideMode(QtCore.Qt.ElideRight)
-        table.setWordWrap(False)
-        table.setShowGrid(False)
-
-    def show_full(self):
-        _ = TablePreviewPopup(self.root_class, self.full_model)
 
 

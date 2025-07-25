@@ -1,6 +1,6 @@
-#
-#  Copyright (c) 2023 -- 2025 StatPrism Team. All rights reserved.
-#
+#  Copyright (c) 2023 StatPrism Team. All rights reserved.
+
+
 
 from src.common.constant import MDASH
 from src.common.result.html_result import Cell, HTMLTableV2, Row

@@ -1,14 +1,17 @@
-#
-#  Copyright (c) 2023 -- 2025 StatPrism Team. All rights reserved.
-#
+#  Copyright (c) 2023 StatPrism Team. All rights reserved.
+
+
 
 import logging
 from typing import TYPE_CHECKING
 
+import pandas as pd
 from PySide6 import QtWidgets
+from PySide6.QtWidgets import QVBoxLayout
 
 from src.common.elements.utility.layout_helpers import empty_widget
 from src.common.result.registry import RESULTS
+from src.main_area_panel.basic_main_area_panels.data_processing_panel import DataProcessing, DataProcessingConfig
 from src.main_area_panel.panels.base import MainAreaItem
 from src.main_area_panel.panels.data import DataItem
 from src.pyside_ext.layout import VBoxLayout, HBoxLayout
@@ -33,17 +36,11 @@ class MainAreaClass:
 
         self.widget, self.layout = empty_widget(
             parent=self.parent_widget,
-            inner_layout_class=VBoxLayout,
+            inner_layout_class=QVBoxLayout,
         )
-        set_stylesheet(self.widget, css(background_color=Style.Color.BackgroundElevated))
+        set_stylesheet(self.widget, css(background_color=Style.Color.Background))
 
-        self.input_element = DataItem(
-            parent_widget=self.widget,
-            parent_class=self,
-            root_class=self.root_class,
-        )
-
-        self.layout.addWidget(self.input_element.widget)
+        self.elements = []
 
         self.layout.addStretch()
         self.element_widget_container = None
@@ -52,6 +49,19 @@ class MainAreaClass:
 
         # ====
         self._keep_from_gc = None
+
+    def add_data_processing(self, config: DataProcessingConfig):
+        input_element = DataProcessing(
+            config=config,
+            parent_widget=self.widget,
+            parent_class=self,
+            root_class=self.root_class,
+        )
+        self.elements.append(input_element)
+        self.layout.insertWidget(
+            self.layout.count()-1, # Insert before the stretch
+            input_element.widget,
+        )
 
     # def cleanup(self):
     #     # Remove and delete the element widget container and its widget
@@ -78,52 +88,6 @@ class MainAreaClass:
     #     self.result_id = None
     #     self.element_id = None
 
-    def display_none(self):
-        self.cleanup()
-
-    def display(self, result_id: int, element_id: str = None):
-        if result_id == -1 or element_id is None:
-            self.result_id = result_id
-            self.element_id = element_id
-            self.display_entire_result(result_id=result_id)
-            return
-
-        if result_id is None:
-            logging.error("Result ID is None")
-            self.display_none()
-            return
-
-        logging.info(f"Displaying result {result_id} element {element_id}")
-        self.cleanup()
-
-        self.result_id = result_id
-        self.element_id = element_id
-
-        result = RESULTS[result_id]
-        if element_id is None:
-            element_id = result.element_keys()[0]
-        element = result.result_elements[element_id]
-
-        self.element_widget_container = result_widget_container_registry[element.class_id](
-            parent_widget=self.parent_widget, result_element=element
-        )
-        self.layout.addWidget(self.element_widget_container.widget)
-
-    def display_entire_result(self, result_id):
-        logging.info(f"Displaying all results")
-        self.cleanup()
-
-        self.element_widget_container = CombinedResultElementWidgetContainer(
-            parent_widget=self.parent_widget,
-            result_id=result_id,
-        )
-        self.layout.addWidget(self.element_widget_container.widget)
-
-    def refresh(self):
-        self.display(self.result_id, self.element_id)
-
-    def copy_for_word(self):
-        self.element_widget_container.copy_for_word()
 
 
 logging.debug("result display loaded")

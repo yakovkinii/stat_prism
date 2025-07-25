@@ -1,6 +1,6 @@
-#
-#  Copyright (c) 2023 -- 2025 StatPrism Team. All rights reserved.
-#
+#  Copyright (c) 2023 StatPrism Team. All rights reserved.
+
+
 from typing import Dict, List, Union
 
 from src.modules.common.utility import format_p_apa, format_statistic_apa, smart_comma_join

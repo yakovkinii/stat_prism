@@ -1,6 +1,6 @@
-#
-#  Copyright (c) 2023 -- 2025 StatPrism Team. All rights reserved.
-#
+#  Copyright (c) 2023 StatPrism Team. All rights reserved.
+
+
 
 from src.modules.contingency.result import ContingencyResult, ContingencyStudyConfig
 from src.modules.contingency.ui import Contingency
