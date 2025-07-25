@@ -19,6 +19,8 @@ from src.pyside_ext.styling import Style
 from src.pyside_ext.unique_qss import set_stylesheet
 
 import qtawesome as qta
+
+
 @attrs.define()
 class DataProcessingConfig:
     unique_id: int
@@ -35,8 +37,11 @@ class DataProcessing:
 
         self.full_model = self.create_model(self.config.dataframe)
 
-        self.table_window = TableWindow(parent_widget=parent_widget, root_class=root_class, full_model=self.full_model,
-                                  )
+        self.table_window = TableWindow(
+            parent_widget=parent_widget,
+            root_class=root_class,
+            full_model=self.full_model,
+        )
 
         self.widget, self.layout = empty_widget(
             parent=parent_widget,
@@ -47,12 +52,7 @@ class DataProcessing:
         self.title = QLabel(self.config.caption)
         set_stylesheet(
             self.title,
-            css(
-                font_family=Style.FontFamily.SegoeUI,
-                font_size=Style.FontSize.larger,
-                text_align="left",
-                margin="5px"
-            ),
+            css(font_family=Style.FontFamily.SegoeUI, font_size=Style.FontSize.larger, text_align="left", margin="5px"),
         )
         # self.title.setup()
         self.layout.addWidget(self.title)
@@ -61,11 +61,6 @@ class DataProcessing:
         self.layout.addStretch()
 
     def create_model(self, df: pd.DataFrame):
-        # model = QtGui.QStandardItemModel(rows, cols)
-        # for r in range(rows):
-        #     for c in range(cols):
-        #         text = "".join(random.choices(string.ascii_letters, k=random.randint(5, 20)))
-        #         model.setItem(r, c, QtGui.QStandardItem(text))
 
         model = QtGui.QStandardItemModel(len(df), len(df.columns))
         for r in range(len(df)):
@@ -76,21 +71,15 @@ class DataProcessing:
         # Set the header labels
         model.setHorizontalHeaderLabels(df.columns.tolist())
 
-
         return model
-
-    def copy_model(self, src, dest, rows, cols):
-        for r in range(rows):
-            for c in range(cols):
-                dest.setItem(r, c, src.item(r, c).clone())
 
 
 class TableWindow(QtWidgets.QWidget):
     def __init__(
-            self,
-            parent_widget,
-            root_class,
-            full_model,
+        self,
+        parent_widget,
+        root_class,
+        full_model,
     ):
         super().__init__(parent_widget)
         self.root_class = root_class
@@ -130,7 +119,7 @@ class ReadOnlyDelegate(QtWidgets.QStyledItemDelegate):
         editor = super().createEditor(parent, option, index)
         if isinstance(editor, QtWidgets.QLineEdit):
             editor.setReadOnly(True)
-            editor.setStyleSheet("border:1px solid gray;")
+            set_stylesheet(editor, css(border="1px solid gray"))
         return editor
 
 
@@ -139,7 +128,7 @@ class CustomHeader(QtWidgets.QHeaderView):
         def __init__(self, text, parent):
             super().__init__(text, parent)
             self.setReadOnly(True)
-            self.setStyleSheet("border:1px solid gray; background:white;")
+            set_stylesheet(self, css(border="1px solid gray", background="white"))
             self.selectAll()
 
         def focusOutEvent(self, event):
@@ -264,7 +253,7 @@ class TablePreviewPopup(QtWidgets.QWidget):
         w, h = int(parent.width() * 0.95), int(parent.height() * 0.95)
         self.popup.setFixedSize(w, h)
         self.popup.move((parent.width() - w) // 2, (parent.height() - h) // 2)
-        self.popup.setStyleSheet("background:white;")
+        self.popup.setStyleSheet(css(background="white"))
         self.popup.mousePressEvent = lambda e: e.accept()
         popup_layout = QtWidgets.QVBoxLayout(self.popup)
         popup_layout.setContentsMargins(0, 0, 0, 0)
@@ -295,9 +284,12 @@ class TablePreviewPopup(QtWidgets.QWidget):
         table.setShowGrid(False)
         table.resizeColumnsToContents()
         table.resizeRowsToContents()
+        # Set min and max column width
+        min_width = 80
+        max_width = 300
+        for col in range(model.columnCount()):
+            table.setColumnWidth(col, max(min_width, min(table.columnWidth(col), max_width)))
 
     def mousePressEvent(self, event):
         if not self.popup.geometry().contains(event.position().toPoint()):
             self.close()
-
-
