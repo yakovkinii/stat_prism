@@ -1,9 +1,3 @@
-<!--
-  -
-  - Copyright (c) 2023 -- 2024 StatPrism Team. All rights reserved.
-  -
-  -->
-
 <RCC>
   <qresource prefix="/mat">
     <file>resources/StatPrism_splash.png</file>
@@ -14,5 +8,6 @@
     <file>resources/checked.png</file>
     <file>resources/checked_disabled.png</file>
     <file>resources/watermark.png</file>
+    <file>resources/banner.png</file>
   </qresource>
 </RCC>

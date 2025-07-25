@@ -6,8 +6,8 @@ import logging
 from typing import TYPE_CHECKING
 
 from PySide6 import QtWidgets
-from PySide6.QtGui import QAction
-from PySide6.QtWidgets import QMenu, QMenuBar, QVBoxLayout
+from PySide6.QtGui import QAction, QPalette, QColor
+from PySide6.QtWidgets import QMenu, QMenuBar, QVBoxLayout, QStyleFactory
 
 from src.common.constant import SettingsPanelSize
 from src.common.languages import LANGUAGE, Languages
@@ -29,6 +29,10 @@ class SettingsPanelClass:
         self.root_class: MainWindowClass = root_class
         self.parent_class: MainWindowClass = parent_class
         self.widget = QtWidgets.QWidget(parent_widget)
+
+
+
+
 
         self.widget_layout = QVBoxLayout(self.widget)
         self.widget_layout.setContentsMargins(0, 0, 0, 0)

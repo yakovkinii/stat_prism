@@ -6,6 +6,8 @@ from typing import Callable
 
 from PySide6.QtWidgets import QVBoxLayout, QWidget
 
+from src.pyside_ext.layout import VBoxLayout
+
 
 def empty_widget(
     parent,
@@ -15,7 +17,7 @@ def empty_widget(
     setup: Callable[[object, object], any] = None,
 ):
     if inner_layout_class is None:
-        inner_layout_class = QVBoxLayout
+        inner_layout_class = VBoxLayout
     if widget_class is None:
         widget_class = QWidget
 

@@ -4,7 +4,7 @@
 
 import logging
 
-from PySide6 import QtWidgets, QtCore
+from PySide6 import QtCore, QtWidgets
 from PySide6.QtWebEngineWidgets import QWebEngineView
 
 from src.about import version
@@ -13,7 +13,11 @@ from src.common.decorators import log_method, log_method_noarg
 from src.common.elements.tab.main_tab_widget import main_tab_widget
 from src.common.ui_constructor import icon
 from src.data_panel.ui_data import DataPanelClass
+from src.main_area_panel.ui_main_area import MainAreaClass
 from src.pyside_ext.layout import HBoxLayout
+from src.pyside_ext.markup import css
+from src.pyside_ext.styling import Style
+from src.pyside_ext.unique_qss import set_stylesheet
 from src.result_display_panel.ui_result_display import ResultDisplayClass
 from src.result_selector_panel.ui_result_selector import ResultSelectorPanelClass
 from src.settings_panel.panels.registry import PanelRegistry
@@ -46,10 +50,7 @@ class MainWindowClass(QtWidgets.QMainWindow):
         self.data_panel: DataPanelClass = DataPanelClass(
             parent_widget=self.popup, parent_class=self.widget, root_class=self
         )
-        self.results_panel: ResultDisplayClass = ResultDisplayClass(
-            parent_widget=self.central_widget, parent_class=self.widget, root_class=self
-        )
-        self.result_selector_panel: ResultSelectorPanelClass = ResultSelectorPanelClass(
+        self.main_area_panel: MainAreaClass = MainAreaClass(
             parent_widget=self.central_widget, parent_class=self.widget, root_class=self
         )
         self.settings_panel: SettingsPanelClass = SettingsPanelClass(
@@ -60,13 +61,12 @@ class MainWindowClass(QtWidgets.QMainWindow):
         self.widget.setCentralWidget(self.central_widget)
         self.central_widget.setLayout(self.central_widget_layout)
         self.central_widget_layout.addWidget(self.splitter)
-        self.central_widget_layout.addWidget(self.settings_panel.widget)
 
-        self.splitter.addWidget(self.results_panel.widget)
-        self.splitter.addWidget(self.result_selector_panel.widget)
+        self.splitter.addWidget(self.main_area_panel.widget)
+        self.splitter.addWidget(self.settings_panel.widget)
         # increase size of splitter handle
         self.splitter.setHandleWidth(6)
-        self.splitter.setSizes([1, 0])
+        self.splitter.setSizes([1, 1])
 
         # self.data_panel.widget.hide()
         self.popup.setWindowTitle("Data Table")
@@ -77,7 +77,12 @@ class MainWindowClass(QtWidgets.QMainWindow):
         self.popup.setWindowModality(QtCore.Qt.WindowModality.ApplicationModal)
         self.popup.setWindowFlags(self.popup.windowFlags() | QtCore.Qt.WindowType.WindowStaysOnTopHint)
 
-
+        set_stylesheet(
+            self.splitter,
+            css(
+                background_color=Style.Color.Background,
+            ),
+        )
         # self.tab_widget.addTab(self.data_panel.widget, "Data")
         # self.tab_widget.addTab(self.results_panel.widget, "Analysis")
 
@@ -169,7 +174,6 @@ class MainWindowClass(QtWidgets.QMainWindow):
     @log_method_noarg
     def action_show_table(self):
         self.popup.showMaximized()
-
 
     @log_method_noarg
     def action_activate_results_panel(self):
