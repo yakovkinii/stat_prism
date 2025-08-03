@@ -1,24 +1,17 @@
 #  Copyright (c) 2023 StatPrism Team. All rights reserved.
 
 
-import random
-import string
-
 import attrs
 import pandas as pd
+import qtawesome as qta
 from PySide6 import QtCore, QtGui, QtWidgets
 from PySide6.QtCore import QSize
-from PySide6.QtWidgets import QLabel, QHBoxLayout
+from PySide6.QtWidgets import QHBoxLayout, QLabel
 
-from src.common.elements.button.large_button import LargeButton
-from src.common.elements.label.label import Label
 from src.common.elements.utility.layout_helpers import empty_widget
-from src.pyside_ext.layout import VBoxLayout, HBoxLayout
 from src.pyside_ext.markup import css
 from src.pyside_ext.styling import Style
 from src.pyside_ext.unique_qss import set_stylesheet
-
-import qtawesome as qta
 
 
 @attrs.define()
@@ -61,7 +54,6 @@ class DataProcessing:
         self.layout.addStretch()
 
     def create_model(self, df: pd.DataFrame):
-
         model = QtGui.QStandardItemModel(len(df), len(df.columns))
         for r in range(len(df)):
             for c in range(len(df.columns)):
