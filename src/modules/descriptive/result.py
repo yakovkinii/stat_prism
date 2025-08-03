@@ -1,7 +1,6 @@
 #  Copyright (c) 2023 StatPrism Team. All rights reserved.
 
 
-
 from typing import List
 
 from src.common.elements.filter.filter import FilterSettings

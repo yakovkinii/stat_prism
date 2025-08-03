@@ -1,7 +1,6 @@
 #  Copyright (c) 2023 StatPrism Team. All rights reserved.
 
 
-
 from PySide6.QtWidgets import QWidget
 
 from src.common.elements.base.base import BasePanelElement

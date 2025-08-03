@@ -1,7 +1,6 @@
 #  Copyright (c) 2023 StatPrism Team. All rights reserved.
 
 
-
 from enum import Enum
 
 import attrs

@@ -1,7 +1,6 @@
 #  Copyright (c) 2023 StatPrism Team. All rights reserved.
 
 
-
 from enum import Enum
 
 from PySide6 import QtGui
@@ -9,9 +8,17 @@ from PySide6 import QtGui
 _font_regular = QtGui.QFont("Segoe UI")
 _font_regular.setPointSize(12)
 
+_font_result_label = QtGui.QFont("Segoe UI")
+_font_result_label.setPointSize(16)
+
+_font_result_element_label = QtGui.QFont("Segoe UI")
+_font_result_element_label.setPointSize(14)
+
 
 class Style:
     font_regular = _font_regular
+    font_result_label = _font_result_label
+    font_result_element_label = _font_result_element_label
 
     class Color(Enum):
         def __str__(self):

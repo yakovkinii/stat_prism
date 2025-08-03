@@ -1,7 +1,6 @@
 #  Copyright (c) 2023 StatPrism Team. All rights reserved.
 
 
-
 from typing import Union, cast
 
 from PySide6.QtWidgets import QHBoxLayout, QLabel, QListWidget, QListWidgetItem, QWidget

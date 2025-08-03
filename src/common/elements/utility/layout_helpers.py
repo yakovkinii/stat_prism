@@ -1,10 +1,9 @@
 #  Copyright (c) 2023 StatPrism Team. All rights reserved.
 
 
-
 from typing import Callable
 
-from PySide6.QtWidgets import QVBoxLayout, QWidget
+from PySide6.QtWidgets import QWidget
 
 from src.pyside_ext.layout import VBoxLayout
 

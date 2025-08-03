@@ -1,8 +1,6 @@
 #  Copyright (c) 2023 StatPrism Team. All rights reserved.
 
 
-
-
 from PySide6.QtWidgets import QHBoxLayout, QVBoxLayout
 
 

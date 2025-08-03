@@ -1,7 +1,6 @@
 #  Copyright (c) 2023 StatPrism Team. All rights reserved.
 
 
-
 from typing import List
 
 import attrs
@@ -10,13 +9,13 @@ from PySide6 import QtCore, QtWidgets
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QDialog, QHBoxLayout, QLabel, QListWidgetItem, QVBoxLayout, QWidget
 
+from src._data_panel.data import DataColumn
 from src.common.constant import COLUMN_TYPE_ICONS, ColumnType
 from src.common.elements.base.base import BasePanelElement
 from src.common.elements.utility.layout_helpers import clean_up_list_widget, empty_widget, widget_in_layout
 from src.common.elements.utility.primitive_elements import QListWidgetClickable, QWidgetClickable
 from src.common.messages import Message, MessageType
 from src.common.ui_constructor import create_tool_button_qta
-from src.data_panel.data import DataColumn
 from src.pyside_ext.markup import css
 from src.pyside_ext.styling import Style
 from src.pyside_ext.unique_qss import set_stylesheet

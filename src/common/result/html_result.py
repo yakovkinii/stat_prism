@@ -1,8 +1,6 @@
 #  Copyright (c) 2023 StatPrism Team. All rights reserved.
 
 
-
-
 import logging
 from typing import List
 
@@ -10,8 +8,10 @@ from src.common.constant import TABLE_OR_PLOT_ID_PLACEHOLDER
 from src.common.decorators import log_method, log_method_noarg
 from src.common.languages import LANGUAGE
 from src.common.result.base_result import BaseResultElement
-from src.settings_panel.panels.result_item_settings_v2.classes import NumberCaptionResultItemSetting, \
-    SingleLineTextResultItemSetting, ContainerResultItemSetting
+from src.settings_panel.panels.result_item_settings_v2.classes import (
+    ContainerResultItemSetting,
+    SingleLineTextResultItemSetting,
+)
 
 
 class Cell:
@@ -90,8 +90,6 @@ class HTMLTableV2(BaseResultElement):
                 add_stretch=True,
             ),
         }
-
-
 
     @log_method_noarg
     def get_html(self, renderer=None):

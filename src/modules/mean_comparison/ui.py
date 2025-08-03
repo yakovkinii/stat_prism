@@ -1,8 +1,6 @@
 #  Copyright (c) 2023 StatPrism Team. All rights reserved.
 
 
-
-
 from src.common.constant import ColumnType
 from src.common.decorators import log_method
 from src.common.elements.checkbox.checkbox import LargeCheckbox
@@ -79,7 +77,7 @@ class MeanComparison(BaseModulePanel):
         #         result.set_placeholder(msg)
         #         logging.debug(msg)
         #         return result
-                #     if config.method in [MeanComparisonMethod.HOMOGENEOUS, MeanComparisonMethod.INHOMOGENEOUS]:
+        #     if config.method in [MeanComparisonMethod.HOMOGENEOUS, MeanComparisonMethod.INHOMOGENEOUS]:
         #         if any([col_type == ColumnType.NOMINAL for col_type in config.selected_columns_types]):
         #             msg = "Cannot perform parametric test on nominal columns"
         #             result.set_placeholder(msg)

@@ -1,7 +1,6 @@
 #  Copyright (c) 2023 StatPrism Team. All rights reserved.
 
 
-
 from enum import Enum
 
 import attrs
@@ -48,8 +47,6 @@ class ModuleRegistry(Enum):
         display_name="Regression",
         icon_path="ph.chart-line-up-fill",
     )
-
-
 
     @property
     def display_name(self):

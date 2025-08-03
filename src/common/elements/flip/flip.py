@@ -1,7 +1,6 @@
 #  Copyright (c) 2023 StatPrism Team. All rights reserved.
 
 
-
 import qtawesome as qta
 from PySide6 import QtWidgets
 from PySide6.QtCore import Qt

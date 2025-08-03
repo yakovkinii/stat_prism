@@ -11,7 +11,6 @@ from src.settings_panel.panels.filter.filter import Filter
 from src.settings_panel.panels.home.home import Home
 from src.settings_panel.panels.invert.invert import Inverse
 from src.settings_panel.panels.order.order import Order
-
 from src.settings_panel.panels.registry import PanelRegistry
 from src.settings_panel.panels.result_item_settings_v2.result_item_settings_v2 import ResultItemSettingsV2
 from src.settings_panel.panels.select_study.select_study import SelectStudy

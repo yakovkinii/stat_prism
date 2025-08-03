@@ -1,7 +1,6 @@
 #  Copyright (c) 2023 StatPrism Team. All rights reserved.
 
 
-
 from PySide6.QtWidgets import QComboBox, QHBoxLayout, QLabel
 
 from src.common.elements.base.base import BasePanelElement

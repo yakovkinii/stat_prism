@@ -1,14 +1,13 @@
 #  Copyright (c) 2023 StatPrism Team. All rights reserved.
 
 
-
 import logging
 
 import numpy as np
 
+from src._data_panel.data import Data
 from src.common.decorators import log_function
 from src.common.result.html_result import Cell, HTMLTableV2, Row
-from src.data_panel.data import Data
 from src.modules.common.mathematics.correlation.binary_correlations import (
     phi_correlation_table,
     tetrachoric_corr_matrix,

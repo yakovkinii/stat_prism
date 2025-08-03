@@ -1,61 +1,30 @@
-from PySide6 import QtCore, QtGui, QtWidgets
-from PySide6.QtCore import QSize
-from PySide6.QtWidgets import QStyledItemDelegate, QHeaderView, QLineEdit, QTableView, QAbstractItemView, QFrame, \
-    QVBoxLayout, QWidget
-import pandas as pd
+from PySide6 import QtCore, QtGui
+from PySide6.QtWidgets import (
+    QAbstractItemView,
+    QFrame,
+    QHeaderView,
+    QLineEdit,
+    QStyledItemDelegate,
+    QTableView,
+    QVBoxLayout,
+    QWidget,
+)
 
+from src.data.data import Data
 from src.pyside_ext.markup import css
-from src.pyside_ext.styling import Style
 from src.pyside_ext.unique_qss import set_stylesheet
 
-import qtawesome as qta
 
-class Data:
-    def __init__(self, dataframe: pd.DataFrame):
-        self.dataframe = dataframe
-        # Can add more attributes here later
+def view_data_popup(root_class, data: Data):
+    df = data.dataframe
+    model = QtGui.QStandardItemModel(len(df), len(df.columns))
+    for r in range(len(df)):
+        for c in range(len(df.columns)):
+            item = QtGui.QStandardItem(str(df.iat[r, c]))
+            model.setItem(r, c, item)
+    model.setHorizontalHeaderLabels(df.columns.tolist())
 
-
-class TableViewer:
-    def __init__(self, parent_widget, root_class, data: Data):
-        self.root_class = root_class
-        self.data = data
-        self.model = self._create_model(data.dataframe)
-
-        self.button = QtWidgets.QPushButton()
-        set_stylesheet(
-            self.button,
-            css(
-                margin_top="2px",
-                font_family=Style.FontFamily.SegoeUI,
-                font_size=Style.FontSize.larger,
-                text_align="left",
-                border=Style.General.border,
-                border_color=Style.Color.BorderElevated,
-            ),
-            css(
-                "#id:hover",
-                border_color=Style.Color.Highlight,
-            ),
-        )
-        icon = qta.icon("msc.table")
-        self.button.setIcon(icon)
-        self.button.setIconSize(QSize(60, 60))
-        self.button.setFixedHeight(60)
-        self.button.setFixedWidth(60)
-        self.button.clicked.connect(self.show_table)
-
-    def show_table(self):
-        TablePopup(self.root_class, self.model)
-
-    def _create_model(self, df: pd.DataFrame):
-        model = QtGui.QStandardItemModel(len(df), len(df.columns))
-        for r in range(len(df)):
-            for c in range(len(df.columns)):
-                item = QtGui.QStandardItem(str(df.iat[r, c]))
-                model.setItem(r, c, item)
-        model.setHorizontalHeaderLabels(df.columns.tolist())
-        return model
+    TablePopup(root_class, model)
 
 
 class ReadOnlyDelegate(QStyledItemDelegate):

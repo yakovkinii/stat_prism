@@ -1,7 +1,6 @@
 #  Copyright (c) 2023 StatPrism Team. All rights reserved.
 
 
-
 from PySide6 import QtCore
 from PySide6.QtGui import QIcon
 from PySide6.QtWidgets import QLabel, QVBoxLayout

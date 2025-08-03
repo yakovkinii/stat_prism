@@ -1,7 +1,6 @@
 #  Copyright (c) 2023 StatPrism Team. All rights reserved.
 
 
-
 import logging
 from typing import TYPE_CHECKING, Union
 
@@ -179,7 +178,8 @@ class BaseModulePanel:
                 self.recalculate()
             else:
                 self.set_recalculate_button_highlight(True)
-            self.root_class.result_selector_panel.refresh_result(result_id=self.result_id)
+            # self.root_class.result_selector_panel.refresh_result(result_id=self.result_id)
+            self.root_class.main_area_panel.refresh_data_analysis(result_id=self.result_id)
             return
         if message.message_type == MessageType.CLICKED:
             if message.caller_id == "compiled_filters":

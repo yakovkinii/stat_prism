@@ -1,7 +1,6 @@
 #  Copyright (c) 2023 StatPrism Team. All rights reserved.
 
 
-
 import logging
 import pickle
 import tempfile
@@ -20,7 +19,8 @@ from src.common.elements.button.large_button import LargeButton
 from src.common.elements.spacer.spacer import Spacer
 from src.common.messages import MessageType
 from src.common.result.registry import RESULTS
-from src.main_area_panel.basic_main_area_panels.data_processing_panel import DataProcessingConfig
+from src.data.data import Data
+from src.data.data_manager import DATA_MANAGER
 from src.settings_panel.panels.base.base import BasePanel
 from src.settings_panel.panels.registry import PanelRegistry
 
@@ -84,27 +84,16 @@ class Home(BasePanel):
 
         if file_path.endswith(".csv"):
             dataframe = pd.read_csv(file_path)
-            config = DataProcessingConfig(
-                unique_id=0,
-                caption="Data Processing",
-                dataframe=dataframe,
-            )
-            self.root_class.main_area_panel.add_data_processing(config)
-
-            # self.root_class.results_panel.display_none()
-            # self.root_class.result_selector_panel.delete_all_results()
+            DATA_MANAGER.set_raw_data(Data(dataframe))
+            self.root_class.main_area_panel.refresh_raw_data()
             RESULTS.clear()
 
             self.root_class.set_current_file_path(None)
             self.root_class.data_panel.tabledata.load_data(dataframe)
         elif file_path.endswith(".xlsx"):
             dataframe = pd.read_excel(file_path, sheet_name=0)
-            config = DataProcessingConfig(
-                unique_id=0,
-                caption="Data Processing",
-                dataframe=dataframe,
-            )
-            self.root_class.main_area_panel.add_data_processing(config)
+            DATA_MANAGER.set_raw_data(Data(dataframe))
+            self.root_class.main_area_panel.refresh_raw_data()
 
             # self.root_class.results_panel.display_none()
             # self.root_class.result_selector_panel.delete_all_results()

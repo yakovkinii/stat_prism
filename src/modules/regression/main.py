@@ -1,18 +1,17 @@
 #  Copyright (c) 2023 StatPrism Team. All rights reserved.
 
 
-
 import logging
 
 import numpy as np
 import pandas as pd
 import statsmodels.api as sm
 
+from src._data_panel.data import Data
 from src.common.decorators import log_function
 from src.common.qcolor import Colors
 from src.common.result.html_result import Cell, HTMLTableV2, Row
 from src.common.result.plot_result import Band, BandPlotConfig, Line, LinePlotConfig, PlotV2, Scatter
-from src.data_panel.data import Data
 from src.modules.common.utility import format_statistic_apa
 from src.modules.regression.result import RegressionResult, RegressionStudyConfig
 

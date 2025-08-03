@@ -1,8 +1,6 @@
 #  Copyright (c) 2023 StatPrism Team. All rights reserved.
 
 
-
-
 from src.common.constant import ColumnType
 from src.common.decorators import log_method
 from src.common.elements.column_selector.column_selector import ColumnSelectorEx, Field
@@ -77,7 +75,7 @@ class Regression(BaseModulePanel):
         #         result.set_placeholder(msg)
         #         logging.debug(msg)
         #         return result
-                #     if (cfg.mediator_column is not None) and (cfg.moderator_column is not None):
+        #     if (cfg.mediator_column is not None) and (cfg.moderator_column is not None):
         #         msg = "Please select either a Mediator or a Moderator, not both"
         #         result.set_placeholder(msg)
         #         logging.debug(msg)

@@ -1,7 +1,6 @@
 #  Copyright (c) 2023 StatPrism Team. All rights reserved.
 
 
-
 from typing import TYPE_CHECKING
 
 from src.common.decorators import log_method
@@ -46,9 +45,10 @@ class SelectStudy(BasePanel):
             config=module.config_class(),
         )
 
-        self.root_class.result_selector_panel.add_result(result_id)
-        self.root_class.results_panel.display(result_id)
-        self.root_class.action_activate_results_panel()
+        # self.root_class.result_selector_panel.add_result(result_id)
+        # self.root_class.results_panel.display(result_id)
+        self.root_class.main_area_panel.add_data_analysis(result_id=result_id)
+        # self.root_class.action_activate_results_panel()
 
         module.ui_instance.configure(result_id=result_id)
         self.root_class.action_activate_panel_by_index(module.settings_stacked_widget_index)

@@ -5,9 +5,7 @@ import logging
 
 from src.common.constant import ColumnType
 from src.common.decorators import log_method
-from src.common.elements.checkbox.checkbox import LargeCheckbox
 from src.common.elements.column_selector.column_selector import ColumnSelectorEx, Field
-from src.common.elements.combo_box.combo_box import ComboBox
 from src.common.elements.filter.filter import CompiledFilterHistory
 from src.common.elements.spacer.spacer_small import SpacerSmall
 from src.common.elements.title.title import Title

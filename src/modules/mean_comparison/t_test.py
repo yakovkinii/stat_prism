@@ -6,12 +6,12 @@ import pandas as pd
 from scipy import stats
 from scipy.stats import gaussian_kde
 
+from src._data_panel.data import Data
 from src.common.constant import ColumnType
 from src.common.decorators import log_function
 from src.common.qcolor import Colors
 from src.common.result.html_result import Cell, HTMLTableV2, Row
 from src.common.result.plot_result import Bar, BarPlotConfig, Line, LinePlotConfig, PlotV2
-from src.data_panel.data import Data
 from src.modules.common.homogeneity import process_homogeneity_check
 from src.modules.common.normality import process_normality_check
 from src.modules.common.utility import format_p_apa, format_statistic_apa, format_value_apa

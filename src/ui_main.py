@@ -1,25 +1,21 @@
 #  Copyright (c) 2023 StatPrism Team. All rights reserved.
 
 
-
 import logging
 
 from PySide6 import QtCore, QtWidgets
 from PySide6.QtWebEngineWidgets import QWebEngineView
 
+from src._data_panel.ui_data import DataPanelClass
 from src.about import version
 from src.common.debt import DEBTS, DebtType
 from src.common.decorators import log_method, log_method_noarg
-from src.common.elements.tab.main_tab_widget import main_tab_widget
 from src.common.ui_constructor import icon
-from src.data_panel.ui_data import DataPanelClass
 from src.main_area_panel.ui_main_area import MainAreaClass
 from src.pyside_ext.layout import HBoxLayout
 from src.pyside_ext.markup import css
 from src.pyside_ext.styling import Style
 from src.pyside_ext.unique_qss import set_stylesheet
-from src.result_display_panel.ui_result_display import ResultDisplayClass
-from src.result_selector_panel.ui_result_selector import ResultSelectorPanelClass
 from src.settings_panel.panels.registry import PanelRegistry
 from src.settings_panel.ui_settings import SettingsPanelClass
 

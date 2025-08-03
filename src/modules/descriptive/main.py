@@ -1,17 +1,16 @@
 #  Copyright (c) 2023 StatPrism Team. All rights reserved.
 
 
-
 import numpy as np
 import pandas as pd
 from scipy import stats
 from scipy.stats import gaussian_kde
 
+from src._data_panel.data import Data
 from src.common.constant import MDASH, ColumnType
 from src.common.decorators import log_function
 from src.common.qcolor import Colors
 from src.common.result.plot_result import Bar, BarPlotConfig, Line, LinePlotConfig, PlotV2
-from src.data_panel.data import Data
 from src.modules.descriptive.plot import create_box_plot
 from src.modules.descriptive.result import DescriptiveResult
 from src.modules.descriptive.table import get_descriptive_table_groupby, get_descriptive_table_no_groupby

@@ -1,9 +1,6 @@
 #  Copyright (c) 2023 StatPrism Team. All rights reserved.
 
 
-
-
-
 from PySide6 import QtWidgets
 from PySide6.QtWidgets import QTabWidget
 

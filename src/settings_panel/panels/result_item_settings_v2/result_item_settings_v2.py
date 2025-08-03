@@ -1,7 +1,6 @@
 #  Copyright (c) 2023 StatPrism Team. All rights reserved.
 
 
-
 from typing import TYPE_CHECKING
 
 from src.common.constant import SettingsPanelSize

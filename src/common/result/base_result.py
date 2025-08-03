@@ -1,8 +1,6 @@
 #  Copyright (c) 2023 StatPrism Team. All rights reserved.
 
 
-
-
 from typing import List
 
 from src.common.result.base_result_element import BaseResultElement
