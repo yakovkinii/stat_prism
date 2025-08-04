@@ -58,7 +58,7 @@ class PlotResultElementDisplay(BaseResultDisplay):
         renderer.load(buf.read())
 
         # Set output size (adjust as needed)
-        target_width = 500
+        target_width = 300
         default_size = renderer.defaultSize()  # returns QSize
         if default_size.isEmpty():
             raise ValueError("SVG has no size information.")
