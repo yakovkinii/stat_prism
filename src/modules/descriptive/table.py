@@ -68,7 +68,7 @@ def get_descriptive_table_no_groupby(
         table.add_single_row_apa(
             Row(
                 [
-                    Cell(df.loc[row, "variable"], push_to_left=True),
+                    Cell(df.loc[row, "variable"], center=True),
                     Cell(f'{int(df.loc[row, "N"])}', center=True),
                     Cell(f'{int(df.loc[row, "missing"])}', center=True),
                     Cell(f'{df.loc[row, "mean"]}', center=True),

@@ -49,22 +49,12 @@ COLUMN_TYPE_ICONS = {
 }
 
 BASE_STYLES = (
-    "<style>"
-    ".double-spacing{"
-    "line-height: 2;"
-    "}"
-    ".font {"
-    f"font-size: {Style.FontSize.regular};"
-    "font-family: 'Times New Roman';"
-    "}"
-    "table, th, td, span {"
-    "border-collapse: collapse;"
-    f"font-size: {Style.FontSize.regular};"
-    "}"
-    ".meta {"
-    f"font-size: {Style.FontSize.smaller};"
-    "}"
-    "</style>"
+    f"<style>"
+    f".double-spacing {{ line-height: 1.5; }}"
+    f".font {{ font-size: {Style.FontSize.regular}; font-family: 'Times New Roman'; }}"
+    f"table, th, td {{ border-collapse: collapse; }}"
+    f".meta {{ font-size: {Style.FontSize.smaller}; }}"
+    f"</style>"
 )
 
 

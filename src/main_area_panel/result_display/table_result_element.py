@@ -6,6 +6,7 @@
 
 from PySide6.QtWidgets import QVBoxLayout
 
+from src.common.constant import BASE_STYLES
 from src.common.elements.utility.layout_helpers import empty_widget, widget_in_layout
 from src.common.result.registry import RESULTS
 from src.main_area_panel.result_display.base import BaseResultDisplay
@@ -40,4 +41,6 @@ class TableResultElementDisplay(BaseResultDisplay):
         self.refresh()
 
     def refresh(self):
-        self.text_browser.set_html(RESULTS[self.result_id].result_elements[self.result_element_id].get_html())
+        self.text_browser.set_html(
+            BASE_STYLES + RESULTS[self.result_id].result_elements[self.result_element_id].get_html()
+        )

@@ -75,7 +75,6 @@ class HTMLTableV2(BaseResultElement):
         self.border_top = border_top
         self.border_bottom = border_bottom
         self.table_note: str = table_note
-
         self.texts: List[str] = texts if texts is not None else []
 
         self.table_id = SingleLineTextResultItemSetting(label="Number:", current_value=table_id)
@@ -83,83 +82,85 @@ class HTMLTableV2(BaseResultElement):
 
         self.display_settings = {
             "General": ContainerResultItemSetting(
-                items=[
-                    self.table_id,
-                    self.table_caption,
-                ],
+                items=[self.table_id, self.table_caption],
                 add_stretch=True,
             ),
         }
 
     @log_method_noarg
     def get_html(self, renderer=None):
-        table_id = self.table_id.get_current_value() + "." if self.table_id.get_current_value() != "" else ""
-
+        table_id = self.table_id.get_current_value()
+        id_suffix = f"{table_id}." if table_id else ""
         table_str = "Таблиця" if LANGUAGE.is_ua() else "Table"
         note_str = "Нотатка" if LANGUAGE.is_ua() else "Note"
 
+        # Propagate top/bottom borders to cell flags
+        if self.rows:
+            if self.border_top:
+                for cell in self.rows[0].cells:
+                    cell.border_top = True
+            if self.border_bottom:
+                for cell in self.rows[-1].cells:
+                    cell.border_bottom = True
+
         # Caption
-        html = ""
-        html += f"""
-            <div class="double-spacing font"><b>
-            {table_str} {table_id}
-            </b></div>
-        """
-        html += f'<div class="double-spacing font"><i>{self.table_caption.get_current_value()}</i></div><br>'
+        html = (
+            f'<div class="font"><b>{table_str} {id_suffix}</b></div>'
+            f'<div class="font"><i>{self.table_caption.get_current_value()}</i></div><br>'
+        )
 
-        style = ""
-        if self.border_top:
-            style += "border-top: 2px solid black;"
-        if self.border_bottom:
-            style += "border-bottom: 2px solid black;"
+        # Table start
+        html += f'<table style="border-collapse: collapse;" class="font">'
 
-        html += f'<table style="{style}" class="font">'
-
-        for row in self.rows:
+        total_rows = len(self.rows)
+        for r_idx, row in enumerate(self.rows):
             html += "<tr>"
             for cell in row.cells:
-                style = "padding: 5px;"
-                attributes = ""
-                if cell.is_doubled:
-                    style += "width: 40px;"
-                else:
-                    style += "width: 80px;"
+                # Base cell style with increased line-height
+                cell_style = "padding: 5px;"
                 if cell.is_bold:
-                    style += "font-weight: bold;"
+                    cell_style += " font-weight: bold;"
                 if cell.is_italic:
-                    style += "font-style: italic;"
-                if cell.border_left:
-                    style += f"border-left: 1px solid black;"
-                if cell.border_right:
-                    style += f"border-right: 1px solid black;"
-                if cell.border_top:
-                    style += f"border-top: 1px solid black;"
-                if cell.border_bottom:
-                    style += f"border-bottom: 1px solid black;"
-                if cell.col_span > 1:
-                    attributes += f' colspan="{cell.col_span}"'
-                if cell.row_span > 1:
-                    attributes += f' rowspan="{cell.row_span}"'
-                if cell.push_to_right:
-                    style += "text-align: right; padding-right: 0px; margin-right:0px;"
-                if cell.push_to_left:
-                    style += "text-align: left; padding-left: 0px; margin-left:0px;"
-                if cell.center:
-                    style += "text-align: center;"
+                    cell_style += " font-style: italic;"
                 if cell.no_wrap:
-                    style += "white-space: nowrap;"
-                html += f'<td style="{style}" {attributes}>{cell.text}</td>'
+                    cell_style += " white-space: nowrap;"
+                if cell.push_to_right:
+                    cell_style += " text-align: right;"
+                elif cell.push_to_left:
+                    cell_style += " text-align: left;"
+                elif cell.center:
+                    cell_style += " text-align: center;"
+
+                # Top border
+                if r_idx == 0 and self.border_top:
+                    cell_style += " border-top: 2px solid black;"
+                elif cell.border_top:
+                    cell_style += " border-top: 1px solid black;"
+                # Bottom border
+                if r_idx == total_rows - 1 and self.border_bottom:
+                    cell_style += " border-bottom: 2px solid black;"
+                elif cell.border_bottom:
+                    cell_style += " border-bottom: 1px solid black;"
+
+                # Span
+                attrs = ""
+                if cell.col_span > 1:
+                    attrs += f' colspan="{cell.col_span}"'
+                if cell.row_span > 1:
+                    attrs += f' rowspan="{cell.row_span}"'
+
+                html += f'<td style="{cell_style}"{attrs}>{cell.text}</td>'
             html += "</tr>"
         html += "</table>\n"
-        if self.table_note != "":
-            html += f'<div class="double-spacing font"><i>{note_str}.</i> {self.table_note}</div>\n'
 
+        # Note
+        if self.table_note:
+            html += f'<div class="font"><i>{note_str}.</i> {self.table_note}</div>\n'
+
+        # Additional texts
         for text in self.texts:
             html += (
-                "<br><br>\n"
-                f'<div class="double-spacing font"> \n'
-                f"{text.replace(TABLE_OR_PLOT_ID_PLACEHOLDER, table_id)}\n"
-                f"</div><br>\n"
+                "<br><br>\n" f'<div class="font">{text.replace(TABLE_OR_PLOT_ID_PLACEHOLDER, id_suffix)}</div><br>\n'
             )
         return html
 

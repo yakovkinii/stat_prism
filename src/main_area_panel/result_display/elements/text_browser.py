@@ -1,4 +1,5 @@
 #  Copyright (c) 2023 StatPrism Team. All rights reserved.
+
 from PySide6.QtCore import QSize, Qt
 from PySide6.QtWidgets import QSizePolicy, QTextBrowser
 
