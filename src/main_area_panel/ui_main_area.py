@@ -1,10 +1,11 @@
 #  Copyright (c) 2023 StatPrism Team. All rights reserved.
-
+import logging
 from typing import TYPE_CHECKING
 
 from PySide6 import QtWidgets
 from PySide6.QtWidgets import QVBoxLayout
 
+from src.common.decorators import log_method
 from src.common.elements.utility.layout_helpers import empty_widget
 from src.common.result.registry import RESULTS
 from src.main_area_panel.result_display.data_analysis import DataAnalysisResultDisplay
@@ -92,5 +93,35 @@ class MainAreaClass:
 
         self.data_analysis_container_layout.addWidget(data_analysis_object.widget)
 
-    def refresh_data_analysis(self, result_id):
-        self.data_analysis_objects[result_id].refresh()
+    def refresh_data_analysis(self, result_id, result_element_id=None):
+        if result_element_id is None:
+            self.data_analysis_objects[result_id].refresh()
+        else:
+            self.data_analysis_objects[result_id].refresh_element(result_element_id)
+
+
+    @log_method
+
+    def activate_result(self, result_id, result_element_id):
+        logging.warning(f"Activating result {result_id} with element {result_element_id}")
+        if result_element_id is None:
+            self.parent_class.settings_panel.panels[RESULTS[result_id].settings_panel_index].configure(result_id)
+            self.parent_class.action_activate_panel_by_index(RESULTS[result_id].settings_panel_index)
+            # self.selected_result = result_id
+            # self.selected_element = element_id
+            # self.refresh()
+            # self.root_class.tab_widget.setCurrentIndex(1)
+        else:
+            # self.parent_class.settings_panel.panels[RESULTS[result_id].settings_panel_index].configure(result_id)
+            self.parent_class.action_activate_panel_by_index(
+                RESULTS[result_id].result_elements[result_element_id].settings_panel_index
+            )
+            self.parent_class.settings_panel.panels[
+                RESULTS[result_id].result_elements[result_element_id].settings_panel_index
+            ].configure(result_id, result_element_id)
+
+            # self.parent_class.results_panel.display(result_id=result_id, element_id=element_id)
+            # self.selected_result = result_id
+            # self.selected_element = element_id
+            # self.refresh()
+            # self.root_class.tab_widget.setCurrentIndex(1)

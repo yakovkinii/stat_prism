@@ -41,3 +41,5 @@ class DataProcessingResultDisplay(BaseResultDisplay):
                 )
             ],
         )
+    def activate_result(self, result_id, result_element_id):
+        self.parent_class.activate_result(result_id, result_element_id)

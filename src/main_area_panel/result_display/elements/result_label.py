@@ -3,10 +3,11 @@
 from PySide6 import QtCore
 from PySide6.QtWidgets import QLabel
 
+from src.common.elements.utility.primitive_elements import QLabelClickable
 from src.pyside_ext.styling import Style
 
 
-class ResultLabel(QLabel):
+class ResultLabel(QLabelClickable):
     def __init__(self, parent, label_text):
         super().__init__(parent)
         self.setText(label_text)

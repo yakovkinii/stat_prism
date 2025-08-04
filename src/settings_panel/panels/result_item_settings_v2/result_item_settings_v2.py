@@ -49,6 +49,7 @@ class ResultItemSettingsV2(BasePanel):
         if self.configuring:
             return
         if message.message_type in [MessageType.EDITING_FINISHED, MessageType.STATE_CHANGED]:
-            self.root_class.results_panel.refresh()
+            # self.root_class.results_panel.refresh()
+            self.root_class.main_area_panel.refresh_data_analysis(self.result_id, self.element_id)
             return
         super().handler(message)

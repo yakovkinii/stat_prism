@@ -4,7 +4,9 @@ from PySide6.QtGui import QPainter, QPixmap
 from PySide6.QtSvg import QSvgRenderer
 from PySide6.QtWidgets import QLabel, QVBoxLayout
 
+from src.common.decorators import log_method
 from src.common.elements.utility.layout_helpers import empty_widget, widget_in_layout
+from src.common.elements.utility.primitive_elements import QWidgetClickable
 from src.common.result.registry import RESULTS
 from src.main_area_panel.result_display.base import BaseResultDisplay
 from src.main_area_panel.result_display.elements.result_element_label import ResultElementLabel
@@ -25,9 +27,22 @@ class PlotResultElementDisplay(BaseResultDisplay):
         )
         set_stylesheet(self.widget, css(background_color=Style.Color.Background))
 
+        self.header_widget, self.header_layout = empty_widget(
+            widget_class=QWidgetClickable,
+            parent=self.widget,
+            outer_layout=self.layout,
+            inner_layout_class=QVBoxLayout,
+            setup=lambda w, l: [w.clicked.connect(lambda: self.activate_result(self.result_id, self.result_element_id))],
+        )
+
         self.label = widget_in_layout(
-            widget=ResultElementLabel(parent=self.widget, label_text=label_text),
-            layout=self.layout,
+            widget=ResultElementLabel(parent=self.header_widget, label_text=label_text),
+            layout=self.header_layout,
+            setup=lambda w, l: [
+                w.clicked.connect(
+                    lambda: self.activate_result(self.result_id, self.result_element_id)
+                )
+            ],
         )
 
         self.image = widget_in_layout(
@@ -43,7 +58,7 @@ class PlotResultElementDisplay(BaseResultDisplay):
         renderer.load(buf.read())
 
         # Set output size (adjust as needed)
-        target_width = 600
+        target_width = 500
         default_size = renderer.defaultSize()  # returns QSize
         if default_size.isEmpty():
             raise ValueError("SVG has no size information.")
@@ -61,3 +76,6 @@ class PlotResultElementDisplay(BaseResultDisplay):
         painter.end()
 
         self.image.setPixmap(pixmap)
+    @log_method
+    def activate_result(self, result_id, result_element_id):
+        self.parent_class.activate_result(result_id, result_element_id)
