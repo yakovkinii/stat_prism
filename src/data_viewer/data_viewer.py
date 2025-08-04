@@ -153,7 +153,7 @@ class TablePopup(QWidget):
 
         overlay = QWidget(self)
         overlay.setGeometry(self.rect())
-        overlay.setStyleSheet("background-color: rgba(0,0,0,0.3);")
+        overlay.setStyleSheet("background-color: rgba(0,11,22,0.4);")
         overlay.show()
 
         self.popup = QFrame(self)

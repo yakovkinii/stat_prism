@@ -76,7 +76,8 @@ class MainWindowClass(QtWidgets.QMainWindow):
         set_stylesheet(
             self.splitter,
             css(
-                background_color=Style.Color.Background,
+                "#id::handle",
+                background_color=Style.Color.BorderElevated,
             ),
         )
         # self.tab_widget.addTab(self.data_panel.widget, "Data")
