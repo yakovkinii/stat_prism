@@ -1,6 +1,6 @@
 #  Copyright (c) 2023 StatPrism Team. All rights reserved.
 from PySide6 import QtCore, QtWidgets
-from PySide6.QtWidgets import QHBoxLayout, QSizePolicy, QVBoxLayout, QWidget, QLabel
+from PySide6.QtWidgets import QHBoxLayout, QLabel, QSizePolicy, QVBoxLayout, QWidget
 
 from src.common.decorators import log_method
 from src.common.elements.utility.layout_helpers import empty_widget, widget_in_layout
@@ -26,8 +26,18 @@ class DataAnalysisResultDisplay(BaseResultDisplay):
         self.widget, self.layout = empty_widget(
             parent=self.parent_widget,
             inner_layout_class=QVBoxLayout,
+            setup=lambda w, l: [
+                l.setContentsMargins(10, 10, 0, 0),
+                l.setSpacing(10),
+            ],
         )
-        set_stylesheet(self.widget, css(background_color=Style.Color.Background))
+        set_stylesheet(
+            self.widget,
+            css(
+                background_color=Style.Color.Background,
+                border_left=Style.General.border_data_analysis,
+            ),
+        )
 
         self.header_widget, self.header_layout = empty_widget(
             widget_class=QWidgetClickable,
@@ -54,9 +64,6 @@ class DataAnalysisResultDisplay(BaseResultDisplay):
             outer_layout=self.layout,
             inner_layout_class=FlowLayout,
         )
-
-
-
 
         self.element_display_objects = {}
 

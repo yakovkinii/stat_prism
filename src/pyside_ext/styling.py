@@ -12,7 +12,7 @@ _font_result_label = QtGui.QFont("Segoe UI")
 _font_result_label.setPointSize(16)
 
 _font_result_element_label = QtGui.QFont("Segoe UI")
-_font_result_element_label.setPointSize(14)
+_font_result_element_label.setPointSize(12)
 
 
 class Style:
@@ -52,3 +52,5 @@ class Style:
             return str(self.value)
 
         border = "1px solid"
+        border_data_analysis = "5px solid #aaf"
+        border_data_processing = "5px solid #afa"

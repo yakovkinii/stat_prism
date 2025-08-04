@@ -66,7 +66,7 @@ if __name__ == "__main__":
     _ = resources_rc
 
     app = QApplication(sys.argv)
-    pixmap = QPixmap(":/mat/resources/banner19.png")
+    pixmap = QPixmap(":/mat/resources/banner22.png")
     splash = FadingSplash(pixmap)
     splash.show()
     app.processEvents()

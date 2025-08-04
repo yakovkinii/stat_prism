@@ -14,3 +14,4 @@ class ResultElementLabel(QLabelClickable):
         self.setFont(Style.font_result_element_label)
         self.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeft | QtCore.Qt.AlignmentFlag.AlignVCenter)
         self.setTextInteractionFlags(QtCore.Qt.TextInteractionFlag.TextSelectableByMouse)
+        self.setWordWrap(True)

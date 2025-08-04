@@ -21,8 +21,18 @@ class DataProcessingResultDisplay(BaseResultDisplay):
         self.widget, self.layout = empty_widget(
             parent=self.parent_widget,
             inner_layout_class=QVBoxLayout,
+            setup=lambda w, l: [
+                l.setContentsMargins(10, 10, 0, 0),
+                l.setSpacing(10),
+            ],
         )
-        set_stylesheet(self.widget, css(background_color=Style.Color.Background))
+        set_stylesheet(
+            self.widget,
+            css(
+                background_color=Style.Color.Background,
+                border_left=Style.General.border_data_processing,
+            ),
+        )
 
         self.label = widget_in_layout(
             widget=ResultLabel(parent=self.widget, label_text=label_text),

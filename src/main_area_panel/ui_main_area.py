@@ -32,6 +32,9 @@ class MainAreaClass:
         self.widget_in_scroll_area, self.layout = empty_widget(
             parent=self.parent_widget,
             inner_layout_class=QVBoxLayout,
+            setup=lambda w, l: [
+                l.setSpacing(10),
+            ],
         )
         self.widget.setWidget(self.widget_in_scroll_area)
 
@@ -42,6 +45,10 @@ class MainAreaClass:
             parent=self.widget_in_scroll_area,
             outer_layout=self.layout,
             inner_layout_class=QVBoxLayout,
+            setup=lambda w, l: [
+                l.setContentsMargins(10, 0, 0, 0),
+                l.setSpacing(10),
+            ],
         )
 
         # Data Processing
@@ -52,6 +59,10 @@ class MainAreaClass:
             parent=self.widget_in_scroll_area,
             outer_layout=self.layout,
             inner_layout_class=QVBoxLayout,
+            setup=lambda w, l: [
+                l.setContentsMargins(10, 0, 0, 0),
+                l.setSpacing(10),
+            ],
         )
 
         self.layout.addStretch()

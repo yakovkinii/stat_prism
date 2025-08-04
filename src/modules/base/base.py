@@ -87,6 +87,31 @@ class BaseModulePanel:
         )
         self.copy_for_word_button.clicked.connect(self.copy_for_word)
 
+        self.home_button = create_tool_button_qta(
+            parent=self.widget,
+            button_geometry=QtCore.QRect((SettingsPanelSize.width - 180), 5, 50, 50),
+            icon_path="mdi6.home-outline",
+            icon_size=QtCore.QSize(40, 40),
+        )
+        self.home_button.clicked.connect(
+            lambda: self.root_class.action_activate_panel_by_index(
+                PanelRegistry.HOME.settings_stacked_widget_index
+            )
+        )
+
+        self.add_study_button = create_tool_button_qta(
+            parent=self.widget,
+            button_geometry=QtCore.QRect((SettingsPanelSize.width - 240), 5, 50, 50),
+            icon_path="mdi6.plus",
+            icon_size=QtCore.QSize(40, 40),
+        )
+
+        self.add_study_button.clicked.connect(
+            lambda: self.root_class.action_activate_panel_by_index(
+                PanelRegistry.SELECT_STUDY.settings_stacked_widget_index
+            )
+        )
+
         # Definition
         self.widget_for_elements = QtWidgets.QWidget()
         self.widget_for_elements.setFixedWidth(SettingsPanelSize.width)
