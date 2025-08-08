@@ -49,6 +49,7 @@ class QListWidgetClickable(QtWidgets.QListWidget):
 
 class QLabelClickable(QLabel):
     clicked = QtCore.Signal()
+    doubleClicked = QtCore.Signal()
 
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -56,6 +57,10 @@ class QLabelClickable(QLabel):
     def mousePressEvent(self, event):
         self.clicked.emit()
         super().mousePressEvent(event)
+
+    def mouseDoubleClickEvent(self, event):
+        self.doubleClicked.emit()
+        super().mouseDoubleClickEvent(event)
 
 
 class EditableLabelWordwrap(QTextEdit):

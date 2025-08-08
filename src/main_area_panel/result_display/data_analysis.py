@@ -1,4 +1,6 @@
 #  Copyright (c) 2023 StatPrism Team. All rights reserved.
+import logging
+
 from PySide6 import QtCore, QtWidgets
 from PySide6.QtWidgets import QHBoxLayout, QLabel, QSizePolicy, QVBoxLayout, QWidget
 
@@ -120,3 +122,27 @@ class DataAnalysisResultDisplay(BaseResultDisplay):
     @log_method
     def activate_result(self, result_id, result_element_id):
         self.parent_class.activate_result(result_id, result_element_id)
+
+    def set_focus(self, focused_result_element_id):
+        logging.warning(f"Setting focus on {self.result_id} with element {focused_result_element_id}")
+        if focused_result_element_id is None:
+            set_stylesheet(
+                self.label,
+                css(
+                    text_decoration="underline",
+                )
+            )
+        else:
+            ...
+
+    def remove_focus(self, focused_result_element_id):
+        logging.warning(f"Removing focus from {self.result_id} with element {focused_result_element_id}")
+        if focused_result_element_id is None:
+            set_stylesheet(
+                self.label,
+                css(
+                    text_decoration="none",
+                )
+            )
+        else:
+            ...

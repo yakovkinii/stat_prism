@@ -67,6 +67,9 @@ class MainAreaClass:
 
         self.layout.addStretch()
 
+        self.focused_result_id = None
+        self.focused_result_element_id = None
+
         # For GC
         self.raw_data_object = None
         self.data_analysis_objects = {}
@@ -110,29 +113,26 @@ class MainAreaClass:
         else:
             self.data_analysis_objects[result_id].refresh_element(result_element_id)
 
+    def update_focus(self, result_id, result_element_id=None):
+        if self.focused_result_id in self.data_analysis_objects:
+            self.data_analysis_objects[self.focused_result_id].remove_focus(self.focused_result_element_id)
+        self.data_analysis_objects[result_id].set_focus(result_element_id)
+
+        self.focused_result_id = result_id
+        self.focused_result_element_id = result_element_id
 
     @log_method
-
     def activate_result(self, result_id, result_element_id):
         logging.warning(f"Activating result {result_id} with element {result_element_id}")
         if result_element_id is None:
             self.parent_class.settings_panel.panels[RESULTS[result_id].settings_panel_index].configure(result_id)
             self.parent_class.action_activate_panel_by_index(RESULTS[result_id].settings_panel_index)
-            # self.selected_result = result_id
-            # self.selected_element = element_id
-            # self.refresh()
-            # self.root_class.tab_widget.setCurrentIndex(1)
         else:
-            # self.parent_class.settings_panel.panels[RESULTS[result_id].settings_panel_index].configure(result_id)
             self.parent_class.action_activate_panel_by_index(
                 RESULTS[result_id].result_elements[result_element_id].settings_panel_index
             )
             self.parent_class.settings_panel.panels[
                 RESULTS[result_id].result_elements[result_element_id].settings_panel_index
             ].configure(result_id, result_element_id)
-
-            # self.parent_class.results_panel.display(result_id=result_id, element_id=element_id)
-            # self.selected_result = result_id
-            # self.selected_element = element_id
-            # self.refresh()
-            # self.root_class.tab_widget.setCurrentIndex(1)
+        self.update_focus(result_id, result_element_id)
+    
