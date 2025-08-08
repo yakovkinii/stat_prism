@@ -1,7 +1,7 @@
 #  Copyright (c) 2023 StatPrism Team. All rights reserved.
 
+from PySide6.QtCore import QPoint, QRect, QSize, Qt
 from PySide6.QtWidgets import QLayout, QSizePolicy, QWidgetItem
-from PySide6.QtCore import QSize, QPoint, QRect, Qt
 
 
 class FlowLayout(QLayout):
@@ -49,12 +49,7 @@ class FlowLayout(QLayout):
 
     def doLayout(self, rect, test_only):
         margins = self.contentsMargins()
-        effective_rect = rect.adjusted(
-            margins.left(),
-            margins.top(),
-            -margins.right(),
-            -margins.bottom()
-        )
+        effective_rect = rect.adjusted(margins.left(), margins.top(), -margins.right(), -margins.bottom())
         x = effective_rect.x()
         y = effective_rect.y()
         line_height = 0

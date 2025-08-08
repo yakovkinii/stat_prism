@@ -105,15 +105,7 @@ class HTMLTableV2(BaseResultElement):
                 for cell in self.rows[-1].cells:
                     cell.border_bottom = True
 
-        # Caption
-        html = ""
-        # html = (
-        #     f'<div class="font"><b>{table_str} {id_suffix}</b></div>'
-        #     f'<div class="font"><i>{self.table_caption.get_current_value()}</i></div><br>'
-        # )
-
-        # Table start
-        html += f'<table style="border-collapse: collapse;" class="font">'
+        html = f'<table style="border-collapse: collapse;" class="font">'
 
         total_rows = len(self.rows)
         for r_idx, row in enumerate(self.rows):
@@ -183,48 +175,3 @@ class HTMLTableV2(BaseResultElement):
 
     def add_text(self, text=None):
         self.texts.append(text)
-
-    @log_method
-    def split_table(self, max_cols: int):  # Todo maybe return as multitable (group by as same tab)
-        logging.warning("HTMLTableV2.split_table is deprecated")
-        new_tables = []
-        num_cols = len(self.rows[0].cells)
-
-        if num_cols <= max_cols:
-            return [self]
-
-        for i in range(1, num_cols, max_cols):
-            new_table = HTMLTableV2(
-                rows=[Row(cells=[row.cells[0]] + row.cells[i : i + max_cols]) for row in self.rows],
-                table_id=self.table_id.get_current_value(),
-                table_caption=self.table_caption if i == 1 else "",
-                table_note=self.table_note if i == 1 else "",
-            )
-            new_tables.append(new_table)
-
-        return HTMLMultiTableV2(new_tables)
-
-
-class HTMLMultiTableV2(BaseResultElement):
-    def __init__(self, tables: List[HTMLTableV2], tab_title="Table"):
-        logging.warning("HTMLMultiTableV2 is deprecated")
-        super().__init__()
-        logging.info("Creating HTMLMultiTableV2")
-        self.title: str = tab_title
-        self.class_id: str = "HTMLMultiTableV2"
-        self.tables: List[HTMLTableV2] = tables
-        self.table_id: str = tables[0].table_id
-        self.table_caption: str = tables[0].table_caption
-
-    @log_method_noarg
-    def get_html(self, renderer=None):
-        return "<br>".join([table.get_html() for table in self.tables])
-
-    @log_method
-    def set_table_id(self, table_id):
-        for table in self.tables:
-            table.set_table_id(table_id)
-
-    @log_method
-    def set_table_caption(self, table_caption):
-        self.tables[0].set_table_caption(table_caption)

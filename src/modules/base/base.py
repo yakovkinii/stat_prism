@@ -94,9 +94,7 @@ class BaseModulePanel:
             icon_size=QtCore.QSize(40, 40),
         )
         self.home_button.clicked.connect(
-            lambda: self.root_class.action_activate_panel_by_index(
-                PanelRegistry.HOME.settings_stacked_widget_index
-            )
+            lambda: self.root_class.action_activate_panel_by_index(PanelRegistry.HOME.settings_stacked_widget_index)
         )
 
         self.add_study_button = create_tool_button_qta(

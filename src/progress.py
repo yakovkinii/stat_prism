@@ -1,7 +1,5 @@
-from PySide6.QtWidgets import (
-    QApplication, QWidget, QVBoxLayout, QPushButton, QProgressDialog
-)
-from PySide6.QtCore import Qt, QObject, QThread, Signal
+from PySide6.QtCore import QObject, Qt, QThread, Signal
+from PySide6.QtWidgets import QApplication, QProgressDialog, QPushButton, QVBoxLayout, QWidget
 
 
 class Worker(QObject):
@@ -42,13 +40,12 @@ def with_progress(func, steps=100, parent=None, title="Working...", on_done=None
     worker.moveToThread(thread)
 
     worker.progress.connect(dlg.setValue)
-    worker.finished.connect(lambda result: (
-        thread.quit(), thread.wait(), dlg.close(), on_done(result) if on_done else None
-    ))
+    worker.finished.connect(
+        lambda result: (thread.quit(), thread.wait(), dlg.close(), on_done(result) if on_done else None)
+    )
     worker.canceled.connect(lambda: (thread.quit(), thread.wait(), dlg.close()))
 
-    dlg.canceled.connect(lambda: worker.stop()
-                        )
+    dlg.canceled.connect(lambda: worker.stop())
 
     thread.started.connect(worker.run)
     thread.start()

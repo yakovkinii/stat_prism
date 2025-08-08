@@ -1,20 +1,18 @@
 #  Copyright (c) 2023 StatPrism Team. All rights reserved.
 import logging
-from typing import cast
 
 import qtawesome as qta
-from PySide6 import QtCore, QtWidgets
+from PySide6 import QtCore
 from PySide6.QtCore import QSize, Qt
-from PySide6.QtGui import QClipboard, QPainter, QPixmap
+from PySide6.QtGui import QPainter, QPixmap
 from PySide6.QtSvg import QSvgRenderer
-from PySide6.QtWidgets import QHBoxLayout, QLabel, QVBoxLayout
+from PySide6.QtWidgets import QHBoxLayout, QVBoxLayout
 
 from src.common.decorators import log_method
 from src.common.elements.utility.layout_helpers import empty_widget, widget_in_layout
 from src.common.elements.utility.primitive_elements import QLabelClickable, QWidgetClickable
-from src.common.result.plot_result import PlotV2
 from src.common.result.registry import RESULTS
-from src.common.ui_constructor import create_simple_tool_button_qta, create_tool_button_qta
+from src.common.ui_constructor import create_simple_tool_button_qta
 from src.main_area_panel.result_display.base import BaseResultDisplay
 from src.main_area_panel.result_display.elements.result_element_label import ResultElementLabel
 from src.pyside_ext.markup import css

@@ -1,12 +1,13 @@
 #  Copyright (c) 2023 StatPrism Team. All rights reserved.
 from PySide6 import QtCore
-from PySide6.QtCore import QSize, Qt, QMimeData
+from PySide6.QtCore import QMimeData, QSize, Qt
 from PySide6.QtGui import QGuiApplication
 from PySide6.QtWidgets import QSizePolicy, QTextBrowser
 
 
 class TextBrowser(QTextBrowser):
     clicked = QtCore.Signal()
+
     def __init__(self, parent=None):
         super().__init__(parent)
         self.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Fixed)

@@ -1,12 +1,10 @@
 #  Copyright (c) 2023 StatPrism Team. All rights reserved.
 import logging
 
+import qtawesome as qta
 from PySide6 import QtCore
 from PySide6.QtCore import Qt
-#  Copyright (c) 2023 StatPrism Team. All rights reserved.
-
-
-from PySide6.QtWidgets import QVBoxLayout, QHBoxLayout
+from PySide6.QtWidgets import QHBoxLayout, QVBoxLayout
 
 from src.common.constant import BASE_STYLES
 from src.common.decorators import log_method
@@ -21,7 +19,8 @@ from src.pyside_ext.markup import css
 from src.pyside_ext.styling import Style
 from src.pyside_ext.unique_qss import set_stylesheet
 
-import qtawesome as qta
+
+
 class TableResultElementDisplay(BaseResultDisplay):
     def __init__(self, parent_widget, parent_class, root_class, label_text: str, result_id, result_element_id):
         super().__init__(parent_widget, parent_class, root_class)
@@ -114,6 +113,7 @@ class TableResultElementDisplay(BaseResultDisplay):
                 border_radius="5px",
             ),
         )
+
     def copy_table(self):
         self.copy_button.setIcon(qta.icon("fa.check", color=Style.Color.SimpleToolButton.value))
         self.text_browser.copy_to_clipboard()

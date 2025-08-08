@@ -21,7 +21,7 @@ def icon(path):
     return _icon
 
 
-def create_tool_button_qta(parent,  icon_path, icon_size, button_geometry=None, **kwargs):
+def create_tool_button_qta(parent, icon_path, icon_size, button_geometry=None, **kwargs):
     button = QtWidgets.QToolButton(parent)
     if button_geometry is not None:
         button.setGeometry(button_geometry)
@@ -32,7 +32,8 @@ def create_tool_button_qta(parent,  icon_path, icon_size, button_geometry=None, 
     button.setToolButtonStyle(QtCore.Qt.ToolButtonStyle.ToolButtonIconOnly)
     return button
 
-def create_simple_tool_button_qta(parent,  icon_path, icon_size):
+
+def create_simple_tool_button_qta(parent, icon_path, icon_size):
     button = QtWidgets.QToolButton(parent)
     button.setText("")
     button.setIcon(qta.icon(icon_path, color=Style.Color.SimpleToolButton.value))
@@ -46,6 +47,7 @@ def create_simple_tool_button_qta(parent,  icon_path, icon_size):
         ),
     )
     return button
+
 
 def create_label(parent, label_geometry, font_size, alignment):
     label = QtWidgets.QLabel(parent)

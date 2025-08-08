@@ -1,6 +1,5 @@
 #  Copyright (c) 2023 StatPrism Team. All rights reserved.
 
-
 from PySide6.QtWidgets import QPushButton, QVBoxLayout
 
 from src.common.elements.utility.layout_helpers import empty_widget, widget_in_layout
@@ -51,5 +50,6 @@ class DataProcessingResultDisplay(BaseResultDisplay):
                 )
             ],
         )
+
     def activate_result(self, result_id, result_element_id):
         self.parent_class.activate_result(result_id, result_element_id)

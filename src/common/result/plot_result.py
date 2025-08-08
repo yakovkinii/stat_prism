@@ -7,11 +7,11 @@ import logging
 from typing import List, Tuple, Union
 
 import numpy as np
-from PySide6.QtGui import QImage
-from PySide6.QtWidgets import QApplication
 from matplotlib import cbook
 from matplotlib import pyplot as plt
 from mpl_toolkits.axes_grid1 import make_axes_locatable
+from PySide6.QtGui import QImage
+from PySide6.QtWidgets import QApplication
 
 from src.common.elements.base.base import BasePanelElement
 from src.common.qcolor import Colors, rgba_tuple_from_rgb_and_a

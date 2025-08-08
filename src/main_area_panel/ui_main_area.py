@@ -135,4 +135,3 @@ class MainAreaClass:
                 RESULTS[result_id].result_elements[result_element_id].settings_panel_index
             ].configure(result_id, result_element_id)
         self.update_focus(result_id, result_element_id)
-    

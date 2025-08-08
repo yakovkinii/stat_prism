@@ -60,4 +60,3 @@ class Style:
         border_thick_selected = "5px solid #05f"
         border_thin_unselected = "2px solid #eee"
         border_thin_selected = "2px solid #05f"
-

@@ -97,15 +97,20 @@ class DataTableView(QTableView):
         super().__init__()
         self._editingIndex = None
         self.setHorizontalScrollMode(QAbstractItemView.ScrollPerPixel)
-        self.setStyleSheet(
-            """
-            QTableView { font-size:10pt; color:black; background:white; border:none; outline:none; }
-            QTableView::item { border-bottom:1px solid lightgray; }
-            QScrollBar:vertical { width:6px; }
-            QScrollBar:horizontal { height:6px; }
-            QScrollBar::handle { background:#ccc; border-radius:3px; }
-            QScrollBar::add-line, QScrollBar::sub-line { height:0; width:0; }
-        """
+        set_stylesheet(
+            self,
+            css(
+                "QTableView",
+                font_size="10pt",
+                color="black",
+                background="white",
+                border="none",
+                outline="none",
+            ),
+            css(
+                "QTableView::item",
+                border_bottom="1px solid lightgray",
+            ),
         )
 
     def mousePressEvent(self, event):

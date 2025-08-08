@@ -40,7 +40,7 @@ def widget_in_layout(
     widget,
     layout,
     setup: Callable[[object, object], any] = None,
-        alignment=None,
+    alignment=None,
 ):
     if alignment is None:
         layout.addWidget(widget)
