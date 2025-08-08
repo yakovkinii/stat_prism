@@ -1,15 +1,20 @@
 #  Copyright (c) 2023 StatPrism Team. All rights reserved.
 import logging
+from typing import cast
 
+import qtawesome as qta
+from PySide6 import QtCore, QtWidgets
 from PySide6.QtCore import QSize, Qt
-from PySide6.QtGui import QPainter, QPixmap
+from PySide6.QtGui import QClipboard, QPainter, QPixmap
 from PySide6.QtSvg import QSvgRenderer
-from PySide6.QtWidgets import QLabel, QVBoxLayout
+from PySide6.QtWidgets import QHBoxLayout, QLabel, QVBoxLayout
 
 from src.common.decorators import log_method
 from src.common.elements.utility.layout_helpers import empty_widget, widget_in_layout
-from src.common.elements.utility.primitive_elements import QWidgetClickable, QLabelClickable
+from src.common.elements.utility.primitive_elements import QLabelClickable, QWidgetClickable
+from src.common.result.plot_result import PlotV2
 from src.common.result.registry import RESULTS
+from src.common.ui_constructor import create_simple_tool_button_qta, create_tool_button_qta
 from src.main_area_panel.result_display.base import BaseResultDisplay
 from src.main_area_panel.result_display.elements.result_element_label import ResultElementLabel
 from src.pyside_ext.markup import css
@@ -29,7 +34,7 @@ class PlotResultElementDisplay(BaseResultDisplay):
             inner_layout_class=QVBoxLayout,
             setup=lambda w, l: [
                 w.clicked.connect(lambda: self.activate_result(self.result_id, self.result_element_id)),
-                ],
+            ],
         )
         self.layout.setContentsMargins(5, 5, 5, 5)
         self.layout.setSpacing(5)
@@ -38,9 +43,10 @@ class PlotResultElementDisplay(BaseResultDisplay):
             widget_class=QWidgetClickable,
             parent=self.widget,
             outer_layout=self.layout,
-            inner_layout_class=QVBoxLayout,
+            inner_layout_class=QHBoxLayout,
             setup=lambda w, l: [
-                w.clicked.connect(lambda: self.activate_result(self.result_id, self.result_element_id))
+                w.clicked.connect(lambda: self.activate_result(self.result_id, self.result_element_id)),
+                l.setSpacing(5),
             ],
         )
 
@@ -49,6 +55,20 @@ class PlotResultElementDisplay(BaseResultDisplay):
             layout=self.header_layout,
             setup=lambda w, l: [
                 w.clicked.connect(lambda: self.activate_result(self.result_id, self.result_element_id))
+            ],
+        )
+
+        self.copy_button = widget_in_layout(
+            widget=create_simple_tool_button_qta(
+                parent=self.widget,
+                icon_path="fa.copy",
+                icon_size=QtCore.QSize(20, 20),
+            ),
+            layout=self.header_layout,
+            alignment=Qt.AlignmentFlag.AlignTop,
+            setup=lambda w, l: [
+                w.setToolTip("Copy plot to clipboard"),
+                w.clicked.connect(self.copy_plot),
             ],
         )
 
@@ -63,12 +83,15 @@ class PlotResultElementDisplay(BaseResultDisplay):
         self.remove_focus(self.result_element_id)
 
     def refresh(self):
-        buf = RESULTS[self.result_id].result_elements[self.result_element_id].get_buffer()
+        result_element = RESULTS[self.result_id].result_elements[self.result_element_id]
+        # result_element = cast(result_element, PlotV2)
+        buf = result_element.get_svg_buffer()
 
         renderer = QSvgRenderer()
         renderer.load(buf.read())
+        buf.close()
 
-        target_width = 273
+        target_width = 270
         default_size = renderer.defaultSize()  # returns QSize
         if default_size.isEmpty():
             raise ValueError("SVG has no size information.")
@@ -112,3 +135,9 @@ class PlotResultElementDisplay(BaseResultDisplay):
                 border_radius="5px",
             ),
         )
+
+    def copy_plot(self):
+        self.copy_button.setIcon(qta.icon("fa.check", color=Style.Color.SimpleToolButton.value))
+        result_element = RESULTS[self.result_id].result_elements[self.result_element_id]
+        result_element.copy_to_clipboard()
+        QtCore.QTimer.singleShot(500, lambda: self.copy_button.setIcon(qta.icon("fa.copy", color="#888")))

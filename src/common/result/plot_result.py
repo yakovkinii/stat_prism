@@ -7,6 +7,8 @@ import logging
 from typing import List, Tuple, Union
 
 import numpy as np
+from PySide6.QtGui import QImage
+from PySide6.QtWidgets import QApplication
 from matplotlib import cbook
 from matplotlib import pyplot as plt
 from mpl_toolkits.axes_grid1 import make_axes_locatable
@@ -688,10 +690,24 @@ class PlotV2(BaseResultElement):
         """
         return html
 
-    def get_buffer(self):
+    def get_svg_buffer(self):
         fig, _ = self.create_figure()
         buf = io.BytesIO()
         fig.savefig(buf, format="svg", bbox_inches="tight")
         plt.close(fig)
         buf.seek(0)
         return buf
+
+    def get_png_buffer(self):
+        fig, _ = self.create_figure()
+        buf = io.BytesIO()
+        fig.savefig(buf, format="png", bbox_inches="tight", dpi=150)
+        plt.close(fig)
+        buf.seek(0)
+        return buf
+
+    def copy_to_clipboard(self):
+        buf = self.get_png_buffer()
+        image = QImage.fromData(buf.getvalue(), "PNG")
+        QApplication.clipboard().setImage(image)
+        buf.close()

@@ -1,6 +1,7 @@
 #  Copyright (c) 2023 StatPrism Team. All rights reserved.
 from PySide6 import QtCore
-from PySide6.QtCore import QSize, Qt
+from PySide6.QtCore import QSize, Qt, QMimeData
+from PySide6.QtGui import QGuiApplication
 from PySide6.QtWidgets import QSizePolicy, QTextBrowser
 
 
@@ -47,3 +48,12 @@ class TextBrowser(QTextBrowser):
     def mousePressEvent(self, event):
         self.clicked.emit()
         super().mousePressEvent(event)  # does not propagate the event to the parent
+
+    def contextMenuEvent(self, event):
+        pass  # Disable context menu
+
+    def copy_to_clipboard(self):
+        html = self.toHtml()
+        mime = QMimeData()
+        mime.setHtml(html)
+        QGuiApplication.clipboard().setMimeData(mime)

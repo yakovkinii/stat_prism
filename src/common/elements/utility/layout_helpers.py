@@ -40,8 +40,12 @@ def widget_in_layout(
     widget,
     layout,
     setup: Callable[[object, object], any] = None,
+        alignment=None,
 ):
-    layout.addWidget(widget)
+    if alignment is None:
+        layout.addWidget(widget)
+    else:
+        layout.addWidget(widget, alignment=alignment)
     if setup is not None:
         _ = setup(widget, layout)
     return widget

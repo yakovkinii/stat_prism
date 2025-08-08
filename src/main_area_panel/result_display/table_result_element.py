@@ -1,16 +1,19 @@
 #  Copyright (c) 2023 StatPrism Team. All rights reserved.
 import logging
 
+from PySide6 import QtCore
+from PySide6.QtCore import Qt
 #  Copyright (c) 2023 StatPrism Team. All rights reserved.
 
 
-from PySide6.QtWidgets import QVBoxLayout
+from PySide6.QtWidgets import QVBoxLayout, QHBoxLayout
 
 from src.common.constant import BASE_STYLES
 from src.common.decorators import log_method
 from src.common.elements.utility.layout_helpers import empty_widget, widget_in_layout
 from src.common.elements.utility.primitive_elements import QWidgetClickable
 from src.common.result.registry import RESULTS
+from src.common.ui_constructor import create_simple_tool_button_qta
 from src.main_area_panel.result_display.base import BaseResultDisplay
 from src.main_area_panel.result_display.elements.result_element_label import ResultElementLabel
 from src.main_area_panel.result_display.elements.text_browser import TextBrowser
@@ -18,7 +21,7 @@ from src.pyside_ext.markup import css
 from src.pyside_ext.styling import Style
 from src.pyside_ext.unique_qss import set_stylesheet
 
-
+import qtawesome as qta
 class TableResultElementDisplay(BaseResultDisplay):
     def __init__(self, parent_widget, parent_class, root_class, label_text: str, result_id, result_element_id):
         super().__init__(parent_widget, parent_class, root_class)
@@ -40,9 +43,10 @@ class TableResultElementDisplay(BaseResultDisplay):
             widget_class=QWidgetClickable,
             parent=self.widget,
             outer_layout=self.layout,
-            inner_layout_class=QVBoxLayout,
+            inner_layout_class=QHBoxLayout,
             setup=lambda w, l: [
-                w.clicked.connect(lambda: self.activate_result(self.result_id, self.result_element_id))
+                w.clicked.connect(lambda: self.activate_result(self.result_id, self.result_element_id)),
+                l.setSpacing(5),
             ],
         )
 
@@ -51,6 +55,20 @@ class TableResultElementDisplay(BaseResultDisplay):
             layout=self.header_layout,
             setup=lambda w, l: [
                 w.clicked.connect(lambda: self.activate_result(self.result_id, self.result_element_id))
+            ],
+        )
+
+        self.copy_button = widget_in_layout(
+            widget=create_simple_tool_button_qta(
+                parent=self.widget,
+                icon_path="fa.copy",
+                icon_size=QtCore.QSize(20, 20),
+            ),
+            layout=self.header_layout,
+            alignment=Qt.AlignmentFlag.AlignTop,
+            setup=lambda w, l: [
+                w.setToolTip("Copy plot to clipboard"),
+                w.clicked.connect(self.copy_table),
             ],
         )
 
@@ -96,3 +114,7 @@ class TableResultElementDisplay(BaseResultDisplay):
                 border_radius="5px",
             ),
         )
+    def copy_table(self):
+        self.copy_button.setIcon(qta.icon("fa.check", color=Style.Color.SimpleToolButton.value))
+        self.text_browser.copy_to_clipboard()
+        QtCore.QTimer.singleShot(500, lambda: self.copy_button.setIcon(qta.icon("fa.copy", color="#888")))

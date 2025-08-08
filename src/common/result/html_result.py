@@ -4,6 +4,8 @@
 import logging
 from typing import List
 
+from PySide6 import QtCore, QtGui
+
 from src.common.constant import TABLE_OR_PLOT_ID_PLACEHOLDER
 from src.common.decorators import log_method, log_method_noarg
 from src.common.languages import LANGUAGE

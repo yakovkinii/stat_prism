@@ -26,14 +26,15 @@ class DataAnalysisResultDisplay(BaseResultDisplay):
         self.result_id = result_id
 
         self.widget, self.layout = empty_widget(
+            widget_class=QWidgetClickable,
             parent=self.parent_widget,
             inner_layout_class=QVBoxLayout,
             setup=lambda w, l: [
                 l.setContentsMargins(10, 10, 5, 5),
                 l.setSpacing(10),
+                w.clicked.connect(lambda: self.activate_result(self.result_id, None)),
             ],
         )
-
 
         self.header_widget, self.header_layout = empty_widget(
             widget_class=QWidgetClickable,
@@ -65,12 +66,11 @@ class DataAnalysisResultDisplay(BaseResultDisplay):
             parent=self.widget,
             outer_layout=self.layout,
             inner_layout_class=FlowLayout,
-            setup= lambda w, l: [
+            setup=lambda w, l: [
                 l.setSpacing(5),
                 w.clicked.connect(lambda: self.activate_result(self.result_id, None)),
-            ]
+            ],
         )
-
 
         self.element_display_objects = {}
         self.remove_focus(None)

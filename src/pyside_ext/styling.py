@@ -33,6 +33,7 @@ class Style:
         Highlight = "#05f"
         Danger = "#700"
         Text = "#000"
+        SimpleToolButton = "#888"
 
     class FontFamily(Enum):
         def __str__(self):
