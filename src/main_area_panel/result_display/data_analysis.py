@@ -29,17 +29,11 @@ class DataAnalysisResultDisplay(BaseResultDisplay):
             parent=self.parent_widget,
             inner_layout_class=QVBoxLayout,
             setup=lambda w, l: [
-                l.setContentsMargins(10, 10, 0, 0),
+                l.setContentsMargins(10, 10, 5, 5),
                 l.setSpacing(10),
             ],
         )
-        set_stylesheet(
-            self.widget,
-            css(
-                background_color=Style.Color.Background,
-                border_left=Style.General.border_data_analysis,
-            ),
-        )
+
 
         self.header_widget, self.header_layout = empty_widget(
             widget_class=QWidgetClickable,
@@ -56,18 +50,30 @@ class DataAnalysisResultDisplay(BaseResultDisplay):
         )
 
         self.html_result_elements_container, self.html_result_elements_container_layout = empty_widget(
+            widget_class=QWidgetClickable,
             parent=self.widget,
             outer_layout=self.layout,
             inner_layout_class=QVBoxLayout,
+            setup=lambda w, l: [
+                l.setSpacing(5),
+                w.clicked.connect(lambda: self.activate_result(self.result_id, None)),
+            ],
         )
 
         self.plot_result_elements_container, self.plot_result_elements_container_layout = empty_widget(
+            widget_class=QWidgetClickable,
             parent=self.widget,
             outer_layout=self.layout,
             inner_layout_class=FlowLayout,
+            setup= lambda w, l: [
+                l.setSpacing(5),
+                w.clicked.connect(lambda: self.activate_result(self.result_id, None)),
+            ]
         )
 
+
         self.element_display_objects = {}
+        self.remove_focus(None)
 
     def refresh_element(self, result_element_id):
         if result_element_id in self.element_display_objects:
@@ -127,22 +133,29 @@ class DataAnalysisResultDisplay(BaseResultDisplay):
         logging.warning(f"Setting focus on {self.result_id} with element {focused_result_element_id}")
         if focused_result_element_id is None:
             set_stylesheet(
-                self.label,
+                self.widget,
                 css(
-                    text_decoration="underline",
-                )
+                    background_color=Style.Color.Background,
+                    border=Style.General.border_thin_selected,
+                    border_left=Style.General.border_thick_selected,
+                    border_radius="5px",
+                ),
             )
         else:
-            ...
+            self.element_display_objects[focused_result_element_id].set_focus(focused_result_element_id)
 
     def remove_focus(self, focused_result_element_id):
         logging.warning(f"Removing focus from {self.result_id} with element {focused_result_element_id}")
         if focused_result_element_id is None:
             set_stylesheet(
-                self.label,
+                self.widget,
                 css(
-                    text_decoration="none",
-                )
+                    background_color=Style.Color.Background,
+                    border=Style.General.border_thin_unselected,
+                    border_left=Style.General.border_thick_unselected,
+                    border_radius="5px",
+                ),
             )
+
         else:
-            ...
+            self.element_display_objects[focused_result_element_id].remove_focus(focused_result_element_id)

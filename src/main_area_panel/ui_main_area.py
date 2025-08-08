@@ -46,7 +46,7 @@ class MainAreaClass:
             outer_layout=self.layout,
             inner_layout_class=QVBoxLayout,
             setup=lambda w, l: [
-                l.setContentsMargins(10, 0, 0, 0),
+                l.setContentsMargins(10, 10, 5, 5),
                 l.setSpacing(10),
             ],
         )
@@ -60,7 +60,7 @@ class MainAreaClass:
             outer_layout=self.layout,
             inner_layout_class=QVBoxLayout,
             setup=lambda w, l: [
-                l.setContentsMargins(10, 0, 0, 0),
+                l.setContentsMargins(10, 10, 5, 5),
                 l.setSpacing(10),
             ],
         )

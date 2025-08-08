@@ -104,10 +104,11 @@ class HTMLTableV2(BaseResultElement):
                     cell.border_bottom = True
 
         # Caption
-        html = (
-            f'<div class="font"><b>{table_str} {id_suffix}</b></div>'
-            f'<div class="font"><i>{self.table_caption.get_current_value()}</i></div><br>'
-        )
+        html = ""
+        # html = (
+        #     f'<div class="font"><b>{table_str} {id_suffix}</b></div>'
+        #     f'<div class="font"><i>{self.table_caption.get_current_value()}</i></div><br>'
+        # )
 
         # Table start
         html += f'<table style="border-collapse: collapse;" class="font">'

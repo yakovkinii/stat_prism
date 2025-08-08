@@ -12,7 +12,7 @@ _font_result_label = QtGui.QFont("Segoe UI")
 _font_result_label.setPointSize(16)
 
 _font_result_element_label = QtGui.QFont("Segoe UI")
-_font_result_element_label.setPointSize(12)
+_font_result_element_label.setPointSize(10)
 
 
 class Style:
@@ -27,6 +27,7 @@ class Style:
         BackgroundElevated = "#eee"
         BackgroundEdit = "#fff"
         Background = "#fff"
+        BackgroundNotSelected = "#f5f5f5"
         BorderElevated = "#ccc"
         Border = "#eee"
         Highlight = "#05f"
@@ -52,5 +53,10 @@ class Style:
             return str(self.value)
 
         border = "1px solid"
-        border_data_analysis = "5px solid #aaf"
-        border_data_processing = "5px solid #afa"
+        border_data_analysis = "5px solid #aaf"  # Todo deprecate
+        border_data_processing = "5px solid #afa"  # Todo deprecate
+        border_thick_unselected = "5px solid #eee"
+        border_thick_selected = "5px solid #05f"
+        border_thin_unselected = "2px solid #eee"
+        border_thin_selected = "2px solid #05f"
+

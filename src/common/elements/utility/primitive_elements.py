@@ -20,7 +20,7 @@ class QWidgetClickable(QFrame):
 
     def mousePressEvent(self, event):
         self.clicked.emit()
-        super().mousePressEvent(event)
+        # super().mousePressEvent(event)
 
 
 class QListWidgetClickable(QtWidgets.QListWidget):
@@ -56,11 +56,11 @@ class QLabelClickable(QLabel):
 
     def mousePressEvent(self, event):
         self.clicked.emit()
-        super().mousePressEvent(event)
+        # super().mousePressEvent(event)
 
     def mouseDoubleClickEvent(self, event):
         self.doubleClicked.emit()
-        super().mouseDoubleClickEvent(event)
+        # super().mouseDoubleClickEvent(event)
 
 
 class EditableLabelWordwrap(QTextEdit):

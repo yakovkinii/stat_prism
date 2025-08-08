@@ -1,10 +1,11 @@
 #  Copyright (c) 2023 StatPrism Team. All rights reserved.
-
+from PySide6 import QtCore
 from PySide6.QtCore import QSize, Qt
 from PySide6.QtWidgets import QSizePolicy, QTextBrowser
 
 
 class TextBrowser(QTextBrowser):
+    clicked = QtCore.Signal()
     def __init__(self, parent=None):
         super().__init__(parent)
         self.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Fixed)
@@ -42,3 +43,7 @@ class TextBrowser(QTextBrowser):
     def set_html(self, html: str):
         super().setHtml(html)
         self.updateGeometry()
+
+    def mousePressEvent(self, event):
+        self.clicked.emit()
+        super().mousePressEvent(event)  # does not propagate the event to the parent

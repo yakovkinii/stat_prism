@@ -1,4 +1,6 @@
 #  Copyright (c) 2023 StatPrism Team. All rights reserved.
+import logging
+
 from PySide6.QtCore import QSize, Qt
 from PySide6.QtGui import QPainter, QPixmap
 from PySide6.QtSvg import QSvgRenderer
@@ -6,7 +8,7 @@ from PySide6.QtWidgets import QLabel, QVBoxLayout
 
 from src.common.decorators import log_method
 from src.common.elements.utility.layout_helpers import empty_widget, widget_in_layout
-from src.common.elements.utility.primitive_elements import QWidgetClickable
+from src.common.elements.utility.primitive_elements import QWidgetClickable, QLabelClickable
 from src.common.result.registry import RESULTS
 from src.main_area_panel.result_display.base import BaseResultDisplay
 from src.main_area_panel.result_display.elements.result_element_label import ResultElementLabel
@@ -22,34 +24,43 @@ class PlotResultElementDisplay(BaseResultDisplay):
         self.result_element_id = result_element_id
 
         self.widget, self.layout = empty_widget(
+            widget_class=QWidgetClickable,
             parent=self.parent_widget,
             inner_layout_class=QVBoxLayout,
+            setup=lambda w, l: [
+                w.clicked.connect(lambda: self.activate_result(self.result_id, self.result_element_id)),
+                ],
         )
-        set_stylesheet(self.widget, css(background_color=Style.Color.Background))
+        self.layout.setContentsMargins(5, 5, 5, 5)
+        self.layout.setSpacing(5)
 
         self.header_widget, self.header_layout = empty_widget(
             widget_class=QWidgetClickable,
             parent=self.widget,
             outer_layout=self.layout,
             inner_layout_class=QVBoxLayout,
-            setup=lambda w, l: [w.clicked.connect(lambda: self.activate_result(self.result_id, self.result_element_id))],
+            setup=lambda w, l: [
+                w.clicked.connect(lambda: self.activate_result(self.result_id, self.result_element_id))
+            ],
         )
 
         self.label = widget_in_layout(
             widget=ResultElementLabel(parent=self.header_widget, label_text=label_text),
             layout=self.header_layout,
             setup=lambda w, l: [
-                w.clicked.connect(
-                    lambda: self.activate_result(self.result_id, self.result_element_id)
-                )
+                w.clicked.connect(lambda: self.activate_result(self.result_id, self.result_element_id))
             ],
         )
 
         self.image = widget_in_layout(
-            widget=QLabel(self.widget),
+            widget=QLabelClickable(self.widget),
             layout=self.layout,
+            setup=lambda w, l: [
+                w.clicked.connect(lambda: self.activate_result(self.result_id, self.result_element_id)),
+            ],
         )
         self.refresh()
+        self.remove_focus(self.result_element_id)
 
     def refresh(self):
         buf = RESULTS[self.result_id].result_elements[self.result_element_id].get_buffer()
@@ -57,8 +68,7 @@ class PlotResultElementDisplay(BaseResultDisplay):
         renderer = QSvgRenderer()
         renderer.load(buf.read())
 
-        # Set output size (adjust as needed)
-        target_width = 300
+        target_width = 273
         default_size = renderer.defaultSize()  # returns QSize
         if default_size.isEmpty():
             raise ValueError("SVG has no size information.")
@@ -76,6 +86,29 @@ class PlotResultElementDisplay(BaseResultDisplay):
         painter.end()
 
         self.image.setPixmap(pixmap)
+
     @log_method
     def activate_result(self, result_id, result_element_id):
         self.parent_class.activate_result(result_id, result_element_id)
+
+    def set_focus(self, focused_result_element_id):
+        logging.warning(f"Setting focus on {self.result_id} with element {focused_result_element_id}")
+        assert focused_result_element_id is not None
+        set_stylesheet(
+            self.widget,
+            css(
+                border=Style.General.border_thin_selected,
+                border_radius="5px",
+            ),
+        )
+
+    def remove_focus(self, focused_result_element_id):
+        logging.warning(f"Removing focus from {self.result_id} with element {focused_result_element_id}")
+        assert focused_result_element_id is not None
+        set_stylesheet(
+            self.widget,
+            css(
+                border=Style.General.border_thin_unselected,
+                border_radius="5px",
+            ),
+        )
