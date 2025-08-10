@@ -3,14 +3,14 @@
 
 from src.common.constant import ColumnType
 from src.common.decorators import log_method
-from src.common.elements.column_selector.column_selector import ColumnSelectorEx, Field
-from src.common.elements.filter.filter import CompiledFilterHistory
-from src.common.elements.spacer.spacer_small import SpacerSmall
-from src.common.elements.title.title import Title
-from src.common.result.registry import RESULTS
 from src.modules.base.base import BaseModulePanel
+from src.modules.common.result.registry import RESULTS
 from src.modules.descriptive.main import recalculate_descriptive_study
 from src.modules.descriptive.result import DescriptiveStudyConfig
+from src.pyside_ext.elements.column_selector import ColumnSelectorEx, Field
+from src.pyside_ext.elements.filter import CompiledFilterHistory
+from src.pyside_ext.elements.spacer_small import SpacerSmall
+from src.pyside_ext.elements.title import Title
 
 
 class Descriptive(BaseModulePanel):

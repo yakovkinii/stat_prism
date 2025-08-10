@@ -5,7 +5,7 @@ import qtawesome as qta
 from PySide6 import QtCore, QtGui, QtWidgets
 
 import resources_rc
-from src.common.elements.utility.primitive_elements import EditableLabelWordwrap
+from src.pyside_ext.elements.utility.primitive_elements import EditableLabelWordwrap
 from src.pyside_ext.markup import css
 from src.pyside_ext.styling import Style
 from src.pyside_ext.unique_qss import set_stylesheet
@@ -33,7 +33,11 @@ def create_tool_button_qta(parent, icon_path, icon_size, button_geometry=None, *
     return button
 
 
-def create_simple_tool_button_qta(parent, icon_path, icon_size, ):
+def create_simple_tool_button_qta(
+    parent,
+    icon_path,
+    icon_size,
+):
     button = QtWidgets.QToolButton(parent)
     button.setText("")
     button.setIcon(qta.icon(icon_path, color=Style.Color.SimpleToolButton.value))

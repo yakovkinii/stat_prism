@@ -6,7 +6,7 @@ from typing import List
 import pandas as pd
 
 from src.common.qcolor import Colors
-from src.common.result.plot_result import Box, PlotV2
+from src.modules.common.result.plot_result import Box, PlotV2
 
 
 def create_box_plot(

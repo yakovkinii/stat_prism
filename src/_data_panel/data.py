@@ -8,7 +8,7 @@ import numpy as np
 import pandas as pd
 
 from src.common.constant import ColumnType
-from src.common.elements.filter.filter import FilterSettings
+from src.pyside_ext.elements.filter import FilterSettings
 
 ORDER_COLUMN = "__ORDER__"
 

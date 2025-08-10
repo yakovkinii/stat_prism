@@ -16,7 +16,7 @@ from src.pyside_ext.layout import HBoxLayout
 from src.pyside_ext.markup import css
 from src.pyside_ext.styling import Style
 from src.pyside_ext.unique_qss import set_stylesheet
-from src.settings_panel.panels.registry import PanelRegistry
+from src.settings_panel.registry import PanelRegistry
 from src.settings_panel.ui_settings import SettingsPanelClass
 
 

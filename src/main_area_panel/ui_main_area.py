@@ -6,11 +6,11 @@ from PySide6 import QtWidgets
 from PySide6.QtWidgets import QVBoxLayout
 
 from src.common.decorators import log_method
-from src.common.elements.utility.layout_helpers import empty_widget
-from src.common.result.registry import RESULTS
 from src.main_area_panel.result_display.data_analysis import DataAnalysisResultDisplay
 from src.main_area_panel.result_display.data_processing import DataProcessingResultDisplay
 from src.main_area_panel.result_display.raw_data import RawDataResultDisplay
+from src.modules.common.result.registry import RESULTS
+from src.pyside_ext.elements.utility.layout_helpers import empty_widget
 from src.pyside_ext.markup import css
 from src.pyside_ext.styling import Style
 from src.pyside_ext.unique_qss import set_stylesheet

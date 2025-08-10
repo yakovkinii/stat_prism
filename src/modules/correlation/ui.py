@@ -5,17 +5,17 @@ import logging
 
 from src.common.constant import ColumnType
 from src.common.decorators import log_method
-from src.common.elements.checkbox.checkbox import LargeCheckbox
-from src.common.elements.column_selector.column_selector import ColumnSelectorEx, Field
-from src.common.elements.combo_box.combo_box import ComboBox
-from src.common.elements.filter.filter import CompiledFilterHistory
-from src.common.elements.spacer.spacer_small import SpacerSmall
-from src.common.elements.title.title import Title
 from src.common.messages import Message, MessageType
-from src.common.result.registry import RESULTS
 from src.modules.base.base import BaseModulePanel
+from src.modules.common.result.registry import RESULTS
 from src.modules.correlation.main import recalculate_correlation_study
 from src.modules.correlation.result import CORRELATION_TYPE_MAP, CorrelationStudyConfig
+from src.pyside_ext.elements.checkbox import LargeCheckbox
+from src.pyside_ext.elements.column_selector import ColumnSelectorEx, Field
+from src.pyside_ext.elements.combo_box import ComboBox
+from src.pyside_ext.elements.filter import CompiledFilterHistory
+from src.pyside_ext.elements.spacer_small import SpacerSmall
+from src.pyside_ext.elements.title import Title
 
 
 class Correlation(BaseModulePanel):

@@ -13,7 +13,7 @@ from src._data_panel.const import DataPanelState
 from src._data_panel.data import Data, DataColumn
 from src.common.constant import COLORS, COLUMN_TYPE_ICONS, ColumnType
 from src.common.decorators import log_method, log_method_noarg
-from src.common.result.registry import RESULTS
+from src.modules.common.result.registry import RESULTS
 
 if TYPE_CHECKING:
     from src.ui_main import MainWindowClass

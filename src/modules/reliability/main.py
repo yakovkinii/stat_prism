@@ -7,11 +7,11 @@ import numpy as np
 
 from src._data_panel.data import Data
 from src.common.decorators import log_function
-from src.common.result.html_result import Cell, HTMLTableV2, Row
 from src.modules.common.mathematics.correlation.binary_correlations import (
     phi_correlation_table,
     tetrachoric_corr_matrix,
 )
+from src.modules.common.result.html_result import Cell, HTMLTableV2, Row
 from src.modules.common.utility import format_statistic_apa
 from src.modules.correlation.result import CorrelationType
 from src.modules.reliability.result import ReliabilityResult, ReliabilityStudyConfig

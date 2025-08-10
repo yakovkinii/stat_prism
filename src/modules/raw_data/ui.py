@@ -6,16 +6,16 @@ import pandas as pd
 from PySide6 import QtWidgets
 
 from src.common.decorators import log_method, log_method_noarg
-from src.common.elements.button.large_button import LargeButton
-from src.common.elements.spacer.spacer_small import SpacerSmall
-from src.common.elements.title.title import Title
 from src.common.messages import MessageType
 from src.common.progress import run_in_separate_thread
-from src.common.result.registry import RESULTS
 from src.data.data import Data
 from src.data.data_manager import DATA_MANAGER
 from src.modules.base.base import BaseModulePanel
+from src.modules.common.result.registry import RESULTS
 from src.modules.raw_data.result import RawDataStudyConfig
+from src.pyside_ext.elements.button_large import LargeButton
+from src.pyside_ext.elements.spacer_small import SpacerSmall
+from src.pyside_ext.elements.title import Title
 
 
 class RawData(BaseModulePanel):
@@ -75,7 +75,9 @@ class RawData(BaseModulePanel):
             )
             return config
 
-        run_in_separate_thread(main, progress_bar=self.root_class.settings_panel.progress_bar, on_done=self.open_file_on_done)
+        run_in_separate_thread(
+            main, progress_bar=self.root_class.settings_panel.progress_bar, on_done=self.open_file_on_done
+        )
 
     @log_method
     def open_file_on_done(self, config):

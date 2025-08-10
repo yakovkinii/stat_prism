@@ -1,12 +1,12 @@
 #  Copyright (c) 2023 StatPrism Team. All rights reserved.
-from src.common.result.base_result import BaseResult
 from src.data.data import Data
+from src.modules.common.result.registry import BaseResult
 
 
 class RawDataStudyConfig:
     def __init__(
         self,
-        data: Data=None,
+        data: Data = None,
         path="",
         timestamp="",
     ):

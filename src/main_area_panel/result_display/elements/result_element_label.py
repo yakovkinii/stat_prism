@@ -1,9 +1,8 @@
 #  Copyright (c) 2023 StatPrism Team. All rights reserved.
 
 from PySide6 import QtCore
-from PySide6.QtWidgets import QLabel
 
-from src.common.elements.utility.primitive_elements import QLabelClickable
+from src.pyside_ext.elements.utility.primitive_elements import QLabelClickable
 from src.pyside_ext.styling import Style
 
 

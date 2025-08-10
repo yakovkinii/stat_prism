@@ -19,10 +19,9 @@ from src.modules.reliability.ui import Reliability
 
 
 def inject_classes_to_module_registry():
-    ModuleRegistry.RAW_DATA.value.ui_class =RawData
+    ModuleRegistry.RAW_DATA.value.ui_class = RawData
     ModuleRegistry.RAW_DATA.value.result_class = RawDataResult
     ModuleRegistry.RAW_DATA.value.config_class = RawDataStudyConfig
-
 
     ModuleRegistry.CORRELATION.value.ui_class = Correlation
     ModuleRegistry.CORRELATION.value.result_class = CorrelationResult

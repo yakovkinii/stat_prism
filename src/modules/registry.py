@@ -23,11 +23,12 @@ class ModuleRegistryItem:
     icon_path: str = None
     module_type: ModuleType = ModuleType.DATA_ANALYSIS
 
+
 class ModuleRegistry(Enum):
     RAW_DATA = ModuleRegistryItem(
         display_name="Raw Data",
         icon_path="ph.file-text-fill",
-        module_type= ModuleType.RAW_DATA,
+        module_type=ModuleType.RAW_DATA,
     )
 
     DESCRIPTIVE = ModuleRegistryItem(

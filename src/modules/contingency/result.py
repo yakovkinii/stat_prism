@@ -3,9 +3,9 @@
 
 from typing import List
 
-from src.common.elements.filter.filter import FilterSettings
-from src.common.result.base_result import BaseResult
+from src.modules.common.result.registry import BaseResult
 from src.modules.contingency.constant import DESCRIPTION
+from src.pyside_ext.elements.filter import FilterSettings
 
 
 class ContingencyStudyConfig:

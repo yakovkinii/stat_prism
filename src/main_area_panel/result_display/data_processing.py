@@ -1,17 +1,16 @@
 #  Copyright (c) 2023 StatPrism Team. All rights reserved.
 from PySide6 import QtCore
 from PySide6.QtGui import Qt
-from PySide6.QtWidgets import QVBoxLayout, QHBoxLayout
+from PySide6.QtWidgets import QHBoxLayout, QVBoxLayout
 
 from src.common.decorators import log_method
-from src.common.elements.utility.layout_helpers import empty_widget, widget_in_layout
-from src.common.elements.utility.primitive_elements import QWidgetClickable
-from src.common.result.registry import RESULTS
 from src.common.ui_constructor import create_tool_button_qta
-from src.data.data_manager import DATA_MANAGER
 from src.data_viewer.data_viewer import view_data_popup
 from src.main_area_panel.result_display.base import BaseResultDisplay
 from src.main_area_panel.result_display.elements.result_label import ResultLabel
+from src.modules.common.result.registry import RESULTS
+from src.pyside_ext.elements.utility.layout_helpers import empty_widget, widget_in_layout
+from src.pyside_ext.elements.utility.primitive_elements import QWidgetClickable
 from src.pyside_ext.markup import css
 from src.pyside_ext.styling import Style
 from src.pyside_ext.unique_qss import set_stylesheet
@@ -56,7 +55,7 @@ class DataProcessingResultDisplay(BaseResultDisplay):
                         root_class=self.root_class,
                         data=RESULTS[self.result_id].config.data,
                     )
-                )
+                ),
             ],
         )
 

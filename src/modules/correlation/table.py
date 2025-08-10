@@ -2,7 +2,7 @@
 
 
 from src.common.constant import MDASH
-from src.common.result.html_result import Cell, HTMLTableV2, Row
+from src.modules.common.result.html_result import Cell, HTMLTableV2, Row
 from src.modules.common.utility import smart_comma_join
 from src.modules.correlation.result import CorrelationType
 

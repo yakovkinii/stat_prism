@@ -8,17 +8,16 @@ from PySide6.QtWidgets import QHBoxLayout, QVBoxLayout
 
 from src.common.constant import BASE_STYLES
 from src.common.decorators import log_method
-from src.common.elements.utility.layout_helpers import empty_widget, widget_in_layout
-from src.common.elements.utility.primitive_elements import QWidgetClickable
-from src.common.result.registry import RESULTS
 from src.common.ui_constructor import create_simple_tool_button_qta
 from src.main_area_panel.result_display.base import BaseResultDisplay
 from src.main_area_panel.result_display.elements.result_element_label import ResultElementLabel
 from src.main_area_panel.result_display.elements.text_browser import TextBrowser
+from src.modules.common.result.registry import RESULTS
+from src.pyside_ext.elements.utility.layout_helpers import empty_widget, widget_in_layout
+from src.pyside_ext.elements.utility.primitive_elements import QWidgetClickable
 from src.pyside_ext.markup import css
 from src.pyside_ext.styling import Style
 from src.pyside_ext.unique_qss import set_stylesheet
-
 
 
 class TableResultElementDisplay(BaseResultDisplay):

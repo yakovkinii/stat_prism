@@ -1,7 +1,4 @@
 #  Copyright (c) 2023 StatPrism Team. All rights reserved.
-from typing import List, Union
-
-from src.data.data import Data
 
 
 class DataManager:
@@ -11,7 +8,6 @@ class DataManager:
 
     def set_raw_data_result_id(self, result_id: str):
         self.raw_data_result_id = result_id
-
 
 
 DATA_MANAGER = DataManager()

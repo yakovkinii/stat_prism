@@ -7,7 +7,7 @@ import pandas as pd
 from scipy import stats
 from scipy.stats._morestats import ShapiroResult
 
-from src.common.result.html_result import Cell, HTMLTableV2, Row
+from src.modules.common.result.html_result import Cell, HTMLTableV2, Row
 from src.modules.common.utility import format_p_apa, format_statistic_apa
 from src.modules.common.verbal.test import TestResult, describe_single_test_multiple_variables
 

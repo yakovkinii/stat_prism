@@ -5,7 +5,7 @@ from typing import Any, Dict, List
 
 import pandas as pd
 
-from src.common.result.html_result import Cell, HTMLTableV2, Row
+from src.modules.common.result.html_result import Cell, HTMLTableV2, Row
 
 
 def format_w_apa(r, decimals=3):
