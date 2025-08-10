@@ -10,7 +10,7 @@ from PySide6.QtCore import QAbstractTableModel, QModelIndex, Qt
 from PySide6.QtGui import QColor
 
 from src._data_panel.const import DataPanelState
-from src._data_panel.data import Data, DataColumn
+from src.data.data import Data, DataColumn
 from src.common.constant import COLORS, COLUMN_TYPE_ICONS, ColumnType
 from src.common.decorators import log_method, log_method_noarg
 from src.modules.common.result.registry import RESULTS

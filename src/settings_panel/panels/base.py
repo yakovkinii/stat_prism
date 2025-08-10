@@ -38,7 +38,6 @@ class BasePanel:
         self.stacked_widget_index = stacked_widget_index
         self.root_class: MainWindowClass = root_class
         self.parent_class = parent_class
-        self.tabledata = self.root_class.data_panel.tabledata
         self.widget = QtWidgets.QWidget(parent_widget)
 
         self.widget_layout = QVBoxLayout(self.widget)

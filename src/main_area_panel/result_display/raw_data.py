@@ -95,7 +95,7 @@ class RawDataResultDisplay(BaseResultDisplay):
         self.info.setText(
             f"File: {config.path} \n"
             f"Time: {config.timestamp} \n"
-            f"{config.data.dataframe.shape[0]} rows, {config.data.dataframe.shape[1]} columns"
+            f"{config.data.n_rows()} rows, {config.data.n_columns()} columns"
         )
 
     @log_method

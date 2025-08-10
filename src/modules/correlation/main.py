@@ -7,7 +7,7 @@ import numpy as np
 import pandas as pd
 from scipy.stats import linregress
 
-from src._data_panel.data import Data
+from src.data.data import Data
 from src.common.constant import ColumnType
 from src.common.decorators import log_function
 from src.modules.common.mathematics.correlation.correlation import calculate_correlations

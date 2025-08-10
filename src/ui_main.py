@@ -6,7 +6,7 @@ import logging
 from PySide6 import QtCore, QtWidgets
 from PySide6.QtWebEngineWidgets import QWebEngineView
 
-from src._data_panel.ui_data import DataPanelClass
+# from src._data_panel.ui_data import DataPanelClass
 from src.about import version
 from src.common.debt import DEBTS, DebtType
 from src.common.decorators import log_method, log_method_noarg
@@ -42,10 +42,6 @@ class MainWindowClass(QtWidgets.QMainWindow):
         self.splitter = QtWidgets.QSplitter(self.central_widget)
         # self.tab_widget = main_tab_widget(self.splitter)
 
-        self.popup = QtWidgets.QDialog(self)
-        self.data_panel: DataPanelClass = DataPanelClass(
-            parent_widget=self.popup, parent_class=self.widget, root_class=self
-        )
         self.main_area_panel: MainAreaClass = MainAreaClass(
             parent_widget=self.central_widget, parent_class=self.widget, root_class=self
         )
@@ -64,15 +60,6 @@ class MainWindowClass(QtWidgets.QMainWindow):
         self.splitter.setHandleWidth(6)
         self.splitter.setSizes([1, 1])
 
-        # self.data_panel.widget.hide()
-        self.popup.setWindowTitle("Data Table")
-        self.popup.setWindowIcon(icon(":/mat/resources/StatPrism_icon_small.ico"))
-        self.popup.setLayout(HBoxLayout())
-        self.popup.layout().addWidget(self.data_panel.widget)
-        self.popup.setMinimumSize(800, 600)
-        self.popup.setWindowModality(QtCore.Qt.WindowModality.ApplicationModal)
-        self.popup.setWindowFlags(self.popup.windowFlags() | QtCore.Qt.WindowType.WindowStaysOnTopHint)
-
         set_stylesheet(
             self.splitter,
             css(
@@ -80,16 +67,9 @@ class MainWindowClass(QtWidgets.QMainWindow):
                 background_color=Style.Color.BorderElevated,
             ),
         )
-        # self.tab_widget.addTab(self.data_panel.widget, "Data")
-        # self.tab_widget.addTab(self.results_panel.widget, "Analysis")
 
         # Misc
         self.setWindowIcon(icon(":/mat/resources/StatPrism_icon_small.ico"))
-
-        # Post-init
-        # self.tab_widget.setCurrentIndex(0)
-
-        # self.tab_widget.currentChanged.connect(self.on_tab_changed)
 
     def init_web_view_and_show_maximized(self, file_path=None):
         webview = QWebEngineView(self.central_widget)
@@ -143,9 +123,6 @@ class MainWindowClass(QtWidgets.QMainWindow):
                     debt.resolve()
             self.settings_panel.stacked_widget.setCurrentIndex(index)
 
-    @log_method
-    def action_select_table_column(self, column_index):
-        self.data_panel.tableview.selectColumn(column_index)
 
     @log_method
     def action_activate_columns_panel(self, column_indexes):
@@ -157,20 +134,6 @@ class MainWindowClass(QtWidgets.QMainWindow):
         self.settings_panel.stacked_widget.setCurrentIndex(PanelRegistry.COLUMNS.settings_stacked_widget_index)
         PanelRegistry.COLUMNS.ui_instance.configure(column_indexes)
 
-    # @log_method_noarg
-    # def on_tab_changed(self):
-    #     if self.tab_widget.currentIndex() == 1:
-    #         self.splitter.setSizes([1, 1])
-    #     else:
-    #         self.splitter.setSizes([1, 0])
-
-    # @log_method_noarg
-    # def action_hide_result_selector(self):
-    #     self.splitter.setSizes([1, 0])
-
-    @log_method_noarg
-    def action_show_table(self):
-        self.popup.showMaximized()
 
     @log_method_noarg
     def action_activate_results_panel(self):

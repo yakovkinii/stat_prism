@@ -16,13 +16,12 @@ from src.pyside_ext.unique_qss import set_stylesheet
 
 
 def view_data_popup(root_class, data: Data):
-    df = data.dataframe
-    model = QtGui.QStandardItemModel(len(df), len(df.columns))
-    for r in range(len(df)):
-        for c in range(len(df.columns)):
-            item = QtGui.QStandardItem(str(df.iat[r, c]))
+    model = QtGui.QStandardItemModel(data.n_rows(), data.n_columns())
+    for r in range(data.n_rows()):
+        for c in range(data.n_columns()):
+            item = QtGui.QStandardItem(str(data[c][r]))
             model.setItem(r, c, item)
-    model.setHorizontalHeaderLabels(df.columns.tolist())
+    model.setHorizontalHeaderLabels(data.column_names())
 
     TablePopup(root_class, model)
 

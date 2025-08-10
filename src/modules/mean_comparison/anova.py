@@ -8,7 +8,7 @@ from scikit_posthocs import posthoc_dunn, posthoc_tamhane, posthoc_tukey_hsd
 from scipy import stats
 from scipy.stats import gaussian_kde
 
-from src._data_panel.data import Data
+from src.data.data import Data
 from src.common.constant import MDASH, ColumnType
 from src.common.decorators import log_function
 from src.common.qcolor import Colors

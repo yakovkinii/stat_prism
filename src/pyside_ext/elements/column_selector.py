@@ -9,7 +9,7 @@ from PySide6 import QtCore, QtWidgets
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QDialog, QHBoxLayout, QLabel, QListWidgetItem, QVBoxLayout, QWidget
 
-from src._data_panel.data import DataColumn
+from src.data.data import DataColumn
 from src.common.constant import COLUMN_TYPE_ICONS, ColumnType
 from src.common.messages import Message, MessageType
 from src.common.ui_constructor import create_tool_button_qta

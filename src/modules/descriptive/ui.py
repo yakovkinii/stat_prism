@@ -3,6 +3,7 @@
 
 from src.common.constant import ColumnType
 from src.common.decorators import log_method
+from src.data.data_manager import DATA_MANAGER
 from src.modules.base.base import BaseModulePanel
 from src.modules.common.result.registry import RESULTS
 from src.modules.descriptive.main import recalculate_descriptive_study
@@ -43,7 +44,7 @@ class Descriptive(BaseModulePanel):
         self.result_id = result_id
 
         self.elements["column_selector"].configure(
-            columns=self.tabledata.get_all_columns_as_column_types(),
+            columns=DATA_MANAGER.get_latest_data().get_all_columns_as_column_types(),
             selected_columns_list=[
                 RESULTS[result_id].config.selected_columns,
                 [RESULTS[result_id].config.grouping_column],
@@ -76,12 +77,10 @@ class Descriptive(BaseModulePanel):
             filters=RESULTS[self.result_id].config.filters,
         )
         RESULTS[self.result_id] = recalculate_descriptive_study(
-            data=self.tabledata.get_data_v2(), result=RESULTS[self.result_id]
+            data=DATA_MANAGER.get_latest_data(), result=RESULTS[self.result_id]
         )
 
         RESULTS[self.result_id].needs_update = False
         self.configure(result_id=self.result_id)
-        self.root_class.main_area_panel.refresh_data_analysis(result_id=self.result_id)
-        # self.root_class.result_selector_panel.refresh_result(result_id=self.result_id)
-        # self.root_class.results_panel.display(result_id=self.result_id)
+        self.root_class.main_area_panel.refresh_result(result_id=self.result_id)
         self.root_class.action_activate_results_panel()
