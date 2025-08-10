@@ -5,23 +5,13 @@ from src.data.data import Data
 
 
 class DataManager:
+    # todo not used yet, but will be used in the future to manage data items
     def __init__(self):
-        self.raw_data: Union[Data, None] = None
-        self.data_items: List[Data] = [self.raw_data]
+        self.raw_data_result_id = None
 
-    def set_raw_data(self, data: Data):
-        self.raw_data = data
-        self.data_items = [self.raw_data]
+    def set_raw_data_result_id(self, result_id: str):
+        self.raw_data_result_id = result_id
 
-    def get_latest_data(self) -> Data:
-        if self.data_items:
-            return self.data_items[-1]
-
-    def add_data_item(self, data: Data):
-        self.data_items.append(data)
-
-    def get_data_item(self, index: int) -> Data:
-        return self.data_items[index]
 
 
 DATA_MANAGER = DataManager()

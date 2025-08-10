@@ -9,6 +9,8 @@ from src.modules.descriptive.result import DescriptiveResult, DescriptiveStudyCo
 from src.modules.descriptive.ui import Descriptive
 from src.modules.mean_comparison.result import MeanComparisonResult, MeanComparisonStudyConfig
 from src.modules.mean_comparison.ui import MeanComparison
+from src.modules.raw_data.result import RawDataResult, RawDataStudyConfig
+from src.modules.raw_data.ui import RawData
 from src.modules.registry import ModuleRegistry
 from src.modules.regression.result import RegressionResult, RegressionStudyConfig
 from src.modules.regression.ui import Regression
@@ -17,6 +19,11 @@ from src.modules.reliability.ui import Reliability
 
 
 def inject_classes_to_module_registry():
+    ModuleRegistry.RAW_DATA.value.ui_class =RawData
+    ModuleRegistry.RAW_DATA.value.result_class = RawDataResult
+    ModuleRegistry.RAW_DATA.value.config_class = RawDataStudyConfig
+
+
     ModuleRegistry.CORRELATION.value.ui_class = Correlation
     ModuleRegistry.CORRELATION.value.result_class = CorrelationResult
     ModuleRegistry.CORRELATION.value.config_class = CorrelationStudyConfig

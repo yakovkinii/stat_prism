@@ -1,0 +1,31 @@
+#  Copyright (c) 2023 StatPrism Team. All rights reserved.
+from src.common.result.base_result import BaseResult
+from src.data.data import Data
+
+
+class RawDataStudyConfig:
+    def __init__(
+        self,
+        data: Data=None,
+        path="",
+        timestamp="",
+    ):
+        self.data = data
+        self.path = path
+        self.timestamp = timestamp
+
+
+class RawDataResult(BaseResult):
+    def __init__(self, unique_id, settings_panel_index, config: RawDataStudyConfig):
+        super().__init__(unique_id)
+        # Unique integer id, not for display
+        self.unique_id: int = unique_id
+
+        self.title = "Raw Data"
+        self.title_context = ""
+        self.settings_panel_index = settings_panel_index
+        self.config: RawDataStudyConfig = config
+
+        self.needs_update: bool = False
+        self.description = ""
+        # self.set_placeholder()

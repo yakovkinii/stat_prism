@@ -8,25 +8,26 @@ from src.common.elements.button.large_button import LargeButton
 from src.common.elements.title.title import Title
 from src.common.messages import Message, MessageType
 from src.common.result.registry import RESULTS, get_unique_result_id
-from src.modules.registry import ModuleRegistry, ModuleRegistryItem
+from src.modules.registry import ModuleRegistry, ModuleRegistryItem, ModuleType
 from src.settings_panel.panels.base.base import BasePanel
 
 if TYPE_CHECKING:
     pass
 
 
-class SelectStudy(BasePanel):
+class SelectDataAnalysis(BasePanel):
     def setup_ui(self):
         self.elements = {
             "title": Title(
-                label_text="New Analysis",
+                label_text="Select Data Processing",
             )
         }
         for module in ModuleRegistry:
-            self.elements[module.name] = LargeButton(
-                label_text=module.value.display_name,
-                icon_path=module.value.icon_path,
-            )
+            if module.value.module_type == ModuleType.DATA_PROCESSING:
+                self.elements[module.name] = LargeButton(
+                    label_text=module.value.display_name,
+                    icon_path=module.value.icon_path,
+                )
 
         self.setup(stretch=True)
 

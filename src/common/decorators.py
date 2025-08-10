@@ -22,7 +22,7 @@ def log_method(method):
         line_number = inspect.getsourcelines(method)[1]
         lr = logger.makeRecord(
             logger.name,
-            logging.DEBUG,
+            logging.INFO,
             source_file,
             line_number,
             ident + f"{class_name}.{method.__name__}",
@@ -60,7 +60,7 @@ def log_method_noarg(method):
         line_number = inspect.getsourcelines(method)[1]
         lr = logger.makeRecord(
             logger.name,
-            logging.DEBUG,
+            logging.INFO,
             source_file,
             line_number,
             ident + f"{class_name}.{method.__name__}",
@@ -92,7 +92,7 @@ def log_function(function):
         line_number = inspect.getsourcelines(function)[1]
         lr = logger.makeRecord(
             logger.name,
-            logging.DEBUG,
+            logging.INFO,
             source_file,
             line_number,
             ident + f"{function.__name__}",

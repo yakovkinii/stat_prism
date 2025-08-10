@@ -106,7 +106,7 @@ class BaseModulePanel:
 
         self.add_study_button.clicked.connect(
             lambda: self.root_class.action_activate_panel_by_index(
-                PanelRegistry.SELECT_STUDY.settings_stacked_widget_index
+                PanelRegistry.SELECT_DATA_ANALYSIS.settings_stacked_widget_index
             )
         )
 
@@ -175,7 +175,7 @@ class BaseModulePanel:
         self.root_class.results_panel.display_none()
         self.root_class.result_selector_panel.delete_result(self.result_id)
         self.root_class.action_activate_data_panel()
-        self.root_class.action_activate_panel_by_index(PanelRegistry.SELECT_STUDY.settings_stacked_widget_index)
+        self.root_class.action_activate_panel_by_index(PanelRegistry.SELECT_DATA_ANALYSIS.settings_stacked_widget_index)
         RESULTS.pop(self.result_id)
 
     @log_method_noarg

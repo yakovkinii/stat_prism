@@ -97,7 +97,7 @@ if __name__ == "__main__":
 
     from yatools import logging_config
 
-    logging_config.init(logging.WARNING)
+    logging_config.init(logging.INFO)
 
     # Back up the reference to the exceptionhook
     sys._excepthook = sys.excepthook

@@ -104,13 +104,13 @@ class SettingsPanelClass:
         # post-init
         self.stacked_widget.setCurrentIndex(PanelRegistry.HOME.value.settings_stacked_widget_index)
 
-        open_action.triggered.connect(PanelRegistry.HOME.value.ui_instance.open_handler)
-        save_action.triggered.connect(PanelRegistry.HOME.value.ui_instance.save_handler)
+        # open_action.triggered.connect(PanelRegistry.HOME.value.ui_instance.open_handler)
+        # save_action.triggered.connect(PanelRegistry.HOME.value.ui_instance.save_handler)
         self.en_action.triggered.connect(self.set_language_EN)
         self.ua_action.triggered.connect(self.set_language_UA)
-        save_as_action.triggered.connect(PanelRegistry.HOME.value.ui_instance.save_as_handler)
+        # save_as_action.triggered.connect(PanelRegistry.HOME.value.ui_instance.save_as_handler)
         save_table_action.triggered.connect(self.save_table_handler)
-        about_action.triggered.connect(PanelRegistry.HOME.value.ui_instance.about_handler)
+        # about_action.triggered.connect(PanelRegistry.HOME.value.ui_instance.about_handler)
 
     def set_language_EN(self):
         LANGUAGE.set_language(Languages.EN)

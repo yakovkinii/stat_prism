@@ -83,7 +83,7 @@ class ResultSelectorPanelClass:
         self.add_result_button.setFixedHeight(60)
         self.add_result_button.clicked.connect(
             lambda: self.parent_class.action_activate_panel_by_index(
-                PanelRegistry.SELECT_STUDY.settings_stacked_widget_index
+                PanelRegistry.SELECT_DATA_ANALYSIS.settings_stacked_widget_index
             )
         )
 

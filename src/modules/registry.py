@@ -6,6 +6,12 @@ from enum import Enum
 import attrs
 
 
+class ModuleType(Enum):
+    RAW_DATA = "RAW_DATA"
+    DATA_PROCESSING = "DATA_PROCESSING"
+    DATA_ANALYSIS = "DATA_ANALYSIS"
+
+
 @attrs.define
 class ModuleRegistryItem:
     display_name: str
@@ -15,9 +21,15 @@ class ModuleRegistryItem:
     ui_instance: any = None
     settings_stacked_widget_index: int = None
     icon_path: str = None
-
+    module_type: ModuleType = ModuleType.DATA_ANALYSIS
 
 class ModuleRegistry(Enum):
+    RAW_DATA = ModuleRegistryItem(
+        display_name="Raw Data",
+        icon_path="ph.file-text-fill",
+        module_type= ModuleType.RAW_DATA,
+    )
+
     DESCRIPTIVE = ModuleRegistryItem(
         display_name="Descriptive Statistics",
         icon_path="ph.chart-line-up-fill",

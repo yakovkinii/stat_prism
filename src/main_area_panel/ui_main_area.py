@@ -52,7 +52,15 @@ class MainAreaClass:
         )
 
         # Data Processing
-        # ...
+        self.raw_data_widget_container, self.raw_data_container_layout = empty_widget(
+            parent=self.widget_in_scroll_area,
+            outer_layout=self.layout,
+            inner_layout_class=QVBoxLayout,
+            setup=lambda w, l: [
+                l.setContentsMargins(10, 10, 5, 5),
+                l.setSpacing(10),
+            ],
+        )
 
         # Data Analysis
         self.data_analysis_widget_container, self.data_analysis_container_layout = empty_widget(
@@ -70,29 +78,31 @@ class MainAreaClass:
         self.focused_result_id = None
         self.focused_result_element_id = None
 
-        # For GC
-        self.raw_data_object = None
+        self.raw_data_objects = {}
+        self.data_processing_objects = {}
         self.data_analysis_objects = {}
 
-    def refresh_raw_data(self):
-        self.raw_data_object = DataProcessingResultDisplay(
+    def add_raw_data(self, result_id):
+        raw_data_object = DataProcessingResultDisplay(
             parent_widget=self.raw_data_widget_container,
             parent_class=self,
             root_class=self.root_class,
-            label_text="Raw Data",
-            data_item_index=0,
+            label_text=RESULTS[result_id].title,
+            result_id=result_id,
         )
+        self.raw_data_objects[result_id] = raw_data_object
+        self.raw_data_container_layout.addWidget(raw_data_object.widget)
 
-        # Clean up raw_data_container_layout
-        while self.raw_data_container_layout.count():
-            item = self.raw_data_container_layout.takeAt(0)
-            if item.widget_in_scroll_area():
-                item.widget_in_scroll_area().deleteLater()
-
-        self.raw_data_container_layout.insertWidget(
-            0,
-            self.raw_data_object.widget,
+    def add_data_processing(self, result_id):
+        data_processing_object = DataProcessingResultDisplay(
+            parent_widget=self.raw_data_widget_container,
+            parent_class=self,
+            root_class=self.root_class,
+            label_text=RESULTS[result_id].title,
+            result_id=result_id,
         )
+        self.data_processing_objects[result_id] = data_processing_object
+        self.raw_data_container_layout.addWidget(data_processing_object.widget)
 
     def add_data_analysis(self, result_id):
         data_analysis_object = DataAnalysisResultDisplay(
@@ -102,21 +112,27 @@ class MainAreaClass:
             label_text=RESULTS[result_id].title,
             result_id=result_id,
         )
-
         self.data_analysis_objects[result_id] = data_analysis_object
-
         self.data_analysis_container_layout.addWidget(data_analysis_object.widget)
 
-    def refresh_data_analysis(self, result_id, result_element_id=None):
+    def get_result_object(self, result_id):
+        return (
+            self.data_analysis_objects.get(result_id)
+            or self.data_processing_objects.get(result_id)
+            or self.raw_data_objects.get(result_id)
+        )
+
+    def refresh_result(self, result_id, result_element_id=None):
+        result_object = self.get_result_object(result_id)
         if result_element_id is None:
-            self.data_analysis_objects[result_id].refresh()
+            result_object.refresh()
         else:
-            self.data_analysis_objects[result_id].refresh_element(result_element_id)
+            result_object.refresh_element(result_element_id)
 
     def update_focus(self, result_id, result_element_id=None):
-        if self.focused_result_id in self.data_analysis_objects:
-            self.data_analysis_objects[self.focused_result_id].remove_focus(self.focused_result_element_id)
-        self.data_analysis_objects[result_id].set_focus(result_element_id)
+        if self.focused_result_id is not None:
+            self.get_result_object(self.focused_result_id).remove_focus(self.focused_result_element_id)
+        self.get_result_object(result_id).set_focus(result_element_id)
 
         self.focused_result_id = result_id
         self.focused_result_element_id = result_element_id
