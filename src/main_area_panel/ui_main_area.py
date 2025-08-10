@@ -10,6 +10,7 @@ from src.common.elements.utility.layout_helpers import empty_widget
 from src.common.result.registry import RESULTS
 from src.main_area_panel.result_display.data_analysis import DataAnalysisResultDisplay
 from src.main_area_panel.result_display.data_processing import DataProcessingResultDisplay
+from src.main_area_panel.result_display.raw_data import RawDataResultDisplay
 from src.pyside_ext.markup import css
 from src.pyside_ext.styling import Style
 from src.pyside_ext.unique_qss import set_stylesheet
@@ -83,7 +84,7 @@ class MainAreaClass:
         self.data_analysis_objects = {}
 
     def add_raw_data(self, result_id):
-        raw_data_object = DataProcessingResultDisplay(
+        raw_data_object = RawDataResultDisplay(
             parent_widget=self.raw_data_widget_container,
             parent_class=self,
             root_class=self.root_class,
@@ -92,6 +93,7 @@ class MainAreaClass:
         )
         self.raw_data_objects[result_id] = raw_data_object
         self.raw_data_container_layout.addWidget(raw_data_object.widget)
+        self.update_focus(result_id)
 
     def add_data_processing(self, result_id):
         data_processing_object = DataProcessingResultDisplay(

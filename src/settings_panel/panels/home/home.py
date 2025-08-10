@@ -32,10 +32,7 @@ if TYPE_CHECKING:
 class Home(BasePanel):
     def setup_ui(self):
         self.elements = {
-            "about": LargeButton(
-                label_text="About",
-                icon_path="ri.questionnaire-line",
-            ),
+
             "raw_data": LargeButton(
                 label_text="Raw Data",
                 icon_path="ri.file-text-line",
@@ -47,6 +44,12 @@ class Home(BasePanel):
             "data_analysis": LargeButton(
                 label_text="Data Analysis",
                 icon_path="ri.bar-chart-line",
+            ),
+             "spacer": Spacer(),
+
+            "about": LargeButton(
+                label_text="About",
+                icon_path="ri.questionnaire-line",
             ),
         }
 

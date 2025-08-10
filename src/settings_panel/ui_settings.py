@@ -6,12 +6,14 @@ from typing import TYPE_CHECKING
 
 from PySide6 import QtWidgets
 from PySide6.QtGui import QAction
-from PySide6.QtWidgets import QMenu, QMenuBar, QVBoxLayout
+from PySide6.QtWidgets import QMenu, QMenuBar, QVBoxLayout, QProgressBar, QPushButton
 
 from src.common.constant import SettingsPanelSize
+from src.common.elements.utility.layout_helpers import empty_widget, widget_in_layout
 from src.common.languages import LANGUAGE, Languages
 from src.modules.registry import ModuleRegistry, ModuleRegistryItem
 from src.modules.registry_injector import inject_classes_to_module_registry
+from src.pyside_ext.layout import HBoxLayout
 from src.pyside_ext.markup import css
 from src.pyside_ext.styling import Style
 from src.pyside_ext.unique_qss import set_stylesheet
@@ -50,6 +52,20 @@ class SettingsPanelClass:
         self.panels = []
 
         self.widget_layout.addWidget(self.stacked_widget)
+
+        self.progress_bar_container, self.progress_bar_container_layout = empty_widget(
+            parent=self.widget,
+            outer_layout=self.widget_layout,
+            inner_layout_class=HBoxLayout,
+        )
+        self.progress_bar = widget_in_layout(
+            widget=QProgressBar(self.progress_bar_container),
+            layout=self.progress_bar_container_layout,
+            setup= lambda w, l: [
+                w.setTextVisible(False),
+                w.setFixedHeight(5),
+            ],
+        )
 
         # Create a file menu and add actions
         menu_bar = QMenuBar(self.widget)

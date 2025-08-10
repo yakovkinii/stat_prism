@@ -1,5 +1,7 @@
+#  Copyright (c) 2023 StatPrism Team. All rights reserved.
+
 from PySide6.QtCore import QObject, Qt, QThread, Signal
-from PySide6.QtWidgets import QApplication, QProgressDialog, QPushButton, QVBoxLayout, QWidget
+from PySide6.QtWidgets import QApplication, QProgressDialog, QPushButton, QVBoxLayout, QWidget, QProgressBar
 
 
 class Worker(QObject):
@@ -51,6 +53,23 @@ def with_progress(func, steps=100, parent=None, title="Working...", on_done=None
     thread.start()
 
 
+def with_progress_bar(func, progress_bar: QProgressBar, steps=100, on_done=None):
+    progress_bar.setRange(0, steps)
+    progress_bar.setValue(0)
+
+    thread = QThread()
+    worker = Worker(func)
+    worker.moveToThread(thread)
+
+    worker.progress.connect(progress_bar.setValue)
+    worker.finished.connect(lambda result: (thread.quit(), thread.wait(), on_done(result) if on_done else None))
+    worker.canceled.connect(lambda: (thread.quit(), thread.wait()))
+    # cancel_button.clicked.connect(worker.stop)
+
+    thread.started.connect(worker.run)
+    thread.start()
+
+
 # --- Heavy work example ---
 def compute_heavy_stuff(update):
     try:
@@ -76,6 +95,7 @@ class MainWindow(QWidget):
 
     def run_task(self):
         with_progress(compute_heavy_stuff, steps=100, parent=self, on_done=self.on_done)
+        print("launched")
 
     def on_done(self, result):
         print("Computation result:", result)
