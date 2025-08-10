@@ -15,7 +15,7 @@ if TYPE_CHECKING:
     pass
 
 
-class SelectDataAnalysis(BasePanel):
+class SelectDataProcessing(BasePanel):
     def setup_ui(self):
         self.elements = {
             "title": Title(
@@ -29,7 +29,7 @@ class SelectDataAnalysis(BasePanel):
                     icon_path=module.value.icon_path,
                 )
 
-        self.setup(stretch=True)
+        self.setup(stretch=True, navigation_elements=True)
 
     @log_method
     def handler(self, message: Message):

@@ -53,17 +53,13 @@ class SettingsPanelClass:
 
         self.widget_layout.addWidget(self.stacked_widget)
 
-        self.progress_bar_container, self.progress_bar_container_layout = empty_widget(
-            parent=self.widget,
-            outer_layout=self.widget_layout,
-            inner_layout_class=HBoxLayout,
-        )
         self.progress_bar = widget_in_layout(
-            widget=QProgressBar(self.progress_bar_container),
-            layout=self.progress_bar_container_layout,
+            widget=QProgressBar(self.widget),
+            layout=self.widget_layout,
             setup= lambda w, l: [
                 w.setTextVisible(False),
                 w.setFixedHeight(5),
+                w.hide(),
             ],
         )
 

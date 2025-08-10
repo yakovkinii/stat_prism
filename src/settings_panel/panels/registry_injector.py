@@ -14,12 +14,13 @@ from src.settings_panel.panels.order.order import Order
 from src.settings_panel.panels.registry import PanelRegistry
 from src.settings_panel.panels.result_item_settings_v2.result_item_settings_v2 import ResultItemSettingsV2
 from src.settings_panel.panels.select_data_analysis.select_study import SelectDataAnalysis
+from src.settings_panel.panels.select_data_processing.select_study import SelectDataProcessing
 
 
 def inject_classes_to_panel_registry():
     PanelRegistry.HOME.value.ui_class = Home
     PanelRegistry.SELECT_DATA_ANALYSIS.value.ui_class = SelectDataAnalysis
-    PanelRegistry.SELECT_DATA_PROCESSING.value.ui_class = SelectDataAnalysis
+    PanelRegistry.SELECT_DATA_PROCESSING.value.ui_class = SelectDataProcessing
     PanelRegistry.COLUMN_SELECTOR.value.ui_class = ColumnSelector
     PanelRegistry.FILTER.value.ui_class = Filter
     PanelRegistry.COLUMNS.value.ui_class = Columns
