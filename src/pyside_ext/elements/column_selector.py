@@ -20,6 +20,8 @@ from src.pyside_ext.markup import css
 from src.pyside_ext.styling import Style
 from src.pyside_ext.unique_qss import set_stylesheet
 
+ITEM_HEIGHT = 20
+
 
 @attrs.define
 class Field:
@@ -337,11 +339,13 @@ class ColumnSelectorExPopup:
                 main_list_names.remove(column)
                 item = QListWidgetItem(column)
                 item.setIcon(COLUMN_TYPE_ICONS[columns[self.column_names.index(column)].column_type])
+                item.setSizeHint(QtCore.QSize(0, ITEM_HEIGHT))
                 panel_list.addItem(item)
 
         for column in main_list_names:
             item = QListWidgetItem(column)
             item.setIcon(COLUMN_TYPE_ICONS[columns[self.column_names.index(column)].column_type])
+            item.setSizeHint(QtCore.QSize(0, ITEM_HEIGHT))
             self.main_list.addItem(item)
         self.success = False
 
@@ -449,6 +453,7 @@ class ColumnSelectorExPopup:
                 for item in selected_main:
                     new_item = QListWidgetItem(item.text())
                     new_item.setIcon(item.icon())
+                    new_item.setSizeHint(QtCore.QSize(0, ITEM_HEIGHT))
                     panel_list.addItem(new_item)
                     self.main_list.takeItem(self.main_list.row(item))
                 self.update_ok_button()
@@ -462,6 +467,7 @@ class ColumnSelectorExPopup:
                 for item in selected_list:
                     new_item = QListWidgetItem(item.text())
                     new_item.setIcon(item.icon())
+                    new_item.setSizeHint(QtCore.QSize(0, ITEM_HEIGHT))
                     self.main_list.addItem(new_item)
                     panel_list.takeItem(panel_list.row(item))
 
@@ -473,6 +479,7 @@ class ColumnSelectorExPopup:
                 for item in sorted_items:
                     new_item = QListWidgetItem(item)
                     new_item.setIcon(COLUMN_TYPE_ICONS[self.columns[self.column_names.index(item)].column_type])
+                    new_item.setSizeHint(QtCore.QSize(0, ITEM_HEIGHT))
                     self.main_list.addItem(new_item)
                 self.update_ok_button()
         for panel_list in self.panel_list_widgets:

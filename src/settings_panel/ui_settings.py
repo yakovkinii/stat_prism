@@ -57,7 +57,7 @@ class SettingsPanelClass:
             layout=self.widget_layout,
             setup=lambda w, l: [
                 w.setTextVisible(False),
-                w.setFixedHeight(5),
+                # w.setFixedHeight(10),
                 w.hide(),
             ],
         )

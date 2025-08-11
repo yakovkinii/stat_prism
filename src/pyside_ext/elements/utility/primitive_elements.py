@@ -28,7 +28,7 @@ class QListWidgetClickable(QtWidgets.QListWidget):
         super().__init__(parent)
         self.setSizePolicy(QtWidgets.QSizePolicy.Policy.Expanding, QtWidgets.QSizePolicy.Policy.Fixed)
         self.reasonable_number_of_columns = 6
-        self.height = 24
+        self.height = 20
 
     def mousePressEvent(self, event):
         super().mousePressEvent(event)
