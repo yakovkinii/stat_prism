@@ -9,6 +9,7 @@ from src.settings_panel.panels.column_selector import ColumnSelector
 from src.settings_panel.panels.columns import Columns
 from src.settings_panel.panels.filter import Filter
 from src.settings_panel.panels.home import Home
+from src.settings_panel.panels.home_initial import HomeInitial
 from src.settings_panel.panels.invert import Inverse
 from src.settings_panel.panels.order import Order
 from src.settings_panel.panels.result_item_settings import ResultItemSettingsV2
@@ -19,6 +20,7 @@ from src.settings_panel.registry import PanelRegistry
 
 def inject_classes_to_panel_registry():
     PanelRegistry.HOME.value.ui_class = Home
+    PanelRegistry.HOME_INITIAL.value.ui_class = HomeInitial
     PanelRegistry.SELECT_DATA_ANALYSIS.value.ui_class = SelectDataAnalysis
     PanelRegistry.SELECT_DATA_PROCESSING.value.ui_class = SelectDataProcessing
     PanelRegistry.COLUMN_SELECTOR.value.ui_class = ColumnSelector

@@ -103,7 +103,6 @@ class MainAreaClass:
         )
         self.raw_data_objects[result_id] = raw_data_object
         self.raw_data_container_layout.addWidget(raw_data_object.widget)
-        self.update_focus(result_id)
 
     def add_data_processing(self, result_id):
         data_processing_object = DataProcessingResultDisplay(

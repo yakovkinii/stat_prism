@@ -1,9 +1,11 @@
 #  Copyright (c) 2023 StatPrism Team. All rights reserved.
 import logging
+import time
 
 from PySide6.QtWidgets import QVBoxLayout
 
 from src.common.decorators import log_method
+from src.common.progress import with_progress
 from src.main_area_panel.result_display.base import BaseResultDisplay
 from src.main_area_panel.result_display.elements.result_label import ResultLabel
 from src.main_area_panel.result_display.plot_result_element import PlotResultElementDisplay
@@ -72,6 +74,7 @@ class DataAnalysisResultDisplay(BaseResultDisplay):
         )
 
         self.element_display_objects = {}
+        self.refresh()
         self.remove_focus(None)
 
     def refresh_element(self, result_element_id):
@@ -121,7 +124,13 @@ class DataAnalysisResultDisplay(BaseResultDisplay):
                 item.widget().deleteLater()
 
         self.element_display_objects = {}
-        for result_element_id, _ in enumerate(RESULTS[self.result_id].result_elements):
+        time.sleep(5)
+        for result_element_id, _ in enumerate(
+            with_progress(
+                RESULTS[self.result_id].result_elements,
+                progress_bar=self.root_class.settings_panel.progress_bar,
+            )
+        ):
             self.refresh_element(result_element_id)
 
     @log_method

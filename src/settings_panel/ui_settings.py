@@ -113,7 +113,7 @@ class SettingsPanelClass:
             self.add_module(module.value)
 
         # post-init
-        self.stacked_widget.setCurrentIndex(PanelRegistry.HOME.value.settings_stacked_widget_index)
+        self.stacked_widget.setCurrentIndex(PanelRegistry.HOME_INITIAL.value.settings_stacked_widget_index)
 
         # open_action.triggered.connect(PanelRegistry.HOME.value.ui_instance.open_handler)
         # save_action.triggered.connect(PanelRegistry.HOME.value.ui_instance.save_handler)

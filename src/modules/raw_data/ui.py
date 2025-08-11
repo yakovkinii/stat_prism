@@ -23,13 +23,9 @@ class RawData(BaseModulePanel):
         self.elements = {
             "title": Title(label_text="Raw Data"),
             "spacer": SpacerSmall(),
-            "open_sample": LargeButton(
-                label_text="Replace with Sample Data",
-                icon_path="msc.folder-opened",
-            ),
             "open": LargeButton(
-                label_text="Update Data",
-                icon_path="msc.folder-opened",
+                label_text="Replace Data",
+                icon_path="ph.arrows-clockwise",
             ),
         }
         self.setup(stretch=True)
@@ -91,7 +87,5 @@ class RawData(BaseModulePanel):
         if message.message_type == MessageType.CLICKED:
             if message.caller_id == "open":
                 self.open_handler()
-            elif message.caller_id == "open_sample":
-                self.open_file("./data.csv")
             return
         super().handler(message)

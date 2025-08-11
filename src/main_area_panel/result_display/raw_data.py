@@ -86,6 +86,7 @@ class RawDataResultDisplay(BaseResultDisplay):
             ],
         )
         self.refresh()
+        self.remove_focus(None)
 
     def refresh(self):
         config = RESULTS[self.result_id].config

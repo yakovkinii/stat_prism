@@ -64,6 +64,8 @@ class DataProcessingResultDisplay(BaseResultDisplay):
             layout=self.header_layout,
             setup=lambda w, l: [w.clicked.connect(lambda: self.activate_result(self.result_id, None))],
         )
+        # self.refresh()
+        self.remove_focus(None)
 
     @log_method
     def activate_result(self, result_id, result_element_id):

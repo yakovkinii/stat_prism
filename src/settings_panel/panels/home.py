@@ -26,10 +26,6 @@ if TYPE_CHECKING:
 class Home(BasePanel):
     def setup_ui(self):
         self.elements = {
-            "raw_data": LargeButton(
-                label_text="Raw Data",
-                icon_path="ri.file-text-line",
-            ),
             "data_processing": LargeButton(
                 label_text="Data Processing",
                 icon_path="ri.file-edit-line",
@@ -39,6 +35,10 @@ class Home(BasePanel):
                 icon_path="ri.bar-chart-line",
             ),
             "spacer": Spacer(),
+            "save": LargeButton(
+                label_text="Save Project",
+                icon_path="msc.folder-opened",
+            ),
             "about": LargeButton(
                 label_text="About",
                 icon_path="ri.questionnaire-line",
@@ -46,20 +46,6 @@ class Home(BasePanel):
         }
 
         self.setup(stretch=True)
-
-    @log_method_noarg
-    def open_handler(self):
-        file_path, _ = QtWidgets.QFileDialog.getOpenFileName(
-            self.widget,
-            "Open File",
-            "",
-            "Supported Files (*.sp *.xlsx *.csv);;All Files (*)",
-        )
-
-        if not file_path:
-            logging.info("No file selected")
-            return
-        self.open_file(file_path)
 
     @log_method_noarg
     def about_handler(self):
@@ -87,19 +73,6 @@ class Home(BasePanel):
         if message.message_type == MessageType.CLICKED:
             if message.caller_id == "about":
                 return self.about_handler()
-            elif message.caller_id == "raw_data":
-                module = ModuleRegistry.RAW_DATA.value
-
-                result_id = get_unique_result_id()
-                RESULTS[result_id] = module.result_class(
-                    unique_id=result_id,
-                    settings_panel_index=module.settings_stacked_widget_index,
-                    config=module.config_class(),
-                )
-                self.root_class.main_area_panel.add_raw_data(result_id=result_id)
-
-                module.ui_instance.configure(result_id=result_id)
-                return self.root_class.action_activate_panel_by_index(module.settings_stacked_widget_index)
             elif message.caller_id == "data_processing":
                 return self.root_class.action_activate_panel_by_index(
                     PanelRegistry.SELECT_DATA_PROCESSING.settings_stacked_widget_index

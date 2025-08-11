@@ -8,7 +8,9 @@ class DataManager:
         self.raw_data_result_id = None
 
     def set_raw_data_result_id(self, result_id: str):
-        assert self.raw_data_result_id is None, "Raw data result ID is already set."
+        assert (
+            self.raw_data_result_id is None or self.raw_data_result_id == result_id
+        ), "Raw data result ID is already set."
         self.raw_data_result_id = result_id
 
     def get_raw_data_result_id(self) -> str:

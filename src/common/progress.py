@@ -1,3 +1,5 @@
+from typing import List
+
 from PySide6.QtCore import QObject, QThread, Signal
 from PySide6.QtWidgets import QProgressBar
 
@@ -84,3 +86,14 @@ def run_in_separate_thread(func, progress_bar: QProgressBar, steps=100, on_done=
 
     thread.started.connect(worker.run)
     thread.start()
+
+
+def with_progress(elements: List, progress_bar: QProgressBar):
+    progress_bar.show()
+    progress_bar.setRange(0, len(elements))
+    for i, element in enumerate(elements):
+        progress_bar.setValue(i + 1)
+        yield element
+    progress_bar.setValue(len(elements))
+    progress_bar.hide()
+

@@ -17,6 +17,7 @@ class PanelRegistryItem:
 
 class PanelRegistry(Enum):
     HOME = PanelRegistryItem(unique_id_for_enum="HOME")
+    HOME_INITIAL = PanelRegistryItem(unique_id_for_enum="HOME_INITIAL")
     COLUMN = PanelRegistryItem(unique_id_for_enum="COLUMN")
     COLUMNS = PanelRegistryItem(unique_id_for_enum="COLUMNS")
     INVERSE = PanelRegistryItem(unique_id_for_enum="INVERSE")

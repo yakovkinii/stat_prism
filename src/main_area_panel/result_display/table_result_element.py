@@ -102,6 +102,7 @@ class TableResultElementDisplay(BaseResultDisplay):
             ),
         )
 
+    @log_method
     def remove_focus(self, focused_result_element_id):
         logging.warning(f"Removing focus from {self.result_id} with element {focused_result_element_id}")
         assert focused_result_element_id is not None
