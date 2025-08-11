@@ -29,7 +29,7 @@ class SelectDataAnalysis(BasePanel):
                     icon_path=module.value.icon_path,
                 )
 
-        self.setup(stretch=True, navigation_elements=True)
+        self.setup(stretch=True)
 
     @log_method
     def handler(self, message: Message):

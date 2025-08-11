@@ -2,7 +2,8 @@
 
 
 from src.common.constant import ColumnType
-from src.common.decorators import log_method
+from src.common.decorators import log_method, log_method_noarg
+from src.common.progress import run_in_separate_thread
 from src.data.data_manager import DATA_MANAGER
 from src.modules.base.base import BaseModulePanel
 from src.modules.common.result.registry import RESULTS
@@ -58,12 +59,8 @@ class Descriptive(BaseModulePanel):
     def check(self):
         return True
 
-        #     if len(cfg.selected_columns) < 1:
-        #         msg = "Please select one Grouping Column and at least one Variable"
-        #         result.set_placeholder(msg)
-        #         logging.debug(msg)
-        #         return result
 
+    @log_method_noarg
     def recalculate(self):
         if self.configuring:
             return
@@ -76,11 +73,21 @@ class Descriptive(BaseModulePanel):
             grouping_column=self.elements["column_selector"].get_selected_columns()[1][0],
             filters=RESULTS[self.result_id].config.filters,
         )
-        RESULTS[self.result_id] = recalculate_descriptive_study(
-            data=DATA_MANAGER.get_latest_data(), result=RESULTS[self.result_id]
+
+        data = DATA_MANAGER.get_latest_data()
+        result = RESULTS[self.result_id]
+
+        def main(update):
+            return recalculate_descriptive_study(data=data, result=result)
+
+        run_in_separate_thread(
+            main, progress_bar=self.root_class.settings_panel.progress_bar, on_done=self.recalculate_on_done
         )
 
+
+    @log_method
+    def recalculate_on_done(self, result):
+        RESULTS[self.result_id] = result
         RESULTS[self.result_id].needs_update = False
         self.configure(result_id=self.result_id)
         self.root_class.main_area_panel.refresh_result(result_id=self.result_id)
-        self.root_class.action_activate_results_panel()

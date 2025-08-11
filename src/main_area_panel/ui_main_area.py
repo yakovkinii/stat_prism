@@ -11,9 +11,11 @@ from src.main_area_panel.result_display.data_processing import DataProcessingRes
 from src.main_area_panel.result_display.raw_data import RawDataResultDisplay
 from src.modules.common.result.registry import RESULTS
 from src.pyside_ext.elements.utility.layout_helpers import empty_widget
+from src.pyside_ext.elements.utility.primitive_elements import QWidgetClickable
 from src.pyside_ext.markup import css
 from src.pyside_ext.styling import Style
 from src.pyside_ext.unique_qss import set_stylesheet
+from src.settings_panel.registry import PanelRegistry
 
 if TYPE_CHECKING:
     from src.ui_main import MainWindowClass
@@ -31,10 +33,12 @@ class MainAreaClass:
         self.widget.setWidgetResizable(True),
 
         self.widget_in_scroll_area, self.layout = empty_widget(
+            widget_class=QWidgetClickable,
             parent=self.parent_widget,
             inner_layout_class=QVBoxLayout,
             setup=lambda w, l: [
                 l.setSpacing(10),
+                w.clicked.connect(lambda: self.activate_result(None, None)),
             ],
         )
         self.widget.setWidget(self.widget_in_scroll_area)
@@ -43,34 +47,40 @@ class MainAreaClass:
 
         # Raw Data
         self.raw_data_widget_container, self.raw_data_container_layout = empty_widget(
+            widget_class=QWidgetClickable,
             parent=self.widget_in_scroll_area,
             outer_layout=self.layout,
             inner_layout_class=QVBoxLayout,
             setup=lambda w, l: [
                 l.setContentsMargins(10, 10, 5, 5),
                 l.setSpacing(10),
+                w.clicked.connect(lambda: self.activate_result(None, None)),
             ],
         )
 
         # Data Processing
-        self.raw_data_widget_container, self.raw_data_container_layout = empty_widget(
+        self.data_processing_widget_container, self.data_processing_container_layout = empty_widget(
+            widget_class=QWidgetClickable,
             parent=self.widget_in_scroll_area,
             outer_layout=self.layout,
             inner_layout_class=QVBoxLayout,
             setup=lambda w, l: [
                 l.setContentsMargins(10, 10, 5, 5),
                 l.setSpacing(10),
+                w.clicked.connect(lambda: self.activate_result(None, None)),
             ],
         )
 
         # Data Analysis
         self.data_analysis_widget_container, self.data_analysis_container_layout = empty_widget(
+            widget_class=QWidgetClickable,
             parent=self.widget_in_scroll_area,
             outer_layout=self.layout,
             inner_layout_class=QVBoxLayout,
             setup=lambda w, l: [
                 l.setContentsMargins(10, 10, 5, 5),
                 l.setSpacing(10),
+                w.clicked.connect(lambda: self.activate_result(None, None)),
             ],
         )
 
@@ -97,14 +107,14 @@ class MainAreaClass:
 
     def add_data_processing(self, result_id):
         data_processing_object = DataProcessingResultDisplay(
-            parent_widget=self.raw_data_widget_container,
+            parent_widget=self.data_processing_widget_container,
             parent_class=self,
             root_class=self.root_class,
             label_text=RESULTS[result_id].title,
             result_id=result_id,
         )
         self.data_processing_objects[result_id] = data_processing_object
-        self.raw_data_container_layout.addWidget(data_processing_object.widget)
+        self.data_processing_container_layout.addWidget(data_processing_object.widget)
 
     def add_data_analysis(self, result_id):
         data_analysis_object = DataAnalysisResultDisplay(
@@ -134,17 +144,23 @@ class MainAreaClass:
     def update_focus(self, result_id, result_element_id=None):
         if self.focused_result_id is not None:
             self.get_result_object(self.focused_result_id).remove_focus(self.focused_result_element_id)
-        self.get_result_object(result_id).set_focus(result_element_id)
 
         self.focused_result_id = result_id
         self.focused_result_element_id = result_element_id
+        if result_id is not None:
+            self.get_result_object(result_id).set_focus(result_element_id)
 
     @log_method
     def activate_result(self, result_id, result_element_id):
         logging.warning(f"Activating result {result_id} with element {result_element_id}")
         if result_element_id is None:
-            self.parent_class.settings_panel.panels[RESULTS[result_id].settings_panel_index].configure(result_id)
-            self.parent_class.action_activate_panel_by_index(RESULTS[result_id].settings_panel_index)
+            if result_id is None:
+                self.parent_class.action_activate_panel_by_index(
+                    PanelRegistry.HOME.settings_stacked_widget_index
+                )
+            else:
+                self.parent_class.settings_panel.panels[RESULTS[result_id].settings_panel_index].configure(result_id)
+                self.parent_class.action_activate_panel_by_index(RESULTS[result_id].settings_panel_index)
         else:
             self.parent_class.action_activate_panel_by_index(
                 RESULTS[result_id].result_elements[result_element_id].settings_panel_index
