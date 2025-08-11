@@ -3,7 +3,6 @@
 
 from typing import TYPE_CHECKING, List
 
-from src._data_panel.const import DataPanelState
 from src.common.debt import DEBTS, Debt, DebtType
 from src.common.decorators import log_method, log_method_noarg
 from src.common.messages import Message, MessageType
@@ -37,11 +36,11 @@ class Filter(BasePanel):
         self.filters = filters.copy()
         self.back_button.setEnabled(True)
 
-        self.root_class.data_panel.tabledata.set_state(DataPanelState.FILTER)
+        # self.root_class.data_panel.tabledata.set_state(DataPanelState.FILTER)
         DEBTS.append(
             Debt(
                 debt_type=[DebtType.ON_STUDY_CHANGE],
-                resolve=lambda: self.root_class.data_panel.tabledata.set_state(DataPanelState.DEFAULT),
+                # resolve=lambda: self.root_class.data_panel.tabledata.set_state(DataPanelState.DEFAULT),
             )
         )
 

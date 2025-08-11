@@ -154,9 +154,12 @@ class MainAreaClass:
         logging.warning(f"Activating result {result_id} with element {result_element_id}")
         if result_element_id is None:
             if result_id is None:
-                self.parent_class.action_activate_panel_by_index(
-                    PanelRegistry.HOME.settings_stacked_widget_index
-                )
+                if len(RESULTS) == 0:
+                    self.parent_class.action_activate_panel_by_index(
+                        PanelRegistry.HOME_INITIAL.settings_stacked_widget_index
+                    )
+                else:
+                    self.parent_class.action_activate_panel_by_index(PanelRegistry.HOME.settings_stacked_widget_index)
             else:
                 self.parent_class.settings_panel.panels[RESULTS[result_id].settings_panel_index].configure(result_id)
                 self.parent_class.action_activate_panel_by_index(RESULTS[result_id].settings_panel_index)

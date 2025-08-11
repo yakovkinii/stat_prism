@@ -3,6 +3,8 @@
 
 from src.common.constant import ColumnType
 from src.common.decorators import log_method
+from src.common.progress import run_in_separate_thread
+from src.data.data_manager import DATA_MANAGER
 from src.modules.base.base import BaseModulePanel
 from src.modules.common.result.registry import RESULTS
 from src.modules.correlation.result import CORRELATION_TYPE_MAP
@@ -52,7 +54,7 @@ class Reliability(BaseModulePanel):
                 RESULTS[result_id].config.selected_columns,
                 [RESULTS[result_id].config.scale_column],
             ],
-            columns=self.tabledata.get_all_columns_as_column_types(),
+            columns=DATA_MANAGER.get_latest_data().get_all_columns_as_column_types(),
         )
         self.elements["compiled_filters"].configure(RESULTS[result_id].config.filters)
         self.elements["correlation_type"].combo_box.setCurrentIndex(RESULTS[result_id].config.correlation_type.value)
@@ -76,7 +78,7 @@ class Reliability(BaseModulePanel):
         RESULTS[self.result_id].config = ReliabilityStudyConfig(
             selected_columns=self.elements["column_selector"].get_selected_columns()[0],
             selected_columns_types=[
-                self.tabledata.get_column_type_from_column_name(col)
+                DATA_MANAGER.get_latest_data().get_column_type_from_column_name(col)
                 for col in self.elements["column_selector"].get_selected_columns()[0]
             ],
             scale_column=self.elements["column_selector"].get_selected_columns()[1][0],
@@ -84,13 +86,19 @@ class Reliability(BaseModulePanel):
             filters=RESULTS[self.result_id].config.filters,
         )
 
-        RESULTS[self.result_id] = recalculate_reliability_study(
-            data=self.tabledata.get_data_v2(),
-            result=RESULTS[self.result_id],
+        data = DATA_MANAGER.get_latest_data()
+        result = RESULTS[self.result_id]
+
+        def main(update):
+            return recalculate_reliability_study(data=data, result=result)
+
+        run_in_separate_thread(
+            main, progress_bar=self.root_class.settings_panel.progress_bar, on_done=self.recalculate_on_done
         )
 
+    @log_method
+    def recalculate_on_done(self, result):
+        RESULTS[self.result_id] = result
         RESULTS[self.result_id].needs_update = False
         self.configure(result_id=self.result_id)
-        self.root_class.result_selector_panel.refresh_result(result_id=self.result_id)
-        self.root_class.results_panel.display(result_id=self.result_id)
-        self.root_class.action_activate_results_panel()
+        self.root_class.main_area_panel.refresh_result(result_id=self.result_id)

@@ -1,16 +1,9 @@
 #  Copyright (c) 2023 StatPrism Team. All rights reserved.
 
 
-import logging
 from typing import TYPE_CHECKING
 
-from PySide6 import QtWidgets
-from PySide6.QtGui import QIcon
-from PySide6.QtWidgets import QMessageBox
-
-from src.about import version
-from src.common.constant import MDASH, NDASH
-from src.common.decorators import log_method, log_method_noarg
+from src.common.decorators import log_method
 from src.common.messages import MessageType
 from src.modules.common.result.registry import RESULTS, get_unique_result_id
 from src.modules.registry import ModuleRegistry
@@ -58,9 +51,7 @@ class HomeInitial(BasePanel):
                 self.root_class.main_area_panel.add_raw_data(result_id=result_id)
                 module.ui_instance.configure(result_id=result_id)
                 ModuleRegistry.RAW_DATA.ui_instance.open_handler()
-                self.root_class.action_activate_panel_by_index(
-                    PanelRegistry.HOME.settings_stacked_widget_index
-                )
+                self.root_class.action_activate_panel_by_index(PanelRegistry.HOME.settings_stacked_widget_index)
                 return
             elif message.caller_id == "open_sample":
                 module = ModuleRegistry.RAW_DATA.value
@@ -74,9 +65,7 @@ class HomeInitial(BasePanel):
                 self.root_class.main_area_panel.add_raw_data(result_id=result_id)
                 module.ui_instance.configure(result_id=result_id)
                 ModuleRegistry.RAW_DATA.ui_instance.open_file("./data.csv")
-                self.root_class.action_activate_panel_by_index(
-                    PanelRegistry.HOME.settings_stacked_widget_index
-                )
+                self.root_class.action_activate_panel_by_index(PanelRegistry.HOME.settings_stacked_widget_index)
                 return
             elif message.caller_id == "about":
                 PanelRegistry.HOME.ui_instance.about_handler()

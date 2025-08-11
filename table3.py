@@ -1,10 +1,12 @@
 #  Copyright (c) 2023 StatPrism Team. All rights reserved.
 
 
-import sys
 import random
 import string
+import sys
+
 from PySide6 import QtWidgets, QtCore, QtGui
+
 
 class ReadOnlyDelegate(QtWidgets.QStyledItemDelegate):
     def createEditor(self, parent, option, index):

@@ -1,10 +1,8 @@
 #  Copyright (c) 2023 StatPrism Team. All rights reserved.
 
 
-import logging
 from typing import TYPE_CHECKING
 
-from PySide6 import QtWidgets
 from PySide6.QtGui import QIcon
 from PySide6.QtWidgets import QMessageBox
 
@@ -12,8 +10,6 @@ from src.about import version
 from src.common.constant import MDASH, NDASH
 from src.common.decorators import log_method, log_method_noarg
 from src.common.messages import MessageType
-from src.modules.common.result.registry import RESULTS, get_unique_result_id
-from src.modules.registry import ModuleRegistry
 from src.pyside_ext.elements.button_large import LargeButton
 from src.pyside_ext.elements.spacer import Spacer
 from src.settings_panel.panels.base import BasePanel

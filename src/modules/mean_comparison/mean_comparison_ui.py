@@ -3,6 +3,8 @@
 
 from src.common.constant import ColumnType
 from src.common.decorators import log_method
+from src.common.progress import run_in_separate_thread
+from src.data.data_manager import DATA_MANAGER
 from src.modules.base.base import BaseModulePanel
 from src.modules.common.result.registry import RESULTS
 from src.modules.mean_comparison.constant import MeanComparisonMethod
@@ -59,7 +61,7 @@ class MeanComparison(BaseModulePanel):
         self.elements["plots"].widget.setChecked(RESULTS[result_id].config.plots)
         self.elements["effect_size"].widget.setChecked(RESULTS[result_id].config.effect_size)
         self.elements["column_selector"].configure(
-            columns=self.tabledata.get_all_columns_as_column_types(),
+            columns=DATA_MANAGER.get_latest_data().get_all_columns_as_column_types(),
             selected_columns_list=[
                 RESULTS[result_id].config.selected_columns,
                 [RESULTS[result_id].config.grouping_column],
@@ -120,20 +122,26 @@ class MeanComparison(BaseModulePanel):
             plots=self.elements["plots"].widget.isChecked(),
             selected_columns=self.elements["column_selector"].get_selected_columns()[0],
             selected_columns_types=[
-                self.tabledata.get_column_type_from_column_name(col)
+                DATA_MANAGER.get_latest_data().get_column_type_from_column_name(col)
                 for col in self.elements["column_selector"].get_selected_columns()[0]
             ],
             grouping_column=self.elements["column_selector"].get_selected_columns()[1][0],
             filters=RESULTS[self.result_id].config.filters,
         )
 
-        RESULTS[self.result_id] = recalculate_mean_comparison_study(
-            data=self.tabledata.get_data_v2(),
-            result=RESULTS[self.result_id],
+        data = DATA_MANAGER.get_latest_data()
+        result = RESULTS[self.result_id]
+
+        def main(update):
+            return recalculate_mean_comparison_study(data=data, result=result)
+
+        run_in_separate_thread(
+            main, progress_bar=self.root_class.settings_panel.progress_bar, on_done=self.recalculate_on_done
         )
 
+    @log_method
+    def recalculate_on_done(self, result):
+        RESULTS[self.result_id] = result
         RESULTS[self.result_id].needs_update = False
         self.configure(result_id=self.result_id)
-        self.root_class.result_selector_panel.refresh_result(result_id=self.result_id)
-        self.root_class.results_panel.display(result_id=self.result_id)
-        self.root_class.action_activate_results_panel()
+        self.root_class.main_area_panel.refresh_result(result_id=self.result_id)

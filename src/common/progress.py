@@ -96,4 +96,3 @@ def with_progress(elements: List, progress_bar: QProgressBar):
         yield element
     progress_bar.setValue(len(elements))
     progress_bar.hide()
-

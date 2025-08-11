@@ -3,7 +3,7 @@
 
 import logging
 
-from PySide6 import QtCore, QtWidgets
+from PySide6 import QtWidgets
 from PySide6.QtWebEngineWidgets import QWebEngineView
 
 # from src._data_panel.ui_data import DataPanelClass
@@ -123,7 +123,6 @@ class MainWindowClass(QtWidgets.QMainWindow):
                     debt.resolve()
             self.settings_panel.stacked_widget.setCurrentIndex(index)
 
-
     @log_method
     def action_activate_columns_panel(self, column_indexes):
         if (
@@ -133,7 +132,6 @@ class MainWindowClass(QtWidgets.QMainWindow):
 
         self.settings_panel.stacked_widget.setCurrentIndex(PanelRegistry.COLUMNS.settings_stacked_widget_index)
         PanelRegistry.COLUMNS.ui_instance.configure(column_indexes)
-
 
     @log_method_noarg
     def action_activate_results_panel(self):

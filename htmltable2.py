@@ -1,9 +1,9 @@
 #  Copyright (c) 2023 StatPrism Team. All rights reserved.
+from PySide6.QtCore import QSize, Qt
 from PySide6.QtWidgets import (
     QWidget, QVBoxLayout, QTextBrowser,
     QLabel, QPushButton, QSizePolicy
 )
-from PySide6.QtCore import QSize, Qt
 
 
 class AnalysisOutputWidget(QWidget):

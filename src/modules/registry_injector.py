@@ -1,19 +1,19 @@
 #  Copyright (c) 2023 StatPrism Team. All rights reserved.
 
 
+from src.modules.contingency.contingency_ui import Contingency
 from src.modules.contingency.result import ContingencyResult, ContingencyStudyConfig
-from src.modules.contingency.ui import Contingency
+from src.modules.correlation.correlation_ui import Correlation
 from src.modules.correlation.result import CorrelationResult, CorrelationStudyConfig
-from src.modules.correlation.ui import Correlation
+from src.modules.descriptive.descriptive_ui import Descriptive
 from src.modules.descriptive.result import DescriptiveResult, DescriptiveStudyConfig
-from src.modules.descriptive.ui import Descriptive
+from src.modules.mean_comparison.mean_comparison_ui import MeanComparison
 from src.modules.mean_comparison.result import MeanComparisonResult, MeanComparisonStudyConfig
-from src.modules.mean_comparison.ui import MeanComparison
+from src.modules.raw_data.raw_data_ui import RawData
 from src.modules.raw_data.result import RawDataResult, RawDataStudyConfig
-from src.modules.raw_data.ui import RawData
 from src.modules.registry import ModuleRegistry
+from src.modules.regression.regression_ui import Regression
 from src.modules.regression.result import RegressionResult, RegressionStudyConfig
-from src.modules.regression.ui import Regression
 from src.modules.reliability.result import ReliabilityResult, ReliabilityStudyConfig
 from src.modules.reliability.ui import Reliability
 

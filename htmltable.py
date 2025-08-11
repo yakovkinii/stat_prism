@@ -1,3 +1,4 @@
+from PySide6.QtCore import QSize, Qt
 from PySide6.QtWidgets import (
     QApplication,
     QWidget,
@@ -8,7 +9,6 @@ from PySide6.QtWidgets import (
     QScrollArea,
     QSizePolicy,
 )
-from PySide6.QtCore import QSize, Qt
 
 
 class AutoSizingTextBrowser(QTextBrowser):

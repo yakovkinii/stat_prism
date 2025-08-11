@@ -7,9 +7,9 @@ import numpy as np
 import pandas as pd
 import statsmodels.api as sm
 
-from src.data.data import Data
 from src.common.decorators import log_function
 from src.common.qcolor import Colors
+from src.data.data import Data
 from src.modules.common.result.html_result import Cell, HTMLTableV2, Row
 from src.modules.common.result.plot_result import Band, BandPlotConfig, Line, LinePlotConfig, PlotV2, Scatter
 from src.modules.common.utility import format_statistic_apa

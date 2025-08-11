@@ -1,15 +1,15 @@
 #  Copyright (c) 2023 StatPrism Team. All rights reserved.
-
+import logging
 
 import numpy as np
 import pandas as pd
 from scipy import stats
 from scipy.stats import gaussian_kde
 
-from src.data.data import Data
 from src.common.constant import MDASH, ColumnType
 from src.common.decorators import log_function
 from src.common.qcolor import Colors
+from src.data.data import Data
 from src.modules.common.result.plot_result import Bar, BarPlotConfig, Line, LinePlotConfig, PlotV2
 from src.modules.descriptive.plot import create_box_plot
 from src.modules.descriptive.result import DescriptiveResult
@@ -50,16 +50,19 @@ def calculate_descriptive_study_no_groupby(data: Data, result: DescriptiveResult
             continue
 
         # Histogram
+        try:
+            kde = gaussian_kde(df[col].dropna())
+            x_vals = np.linspace(df[col].min(), df[col].max(), 500)
+            y_vals = kde(x_vals)
 
-        kde = gaussian_kde(df[col].dropna())
-        x_vals = np.linspace(df[col].min(), df[col].max(), 500)
-        y_vals = kde(x_vals)
-
-        plot_line = Line(
-            x=x_vals,
-            y=y_vals,
-            label=f"Distribution",
-        )
+            plot_line = Line(
+                x=x_vals,
+                y=y_vals,
+                label=f"Distribution",
+            )
+        except Exception as e:
+            logging.error(f"Error calculating KDE for column {col}: {e}")
+            plot_line = None
 
         y, x = np.histogram(df[col], bins="auto", density=True)
         # bar plot
@@ -71,7 +74,7 @@ def calculate_descriptive_study_no_groupby(data: Data, result: DescriptiveResult
         )
 
         plot_result = PlotV2(
-            items=[plot_line, plot_bar],
+            items=[plot_line, plot_bar] if plot_line else [plot_bar],
             title=f"Plot: Distribution of {col}",
             plot_title=f"Distribution of {col}",
             x_axis_title=col,
@@ -143,18 +146,20 @@ def calculate_descriptive_study_groupby(data: Data, result: DescriptiveResult):
 
         for i, groupby_value in enumerate(groupby_values):
             df_subset = df.loc[df[groupby_column] == groupby_value]
-            kde = gaussian_kde(df_subset[col].dropna())
-            y_vals = kde(x_vals)
             color = colors.get_color_list()
-            line_plot_config = LinePlotConfig(color=color)
-            plot_line = Line(
-                x=x_vals,
-                y=y_vals,
-                label=f"{groupby_value}",
-                config=line_plot_config,
-                legend_string=f"{groupby_value}",
-            )
-            plots.append(plot_line)
+            try:
+                kde = gaussian_kde(df_subset[col].dropna())
+                y_vals = kde(x_vals)
+                plot_line = Line(
+                    x=x_vals,
+                    y=y_vals,
+                    label=f"{groupby_value}",
+                    config=LinePlotConfig(color=color),
+                    legend_string=f"{groupby_value}",
+                )
+                plots.append(plot_line)
+            except Exception as e:
+                logging.error(f"Error calculating KDE for column {col} and group {groupby_value}: {e}")
 
             y, x = np.histogram(df_subset[col], bins=x_all, density=True)
             bar_plot_config = BarPlotConfig(color=color)

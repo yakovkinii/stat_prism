@@ -5,8 +5,8 @@ import logging
 
 import numpy as np
 
-from src.data.data import Data
 from src.common.decorators import log_function
+from src.data.data import Data
 from src.modules.common.mathematics.correlation.binary_correlations import (
     phi_correlation_table,
     tetrachoric_corr_matrix,

@@ -3,8 +3,8 @@
 
 import logging
 
-from src.data.data import Data
 from src.common.decorators import log_function
+from src.data.data import Data
 from src.modules.mean_comparison.anova import recalculate_mean_comparison_anova
 from src.modules.mean_comparison.result import MeanComparisonResult
 from src.modules.mean_comparison.t_test import recalculate_mean_comparison_t_test

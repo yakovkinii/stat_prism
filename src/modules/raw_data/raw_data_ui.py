@@ -67,7 +67,9 @@ class RawData(BaseModulePanel):
                 raise ValueError(f"Unsupported file format: {file_path}")
             update(80)
             config = RawDataStudyConfig(
-                data=Data.initialize_from_dataframe(dataframe), path=Path(file_path).resolve(), timestamp=pd.Timestamp.now()
+                data=Data.initialize_from_dataframe(dataframe),
+                path=Path(file_path).resolve(),
+                timestamp=pd.Timestamp.now(),
             )
             return config
 

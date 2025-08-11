@@ -1,6 +1,5 @@
 #  Copyright (c) 2023 StatPrism Team. All rights reserved.
 import logging
-import time
 
 from PySide6.QtWidgets import QVBoxLayout
 
@@ -124,7 +123,6 @@ class DataAnalysisResultDisplay(BaseResultDisplay):
                 item.widget().deleteLater()
 
         self.element_display_objects = {}
-        time.sleep(5)
         for result_element_id, _ in enumerate(
             with_progress(
                 RESULTS[self.result_id].result_elements,

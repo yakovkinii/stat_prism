@@ -200,7 +200,6 @@ class BaseModulePanel:
                 self.recalculate()
             else:
                 self.set_recalculate_button_highlight(True)
-            self.root_class.main_area_panel.refresh_result(result_id=self.result_id)
             return
         if message.message_type == MessageType.CLICKED:
             if message.caller_id == "compiled_filters":
