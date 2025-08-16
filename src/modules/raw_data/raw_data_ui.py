@@ -3,9 +3,8 @@ import logging
 from pathlib import Path
 
 import pandas as pd
-from PySide6 import QtWidgets
 
-from src.common.decorators import log_method, log_method_noarg
+from src.common.decorators import log_method
 from src.common.messages import MessageType
 from src.common.progress import run_in_separate_thread
 from src.data.data import Data
@@ -39,20 +38,6 @@ class RawData(BaseModulePanel):
 
     def recalculate(self):
         pass
-
-    @log_method_noarg
-    def open_handler(self):
-        file_path, _ = QtWidgets.QFileDialog.getOpenFileName(
-            self.widget,
-            "Open File",
-            "",
-            "Supported Files (*.sp *.xlsx *.csv);;All Files (*)",
-        )
-
-        if not file_path:
-            logging.info("No file selected")
-            return
-        self.open_file(file_path)
 
     @log_method
     def open_file(self, file_path):

@@ -8,6 +8,7 @@ from src.common.constant import TABLE_OR_PLOT_ID_PLACEHOLDER
 from src.common.decorators import log_method_noarg
 from src.common.languages import LANGUAGE
 from src.modules.common.result.base_result import BaseResultElement
+from src.pyside_ext.elements.base import BasePanelElement
 from src.settings_panel.panels.result_item_settings_classes import (
     ContainerResultItemSetting,
     SingleLineTextResultItemSetting,
@@ -59,7 +60,7 @@ class HTMLTableV2(BaseResultElement):
     def __init__(
         self,
         rows: List[Row] = None,
-        tab_title="Table",
+        title="Table",
         border_top: bool = True,
         border_bottom: bool = True,
         table_id="",
@@ -69,7 +70,7 @@ class HTMLTableV2(BaseResultElement):
     ):
         super().__init__()
         logging.info("Creating HTMLTableV2")
-        self.title: str = tab_title
+        self.title: str = title
         self.class_id: str = "HTMLTableV2"
         self.rows: List[Row] = rows if rows is not None else []
         self.border_top = border_top
@@ -86,6 +87,21 @@ class HTMLTableV2(BaseResultElement):
                 add_stretch=True,
             ),
         }
+
+    def __getstate__(self):
+        state = self.__dict__.copy()
+        state.pop("display_settings", None)
+        state.pop("class_id", None)
+        state.pop("_gc_ignore", None)
+
+        for k, v in state.items():
+            if issubclass(type(v), BasePanelElement):
+                state[k] = v.get_current_value()
+        logging.warning(f"HTMLTableV2 {state=}")
+        return state
+
+    def __setstate__(self, state):
+        self.__init__(**state)
 
     @log_method_noarg
     def get_html(self, renderer=None):

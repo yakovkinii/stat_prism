@@ -362,7 +362,7 @@ class PlotV2(BaseResultElement):
         for k, v in state.items():
             if issubclass(type(v), BasePanelElement):
                 state[k] = v.get_current_value()
-        logging.warning(f"{state=}")
+        logging.warning(f"PlotV2 {state=}")
         return state
 
     def __setstate__(self, state):

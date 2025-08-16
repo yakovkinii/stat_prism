@@ -19,5 +19,8 @@ class DataManager:
     def get_latest_data(self):
         return RESULTS[self.raw_data_result_id].config.data.copy()
 
+    def from_unpickled(self, data: "DataManager"):
+        self.raw_data_result_id = data.raw_data_result_id
+
 
 DATA_MANAGER = DataManager()

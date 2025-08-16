@@ -64,10 +64,10 @@ class BaseModulePanel:
             icon_path="ph.arrows-clockwise",
             icon_size=QtCore.QSize(40, 40),
         )
-        self.auto_checkbox = QtWidgets.QCheckBox(self.study_widget)
-        self.auto_checkbox.setText("Auto")
-        self.auto_checkbox.setChecked(True)
-        self.auto_checkbox.setGeometry(10, 60, 50, 20)
+        # self.auto_checkbox = QtWidgets.QCheckBox(self.study_widget)
+        # self.auto_checkbox.setText("Auto")
+        # self.auto_checkbox.setChecked(True)
+        # self.auto_checkbox.setGeometry(10, 60, 50, 20)
         self.recalculate_button.clicked.connect(self.recalculate)
 
         self.delete_button = create_tool_button_qta(
@@ -76,15 +76,16 @@ class BaseModulePanel:
             icon_path="mdi6.delete-outline",
             icon_size=QtCore.QSize(40, 40),
         )
-        self.delete_button.clicked.connect(self.delete)
+        # self.delete_button.clicked.connect(self.delete)
+        self.delete_button.setEnabled(False)
 
-        self.copy_for_word_button = create_tool_button_qta(
-            parent=self.widget,
-            button_geometry=QtCore.QRect((SettingsPanelSize.width - 120), 5, 50, 50),
-            icon_path="fa.file-word-o",
-            icon_size=QtCore.QSize(40, 40),
-        )
-        self.copy_for_word_button.clicked.connect(self.copy_for_word)
+        # self.copy_for_word_button = create_tool_button_qta(
+        #     parent=self.widget,
+        #     button_geometry=QtCore.QRect((SettingsPanelSize.width - 120), 5, 50, 50),
+        #     icon_path="fa.file-word-o",
+        #     icon_size=QtCore.QSize(40, 40),
+        # )
+        # self.copy_for_word_button.clicked.connect(self.copy_for_word)
 
         self.home_button = create_tool_button_qta(
             parent=self.widget,
@@ -93,21 +94,24 @@ class BaseModulePanel:
             icon_size=QtCore.QSize(40, 40),
         )
         self.home_button.clicked.connect(
-            lambda: self.root_class.action_activate_panel_by_index(PanelRegistry.HOME.settings_stacked_widget_index)
+            lambda: [
+                self.root_class.main_area_panel.update_focus(None, None),
+                self.root_class.action_activate_panel_by_index(PanelRegistry.HOME.settings_stacked_widget_index),
+            ]
         )
 
-        self.add_study_button = create_tool_button_qta(
-            parent=self.widget,
-            button_geometry=QtCore.QRect((SettingsPanelSize.width - 240), 5, 50, 50),
-            icon_path="mdi6.plus",
-            icon_size=QtCore.QSize(40, 40),
-        )
-
-        self.add_study_button.clicked.connect(
-            lambda: self.root_class.action_activate_panel_by_index(
-                PanelRegistry.SELECT_DATA_ANALYSIS.settings_stacked_widget_index
-            )
-        )
+        # self.add_study_button = create_tool_button_qta(
+        #     parent=self.widget,
+        #     button_geometry=QtCore.QRect((SettingsPanelSize.width - 240), 5, 50, 50),
+        #     icon_path="mdi6.plus",
+        #     icon_size=QtCore.QSize(40, 40),
+        # )
+        #
+        # self.add_study_button.clicked.connect(
+        #     lambda: self.root_class.action_activate_panel_by_index(
+        #         PanelRegistry.SELECT_DATA_ANALYSIS.settings_stacked_widget_index
+        #     )
+        # )
 
         # Definition
         self.widget_for_elements = QtWidgets.QWidget()
@@ -130,11 +134,12 @@ class BaseModulePanel:
 
     @log_method_noarg
     def is_auto_recalculate_enabled(self):
-        if self.auto_checkbox is None:
-            return False
-        if self.auto_checkbox.isChecked():
-            return True
-        return False
+        return True
+        # if self.auto_checkbox is None:
+        #     return False
+        # if self.auto_checkbox.isChecked():
+        #     return True
+        # return False
 
     @log_method
     def setup(self, stretch=False):

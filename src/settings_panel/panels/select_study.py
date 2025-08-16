@@ -10,6 +10,7 @@ from src.modules.registry import ModuleRegistry, ModuleRegistryItem, ModuleType
 from src.pyside_ext.elements.button_large import LargeButton
 from src.pyside_ext.elements.title import Title
 from src.settings_panel.panels.base import BasePanel
+from src.settings_panel.registry import PanelRegistry
 
 if TYPE_CHECKING:
     pass
@@ -28,8 +29,8 @@ class SelectDataAnalysis(BasePanel):
                     label_text=module.value.display_name,
                     icon_path=module.value.icon_path,
                 )
-
-        self.setup(stretch=True)
+        self.caller_index = PanelRegistry.HOME.settings_stacked_widget_index
+        self.setup(stretch=True, navigation_elements=True, ok_button=False)
 
     @log_method
     def handler(self, message: Message):
