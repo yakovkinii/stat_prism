@@ -43,26 +43,48 @@ class ColumnSelectorEx(BasePanelElement):
         self.columns = None
         self.panel_list_widgets = []
 
-    def setup(self):
+    def change_fields(self, fields: List[Field]):
+        self.fields = fields
+
+        # delete existing widgets except self.widget and self.layout. clear self.layout
+        while self.layout.count():
+            self.layout.takeAt(0)
+
+        for panel_list in self.panel_list_widgets:
+            panel_list.deleteLater()
+        self.panel_list_widgets.clear()
+        if self.fields_panel is not None:
+            self.fields_panel.deleteLater()
+            self.fields_panel = None
+        if self.fields_panel_layout is not None:
+            self.fields_panel_layout.deleteLater()
+            self.fields_panel_layout = None
+        if self.popup is not None:
+            # self.popup.widget.deleteLater()
+            self.popup = None
+
+        self.setup(full=False)
+
+    def setup(self, full=True):
         self.popup = ColumnSelectorExPopup(self.parent_widget, self.fields)
         self.popup.widget.hide()
-
-        self.widget, self.layout = empty_widget(
-            parent=self.parent_widget,
-            inner_layout_class=QVBoxLayout,
-            widget_class=QWidgetClickable,
-            setup=lambda widget, layout: [
-                widget.clicked.connect(
-                    lambda: self.handler(
-                        Message(
-                            message_type=MessageType.CLICKED,
-                            payload=None,
-                            caller_id=self.element_id,
+        if full:
+            self.widget, self.layout = empty_widget(
+                parent=self.parent_widget,
+                inner_layout_class=QVBoxLayout,
+                widget_class=QWidgetClickable,
+                setup=lambda widget, layout: [
+                    widget.clicked.connect(
+                        lambda: self.handler(
+                            Message(
+                                message_type=MessageType.CLICKED,
+                                payload=None,
+                                caller_id=self.element_id,
+                            )
                         )
-                    )
-                ),
-            ],
-        )
+                    ),
+                ],
+            )
 
         self.fields_panel, self.fields_panel_layout = empty_widget(
             parent=self.widget,

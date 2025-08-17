@@ -30,13 +30,13 @@ class RotationType(Enum):
 class CFAStudyConfig:
     def __init__(
         self,
-        factor1_vars: List[str] = None,
-        factor2_vars: List[str] = None,
+        columns_list: list = None,
+        n_factors: int = 2,
         rotation: RotationType = RotationType.NONE,
         filters: List[FilterSettings] = None,
     ):
-        self.factor1_vars: List[str] = factor1_vars if factor1_vars is not None else []
-        self.factor2_vars: List[str] = factor2_vars if factor2_vars is not None else []
+        self.columns_list: list = columns_list if columns_list is not None else [[] for _ in range(n_factors)]
+        self.n_factors: int = n_factors
         self.rotation: RotationType = rotation
         self.filters: List[FilterSettings] = filters if filters is not None else []
 
@@ -52,9 +52,7 @@ class CFAResult(BaseResult):
         self.set_placeholder()
 
     def rename_column(self, old_name, new_name):
-        if old_name in self.config.factor1_vars:
-            idx = self.config.factor1_vars.index(old_name)
-            self.config.factor1_vars[idx] = new_name
-        if old_name in self.config.factor2_vars:
-            idx = self.config.factor2_vars.index(old_name)
-            self.config.factor2_vars[idx] = new_name
+        for factor_vars in self.config.columns_list:
+            for i, col in enumerate(factor_vars):
+                if col == old_name:
+                    factor_vars[i] = new_name

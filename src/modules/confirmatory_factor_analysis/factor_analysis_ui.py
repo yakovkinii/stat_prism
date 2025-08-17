@@ -1,4 +1,5 @@
 #  Copyright (c) 2023 StatPrism Team. All rights reserved.
+import logging
 
 from src.common.constant import ColumnType
 from src.common.decorators import log_method
@@ -16,28 +17,17 @@ from src.pyside_ext.elements.combo_box import ComboBox
 from src.pyside_ext.elements.filter import CompiledFilterHistory
 from src.pyside_ext.elements.spacer_small import SpacerSmall
 from src.pyside_ext.elements.title import Title
+from src.pyside_ext.elements.spin import Spin
 
 class ConfirmatoryFactorAnalysis(BaseModulePanel):
     def setup_ui(self):
         self.elements = {
             "title": Title(label_text="Confirmatory Factor Analysis"),
             "spacer1": SpacerSmall(),
+            "n_factors": Spin(label_text="Number of factors:", min_value=1, max_value=20),
             "rotation": ComboBox(label_text="Rotation:"),
             "spacer2": SpacerSmall(),
-            "column_selector": ColumnSelectorEx(
-                fields=[
-                    Field(
-                        name="Factor 1 variables:",
-                        column_type=ColumnType.ORDINAL,
-                        reasonable_number_of_columns=10,
-                    ),
-                    Field(
-                        name="Factor 2 variables:",
-                        column_type=ColumnType.ORDINAL,
-                        reasonable_number_of_columns=10,
-                    ),
-                ],
-            ),
+            "column_selector": ColumnSelectorEx(fields=[]),
             "compiled_filters": CompiledFilterHistory(),
         }
         self.setup(stretch=True)
@@ -49,9 +39,31 @@ class ConfirmatoryFactorAnalysis(BaseModulePanel):
         self.result_id = result_id
         cfg = RESULTS[result_id].config
         self.elements["rotation"].combo_box.setCurrentText(cfg.rotation.value)
+        self.elements["n_factors"].spin_box.setValue(cfg.n_factors)
+        n_factors = cfg.n_factors
+        # Create fields for each factor
+        fields = [
+            Field(
+                name=f"Factor {i+1} variables:",
+                column_type=ColumnType.ORDINAL,
+                reasonable_number_of_columns=3,
+            )
+            for i in range(n_factors)
+        ]
+        self.elements["column_selector"].change_fields(fields=fields)
+
+        # Prepare selected_columns_list for each factor
+        if cfg.columns_list:
+            if len(cfg.columns_list) >= n_factors:
+                selected_columns_list = cfg.columns_list[:n_factors]
+            else:
+                selected_columns_list = cfg.columns_list + [[] for _ in range(n_factors - len(cfg.columns_list))]
+        else:
+            selected_columns_list = [[] for _ in range(n_factors)]
+
         self.elements["column_selector"].configure(
             columns=DATA_MANAGER.get_latest_data().get_all_columns_as_column_types(),
-            selected_columns_list=[cfg.factor1_vars, cfg.factor2_vars],
+            selected_columns_list=selected_columns_list,
         )
         self.elements["compiled_filters"].configure(cfg.filters)
         self.set_recalculate_button_highlight(RESULTS[result_id].needs_update)
@@ -60,16 +72,23 @@ class ConfirmatoryFactorAnalysis(BaseModulePanel):
     def recalculate(self):
         if self.configuring:
             return
+        n_factors = self.elements["n_factors"].spin_box.value()
+        columns_list = self.elements["column_selector"].get_selected_columns()
         RESULTS[self.result_id].config = CFAStudyConfig(
-            factor1_vars=self.elements["column_selector"].get_selected_columns()[0],
-            factor2_vars=self.elements["column_selector"].get_selected_columns()[1],
+            columns_list=columns_list,
+            n_factors=n_factors,
             rotation=RotationType(self.elements["rotation"].combo_box.currentText()),
             filters=RESULTS[self.result_id].config.filters,
         )
         data = DATA_MANAGER.get_latest_data()
         result = RESULTS[self.result_id]
         def main(update):
-            return recalculate_cfa_study(data=data, result=result)
+            try:
+                return recalculate_cfa_study(data=data, result=result)
+            except Exception as e:
+                logging.error(f"Error during CFA recalculation: {e}")
+                result.set_placeholder("Error during recalculation: " + str(e))
+                return result
         run_in_separate_thread(
             main, progress_bar=self.root_class.settings_panel.progress_bar, on_done=self.recalculate_on_done
         )
@@ -80,4 +99,3 @@ class ConfirmatoryFactorAnalysis(BaseModulePanel):
         RESULTS[self.result_id].needs_update = False
         self.configure(result_id=self.result_id)
         self.root_class.main_area_panel.refresh_result(result_id=self.result_id)
-
