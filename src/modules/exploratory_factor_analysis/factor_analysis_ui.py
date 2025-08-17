@@ -1,3 +1,5 @@
+import logging
+
 from src.common.constant import ColumnType
 from src.common.decorators import log_method
 from src.common.progress import run_in_separate_thread
@@ -90,7 +92,12 @@ class FactorAnalysis(BaseModulePanel):
         result = RESULTS[self.result_id]
 
         def main(update):
-            return recalculate_factor_analysis_study(data=data, result=result)
+            try:
+                return recalculate_factor_analysis_study(data=data, result=result)
+            except Exception as e:
+                logging.error(f"Error during calculation: {e}")
+                result.set_placeholder("Error during calculation: " + str(e))
+                return result
 
         run_in_separate_thread(
             main, progress_bar=self.root_class.settings_panel.progress_bar, on_done=self.recalculate_on_done

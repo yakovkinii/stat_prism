@@ -11,9 +11,9 @@ class RotationType(Enum):
     VARIMAX = "varimax"
     QUARTIMAX = "quartimax"
     EQUAMAX = "equamax"
-    PROMAX = "promax"   # oblique
-    OBLIMIN = "oblimin" # oblique
-    GEOMIN = "geomin"   # oblique
+    PROMAX = "promax (obl)"
+    OBLIMIN = "oblimin (obl)"
+    GEOMIN = "geomin (obl)"
     @staticmethod
     def get_values():
         return [e.value for e in RotationType]

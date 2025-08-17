@@ -86,9 +86,10 @@ class ConfirmatoryFactorAnalysis(BaseModulePanel):
             try:
                 return recalculate_cfa_study(data=data, result=result)
             except Exception as e:
-                logging.error(f"Error during CFA recalculation: {e}")
-                result.set_placeholder("Error during recalculation: " + str(e))
+                logging.error(f"Error during calculation: {e}")
+                result.set_placeholder("Error during calculation: " + str(e))
                 return result
+
         run_in_separate_thread(
             main, progress_bar=self.root_class.settings_panel.progress_bar, on_done=self.recalculate_on_done
         )
