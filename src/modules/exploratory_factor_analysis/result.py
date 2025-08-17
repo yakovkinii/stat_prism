@@ -9,18 +9,20 @@ from src.pyside_ext.elements.filter import FilterSettings
 class RotationType(Enum):
     NONE = "none"
     VARIMAX = "varimax"
-    QUARTIMAX = "quartimax"
-    EQUAMAX = "equamax"
     PROMAX = "promax (obl)"
     OBLIMIN = "oblimin (obl)"
-    GEOMIN = "geomin (obl)"
+    OBLIMAX = "oblimax"
+    QUARTIMIN = "quartimin (obl)"
+    QUARTIMAX = "quartimax"
+    EQUAMAX = "equamax"
     @staticmethod
     def get_values():
         return [e.value for e in RotationType]
 
 class ExtractionMethod(Enum):
-    ML = "maximum_likelihood"
-    PRINCIPAL = "principal_axis"
+    MINRES = "Minimum Residual (MINRES)"
+    ML = "Maximum Likelihood (ML)"
+    PRINCIPAL = "Principal Axis (PAF)"
 
     @staticmethod
     def get_values():
@@ -31,8 +33,8 @@ class FactorAnalysisStudyConfig:
         self,
         columns: List[str] = None,
         n_factors: int = 2,
-        rotation: RotationType = RotationType.VARIMAX,
-        method: ExtractionMethod = ExtractionMethod.ML,
+        rotation: RotationType = RotationType.OBLIMIN,
+        method: ExtractionMethod = ExtractionMethod.MINRES,
         kaiser_normalization: bool = True,
         filters: List[FilterSettings] = None,
     ):

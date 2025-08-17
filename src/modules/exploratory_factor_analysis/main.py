@@ -179,8 +179,15 @@ def recalculate_factor_analysis_study(data: Data, result: FactorAnalysisResult) 
     # Keep only numeric columns
     df = df.select_dtypes(include=[np.number]).astype(float)
     df = df.dropna(axis=0)  # listwise
-    if df.shape[0] < 5 or df.shape[1] < 2:
+    n_rows, n_cols = df.shape
+    if n_rows < 5 or n_cols < 2:
         result.set_placeholder("Not enough complete data for EFA.")
+        return result
+
+    # Sanity check: n_factors <= n_cols
+    m = cfg.n_factors
+    if m > n_cols:
+        result.set_placeholder(f"Number of factors ({m}) cannot exceed number of variables ({n_cols}).")
         return result
 
     X = df.values
@@ -195,32 +202,54 @@ def recalculate_factor_analysis_study(data: Data, result: FactorAnalysisResult) 
     evals = np.sort(evals)[::-1]
     explained = evals / np.sum(evals) * 100.0
 
+    # Suggest optimal number of factors (Kaiser criterion: eigenvalue > 1)
+    n_optimal = np.sum(evals > 1)
+    eig_table = HTMLTableV2(table_caption="Eigenvalues (Correlation Matrix)")
+    eig_table.add_single_row_apa(Row([Cell("Component"), Cell("Eigenvalue"), Cell("% of Variance")]))
+    for i, (ev, ex) in enumerate(zip(evals, explained), 1):
+        eig_table.add_single_row_apa(Row([Cell(f"{i}"), Cell(f"{ev:.3f}"), Cell(f"{ex:.1f}")]))
+    if n_optimal > 0:
+        eig_table.add_text(f"Suggested number of factors (Kaiser criterion, eigenvalue > 1): <b>{n_optimal}</b>")
+    else:
+        eig_table.add_text("No eigenvalues > 1. Consider using a scree plot or parallel analysis for factor selection.")
+
     # Extraction and Rotation using factor_analyzer
-    m = int(max(1, cfg.n_factors))
     rotation_map = {
         RotationType.VARIMAX: 'varimax',
-        RotationType.QUARTIMAX: 'quartimax',
-        RotationType.EQUAMAX: 'equamax',
         RotationType.PROMAX: 'promax',
         RotationType.OBLIMIN: 'oblimin',
-        RotationType.GEOMIN: 'geomin_obl',
+        RotationType.OBLIMAX: 'oblimax',
+        RotationType.QUARTIMIN: 'quartimin',
+        RotationType.QUARTIMAX: 'quartimax',
+        RotationType.EQUAMAX: 'equamax',
         RotationType.NONE: None,
     }
+    method_map = {
+        ExtractionMethod.MINRES: 'minres',
+        ExtractionMethod.ML: 'ml',
+        ExtractionMethod.PRINCIPAL: 'principal',
+    }
     rotation = rotation_map.get(cfg.rotation, None)
-    method = 'ml' if cfg.method == ExtractionMethod.ML else 'principal'
+    method = method_map[cfg.method]
 
-    try:
-        fa = FactorAnalyzer(n_factors=m, method=method, rotation=rotation, use_smc=True)
-        fa.fit(X)
-        loadings = fa.loadings_
-        uniq = fa.get_uniquenesses()
-        if rotation in ['promax', 'oblimin', 'geomin_obl']:
-            phi = fa.phi_
-        else:
-            phi = np.eye(m)
-    except Exception as e:
-        result.set_placeholder(f"EFA failed: {e}")
-        return result
+    if cfg.kaiser_normalization:
+        rotation_kwargs = {'normalize': True}
+    else:
+        rotation_kwargs = {'normalize': False}
+
+    fa = FactorAnalyzer(
+        n_factors=m,
+        method=method,
+        rotation=rotation,
+        use_smc=True,
+        rotation_kwargs=rotation_kwargs
+    )
+    fa.fit(X)
+    loadings = fa.loadings_
+    if rotation in ['promax', 'oblimin', 'geomin_obl']:
+        phi = fa.phi_
+    else:
+        phi = np.eye(m)
 
     # Communalities / uniquenesses
     if rotation in ['promax', 'oblimin', 'geomin_obl']:
@@ -237,11 +266,6 @@ def recalculate_factor_analysis_study(data: Data, result: FactorAnalysisResult) 
     diag_table.add_single_row_apa(Row([Cell("Bartlett's χ²"), Cell(f"{bart_chi2:.3f}")]))
     diag_table.add_single_row_apa(Row([Cell("df"), Cell(f"{bart_df}")]))
     diag_table.add_single_row_apa(Row([Cell("p-value"), Cell(f"{bart_p:.5f}")]))
-
-    eig_table = HTMLTableV2(table_caption="Eigenvalues (Correlation Matrix)")
-    eig_table.add_single_row_apa(Row([Cell("Component"), Cell("Eigenvalue"), Cell("% of Variance")]))
-    for i, (ev, ex) in enumerate(zip(evals, explained), 1):
-        eig_table.add_single_row_apa(Row([Cell(f"{i}"), Cell(f"{ev:.3f}"), Cell(f"{ex:.1f}")]))
 
     load_table = HTMLTableV2(table_caption=f"Factor Loadings ({cfg.rotation.value})")
     headers = [Cell("Variable")] + [Cell(f"F{i+1}") for i in range(m)] + [Cell("Communality"), Cell("Uniqueness")]
