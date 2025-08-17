@@ -1,4 +1,7 @@
 #  Copyright (c) 2023 StatPrism Team. All rights reserved.
+from src.modules.factor_analysis.factor_analysis_ui import FactorAnalysis
+from src.modules.factor_analysis.result import FactorAnalysisResult, FactorAnalysisStudyConfig
+
 
 
 from src.modules.contingency.contingency_ui import Contingency
@@ -46,3 +49,8 @@ def inject_classes_to_module_registry():
     ModuleRegistry.CONTINGENCY.value.ui_class = Contingency
     ModuleRegistry.CONTINGENCY.value.result_class = ContingencyResult
     ModuleRegistry.CONTINGENCY.value.config_class = ContingencyStudyConfig
+
+    ModuleRegistry.FACTOR_ANALYSIS.value.ui_class = FactorAnalysis
+    ModuleRegistry.FACTOR_ANALYSIS.value.result_class = FactorAnalysisResult
+    ModuleRegistry.FACTOR_ANALYSIS.value.config_class = FactorAnalysisStudyConfig
+

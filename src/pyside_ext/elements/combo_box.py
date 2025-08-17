@@ -3,6 +3,7 @@
 
 from PySide6.QtWidgets import QComboBox, QHBoxLayout, QLabel
 
+from src.common.decorators import log_method_noarg
 from src.common.messages import Message, MessageType
 from src.pyside_ext.elements.base import BasePanelElement
 from src.pyside_ext.elements.utility.layout_helpers import empty_widget
@@ -27,7 +28,7 @@ class ComboBox(BasePanelElement):
         self.layout.addWidget(self.label)
 
         self.combo_box = QComboBox(self.parent_widget)
-        self.combo_box.currentIndexChanged.connect(self.on_index_changed)
+        self.combo_box.currentIndexChanged.connect(self.on_index_changed)  # Todo maybe duplicate signal
         self.layout.addWidget(self.combo_box)
 
     def configure(self, items):
@@ -38,12 +39,13 @@ class ComboBox(BasePanelElement):
             self.handler(
                 Message(
                     MessageType.STATE_CHANGED,
-                    payload=self.combo_box.currentIndex(),
+                    payload=self.combo_box.currentIndex(),  # todo check if this is correct
                     caller_id=self.element_id,
                 )
             )
         )
 
+    @log_method_noarg
     def on_index_changed(self):
         self.handler(
             Message(MessageType.STATE_CHANGED, payload=self.combo_box.currentIndex(), caller_id=self.element_id)

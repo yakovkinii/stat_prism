@@ -61,6 +61,11 @@ class ModuleRegistry(Enum):
         icon_path="ph.chart-line-up-fill",
     )
 
+    FACTOR_ANALYSIS = ModuleRegistryItem(
+        display_name="Exploratory Factor Analysis",
+        icon_path="ph.chart-line-up-fill",
+    )
+
     @property
     def display_name(self):
         return self.value.display_name
