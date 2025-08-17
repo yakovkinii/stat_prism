@@ -62,3 +62,4 @@ class FactorAnalysisResult(BaseResult):
         if old_name in self.config.columns:
             idx = self.config.columns.index(old_name)
             self.config.columns[idx] = new_name
+

@@ -79,7 +79,8 @@ class CustomHeader(QHeaderView):
 
     def paintSection(self, painter, rect, logicalIndex):
         painter.save()
-        bg = "#ccffcc" if logicalIndex == 2 else "white"
+        # bg = "#ccffcc" if logicalIndex == 2 else "white"
+        bg = "white"
         painter.fillRect(rect, QtGui.QColor(bg))
         pen = QtGui.QPen(QtGui.QColor("lightgray"))
         pen.setWidth(2)

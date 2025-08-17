@@ -12,6 +12,7 @@ from src.common.ui_constructor import create_simple_tool_button_qta
 from src.main_area_panel.result_display.base import BaseResultDisplay
 from src.main_area_panel.result_display.elements.result_element_label import ResultElementLabel
 from src.main_area_panel.result_display.elements.text_browser import TextBrowser
+from src.modules.common.result.html_result import HTMLTableV2
 from src.modules.common.result.registry import RESULTS
 from src.pyside_ext.elements.utility.layout_helpers import empty_widget, widget_in_layout
 from src.pyside_ext.elements.utility.primitive_elements import QWidgetClickable
@@ -49,7 +50,7 @@ class TableResultElementDisplay(BaseResultDisplay):
         )
 
         self.label = widget_in_layout(
-            widget=ResultElementLabel(parent=self.header_widget, label_text=label_text),
+            widget=ResultElementLabel(parent=self.header_widget, label_text=""),
             layout=self.header_layout,
             setup=lambda w, l: [
                 w.clicked.connect(lambda: self.activate_result(self.result_id, self.result_element_id))
@@ -83,8 +84,12 @@ class TableResultElementDisplay(BaseResultDisplay):
         self.remove_focus(self.result_element_id)
 
     def refresh(self):
+        table: HTMLTableV2 = RESULTS[self.result_id].result_elements[self.result_element_id]
         self.text_browser.set_html(
-            BASE_STYLES + RESULTS[self.result_id].result_elements[self.result_element_id].get_html()
+            BASE_STYLES + table.get_html()
+        )
+        self.label.setText(
+            table.table_caption.get_current_value()
         )
 
     @log_method
