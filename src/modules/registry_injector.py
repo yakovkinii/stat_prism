@@ -1,6 +1,6 @@
 #  Copyright (c) 2023 StatPrism Team. All rights reserved.
-from src.modules.factor_analysis.factor_analysis_ui import FactorAnalysis
-from src.modules.factor_analysis.result import FactorAnalysisResult, FactorAnalysisStudyConfig
+from src.modules.exploratory_factor_analysis.factor_analysis_ui import FactorAnalysis
+from src.modules.exploratory_factor_analysis.result import FactorAnalysisResult, FactorAnalysisStudyConfig
 
 
 

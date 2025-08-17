@@ -11,7 +11,7 @@ from src.modules.mean_comparison.result import MeanComparisonResult
 from src.modules.raw_data.result import RawDataResult
 from src.modules.regression.result import RegressionResult
 from src.modules.reliability.result import ReliabilityResult
-from src.modules.factor_analysis.result import FactorAnalysisResult
+from src.modules.exploratory_factor_analysis.result import FactorAnalysisResult
 
 RESULTS: Dict[
     int,

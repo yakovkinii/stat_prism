@@ -4,8 +4,8 @@ from src.common.progress import run_in_separate_thread
 from src.data.data_manager import DATA_MANAGER
 from src.modules.base.base import BaseModulePanel
 from src.modules.common.result.registry import RESULTS
-from src.modules.factor_analysis.main import recalculate_factor_analysis_study
-from src.modules.factor_analysis.result import (
+from src.modules.exploratory_factor_analysis.main import recalculate_factor_analysis_study
+from src.modules.exploratory_factor_analysis.result import (
     ExtractionMethod,
     FactorAnalysisStudyConfig,
     RotationType,

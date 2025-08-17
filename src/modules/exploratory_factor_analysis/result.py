@@ -1,9 +1,8 @@
-
 from enum import Enum
 from typing import List
 
 from src.modules.common.result.registry import BaseResult
-from src.modules.factor_analysis.constant import DESCRIPTION
+from src.modules.exploratory_factor_analysis.constant import DESCRIPTION
 from src.pyside_ext.elements.filter import FilterSettings
 
 
@@ -13,6 +12,8 @@ class RotationType(Enum):
     QUARTIMAX = "quartimax"
     EQUAMAX = "equamax"
     PROMAX = "promax"   # oblique
+    OBLIMIN = "oblimin" # oblique
+    GEOMIN = "geomin"   # oblique
     @staticmethod
     def get_values():
         return [e.value for e in RotationType]

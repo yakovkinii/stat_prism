@@ -10,7 +10,7 @@ from sklearn.decomposition import FactorAnalysis as SKFactorAnalysis
 from src.common.decorators import log_function
 from src.data.data import Data
 from src.modules.common.result.html_result import Cell, HTMLTableV2, Row
-from src.modules.factor_analysis.result import (
+from src.modules.exploratory_factor_analysis.result import (
     ExtractionMethod,
     FactorAnalysisResult,
     RotationType,
