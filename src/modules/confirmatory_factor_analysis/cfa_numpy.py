@@ -56,7 +56,9 @@ class CFAEstimator:
         for j, factor_vars in enumerate(self.structure):
             if len([v for v in factor_vars if v in var_names]) < 2:
                 raise ValueError(f"Factor {j+1} must have at least 2 variables for identification.")
-        S = np.cov(X, rowvar=False)
+        # Use ML covariance (divide by N, not N-1)
+        S = np.cov(X, rowvar=False, bias=True)
+        n_obs = X.shape[0]  # ensure n_obs is N, not N-1
         # Initial values
         loadings0 = np.random.uniform(0.5, 0.8, size=(n_vars, n_factors)) * mask
         # Apply fixed loadings if provided
@@ -143,25 +145,25 @@ class CFAEstimator:
         sign, logdet_S = np.linalg.slogdet(S)
         sign2, logdet_Sigma = np.linalg.slogdet(Sigma)
         tr = np.trace(np.linalg.solve(Sigma, S))
-        chi2_stat = (n_obs - 1) * (logdet_Sigma - logdet_S + tr - n_vars)  # (n-1) for unbiased sample covariance
+        chi2_stat = n_obs * (logdet_Sigma - logdet_S + tr - n_vars)  # use N, not N-1
         n_params = np.sum(mask) + n_vars
         if self.allow_factor_correlation and n_factors > 1:
             n_params += n_factors * (n_factors - 1) // 2
         df = (n_vars * (n_vars + 1)) // 2 - n_params
         p_value = 1 - chi2.cdf(chi2_stat, df) if df > 0 else np.nan
-        rmsea = np.sqrt(max((chi2_stat / ((n_obs - 1) * df) - 1 / (n_obs - 1)), 0)) if df > 0 else np.nan
+        rmsea = np.sqrt(max((chi2_stat - df) / (df * n_obs), 0)) if df > 0 else np.nan
         # Null model
         S_diag = np.diag(np.diag(S))
         sign3, logdet_S_diag = np.linalg.slogdet(S_diag)
         tr_null = np.trace(np.linalg.solve(S_diag, S))
-        chi2_null = (n_obs - 1) * (logdet_S_diag - logdet_S + tr_null - n_vars)
+        chi2_null = n_obs * (logdet_S_diag - logdet_S + tr_null - n_vars)
         df_null = (n_vars * (n_vars - 1)) // 2
         cfi = 1 - max(chi2_stat - df, 0) / max(chi2_null - df_null, 0) if df > 0 and df_null > 0 else np.nan
         tli = ((chi2_null / df_null) - (chi2_stat / df)) / ((chi2_null / df_null) - 1) if df > 0 and df_null > 0 else np.nan
         # SRMR
         resid = S - Sigma
         srmr = np.sqrt(np.mean((resid / (np.sqrt(np.outer(np.diag(S), np.diag(S)))))**2))
-        # Standardized loadings
+        # Standardized loadings (model-implied)
         std_loadings = L / np.sqrt(np.diag(Sigma))[:, None]
         # Standardized residuals
         std_resid = resid / np.sqrt(np.outer(np.diag(S), np.diag(Sigma)))
