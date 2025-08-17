@@ -187,11 +187,23 @@ def recalculate_factor_analysis_study(data: Data, result: FactorAnalysisResult) 
         loadings = P
         phi = Phi
         rot_info = "Promax (oblique, k=4)"
+    elif rotation == RotationType.OBLIMIN:
+        # Placeholder: treat as Promax for now
+        P, B, Phi = _promax(loadings, power=4, kaiser=cfg.kaiser_normalization)
+        loadings = P
+        phi = Phi
+        rot_info = "Oblimin (oblique, using Promax as placeholder)"
+    elif rotation == RotationType.GEOMIN:
+        # Placeholder: treat as Promax for now
+        P, B, Phi = _promax(loadings, power=4, kaiser=cfg.kaiser_normalization)
+        loadings = P
+        phi = Phi
+        rot_info = "Geomin (oblique, using Promax as placeholder)"
     else:
         rot_info = "None"
 
     # Communalities / uniquenesses
-    h2 = np.sum(loadings ** 2, axis=1) if rotation != RotationType.PROMAX else np.sum((loadings @ phi) * loadings, axis=1)
+    h2 = np.sum(loadings ** 2, axis=1) if rotation not in [RotationType.PROMAX, RotationType.OBLIMIN, RotationType.GEOMIN] else np.sum((loadings @ phi) * loadings, axis=1)
     u2 = np.clip(1.0 - h2, 0.0, None)
 
     # Tables
@@ -226,7 +238,7 @@ def recalculate_factor_analysis_study(data: Data, result: FactorAnalysisResult) 
     result.result_elements = [diag_table, eig_table, load_table]
 
     # 4) Factor correlations (oblique) and Structure matrix
-    if rotation == RotationType.PROMAX:
+    if rotation in [RotationType.PROMAX, RotationType.OBLIMIN, RotationType.GEOMIN]:
         phi_table = HTMLTableV2(table_caption="Factor Correlation Matrix (Phi)")
         phi_table.add_single_row_apa(Row([Cell("")] + [Cell(f"F{i+1}") for i in range(m)]))
         for i in range(m):

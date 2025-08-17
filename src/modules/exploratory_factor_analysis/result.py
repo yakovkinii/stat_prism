@@ -19,8 +19,8 @@ class RotationType(Enum):
         return [e.value for e in RotationType]
 
 class ExtractionMethod(Enum):
-    ML = "ml"
-    PRINCIPAL = "principal"  # PCA-based approximation to PAF
+    ML = "maximum_likelihood"
+    PRINCIPAL = "principal_axis"
 
     @staticmethod
     def get_values():
