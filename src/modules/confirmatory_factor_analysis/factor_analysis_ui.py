@@ -10,10 +10,9 @@ from src.modules.common.result.registry import RESULTS
 from src.modules.confirmatory_factor_analysis.main import recalculate_cfa_study
 from src.modules.confirmatory_factor_analysis.result import (
     CFAStudyConfig,
-    RotationType,
 )
 from src.pyside_ext.elements.column_selector import ColumnSelectorEx, Field
-from src.pyside_ext.elements.combo_box import ComboBox
+from src.pyside_ext.elements.checkbox import LargeCheckbox
 from src.pyside_ext.elements.filter import CompiledFilterHistory
 from src.pyside_ext.elements.spacer_small import SpacerSmall
 from src.pyside_ext.elements.title import Title
@@ -25,21 +24,20 @@ class ConfirmatoryFactorAnalysis(BaseModulePanel):
             "title": Title(label_text="Confirmatory Factor Analysis"),
             "spacer1": SpacerSmall(),
             "n_factors": Spin(label_text="Number of factors:", min_value=1, max_value=20),
-            "rotation": ComboBox(label_text="Rotation:"),
+            "allow_factor_correlation": LargeCheckbox(label_text="Allow factor correlation (oblique)"),
             "spacer2": SpacerSmall(),
             "column_selector": ColumnSelectorEx(fields=[]),
             "compiled_filters": CompiledFilterHistory(),
         }
         self.setup(stretch=True)
-        self.elements["rotation"].configure(RotationType.get_values())
 
     @log_method
     def configure(self, result_id: int):
         self.configuring = True
         self.result_id = result_id
         cfg = RESULTS[result_id].config
-        self.elements["rotation"].combo_box.setCurrentText(cfg.rotation.value)
         self.elements["n_factors"].spin_box.setValue(cfg.n_factors)
+        self.elements["allow_factor_correlation"].widget.setChecked(cfg.allow_factor_correlation)
         n_factors = cfg.n_factors
         # Create fields for each factor
         fields = [
@@ -77,7 +75,7 @@ class ConfirmatoryFactorAnalysis(BaseModulePanel):
         RESULTS[self.result_id].config = CFAStudyConfig(
             columns_list=columns_list,
             n_factors=n_factors,
-            rotation=RotationType(self.elements["rotation"].combo_box.currentText()),
+            allow_factor_correlation=self.elements["allow_factor_correlation"].widget.isChecked(),
             filters=RESULTS[self.result_id].config.filters,
         )
         data = DATA_MANAGER.get_latest_data()

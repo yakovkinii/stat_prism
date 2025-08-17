@@ -8,36 +8,33 @@ CFA_DESCRIPTION = """
 <h2> Confirmatory Factor Analysis (CFA) </h2>
 <h3> Description </h3>
 <div>
-CFA tests a user-specified factor structure (here: two factors, user assigns variables to each). The model is fit and model fit indices (e.g., chi-square, RMSEA, CFI, TLI), factor loadings, and factor correlations are reported.
+CFA tests a user-specified factor structure (user assigns variables to each factor). The model is fit and model fit indices (e.g., chi-square, RMSEA, CFI, TLI), factor loadings, and factor correlations are reported.
 </div>
 <h3> Inputs </h3>
 <div>
-<b>Factor 1 variables:</b> Observed variables for Factor 1.<br>
-<b>Factor 2 variables:</b> Observed variables for Factor 2.<br>
-<b>Rotation:</b> (Optional) Rotation for factor loadings.<br>
+<b>Factor variables:</b> Observed variables for each factor.<br>
+<b>Number of factors:</b> How many latent factors to extract.<br>
+<b>Rotation:</b> None / Varimax / Quartimax / Equamax (orthogonal); Promax, Oblimin, Quartimin (oblique).<br>
+<b>Kaiser normalization:</b> Optionally normalize before rotation.<br>
 <b>Filters:</b> Data filters to apply.<br>
 </div>
+<br><b>Pattern (factor loadings):</b> direct effect of each factor on each variable. <br><b>Structure matrix:</b> correlation of each variable with each factor (includes indirect effects if factors are correlated). <br>For interpretation and assigning variables to factors, use the pattern (factor loadings) matrix.
 """
 
-class RotationType(Enum):
-    NONE = "none"
-    OBLIMIN = "oblimin"
-    # Add more if needed
-    @staticmethod
-    def get_values():
-        return [e.value for e in RotationType]
 
 class CFAStudyConfig:
     def __init__(
         self,
         columns_list: list = None,
         n_factors: int = 2,
-        rotation: RotationType = RotationType.NONE,
+        allow_factor_correlation: bool = True,
+        kaiser_normalization: bool = True,
         filters: List[FilterSettings] = None,
     ):
         self.columns_list: list = columns_list if columns_list is not None else [[] for _ in range(n_factors)]
         self.n_factors: int = n_factors
-        self.rotation: RotationType = rotation
+        self.allow_factor_correlation: bool = allow_factor_correlation
+        self.kaiser_normalization: bool = kaiser_normalization
         self.filters: List[FilterSettings] = filters if filters is not None else []
 
 class CFAResult(BaseResult):
