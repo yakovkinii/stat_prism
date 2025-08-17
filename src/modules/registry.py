@@ -66,6 +66,11 @@ class ModuleRegistry(Enum):
         icon_path="ph.chart-line-up-fill",
     )
 
+    CFA = ModuleRegistryItem(
+        display_name="Confirmatory Factor Analysis",
+        icon_path="ph.chart-line-up-fill",
+    )
+
     @property
     def display_name(self):
         return self.value.display_name

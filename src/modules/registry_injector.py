@@ -19,6 +19,8 @@ from src.modules.regression.regression_ui import Regression
 from src.modules.regression.result import RegressionResult, RegressionStudyConfig
 from src.modules.reliability.result import ReliabilityResult, ReliabilityStudyConfig
 from src.modules.reliability.ui import Reliability
+from src.modules.confirmatory_factor_analysis.factor_analysis_ui import ConfirmatoryFactorAnalysis
+from src.modules.confirmatory_factor_analysis.result import CFAResult, CFAStudyConfig
 
 
 def inject_classes_to_module_registry():
@@ -54,3 +56,6 @@ def inject_classes_to_module_registry():
     ModuleRegistry.FACTOR_ANALYSIS.value.result_class = FactorAnalysisResult
     ModuleRegistry.FACTOR_ANALYSIS.value.config_class = FactorAnalysisStudyConfig
 
+    ModuleRegistry.CFA.value.ui_class = ConfirmatoryFactorAnalysis
+    ModuleRegistry.CFA.value.result_class = CFAResult
+    ModuleRegistry.CFA.value.config_class = CFAStudyConfig
