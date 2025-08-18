@@ -76,6 +76,12 @@ class ModuleRegistry(Enum):
         icon_path="ph.chart-line-up-fill",
     )
 
+    RENAME_COLUMNS = ModuleRegistryItem(
+        display_name="Rename Columns",
+        icon_path="ph.chart-line-up-fill",
+        module_type=ModuleType.DATA_PROCESSING,
+    )
+
     @property
     def display_name(self):
         return self.value.display_name

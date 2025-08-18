@@ -50,7 +50,7 @@ class SelectDataProcessing(BasePanel):
 
         # self.root_class.result_selector_panel.add_result(result_id)
         # self.root_class.results_panel.display(result_id)
-        self.root_class.main_area_panel.add_data_analysis(result_id=result_id)
+        self.root_class.main_area_panel.add_data_processing(result_id=result_id)
         # self.root_class.action_activate_results_panel()
 
         module.ui_instance.configure(result_id=result_id)

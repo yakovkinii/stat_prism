@@ -143,7 +143,11 @@ class BaseModulePanel:
     @log_method
     def setup(self, stretch=False):
         for element_id, element in self.elements.items():
-            element.inject(parent_widget=self.widget_for_elements, handler=self.handler, element_id=element_id)
+            try:
+                element.inject(parent_widget=self.widget_for_elements, handler=self.handler, element_id=element_id)
+            except Exception as e:
+                logging.error(f"Error injecting element {element_id}: {e}")
+                continue
             element.setup()
 
         while self.widget_for_elements_layout.count():

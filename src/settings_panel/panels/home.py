@@ -50,7 +50,6 @@ class Home(BasePanel):
         }
 
         self.setup(stretch=True)
-        self.elements["data_processing"].widget.setEnabled(False)
 
     @log_method_noarg
     def about_handler(self):

@@ -23,6 +23,8 @@ from src.modules.confirmatory_factor_analysis.factor_analysis_ui import Confirma
 from src.modules.confirmatory_factor_analysis.result import CFAResult, CFAStudyConfig
 from src.modules.cluster_analysis.cluster_analysis_ui import ClusterAnalysis
 from src.modules.cluster_analysis.result import ClusterAnalysisResult, ClusterAnalysisConfig
+from src.modules.rename_columns.rename_columns_ui import RenameColumns
+from src.modules.rename_columns.result import RenameColumnsResult, RenameColumnsStudyConfig
 
 
 def inject_classes_to_module_registry():
@@ -65,3 +67,7 @@ def inject_classes_to_module_registry():
     ModuleRegistry.CLUSTER_ANALYSIS.value.ui_class = ClusterAnalysis
     ModuleRegistry.CLUSTER_ANALYSIS.value.result_class = ClusterAnalysisResult
     ModuleRegistry.CLUSTER_ANALYSIS.value.config_class = ClusterAnalysisConfig
+
+    ModuleRegistry.RENAME_COLUMNS.value.ui_class = RenameColumns
+    ModuleRegistry.RENAME_COLUMNS.value.result_class = RenameColumnsResult
+    ModuleRegistry.RENAME_COLUMNS.value.config_class = RenameColumnsStudyConfig
