@@ -98,3 +98,4 @@ class ConfirmatoryFactorAnalysis(BaseModulePanel):
         RESULTS[self.result_id].needs_update = False
         self.configure(result_id=self.result_id)
         self.root_class.main_area_panel.refresh_result(result_id=self.result_id)
+

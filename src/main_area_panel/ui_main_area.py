@@ -171,3 +171,29 @@ class MainAreaClass:
                 RESULTS[result_id].result_elements[result_element_id].settings_panel_index
             ].configure(result_id, result_element_id)
         self.update_focus(result_id, result_element_id)
+
+    def remove_result(self, result_id):
+        # Remove from UI and object dicts
+        obj = self.get_result_object(result_id)
+
+        # Remove widget from layout
+        if result_id in self.data_analysis_objects:
+            layout = self.data_analysis_container_layout
+            del self.data_analysis_objects[result_id]
+        elif result_id in self.data_processing_objects:
+            layout = self.data_processing_container_layout
+            del self.data_processing_objects[result_id]
+        elif result_id in self.raw_data_objects:
+            layout = self.raw_data_container_layout
+            del self.raw_data_objects[result_id]
+        else:
+            return
+        layout.removeWidget(obj.widget)
+        obj.widget.setParent(None)
+        obj.widget.deleteLater()
+
+        # Update focus if needed
+        if self.focused_result_id == result_id:
+            self.focused_result_id = None
+            self.focused_result_element_id = None
+        self.activate_result(None, None)

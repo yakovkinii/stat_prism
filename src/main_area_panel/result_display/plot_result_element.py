@@ -70,6 +70,20 @@ class PlotResultElementDisplay(BaseResultDisplay):
             ],
         )
 
+        self.zoom_button = widget_in_layout(
+            widget=create_simple_tool_button_qta(
+                parent=self.widget,
+                icon_path="fa.search-plus",
+                icon_size=QtCore.QSize(20, 20),
+            ),
+            layout=self.header_layout,
+            alignment=Qt.AlignmentFlag.AlignTop,
+            setup=lambda w, l: [
+                w.setToolTip("Zoom plot"),
+                w.clicked.connect(self.zoom),
+            ],
+        )
+
         self.image = widget_in_layout(
             widget=QLabelClickable(self.widget),
             layout=self.layout,
@@ -77,6 +91,7 @@ class PlotResultElementDisplay(BaseResultDisplay):
                 w.clicked.connect(lambda: self.activate_result(self.result_id, self.result_element_id)),
             ],
         )
+        self.zoomed = False
         self.refresh()
         self.remove_focus(self.result_element_id)
 
@@ -89,7 +104,7 @@ class PlotResultElementDisplay(BaseResultDisplay):
         renderer.load(buf.read())
         buf.close()
 
-        target_width = 270
+        target_width = 600 if self.zoomed else 270
         default_size = renderer.defaultSize()  # returns QSize
         if default_size.isEmpty():
             raise ValueError("SVG has no size information.")
@@ -134,8 +149,17 @@ class PlotResultElementDisplay(BaseResultDisplay):
             ),
         )
 
+        if self.zoomed:
+            self.zoomed = False
+            self.refresh()
+
     def copy_plot(self):
         self.copy_button.setIcon(qta.icon("fa.check", color=Style.Color.SimpleToolButton.value))
         result_element = RESULTS[self.result_id].result_elements[self.result_element_id]
         result_element.copy_to_clipboard()
         QtCore.QTimer.singleShot(500, lambda: self.copy_button.setIcon(qta.icon("fa.copy", color="#888")))
+
+    def zoom(self):
+        self.activate_result(self.result_id, self.result_element_id)
+        self.zoomed = True
+        self.refresh()

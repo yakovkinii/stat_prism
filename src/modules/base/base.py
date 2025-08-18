@@ -76,8 +76,7 @@ class BaseModulePanel:
             icon_path="mdi6.delete-outline",
             icon_size=QtCore.QSize(40, 40),
         )
-        # self.delete_button.clicked.connect(self.delete)
-        self.delete_button.setEnabled(False)
+        self.delete_button.clicked.connect(self.delete)
 
         # self.copy_for_word_button = create_tool_button_qta(
         #     parent=self.widget,
@@ -176,10 +175,7 @@ class BaseModulePanel:
 
     @log_method_noarg
     def delete(self):
-        self.root_class.results_panel.display_none()
-        self.root_class.result_selector_panel.delete_result(self.result_id)
-        self.root_class.action_activate_data_panel()
-        self.root_class.action_activate_panel_by_index(PanelRegistry.SELECT_DATA_ANALYSIS.settings_stacked_widget_index)
+        self.root_class.main_area_panel.remove_result(self.result_id)
         RESULTS.pop(self.result_id)
 
     @log_method_noarg
@@ -213,6 +209,7 @@ class BaseModulePanel:
             if message.caller_id == "column_selector":
                 self.open_column_selector_popup()
                 return
+
         elif message.message_type == MessageType.FILTER_CLICKED:
             self.open_filter_handler()
             return
