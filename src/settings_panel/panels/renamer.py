@@ -1,17 +1,26 @@
 #  Copyright (c) 2023 StatPrism Team. All rights reserved.
 
 from PySide6.QtWidgets import QVBoxLayout, QWidget, QLineEdit, QSizePolicy, QPushButton, QHBoxLayout
-from PySide6.QtCore import Qt, QSize
+from PySide6.QtCore import Qt, QSize, Signal, QObject
 from src.pyside_ext.elements.base import BasePanelElement
 from src.common.decorators import log_method
 from src.modules.rename_columns.result import RenameColumnsStudyConfig
 from src.modules.common.result.registry import RESULTS
 from src.common.ui_constructor import create_simple_tool_button_qta
+from src.common.messages import Message, MessageType
 
 class Renamer(BasePanelElement):
+    renamed = Signal(dict)  # Signal to emit renamed columns dict
     def __init__(self):
         super().__init__()
         self.line_edits = []
+        self._original_names = []
+        self._current_renamed = {}
+        self._handler = None
+
+    def inject(self, parent_widget, handler, element_id):
+        super().inject(parent_widget, handler, element_id)
+        self._handler = handler
 
     def setup(self):
         # Create the main widget and layout
@@ -27,6 +36,7 @@ class Renamer(BasePanelElement):
         self.data = self.config.data
         self.line_edits = []
         self._original_names = self.data.column_names()
+        self._current_renamed = dict(self.config.renamed_columns)
         # Clear previous widgets
         for i in reversed(range(self.container_layout.count())):
             widget = self.container_layout.itemAt(i).widget()
@@ -36,35 +46,34 @@ class Renamer(BasePanelElement):
         for idx, name in enumerate(self._original_names):
             row_widget = QWidget(self.container_widget)
             row_layout = QHBoxLayout(row_widget)
-            row_layout.setContentsMargins(0, 2, 0, 2)
-            row_layout.setSpacing(6)
+            row_layout.setContentsMargins(2, 0, 2, 0)  # smaller left/right margins
+            row_layout.setSpacing(2)  # smaller spacing between columns
             # QLineEdit for renaming
-            edit = QLineEdit(self.config.renamed_columns.get(name, name))
+            edit = QLineEdit(self._current_renamed.get(name, name))
             edit.setMinimumWidth(200)
             edit.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
-            # Visual indicator for modified columns: thin black border
-            if name in self.config.renamed_columns and self.config.renamed_columns[name] != name:
-                edit.setStyleSheet("border: 1.2px solid #111; background: none;")
-            else:
-                edit.setStyleSheet("")
             edit.setCursorPosition(0)  # Always show the beginning of the text
             edit.editingFinished.connect(self._make_edit_finished_handler(idx))
             self.line_edits.append(edit)
             row_layout.addWidget(edit)
-            # Qua icon reset button, slightly larger
+
+            is_modified = name in self._current_renamed and self._current_renamed[name] != name
             reset_btn = create_simple_tool_button_qta(
                 parent=self.container_widget,
                 icon_path="fa.undo",
                 icon_size=QSize(22, 22),
+                color="#a00"
             )
             reset_btn.setToolTip("Restore original column name")
             reset_btn.setCursor(Qt.PointingHandCursor)
             reset_btn.clicked.connect(self._make_restore_handler(idx))
+            reset_btn.setEnabled(is_modified)
             row_layout.addWidget(reset_btn)
             row_layout.setStretch(0, 1)
             row_layout.setStretch(1, 0)
             row_widget.setLayout(row_layout)
             self.container_layout.addWidget(row_widget)
+        self._reset_buttons = [row_widget.layout().itemAt(1).widget() for row_widget in self.container_widget.findChildren(QWidget, options=Qt.FindDirectChildrenOnly)]
 
     def _make_edit_finished_handler(self, idx):
         def handler():
@@ -80,24 +89,26 @@ class Renamer(BasePanelElement):
         edit = self.line_edits[idx]
         old_name = self._original_names[idx]
         new_name = edit.text().strip()
+        changed = False
         if new_name and new_name != old_name:
-            self.config.renamed_columns[old_name] = new_name
-            self.data.columns[idx].column_name = new_name
-            self.data.update_lookups()
-            self.config.data = self.data
-            RESULTS[self.result_id].needs_update = True
-            edit.setStyleSheet("border: 1.2px solid #111; background: none;")
-            edit.setCursorPosition(0)
-        elif new_name == old_name and old_name in self.config.renamed_columns:
-            del self.config.renamed_columns[old_name]
-            self.data.columns[idx].column_name = old_name
-            self.data.update_lookups()
-            self.config.data = self.data
-            RESULTS[self.result_id].needs_update = True
-            edit.setStyleSheet("")
-            edit.setCursorPosition(0)
-        # Remove focus to exit editing mode
+            self._current_renamed[old_name] = new_name
+            changed = True
+        elif new_name == old_name and old_name in self._current_renamed:
+            del self._current_renamed[old_name]
+            changed = True
+        edit.setCursorPosition(0)
         edit.clearFocus()
+        # Enable/disable reset button
+        if hasattr(self, '_reset_buttons') and idx < len(self._reset_buttons):
+            is_modified = old_name in self._current_renamed and self._current_renamed[old_name] != old_name
+            self._reset_buttons[idx].setEnabled(is_modified)
+        if changed and self._handler:
+            msg = Message(
+                message_type=MessageType.EDITING_FINISHED,
+                payload={"renamed_columns": dict(self._current_renamed)},
+                caller_id=self.element_id,
+            )
+            self._handler(msg)
 
     def _on_restore_clicked(self, idx):
         old_name = self._original_names[idx]

@@ -37,10 +37,13 @@ def create_simple_tool_button_qta(
     parent,
     icon_path,
     icon_size,
+    color=None
 ):
     button = QtWidgets.QToolButton(parent)
     button.setText("")
-    button.setIcon(qta.icon(icon_path, color=Style.Color.SimpleToolButton.value))
+    if color is None:
+        color = Style.Color.SimpleToolButton.value
+    button.setIcon(qta.icon(icon_path, color=color))
     button.setIconSize(icon_size)
     button.setToolButtonStyle(QtCore.Qt.ToolButtonStyle.ToolButtonIconOnly)
     set_stylesheet(
