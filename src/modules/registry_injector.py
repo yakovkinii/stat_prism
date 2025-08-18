@@ -21,6 +21,8 @@ from src.modules.reliability.result import ReliabilityResult, ReliabilityStudyCo
 from src.modules.reliability.ui import Reliability
 from src.modules.confirmatory_factor_analysis.factor_analysis_ui import ConfirmatoryFactorAnalysis
 from src.modules.confirmatory_factor_analysis.result import CFAResult, CFAStudyConfig
+from src.modules.cluster_analysis.cluster_analysis_ui import ClusterAnalysis
+from src.modules.cluster_analysis.result import ClusterAnalysisResult, ClusterAnalysisConfig
 
 
 def inject_classes_to_module_registry():
@@ -59,3 +61,7 @@ def inject_classes_to_module_registry():
     ModuleRegistry.CFA.value.ui_class = ConfirmatoryFactorAnalysis
     ModuleRegistry.CFA.value.result_class = CFAResult
     ModuleRegistry.CFA.value.config_class = CFAStudyConfig
+
+    ModuleRegistry.CLUSTER_ANALYSIS.value.ui_class = ClusterAnalysis
+    ModuleRegistry.CLUSTER_ANALYSIS.value.result_class = ClusterAnalysisResult
+    ModuleRegistry.CLUSTER_ANALYSIS.value.config_class = ClusterAnalysisConfig

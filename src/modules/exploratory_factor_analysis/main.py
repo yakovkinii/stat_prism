@@ -9,6 +9,7 @@ from numpy.linalg import inv, svd, eigh
 from src.common.decorators import log_function
 from src.data.data import Data
 from src.modules.common.result.html_result import Cell, HTMLTableV2, Row
+from src.modules.common.result.plot_result import Heatmap, PlotV2
 from src.modules.exploratory_factor_analysis.result import (
     ExtractionMethod,
     FactorAnalysisResult,
@@ -279,6 +280,20 @@ def recalculate_factor_analysis_study(data: Data, result: FactorAnalysisResult) 
         load_table.add_single_row_apa(Row(row))
 
     result.result_elements = [diag_table, eig_table, load_table]
+
+    # Add heatmap of factor loadings
+    factor_names = [f"F{i+1}" for i in range(m)]
+    loadings_df = pd.DataFrame(loadings, index=df.columns, columns=factor_names)
+    # p-value matrix is not relevant for loadings, so use None
+    heatmap = Heatmap(df=loadings_df, p=None, label="Factor Loadings Heatmap")
+    heatmap_plot = PlotV2(
+        items=[heatmap],
+        title="Factor Loadings Heatmap",
+        plot_title="Factor Loadings Heatmap",
+        x_axis_title="Factors",
+        y_axis_title="Variables",
+    )
+    result.result_elements.append(heatmap_plot)
 
     # 4) Factor correlations (oblique) and Structure matrix
     if rotation in ['promax', 'oblimin', 'geomin_obl']:

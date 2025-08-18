@@ -71,6 +71,11 @@ class ModuleRegistry(Enum):
         icon_path="ph.chart-line-up-fill",
     )
 
+    CLUSTER_ANALYSIS = ModuleRegistryItem(
+        display_name="Cluster Analysis",
+        icon_path="ph.chart-line-up-fill",
+    )
+
     @property
     def display_name(self):
         return self.value.display_name

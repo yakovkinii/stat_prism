@@ -123,6 +123,19 @@ def recalculate_cfa_study(data: Data, result: CFAResult) -> CFAResult:
             row.append(Cell(f"{loadings[idx, j]:.3f}"))
         load_table.add_single_row_apa(Row(row))
     result.result_elements = [fit_table, load_table]
+    # Add heatmap of factor loadings (like EFA)
+    factor_names = [f"F{i+1}" for i in range(n_factors)]
+    loadings_df = pd.DataFrame(loadings, index=df.columns, columns=factor_names)
+    from src.modules.common.result.plot_result import Heatmap, PlotV2
+    heatmap = Heatmap(df=loadings_df, p=None, label="Factor Loadings Heatmap")
+    heatmap_plot = PlotV2(
+        items=[heatmap],
+        title="Factor Loadings Heatmap",
+        plot_title="Factor Loadings Heatmap",
+        x_axis_title="Factors",
+        y_axis_title="Variables",
+    )
+    result.result_elements.append(heatmap_plot)
     # Factor correlation (phi) table only if allow_factor_correlation
     if cfg.allow_factor_correlation:
         phi_table = HTMLTableV2(table_caption="Factor Correlation Matrix (Phi)")
