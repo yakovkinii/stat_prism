@@ -34,6 +34,4 @@ class Spin(BasePanelElement):
         self.layout.addWidget(self.spin_box)
 
     def on_value_changed(self):
-        self.handler(
-            Message(MessageType.STATE_CHANGED, payload=self.spin_box.value(), caller_id=self.element_id)
-        )
+        self.handler(Message(MessageType.STATE_CHANGED, payload=self.spin_box.value(), caller_id=self.element_id))

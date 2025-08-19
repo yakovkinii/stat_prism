@@ -31,7 +31,6 @@ class ModuleRegistry(Enum):
         module_type=ModuleType.RAW_DATA,
     )
 
-
     MEAN_COMPARISON = ModuleRegistryItem(
         display_name="T-test/ANOVA",
         icon_path="ph.scales",

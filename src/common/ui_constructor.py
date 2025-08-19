@@ -33,12 +33,7 @@ def create_tool_button_qta(parent, icon_path, icon_size, button_geometry=None, *
     return button
 
 
-def create_simple_tool_button_qta(
-    parent,
-    icon_path,
-    icon_size,
-    color=None
-):
+def create_simple_tool_button_qta(parent, icon_path, icon_size, color=None):
     button = QtWidgets.QToolButton(parent)
     button.setText("")
     if color is None:

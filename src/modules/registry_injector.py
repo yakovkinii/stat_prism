@@ -1,15 +1,16 @@
 #  Copyright (c) 2023 StatPrism Team. All rights reserved.
-from src.modules.exploratory_factor_analysis.factor_analysis_ui import FactorAnalysis
-from src.modules.exploratory_factor_analysis.result import FactorAnalysisResult, FactorAnalysisStudyConfig
-
-
-
+from src.modules.cluster_analysis.cluster_analysis_ui import ClusterAnalysis
+from src.modules.cluster_analysis.result import ClusterAnalysisConfig, ClusterAnalysisResult
+from src.modules.confirmatory_factor_analysis.factor_analysis_ui import ConfirmatoryFactorAnalysis
+from src.modules.confirmatory_factor_analysis.result import CFAResult, CFAStudyConfig
 from src.modules.contingency.contingency_ui import Contingency
 from src.modules.contingency.result import ContingencyResult, ContingencyStudyConfig
 from src.modules.correlation.correlation_ui import Correlation
 from src.modules.correlation.result import CorrelationResult, CorrelationStudyConfig
 from src.modules.descriptive.descriptive_ui import Descriptive
 from src.modules.descriptive.result import DescriptiveResult, DescriptiveStudyConfig
+from src.modules.exploratory_factor_analysis.factor_analysis_ui import FactorAnalysis
+from src.modules.exploratory_factor_analysis.result import FactorAnalysisResult, FactorAnalysisStudyConfig
 from src.modules.mean_comparison.mean_comparison_ui import MeanComparison
 from src.modules.mean_comparison.result import MeanComparisonResult, MeanComparisonStudyConfig
 from src.modules.raw_data.raw_data_ui import RawData
@@ -19,10 +20,6 @@ from src.modules.regression.regression_ui import Regression
 from src.modules.regression.result import RegressionResult, RegressionStudyConfig
 from src.modules.reliability.result import ReliabilityResult, ReliabilityStudyConfig
 from src.modules.reliability.ui import Reliability
-from src.modules.confirmatory_factor_analysis.factor_analysis_ui import ConfirmatoryFactorAnalysis
-from src.modules.confirmatory_factor_analysis.result import CFAResult, CFAStudyConfig
-from src.modules.cluster_analysis.cluster_analysis_ui import ClusterAnalysis
-from src.modules.cluster_analysis.result import ClusterAnalysisResult, ClusterAnalysisConfig
 from src.modules.rename_columns.rename_columns_ui import RenameColumns
 from src.modules.rename_columns.result import RenameColumnsResult, RenameColumnsStudyConfig
 

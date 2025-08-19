@@ -4,7 +4,8 @@ DESCRIPTION = """
 <h2> Cluster Analysis </h2>
 <h3> Description </h3>
 <div>
-Cluster analysis groups observations into clusters based on similarity. This module supports KMeans clustering and reports cluster assignments, centroids, and summary statistics for each cluster.
+Cluster analysis groups observations into clusters based on similarity. This module supports KMeans clustering and
+reports cluster assignments, centroids, and summary statistics for each cluster.
 </div>
 <h3> Inputs </h3>
 <div>
@@ -14,4 +15,3 @@ Cluster analysis groups observations into clusters based on similarity. This mod
 <b>Filters:</b> Data filters to apply.<br>
 </div>
 """
-

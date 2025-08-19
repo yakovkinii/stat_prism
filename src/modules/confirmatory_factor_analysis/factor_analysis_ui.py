@@ -8,15 +8,14 @@ from src.data.data_manager import DATA_MANAGER
 from src.modules.base.base import BaseModulePanel
 from src.modules.common.result.registry import RESULTS
 from src.modules.confirmatory_factor_analysis.main import recalculate_cfa_study
-from src.modules.confirmatory_factor_analysis.result import (
-    CFAStudyConfig,
-)
-from src.pyside_ext.elements.column_selector import ColumnSelectorEx, Field
+from src.modules.confirmatory_factor_analysis.result import CFAStudyConfig
 from src.pyside_ext.elements.checkbox import LargeCheckbox
+from src.pyside_ext.elements.column_selector import ColumnSelectorEx, Field
 from src.pyside_ext.elements.filter import CompiledFilterHistory
 from src.pyside_ext.elements.spacer_small import SpacerSmall
-from src.pyside_ext.elements.title import Title
 from src.pyside_ext.elements.spin import Spin
+from src.pyside_ext.elements.title import Title
+
 
 class ConfirmatoryFactorAnalysis(BaseModulePanel):
     def setup_ui(self):
@@ -80,6 +79,7 @@ class ConfirmatoryFactorAnalysis(BaseModulePanel):
         )
         data = DATA_MANAGER.get_latest_data()
         result = RESULTS[self.result_id]
+
         def main(update):
             try:
                 return recalculate_cfa_study(data=data, result=result)
@@ -98,4 +98,3 @@ class ConfirmatoryFactorAnalysis(BaseModulePanel):
         RESULTS[self.result_id].needs_update = False
         self.configure(result_id=self.result_id)
         self.root_class.main_area_panel.refresh_result(result_id=self.result_id)
-

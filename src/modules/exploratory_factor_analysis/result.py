@@ -15,9 +15,11 @@ class RotationType(Enum):
     QUARTIMIN = "quartimin (obl)"
     QUARTIMAX = "quartimax"
     EQUAMAX = "equamax"
+
     @staticmethod
     def get_values():
         return [e.value for e in RotationType]
+
 
 class ExtractionMethod(Enum):
     MINRES = "Minimum Residual (MINRES)"
@@ -27,6 +29,7 @@ class ExtractionMethod(Enum):
     @staticmethod
     def get_values():
         return [e.value for e in ExtractionMethod]
+
 
 class FactorAnalysisStudyConfig:
     def __init__(
@@ -62,4 +65,3 @@ class FactorAnalysisResult(BaseResult):
         if old_name in self.config.columns:
             idx = self.config.columns.index(old_name)
             self.config.columns[idx] = new_name
-

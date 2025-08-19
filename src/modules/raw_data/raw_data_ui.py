@@ -53,7 +53,6 @@ class RawData(BaseModulePanel):
             return
         self.open_file(file_path)
 
-
     @log_method
     def open_file(self, file_path):
         def main(update):

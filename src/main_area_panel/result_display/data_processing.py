@@ -10,7 +10,7 @@ from src.main_area_panel.result_display.base import BaseResultDisplay
 from src.main_area_panel.result_display.elements.result_label import ResultLabel
 from src.modules.common.result.registry import RESULTS
 from src.pyside_ext.elements.utility.layout_helpers import empty_widget, widget_in_layout
-from src.pyside_ext.elements.utility.primitive_elements import QWidgetClickable, QLabelClickable
+from src.pyside_ext.elements.utility.primitive_elements import QLabelClickable, QWidgetClickable
 from src.pyside_ext.markup import css
 from src.pyside_ext.styling import Style
 from src.pyside_ext.unique_qss import set_stylesheet
@@ -80,7 +80,10 @@ class DataProcessingResultDisplay(BaseResultDisplay):
         self.info = widget_in_layout(
             widget=QLabelClickable(self.body_widget),
             layout=self.body_layout,
-            setup=lambda w, l: [w.setWordWrap(True), w.clicked.connect(lambda: self.activate_result(self.result_id, None))],
+            setup=lambda w, l: [
+                w.setWordWrap(True),
+                w.clicked.connect(lambda: self.activate_result(self.result_id, None)),
+            ],
         )
         self.refresh()
         self.remove_focus(None)

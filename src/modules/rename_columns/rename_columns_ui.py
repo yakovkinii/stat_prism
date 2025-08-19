@@ -2,14 +2,14 @@
 import logging
 
 from src.common.decorators import log_method
-from src.common.messages import Message, MessageType
+from src.common.messages import MessageType
 from src.data.data_manager import DATA_MANAGER
 from src.modules.base.base import BaseModulePanel
 from src.modules.common.result.registry import RESULTS
-from src.modules.rename_columns.result import RenameColumnsStudyConfig, RenameColumnsResult
-from src.settings_panel.panels.renamer import Renamer
+from src.modules.rename_columns.result import RenameColumnsResult, RenameColumnsStudyConfig
 from src.pyside_ext.elements.spacer_small import SpacerSmall
 from src.pyside_ext.elements.title import Title
+from src.settings_panel.panels.renamer import Renamer
 
 
 class RenameColumns(BaseModulePanel):
@@ -48,12 +48,12 @@ class RenameColumns(BaseModulePanel):
                     logging.warning(f"Column '{from_name}' was renamed to an empty string, skipping.")
                     continue
                 if to_name in DATA_MANAGER.get_data_before_result_id(self.result_id).column_names():
-                    logging.warning(f"Column '{to_name}' already exists, skipping renaming from '{from_name}' to '{to_name}'.")
+                    logging.warning(
+                        f"Column '{to_name}' already exists, skipping renaming from '{from_name}' to '{to_name}'."
+                    )
                     continue
                 renamed_columns[from_name] = to_name
             logging.info(f"Renaming columns: {renamed_columns}")
-
-
 
             # update all results
 
@@ -72,8 +72,6 @@ class RenameColumns(BaseModulePanel):
                         old_name=from_name,
                         new_name=to_name,
                     )
-
-
 
             # Actually rename in data
             self.config.data = DATA_MANAGER.get_data_before_result_id(self.result_id).copy()

@@ -7,7 +7,7 @@ class DataManager:
     # todo not used yet, but will be used in the future to manage data items
     def __init__(self):
         self.raw_data_result_id = None
-        self.data_chain=[]
+        self.data_chain = []
 
     def set_raw_data_result_id(self, result_id: str):
         assert (

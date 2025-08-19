@@ -7,15 +7,10 @@ from src.data.data_manager import DATA_MANAGER
 from src.modules.base.base import BaseModulePanel
 from src.modules.common.result.registry import RESULTS
 from src.modules.exploratory_factor_analysis.main import recalculate_factor_analysis_study
-from src.modules.exploratory_factor_analysis.result import (
-    ExtractionMethod,
-    FactorAnalysisStudyConfig,
-    RotationType,
-)
+from src.modules.exploratory_factor_analysis.result import ExtractionMethod, FactorAnalysisStudyConfig, RotationType
 from src.pyside_ext.elements.checkbox import LargeCheckbox
 from src.pyside_ext.elements.column_selector import ColumnSelectorEx, Field
 from src.pyside_ext.elements.combo_box import ComboBox
-from src.pyside_ext.elements.edit import LabeledLineEdit
 from src.pyside_ext.elements.filter import CompiledFilterHistory
 from src.pyside_ext.elements.spacer_small import SpacerSmall
 from src.pyside_ext.elements.spin import Spin

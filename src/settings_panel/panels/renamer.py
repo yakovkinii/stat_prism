@@ -1,16 +1,17 @@
 #  Copyright (c) 2023 StatPrism Team. All rights reserved.
 
-from PySide6.QtWidgets import QVBoxLayout, QWidget, QLineEdit, QSizePolicy, QPushButton, QHBoxLayout
-from PySide6.QtCore import Qt, QSize, Signal, QObject
-from src.pyside_ext.elements.base import BasePanelElement
+from PySide6.QtCore import QSize, Qt, Signal
+from PySide6.QtWidgets import QHBoxLayout, QLineEdit, QSizePolicy, QVBoxLayout, QWidget
+
 from src.common.decorators import log_method
-from src.modules.rename_columns.result import RenameColumnsStudyConfig
-from src.modules.common.result.registry import RESULTS
-from src.common.ui_constructor import create_simple_tool_button_qta
 from src.common.messages import Message, MessageType
+from src.common.ui_constructor import create_simple_tool_button_qta
+from src.pyside_ext.elements.base import BasePanelElement
+
 
 class Renamer(BasePanelElement):
     renamed = Signal(dict)  # Signal to emit renamed columns dict
+
     def __init__(self):
         super().__init__()
         self.line_edits = []
@@ -63,10 +64,7 @@ class Renamer(BasePanelElement):
 
             is_modified = name in self._current_renamed and self._current_renamed[name] != name
             reset_btn = create_simple_tool_button_qta(
-                parent=self.container_widget,
-                icon_path="fa.undo",
-                icon_size=QSize(22, 22),
-                color="#a00"
+                parent=self.container_widget, icon_path="fa.undo", icon_size=QSize(22, 22), color="#a00"
             )
             reset_btn.setToolTip("Restore original column name")
             reset_btn.setCursor(Qt.PointingHandCursor)
@@ -80,16 +78,16 @@ class Renamer(BasePanelElement):
             row_widget.setLayout(row_layout)
             self.container_layout.addWidget(row_widget)
 
-        # self._reset_buttons = [row_widget.layout().itemAt(1).widget() for row_widget in self.container_widget.findChildren(QWidget, options=Qt.FindDirectChildrenOnly)]
-
     def _make_edit_finished_handler(self, idx):
         def handler():
             self._on_edit_finished(idx)
+
         return handler
 
     def _make_restore_handler(self, idx):
         def handler():
             self._on_restore_clicked(idx)
+
         return handler
 
     def _on_edit_finished(self, idx):
@@ -106,7 +104,7 @@ class Renamer(BasePanelElement):
         edit.setCursorPosition(0)
         edit.clearFocus()
         # Enable/disable reset button
-        if hasattr(self, '_reset_buttons') and idx < len(self._reset_buttons):
+        if hasattr(self, "_reset_buttons") and idx < len(self._reset_buttons):
             is_modified = old_name in self._current_renamed and self._current_renamed[old_name] != old_name
             self._reset_buttons[idx].setEnabled(is_modified)
         if changed and self._handler:

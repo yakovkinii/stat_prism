@@ -85,12 +85,8 @@ class TableResultElementDisplay(BaseResultDisplay):
 
     def refresh(self):
         table: HTMLTableV2 = RESULTS[self.result_id].result_elements[self.result_element_id]
-        self.text_browser.set_html(
-            BASE_STYLES + table.get_html()
-        )
-        self.label.setText(
-            table.table_caption.get_current_value()
-        )
+        self.text_browser.set_html(BASE_STYLES + table.get_html())
+        self.label.setText(table.table_caption.get_current_value())
 
     @log_method
     def activate_result(self, result_id, result_element_id):

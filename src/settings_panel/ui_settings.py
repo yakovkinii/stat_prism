@@ -168,5 +168,4 @@ class SettingsPanelClass:
         self.stacked_widget.addWidget(panel_registry_item.ui_instance.widget)
 
 
-
 logging.debug("settings loaded")

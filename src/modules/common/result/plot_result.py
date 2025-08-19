@@ -540,7 +540,11 @@ class PlotV2(BaseResultElement):
                 # Adding annotations
                 for i in range(len(data.index)):
                     for j in range(len(data.columns)):
-                        if item.p is None or item.p.iloc[i, j] < 0.05 or not item.config.only_significant.get_current_value():
+                        if (
+                            item.p is None
+                            or item.p.iloc[i, j] < 0.05
+                            or not item.config.only_significant.get_current_value()
+                        ):
                             text = format_r_apa(data.iloc[i, j])  # + get_stars(item.p.iloc[i, j])
 
                             self._gc_ignore.append(

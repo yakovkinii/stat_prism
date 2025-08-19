@@ -3,18 +3,14 @@ from typing import Tuple
 import numpy as np
 import pandas as pd
 from factor_analyzer import FactorAnalyzer
+from numpy.linalg import eigh, inv, svd
 from scipy.stats import chi2
-from numpy.linalg import inv, svd, eigh
 
 from src.common.decorators import log_function
 from src.data.data import Data
 from src.modules.common.result.html_result import Cell, HTMLTableV2, Row
 from src.modules.common.result.plot_result import Heatmap, PlotV2
-from src.modules.exploratory_factor_analysis.result import (
-    ExtractionMethod,
-    FactorAnalysisResult,
-    RotationType,
-)
+from src.modules.exploratory_factor_analysis.result import ExtractionMethod, FactorAnalysisResult, RotationType
 
 
 def _standardize(df: pd.DataFrame) -> pd.DataFrame:
@@ -30,9 +26,9 @@ def _kmo_bartlett(R: np.ndarray, n_samples: int) -> Tuple[float, np.ndarray, flo
     invR = inv(R)
     partial = -invR / np.sqrt(np.outer(np.diag(invR), np.diag(invR)))
     np.fill_diagonal(partial, 0.0)
-    r2 = R ** 2
+    r2 = R**2
     np.fill_diagonal(r2, 0.0)
-    p2 = partial ** 2
+    p2 = partial**2
     kmo_num = np.sum(r2)
     kmo_den = kmo_num + np.sum(p2)
     kmo_overall = kmo_num / kmo_den if kmo_den != 0 else np.nan
@@ -56,7 +52,7 @@ def _orthomax_rotation(loadings: np.ndarray, gamma: float = 1.0, normalize: bool
     n_rows, n_cols = L.shape
     if normalize:
         # Kaiser normalization
-        h2 = np.sum(L ** 2, axis=1)
+        h2 = np.sum(L**2, axis=1)
         s = np.sqrt(h2)
         s[s == 0] = 1.0
         L = (L.T / s).T
@@ -65,7 +61,7 @@ def _orthomax_rotation(loadings: np.ndarray, gamma: float = 1.0, normalize: bool
     Rmat = np.eye(n_cols)
     for _ in range(max_iter):
         Lambda = L @ Rmat
-        u, _, vT = svd(Lambda.T @ (Lambda ** 3 - (gamma / n_rows) * Lambda @ np.diag(np.sum(Lambda ** 2, axis=0))))
+        u, _, vT = svd(Lambda.T @ (Lambda**3 - (gamma / n_rows) * Lambda @ np.diag(np.sum(Lambda**2, axis=0))))
         Rnew = u @ vT
         if np.max(np.abs(Rmat - Rnew)) < tol:
             Rmat = Rnew
@@ -120,7 +116,7 @@ def _oblimin(loadings, gamma=0.0, tol=1e-7, max_iter=500):
         Lambda = L @ T
         # Compute the gradient
         phi = Lambda @ Lambda.T
-        grad = Lambda * (phi @ Lambda) - gamma * Lambda * (np.sum(Lambda ** 2, axis=1, keepdims=True))
+        grad = Lambda * (phi @ Lambda) - gamma * Lambda * (np.sum(Lambda**2, axis=1, keepdims=True))
         u, _, vT = svd(Lambda.T @ grad)
         Tnew = u @ vT
         if np.max(np.abs(T - Tnew)) < tol:
@@ -141,8 +137,8 @@ def _geomin(loadings, epsilon=0.01, tol=1e-7, max_iter=500):
     for _ in range(max_iter):
         Lambda = L @ T
         # Geomin criterion: minimize the geometric mean of squared loadings per variable
-        geo_mean = np.exp(np.mean(np.log(Lambda ** 2 + epsilon), axis=1, keepdims=True))
-        grad = Lambda / (Lambda ** 2 + epsilon) * geo_mean
+        geo_mean = np.exp(np.mean(np.log(Lambda**2 + epsilon), axis=1, keepdims=True))
+        grad = Lambda / (Lambda**2 + epsilon) * geo_mean
         u, _, vT = svd(Lambda.T @ grad)
         Tnew = u @ vT
         if np.max(np.abs(T - Tnew)) < tol:
@@ -163,7 +159,7 @@ def _principal_axis_from_corr(R: np.ndarray, n_factors: int) -> Tuple[np.ndarray
     evecs = evecs[:, idx]
     m = n_factors
     L = evecs[:, :m] * np.sqrt(np.clip(evals[:m], 0, None))
-    uniq = 1.0 - np.sum(L ** 2, axis=1)
+    uniq = 1.0 - np.sum(L**2, axis=1)
     uniq = np.clip(uniq, 1e-6, None)
     return L, uniq
 
@@ -216,47 +212,41 @@ def recalculate_factor_analysis_study(data: Data, result: FactorAnalysisResult) 
 
     # Extraction and Rotation using factor_analyzer
     rotation_map = {
-        RotationType.VARIMAX: 'varimax',
-        RotationType.PROMAX: 'promax',
-        RotationType.OBLIMIN: 'oblimin',
-        RotationType.OBLIMAX: 'oblimax',
-        RotationType.QUARTIMIN: 'quartimin',
-        RotationType.QUARTIMAX: 'quartimax',
-        RotationType.EQUAMAX: 'equamax',
+        RotationType.VARIMAX: "varimax",
+        RotationType.PROMAX: "promax",
+        RotationType.OBLIMIN: "oblimin",
+        RotationType.OBLIMAX: "oblimax",
+        RotationType.QUARTIMIN: "quartimin",
+        RotationType.QUARTIMAX: "quartimax",
+        RotationType.EQUAMAX: "equamax",
         RotationType.NONE: None,
     }
     method_map = {
-        ExtractionMethod.MINRES: 'minres',
-        ExtractionMethod.ML: 'ml',
-        ExtractionMethod.PRINCIPAL: 'principal',
+        ExtractionMethod.MINRES: "minres",
+        ExtractionMethod.ML: "ml",
+        ExtractionMethod.PRINCIPAL: "principal",
     }
     rotation = rotation_map.get(cfg.rotation, None)
     method = method_map[cfg.method]
 
     if cfg.kaiser_normalization:
-        rotation_kwargs = {'normalize': True}
+        rotation_kwargs = {"normalize": True}
     else:
-        rotation_kwargs = {'normalize': False}
+        rotation_kwargs = {"normalize": False}
 
-    fa = FactorAnalyzer(
-        n_factors=m,
-        method=method,
-        rotation=rotation,
-        use_smc=True,
-        rotation_kwargs=rotation_kwargs
-    )
+    fa = FactorAnalyzer(n_factors=m, method=method, rotation=rotation, use_smc=True, rotation_kwargs=rotation_kwargs)
     fa.fit(X)
     loadings = fa.loadings_
-    if rotation in ['promax', 'oblimin', 'geomin_obl']:
+    if rotation in ["promax", "oblimin", "geomin_obl"]:
         phi = fa.phi_
     else:
         phi = np.eye(m)
 
     # Communalities / uniquenesses
-    if rotation in ['promax', 'oblimin', 'geomin_obl']:
+    if rotation in ["promax", "oblimin", "geomin_obl"]:
         h2 = np.sum((loadings @ phi) * loadings, axis=1)
     else:
-        h2 = np.sum(loadings ** 2, axis=1)
+        h2 = np.sum(loadings**2, axis=1)
     u2 = np.clip(1.0 - h2, 0.0, None)
 
     # Tables
@@ -296,7 +286,7 @@ def recalculate_factor_analysis_study(data: Data, result: FactorAnalysisResult) 
     result.result_elements.append(heatmap_plot)
 
     # 4) Factor correlations (oblique) and Structure matrix
-    if rotation in ['promax', 'oblimin', 'geomin_obl']:
+    if rotation in ["promax", "oblimin", "geomin_obl"]:
         phi_table = HTMLTableV2(table_caption="Factor Correlation Matrix (Phi)")
         phi_table.add_single_row_apa(Row([Cell("")] + [Cell(f"F{i+1}") for i in range(m)]))
         for i in range(m):
@@ -316,5 +306,7 @@ def recalculate_factor_analysis_study(data: Data, result: FactorAnalysisResult) 
 
     # Header with method/rotation info
     result.header = ""
-    result.add_header_info(f"Method: <i>{cfg.method.value.upper()}</i>; Rotation: <i>{cfg.rotation.value}</i>; Factors: <i>{m}</i>")
+    result.add_header_info(
+        f"Method: <i>{cfg.method.value.upper()}</i>; Rotation: <i>{cfg.rotation.value}</i>; Factors: <i>{m}</i>"
+    )
     return result

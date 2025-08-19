@@ -4,6 +4,7 @@ import numpy as np
 from scipy.optimize import minimize
 from scipy.stats import chi2
 
+
 class CFAResultStruct:
     def __init__(self, loadings, phi, uniq, fit_indices, converged, message, std_loadings=None, std_resid=None):
         self.loadings_ = loadings
@@ -15,6 +16,7 @@ class CFAResultStruct:
         self.std_loadings_ = std_loadings
         self.std_resid_ = std_resid
 
+
 class CFAEstimator:
     """
     Confirmatory Factor Analysis (CFA) estimator using maximum likelihood.
@@ -22,6 +24,7 @@ class CFAEstimator:
     allow_factor_correlation: if True, estimate factor correlations (oblique), else orthogonal
     fixed_loadings: optional, dict {(var, factor): value} to fix certain loadings (not wired to UI)
     """
+
     def __init__(self, structure, allow_factor_correlation=True, max_iter=200, tol=1e-6, fixed_loadings=None):
         self.structure = structure
         self.allow_factor_correlation = allow_factor_correlation
@@ -70,6 +73,7 @@ class CFAEstimator:
         phi0 = np.eye(n_factors)
         if self.allow_factor_correlation and n_factors > 1:
             phi0 += 0.2 * (np.ones((n_factors, n_factors)) - np.eye(n_factors))
+
         # Flatten params
         def pack_params(L, uniq, phi):
             p = []
@@ -85,6 +89,7 @@ class CFAEstimator:
                 phi_vals = np.arctanh(phi[lower_idx])
                 p = np.concatenate([p, phi_vals])
             return p
+
         def unpack_params(p):
             L = np.zeros((n_vars, n_factors))
             idx = 0
@@ -96,7 +101,7 @@ class CFAEstimator:
                         else:
                             L[i, j] = p[idx]
                             idx += 1
-            uniq = np.clip(p[idx:idx+n_vars], 1e-6, None)
+            uniq = np.clip(p[idx : idx + n_vars], 1e-6, None)
             idx += n_vars
             if self.allow_factor_correlation and n_factors > 1:
                 phi = np.eye(n_factors)
@@ -107,6 +112,7 @@ class CFAEstimator:
             else:
                 phi = np.eye(n_factors)
             return L, uniq, phi
+
         p0 = pack_params(loadings0, uniq0, phi0)
         # Bounds: loadings unconstrained, uniq [1e-6, inf], phi (-inf, inf) (Fisher z)
         bounds = []
@@ -122,6 +128,7 @@ class CFAEstimator:
             n_phi = int(n_factors * (n_factors - 1) / 2)
             for _ in range(n_phi):
                 bounds.append((None, None))
+
         # Negative log-likelihood
         def nll(p):
             L, uniq, phi = unpack_params(p)
@@ -136,7 +143,8 @@ class CFAEstimator:
                 return nll_val
             except Exception:
                 return 1e10
-        res = minimize(nll, p0, method='L-BFGS-B', bounds=bounds, options={'maxiter': self.max_iter, 'ftol': self.tol})
+
+        res = minimize(nll, p0, method="L-BFGS-B", bounds=bounds, options={"maxiter": self.max_iter, "ftol": self.tol})
         converged = res.success
         message = res.message
         L, uniq, phi = unpack_params(res.x)
@@ -159,10 +167,14 @@ class CFAEstimator:
         chi2_null = n_obs * (logdet_S_diag - logdet_S + tr_null - n_vars)
         df_null = (n_vars * (n_vars - 1)) // 2
         cfi = 1 - max(chi2_stat - df, 0) / max(chi2_null - df_null, 0) if df > 0 and df_null > 0 else np.nan
-        tli = ((chi2_null / df_null) - (chi2_stat / df)) / ((chi2_null / df_null) - 1) if df > 0 and df_null > 0 else np.nan
+        tli = (
+            ((chi2_null / df_null) - (chi2_stat / df)) / ((chi2_null / df_null) - 1)
+            if df > 0 and df_null > 0
+            else np.nan
+        )
         # SRMR
         resid = S - Sigma
-        srmr = np.sqrt(np.mean((resid / (np.sqrt(np.outer(np.diag(S), np.diag(S)))))**2))
+        srmr = np.sqrt(np.mean((resid / (np.sqrt(np.outer(np.diag(S), np.diag(S))))) ** 2))
         # Standardized loadings (model-implied)
         std_loadings = L / np.sqrt(np.diag(Sigma))[:, None]
         # Standardized residuals

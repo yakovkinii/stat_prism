@@ -1,11 +1,11 @@
 #  Copyright (c) 2023 StatPrism Team. All rights reserved.
-from src.data.data import Data
 from src.modules.common.result.registry import BaseResult
 
 
 class RenameColumnsStudyConfig:
     def __init__(self, data=None, renamed_columns=None):
         from src.data.data_manager import DATA_MANAGER
+
         if data is None:
             data = DATA_MANAGER.get_latest_data()
         self.data = data
@@ -29,7 +29,7 @@ class RenameColumnsResult(BaseResult):
         lines = []
         for old, new in self.config.renamed_columns.items():
             if old != new:
-                lines.append(f'“{old}” → “{new}”')
+                lines.append(f"“{old}” → “{new}”")
         return "\n".join(lines)
 
     def update_description(self):

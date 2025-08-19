@@ -1,17 +1,11 @@
 import numpy as np
 import pandas as pd
-from src.modules.confirmatory_factor_analysis.cfa_numpy import CFAEstimator
-from scipy.stats import chi2
 
 from src.common.decorators import log_function
 from src.data.data import Data
 from src.modules.common.result.html_result import Cell, HTMLTableV2, Row
-from src.modules.confirmatory_factor_analysis.result import (
-    CFAResult,
-    CFAStudyConfig,
-)
-
-
+from src.modules.confirmatory_factor_analysis.cfa_numpy import CFAEstimator
+from src.modules.confirmatory_factor_analysis.result import CFAResult, CFAStudyConfig
 
 
 def _fit_quality_text(fit_indices):
@@ -87,14 +81,19 @@ def recalculate_cfa_study(data: Data, result: CFAResult) -> CFAResult:
     loadings = cfa_result.loadings_
     phi = cfa_result.phi_
     fit_indices = {
-        "Chi-square": f"{cfa_result.fit_indices_['Chi-square']:.2f}" if cfa_result.fit_indices_["Chi-square"] is not None else "-",
+        "Chi-square": f"{cfa_result.fit_indices_['Chi-square']:.2f}"
+        if cfa_result.fit_indices_["Chi-square"] is not None
+        else "-",
         "df": f"{cfa_result.fit_indices_['df']}" if cfa_result.fit_indices_["df"] is not None else "-",
-        "p-value": f"{cfa_result.fit_indices_['p-value']:.4f}" if cfa_result.fit_indices_["p-value"] is not None else "-",
+        "p-value": f"{cfa_result.fit_indices_['p-value']:.4f}"
+        if cfa_result.fit_indices_["p-value"] is not None
+        else "-",
         "RMSEA": f"{cfa_result.fit_indices_['RMSEA']:.3f}" if cfa_result.fit_indices_["RMSEA"] is not None else "-",
         "CFI": f"{cfa_result.fit_indices_['CFI']:.3f}" if cfa_result.fit_indices_["CFI"] is not None else "-",
         "TLI": f"{cfa_result.fit_indices_['TLI']:.3f}" if cfa_result.fit_indices_["TLI"] is not None else "-",
         "SRMR": f"{cfa_result.fit_indices_['SRMR']:.3f}" if cfa_result.fit_indices_["SRMR"] is not None else "-",
     }
+
     def _safe_float(val):
         try:
             f = float(val)
@@ -103,6 +102,7 @@ def recalculate_cfa_study(data: Data, result: CFAResult) -> CFAResult:
             return f
         except Exception:
             return np.nan
+
     if _safe_float(fit_indices["Chi-square"]) != _safe_float(fit_indices["Chi-square"]):
         for k in fit_indices:
             fit_indices[k] = "-"
@@ -127,6 +127,7 @@ def recalculate_cfa_study(data: Data, result: CFAResult) -> CFAResult:
     factor_names = [f"F{i+1}" for i in range(n_factors)]
     loadings_df = pd.DataFrame(loadings, index=df.columns, columns=factor_names)
     from src.modules.common.result.plot_result import Heatmap, PlotV2
+
     heatmap = Heatmap(df=loadings_df, p=None, label="Factor Loadings Heatmap")
     heatmap_plot = PlotV2(
         items=[heatmap],
@@ -147,5 +148,8 @@ def recalculate_cfa_study(data: Data, result: CFAResult) -> CFAResult:
             phi_table.add_single_row_apa(Row(row))
         result.result_elements.append(phi_table)
     result.header = ""
-    result.add_header_info(f"Allow factor correlation: <i>{'Yes' if cfg.allow_factor_correlation else 'No'}</i>; Factors: <i>{n_factors}</i>")
+    result.add_header_info(
+        f"Allow factor correlation: <i>{'Yes' if cfg.allow_factor_correlation else 'No'}</i>; "
+        f"Factors: <i>{n_factors}</i>"
+    )
     return result

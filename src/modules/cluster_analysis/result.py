@@ -5,14 +5,17 @@ from typing import List
 
 from src.modules.common.result.registry import BaseResult
 from src.pyside_ext.elements.filter import FilterSettings
+
 from .constant import DESCRIPTION
+
 
 class ClusterMethod(Enum):
     KMEANS = "KMeans"
-    # Future: HIERARCHICAL = "Hierarchical"
+
     @staticmethod
     def get_values():
         return [e.value for e in ClusterMethod]
+
 
 class ClusterAnalysisConfig:
     def __init__(
@@ -26,6 +29,7 @@ class ClusterAnalysisConfig:
         self.n_clusters: int = n_clusters
         self.method: ClusterMethod = method
         self.filters: List[FilterSettings] = filters if filters is not None else []
+
 
 class ClusterAnalysisResult(BaseResult):
     def __init__(self, unique_id, settings_panel_index, config: ClusterAnalysisConfig):
@@ -42,4 +46,3 @@ class ClusterAnalysisResult(BaseResult):
         if old_name in self.config.columns:
             idx = self.config.columns.index(old_name)
             self.config.columns[idx] = new_name
-
