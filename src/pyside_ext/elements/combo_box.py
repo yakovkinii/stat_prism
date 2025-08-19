@@ -35,15 +35,6 @@ class ComboBox(BasePanelElement):
         self.combo_box.clear()
         self.combo_box.addItems(items)
         self.combo_box.setCurrentIndex(0)
-        self.combo_box.currentTextChanged.connect(
-            self.handler(
-                Message(
-                    MessageType.STATE_CHANGED,
-                    payload=self.combo_box.currentIndex(),  # todo check if this is correct
-                    caller_id=self.element_id,
-                )
-            )
-        )
 
     @log_method_noarg
     def on_index_changed(self):
