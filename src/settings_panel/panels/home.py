@@ -117,9 +117,9 @@ class AboutDialog(QDialog):
         layout = QVBoxLayout(self)
         # Banner
         banner = QLabel()
-        pixmap = QPixmap(":/mat/resources/StatPrism_banner.png")
+        pixmap = QPixmap(":/mat/resources/banner_2025.png")
         if not pixmap.isNull():
-            banner.setPixmap(pixmap.scaledToWidth(520, Qt.SmoothTransformation))
+            banner.setPixmap(pixmap)
             banner.setAlignment(Qt.AlignCenter)
         layout.addWidget(banner)
         # Text
@@ -153,5 +153,5 @@ class AboutDialog(QDialog):
         btn_layout.addStretch(1)
         layout.addLayout(btn_layout)
         self.setLayout(layout)
-        self.setMinimumWidth(520)
+        self.setMinimumWidth(580)
         self.setMaximumWidth(600)
