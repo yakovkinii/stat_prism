@@ -1,5 +1,4 @@
-#
-#  Copyright (c) 2023 -- 2024 StatPrism Team. All rights reserved.
-#
+#  Copyright (c) 2023 StatPrism Team. All rights reserved.
 
-version = "0.6.24"
+
+version = "0.7.0"

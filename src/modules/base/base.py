@@ -1,6 +1,5 @@
-#
-#  Copyright (c) 2023 -- 2024 StatPrism Team. All rights reserved.
-#
+#  Copyright (c) 2023 StatPrism Team. All rights reserved.
+
 
 import logging
 from typing import TYPE_CHECKING, Union
@@ -10,14 +9,17 @@ from PySide6 import QtCore, QtWidgets
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QScrollArea, QVBoxLayout
 
-from src.common.constant import DEBUG_LAYOUT
+from src.common.constant import SettingsPanelSize
 from src.common.decorators import log_method, log_method_noarg
 from src.common.messages import Message, MessageType
-from src.common.result.registry import RESULTS
-from src.common.size import SettingsPanelSize
 from src.common.ui_constructor import create_tool_button_qta
-from src.common.unique_qss import set_stylesheet
-from src.settings_panel.panels.registry import PanelRegistry
+from src.data.data_manager import DATA_MANAGER
+from src.modules.common.result.registry import RESULTS
+from src.pyside_ext.layout import VBoxLayout
+from src.pyside_ext.markup import css
+from src.pyside_ext.styling import Style
+from src.pyside_ext.unique_qss import set_stylesheet
+from src.settings_panel.registry import PanelRegistry
 
 if TYPE_CHECKING:
     from src.ui_main import MainWindowClass
@@ -40,18 +42,20 @@ class BaseModulePanel:
         self.stacked_widget_index = stacked_widget_index
         self.root_class: MainWindowClass = root_class
         self.parent_class = parent_class
-        self.tabledata = self.root_class.data_panel.tabledata
         self.widget = QtWidgets.QWidget(parent_widget)
-        if DEBUG_LAYOUT:
-            set_stylesheet(self.widget, "#id{border: 1px solid green; background-color: #efe;}")
-        self.widget_layout = QVBoxLayout(self.widget)
-        self.widget_layout.setContentsMargins(0, 0, 0, 0)
-        self.widget_layout.setSpacing(0)
+
+        self.widget_layout = VBoxLayout(self.widget)
         self.widget.setLayout(self.widget_layout)
 
         self.study_widget = QtWidgets.QWidget(self.widget)
         self.study_widget.setFixedHeight(80)
-        set_stylesheet(self.study_widget, "#id{border-bottom: 1px solid #ddd;}")
+        set_stylesheet(
+            self.study_widget,
+            css(
+                border_bottom=Style.General.border,
+                border_color=Style.Color.BorderElevated,
+            ),
+        )
 
         self.widget_layout.addWidget(self.study_widget)
 
@@ -61,10 +65,10 @@ class BaseModulePanel:
             icon_path="ph.arrows-clockwise",
             icon_size=QtCore.QSize(40, 40),
         )
-        self.auto_checkbox = QtWidgets.QCheckBox(self.study_widget)
-        self.auto_checkbox.setText("Auto")
-        self.auto_checkbox.setChecked(True)
-        self.auto_checkbox.setGeometry(10, 60, 50, 20)
+        # self.auto_checkbox = QtWidgets.QCheckBox(self.study_widget)
+        # self.auto_checkbox.setText("Auto")
+        # self.auto_checkbox.setChecked(True)
+        # self.auto_checkbox.setGeometry(10, 60, 50, 20)
         self.recalculate_button.clicked.connect(self.recalculate)
 
         self.delete_button = create_tool_button_qta(
@@ -75,13 +79,39 @@ class BaseModulePanel:
         )
         self.delete_button.clicked.connect(self.delete)
 
-        self.copy_for_word_button = create_tool_button_qta(
+        # self.copy_for_word_button = create_tool_button_qta(
+        #     parent=self.widget,
+        #     button_geometry=QtCore.QRect((SettingsPanelSize.width - 120), 5, 50, 50),
+        #     icon_path="fa.file-word-o",
+        #     icon_size=QtCore.QSize(40, 40),
+        # )
+        # self.copy_for_word_button.clicked.connect(self.copy_for_word)
+
+        self.home_button = create_tool_button_qta(
             parent=self.widget,
-            button_geometry=QtCore.QRect((SettingsPanelSize.width - 120), 5, 50, 50),
-            icon_path="fa.file-word-o",
+            button_geometry=QtCore.QRect((SettingsPanelSize.width - 180), 5, 50, 50),
+            icon_path="mdi6.home-outline",
             icon_size=QtCore.QSize(40, 40),
         )
-        self.copy_for_word_button.clicked.connect(self.copy_for_word)
+        self.home_button.clicked.connect(
+            lambda: [
+                self.root_class.main_area_panel.update_focus(None, None),
+                self.root_class.action_activate_panel_by_index(PanelRegistry.HOME.settings_stacked_widget_index),
+            ]
+        )
+
+        # self.add_study_button = create_tool_button_qta(
+        #     parent=self.widget,
+        #     button_geometry=QtCore.QRect((SettingsPanelSize.width - 240), 5, 50, 50),
+        #     icon_path="mdi6.plus",
+        #     icon_size=QtCore.QSize(40, 40),
+        # )
+        #
+        # self.add_study_button.clicked.connect(
+        #     lambda: self.root_class.action_activate_panel_by_index(
+        #         PanelRegistry.SELECT_DATA_ANALYSIS.settings_stacked_widget_index
+        #     )
+        # )
 
         # Definition
         self.widget_for_elements = QtWidgets.QWidget()
@@ -92,28 +122,33 @@ class BaseModulePanel:
 
         self.scroll_area = QScrollArea()
         self.scroll_area.setWidgetResizable(True)
-        set_stylesheet(self.scroll_area, "#id{border: none;}")
+        set_stylesheet(self.scroll_area, css(border="none"))
 
         self.scroll_area.setWidget(self.widget_for_elements)
 
         self.widget_layout.addWidget(self.scroll_area)
-        set_stylesheet(self.widget, "#id>QScrollBar{width: 15px;}")
+        set_stylesheet(self.widget, css("#id>QScrollBar", width="15px"))
         self.scroll_area.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAsNeeded)
         self.scroll_area.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
         self.elements = {}
 
     @log_method_noarg
     def is_auto_recalculate_enabled(self):
-        if self.auto_checkbox is None:
-            return False
-        if self.auto_checkbox.isChecked():
-            return True
-        return False
+        return True
+        # if self.auto_checkbox is None:
+        #     return False
+        # if self.auto_checkbox.isChecked():
+        #     return True
+        # return False
 
     @log_method
     def setup(self, stretch=False):
         for element_id, element in self.elements.items():
-            element.inject(parent_widget=self.widget_for_elements, handler=self.handler, element_id=element_id)
+            try:
+                element.inject(parent_widget=self.widget_for_elements, handler=self.handler, element_id=element_id)
+            except Exception as e:
+                logging.error(f"Error injecting element {element_id}: {e}")
+                continue
             element.setup()
 
         while self.widget_for_elements_layout.count():
@@ -145,10 +180,8 @@ class BaseModulePanel:
 
     @log_method_noarg
     def delete(self):
-        self.root_class.results_panel.display_none()
-        self.root_class.result_selector_panel.delete_result(self.result_id)
-        self.root_class.action_activate_data_panel()
-        self.root_class.action_activate_panel_by_index(PanelRegistry.SELECT_STUDY.settings_stacked_widget_index)
+        self.root_class.main_area_panel.remove_result(self.result_id)
+        DATA_MANAGER.remove_data_from_chain_if_exists(result_id=self.result_id)
         RESULTS.pop(self.result_id)
 
     @log_method_noarg
@@ -174,7 +207,6 @@ class BaseModulePanel:
                 self.recalculate()
             else:
                 self.set_recalculate_button_highlight(True)
-            self.root_class.result_selector_panel.refresh_result(result_id=self.result_id)
             return
         if message.message_type == MessageType.CLICKED:
             if message.caller_id == "compiled_filters":
@@ -183,6 +215,7 @@ class BaseModulePanel:
             if message.caller_id == "column_selector":
                 self.open_column_selector_popup()
                 return
+
         elif message.message_type == MessageType.FILTER_CLICKED:
             self.open_filter_handler()
             return

@@ -1,25 +1,34 @@
-#
-#  Copyright (c) 2023 -- 2024 StatPrism Team. All rights reserved.
-#
-
+#  Copyright (c) 2023 StatPrism Team. All rights reserved.
+from src.modules.cluster_analysis.cluster_analysis_ui import ClusterAnalysis
+from src.modules.cluster_analysis.result import ClusterAnalysisConfig, ClusterAnalysisResult
+from src.modules.confirmatory_factor_analysis.factor_analysis_ui import ConfirmatoryFactorAnalysis
+from src.modules.confirmatory_factor_analysis.result import CFAResult, CFAStudyConfig
+from src.modules.contingency.contingency_ui import Contingency
 from src.modules.contingency.result import ContingencyResult, ContingencyStudyConfig
-from src.modules.contingency.ui import Contingency
+from src.modules.correlation.correlation_ui import Correlation
 from src.modules.correlation.result import CorrelationResult, CorrelationStudyConfig
-from src.modules.correlation.ui import Correlation
+from src.modules.descriptive.descriptive_ui import Descriptive
 from src.modules.descriptive.result import DescriptiveResult, DescriptiveStudyConfig
-from src.modules.descriptive.ui import Descriptive
+from src.modules.exploratory_factor_analysis.factor_analysis_ui import FactorAnalysis
+from src.modules.exploratory_factor_analysis.result import FactorAnalysisResult, FactorAnalysisStudyConfig
+from src.modules.mean_comparison.mean_comparison_ui import MeanComparison
 from src.modules.mean_comparison.result import MeanComparisonResult, MeanComparisonStudyConfig
-from src.modules.mean_comparison.ui import MeanComparison
+from src.modules.raw_data.raw_data_ui import RawData
+from src.modules.raw_data.result import RawDataResult, RawDataStudyConfig
 from src.modules.registry import ModuleRegistry
+from src.modules.regression.regression_ui import Regression
 from src.modules.regression.result import RegressionResult, RegressionStudyConfig
-from src.modules.regression.ui import Regression
 from src.modules.reliability.result import ReliabilityResult, ReliabilityStudyConfig
 from src.modules.reliability.ui import Reliability
-from src.modules.v2.result import V2Result, V2StudyConfig
-from src.modules.v2.ui import V2
+from src.modules.rename_columns.rename_columns_ui import RenameColumns
+from src.modules.rename_columns.result import RenameColumnsResult, RenameColumnsStudyConfig
 
 
 def inject_classes_to_module_registry():
+    ModuleRegistry.RAW_DATA.value.ui_class = RawData
+    ModuleRegistry.RAW_DATA.value.result_class = RawDataResult
+    ModuleRegistry.RAW_DATA.value.config_class = RawDataStudyConfig
+
     ModuleRegistry.CORRELATION.value.ui_class = Correlation
     ModuleRegistry.CORRELATION.value.result_class = CorrelationResult
     ModuleRegistry.CORRELATION.value.config_class = CorrelationStudyConfig
@@ -44,6 +53,18 @@ def inject_classes_to_module_registry():
     ModuleRegistry.CONTINGENCY.value.result_class = ContingencyResult
     ModuleRegistry.CONTINGENCY.value.config_class = ContingencyStudyConfig
 
-    ModuleRegistry.V2.value.ui_class = V2
-    ModuleRegistry.V2.value.result_class = V2Result
-    ModuleRegistry.V2.value.config_class = V2StudyConfig
+    ModuleRegistry.FACTOR_ANALYSIS.value.ui_class = FactorAnalysis
+    ModuleRegistry.FACTOR_ANALYSIS.value.result_class = FactorAnalysisResult
+    ModuleRegistry.FACTOR_ANALYSIS.value.config_class = FactorAnalysisStudyConfig
+
+    ModuleRegistry.CFA.value.ui_class = ConfirmatoryFactorAnalysis
+    ModuleRegistry.CFA.value.result_class = CFAResult
+    ModuleRegistry.CFA.value.config_class = CFAStudyConfig
+
+    ModuleRegistry.CLUSTER_ANALYSIS.value.ui_class = ClusterAnalysis
+    ModuleRegistry.CLUSTER_ANALYSIS.value.result_class = ClusterAnalysisResult
+    ModuleRegistry.CLUSTER_ANALYSIS.value.config_class = ClusterAnalysisConfig
+
+    ModuleRegistry.RENAME_COLUMNS.value.ui_class = RenameColumns
+    ModuleRegistry.RENAME_COLUMNS.value.result_class = RenameColumnsResult
+    ModuleRegistry.RENAME_COLUMNS.value.config_class = RenameColumnsStudyConfig

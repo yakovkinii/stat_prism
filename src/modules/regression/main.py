@@ -1,6 +1,5 @@
-#
-#  Copyright (c) 2023 -- 2024 StatPrism Team. All rights reserved.
-#
+#  Copyright (c) 2023 StatPrism Team. All rights reserved.
+
 
 import logging
 
@@ -10,10 +9,10 @@ import statsmodels.api as sm
 
 from src.common.decorators import log_function
 from src.common.qcolor import Colors
-from src.common.result.classes.html_result import Cell, HTMLTableV2, Row
-from src.common.result.classes.plot_result import Band, BandPlotConfig, Line, LinePlotConfig, PlotV2, Scatter
-from src.common.utility import format_statistic_apa
-from src.data_panel.data import Data
+from src.data.data import Data
+from src.modules.common.result.html_result import Cell, HTMLTableV2, Row
+from src.modules.common.result.plot_result import Band, BandPlotConfig, Line, LinePlotConfig, PlotV2, Scatter
+from src.modules.common.utility import format_statistic_apa
 from src.modules.regression.result import RegressionResult, RegressionStudyConfig
 
 

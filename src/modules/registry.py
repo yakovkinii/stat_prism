@@ -1,10 +1,15 @@
-#
-#  Copyright (c) 2023 -- 2024 StatPrism Team. All rights reserved.
-#
+#  Copyright (c) 2023 StatPrism Team. All rights reserved.
+
 
 from enum import Enum
 
 import attrs
+
+
+class ModuleType(Enum):
+    RAW_DATA = "RAW_DATA"
+    DATA_PROCESSING = "DATA_PROCESSING"
+    DATA_ANALYSIS = "DATA_ANALYSIS"
 
 
 @attrs.define
@@ -16,42 +21,65 @@ class ModuleRegistryItem:
     ui_instance: any = None
     settings_stacked_widget_index: int = None
     icon_path: str = None
+    module_type: ModuleType = ModuleType.DATA_ANALYSIS
 
 
 class ModuleRegistry(Enum):
-    DESCRIPTIVE = ModuleRegistryItem(
-        display_name="Descriptive Statistics",
-        icon_path="ph.chart-line-up-fill",
+    RAW_DATA = ModuleRegistryItem(
+        display_name="Raw Data",
+        icon_path="msc.database",
+        module_type=ModuleType.RAW_DATA,
     )
 
     MEAN_COMPARISON = ModuleRegistryItem(
         display_name="T-test/ANOVA",
-        icon_path="ph.chart-line-up-fill",
+        icon_path="ph.scales",
     )
 
     CONTINGENCY = ModuleRegistryItem(
         display_name="Contingency Table",
-        icon_path="ph.chart-line-up-fill",
+        icon_path="msc.table",
     )
 
     CORRELATION = ModuleRegistryItem(
         display_name="Correlation",
-        icon_path="ph.chart-line-up-fill",
+        icon_path="msc.link",
+    )
+
+    DESCRIPTIVE = ModuleRegistryItem(
+        display_name="Descriptive Statistics",
+        icon_path="msc.unverified",
     )
 
     RELIABILITY = ModuleRegistryItem(
         display_name="Reliability",
-        icon_path="ph.chart-line-up-fill",
+        icon_path="msc.unverified",
     )
 
     REGRESSION = ModuleRegistryItem(
         display_name="Regression",
-        icon_path="ph.chart-line-up-fill",
+        icon_path="msc.unverified",
     )
 
-    V2 = ModuleRegistryItem(
-        display_name="V2",
-        icon_path="ph.chart-line-up-fill",
+    FACTOR_ANALYSIS = ModuleRegistryItem(
+        display_name="Exploratory Factor Analysis",
+        icon_path="msc.unverified",
+    )
+
+    CFA = ModuleRegistryItem(
+        display_name="Confirmatory Factor Analysis",
+        icon_path="msc.unverified",
+    )
+
+    CLUSTER_ANALYSIS = ModuleRegistryItem(
+        display_name="Cluster Analysis",
+        icon_path="msc.unverified",
+    )
+
+    RENAME_COLUMNS = ModuleRegistryItem(
+        display_name="Rename Columns",
+        icon_path="mdi6.rename-outline",
+        module_type=ModuleType.DATA_PROCESSING,
     )
 
     @property

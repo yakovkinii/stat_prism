@@ -1,12 +1,11 @@
-#
-#  Copyright (c) 2023 -- 2024 StatPrism Team. All rights reserved.
-#
+#  Copyright (c) 2023 StatPrism Team. All rights reserved.
+
 
 from typing import Any, Dict, List
 
 import pandas as pd
 
-from src.common.result.classes.html_result import Cell, HTMLTableV2, Row
+from src.modules.common.result.html_result import Cell, HTMLTableV2, Row
 
 
 def format_w_apa(r, decimals=3):
@@ -69,7 +68,7 @@ def get_descriptive_table_no_groupby(
         table.add_single_row_apa(
             Row(
                 [
-                    Cell(df.loc[row, "variable"], push_to_left=True),
+                    Cell(df.loc[row, "variable"], center=True),
                     Cell(f'{int(df.loc[row, "N"])}', center=True),
                     Cell(f'{int(df.loc[row, "missing"])}', center=True),
                     Cell(f'{df.loc[row, "mean"]}', center=True),

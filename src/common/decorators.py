@@ -1,6 +1,5 @@
-#
-#  Copyright (c) 2023 -- 2024 StatPrism Team. All rights reserved.
-#
+#  Copyright (c) 2023 StatPrism Team. All rights reserved.
+
 
 import inspect
 import logging
@@ -23,7 +22,7 @@ def log_method(method):
         line_number = inspect.getsourcelines(method)[1]
         lr = logger.makeRecord(
             logger.name,
-            logging.DEBUG,
+            logging.INFO,
             source_file,
             line_number,
             ident + f"{class_name}.{method.__name__}",
@@ -39,7 +38,6 @@ def log_method(method):
         else:
             result = method(self)
         level -= 1
-        # logging.debug(ident+f"<{class_name}.{method.__name__}")
         return result
 
     return decorator
@@ -62,7 +60,7 @@ def log_method_noarg(method):
         line_number = inspect.getsourcelines(method)[1]
         lr = logger.makeRecord(
             logger.name,
-            logging.DEBUG,
+            logging.INFO,
             source_file,
             line_number,
             ident + f"{class_name}.{method.__name__}",
@@ -75,7 +73,6 @@ def log_method_noarg(method):
         level += 1
         result = method(self)
         level -= 1
-        # logging.debug(ident+f"<{class_name}.{method.__name__}")
         return result
 
     return decorator
@@ -95,7 +92,7 @@ def log_function(function):
         line_number = inspect.getsourcelines(function)[1]
         lr = logger.makeRecord(
             logger.name,
-            logging.DEBUG,
+            logging.INFO,
             source_file,
             line_number,
             ident + f"{function.__name__}",

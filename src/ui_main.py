@@ -1,22 +1,22 @@
-#
-#  Copyright (c) 2023 -- 2024 StatPrism Team. All rights reserved.
-#
+#  Copyright (c) 2023 StatPrism Team. All rights reserved.
+
 
 import logging
 
 from PySide6 import QtWidgets
 from PySide6.QtWebEngineWidgets import QWebEngineView
 
+# from src._data_panel.ui_data import DataPanelClass
 from src.about import version
+from src.common.debt import DEBTS, DebtType
 from src.common.decorators import log_method, log_method_noarg
-from src.common.registry import DEBTS, DebtType
 from src.common.ui_constructor import icon
-from src.data_panel.ui_data import DataPanelClass
-from src.pyside_ext.custom_widgets.main_tab_widget import main_tab_widget
+from src.main_area_panel.ui_main_area import MainAreaClass
 from src.pyside_ext.layout import HBoxLayout
-from src.result_display_panel.ui_result_display import ResultDisplayClass
-from src.result_selector_panel.ui_result_selector import ResultSelectorPanelClass
-from src.settings_panel.panels.registry import PanelRegistry
+from src.pyside_ext.markup import css
+from src.pyside_ext.styling import Style
+from src.pyside_ext.unique_qss import set_stylesheet
+from src.settings_panel.registry import PanelRegistry
 from src.settings_panel.ui_settings import SettingsPanelClass
 
 
@@ -40,43 +40,36 @@ class MainWindowClass(QtWidgets.QMainWindow):
         self.central_widget_layout = HBoxLayout(self.central_widget)
 
         self.splitter = QtWidgets.QSplitter(self.central_widget)
-        self.tab_widget = main_tab_widget(self.splitter)
+        # self.tab_widget = main_tab_widget(self.splitter)
 
-        self.data_panel: DataPanelClass = DataPanelClass(
-            parent_widget=self.tab_widget, parent_class=self.widget, root_class=self
-        )
-        self.results_panel: ResultDisplayClass = ResultDisplayClass(
-            parent_widget=self.tab_widget, parent_class=self.widget, root_class=self
-        )
-        self.result_selector_panel: ResultSelectorPanelClass = ResultSelectorPanelClass(
-            parent_widget=self.tab_widget, parent_class=self.widget, root_class=self
+        self.main_area_panel: MainAreaClass = MainAreaClass(
+            parent_widget=self.central_widget, parent_class=self.widget, root_class=self
         )
         self.settings_panel: SettingsPanelClass = SettingsPanelClass(
-            parent_widget=self.tab_widget, parent_class=self.widget, root_class=self
+            parent_widget=self.central_widget, parent_class=self.widget, root_class=self
         )
 
         # Relations
         self.widget.setCentralWidget(self.central_widget)
         self.central_widget.setLayout(self.central_widget_layout)
         self.central_widget_layout.addWidget(self.splitter)
-        self.central_widget_layout.addWidget(self.settings_panel.widget)
 
-        self.splitter.addWidget(self.tab_widget)
-        self.splitter.addWidget(self.result_selector_panel.widget)
+        self.splitter.addWidget(self.main_area_panel.widget)
+        self.splitter.addWidget(self.settings_panel.widget)
         # increase size of splitter handle
         self.splitter.setHandleWidth(6)
-        self.splitter.setSizes([1, 0])
+        self.splitter.setSizes([1, 1])
 
-        self.tab_widget.addTab(self.data_panel.widget, "Data")
-        self.tab_widget.addTab(self.results_panel.widget, "Analysis")
+        set_stylesheet(
+            self.splitter,
+            css(
+                "#id::handle",
+                background_color=Style.Color.BorderElevated,
+            ),
+        )
 
         # Misc
         self.setWindowIcon(icon(":/mat/resources/StatPrism_icon_small.ico"))
-
-        # Post-init
-        self.tab_widget.setCurrentIndex(0)
-
-        self.tab_widget.currentChanged.connect(self.on_tab_changed)
 
     def init_web_view_and_show_maximized(self, file_path=None):
         webview = QWebEngineView(self.central_widget)
@@ -131,10 +124,6 @@ class MainWindowClass(QtWidgets.QMainWindow):
             self.settings_panel.stacked_widget.setCurrentIndex(index)
 
     @log_method
-    def action_select_table_column(self, column_index):
-        self.data_panel.tableview.selectColumn(column_index)
-
-    @log_method
     def action_activate_columns_panel(self, column_indexes):
         if (
             self.settings_panel.stacked_widget.currentIndex == PanelRegistry.COLUMNS.settings_stacked_widget_index
@@ -145,18 +134,11 @@ class MainWindowClass(QtWidgets.QMainWindow):
         PanelRegistry.COLUMNS.ui_instance.configure(column_indexes)
 
     @log_method_noarg
-    def on_tab_changed(self):
-        if self.tab_widget.currentIndex() == 1:
-            self.splitter.setSizes([1, 1])
-
-    @log_method_noarg
-    def action_hide_result_selector(self):
-        self.splitter.setSizes([1, 0])
-
-    @log_method_noarg
     def action_activate_results_panel(self):
-        self.tab_widget.setCurrentIndex(1)
+        logging.error("action_activate_results_panel is deprecated")
+        # self.tab_widget.setCurrentIndex(1)
 
     @log_method_noarg
     def action_activate_data_panel(self):
-        self.tab_widget.setCurrentIndex(0)
+        logging.error("action_activate_data_panel is deprecated")
+        # self.tab_widget.setCurrentIndex(0)

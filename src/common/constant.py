@@ -1,15 +1,16 @@
-#
-#  Copyright (c) 2023 -- 2024 StatPrism Team. All rights reserved.
-#
+#  Copyright (c) 2023 StatPrism Team. All rights reserved.
+
 
 from enum import Enum
 
 import qtawesome as qta
 from PySide6.QtCore import Qt
 
-DEBUG_LAYOUT = False
+from src.pyside_ext.styling import Style
 
-COLORS = ["#eee", "#ffcccc", "#ccffcc", "#bbbbff", "#ffffbb", "#ffbbff"]
+DEBUG_LAYOUT = False  # Todo remove
+
+COLORS = ["#eee", "#ffcccc", "#ccffcc", "#bbbbff", "#ffffbb", "#ffbbff"]  # Todo merge with qcolor.py
 COLORS_SELECTION = ["#ddd", "#ffbbbb", "#aaffaa", "#aaaaff", "#ffffaa", "#ffaaff"]
 
 MDASH = "—"
@@ -48,21 +49,17 @@ COLUMN_TYPE_ICONS = {
 }
 
 BASE_STYLES = (
-    "<style>"
-    ".double-spacing{"
-    "line-height: 2;"
-    "}"
-    ".font {"
-    "font-size: 12pt;"
-    "font-family: 'Times New Roman';"
-    "}"
-    "table, th, td, span {"
-    "border-collapse: collapse;"
-    "font-size: 12pt;"
-    "}"
-    ".meta {"
-    "font-size: 10pt;"
-    "color: blue;"
-    "}"
-    "</style>"
+    f"<style>"
+    f".double-spacing {{ line-height: 1.5; }}"
+    f".font {{ font-size: {Style.FontSize.regular}; font-family: 'Times New Roman'; }}"
+    f"table, th, td {{ border-collapse: collapse; }}"
+    f".meta {{ font-size: {Style.FontSize.smaller}; }}"
+    f"</style>"
 )
+
+
+class SettingsPanelSize:
+    width: int = 320
+    tab_width: int = 300
+    even_col_width: int = 130
+    max_col_width: int = 200

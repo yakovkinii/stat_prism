@@ -1,16 +1,18 @@
-#
-#  Copyright (c) 2023 -- 2024 StatPrism Team. All rights reserved.
-#
+#  Copyright (c) 2023 StatPrism Team. All rights reserved.
+
 
 import logging
 
 import numpy as np
 
 from src.common.decorators import log_function
-from src.common.result.classes.html_result import Cell, HTMLTableV2, Row
-from src.common.utility import format_statistic_apa
-from src.data_panel.data import Data
-from src.modules.correlation.binary_correlations import phi_correlation_table, tetrachoric_corr_matrix
+from src.data.data import Data
+from src.modules.common.mathematics.correlation.binary_correlations import (
+    phi_correlation_table,
+    tetrachoric_corr_matrix,
+)
+from src.modules.common.result.html_result import Cell, HTMLTableV2, Row
+from src.modules.common.utility import format_statistic_apa
 from src.modules.correlation.result import CorrelationType
 from src.modules.reliability.result import ReliabilityResult, ReliabilityStudyConfig
 

@@ -1,13 +1,13 @@
-#
-#  Copyright (c) 2023 -- 2024 StatPrism Team. All rights reserved.
-#
+#  Copyright (c) 2023 StatPrism Team. All rights reserved.
+
+
 import logging
 from typing import List
 
 from src.common.constant import ColumnType
-from src.common.elements.filter.filter import FilterSettings
-from src.common.result.classes.base_result import BaseResult
+from src.modules.common.result.registry import BaseResult
 from src.modules.mean_comparison.constant import DESCRIPTION, MeanComparisonMethod
+from src.pyside_ext.elements.filter import FilterSettings
 
 
 class MeanComparisonStudyConfig:

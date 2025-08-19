@@ -1,6 +1,5 @@
-#
-#  Copyright (c) 2023 -- 2024 StatPrism Team. All rights reserved.
-#
+#  Copyright (c) 2023 StatPrism Team. All rights reserved.
+
 
 import logging
 
@@ -10,9 +9,9 @@ from scipy.stats import linregress
 
 from src.common.constant import ColumnType
 from src.common.decorators import log_function
-from src.common.result.classes.plot_result import Band, Heatmap, Line, PlotV2, Scatter
-from src.data_panel.data import Data
-from src.mathematics.correlation.correlation import calculate_correlations
+from src.data.data import Data
+from src.modules.common.mathematics.correlation.correlation import calculate_correlations
+from src.modules.common.result.plot_result import Band, Heatmap, Line, PlotV2, Scatter
 from src.modules.correlation.report import get_report
 from src.modules.correlation.result import CorrelationResult, CorrelationType
 from src.modules.correlation.table import get_table_compact, get_table_full

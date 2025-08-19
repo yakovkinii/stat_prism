@@ -1,6 +1,5 @@
-#
-#  Copyright (c) 2023 -- 2024 StatPrism Team. All rights reserved.
-#
+#  Copyright (c) 2023 StatPrism Team. All rights reserved.
+
 
 from typing import cast
 
@@ -8,9 +7,9 @@ import pandas as pd
 from scipy import stats
 from scipy.stats._morestats import LeveneResult
 
-from src.common.result.classes.html_result import Cell, HTMLTableV2, Row
-from src.common.utility import format_p_apa, format_statistic_apa
-from src.common.verbal.test import TestResult, describe_single_test_multiple_variables
+from src.modules.common.result.html_result import Cell, HTMLTableV2, Row
+from src.modules.common.utility import format_p_apa, format_statistic_apa
+from src.modules.common.verbal.test import TestResult, describe_single_test_multiple_variables
 
 
 def process_homogeneity_check(

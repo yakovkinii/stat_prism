@@ -1,21 +1,23 @@
-#
-#  Copyright (c) 2023 -- 2024 StatPrism Team. All rights reserved.
-#
+#  Copyright (c) 2023 StatPrism Team. All rights reserved.
+
 
 import logging
 from typing import TYPE_CHECKING
 
 from PySide6 import QtWidgets
 from PySide6.QtGui import QAction
-from PySide6.QtWidgets import QMenu, QMenuBar, QVBoxLayout
+from PySide6.QtWidgets import QMenu, QMenuBar, QProgressBar, QVBoxLayout
 
+from src.common.constant import SettingsPanelSize
 from src.common.languages import LANGUAGE, Languages
-from src.common.size import SettingsPanelSize
-from src.common.unique_qss import set_stylesheet
 from src.modules.registry import ModuleRegistry, ModuleRegistryItem
 from src.modules.registry_injector import inject_classes_to_module_registry
-from src.settings_panel.panels.registry import PanelRegistry, PanelRegistryItem
-from src.settings_panel.panels.registry_injector import inject_classes_to_panel_registry
+from src.pyside_ext.elements.utility.layout_helpers import widget_in_layout
+from src.pyside_ext.markup import css
+from src.pyside_ext.styling import Style
+from src.pyside_ext.unique_qss import set_stylesheet
+from src.settings_panel.registry import PanelRegistry, PanelRegistryItem
+from src.settings_panel.registry_injector import inject_classes_to_panel_registry
 
 if TYPE_CHECKING:
     from src.ui_main import MainWindowClass
@@ -50,10 +52,27 @@ class SettingsPanelClass:
 
         self.widget_layout.addWidget(self.stacked_widget)
 
+        self.progress_bar = widget_in_layout(
+            widget=QProgressBar(self.widget),
+            layout=self.widget_layout,
+            setup=lambda w, l: [
+                w.setTextVisible(False),
+                # w.setFixedHeight(10),
+                w.hide(),
+            ],
+        )
+
         # Create a file menu and add actions
         menu_bar = QMenuBar(self.widget)
         self.widget_layout.setMenuBar(menu_bar)
-        set_stylesheet(menu_bar, "#id{border-bottom: 1px solid #ddd; background-color: #eee;}")
+        set_stylesheet(
+            menu_bar,
+            css(
+                border_bottom=Style.General.border,
+                border_bottom_color=Style.Color.BorderElevated,
+                background_color=Style.Color.BackgroundElevated,
+            ),
+        )
 
         file_menu = QMenu("File", self.widget)
         language_menu = QMenu("Language", self.widget)
@@ -66,9 +85,10 @@ class SettingsPanelClass:
         self.ua_action.setCheckable(True)
         self.en_action.setChecked(True)  # Default to English
         open_action = QAction("Open...", self.widget)
+        open_action.setEnabled(False)
         save_action = QAction("Save", self.widget)
+        save_action.setEnabled(False)
         save_as_action = QAction("Save As...", self.widget)
-        save_table_action = QAction("Export Table...", self.widget)
         about_action = QAction("About", self.widget)
 
         menu_bar.addMenu(file_menu)
@@ -78,7 +98,6 @@ class SettingsPanelClass:
         file_menu.addAction(open_action)
         file_menu.addAction(save_action)
         file_menu.addAction(save_as_action)
-        file_menu.addAction(save_table_action)
         language_menu.addAction(self.en_action)
         language_menu.addAction(self.ua_action)
         help_menu.addAction(about_action)
@@ -94,15 +113,14 @@ class SettingsPanelClass:
             self.add_module(module.value)
 
         # post-init
-        self.stacked_widget.setCurrentIndex(PanelRegistry.HOME.value.settings_stacked_widget_index)
+        self.stacked_widget.setCurrentIndex(PanelRegistry.HOME_INITIAL.value.settings_stacked_widget_index)
 
-        open_action.triggered.connect(PanelRegistry.HOME.value.ui_instance.open_handler)
-        save_action.triggered.connect(PanelRegistry.HOME.value.ui_instance.save_handler)
+        # open_action.triggered.connect(PanelRegistry.HOME.value.ui_instance.open_handler)
+        # save_action.triggered.connect(PanelRegistry.HOME.value.ui_instance.save_handler)
         self.en_action.triggered.connect(self.set_language_EN)
         self.ua_action.triggered.connect(self.set_language_UA)
-        save_as_action.triggered.connect(PanelRegistry.HOME.value.ui_instance.save_as_handler)
-        save_table_action.triggered.connect(self.save_table_handler)
-        about_action.triggered.connect(PanelRegistry.HOME.value.ui_instance.about_handler)
+        # save_as_action.triggered.connect(PanelRegistry.HOME.value.ui_instance.save_as_handler)
+        # about_action.triggered.connect(PanelRegistry.HOME.value.ui_instance.about_handler)
 
     def set_language_EN(self):
         LANGUAGE.set_language(Languages.EN)
@@ -148,16 +166,6 @@ class SettingsPanelClass:
         panel_registry_item.ui_instance.setup_ui()
         self.panels.append(panel_registry_item.ui_instance)
         self.stacked_widget.addWidget(panel_registry_item.ui_instance.widget)
-
-    def save_table_handler(self):
-        file_path, _ = QtWidgets.QFileDialog.getSaveFileName(
-            self.widget,
-            "Save Table",
-            "",
-            "Excel Spreadsheet (*.xlsx);;",
-        )
-        if file_path:
-            self.root_class.data_panel.tabledata.save_as_xlsx(file_path)
 
 
 logging.debug("settings loaded")
