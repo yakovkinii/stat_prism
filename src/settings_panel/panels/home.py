@@ -5,8 +5,8 @@ import zipfile
 from typing import TYPE_CHECKING
 
 from PySide6 import QtWidgets
-from PySide6.QtGui import QIcon
-from PySide6.QtWidgets import QMessageBox
+from PySide6.QtGui import QIcon, QPixmap, Qt
+from PySide6.QtWidgets import QDialog, QHBoxLayout, QLabel, QPushButton, QVBoxLayout
 
 from src.about import version
 from src.common.constant import MDASH, NDASH
@@ -53,24 +53,8 @@ class Home(BasePanel):
 
     @log_method_noarg
     def about_handler(self):
-        msg_box = QMessageBox()
-
-        msg_box.setWindowTitle("About StatPrism")
-        msg_box.setText(
-            f"StatPrism {MDASH} version {version} (Developer Edition)\n"
-            "\n"
-            "This version of StatPrism is intended for internal testing only.\n"
-            "\n"
-            "This software is in development and is provided as is, without any guarantees.\n"
-            "\n"
-            f"Copyright 2023 {NDASH} 2025 StatPrism Team:\n"
-            f"Ivan Yakovkin (software development)\n"
-            f"Alexandra Balashevych (model design)\n"
-        )
-
-        msg_box.setWindowIcon(QIcon(":/mat/resources/StatPrism_icon_small.ico"))
-        msg_box.setIconPixmap(QIcon(":/mat/resources/Icon.ico").pixmap(128, 128))
-        msg_box.exec_()
+        dlg = AboutDialog(self.widget)
+        dlg.exec_()
 
     @log_method_noarg
     def save_as_handler(self):
@@ -123,3 +107,51 @@ class Home(BasePanel):
                 return self.save_as_handler()
 
         return super().handler(message)
+
+
+class AboutDialog(QDialog):
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.setWindowTitle("About StatPrism")
+        self.setWindowIcon(QIcon(":/mat/resources/StatPrism_icon_small.ico"))
+        layout = QVBoxLayout(self)
+        # Banner
+        banner = QLabel()
+        pixmap = QPixmap(":/mat/resources/StatPrism_banner.png")
+        if not pixmap.isNull():
+            banner.setPixmap(pixmap.scaledToWidth(520, Qt.SmoothTransformation))
+            banner.setAlignment(Qt.AlignCenter)
+        layout.addWidget(banner)
+        # Text
+        text = QLabel(
+            f"""
+            <div style="margin-left:32px; text-align:left;">
+                <h2 style="text-align:center; margin-bottom:16px;">
+                StatPrism {MDASH} version {version} (Developer Edition)
+                </h2>
+                This version of StatPrism is intended for internal testing only.<br>
+                This software is in development and is provided as is, without any guarantees.<br><br>
+                Copyright 2023 {NDASH} 2025 StatPrism Team:<br>
+                <b>Balashevych A. K.</b> {NDASH} Model Specification;<br>
+                <b>Petrova N. V.</b> {NDASH} Testing &amp; QA;<br>
+                <b>Yakovkin I. I.</b> {NDASH} Software Development &amp; PM.<br><br>
+                <a href="https://www.yakovkinii.com/stat_prism/">www.yakovkinii.com/stat_prism/</a>
+            </div>
+        """
+        )
+        text.setTextFormat(Qt.TextFormat.RichText)
+        text.setOpenExternalLinks(True)
+        text.setTextInteractionFlags(Qt.TextSelectableByMouse | Qt.LinksAccessibleByMouse)
+        text.setAlignment(Qt.AlignLeft)
+        layout.addWidget(text)
+        # OK button
+        btn_layout = QHBoxLayout()
+        btn_layout.addStretch(1)
+        ok_btn = QPushButton("OK")
+        ok_btn.clicked.connect(self.accept)
+        btn_layout.addWidget(ok_btn)
+        btn_layout.addStretch(1)
+        layout.addLayout(btn_layout)
+        self.setLayout(layout)
+        self.setMinimumWidth(520)
+        self.setMaximumWidth(600)

@@ -1,6 +1,7 @@
 <RCC>
   <qresource prefix="/mat">
     <file>resources/StatPrism_splash.png</file>
+    <file>resources/StatPrism_banner.png</file>
     <file>resources/Icon.ico</file>
     <file>resources/StatPrism_icon_small.ico</file>
     <file>resources/unchecked.png</file>
