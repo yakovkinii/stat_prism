@@ -5,6 +5,7 @@ from typing import TYPE_CHECKING
 
 from src.common.decorators import log_method
 from src.common.messages import Message, MessageType
+from src.data.data_manager import DATA_MANAGER
 from src.modules.common.result.registry import RESULTS, get_unique_result_id
 from src.modules.registry import ModuleRegistry, ModuleRegistryItem, ModuleType
 from src.pyside_ext.elements.button_large import LargeButton
@@ -47,11 +48,9 @@ class SelectDataProcessing(BasePanel):
             settings_panel_index=module.settings_stacked_widget_index,
             config=module.config_class(),
         )
+        DATA_MANAGER.add_data_to_chain(result_id=result_id)
 
-        # self.root_class.result_selector_panel.add_result(result_id)
-        # self.root_class.results_panel.display(result_id)
         self.root_class.main_area_panel.add_data_processing(result_id=result_id)
-        # self.root_class.action_activate_results_panel()
 
         module.ui_instance.configure(result_id=result_id)
         self.root_class.action_activate_panel_by_index(module.settings_stacked_widget_index)

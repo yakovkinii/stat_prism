@@ -27,58 +27,59 @@ class ModuleRegistryItem:
 class ModuleRegistry(Enum):
     RAW_DATA = ModuleRegistryItem(
         display_name="Raw Data",
-        icon_path="ph.file-text-fill",
+        icon_path="msc.database",
         module_type=ModuleType.RAW_DATA,
     )
 
-    DESCRIPTIVE = ModuleRegistryItem(
-        display_name="Descriptive Statistics",
-        icon_path="ph.chart-line-up-fill",
-    )
 
     MEAN_COMPARISON = ModuleRegistryItem(
         display_name="T-test/ANOVA",
-        icon_path="ph.chart-line-up-fill",
+        icon_path="ph.scales",
     )
 
     CONTINGENCY = ModuleRegistryItem(
         display_name="Contingency Table",
-        icon_path="ph.chart-line-up-fill",
+        icon_path="msc.table",
     )
 
     CORRELATION = ModuleRegistryItem(
         display_name="Correlation",
-        icon_path="ph.chart-line-up-fill",
+        icon_path="msc.link",
+    )
+
+    DESCRIPTIVE = ModuleRegistryItem(
+        display_name="Descriptive Statistics",
+        icon_path="msc.unverified",
     )
 
     RELIABILITY = ModuleRegistryItem(
         display_name="Reliability",
-        icon_path="ph.chart-line-up-fill",
+        icon_path="msc.unverified",
     )
 
     REGRESSION = ModuleRegistryItem(
         display_name="Regression",
-        icon_path="ph.chart-line-up-fill",
+        icon_path="msc.unverified",
     )
 
     FACTOR_ANALYSIS = ModuleRegistryItem(
         display_name="Exploratory Factor Analysis",
-        icon_path="ph.chart-line-up-fill",
+        icon_path="msc.unverified",
     )
 
     CFA = ModuleRegistryItem(
         display_name="Confirmatory Factor Analysis",
-        icon_path="ph.chart-line-up-fill",
+        icon_path="msc.unverified",
     )
 
     CLUSTER_ANALYSIS = ModuleRegistryItem(
         display_name="Cluster Analysis",
-        icon_path="ph.chart-line-up-fill",
+        icon_path="msc.unverified",
     )
 
     RENAME_COLUMNS = ModuleRegistryItem(
         display_name="Rename Columns",
-        icon_path="ph.chart-line-up-fill",
+        icon_path="mdi6.rename-outline",
         module_type=ModuleType.DATA_PROCESSING,
     )
 

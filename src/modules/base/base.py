@@ -13,6 +13,7 @@ from src.common.constant import SettingsPanelSize
 from src.common.decorators import log_method, log_method_noarg
 from src.common.messages import Message, MessageType
 from src.common.ui_constructor import create_tool_button_qta
+from src.data.data_manager import DATA_MANAGER
 from src.modules.common.result.registry import RESULTS
 from src.pyside_ext.layout import VBoxLayout
 from src.pyside_ext.markup import css
@@ -180,6 +181,7 @@ class BaseModulePanel:
     @log_method_noarg
     def delete(self):
         self.root_class.main_area_panel.remove_result(self.result_id)
+        DATA_MANAGER.remove_data_from_chain_if_exists(result_id=self.result_id)
         RESULTS.pop(self.result_id)
 
     @log_method_noarg

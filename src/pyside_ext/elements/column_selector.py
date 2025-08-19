@@ -358,6 +358,8 @@ class ColumnSelectorExPopup:
         for panel_list, selected_columns in zip(self.panel_list_widgets, selected_columns_list):
             clean_up_list_widget(panel_list)
             for column in selected_columns:
+                if column not in main_list_names:
+                    continue
                 main_list_names.remove(column)
                 item = QListWidgetItem(column)
                 item.setIcon(COLUMN_TYPE_ICONS[columns[self.column_names.index(column)].column_type])

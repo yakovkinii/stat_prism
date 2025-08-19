@@ -2,6 +2,7 @@
 from src.data.data import Data
 from src.modules.common.result.registry import BaseResult
 
+
 class RenameColumnsStudyConfig:
     def __init__(self, data=None, renamed_columns=None):
         from src.data.data_manager import DATA_MANAGER
@@ -11,6 +12,7 @@ class RenameColumnsStudyConfig:
         if renamed_columns is None:
             renamed_columns = {}
         self.renamed_columns = renamed_columns
+
 
 class RenameColumnsResult(BaseResult):
     def __init__(self, unique_id, settings_panel_index, config: RenameColumnsStudyConfig):

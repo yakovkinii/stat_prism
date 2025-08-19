@@ -17,6 +17,10 @@ class Renamer(BasePanelElement):
         self._original_names = []
         self._current_renamed = {}
         self._handler = None
+        self.container_widget = None
+        self.container_layout = None
+        self.line_edits = []
+        self._reset_buttons = []
 
     def inject(self, parent_widget, handler, element_id):
         super().inject(parent_widget, handler, element_id)
@@ -27,21 +31,21 @@ class Renamer(BasePanelElement):
         self.widget, self.layout = self._empty_widget_with_layout(QVBoxLayout)
         self.container_widget, self.container_layout = self._empty_widget_with_layout(QVBoxLayout, parent=self.widget)
         self.layout.addWidget(self.container_widget)
-        self.line_edits = []
 
     @log_method
-    def configure(self, config: RenameColumnsStudyConfig, result_id: int):
-        self.config = config
-        self.result_id = result_id
-        self.data = self.config.data
+    def configure(self, original_names, current_renamed):
         self.line_edits = []
-        self._original_names = self.data.column_names()
-        self._current_renamed = dict(self.config.renamed_columns)
+        self._reset_buttons = []
+
+        self._original_names = original_names
+        self._current_renamed = current_renamed
         # Clear previous widgets
         for i in reversed(range(self.container_layout.count())):
             widget = self.container_layout.itemAt(i).widget()
-            if widget:
-                widget.setParent(None)
+            if widget is not None:
+                widget.hide()
+                widget.deleteLater()
+
         # Add editable QLineEdit for each column (no labels)
         for idx, name in enumerate(self._original_names):
             row_widget = QWidget(self.container_widget)
@@ -49,7 +53,7 @@ class Renamer(BasePanelElement):
             row_layout.setContentsMargins(2, 0, 2, 0)  # smaller left/right margins
             row_layout.setSpacing(2)  # smaller spacing between columns
             # QLineEdit for renaming
-            edit = QLineEdit(self._current_renamed.get(name, name))
+            edit = QLineEdit(self._current_renamed.get(name, name), parent=self.container_widget)
             edit.setMinimumWidth(200)
             edit.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
             edit.setCursorPosition(0)  # Always show the beginning of the text
@@ -69,11 +73,14 @@ class Renamer(BasePanelElement):
             reset_btn.clicked.connect(self._make_restore_handler(idx))
             reset_btn.setEnabled(is_modified)
             row_layout.addWidget(reset_btn)
+
+            self._reset_buttons.append(reset_btn)
             row_layout.setStretch(0, 1)
             row_layout.setStretch(1, 0)
             row_widget.setLayout(row_layout)
             self.container_layout.addWidget(row_widget)
-        self._reset_buttons = [row_widget.layout().itemAt(1).widget() for row_widget in self.container_widget.findChildren(QWidget, options=Qt.FindDirectChildrenOnly)]
+
+        # self._reset_buttons = [row_widget.layout().itemAt(1).widget() for row_widget in self.container_widget.findChildren(QWidget, options=Qt.FindDirectChildrenOnly)]
 
     def _make_edit_finished_handler(self, idx):
         def handler():

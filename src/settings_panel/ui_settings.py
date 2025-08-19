@@ -85,9 +85,10 @@ class SettingsPanelClass:
         self.ua_action.setCheckable(True)
         self.en_action.setChecked(True)  # Default to English
         open_action = QAction("Open...", self.widget)
+        open_action.setEnabled(False)
         save_action = QAction("Save", self.widget)
+        save_action.setEnabled(False)
         save_as_action = QAction("Save As...", self.widget)
-        save_table_action = QAction("Export Table...", self.widget)
         about_action = QAction("About", self.widget)
 
         menu_bar.addMenu(file_menu)
@@ -97,7 +98,6 @@ class SettingsPanelClass:
         file_menu.addAction(open_action)
         file_menu.addAction(save_action)
         file_menu.addAction(save_as_action)
-        file_menu.addAction(save_table_action)
         language_menu.addAction(self.en_action)
         language_menu.addAction(self.ua_action)
         help_menu.addAction(about_action)
@@ -120,7 +120,6 @@ class SettingsPanelClass:
         self.en_action.triggered.connect(self.set_language_EN)
         self.ua_action.triggered.connect(self.set_language_UA)
         # save_as_action.triggered.connect(PanelRegistry.HOME.value.ui_instance.save_as_handler)
-        save_table_action.triggered.connect(self.save_table_handler)
         # about_action.triggered.connect(PanelRegistry.HOME.value.ui_instance.about_handler)
 
     def set_language_EN(self):
@@ -168,15 +167,6 @@ class SettingsPanelClass:
         self.panels.append(panel_registry_item.ui_instance)
         self.stacked_widget.addWidget(panel_registry_item.ui_instance.widget)
 
-    def save_table_handler(self):
-        file_path, _ = QtWidgets.QFileDialog.getSaveFileName(
-            self.widget,
-            "Save Table",
-            "",
-            "Excel Spreadsheet (*.xlsx);;",
-        )
-        if file_path:
-            self.root_class.data_panel.tabledata.save_as_xlsx(file_path)
 
 
 logging.debug("settings loaded")
