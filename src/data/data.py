@@ -177,6 +177,21 @@ class Data:
         self.update_lookups()
         return new_column
 
+    def insert_column_after_index(self, column: "DataColumn", after_index: int):
+        """Insert a column after the specified index position"""
+        self.columns.insert(after_index + 1, column)
+        self.update_lookups()
+
+    def find_last_column_index(self, column_names: List[str]) -> int:
+        """Find the index of the last occurrence of any column in the given list"""
+        last_index = -1
+        for col_name in column_names:
+            if col_name in self.name_to_index:
+                index = self.name_to_index[col_name]
+                if index > last_index:
+                    last_index = index
+        return last_index
+
     def copy(self):
         return Data([col.copy() for col in self.columns])
 

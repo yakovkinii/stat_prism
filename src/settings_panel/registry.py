@@ -30,6 +30,8 @@ class PanelRegistry(Enum):
     RESULT_ITEM_SETTINGS_V2 = PanelRegistryItem(unique_id_for_enum="RESULT_ITEM_SETTINGS_V2")
     BLANK = PanelRegistryItem(unique_id_for_enum="BLANK")
     ORDER = PanelRegistryItem(unique_id_for_enum="ORDER")
+    MAPPING = PanelRegistryItem(unique_id_for_enum="MAPPING")
+    INVERSION_CONFIG = PanelRegistryItem(unique_id_for_enum="INVERSION_CONFIG")
 
     @property
     def ui_class(self):

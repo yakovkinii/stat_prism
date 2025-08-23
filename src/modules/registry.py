@@ -82,6 +82,12 @@ class ModuleRegistry(Enum):
         module_type=ModuleType.DATA_PROCESSING,
     )
 
+    CALCULATE_SCALE = ModuleRegistryItem(
+        display_name="Calculate Scale",
+        icon_path="mdi6.scale-balance",
+        module_type=ModuleType.DATA_PROCESSING,
+    )
+
     @property
     def display_name(self):
         return self.value.display_name

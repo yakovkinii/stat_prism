@@ -10,7 +10,9 @@ from src.settings_panel.panels.columns import Columns
 from src.settings_panel.panels.filter import Filter
 from src.settings_panel.panels.home import Home
 from src.settings_panel.panels.home_initial import HomeInitial
+from src.settings_panel.panels.inversion_config import InversionConfig
 from src.settings_panel.panels.invert import Inverse
+from src.settings_panel.panels.mapping import Mapping
 from src.settings_panel.panels.order import Order
 from src.settings_panel.panels.result_item_settings import ResultItemSettingsV2
 from src.settings_panel.panels.select_data_processing import SelectDataProcessing
@@ -28,6 +30,8 @@ def inject_classes_to_panel_registry():
     PanelRegistry.COLUMNS.value.ui_class = Columns
     PanelRegistry.COLUMN.value.ui_class = Column
     PanelRegistry.INVERSE.value.ui_class = Inverse
+    PanelRegistry.MAPPING.value.ui_class = Mapping
+    PanelRegistry.INVERSION_CONFIG.value.ui_class = InversionConfig
     PanelRegistry.BLANK.value.ui_class = Blank
     PanelRegistry.ORDER.value.ui_class = Order
     PanelRegistry.HTML_TABLE_V2_SETTINGS.value.ui_class = ResultItemSettingsV2
