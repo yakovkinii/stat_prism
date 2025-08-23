@@ -8,6 +8,8 @@ from PySide6.QtWidgets import QCheckBox, QFrame, QHBoxLayout, QLabel, QSizePolic
 from src.common.messages import Message, MessageType
 from src.common.ui_constructor import create_simple_tool_button_qta
 from src.pyside_ext.elements.base import BasePanelElement
+from src.pyside_ext.markup import css
+from src.pyside_ext.unique_qss import set_stylesheet
 
 
 class ColumnBlocksVisualizer(BasePanelElement):
@@ -53,9 +55,16 @@ class ColumnBlocksVisualizer(BasePanelElement):
         """Create global settings section for batch operations"""
         global_frame = QFrame()
         global_frame.setFrameStyle(QFrame.Shape.StyledPanel)
-        global_frame.setStyleSheet(
-            "QFrame { border: 2px solid #666; border-radius: 4px; "
-            "padding: 4px; margin: 2px; background-color: #f0f0f0; }"
+        set_stylesheet(
+            global_frame,
+            css(
+                "QFrame",
+                border="2px solid #666",
+                border_radius="4px",
+                padding="4px",
+                margin="2px",
+                background_color="#f0f0f0",
+            ),
         )
 
         layout = QVBoxLayout(global_frame)
@@ -110,7 +119,7 @@ class ColumnBlocksVisualizer(BasePanelElement):
         """Create a widget block for a single column"""
         frame = QFrame()
         frame.setFrameStyle(QFrame.Shape.StyledPanel)
-        frame.setStyleSheet("QFrame { border: 1px solid #ccc; border-radius: 4px; padding: 4px; margin: 2px; }")
+        set_stylesheet(frame, css("QFrame", border="1px solid #ccc", border_radius="4px", padding="4px", margin="2px"))
 
         layout = QVBoxLayout(frame)
         layout.setContentsMargins(8, 6, 8, 6)
@@ -124,7 +133,7 @@ class ColumnBlocksVisualizer(BasePanelElement):
         # Mapping summary for this column
         mapping_summary = QLabel()
         mapping_summary.setWordWrap(True)
-        mapping_summary.setStyleSheet("QLabel { color: #666; font-size: 11px; }")
+        set_stylesheet(mapping_summary, css("QLabel", color="#666", font_size="11px"))
         mapping_summary.setVisible(False)
         layout.addWidget(mapping_summary)
 

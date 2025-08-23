@@ -4,6 +4,9 @@ from PySide6.QtCore import QMimeData, QSize, Qt
 from PySide6.QtGui import QGuiApplication
 from PySide6.QtWidgets import QSizePolicy, QTextBrowser
 
+from src.pyside_ext.markup import css
+from src.pyside_ext.unique_qss import set_stylesheet
+
 
 class TextBrowser(QTextBrowser):
     clicked = QtCore.Signal()
@@ -14,14 +17,7 @@ class TextBrowser(QTextBrowser):
         self.setFrameStyle(0)
         self.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         self.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
-        self.setStyleSheet(
-            """
-            background: white;
-            padding: 12px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-        """
-        )
+        set_stylesheet(self, css(background="white", padding="12px", border="1px solid #ddd", border_radius="4px"))
 
     def sizeHint(self) -> QSize:
         # Calculate the document size

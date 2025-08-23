@@ -158,14 +158,14 @@ class TablePopup(QWidget):
 
         overlay = QWidget(self)
         overlay.setGeometry(self.rect())
-        overlay.setStyleSheet("background-color: rgba(0,11,22,0.4);")
+        set_stylesheet(overlay, css(background_color="rgba(0,11,22,0.4)"))
         overlay.show()
 
         self.popup = QFrame(self)
         w, h = int(parent.width() * 0.95), int(parent.height() * 0.95)
         self.popup.setFixedSize(w, h)
         self.popup.move((parent.width() - w) // 2, (parent.height() - h) // 2)
-        self.popup.setStyleSheet(css(background="white"))
+        set_stylesheet(self.popup, css(background="white"))
         self.popup.mousePressEvent = lambda e: e.accept()
 
         popup_layout = QVBoxLayout(self.popup)

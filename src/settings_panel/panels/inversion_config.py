@@ -8,6 +8,8 @@ from PySide6.QtWidgets import QDoubleSpinBox, QHBoxLayout, QLabel, QSizePolicy, 
 from src.common.decorators import log_method, log_method_noarg
 from src.pyside_ext.elements.base import BasePanelElement
 from src.pyside_ext.elements.title import Title
+from src.pyside_ext.markup import css
+from src.pyside_ext.unique_qss import set_stylesheet
 from src.settings_panel.panels.base import BasePanel
 
 if TYPE_CHECKING:
@@ -135,7 +137,7 @@ class InversionVisualizer(BasePanelElement):
             for value in display_values:
                 if value == "...":
                     ellipsis_label = QLabel("... (more values) ...")
-                    ellipsis_label.setStyleSheet("QLabel { font-style: italic; }")
+                    set_stylesheet(ellipsis_label, css("QLabel", font_style="italic"))
                     preview_layout.addWidget(ellipsis_label)
                     self.preview_labels.append(None)  # Placeholder for ellipsis
                 else:
