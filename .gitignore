@@ -1,4 +1,6 @@
 # Project exclude paths
+__pycache__/
+*.pyc
 /build/
 /.idea/
 /scratches/
