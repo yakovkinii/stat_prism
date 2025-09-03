@@ -4,6 +4,8 @@
 from PySide6.QtWidgets import QWidget
 
 from src.pyside_ext.elements.base import BasePanelElement
+from src.pyside_ext.styling import Style
+from src.pyside_ext.styling import Style
 
 
 class Spacer(BasePanelElement):
@@ -12,4 +14,4 @@ class Spacer(BasePanelElement):
 
     def setup(self):
         self.widget = QWidget(self.parent_widget)
-        self.widget.setFixedHeight(40)
+        self.widget.setFixedHeight(Style.General.spacer_large.value)

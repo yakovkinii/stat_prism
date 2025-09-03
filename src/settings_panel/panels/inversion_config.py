@@ -9,6 +9,7 @@ from src.common.decorators import log_method, log_method_noarg
 from src.pyside_ext.elements.base import BasePanelElement
 from src.pyside_ext.elements.title import Title
 from src.pyside_ext.markup import css
+from src.pyside_ext.styling import Style
 from src.pyside_ext.unique_qss import set_stylesheet
 from src.settings_panel.panels.base import BasePanel
 
@@ -100,7 +101,7 @@ class InversionVisualizer(BasePanelElement):
         self.reference_spinbox.setDecimals(3)  # Changed from 2 to 3 for 0.001 precision
         self.reference_spinbox.setSingleStep(0.001)  # Changed from 1.0 to 0.001
         self.reference_spinbox.setValue(current_reference)
-        self.reference_spinbox.setFixedWidth(100)
+        self.reference_spinbox.setFixedWidth(Style.General.spinbox_width.value)
 
         # Prevent text selection when spin buttons are pressed
         self.reference_spinbox.setButtonSymbols(QDoubleSpinBox.ButtonSymbols.UpDownArrows)

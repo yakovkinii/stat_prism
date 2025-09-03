@@ -3,6 +3,9 @@
 from PySide6.QtWidgets import QLabel, QVBoxLayout, QWidget
 
 from src.pyside_ext.elements.base import BasePanelElement
+from src.pyside_ext.markup import css
+from src.pyside_ext.styling import Style
+from src.pyside_ext.unique_qss import set_stylesheet
 
 
 class MappingSummary(BasePanelElement):
@@ -16,7 +19,13 @@ class MappingSummary(BasePanelElement):
 
         self.mappings_label = QLabel()
         self.mappings_label.setWordWrap(True)
-        self.mappings_label.setStyleSheet("QLabel { color: #666; font-size: 11px; }")
+        set_stylesheet(
+            self.mappings_label,
+            css(
+                color=Style.Color.SecondaryText,
+                font_size=Style.FontSize.small
+            )
+        )
         self.layout.addWidget(self.mappings_label)
 
         # Initially hidden

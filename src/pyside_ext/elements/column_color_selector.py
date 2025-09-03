@@ -4,11 +4,12 @@
 from PySide6 import QtCore, QtWidgets
 from PySide6.QtWidgets import QGridLayout, QWidget
 
-from src.common.constant import COLORS
 from src.common.messages import Message, MessageType
 from src.pyside_ext.elements.base import BasePanelElement
 from src.pyside_ext.markup import css
 from src.pyside_ext.unique_qss import set_stylesheet
+
+COLORS = ["#eee", "#ffcccc", "#ccffcc", "#bbbbff", "#ffffbb", "#ffbbff"]  # Todo merge with qcolor.py
 
 
 class ColumnColorSelector(BasePanelElement):

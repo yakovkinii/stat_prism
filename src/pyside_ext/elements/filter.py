@@ -205,8 +205,8 @@ class FilterSetup(BasePanelElement):
                 widget.setText(""),
                 widget.setIcon(qta.icon("fa5s.times")),
                 widget.setIconSize(QtCore.QSize(24, 24)),
-                widget.setFixedWidth(32),
-                widget.setFixedHeight(32),
+                widget.setFixedWidth(Style.General.icon_button_size.value),
+                widget.setFixedHeight(Style.General.icon_button_size.value),
                 widget.setEnabled(True),
                 widget.clicked.connect(self.clear),
             ],
@@ -219,8 +219,8 @@ class FilterSetup(BasePanelElement):
                 widget.setText(""),
                 widget.setIcon(qta.icon("fa5s.check")),
                 widget.setIconSize(QtCore.QSize(24, 24)),
-                widget.setFixedWidth(32),
-                widget.setFixedHeight(32),
+                widget.setFixedWidth(Style.General.icon_button_size.value),
+                widget.setFixedHeight(Style.General.icon_button_size.value),
                 widget.setEnabled(False),
                 widget.clicked.connect(
                     lambda: self.handler(

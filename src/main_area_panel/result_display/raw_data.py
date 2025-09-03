@@ -110,7 +110,7 @@ class RawDataResultDisplay(BaseResultDisplay):
                 background_color=Style.Color.Background,
                 border=Style.General.border_thin_selected,
                 border_left=Style.General.border_thick_selected,
-                border_radius="5px",
+                border_radius=Style.General.border_radius_medium,
             ),
         )
 
@@ -121,6 +121,6 @@ class RawDataResultDisplay(BaseResultDisplay):
                 background_color=Style.Color.Background,
                 border=Style.General.border_thin_unselected,
                 border_left=Style.General.border_thick_unselected,
-                border_radius="5px",
+                border_radius=Style.General.border_radius_medium,
             ),
         )

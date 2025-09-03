@@ -48,3 +48,12 @@ class MeanComparisonMethod(Enum):
     @staticmethod
     def get_values():
         return [e.value for e in MeanComparisonMethod]
+
+
+class MissingValuesInGrouping(Enum):
+    SKIP = "Skip missing"
+    TREAT_AS_NA = "Treat as \"N/A\""
+
+    @staticmethod
+    def get_values():
+        return [e.value for e in MissingValuesInGrouping]

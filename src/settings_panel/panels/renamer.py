@@ -7,6 +7,7 @@ from src.common.decorators import log_method
 from src.common.messages import Message, MessageType
 from src.common.ui_constructor import create_simple_tool_button_qta
 from src.pyside_ext.elements.base import BasePanelElement
+from src.pyside_ext.styling import Style
 
 
 class Renamer(BasePanelElement):
@@ -64,7 +65,7 @@ class Renamer(BasePanelElement):
 
             is_modified = name in self._current_renamed and self._current_renamed[name] != name
             reset_btn = create_simple_tool_button_qta(
-                parent=self.container_widget, icon_path="fa.undo", icon_size=QSize(22, 22), color="#a00"
+                parent=self.container_widget, icon_path="fa.undo", icon_size=QSize(22, 22), color=Style.Color.Danger.value
             )
             reset_btn.setToolTip("Restore original column name")
             reset_btn.setCursor(Qt.PointingHandCursor)

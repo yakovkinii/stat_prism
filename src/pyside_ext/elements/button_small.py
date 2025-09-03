@@ -9,6 +9,7 @@ from src.common.messages import Message, MessageType
 from src.pyside_ext.elements.base import BasePanelElement
 from src.pyside_ext.markup import css
 from src.pyside_ext.styling import Style
+from src.pyside_ext.styling import Style
 from src.pyside_ext.unique_qss import set_stylesheet
 
 
@@ -42,7 +43,7 @@ class SmallButton(BasePanelElement):
         icon = qta.icon(self.icon_path)
         self.widget.setIcon(icon)
         self.widget.setIconSize(QSize(40, 40))
-        self.widget.setFixedHeight(50)
+        self.widget.setFixedHeight(Style.General.button_height_small.value)
         self.widget.clicked.connect(self.clicked)
 
     def clicked(self):

@@ -7,7 +7,7 @@ from src.common.progress import run_in_separate_thread
 from src.data.data_manager import DATA_MANAGER
 from src.modules.base.base import BaseModulePanel
 from src.modules.common.result.registry import RESULTS
-from src.modules.mean_comparison.constant import MeanComparisonMethod
+from src.modules.mean_comparison.constant import MeanComparisonMethod, MissingValuesInGrouping
 from src.modules.mean_comparison.main import recalculate_mean_comparison_study
 from src.modules.mean_comparison.result import MeanComparisonStudyConfig
 from src.pyside_ext.elements.checkbox import LargeCheckbox
@@ -26,6 +26,7 @@ class MeanComparison(BaseModulePanel):
             "method": ComboBox(
                 label_text="Method:",
             ),
+            "grouping_missing": ComboBox(label_text="Missing in grouping:"),
             "effect_size": LargeCheckbox(label_text="Effect size/Post-hoc"),
             "means": LargeCheckbox(label_text="Means/Medians"),
             "plots": LargeCheckbox(label_text="Plots"),
@@ -50,6 +51,7 @@ class MeanComparison(BaseModulePanel):
         }
         self.setup(stretch=True)
         self.elements["method"].configure(MeanComparisonMethod.get_values())
+        self.elements["grouping_missing"].configure(MissingValuesInGrouping.get_values())
 
     @log_method
     def configure(self, result_id: int):
@@ -60,6 +62,9 @@ class MeanComparison(BaseModulePanel):
         self.elements["means"].widget.setChecked(RESULTS[result_id].config.means)
         self.elements["plots"].widget.setChecked(RESULTS[result_id].config.plots)
         self.elements["effect_size"].widget.setChecked(RESULTS[result_id].config.effect_size)
+        self.elements["grouping_missing"].combo_box.setCurrentText(
+                RESULTS[result_id].config.grouping_missing.value
+            )
         self.elements["column_selector"].configure(
             columns=DATA_MANAGER.get_latest_data().get_all_columns_as_column_types(),
             selected_columns_list=[
@@ -127,6 +132,9 @@ class MeanComparison(BaseModulePanel):
             ],
             grouping_column=self.elements["column_selector"].get_selected_columns()[1][0],
             filters=RESULTS[self.result_id].config.filters,
+            grouping_missing=MissingValuesInGrouping(
+                self.elements["grouping_missing"].combo_box.currentText()
+            ),
         )
 
         data = DATA_MANAGER.get_latest_data()

@@ -134,7 +134,7 @@ class PlotResultElementDisplay(BaseResultDisplay):
             self.widget,
             css(
                 border=Style.General.border_thin_selected,
-                border_radius="5px",
+                border_radius=Style.General.border_radius_medium,
             ),
         )
 
@@ -145,7 +145,7 @@ class PlotResultElementDisplay(BaseResultDisplay):
             self.widget,
             css(
                 border=Style.General.border_thin_unselected,
-                border_radius="5px",
+                border_radius=Style.General.border_radius_medium,
             ),
         )
 
@@ -157,7 +157,7 @@ class PlotResultElementDisplay(BaseResultDisplay):
         self.copy_button.setIcon(qta.icon("fa.check", color=Style.Color.SimpleToolButton.value))
         result_element = RESULTS[self.result_id].result_elements[self.result_element_id]
         result_element.copy_to_clipboard()
-        QtCore.QTimer.singleShot(500, lambda: self.copy_button.setIcon(qta.icon("fa.copy", color="#888")))
+        QtCore.QTimer.singleShot(500, lambda: self.copy_button.setIcon(qta.icon("fa.copy", color=Style.Color.SimpleToolButton.value)))
 
     def zoom(self):
         self.activate_result(self.result_id, self.result_element_id)

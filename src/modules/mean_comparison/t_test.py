@@ -19,6 +19,7 @@ from src.modules.common.verbal.test import TestResult, describe_single_test_mult
 from src.modules.descriptive.plot import create_box_plot
 from src.modules.mean_comparison.constant import MeanComparisonMethod
 from src.modules.mean_comparison.result import MeanComparisonResult
+from src.modules.mean_comparison.preprocessing import prepare_df_for_mean_comparison
 
 
 @log_function
@@ -27,7 +28,7 @@ def recalculate_mean_comparison_t_test(
     result: MeanComparisonResult,
 ) -> MeanComparisonResult:
     cfg = result.config
-    df = data.get_dataframe(filters=result.config.filters, columns=cfg.selected_columns + [cfg.grouping_column])
+    df = prepare_df_for_mean_comparison(data=data, cfg=cfg)
 
     numeric_columns = [col for col in cfg.selected_columns if data[col].column_type == ColumnType.NUMERIC]
     non_numeric_columns = [col for col in cfg.selected_columns if col not in numeric_columns]
@@ -63,9 +64,9 @@ def recalculate_mean_comparison_t_test(
     if len(non_numeric_columns + non_normal_columns) > 0:
         result.result_elements.append(
             process_non_normal_t_test(
-                df=data.get_dataframe(
-                    filters=result.config.filters,
-                    columns=cfg.selected_columns + [cfg.grouping_column],
+                df=prepare_df_for_mean_comparison(
+                    data=data,
+                    cfg=cfg,
                     map_ordinal=True,
                 ),
                 non_numeric_columns=non_numeric_columns,
@@ -106,25 +107,31 @@ def recalculate_mean_comparison_t_test(
     plot_result_elements = []
     for col in cfg.selected_columns:
         is_numeric = col in numeric_columns
-
         if not is_numeric:
             continue
 
         plots = []
         n_items = len(groupby_values)
 
-        _, x_all = np.histogram(df[col], bins="auto", density=True)
-        x_vals = np.linspace(df[col].min(), df[col].max(), 500)
+        # Drop NaNs in the value column explicitly before histogram/KDE
+        col_series = df[col].dropna()
+        if col_series.empty:
+            continue
+        _, x_all = np.histogram(col_series, bins="auto", density=True)
+        x_vals = np.linspace(col_series.min(), col_series.max(), 500)
 
         # | g 1 g 2 g |
-        width = (x_all[1] - x_all[0]) * 0.9 / n_items
-        gap = ((x_all[1] - x_all[0]) - width * len(groupby_values)) / (len(groupby_values) + 1)
+        width = (x_all[1] - x_all[0]) * 0.9 / n_items if len(x_all) > 1 else 0.9 / max(n_items, 1)
+        gap = ((x_all[1] - x_all[0]) - width * len(groupby_values)) / (len(groupby_values) + 1) if len(x_all) > 1 else 0
 
         colors = Colors()
 
         for i, groupby_value in enumerate(groupby_values):
             df_subset = df.loc[df[groupby_column] == groupby_value]
-            kde = gaussian_kde(df_subset[col].dropna())
+            series = df_subset[col].dropna()
+            if series.empty:
+                continue
+            kde = gaussian_kde(series)
             y_vals = kde(x_vals)
             color = colors.get_color_list()
             line_plot_config = LinePlotConfig(color=color)
@@ -137,11 +144,11 @@ def recalculate_mean_comparison_t_test(
             )
             plots.append(plot_line)
 
-            y, x = np.histogram(df_subset[col], bins=x_all, density=True)
+            y, x = np.histogram(series, bins=x_all, density=True)
             bar_plot_config = BarPlotConfig(color=color)
             # bar plot # | g 1 g 2 g |
             plot_bar = Bar(
-                x=x[:-1] + gap + width / 2 + i * (width + gap),
+                x=x[:-1] + gap + width / 2 + i * (width + gap) if len(x) > 1 else x,
                 y=y,
                 width=width,
                 label=f"{groupby_value}",
@@ -159,12 +166,11 @@ def recalculate_mean_comparison_t_test(
         plot_result_elements.append(plot_result)
 
         box_plot_result = create_box_plot(
-            groups=[df.loc[df[groupby_column] == groupby_value][col] for groupby_value in groupby_values],
+            groups=[df.loc[df[groupby_column] == groupby_value][col].dropna() for groupby_value in groupby_values],
             group_names=groupby_values,
             column=col,
             grouping_column=groupby_column,
         )
-
         plot_result_elements.append(box_plot_result)
     result.result_elements.extend(plot_result_elements)
     return result
@@ -218,8 +224,11 @@ def process_non_normal_t_test(
     subgroup_results = {}
 
     for col in columns:
-        group1 = df[df[grouping_column] == df[grouping_column].unique()[0]][col]
-        group2 = df[df[grouping_column] == df[grouping_column].unique()[1]][col]
+        group1 = df[df[grouping_column] == df[grouping_column].unique()[0]][col].dropna()
+        group2 = df[df[grouping_column] == df[grouping_column].unique()[1]][col].dropna()
+
+        if group1.empty or group2.empty:
+            continue
 
         u1_stat, p_val = stats.mannwhitneyu(group1, group2)
         u2_stat = len(group1) * len(group2) - u1_stat
@@ -324,8 +333,10 @@ def process_homogeneous_t_test(df: pd.DataFrame, columns, grouping_column, means
     subgroup_results = {}
 
     for col in columns:
-        group1 = df[df[grouping_column] == df[grouping_column].unique()[0]][col]
-        group2 = df[df[grouping_column] == df[grouping_column].unique()[1]][col]
+        group1 = df[df[grouping_column] == df[grouping_column].unique()[0]][col].dropna()
+        group2 = df[df[grouping_column] == df[grouping_column].unique()[1]][col].dropna()
+        if group1.empty or group2.empty:
+            continue
         t_test_result = stats.ttest_ind(group1, group2)
         t_stat, p_val, deg_free = t_test_result.statistic, t_test_result.pvalue, t_test_result.df
         mean, std = [group.mean() for group in [group1, group2]], [group.std() for group in [group1, group2]]
@@ -425,8 +436,10 @@ def process_non_homogeneous_t_test(df: pd.DataFrame, columns, grouping_column, m
     subgroup_results = {}
 
     for col in columns:
-        group1 = df[df[grouping_column] == df[grouping_column].unique()[0]][col]
-        group2 = df[df[grouping_column] == df[grouping_column].unique()[1]][col]
+        group1 = df[df[grouping_column] == df[grouping_column].unique()[0]][col].dropna()
+        group2 = df[df[grouping_column] == df[grouping_column].unique()[1]][col].dropna()
+        if group1.empty or group2.empty:
+            continue
         t_test_result = stats.ttest_ind(group1, group2, equal_var=False)
         t_stat, p_val, deg_free = t_test_result.statistic, t_test_result.pvalue, t_test_result.df
         mean, std = [group.mean() for group in [group1, group2]], [group.std() for group in [group1, group2]]

@@ -15,6 +15,7 @@ from src.modules.common.result.registry import RESULTS
 from src.pyside_ext.elements.checkbox import LargeCheckbox
 from src.pyside_ext.elements.column_blocks import ColumnBlocksVisualizer
 from src.pyside_ext.elements.column_selector import ColumnSelectorEx, Field
+from src.pyside_ext.markup import css
 from src.pyside_ext.elements.combo_box import ComboBox
 from src.pyside_ext.elements.spacer_small import SpacerSmall
 from src.pyside_ext.elements.title import Title
@@ -26,7 +27,6 @@ class CalculateScale(BaseModulePanel):
     def setup_ui(self):
         self.elements = {
             "title": Title(label_text="Calculate Scale"),
-            "spacer1": SpacerSmall(),
             "column_selector": ColumnSelectorEx(
                 fields=[
                     Field(
@@ -36,21 +36,156 @@ class CalculateScale(BaseModulePanel):
                     ),
                 ],
             ),
-            "spacer2": SpacerSmall(),
             "column_blocks": ColumnBlocksVisualizer(),
-            "spacer3": SpacerSmall(),
             "aggregation_type": ComboBox("Aggregation type: "),
-            "spacer4": SpacerSmall(),
             "new_scale_name": ColumnNameEditable("new scale"),
             "rename_columns": LargeCheckbox(label_text="Auto rename questions"),
         }
         self.setup(stretch=True)
 
+        # Configure element spacing using CSS margins
+        self._apply_element_spacing()
+
         # Configure aggregation type options
         self.elements["aggregation_type"].configure(["sum", "mean"])
-
+        
         # Inject column blocks with handler
         self.elements["column_blocks"].inject(self.widget, self.handler, "column_blocks")
+
+        # Initialize message handlers
+        self._init_message_handlers()
+
+    def _apply_element_spacing(self):
+        """Apply spacing to container widget to affect all child elements"""
+        self.widget.setStyleSheet(
+            css(
+                "QWidget > QWidget",  # Apply to direct children widgets
+                margin_top="10px",
+                margin_bottom="10px",
+            )
+        )
+
+    def _init_message_handlers(self):
+        """Initialize message handlers map"""
+        self.message_handlers = {
+            MessageType.STATE_CHANGED: {
+                "column_selector": self._handle_column_selection,
+                "aggregation_type": self._handle_aggregation_change,
+                "new_scale_name": self._handle_scale_name_change,
+                "rename_columns": self._handle_rename_toggle,
+                "column_blocks": self._handle_column_blocks_state,
+            },
+            MessageType.EDITING_FINISHED: {
+                "column_selector": self._handle_column_selection,
+            },
+            MessageType.CLICKED: {
+                "column_blocks": self._handle_column_blocks_click,
+            }
+        }
+
+    def _handle_column_selection(self, message):
+        """Handle column selection changes"""
+        selected_columns = self.elements["column_selector"].get_selected_columns()[0]
+        config = RESULTS[self.result_id].config
+        base_data = DATA_MANAGER.get_data_before_result_id(self.result_id)
+
+        # Update selected columns
+        config.selected_columns = selected_columns
+
+        # Clean up settings for removed columns
+        config.mapping_settings = {
+            col: settings for col, settings in config.mapping_settings.items() 
+            if col in selected_columns
+        }
+        config.invert_settings = {
+            col: settings for col, settings in config.invert_settings.items() 
+            if col in selected_columns
+        }
+
+        # Initialize settings for new columns
+        for col_name in selected_columns:
+            if col_name not in config.mapping_settings:
+                col_data = base_data[col_name].data_series
+                if not pd.api.types.is_numeric_dtype(col_data):
+                    unique_vals = col_data.dropna().unique()
+                    config.mapping_settings[col_name] = self._create_default_mapping(unique_vals)
+                else:
+                    config.mapping_settings[col_name] = {}
+
+            if col_name not in config.invert_settings:
+                config.invert_settings[col_name] = {
+                    "enabled": False,
+                    "reference": PanelManager.calculate_invert_reference(col_name, base_data, config)
+                }
+
+        self.configure(result_id=self.result_id)
+        self.recalculate()
+
+    def _handle_column_blocks_state(self, message):
+        """Handle column blocks state changes"""
+        payload = message.payload
+        action = payload.get("action")
+        col_name = payload.get("column")
+        config = RESULTS[self.result_id].config
+
+        if action == "mapping_updated":
+            config.mapping_settings[col_name] = payload["mapping"]
+        elif action == "inversion_updated":
+            if col_name not in config.invert_settings:
+                config.invert_settings[col_name] = {}
+            config.invert_settings[col_name]["reference"] = payload["reference"]
+        elif action == "invert_toggled":
+            if col_name not in config.invert_settings:
+                config.invert_settings[col_name] = {}
+            config.invert_settings[col_name]["enabled"] = payload["enabled"]
+
+        self.recalculate()
+
+    def _handle_column_blocks_click(self, message):
+        """Handle column blocks click events"""
+        payload = message.payload
+        action = payload.get("action")
+        col_name = payload.get("column")
+        base_data = DATA_MANAGER.get_data_before_result_id(self.result_id)
+        config = RESULTS[self.result_id].config
+
+        action_handlers = {
+            "configure_mapping": lambda: PanelManager.configure_mapping_panel(
+                col_name, base_data, config, self.stacked_widget_index, self._mapping_finished_handler
+            ),
+            "configure_inversion": lambda: PanelManager.configure_inversion_panel(
+                col_name, base_data, config, self.stacked_widget_index, self._inversion_finished_handler
+            ),
+            "configure_global_mapping": lambda: PanelManager.configure_mapping_panel(
+                col_name, base_data, config, self.stacked_widget_index, 
+                self._global_mapping_finished_handler, is_global=True
+            ),
+            "configure_global_inversion": lambda: PanelManager.configure_inversion_panel(
+                col_name, base_data, config, self.stacked_widget_index,
+                self._global_inversion_finished_handler, is_global=True
+            ),
+        }
+
+        if action in action_handlers:
+            action_handlers[action]()
+
+    def _handle_aggregation_change(self, message):
+        """Handle aggregation type changes"""
+        config = RESULTS[self.result_id].config
+        config.aggregation_type = self.elements["aggregation_type"].combo_box.currentText()
+        self.recalculate()
+
+    def _handle_scale_name_change(self, message):
+        """Handle scale name changes"""
+        config = RESULTS[self.result_id].config
+        config.new_scale_name = self.elements["new_scale_name"].widget.text().strip() or "new scale"
+        self.recalculate()
+
+    def _handle_rename_toggle(self, message):
+        """Handle rename checkbox toggle"""
+        config = RESULTS[self.result_id].config
+        config.rename_columns = self.elements["rename_columns"].widget.isChecked()
+        self.recalculate()
 
     @log_method
     def configure(self, result_id: int):

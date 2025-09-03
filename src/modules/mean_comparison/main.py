@@ -8,6 +8,7 @@ from src.data.data import Data
 from src.modules.mean_comparison.anova import recalculate_mean_comparison_anova
 from src.modules.mean_comparison.result import MeanComparisonResult
 from src.modules.mean_comparison.t_test import recalculate_mean_comparison_t_test
+from src.modules.mean_comparison.preprocessing import prepare_df_for_mean_comparison
 
 
 @log_function
@@ -16,7 +17,8 @@ def recalculate_mean_comparison_study(data: Data, result: MeanComparisonResult) 
     result.update_header()
     result.result_elements = []
 
-    df = data.get_dataframe(filters=result.config.filters, columns=cfg.selected_columns + [cfg.grouping_column])
+    # Apply filters and grouping-missing policy
+    df = prepare_df_for_mean_comparison(data=data, cfg=cfg)
 
     n_unique_values_in_grouping_column = len(df[cfg.grouping_column].unique())
     if n_unique_values_in_grouping_column < 2:

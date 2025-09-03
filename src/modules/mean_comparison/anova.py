@@ -27,6 +27,7 @@ from src.modules.common.verbal.test import TestResult, describe_single_test_mult
 from src.modules.descriptive.plot import create_box_plot
 from src.modules.mean_comparison.constant import MeanComparisonMethod
 from src.modules.mean_comparison.result import MeanComparisonResult
+from src.modules.mean_comparison.preprocessing import prepare_df_for_mean_comparison
 
 
 @log_function
@@ -35,7 +36,8 @@ def recalculate_mean_comparison_anova(
     result: MeanComparisonResult,
 ) -> MeanComparisonResult:
     cfg = result.config
-    df = data.get_dataframe(filters=result.config.filters, columns=cfg.selected_columns + [cfg.grouping_column])
+    # Apply filters and grouping-missing policy
+    df = prepare_df_for_mean_comparison(data=data, cfg=cfg)
 
     numeric_columns = [col for col in cfg.selected_columns if data[col].column_type == ColumnType.NUMERIC]
     non_numeric_columns = [col for col in cfg.selected_columns if col not in numeric_columns]
@@ -70,8 +72,10 @@ def recalculate_mean_comparison_anova(
 
     if len(non_numeric_columns + non_normal_columns) > 0:
         items = process_non_normal_anova(
-            df=data.get_dataframe(
-                filters=result.config.filters, columns=cfg.selected_columns + [cfg.grouping_column], map_ordinal=True
+            df=prepare_df_for_mean_comparison(
+                data=data,
+                cfg=cfg,
+                map_ordinal=True,
             ),
             non_numeric_columns=non_numeric_columns,
             non_normal_columns=non_normal_columns,
@@ -120,18 +124,25 @@ def recalculate_mean_comparison_anova(
         plots = []
         n_items = len(groupby_values)
 
-        _, x_all = np.histogram(df[col], bins="auto", density=True)
-        x_vals = np.linspace(df[col].min(), df[col].max(), 500)
+        # Drop NaNs in the value column explicitly before histogram/KDE
+        col_series = df[col].dropna()
+        if col_series.empty:
+            continue
+        _, x_all = np.histogram(col_series, bins="auto", density=True)
+        x_vals = np.linspace(col_series.min(), col_series.max(), 500)
 
         # | g 1 g 2 g |
-        width = (x_all[1] - x_all[0]) * 0.9 / n_items
-        gap = ((x_all[1] - x_all[0]) - width * len(groupby_values)) / (len(groupby_values) + 1)
+        width = (x_all[1] - x_all[0]) * 0.9 / n_items if len(x_all) > 1 else 0.9 / max(n_items, 1)
+        gap = ((x_all[1] - x_all[0]) - width * len(groupby_values)) / (len(groupby_values) + 1) if len(x_all) > 1 else 0
 
         colors = Colors()
 
         for i, groupby_value in enumerate(groupby_values):
             df_subset = df.loc[df[groupby_column] == groupby_value]
-            kde = gaussian_kde(df_subset[col].dropna())
+            series = df_subset[col].dropna()
+            if series.empty:
+                continue
+            kde = gaussian_kde(series)
             y_vals = kde(x_vals)
             color = colors.get_color_list()
             line_plot_config = LinePlotConfig(color=color)
@@ -144,11 +155,11 @@ def recalculate_mean_comparison_anova(
             )
             plots.append(plot_line)
 
-            y, x = np.histogram(df_subset[col], bins=x_all, density=True)
+            y, x = np.histogram(series, bins=x_all, density=True)
             bar_plot_config = BarPlotConfig(color=color)
             # bar plot # | g 1 g 2 g |
             plot_bar = Bar(
-                x=x[:-1] + gap + width / 2 + i * (width + gap),
+                x=x[:-1] + gap + width / 2 + i * (width + gap) if len(x) > 1 else x,
                 y=y,
                 width=width,
                 label=f"{groupby_value}",
@@ -166,7 +177,7 @@ def recalculate_mean_comparison_anova(
         plot_result_elements.append(plot_result)
 
         box_plot_result = create_box_plot(
-            groups=[df.loc[df[groupby_column] == groupby_value][col] for groupby_value in groupby_values],
+            groups=[df.loc[df[groupby_column] == groupby_value][col].dropna() for groupby_value in groupby_values],
             group_names=groupby_values,
             column=col,
             grouping_column=groupby_column,
@@ -260,12 +271,13 @@ def process_non_normal_anova(
 
     for col in significant_columns:
         significant = []
-        posthoc_table = HTMLTableV2(table_caption="Dunn's post-hoc test results")
-        posthoc_table.add_single_row_apa(
+        post_hoc_table = HTMLTableV2(table_caption="Dunn's post-hoc test results")
+        post_hoc_table.add_single_row_apa(
             Row([Cell()] + [Cell("p-value", col_span=len(group_names), center=True, border_bottom=True)])
         )
-        posthoc_table.add_title_row_apa(Row([Cell()] + [Cell(name, center=True) for name in group_names]))
-        posthoc_results = posthoc_dunn(df, val_col=col, group_col=grouping_column)
+        post_hoc_table.add_title_row_apa(Row([Cell()] + [Cell(name, center=True) for name in group_names]))
+        df_val = df[[col, grouping_column]].dropna(subset=[col])
+        posthoc_results = posthoc_dunn(df_val, val_col=col, group_col=grouping_column)
         for i, group_name in enumerate(group_names):
             row = [Cell(group_name, push_to_left=True)]
             for j in range(i + 1):
@@ -275,8 +287,8 @@ def process_non_normal_anova(
                     row.append(Cell(format_p_apa(posthoc_results.iloc[i, j]), center=True))
                     if posthoc_results.iloc[i, j] < 0.05:
                         significant.append((i, j))
-            posthoc_table.add_single_row_apa(Row(row))
-        posthoc_table.add_text(
+            post_hoc_table.add_single_row_apa(Row(row))
+        post_hoc_table.add_text(
             f"The Dunn's post-hoc test for {col} has revealed a "
             f"significant difference between the following groups: "
             + smart_comma_join(
@@ -287,7 +299,7 @@ def process_non_normal_anova(
             )
             + "."
         )
-        post_hoc_items.append(posthoc_table)
+        post_hoc_items.append(post_hoc_table)
 
     return table, *post_hoc_items
 
@@ -388,12 +400,13 @@ def process_non_homogeneous_anova(df: pd.DataFrame, columns, grouping_column, me
 
     for col in significant_columns:
         significant = []
-        posthoc_table = HTMLTableV2(table_caption="Tamhane's T2 post-hoc test results")
-        posthoc_table.add_single_row_apa(
+        post_hoc_table = HTMLTableV2(table_caption="Tamhane's T2 post-hoc test results")
+        post_hoc_table.add_single_row_apa(
             Row([Cell()] + [Cell("p-value", col_span=len(group_names), center=True, border_bottom=True)])
         )
-        posthoc_table.add_title_row_apa(Row([Cell()] + [Cell(name, center=True) for name in group_names]))
-        posthoc_results = posthoc_tamhane(df, val_col=col, group_col=grouping_column)
+        post_hoc_table.add_title_row_apa(Row([Cell()] + [Cell(name, center=True) for name in group_names]))
+        df_val = df[[col, grouping_column]].dropna(subset=[col])
+        posthoc_results = posthoc_tamhane(df_val, val_col=col, group_col=grouping_column)
 
         for i, group_name in enumerate(group_names):
             row = [Cell(group_name, push_to_left=True)]
@@ -404,9 +417,9 @@ def process_non_homogeneous_anova(df: pd.DataFrame, columns, grouping_column, me
                     row.append(Cell(format_p_apa(posthoc_results.iloc[i, j]), center=True))
                     if posthoc_results.iloc[i, j] < 0.05:
                         significant.append((i, j))
-            posthoc_table.add_single_row_apa(Row(row))
+            post_hoc_table.add_single_row_apa(Row(row))
 
-        posthoc_table.add_text(
+        post_hoc_table.add_text(
             f"The Tamhane's T2 post-hoc test for {col} has revealed a "
             f"significant difference between the following groups: "
             + smart_comma_join(
@@ -417,7 +430,7 @@ def process_non_homogeneous_anova(df: pd.DataFrame, columns, grouping_column, me
             )
             + "."
         )
-        post_hoc_items.append(posthoc_table)
+        post_hoc_items.append(post_hoc_table)
 
     return table, *post_hoc_items
 
@@ -525,7 +538,8 @@ def process_homogeneous_anova(df: pd.DataFrame, columns, grouping_column, means,
             Row([Cell()] + [Cell("p-value", col_span=len(group_names), center=True, border_bottom=True)])
         )
         posthoc_table.add_title_row_apa(Row([Cell()] + [Cell(name, center=True) for name in group_names]))
-        posthoc_results = posthoc_tukey_hsd(df, val_col=col, group_col=grouping_column)
+        df_val = df[[col, grouping_column]].dropna(subset=[col])
+        posthoc_results = posthoc_tukey_hsd(df_val, val_col=col, group_col=grouping_column)
 
         for i, group_name in enumerate(group_names):
             row = [Cell(group_name, push_to_left=True)]

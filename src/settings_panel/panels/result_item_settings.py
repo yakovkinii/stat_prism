@@ -52,3 +52,4 @@ class ResultItemSettingsV2(BasePanel):
             self.root_class.main_area_panel.refresh_result(self.result_id, self.element_id)
             return
         super().handler(message)
+

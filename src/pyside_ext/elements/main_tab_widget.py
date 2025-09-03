@@ -8,8 +8,6 @@ from src.pyside_ext.markup import css
 from src.pyside_ext.styling import Style
 from src.pyside_ext.unique_qss import set_stylesheet
 
-MAIN_TAB_WIDTH = "40px"
-
 
 def main_tab_widget(parent=None):
     tab_widget = QTabWidget(parent)
@@ -25,7 +23,7 @@ def main_tab_widget(parent=None):
             font_size=Style.FontSize.regular,
             font_family=Style.FontFamily.SegoeUI,
             font_weight="bold",
-            width=MAIN_TAB_WIDTH,
+            width=Style.General.main_tab_width_css,
             border="none",
         ),
         css(
@@ -33,7 +31,7 @@ def main_tab_widget(parent=None):
             background=Style.Color.BackgroundElevated,
             font_size=Style.FontSize.regular,
             font_family=Style.FontFamily.SegoeUI,
-            width=MAIN_TAB_WIDTH,
+            width=Style.General.main_tab_width_css,
             border="none",
         ),
     )

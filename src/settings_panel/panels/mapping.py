@@ -8,6 +8,7 @@ from PySide6.QtWidgets import QDoubleSpinBox, QHBoxLayout, QLabel, QSizePolicy, 
 from src.common.decorators import log_method, log_method_noarg
 from src.pyside_ext.elements.base import BasePanelElement
 from src.pyside_ext.elements.title import Title
+from src.pyside_ext.styling import Style
 from src.settings_panel.panels.base import BasePanel
 
 if TYPE_CHECKING:
@@ -88,7 +89,7 @@ class MappingVisualizer(BasePanelElement):
             spinbox.setRange(-999999.0, 999999.0)
             spinbox.setDecimals(3)  # Changed from 2 to 3 for 0.001 precision
             spinbox.setSingleStep(0.001)  # Changed from 1.0 to 0.001
-            spinbox.setFixedWidth(100)
+            spinbox.setFixedWidth(Style.General.spinbox_width.value)
 
             # Prevent text selection when spin buttons are pressed
             spinbox.setButtonSymbols(QDoubleSpinBox.ButtonSymbols.UpDownArrows)

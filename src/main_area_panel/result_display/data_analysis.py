@@ -1,10 +1,14 @@
 #  Copyright (c) 2023 StatPrism Team. All rights reserved.
 import logging
 
-from PySide6.QtWidgets import QVBoxLayout
+from PySide6.QtWidgets import QVBoxLayout, QHBoxLayout
+from PySide6.QtCore import Qt, QTimer, QMimeData, QSize
+from PySide6.QtGui import QGuiApplication
+import qtawesome as qta
 
 from src.common.decorators import log_method
 from src.common.progress import with_progress
+from src.common.ui_constructor import create_simple_tool_button_qta
 from src.main_area_panel.result_display.base import BaseResultDisplay
 from src.main_area_panel.result_display.elements.result_label import ResultLabel
 from src.main_area_panel.result_display.plot_result_element import PlotResultElementDisplay
@@ -40,7 +44,7 @@ class DataAnalysisResultDisplay(BaseResultDisplay):
             widget_class=QWidgetClickable,
             parent=self.widget,
             outer_layout=self.layout,
-            inner_layout_class=QVBoxLayout,
+            inner_layout_class=QHBoxLayout,
             setup=lambda w, l: [w.clicked.connect(lambda: self.activate_result(self.result_id, None))],
         )
 
@@ -48,6 +52,22 @@ class DataAnalysisResultDisplay(BaseResultDisplay):
             widget=ResultLabel(parent=self.header_widget, label_text=label_text),
             layout=self.header_layout,
             setup=lambda w, l: [w.clicked.connect(lambda: self.activate_result(self.result_id, None))],
+        )
+
+        self.header_layout.addStretch()
+
+        self.copy_button = widget_in_layout(
+            widget=create_simple_tool_button_qta(
+                parent=self.header_widget,
+                icon_path="fa.copy",
+                icon_size=QSize(20, 20),
+            ),
+            layout=self.header_layout,
+            alignment=Qt.AlignmentFlag.AlignTop,
+            setup=lambda w, l: [
+                w.setToolTip("Copy all result elements to clipboard"),
+                w.clicked.connect(self.copy_all_elements),
+            ],
         )
 
         self.html_result_elements_container, self.html_result_elements_container_layout = empty_widget(
@@ -75,6 +95,27 @@ class DataAnalysisResultDisplay(BaseResultDisplay):
         self.element_display_objects = {}
         self.refresh()
         self.remove_focus(None)
+
+    def copy_all_elements(self):
+        self.copy_button.setIcon(qta.icon("fa.check", color="#4CAF50"))
+
+        result = RESULTS[self.result_id]
+        full_html = "<html><body>"
+
+        for element in result.result_elements:
+            if isinstance(element, HTMLTableV2):
+                full_html += element.get_html()
+            elif isinstance(element, PlotV2):
+                full_html += element.get_html()
+            full_html += "<br><br>"
+
+        full_html += "</body></html>"
+
+        mime_data = QMimeData()
+        mime_data.setHtml(full_html)
+        QGuiApplication.clipboard().setMimeData(mime_data)
+
+        QTimer.singleShot(1000, lambda: self.copy_button.setIcon(qta.icon("fa.copy", color="#888")))
 
     def refresh_element(self, result_element_id):
         if result_element_id in self.element_display_objects:
@@ -144,7 +185,7 @@ class DataAnalysisResultDisplay(BaseResultDisplay):
                     background_color=Style.Color.Background,
                     border=Style.General.border_thin_selected,
                     border_left=Style.General.border_thick_selected,
-                    border_radius="5px",
+                    border_radius=Style.General.border_radius_medium,
                 ),
             )
         else:
@@ -159,7 +200,7 @@ class DataAnalysisResultDisplay(BaseResultDisplay):
                     background_color=Style.Color.Background,
                     border=Style.General.border_thin_unselected,
                     border_left=Style.General.border_thick_unselected,
-                    border_radius="5px",
+                    border_radius=Style.General.border_radius_medium,
                 ),
             )
 

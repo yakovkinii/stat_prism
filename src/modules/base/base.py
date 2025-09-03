@@ -127,7 +127,7 @@ class BaseModulePanel:
         self.scroll_area.setWidget(self.widget_for_elements)
 
         self.widget_layout.addWidget(self.scroll_area)
-        set_stylesheet(self.widget, css("#id>QScrollBar", width="15px"))
+        set_stylesheet(self.widget, css("#id>QScrollBar", width=Style.General.scrollbar_width_css))
         self.scroll_area.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAsNeeded)
         self.scroll_area.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
         self.elements = {}

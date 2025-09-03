@@ -32,8 +32,8 @@ class LargeCheckbox(BasePanelElement):
             ),
             css(
                 "#id::indicator",
-                width="16px",
-                height="16px",
+                width=Style.General.checkbox_size_css,
+                height=Style.General.checkbox_size_css,
             ),
             css(
                 "#id::indicator:checked",
