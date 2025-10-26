@@ -12,7 +12,7 @@ class Blank(BasePanel):
             "logo": Logo(),
         }
 
-        self.setup(stretch=False)
+        self.setup(stretch=False, navigation_elements=False)
         self.elements["logo"].widget.clicked.connect(
             lambda: self.root_class.action_activate_panel_by_index(
                 PanelRegistry.SELECT_DATA_ANALYSIS.settings_stacked_widget_index

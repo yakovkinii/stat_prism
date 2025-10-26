@@ -17,6 +17,7 @@ from src.pyside_ext.elements.base import BasePanelElement
 from src.pyside_ext.markup import css
 from src.pyside_ext.styling import Style
 from src.pyside_ext.unique_qss import set_stylesheet
+from src.settings_panel.registry import PanelRegistry
 
 if TYPE_CHECKING:
     from src.ui_main import MainWindowClass
@@ -29,6 +30,7 @@ class BasePanel:
         parent_class,
         root_class,
         stacked_widget_index,
+        label="",
     ):
         # Setup
         self.study_index = None
@@ -56,17 +58,26 @@ class BasePanel:
         )
         self.widget_layout.addWidget(self.navigation_widget)
 
+
+        # self.home_button = create_tool_button_qta(
+        #     parent=self.widget,
+        #     button_geometry=QtCore.QRect((SettingsPanelSize.width - 180), 5, 50, 50),
+        #     icon_path="mdi6.home-outline",
+        #     icon_size=QtCore.QSize(40, 40),
+        # )
+
         self.back_button = create_tool_button_qta(
             parent=self.widget,
-            button_geometry=QtCore.QRect((SettingsPanelSize.width - 145 - 10), 10, 145, 60),
-            icon_path="fa.remove",
+            button_geometry=QtCore.QRect(10, 10, 145, 60),
+            icon_path="fa5s.arrow-left",
             icon_size=QtCore.QSize(40, 40),
         )
         self.back_button.clicked.connect(self.back_button_pressed)
 
         self.ok_button = create_tool_button_qta(
             parent=self.widget,
-            button_geometry=QtCore.QRect(10, 10, 145, 60),
+            button_geometry= QtCore.QRect((SettingsPanelSize.width - 145 - 10), 10, 145, 60),
+
             icon_path="fa.check",
             icon_size=QtCore.QSize(40, 40),
         )
@@ -93,7 +104,7 @@ class BasePanel:
         self.elements: Dict[str, BasePanelElement] = {}
 
     @log_method
-    def setup(self, stretch=False, navigation_elements=False, ok_button=False):
+    def setup(self, stretch=False, navigation_elements=True, ok_button=False):
         if navigation_elements:
             self.navigation_widget.show()
         else:
@@ -127,11 +138,13 @@ class BasePanel:
 
             self.root_class.action_activate_panel_by_index(self.caller_index)
         else:
-            logging.error(f"Trying to activate caller {self.caller_index=}")
+            logging.warning(f"Trying to activate caller {self.caller_index=}, activating home panel instead")
+            self.root_class.main_area_panel.update_focus(None, None),
+            self.root_class.action_activate_panel_by_index(PanelRegistry.HOME.settings_stacked_widget_index),
 
     @log_method_noarg
     def back_button_pressed(self):
-        self.activate_caller()
+        self.ok_button_pressed()
 
     @log_method_noarg
     def ok_button_pressed(self):

@@ -44,9 +44,10 @@ class ColumnSelector(BasePanel):
 
     @log_method_noarg
     def back_button_pressed(self):
-        self.popup.success = False
-        self.activate_caller()
-        self.finished_handler()
+        self.ok_button_pressed()
+        # self.popup.success = False
+        # self.activate_caller()
+        # self.finished_handler()
 
     @log_method
     def allow_ok_button_handler(self, allow: bool):

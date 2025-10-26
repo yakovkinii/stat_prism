@@ -49,7 +49,7 @@ class Home(BasePanel):
             ),
         }
 
-        self.setup(stretch=True)
+        self.setup(stretch=True, navigation_elements=False)
 
     @log_method_noarg
     def about_handler(self):

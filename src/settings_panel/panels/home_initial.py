@@ -39,7 +39,7 @@ class HomeInitial(BasePanel):
             ),
         }
 
-        self.setup(stretch=True)
+        self.setup(stretch=True, navigation_elements=False)
 
     def open_project(self):
         # This method is called when the user clicks the "Open" button.

@@ -6,7 +6,40 @@ from typing import Callable
 from PySide6.QtWidgets import QWidget
 
 from src.pyside_ext.layout import VBoxLayout
+from src.pyside_ext.unique_qss import set_stylesheet
 
+
+def add_widget(
+    parent=None,
+    widget=None,
+    widget_class=None,
+    inner_layout_class=None,
+    outer_layout=None,
+    css=None,
+):
+    if widget is None:
+        if widget_class is None:
+            widget_class = QWidget
+        widget = widget_class(parent)
+    else:
+        assert widget_class is None, "Cannot specify both widget and widget_class"
+
+    if inner_layout_class is not None:
+        layout = inner_layout_class(widget)
+        widget.setLayout(layout)
+    else:
+        layout = None
+
+    if outer_layout is not None:
+        outer_layout.addWidget(widget)
+
+    if css is not None:
+        set_stylesheet(
+            widget,
+            css,
+        )
+
+    return widget, layout
 
 def empty_widget(
     parent,
