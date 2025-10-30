@@ -30,7 +30,10 @@ from src.modules.common.verbal.test import (
     describe_single_test_multiple_variables,
 )
 from src.modules.descriptive.plot import create_box_plot
-from src.modules.mean_comparison.constant import MeanComparisonMethod
+from src.modules.mean_comparison.constant import (
+    AssumptionChecksInGrouping,
+    MeanComparisonMethod,
+)
 from src.modules.mean_comparison.preprocessing import prepare_df_for_mean_comparison
 from src.modules.mean_comparison.result import MeanComparisonResult
 
@@ -47,31 +50,67 @@ def recalculate_mean_comparison_t_test(
     non_numeric_columns = [col for col in cfg.selected_columns if col not in numeric_columns]
 
     normal_columns, non_normal_columns = [], []
+
     if cfg.method in [MeanComparisonMethod.HOMOGENEOUS, MeanComparisonMethod.INHOMOGENEOUS]:
         normal_columns, non_normal_columns = cfg.selected_columns, []
+        if cfg.assumption_checks == AssumptionChecksInGrouping.ALWAYS:
+            _, _, normality_table = process_normality_check(
+                df=df,
+                selected_columns=numeric_columns,
+                grouping_column=cfg.grouping_column,
+            )
+            if len(numeric_columns) > 0:
+                result.result_elements.append(normality_table)
+
     elif cfg.method == MeanComparisonMethod.NON_PARAMETRIC:
         normal_columns, non_normal_columns = [], cfg.selected_columns
+        if cfg.assumption_checks == AssumptionChecksInGrouping.ALWAYS:
+            _, _, normality_table = process_normality_check(
+                df=df,
+                selected_columns=numeric_columns,
+                grouping_column=cfg.grouping_column,
+            )
+            if len(numeric_columns) > 0:
+                result.result_elements.append(normality_table)
     elif cfg.method == MeanComparisonMethod.AUTO:
         normal_columns, non_normal_columns, normality_table = process_normality_check(
             df=df,
             selected_columns=numeric_columns,
             grouping_column=cfg.grouping_column,
         )
-        if len(numeric_columns) > 0:
+        if (len(numeric_columns) > 0) and not (cfg.assumption_checks == AssumptionChecksInGrouping.NEVER):
             result.result_elements.append(normality_table)
 
     homogeneous_columns, non_homogeneous_columns = [], []
     if cfg.method == MeanComparisonMethod.HOMOGENEOUS:
         homogeneous_columns, non_homogeneous_columns = normal_columns, []
+        if cfg.assumption_checks == AssumptionChecksInGrouping.ALWAYS:
+            _, _, homogeneity_table = process_homogeneity_check(
+                df=df,
+                selected_columns=numeric_columns,
+                grouping_column=cfg.grouping_column,
+            )
+            if len(normal_columns) > 0:
+                result.result_elements.append(homogeneity_table)
     elif cfg.method == MeanComparisonMethod.INHOMOGENEOUS:
         homogeneous_columns, non_homogeneous_columns = [], normal_columns
+        if cfg.assumption_checks == AssumptionChecksInGrouping.ALWAYS:
+            _, _, homogeneity_table = process_homogeneity_check(
+                df=df,
+                selected_columns=numeric_columns,
+                grouping_column=cfg.grouping_column,
+            )
+            if len(normal_columns) > 0:
+                result.result_elements.append(homogeneity_table)
     elif cfg.method == MeanComparisonMethod.AUTO:
         homogeneous_columns, non_homogeneous_columns, homogeneity_table = process_homogeneity_check(
             df=df,
-            selected_columns=normal_columns,
+            selected_columns=normal_columns
+            if (cfg.assumption_checks != AssumptionChecksInGrouping.ALWAYS)
+            else numeric_columns,
             grouping_column=cfg.grouping_column,
         )
-        if len(normal_columns) > 0:
+        if (len(normal_columns) > 0) and not (cfg.assumption_checks == AssumptionChecksInGrouping.NEVER):
             result.result_elements.append(homogeneity_table)
 
     if len(non_numeric_columns + non_normal_columns) > 0:

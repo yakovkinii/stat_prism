@@ -6,6 +6,10 @@ import logging
 from src.common.decorators import log_function
 from src.data.data import Data
 from src.modules.mean_comparison.anova import recalculate_mean_comparison_anova
+from src.modules.mean_comparison.constant import (
+    AssumptionChecksInGrouping,
+    MeanComparisonMethod,
+)
 from src.modules.mean_comparison.preprocessing import prepare_df_for_mean_comparison
 from src.modules.mean_comparison.result import MeanComparisonResult
 from src.modules.mean_comparison.t_test import recalculate_mean_comparison_t_test
@@ -26,6 +30,13 @@ def recalculate_mean_comparison_study(data: Data, result: MeanComparisonResult) 
         result.set_placeholder(msg)
         logging.debug(msg)
         return result
+
+    if (cfg.assumption_checks == AssumptionChecksInGrouping.NEVER) and (cfg.method == MeanComparisonMethod.AUTO):
+        msg = f"Assumption checks are disabled and method is set to AUTO. Cannot determine appropriate test."
+        result.set_placeholder(msg)
+        logging.debug(msg)
+        return result
+
     if n_unique_values_in_grouping_column == 2:
         n_rows_per_group = df.groupby(cfg.grouping_column).size()
         if n_rows_per_group.min() < 3:

@@ -57,3 +57,13 @@ class MissingValuesInGrouping(Enum):
     @staticmethod
     def get_values():
         return [e.value for e in MissingValuesInGrouping]
+
+
+class AssumptionChecksInGrouping(Enum):
+    AUTO = "Detect automatically"
+    ALWAYS = "Always"
+    NEVER = "Never"
+
+    @staticmethod
+    def get_values():
+        return [e.value for e in AssumptionChecksInGrouping]

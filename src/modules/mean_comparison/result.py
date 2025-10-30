@@ -8,6 +8,7 @@ from src.common.constant import ColumnType
 from src.modules.common.result.registry import BaseResult
 from src.modules.mean_comparison.constant import (
     DESCRIPTION,
+    AssumptionChecksInGrouping,
     MeanComparisonMethod,
     MissingValuesInGrouping,
 )
@@ -26,6 +27,7 @@ class MeanComparisonStudyConfig:
         grouping_column: str = None,
         filters: List[FilterSettings] = None,
         grouping_missing: MissingValuesInGrouping = MissingValuesInGrouping.SKIP,
+        assumption_checks: AssumptionChecksInGrouping = AssumptionChecksInGrouping.AUTO,
     ):
         self.method = method if method is not None else MeanComparisonMethod.AUTO
         self.means = means
@@ -37,6 +39,7 @@ class MeanComparisonStudyConfig:
         self.generate_plots = True
         self.filters: List[FilterSettings] = filters if filters is not None else []
         self.grouping_missing: MissingValuesInGrouping = grouping_missing
+        self.assumption_checks: AssumptionChecksInGrouping = assumption_checks
 
 
 class MeanComparisonResult(BaseResult):
