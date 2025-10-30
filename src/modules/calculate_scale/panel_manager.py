@@ -1,18 +1,16 @@
 #  Copyright (c) 2023 StatPrism Team. All rights reserved.
 
 import logging
-from typing import Any, Callable, Dict, List, Optional, Union
+from typing import Any, Callable, Dict, List, Optional
 
 import pandas as pd
 
-from src.data.data import DataColumn
-from src.data.data_manager import DATA_MANAGER
 from src.settings_panel.registry import PanelRegistry
 
 
 class PanelManager:
     """Manages panel configuration and data processing for calculate scale module"""
-    
+
     @staticmethod
     def configure_mapping_panel(
         col_name: str,
@@ -20,7 +18,7 @@ class PanelManager:
         config: Any,
         caller_index: int,
         finished_handler: Callable,
-        is_global: bool = False
+        is_global: bool = False,
     ) -> None:
         """Configure and open mapping panel for a column or global settings"""
         if is_global:
@@ -53,7 +51,7 @@ class PanelManager:
         config: Any,
         caller_index: int,
         finished_handler: Callable,
-        is_global: bool = False
+        is_global: bool = False,
     ) -> None:
         """Configure and open inversion panel for a column or global settings"""
         if is_global:

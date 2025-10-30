@@ -5,8 +5,8 @@ from __future__ import annotations
 import pandas as pd
 
 from src.data.data import Data
-from src.modules.mean_comparison.result import MeanComparisonStudyConfig
 from src.modules.mean_comparison.constant import MissingValuesInGrouping
+from src.modules.mean_comparison.result import MeanComparisonStudyConfig
 
 
 def prepare_df_for_mean_comparison(
@@ -26,12 +26,24 @@ def prepare_df_for_mean_comparison(
         map_ordinal=map_ordinal,
     ).copy()
 
-    df.loc[df[cfg.grouping_column].isin([
-        pd.NA,
-        None,
-        float("nan"),
-        "", " ", "NA", "N/A", "null", "NULL", "NaN", "nan",
-    ]), cfg.grouping_column] = pd.NA
+    df.loc[
+        df[cfg.grouping_column].isin(
+            [
+                pd.NA,
+                None,
+                float("nan"),
+                "",
+                " ",
+                "NA",
+                "N/A",
+                "null",
+                "NULL",
+                "NaN",
+                "nan",
+            ]
+        ),
+        cfg.grouping_column,
+    ] = pd.NA
 
     if cfg.grouping_missing == MissingValuesInGrouping.SKIP:
         df = df[df[cfg.grouping_column].notna()].copy()

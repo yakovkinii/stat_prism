@@ -10,23 +10,24 @@ from src.common.messages import MessageType
 from src.data.data import DataColumn
 from src.data.data_manager import DATA_MANAGER
 from src.modules.base.base import BaseModulePanel
-from src.modules.calculate_scale.result import CalculateScaleResult, CalculateScaleStudyConfig
+from src.modules.calculate_scale.panel_manager import PanelManager
+from src.modules.calculate_scale.result import (
+    CalculateScaleResult,
+    CalculateScaleStudyConfig,
+)
 from src.modules.common.result.registry import RESULTS
 from src.pyside_ext.elements.checkbox import LargeCheckbox
 from src.pyside_ext.elements.column_blocks import ColumnBlocksVisualizer
 from src.pyside_ext.elements.column_selector import ColumnSelectorEx, Field
-from src.pyside_ext.markup import css
 from src.pyside_ext.elements.combo_box import ComboBox
-from src.pyside_ext.elements.spacer_small import SpacerSmall
-from src.pyside_ext.elements.title import Title
 from src.pyside_ext.elements.title_editable import ColumnNameEditable
+from src.pyside_ext.markup import css
 from src.settings_panel.registry import PanelRegistry
 
 
 class CalculateScale(BaseModulePanel):
     def setup_ui(self):
         self.elements = {
-            "title": Title(label_text="Calculate Scale"),
             "column_selector": ColumnSelectorEx(
                 fields=[
                     Field(
@@ -41,14 +42,14 @@ class CalculateScale(BaseModulePanel):
             "new_scale_name": ColumnNameEditable("new scale"),
             "rename_columns": LargeCheckbox(label_text="Auto rename questions"),
         }
-        self.setup(stretch=True)
+        self.setup(stretch=True, label="Calculate Scale")
 
         # Configure element spacing using CSS margins
         self._apply_element_spacing()
 
         # Configure aggregation type options
         self.elements["aggregation_type"].configure(["sum", "mean"])
-        
+
         # Inject column blocks with handler
         self.elements["column_blocks"].inject(self.widget, self.handler, "column_blocks")
 
@@ -80,7 +81,7 @@ class CalculateScale(BaseModulePanel):
             },
             MessageType.CLICKED: {
                 "column_blocks": self._handle_column_blocks_click,
-            }
+            },
         }
 
     def _handle_column_selection(self, message):
@@ -94,12 +95,10 @@ class CalculateScale(BaseModulePanel):
 
         # Clean up settings for removed columns
         config.mapping_settings = {
-            col: settings for col, settings in config.mapping_settings.items() 
-            if col in selected_columns
+            col: settings for col, settings in config.mapping_settings.items() if col in selected_columns
         }
         config.invert_settings = {
-            col: settings for col, settings in config.invert_settings.items() 
-            if col in selected_columns
+            col: settings for col, settings in config.invert_settings.items() if col in selected_columns
         }
 
         # Initialize settings for new columns
@@ -115,7 +114,7 @@ class CalculateScale(BaseModulePanel):
             if col_name not in config.invert_settings:
                 config.invert_settings[col_name] = {
                     "enabled": False,
-                    "reference": PanelManager.calculate_invert_reference(col_name, base_data, config)
+                    "reference": PanelManager.calculate_invert_reference(col_name, base_data, config),
                 }
 
         self.configure(result_id=self.result_id)
@@ -157,12 +156,20 @@ class CalculateScale(BaseModulePanel):
                 col_name, base_data, config, self.stacked_widget_index, self._inversion_finished_handler
             ),
             "configure_global_mapping": lambda: PanelManager.configure_mapping_panel(
-                col_name, base_data, config, self.stacked_widget_index, 
-                self._global_mapping_finished_handler, is_global=True
+                col_name,
+                base_data,
+                config,
+                self.stacked_widget_index,
+                self._global_mapping_finished_handler,
+                is_global=True,
             ),
             "configure_global_inversion": lambda: PanelManager.configure_inversion_panel(
-                col_name, base_data, config, self.stacked_widget_index,
-                self._global_inversion_finished_handler, is_global=True
+                col_name,
+                base_data,
+                config,
+                self.stacked_widget_index,
+                self._global_inversion_finished_handler,
+                is_global=True,
             ),
         }
 

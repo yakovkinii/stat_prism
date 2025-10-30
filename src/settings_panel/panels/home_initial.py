@@ -41,11 +41,6 @@ class HomeInitial(BasePanel):
 
         self.setup(stretch=True, navigation_elements=False)
 
-    def open_project(self):
-        # This method is called when the user clicks the "Open" button.
-        # It should handle opening a project file.
-        pass
-
     @log_method_noarg
     def open_handler(self):
         file_path, _ = QtWidgets.QFileDialog.getOpenFileName(

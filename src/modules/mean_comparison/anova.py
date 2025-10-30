@@ -15,7 +15,13 @@ from src.data.data import Data
 from src.modules.common.homogeneity import process_homogeneity_check
 from src.modules.common.normality import process_normality_check
 from src.modules.common.result.html_result import Cell, HTMLTableV2, Row
-from src.modules.common.result.plot_result import Bar, BarPlotConfig, Line, LinePlotConfig, PlotV2
+from src.modules.common.result.plot_result import (
+    Bar,
+    BarPlotConfig,
+    Line,
+    LinePlotConfig,
+    PlotV2,
+)
 from src.modules.common.utility import (
     format_p_apa,
     format_p_apa_full,
@@ -23,11 +29,14 @@ from src.modules.common.utility import (
     format_value_apa,
     smart_comma_join,
 )
-from src.modules.common.verbal.test import TestResult, describe_single_test_multiple_variables
+from src.modules.common.verbal.test import (
+    TestResult,
+    describe_single_test_multiple_variables,
+)
 from src.modules.descriptive.plot import create_box_plot
 from src.modules.mean_comparison.constant import MeanComparisonMethod
-from src.modules.mean_comparison.result import MeanComparisonResult
 from src.modules.mean_comparison.preprocessing import prepare_df_for_mean_comparison
+from src.modules.mean_comparison.result import MeanComparisonResult
 
 
 @log_function

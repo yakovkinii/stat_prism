@@ -8,7 +8,6 @@ from src.common.messages import Message, MessageType
 from src.modules.common.result.registry import RESULTS, get_unique_result_id
 from src.modules.registry import ModuleRegistry, ModuleRegistryItem, ModuleType
 from src.pyside_ext.elements.button_large import LargeButton
-from src.pyside_ext.elements.title import Title
 from src.settings_panel.panels.base import BasePanel
 from src.settings_panel.registry import PanelRegistry
 
@@ -18,11 +17,7 @@ if TYPE_CHECKING:
 
 class SelectDataAnalysis(BasePanel):
     def setup_ui(self):
-        self.elements = {
-            "title": Title(
-                label_text="Select Data Analysis",
-            )
-        }
+        self.elements = {}
         for module in ModuleRegistry:
             if module.value.module_type == ModuleType.DATA_ANALYSIS:
                 self.elements[module.name] = LargeButton(
@@ -30,7 +25,7 @@ class SelectDataAnalysis(BasePanel):
                     icon_path=module.value.icon_path,
                 )
         self.caller_index = PanelRegistry.HOME.settings_stacked_widget_index
-        self.setup(stretch=True, navigation_elements=True, ok_button=False)
+        self.setup(stretch=True, navigation_elements=True, ok_button=False, label="Data Analysis")
 
     @log_method
     def handler(self, message: Message):

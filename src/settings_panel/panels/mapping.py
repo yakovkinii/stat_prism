@@ -3,11 +3,17 @@
 import logging
 from typing import TYPE_CHECKING, Any, Dict
 
-from PySide6.QtWidgets import QDoubleSpinBox, QHBoxLayout, QLabel, QSizePolicy, QVBoxLayout, QWidget
+from PySide6.QtWidgets import (
+    QDoubleSpinBox,
+    QHBoxLayout,
+    QLabel,
+    QSizePolicy,
+    QVBoxLayout,
+    QWidget,
+)
 
 from src.common.decorators import log_method, log_method_noarg
 from src.pyside_ext.elements.base import BasePanelElement
-from src.pyside_ext.elements.title import Title
 from src.pyside_ext.styling import Style
 from src.settings_panel.panels.base import BasePanel
 
@@ -18,10 +24,9 @@ if TYPE_CHECKING:
 class Mapping(BasePanel):
     def setup_ui(self):
         self.elements = {
-            "title": Title(label_text="Map Values to Numbers"),
             "mapping_visualizer": MappingVisualizer(),
         }
-        self.setup(stretch=True, navigation_elements=True, ok_button=True)
+        self.setup(stretch=True, navigation_elements=True, ok_button=True, label="Configure Mapping")
 
     @log_method
     def configure(self, column_name, unique_values, current_mapping=None, caller_index=None, finished_handler=None):

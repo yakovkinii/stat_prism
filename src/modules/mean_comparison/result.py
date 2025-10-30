@@ -6,7 +6,11 @@ from typing import List
 
 from src.common.constant import ColumnType
 from src.modules.common.result.registry import BaseResult
-from src.modules.mean_comparison.constant import DESCRIPTION, MeanComparisonMethod, MissingValuesInGrouping
+from src.modules.mean_comparison.constant import (
+    DESCRIPTION,
+    MeanComparisonMethod,
+    MissingValuesInGrouping,
+)
 from src.pyside_ext.elements.filter import FilterSettings
 
 

@@ -7,15 +7,29 @@ import attrs
 import qtawesome as qta
 from PySide6 import QtCore, QtWidgets
 from PySide6.QtCore import Qt
-from PySide6.QtWidgets import QDialog, QHBoxLayout, QLabel, QListWidgetItem, QVBoxLayout, QWidget
+from PySide6.QtWidgets import (
+    QDialog,
+    QHBoxLayout,
+    QLabel,
+    QListWidgetItem,
+    QVBoxLayout,
+    QWidget,
+)
 
 from src.common.constant import COLUMN_TYPE_ICONS, ColumnType
 from src.common.messages import Message, MessageType
 from src.common.ui_constructor import create_tool_button_qta
 from src.data.data import DataColumn
 from src.pyside_ext.elements.base import BasePanelElement
-from src.pyside_ext.elements.utility.layout_helpers import clean_up_list_widget, empty_widget, widget_in_layout
-from src.pyside_ext.elements.utility.primitive_elements import QListWidgetClickable, QWidgetClickable
+from src.pyside_ext.elements.utility.layout_helpers import (
+    clean_up_list_widget,
+    empty_widget,
+    widget_in_layout,
+)
+from src.pyside_ext.elements.utility.primitive_elements import (
+    QListWidgetClickable,
+    QWidgetClickable,
+)
 from src.pyside_ext.markup import css
 from src.pyside_ext.styling import Style
 from src.pyside_ext.unique_qss import set_stylesheet
@@ -187,7 +201,6 @@ class ColumnSelectorEx(BasePanelElement):
 
 class ColumnSelectorExPopup:
     def __init__(self, parent_widget, fields: List[Field]):
-        self.allow_ok_button_handler = None
         self.fields = fields
         self.columns: List[DataColumn] = []
         self.column_names: List[str] = []
@@ -480,7 +493,6 @@ class ColumnSelectorExPopup:
                     new_item.setSizeHint(QtCore.QSize(0, ITEM_HEIGHT))
                     panel_list.addItem(new_item)
                     self.main_list.takeItem(self.main_list.row(item))
-                self.update_ok_button()
         elif (
             (button.text() == "Remove" and not from_drop and not from_double_click)
             or (from_drop and remove)
@@ -505,18 +517,8 @@ class ColumnSelectorExPopup:
                     new_item.setIcon(COLUMN_TYPE_ICONS[self.columns[self.column_names.index(item)].column_type])
                     new_item.setSizeHint(QtCore.QSize(0, ITEM_HEIGHT))
                     self.main_list.addItem(new_item)
-                self.update_ok_button()
         for panel_list in self.panel_list_widgets:
             panel_list.updateGeometry()
-
-    def update_ok_button(self):
-        if self.allow_ok_button_handler is None:
-            return
-        for panel_list in self.panel_list_widgets:
-            if panel_list.count() < self.fields[0].minimum_columns:
-                self.allow_ok_button_handler(False)
-                return
-        self.allow_ok_button_handler(True)
 
 
 class ColumnSelectorPopupHolder(BasePanelElement):

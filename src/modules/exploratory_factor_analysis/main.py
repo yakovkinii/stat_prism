@@ -10,7 +10,11 @@ from src.common.decorators import log_function
 from src.data.data import Data
 from src.modules.common.result.html_result import Cell, HTMLTableV2, Row
 from src.modules.common.result.plot_result import Heatmap, PlotV2
-from src.modules.exploratory_factor_analysis.result import ExtractionMethod, FactorAnalysisResult, RotationType
+from src.modules.exploratory_factor_analysis.result import (
+    ExtractionMethod,
+    FactorAnalysisResult,
+    RotationType,
+)
 
 
 def _standardize(df: pd.DataFrame) -> pd.DataFrame:

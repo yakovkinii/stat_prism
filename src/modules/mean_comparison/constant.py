@@ -52,7 +52,7 @@ class MeanComparisonMethod(Enum):
 
 class MissingValuesInGrouping(Enum):
     SKIP = "Skip missing"
-    TREAT_AS_NA = "Treat as \"N/A\""
+    TREAT_AS_NA = 'Treat as "N/A"'
 
     @staticmethod
     def get_values():

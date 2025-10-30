@@ -41,6 +41,7 @@ def add_widget(
 
     return widget, layout
 
+
 def empty_widget(
     parent,
     inner_layout_class=None,

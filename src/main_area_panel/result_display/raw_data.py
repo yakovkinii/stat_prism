@@ -9,8 +9,14 @@ from src.data_viewer.data_viewer import view_data_popup
 from src.main_area_panel.result_display.base import BaseResultDisplay
 from src.main_area_panel.result_display.elements.result_label import ResultLabel
 from src.modules.common.result.registry import RESULTS
-from src.pyside_ext.elements.utility.layout_helpers import empty_widget, widget_in_layout
-from src.pyside_ext.elements.utility.primitive_elements import QLabelClickable, QWidgetClickable
+from src.pyside_ext.elements.utility.layout_helpers import (
+    empty_widget,
+    widget_in_layout,
+)
+from src.pyside_ext.elements.utility.primitive_elements import (
+    QLabelClickable,
+    QWidgetClickable,
+)
 from src.pyside_ext.markup import css
 from src.pyside_ext.styling import Style
 from src.pyside_ext.unique_qss import set_stylesheet

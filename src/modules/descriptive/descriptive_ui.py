@@ -11,15 +11,11 @@ from src.modules.descriptive.descriptive_main import recalculate_descriptive_stu
 from src.modules.descriptive.result import DescriptiveStudyConfig
 from src.pyside_ext.elements.column_selector import ColumnSelectorEx, Field
 from src.pyside_ext.elements.filter import CompiledFilterHistory
-from src.pyside_ext.elements.spacer_small import SpacerSmall
-from src.pyside_ext.elements.title import Title
 
 
 class Descriptive(BaseModulePanel):
     def setup_ui(self):
         self.elements = {
-            "title": Title(label_text="Descriptive Statistics"),
-            "spacer": SpacerSmall(),
             "column_selector": ColumnSelectorEx(
                 fields=[
                     Field(
@@ -37,7 +33,7 @@ class Descriptive(BaseModulePanel):
             ),
             "compiled_filters": CompiledFilterHistory(),
         }
-        self.setup(stretch=True)
+        self.setup(stretch=True, label="Descriptive Statistics")
 
     @log_method
     def configure(self, result_id: int):

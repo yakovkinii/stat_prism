@@ -10,10 +10,19 @@ from src.common.constant import MDASH, ColumnType
 from src.common.decorators import log_function
 from src.common.qcolor import Colors
 from src.data.data import Data
-from src.modules.common.result.plot_result import Bar, BarPlotConfig, Line, LinePlotConfig, PlotV2
+from src.modules.common.result.plot_result import (
+    Bar,
+    BarPlotConfig,
+    Line,
+    LinePlotConfig,
+    PlotV2,
+)
 from src.modules.descriptive.plot import create_box_plot
 from src.modules.descriptive.result import DescriptiveResult
-from src.modules.descriptive.table import get_descriptive_table_groupby, get_descriptive_table_no_groupby
+from src.modules.descriptive.table import (
+    get_descriptive_table_groupby,
+    get_descriptive_table_no_groupby,
+)
 
 
 def calculate_descriptive_study_no_groupby(data: Data, result: DescriptiveResult):

@@ -1,9 +1,17 @@
 #  Copyright (c) 2023 StatPrism Team. All rights reserved.
 from src.modules.calculate_scale.calculate_scale_ui import CalculateScale
-from src.modules.calculate_scale.result import CalculateScaleResult, CalculateScaleStudyConfig
+from src.modules.calculate_scale.result import (
+    CalculateScaleResult,
+    CalculateScaleStudyConfig,
+)
 from src.modules.cluster_analysis.cluster_analysis_ui import ClusterAnalysis
-from src.modules.cluster_analysis.result import ClusterAnalysisConfig, ClusterAnalysisResult
-from src.modules.confirmatory_factor_analysis.factor_analysis_ui import ConfirmatoryFactorAnalysis
+from src.modules.cluster_analysis.result import (
+    ClusterAnalysisConfig,
+    ClusterAnalysisResult,
+)
+from src.modules.confirmatory_factor_analysis.factor_analysis_ui import (
+    ConfirmatoryFactorAnalysis,
+)
 from src.modules.confirmatory_factor_analysis.result import CFAResult, CFAStudyConfig
 from src.modules.contingency.contingency_ui import Contingency
 from src.modules.contingency.result import ContingencyResult, ContingencyStudyConfig
@@ -12,9 +20,15 @@ from src.modules.correlation.result import CorrelationResult, CorrelationStudyCo
 from src.modules.descriptive.descriptive_ui import Descriptive
 from src.modules.descriptive.result import DescriptiveResult, DescriptiveStudyConfig
 from src.modules.exploratory_factor_analysis.factor_analysis_ui import FactorAnalysis
-from src.modules.exploratory_factor_analysis.result import FactorAnalysisResult, FactorAnalysisStudyConfig
+from src.modules.exploratory_factor_analysis.result import (
+    FactorAnalysisResult,
+    FactorAnalysisStudyConfig,
+)
 from src.modules.mean_comparison.mean_comparison_ui import MeanComparison
-from src.modules.mean_comparison.result import MeanComparisonResult, MeanComparisonStudyConfig
+from src.modules.mean_comparison.result import (
+    MeanComparisonResult,
+    MeanComparisonStudyConfig,
+)
 from src.modules.raw_data.raw_data_ui import RawData
 from src.modules.raw_data.result import RawDataResult, RawDataStudyConfig
 from src.modules.registry import ModuleRegistry
@@ -23,7 +37,10 @@ from src.modules.regression.result import RegressionResult, RegressionStudyConfi
 from src.modules.reliability.result import ReliabilityResult, ReliabilityStudyConfig
 from src.modules.reliability.ui import Reliability
 from src.modules.rename_columns.rename_columns_ui import RenameColumns
-from src.modules.rename_columns.result import RenameColumnsResult, RenameColumnsStudyConfig
+from src.modules.rename_columns.result import (
+    RenameColumnsResult,
+    RenameColumnsStudyConfig,
+)
 
 
 def inject_classes_to_module_registry():

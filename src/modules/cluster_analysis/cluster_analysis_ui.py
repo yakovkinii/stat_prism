@@ -15,14 +15,11 @@ from src.pyside_ext.elements.combo_box import ComboBox
 from src.pyside_ext.elements.filter import CompiledFilterHistory
 from src.pyside_ext.elements.spacer_small import SpacerSmall
 from src.pyside_ext.elements.spin import Spin
-from src.pyside_ext.elements.title import Title
 
 
 class ClusterAnalysis(BaseModulePanel):
     def setup_ui(self):
         self.elements = {
-            "title": Title(label_text="Cluster Analysis"),
-            "spacer1": SpacerSmall(),
             "method": ComboBox(label_text="Method:"),
             "n_clusters": Spin(label_text="Number of clusters:", min_value=2, max_value=20),
             "spacer2": SpacerSmall(),
@@ -37,7 +34,7 @@ class ClusterAnalysis(BaseModulePanel):
             ),
             "compiled_filters": CompiledFilterHistory(),
         }
-        self.setup(stretch=True)
+        self.setup(stretch=True, label="Cluster Analysis")
         self.elements["method"].configure(ClusterMethod.get_values())
 
     @log_method

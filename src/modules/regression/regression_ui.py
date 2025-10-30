@@ -11,15 +11,11 @@ from src.modules.regression.main import recalculate_regression_study
 from src.modules.regression.result import RegressionStudyConfig
 from src.pyside_ext.elements.column_selector import ColumnSelectorEx, Field
 from src.pyside_ext.elements.filter import CompiledFilterHistory
-from src.pyside_ext.elements.spacer_small import SpacerSmall
-from src.pyside_ext.elements.title import Title
 
 
 class Regression(BaseModulePanel):
     def setup_ui(self):
         self.elements = {
-            "title": Title(label_text="Regression"),
-            "spacer": SpacerSmall(),
             "column_selector": ColumnSelectorEx(
                 fields=[
                     Field(
@@ -49,7 +45,7 @@ class Regression(BaseModulePanel):
             ),
             "compiled_filters": CompiledFilterHistory(),
         }
-        self.setup(stretch=True)
+        self.setup(stretch=True, label="Regression Analysis")
 
     @log_method
     def configure(self, result_id: int):

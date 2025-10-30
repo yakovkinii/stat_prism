@@ -65,7 +65,10 @@ class Renamer(BasePanelElement):
 
             is_modified = name in self._current_renamed and self._current_renamed[name] != name
             reset_btn = create_simple_tool_button_qta(
-                parent=self.container_widget, icon_path="fa.undo", icon_size=QSize(22, 22), color=Style.Color.Danger.value
+                parent=self.container_widget,
+                icon_path="fa.undo",
+                icon_size=QSize(22, 22),
+                color=Style.Color.Danger.value,
             )
             reset_btn.setToolTip("Restore original column name")
             reset_btn.setCursor(Qt.PointingHandCursor)

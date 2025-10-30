@@ -6,7 +6,14 @@ from typing import Tuple
 from PySide6 import QtGui
 from PySide6.QtCore import Qt
 from PySide6.QtGui import QColor
-from PySide6.QtWidgets import QGridLayout, QHBoxLayout, QLabel, QPushButton, QSlider, QVBoxLayout
+from PySide6.QtWidgets import (
+    QGridLayout,
+    QHBoxLayout,
+    QLabel,
+    QPushButton,
+    QSlider,
+    QVBoxLayout,
+)
 
 from src.common.constant import SettingsPanelSize
 from src.common.messages import Message, MessageType
@@ -14,7 +21,10 @@ from src.common.qcolor import Colors
 from src.pyside_ext.elements.base import BasePanelElement
 from src.pyside_ext.elements.checkbox import LargeCheckbox
 from src.pyside_ext.elements.edit import LabeledLineEdit
-from src.pyside_ext.elements.utility.layout_helpers import empty_widget, widget_in_layout
+from src.pyside_ext.elements.utility.layout_helpers import (
+    empty_widget,
+    widget_in_layout,
+)
 from src.pyside_ext.markup import css
 from src.pyside_ext.unique_qss import set_stylesheet
 

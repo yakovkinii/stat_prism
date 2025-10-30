@@ -18,12 +18,15 @@ class TextBrowser(QTextBrowser):
         self.setFrameStyle(0)
         self.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         self.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
-        set_stylesheet(self, css(
-            background=Style.Color.Background,
-            padding=Style.General.content_padding_medium,
-            border=Style.General.border_elevated,
-            border_radius=Style.General.border_radius_small
-        ))
+        set_stylesheet(
+            self,
+            css(
+                background=Style.Color.Background,
+                padding=Style.General.content_padding_medium,
+                border=Style.General.border_elevated,
+                border_radius=Style.General.border_radius_small,
+            ),
+        )
 
     def sizeHint(self) -> QSize:
         # Calculate the document size

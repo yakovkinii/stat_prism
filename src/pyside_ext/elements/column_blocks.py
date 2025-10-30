@@ -3,7 +3,15 @@
 import logging
 
 from PySide6.QtCore import QSize, Qt
-from PySide6.QtWidgets import QCheckBox, QFrame, QHBoxLayout, QLabel, QSizePolicy, QVBoxLayout, QWidget
+from PySide6.QtWidgets import (
+    QCheckBox,
+    QFrame,
+    QHBoxLayout,
+    QLabel,
+    QSizePolicy,
+    QVBoxLayout,
+    QWidget,
+)
 
 from src.common.messages import Message, MessageType
 from src.common.ui_constructor import create_simple_tool_button_qta
@@ -120,12 +128,16 @@ class ColumnBlocksVisualizer(BasePanelElement):
         """Create a widget block for a single column"""
         frame = QFrame()
         frame.setFrameStyle(QFrame.Shape.StyledPanel)
-        set_stylesheet(frame, css("QFrame", 
-            border=Style.General.border_elevated,
-            border_radius=Style.General.border_radius_small,
-            padding=Style.General.padding_small,
-            margin=Style.General.margin_tiny
-        ))
+        set_stylesheet(
+            frame,
+            css(
+                "QFrame",
+                border=Style.General.border_elevated,
+                border_radius=Style.General.border_radius_small,
+                padding=Style.General.padding_small,
+                margin=Style.General.margin_tiny,
+            ),
+        )
 
         layout = QVBoxLayout(frame)
         layout.setContentsMargins(8, 6, 8, 6)
@@ -139,10 +151,7 @@ class ColumnBlocksVisualizer(BasePanelElement):
         # Mapping summary for this column
         mapping_summary = QLabel()
         mapping_summary.setWordWrap(True)
-        set_stylesheet(mapping_summary, css("QLabel", 
-            color=Style.Color.SecondaryText,
-            font_size=Style.FontSize.small
-        ))
+        set_stylesheet(mapping_summary, css("QLabel", color=Style.Color.SecondaryText, font_size=Style.FontSize.small))
         mapping_summary.setVisible(False)
         layout.addWidget(mapping_summary)
 

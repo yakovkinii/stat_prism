@@ -9,7 +9,6 @@ from src.common.messages import Message, MessageType
 from src.pyside_ext.elements.base import BasePanelElement
 from src.pyside_ext.markup import css
 from src.pyside_ext.styling import Style
-from src.pyside_ext.styling import Style
 from src.pyside_ext.unique_qss import set_stylesheet
 
 

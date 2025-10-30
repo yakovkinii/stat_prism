@@ -14,21 +14,17 @@ from src.modules.base.base import BaseModulePanel
 from src.modules.common.result.registry import RESULTS
 from src.modules.raw_data.result import RawDataStudyConfig
 from src.pyside_ext.elements.button_large import LargeButton
-from src.pyside_ext.elements.spacer_small import SpacerSmall
-from src.pyside_ext.elements.title import Title
 
 
 class RawData(BaseModulePanel):
     def setup_ui(self):
         self.elements = {
-            "title": Title(label_text="Raw Data"),
-            "spacer": SpacerSmall(),
             "open": LargeButton(
                 label_text="Replace Data",
                 icon_path="ph.arrows-clockwise",
             ),
         }
-        self.setup(stretch=True)
+        self.setup(stretch=True, label="Load Raw Data")
 
     @log_method
     def configure(self, result_id: int):

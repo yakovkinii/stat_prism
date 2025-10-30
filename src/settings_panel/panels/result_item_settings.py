@@ -9,7 +9,6 @@ from src.common.messages import Message, MessageType
 from src.modules.common.result.html_result import HTMLTableV2
 from src.modules.common.result.registry import RESULTS
 from src.pyside_ext.elements.tab import Tab
-from src.pyside_ext.elements.title import Title
 from src.settings_panel.panels.base import BasePanel
 
 if TYPE_CHECKING:
@@ -19,12 +18,9 @@ if TYPE_CHECKING:
 class ResultItemSettingsV2(BasePanel):
     def setup_ui(self):
         self.elements = {
-            "title2": Title(
-                label_text="Result Item Settings V2",
-            ),
             "tab": Tab(),
         }
-        self.setup(stretch=False)
+        self.setup(stretch=False, label="Settings")
 
     @log_method
     def configure(self, result_id, element_id):
@@ -52,4 +48,3 @@ class ResultItemSettingsV2(BasePanel):
             self.root_class.main_area_panel.refresh_result(self.result_id, self.element_id)
             return
         super().handler(message)
-

@@ -5,7 +5,10 @@ import numpy as np
 import pandas as pd
 from scipy.stats import kendalltau, pearsonr, spearmanr
 
-from src.modules.common.mathematics.correlation.binary_correlations import phi_coefficient, tetrachoric_corr_2x2_table
+from src.modules.common.mathematics.correlation.binary_correlations import (
+    phi_coefficient,
+    tetrachoric_corr_2x2_table,
+)
 from src.modules.correlation.result import CorrelationType
 
 

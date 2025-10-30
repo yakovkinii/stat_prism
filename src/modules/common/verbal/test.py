@@ -3,7 +3,11 @@
 
 from typing import Dict, List, Union
 
-from src.modules.common.utility import format_p_apa, format_statistic_apa, smart_comma_join
+from src.modules.common.utility import (
+    format_p_apa,
+    format_statistic_apa,
+    smart_comma_join,
+)
 
 
 class TestResult:

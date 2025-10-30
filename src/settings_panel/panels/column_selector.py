@@ -4,8 +4,10 @@
 from typing import TYPE_CHECKING
 
 from src.common.decorators import log_method, log_method_noarg
-from src.pyside_ext.elements.column_selector import ColumnSelectorExPopup, ColumnSelectorPopupHolder
-from src.pyside_ext.elements.title import Title
+from src.pyside_ext.elements.column_selector import (
+    ColumnSelectorExPopup,
+    ColumnSelectorPopupHolder,
+)
 from src.settings_panel.panels.base import BasePanel
 
 if TYPE_CHECKING:
@@ -15,22 +17,17 @@ if TYPE_CHECKING:
 class ColumnSelector(BasePanel):
     def setup_ui(self):
         self.elements = {
-            "title": Title(
-                label_text="Select Columns",
-            ),
             "popup_holder": ColumnSelectorPopupHolder(),
         }
-        self.setup(stretch=True, navigation_elements=True, ok_button=True)
+        self.setup(stretch=True, navigation_elements=True, ok_button=True, label="Select Columns")
 
     @log_method
     def configure(self, popup: ColumnSelectorExPopup, caller_index, finished_handler):
-        self.ok_button.setEnabled(False)
+        # self._ok_button.setEnabled(False)
         self.caller_index = caller_index
         self.finished_handler = finished_handler
         self.popup = popup
-        self.back_button.setEnabled(True)
-
-        self.popup.allow_ok_button_handler = self.allow_ok_button_handler
+        # self._back_button.setEnabled(True)
 
         self.elements["popup_holder"].configure(
             popup=popup,
@@ -44,11 +41,6 @@ class ColumnSelector(BasePanel):
 
     @log_method_noarg
     def back_button_pressed(self):
-        self.ok_button_pressed()
-        # self.popup.success = False
-        # self.activate_caller()
-        # self.finished_handler()
-
-    @log_method
-    def allow_ok_button_handler(self, allow: bool):
-        self.ok_button.setEnabled(allow)
+        self.popup.success = False
+        self.activate_caller()
+        self.finished_handler()

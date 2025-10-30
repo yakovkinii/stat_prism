@@ -9,7 +9,6 @@ from src.data.data_manager import DATA_MANAGER
 from src.modules.common.result.registry import RESULTS, get_unique_result_id
 from src.modules.registry import ModuleRegistry, ModuleRegistryItem, ModuleType
 from src.pyside_ext.elements.button_large import LargeButton
-from src.pyside_ext.elements.title import Title
 from src.settings_panel.panels.base import BasePanel
 from src.settings_panel.registry import PanelRegistry
 
@@ -19,11 +18,7 @@ if TYPE_CHECKING:
 
 class SelectDataProcessing(BasePanel):
     def setup_ui(self):
-        self.elements = {
-            "title": Title(
-                label_text="Select Data Processing",
-            )
-        }
+        self.elements = {}
         for module in ModuleRegistry:
             if module.value.module_type == ModuleType.DATA_PROCESSING:
                 self.elements[module.name] = LargeButton(
@@ -32,7 +27,7 @@ class SelectDataProcessing(BasePanel):
                 )
 
         self.caller_index = PanelRegistry.HOME.settings_stacked_widget_index
-        self.setup(stretch=True, navigation_elements=True, ok_button=False)
+        self.setup(stretch=True, navigation_elements=True, ok_button=False, label="Data Processing")
 
     @log_method
     def handler(self, message: Message):

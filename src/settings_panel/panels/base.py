@@ -14,6 +14,8 @@ from src.common.decorators import log_method, log_method_noarg
 from src.common.messages import Message
 from src.common.ui_constructor import create_tool_button_qta
 from src.pyside_ext.elements.base import BasePanelElement
+from src.pyside_ext.elements.utility.layout_helpers import add_widget
+from src.pyside_ext.layout import HBoxLayout
 from src.pyside_ext.markup import css
 from src.pyside_ext.styling import Style
 from src.pyside_ext.unique_qss import set_stylesheet
@@ -30,7 +32,6 @@ class BasePanel:
         parent_class,
         root_class,
         stacked_widget_index,
-        label="",
     ):
         # Setup
         self.study_index = None
@@ -47,41 +48,67 @@ class BasePanel:
         self.widget_layout.setSpacing(0)
         self.widget.setLayout(self.widget_layout)
 
-        self.navigation_widget = QtWidgets.QWidget(self.widget)
-        self.navigation_widget.setFixedHeight(80)
-        set_stylesheet(
-            self.navigation_widget,
-            css(
+        self._navigation_widget, self._navigation_widget_layout = add_widget(
+            parent=self.widget,
+            outer_layout=self.widget_layout,
+            inner_layout_class=HBoxLayout,
+            css=css(
                 border_bottom=Style.General.border,
                 border_color=Style.Color.BorderElevated,
             ),
         )
-        self.widget_layout.addWidget(self.navigation_widget)
+        self._navigation_widget_layout.setContentsMargins(10, 5, 5, 5)
+        self._navigation_widget_layout.setSpacing(5)
 
+        self._label, _ = add_widget(
+            parent=self._navigation_widget,
+            widget_class=QtWidgets.QLabel,
+            outer_layout=self._navigation_widget_layout,
+            css=css(
+                font_size=Style.FontSize.larger,
+                color=Style.Color.Text,
+            ),
+        )
 
-        # self.home_button = create_tool_button_qta(
+        self._navigation_widget_layout.addStretch()
+
+        self._cancel_button, _ = add_widget(
+            widget=create_tool_button_qta(
+                parent=self.widget,
+                icon_path="mdi6.arrow-u-left-top",
+                icon_size=QtCore.QSize(40, 40),
+            ),
+            outer_layout=self._navigation_widget_layout,
+        )
+        self._cancel_button.clicked.connect(self.back_button_pressed)
+
+        self._ok_button, _ = add_widget(
+            widget=create_tool_button_qta(
+                parent=self.widget,
+                icon_path="mdi6.check",
+                icon_size=QtCore.QSize(40, 40),
+            ),
+            outer_layout=self._navigation_widget_layout,
+        )
+        self._ok_button.clicked.connect(self.ok_button_pressed)
+
+        # create_simple_tool_button_qta
+
+        # self.back_button = create_tool_button_qta(
         #     parent=self.widget,
-        #     button_geometry=QtCore.QRect((SettingsPanelSize.width - 180), 5, 50, 50),
-        #     icon_path="mdi6.home-outline",
+        #     button_geometry=QtCore.QRect(10, 10, 145, 60),
+        #     icon_path="fa5s.arrow-left",
         #     icon_size=QtCore.QSize(40, 40),
         # )
-
-        self.back_button = create_tool_button_qta(
-            parent=self.widget,
-            button_geometry=QtCore.QRect(10, 10, 145, 60),
-            icon_path="fa5s.arrow-left",
-            icon_size=QtCore.QSize(40, 40),
-        )
-        self.back_button.clicked.connect(self.back_button_pressed)
-
-        self.ok_button = create_tool_button_qta(
-            parent=self.widget,
-            button_geometry= QtCore.QRect((SettingsPanelSize.width - 145 - 10), 10, 145, 60),
-
-            icon_path="fa.check",
-            icon_size=QtCore.QSize(40, 40),
-        )
-        self.ok_button.clicked.connect(self.ok_button_pressed)
+        # self.back_button.clicked.connect(self.back_button_pressed)
+        #
+        # self.ok_button = create_tool_button_qta(
+        #     parent=self.widget,
+        #     button_geometry= QtCore.QRect((SettingsPanelSize.width - 145 - 10), 10, 145, 60),
+        #
+        #     icon_path="fa.check",
+        #     icon_size=QtCore.QSize(40, 40),
+        # )
 
         # Definition
         self.widget_for_elements = QtWidgets.QWidget()
@@ -104,15 +131,16 @@ class BasePanel:
         self.elements: Dict[str, BasePanelElement] = {}
 
     @log_method
-    def setup(self, stretch=False, navigation_elements=True, ok_button=False):
+    def setup(self, stretch=False, navigation_elements=True, ok_button=False, label="BasePanel"):
         if navigation_elements:
-            self.navigation_widget.show()
+            self._navigation_widget.show()
         else:
-            self.navigation_widget.hide()
+            self._navigation_widget.hide()
+        self._label.setText(label)
         if ok_button:
-            self.ok_button.show()
+            self._ok_button.show()
         else:
-            self.ok_button.hide()
+            self._ok_button.hide()
 
         for element_id, element in self.elements.items():
             element.inject(parent_widget=self.widget_for_elements, handler=self.handler, element_id=element_id)

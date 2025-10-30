@@ -6,20 +6,19 @@ from src.common.messages import MessageType
 from src.data.data_manager import DATA_MANAGER
 from src.modules.base.base import BaseModulePanel
 from src.modules.common.result.registry import RESULTS
-from src.modules.rename_columns.result import RenameColumnsResult, RenameColumnsStudyConfig
-from src.pyside_ext.elements.spacer_small import SpacerSmall
-from src.pyside_ext.elements.title import Title
+from src.modules.rename_columns.result import (
+    RenameColumnsResult,
+    RenameColumnsStudyConfig,
+)
 from src.settings_panel.panels.renamer import Renamer
 
 
 class RenameColumns(BaseModulePanel):
     def setup_ui(self):
         self.elements = {
-            "title": Title(label_text="Rename Columns"),
-            "spacer": SpacerSmall(),
             "renamer": Renamer(),
         }
-        self.setup(stretch=True)
+        self.setup(stretch=True, label="Rename Columns")
         self.elements["renamer"].inject(self.widget, self.handler, "renamer")
 
     @log_method

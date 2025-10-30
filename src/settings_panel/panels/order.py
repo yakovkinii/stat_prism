@@ -5,7 +5,6 @@ from typing import TYPE_CHECKING
 
 from src.common.decorators import log_method, log_method_noarg
 from src.pyside_ext.elements.order import OrderVisualizer
-from src.pyside_ext.elements.title import Title
 from src.settings_panel.panels.base import BasePanel
 
 if TYPE_CHECKING:
@@ -15,12 +14,9 @@ if TYPE_CHECKING:
 class Order(BasePanel):
     def setup_ui(self):
         self.elements = {
-            "title": Title(
-                label_text="Confirm Order",
-            ),
             "invert_visualizer": OrderVisualizer(),
         }
-        self.setup(stretch=True, navigation_elements=True, ok_button=True)
+        self.setup(stretch=True, navigation_elements=True, ok_button=True, label="Configure Order")
 
     @log_method
     def configure(self, column_index, caller_index=None):

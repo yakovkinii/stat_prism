@@ -13,15 +13,11 @@ from src.modules.contingency.main import recalculate_contingency_study
 from src.modules.contingency.result import ContingencyStudyConfig
 from src.pyside_ext.elements.column_selector import ColumnSelectorEx, Field
 from src.pyside_ext.elements.filter import CompiledFilterHistory
-from src.pyside_ext.elements.spacer_small import SpacerSmall
-from src.pyside_ext.elements.title import Title
 
 
 class Contingency(BaseModulePanel):
     def setup_ui(self):
         self.elements = {
-            "title": Title(label_text="Contingency Table"),
-            "spacer": SpacerSmall(),
             "column_selector": ColumnSelectorEx(
                 fields=[
                     Field(
@@ -40,7 +36,7 @@ class Contingency(BaseModulePanel):
             ),
             "compiled_filters": CompiledFilterHistory(),
         }
-        self.setup(stretch=True)
+        self.setup(stretch=True, label="Contingency Table")
 
     @log_method
     def configure(self, result_id: int):

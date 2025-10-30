@@ -10,11 +10,16 @@ from src.common.constant import BASE_STYLES
 from src.common.decorators import log_method
 from src.common.ui_constructor import create_simple_tool_button_qta
 from src.main_area_panel.result_display.base import BaseResultDisplay
-from src.main_area_panel.result_display.elements.result_element_label import ResultElementLabel
+from src.main_area_panel.result_display.elements.result_element_label import (
+    ResultElementLabel,
+)
 from src.main_area_panel.result_display.elements.text_browser import TextBrowser
 from src.modules.common.result.html_result import HTMLTableV2
 from src.modules.common.result.registry import RESULTS
-from src.pyside_ext.elements.utility.layout_helpers import empty_widget, widget_in_layout
+from src.pyside_ext.elements.utility.layout_helpers import (
+    empty_widget,
+    widget_in_layout,
+)
 from src.pyside_ext.elements.utility.primitive_elements import QWidgetClickable
 from src.pyside_ext.markup import css
 from src.pyside_ext.styling import Style

@@ -19,13 +19,7 @@ class MappingSummary(BasePanelElement):
 
         self.mappings_label = QLabel()
         self.mappings_label.setWordWrap(True)
-        set_stylesheet(
-            self.mappings_label,
-            css(
-                color=Style.Color.SecondaryText,
-                font_size=Style.FontSize.small
-            )
-        )
+        set_stylesheet(self.mappings_label, css(color=Style.Color.SecondaryText, font_size=Style.FontSize.small))
         self.layout.addWidget(self.mappings_label)
 
         # Initially hidden

@@ -14,21 +14,18 @@ from src.pyside_ext.elements.column_selector import ColumnSelectorEx, Field
 from src.pyside_ext.elements.filter import CompiledFilterHistory
 from src.pyside_ext.elements.spacer_small import SpacerSmall
 from src.pyside_ext.elements.spin import Spin
-from src.pyside_ext.elements.title import Title
 
 
 class ConfirmatoryFactorAnalysis(BaseModulePanel):
     def setup_ui(self):
         self.elements = {
-            "title": Title(label_text="Confirmatory Factor Analysis"),
-            "spacer1": SpacerSmall(),
             "n_factors": Spin(label_text="Number of factors:", min_value=1, max_value=20),
             "allow_factor_correlation": LargeCheckbox(label_text="Allow factor correlation (oblique)"),
             "spacer2": SpacerSmall(),
             "column_selector": ColumnSelectorEx(fields=[]),
             "compiled_filters": CompiledFilterHistory(),
         }
-        self.setup(stretch=True)
+        self.setup(stretch=True, label="Confirmatory Factor Analysis")
 
     @log_method
     def configure(self, result_id: int):

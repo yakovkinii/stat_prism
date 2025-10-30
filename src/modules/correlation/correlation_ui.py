@@ -17,14 +17,11 @@ from src.pyside_ext.elements.column_selector import ColumnSelectorEx, Field
 from src.pyside_ext.elements.combo_box import ComboBox
 from src.pyside_ext.elements.filter import CompiledFilterHistory
 from src.pyside_ext.elements.spacer_small import SpacerSmall
-from src.pyside_ext.elements.title import Title
 
 
 class Correlation(BaseModulePanel):
     def setup_ui(self):
         self.elements = {
-            "title": Title(label_text="Correlation"),
-            "spacer": SpacerSmall(),
             "compact": LargeCheckbox(label_text="Compact table"),
             "report_only_significant": LargeCheckbox(label_text="Report only significant correlations"),
             "generate_heatmap": LargeCheckbox(label_text="Heatmap"),
@@ -42,7 +39,7 @@ class Correlation(BaseModulePanel):
             ),
             "compiled_filters": CompiledFilterHistory(),
         }
-        self.setup(stretch=True)
+        self.setup(stretch=True, label="Correlations")
         self.elements["correlation_type"].configure(list(CORRELATION_TYPE_MAP.keys()))
 
     @log_method

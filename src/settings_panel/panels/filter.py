@@ -6,7 +6,11 @@ from typing import TYPE_CHECKING, List
 from src.common.debt import DEBTS, Debt, DebtType
 from src.common.decorators import log_method, log_method_noarg
 from src.common.messages import Message, MessageType
-from src.pyside_ext.elements.filter import CompiledFilterHistory, FilterSettings, FilterSetup
+from src.pyside_ext.elements.filter import (
+    CompiledFilterHistory,
+    FilterSettings,
+    FilterSetup,
+)
 from src.pyside_ext.elements.spacer_small import SpacerSmall
 from src.pyside_ext.elements.title import Title
 from src.settings_panel.panels.base import BasePanel

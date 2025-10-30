@@ -11,10 +11,18 @@ from PySide6.QtWidgets import QHBoxLayout, QVBoxLayout
 from src.common.decorators import log_method
 from src.common.ui_constructor import create_simple_tool_button_qta
 from src.main_area_panel.result_display.base import BaseResultDisplay
-from src.main_area_panel.result_display.elements.result_element_label import ResultElementLabel
+from src.main_area_panel.result_display.elements.result_element_label import (
+    ResultElementLabel,
+)
 from src.modules.common.result.registry import RESULTS
-from src.pyside_ext.elements.utility.layout_helpers import empty_widget, widget_in_layout
-from src.pyside_ext.elements.utility.primitive_elements import QLabelClickable, QWidgetClickable
+from src.pyside_ext.elements.utility.layout_helpers import (
+    empty_widget,
+    widget_in_layout,
+)
+from src.pyside_ext.elements.utility.primitive_elements import (
+    QLabelClickable,
+    QWidgetClickable,
+)
 from src.pyside_ext.markup import css
 from src.pyside_ext.styling import Style
 from src.pyside_ext.unique_qss import set_stylesheet
@@ -157,7 +165,9 @@ class PlotResultElementDisplay(BaseResultDisplay):
         self.copy_button.setIcon(qta.icon("fa.check", color=Style.Color.SimpleToolButton.value))
         result_element = RESULTS[self.result_id].result_elements[self.result_element_id]
         result_element.copy_to_clipboard()
-        QtCore.QTimer.singleShot(500, lambda: self.copy_button.setIcon(qta.icon("fa.copy", color=Style.Color.SimpleToolButton.value)))
+        QtCore.QTimer.singleShot(
+            500, lambda: self.copy_button.setIcon(qta.icon("fa.copy", color=Style.Color.SimpleToolButton.value))
+        )
 
     def zoom(self):
         self.activate_result(self.result_id, self.result_element_id)

@@ -15,7 +15,8 @@ from src.common.messages import Message, MessageType
 from src.common.ui_constructor import create_tool_button_qta
 from src.data.data_manager import DATA_MANAGER
 from src.modules.common.result.registry import RESULTS
-from src.pyside_ext.layout import VBoxLayout
+from src.pyside_ext.elements.utility.layout_helpers import add_widget
+from src.pyside_ext.layout import HBoxLayout
 from src.pyside_ext.markup import css
 from src.pyside_ext.styling import Style
 from src.pyside_ext.unique_qss import set_stylesheet
@@ -44,74 +45,68 @@ class BaseModulePanel:
         self.parent_class = parent_class
         self.widget = QtWidgets.QWidget(parent_widget)
 
-        self.widget_layout = VBoxLayout(self.widget)
+        self.widget_layout = QVBoxLayout(self.widget)
+        self.widget_layout.setContentsMargins(0, 0, 0, 0)
+        self.widget_layout.setSpacing(0)
         self.widget.setLayout(self.widget_layout)
 
-        self.study_widget = QtWidgets.QWidget(self.widget)
-        self.study_widget.setFixedHeight(80)
-        set_stylesheet(
-            self.study_widget,
-            css(
+        self._navigation_widget, self._navigation_widget_layout = add_widget(
+            parent=self.widget,
+            outer_layout=self.widget_layout,
+            inner_layout_class=HBoxLayout,
+            css=css(
                 border_bottom=Style.General.border,
                 border_color=Style.Color.BorderElevated,
             ),
         )
+        self._navigation_widget_layout.setContentsMargins(10, 5, 5, 5)
+        self._navigation_widget_layout.setSpacing(5)
 
-        self.widget_layout.addWidget(self.study_widget)
-
-        self.recalculate_button = create_tool_button_qta(
-            parent=self.widget,
-            button_geometry=QtCore.QRect(10, 5, 50, 50),
-            icon_path="ph.arrows-clockwise",
-            icon_size=QtCore.QSize(40, 40),
+        self._label, _ = add_widget(
+            parent=self._navigation_widget,
+            widget_class=QtWidgets.QLabel,
+            outer_layout=self._navigation_widget_layout,
+            css=css(
+                font_size=Style.FontSize.larger,
+                color=Style.Color.Text,
+            ),
         )
-        # self.auto_checkbox = QtWidgets.QCheckBox(self.study_widget)
-        # self.auto_checkbox.setText("Auto")
-        # self.auto_checkbox.setChecked(True)
-        # self.auto_checkbox.setGeometry(10, 60, 50, 20)
+
+        self._navigation_widget_layout.addStretch()
+        self.recalculate_button, _ = add_widget(
+            widget=create_tool_button_qta(
+                parent=self.widget,
+                icon_path="mdi6.delete-outline",
+                icon_size=QtCore.QSize(40, 40),
+            ),
+            outer_layout=self._navigation_widget_layout,
+        )
         self.recalculate_button.clicked.connect(self.recalculate)
 
-        self.delete_button = create_tool_button_qta(
-            parent=self.widget,
-            button_geometry=QtCore.QRect((SettingsPanelSize.width - 50 - 10), 5, 50, 50),
-            icon_path="mdi6.delete-outline",
-            icon_size=QtCore.QSize(40, 40),
+        self.delete_button, _ = add_widget(
+            widget=create_tool_button_qta(
+                parent=self.widget,
+                icon_path="mdi6.delete-outline",
+                icon_size=QtCore.QSize(40, 40),
+            ),
+            outer_layout=self._navigation_widget_layout,
         )
         self.delete_button.clicked.connect(self.delete)
 
-        # self.copy_for_word_button = create_tool_button_qta(
-        #     parent=self.widget,
-        #     button_geometry=QtCore.QRect((SettingsPanelSize.width - 120), 5, 50, 50),
-        #     icon_path="fa.file-word-o",
-        #     icon_size=QtCore.QSize(40, 40),
-        # )
-        # self.copy_for_word_button.clicked.connect(self.copy_for_word)
-
-        self.home_button = create_tool_button_qta(
-            parent=self.widget,
-            button_geometry=QtCore.QRect((SettingsPanelSize.width - 180), 5, 50, 50),
-            icon_path="mdi6.home-outline",
-            icon_size=QtCore.QSize(40, 40),
+        self._cancel_button, _ = add_widget(
+            widget=create_tool_button_qta(
+                parent=self.widget,
+                icon_path="mdi6.arrow-u-left-top",
+                icon_size=QtCore.QSize(40, 40),
+            ),
+            outer_layout=self._navigation_widget_layout,
         )
-        self.home_button.clicked.connect(
+        self._cancel_button.clicked.connect(
             lambda: [
                 self.root_class.main_area_panel.update_focus(None, None),
                 self.root_class.action_activate_panel_by_index(PanelRegistry.HOME.settings_stacked_widget_index),
             ]
         )
-
-        # self.add_study_button = create_tool_button_qta(
-        #     parent=self.widget,
-        #     button_geometry=QtCore.QRect((SettingsPanelSize.width - 240), 5, 50, 50),
-        #     icon_path="mdi6.plus",
-        #     icon_size=QtCore.QSize(40, 40),
-        # )
-        #
-        # self.add_study_button.clicked.connect(
-        #     lambda: self.root_class.action_activate_panel_by_index(
-        #         PanelRegistry.SELECT_DATA_ANALYSIS.settings_stacked_widget_index
-        #     )
-        # )
 
         # Definition
         self.widget_for_elements = QtWidgets.QWidget()
@@ -142,7 +137,7 @@ class BaseModulePanel:
         # return False
 
     @log_method
-    def setup(self, stretch=False):
+    def setup(self, stretch=False, label="BaseModulePanel"):
         for element_id, element in self.elements.items():
             try:
                 element.inject(parent_widget=self.widget_for_elements, handler=self.handler, element_id=element_id)
@@ -150,6 +145,10 @@ class BaseModulePanel:
                 logging.error(f"Error injecting element {element_id}: {e}")
                 continue
             element.setup()
+
+        self._label.setText(label)
+        self.delete_button.hide()
+        self.recalculate_button.hide()
 
         while self.widget_for_elements_layout.count():
             item = self.widget_for_elements_layout.takeAt(0)
@@ -164,10 +163,6 @@ class BaseModulePanel:
 
     @log_method
     def set_recalculate_button_highlight(self, highlight: bool):
-        if self.recalculate_button is None:
-            logging.error("No recalculate button")
-            return
-
         if highlight:
             self.recalculate_button.setIcon(qta.icon("ph.arrows-clockwise", color="darkred"))
         else:

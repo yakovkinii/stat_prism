@@ -60,14 +60,14 @@ class Style:
         # Border styles
         border_standard = "1px solid"
         border_secondary = "2px solid"  # For secondary elements like blocks
-        border_thick = "5px solid"      # For major UI elements
+        border_thick = "5px solid"  # For major UI elements
 
         # Complete borders
         border = "1px solid #eee"  # Standard border
         border_elevated = "1px solid #ccc"  # For elevated elements
         border_secondary_text = "2px solid #666"  # For secondary UI elements
         border_highlight = "2px solid #05f"  # For highlighted elements
-        
+
         # Legacy borders (to be deprecated)
         border_data_analysis = "5px solid #aaf"  # Todo deprecate
         border_data_processing = "5px solid #afa"  # Todo deprecate
@@ -111,7 +111,7 @@ class Style:
 
         study_height_css = "80px"
         study_height = 80
-        
+
         # Standard widths
         color_button_size_css = "35px"
         color_button_size = 35

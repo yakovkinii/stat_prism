@@ -9,11 +9,22 @@ import attrs
 import qtawesome as qta
 from PySide6 import QtCore
 from PySide6.QtCore import Qt
-from PySide6.QtWidgets import QComboBox, QHBoxLayout, QLabel, QLineEdit, QPushButton, QVBoxLayout, QWidget
+from PySide6.QtWidgets import (
+    QComboBox,
+    QHBoxLayout,
+    QLabel,
+    QLineEdit,
+    QPushButton,
+    QVBoxLayout,
+    QWidget,
+)
 
 from src.common.messages import Message, MessageType
 from src.pyside_ext.elements.base import BasePanelElement
-from src.pyside_ext.elements.utility.layout_helpers import empty_widget, widget_in_layout
+from src.pyside_ext.elements.utility.layout_helpers import (
+    empty_widget,
+    widget_in_layout,
+)
 from src.pyside_ext.elements.utility.primitive_elements import QLabelClickable
 from src.pyside_ext.markup import css
 from src.pyside_ext.styling import Style
