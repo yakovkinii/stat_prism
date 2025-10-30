@@ -60,9 +60,9 @@ class MissingValuesInGrouping(Enum):
 
 
 class AssumptionChecksInGrouping(Enum):
-    AUTO = "Detect automatically"
-    ALWAYS = "Always"
-    NEVER = "Never"
+    AUTO = "Auto"
+    ALWAYS = "Yes"
+    NEVER = "No"
 
     @staticmethod
     def get_values():
