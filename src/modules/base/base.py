@@ -59,20 +59,23 @@ class BaseModulePanel:
                 border_color=Style.Color.BorderElevated,
             ),
         )
-        self._navigation_widget_layout.setContentsMargins(10, 5, 5, 5)
+        self._navigation_widget_layout.setContentsMargins(10, 5, 10, 5)
         self._navigation_widget_layout.setSpacing(5)
-
-        self._label, _ = add_widget(
-            parent=self._navigation_widget,
-            widget_class=QtWidgets.QLabel,
-            outer_layout=self._navigation_widget_layout,
-            css=css(
-                font_size=Style.FontSize.larger,
-                color=Style.Color.Text,
+        self._cancel_button, _ = add_widget(
+            widget=create_tool_button_qta(
+                parent=self.widget,
+                icon_path="mdi6.arrow-u-left-top",
+                icon_size=QtCore.QSize(40, 40),
             ),
+            outer_layout=self._navigation_widget_layout,
+        )
+        self._cancel_button.clicked.connect(
+            lambda: [
+                self.root_class.main_area_panel.update_focus(None, None),
+                self.root_class.action_activate_panel_by_index(PanelRegistry.HOME.settings_stacked_widget_index),
+            ]
         )
 
-        self._navigation_widget_layout.addStretch()
         self.recalculate_button, _ = add_widget(
             widget=create_tool_button_qta(
                 parent=self.widget,
@@ -93,19 +96,16 @@ class BaseModulePanel:
         )
         self.delete_button.clicked.connect(self.delete)
 
-        self._cancel_button, _ = add_widget(
-            widget=create_tool_button_qta(
-                parent=self.widget,
-                icon_path="mdi6.arrow-u-left-top",
-                icon_size=QtCore.QSize(40, 40),
-            ),
+        self._navigation_widget_layout.addStretch()
+
+        self._label, _ = add_widget(
+            parent=self._navigation_widget,
+            widget_class=QtWidgets.QLabel,
             outer_layout=self._navigation_widget_layout,
-        )
-        self._cancel_button.clicked.connect(
-            lambda: [
-                self.root_class.main_area_panel.update_focus(None, None),
-                self.root_class.action_activate_panel_by_index(PanelRegistry.HOME.settings_stacked_widget_index),
-            ]
+            css=css(
+                font_size=Style.FontSize.larger,
+                color=Style.Color.Text,
+            ),
         )
 
         # Definition

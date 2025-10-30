@@ -57,20 +57,18 @@ class BasePanel:
                 border_color=Style.Color.BorderElevated,
             ),
         )
-        self._navigation_widget_layout.setContentsMargins(10, 5, 5, 5)
+        self._navigation_widget_layout.setContentsMargins(10, 5, 10, 5)
         self._navigation_widget_layout.setSpacing(5)
 
-        self._label, _ = add_widget(
-            parent=self._navigation_widget,
-            widget_class=QtWidgets.QLabel,
-            outer_layout=self._navigation_widget_layout,
-            css=css(
-                font_size=Style.FontSize.larger,
-                color=Style.Color.Text,
+        self._ok_button, _ = add_widget(
+            widget=create_tool_button_qta(
+                parent=self.widget,
+                icon_path="mdi6.check",
+                icon_size=QtCore.QSize(40, 40),
             ),
+            outer_layout=self._navigation_widget_layout,
         )
-
-        self._navigation_widget_layout.addStretch()
+        self._ok_button.clicked.connect(self.ok_button_pressed)
 
         self._cancel_button, _ = add_widget(
             widget=create_tool_button_qta(
@@ -82,15 +80,17 @@ class BasePanel:
         )
         self._cancel_button.clicked.connect(self.back_button_pressed)
 
-        self._ok_button, _ = add_widget(
-            widget=create_tool_button_qta(
-                parent=self.widget,
-                icon_path="mdi6.check",
-                icon_size=QtCore.QSize(40, 40),
-            ),
+        self._navigation_widget_layout.addStretch()
+
+        self._label, _ = add_widget(
+            parent=self._navigation_widget,
+            widget_class=QtWidgets.QLabel,
             outer_layout=self._navigation_widget_layout,
+            css=css(
+                font_size=Style.FontSize.larger,
+                color=Style.Color.Text,
+            ),
         )
-        self._ok_button.clicked.connect(self.ok_button_pressed)
 
         # create_simple_tool_button_qta
 
