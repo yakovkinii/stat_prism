@@ -88,6 +88,12 @@ class ModuleRegistry(Enum):
         module_type=ModuleType.DATA_PROCESSING,
     )
 
+    PROCESS_COLUMN = ModuleRegistryItem(
+        display_name="Process Column",
+        icon_path="mdi6.cog-outline",
+        module_type=ModuleType.DATA_PROCESSING,
+    )
+
     @property
     def display_name(self):
         return self.value.display_name

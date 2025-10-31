@@ -618,7 +618,7 @@ class CalculateScale(BaseModulePanel):
             return
 
         # Use the data before this result for calculation
-        data = DATA_MANAGER.get_data_before_result_id(self.result_id).copy()
+        data = DATA_MANAGER.get_data_before_result_id(self.result_id)
 
         col_data = []
         col_names = []
@@ -695,9 +695,9 @@ class CalculateScale(BaseModulePanel):
                 data.columns.append(new_col)
                 data.update_lookups()
 
-        config.data = data
         result: CalculateScaleResult = RESULTS[self.result_id]
         result.config = config
+        result.data = data
         result.update_description()
         result.needs_update = True
         self.root_class.main_area_panel.refresh_result(self.result_id)

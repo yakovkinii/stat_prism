@@ -62,9 +62,9 @@ class RawData(BaseModulePanel):
                 raise ValueError(f"Unsupported file format: {file_path}")
             update(80)
             config = RawDataStudyConfig(
-                data=Data.initialize_from_dataframe(dataframe),
+                dataframe=dataframe,
                 path=Path(file_path).resolve(),
-                timestamp=pd.Timestamp.now(),
+                timestamp=pd.Timestamp.now().strftime('%Y-%m-%d %H:%M:%S'),
             )
             return config
 
@@ -75,6 +75,7 @@ class RawData(BaseModulePanel):
     @log_method
     def open_file_on_done(self, config):
         RESULTS[self.result_id].config = config
+        RESULTS[self.result_id].data = Data.initialize_from_dataframe(config.dataframe)
         DATA_MANAGER.set_raw_data_result_id(self.result_id)
         self.root_class.main_area_panel.refresh_result(self.result_id)
         self.root_class.set_current_file_path(None)

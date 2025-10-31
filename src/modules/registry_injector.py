@@ -19,6 +19,8 @@ from src.modules.correlation.correlation_ui import Correlation
 from src.modules.correlation.result import CorrelationResult, CorrelationStudyConfig
 from src.modules.descriptive.descriptive_ui import Descriptive
 from src.modules.descriptive.result import DescriptiveResult, DescriptiveStudyConfig
+from src.modules.dp_process_column.dp_process_column_result import ProcessColumnResult, ProcessColumnStudyConfig
+from src.modules.dp_process_column.dp_process_column_ui import ProcessColumn
 from src.modules.exploratory_factor_analysis.factor_analysis_ui import FactorAnalysis
 from src.modules.exploratory_factor_analysis.result import (
     FactorAnalysisResult,
@@ -91,3 +93,7 @@ def inject_classes_to_module_registry():
     ModuleRegistry.CALCULATE_SCALE.value.ui_class = CalculateScale
     ModuleRegistry.CALCULATE_SCALE.value.result_class = CalculateScaleResult
     ModuleRegistry.CALCULATE_SCALE.value.config_class = CalculateScaleStudyConfig
+
+    ModuleRegistry.PROCESS_COLUMN.value.ui_class = ProcessColumn
+    ModuleRegistry.PROCESS_COLUMN.value.result_class = ProcessColumnResult
+    ModuleRegistry.PROCESS_COLUMN.value.config_class = ProcessColumnStudyConfig

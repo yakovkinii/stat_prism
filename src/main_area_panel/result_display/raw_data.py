@@ -77,7 +77,7 @@ class RawDataResultDisplay(BaseResultDisplay):
                 w.clicked.connect(
                     lambda: view_data_popup(
                         root_class=self.root_class,
-                        data=RESULTS[self.result_id].config.data,
+                        data=RESULTS[self.result_id].data,
                     )
                 ),
             ],
@@ -95,14 +95,15 @@ class RawDataResultDisplay(BaseResultDisplay):
         self.remove_focus(None)
 
     def refresh(self):
-        config = RESULTS[self.result_id].config
-        if config.data is None:
+        result = RESULTS[self.result_id]
+        config = result.config
+        if result.data is None:
             return self.body_widget.hide()
         self.body_widget.show()
         self.info.setText(
             f"File: {config.path} \n"
             f"Time: {config.timestamp} \n"
-            f"{config.data.n_rows()} rows, {config.data.n_columns()} columns"
+            f"{result.data.n_rows()} rows, {result.data.n_columns()} columns"
         )
 
     @log_method

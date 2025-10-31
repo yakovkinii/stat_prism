@@ -77,7 +77,7 @@ class DataProcessingResultDisplay(BaseResultDisplay):
                 w.clicked.connect(
                     lambda: view_data_popup(
                         root_class=self.root_class,
-                        data=RESULTS[self.result_id].config.data,
+                        data=RESULTS[self.result_id].data,
                     )
                 ),
             ],

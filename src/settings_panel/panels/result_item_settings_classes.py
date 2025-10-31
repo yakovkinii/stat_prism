@@ -16,6 +16,7 @@ from PySide6.QtWidgets import (
 )
 
 from src.common.constant import SettingsPanelSize
+from src.common.decorators import log_method_noarg
 from src.common.messages import Message, MessageType
 from src.common.qcolor import Colors
 from src.pyside_ext.elements.base import BasePanelElement
@@ -127,12 +128,13 @@ class SingleLineTextResultItemSetting(BasePanelElement):
         self.line_edit = LabeledLineEdit(label_text=self.label)
         self.line_edit.inject(self.widget, self.handler, self.element_id)
         self.line_edit.setup()
-        self.line_edit.edit_widget.setText(self.current_value)
+        self.line_edit.set_text(self.current_value)
         self.layout.addWidget(self.line_edit.widget)
-        self.line_edit.edit_widget.editingFinished.connect(self.on_edit_finished)
+        self.line_edit.set_editing_finished_handler(self.on_edit_finished)
 
+    @log_method_noarg
     def on_edit_finished(self):
-        self.current_value = self.line_edit.edit_widget.text()
+        self.current_value = self.line_edit.get_text()
         self.handler(Message(MessageType.EDITING_FINISHED, payload=None, caller_id=self.element_id))
 
 

@@ -73,6 +73,7 @@ class RenameColumns(BaseModulePanel):
                     )
 
             # Actually rename in data
+            raise NotImplementedError()
             self.config.data = DATA_MANAGER.get_data_before_result_id(self.result_id).copy()
 
             for idx, col in enumerate(self.config.data.columns):

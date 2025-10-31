@@ -1,4 +1,6 @@
 #  Copyright (c) 2023 StatPrism Team. All rights reserved.
+import pandas as pd
+
 from src.data.data import Data
 from src.modules.common.result.registry import BaseResult
 
@@ -6,11 +8,11 @@ from src.modules.common.result.registry import BaseResult
 class RawDataStudyConfig:
     def __init__(
         self,
-        data: Data = None,
+        dataframe: pd.DataFrame = None,
         path="",
         timestamp="",
     ):
-        self.data = data
+        self.dataframe = dataframe
         self.path = path
         self.timestamp = timestamp
 
@@ -28,4 +30,5 @@ class RawDataResult(BaseResult):
 
         self.needs_update: bool = False
         self.description = ""
-        # self.set_placeholder()
+
+        self.data = None

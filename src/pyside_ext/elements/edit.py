@@ -5,6 +5,7 @@ from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QHBoxLayout, QLabel, QLineEdit
 
 from src.common.constant import SettingsPanelSize
+from src.common.decorators import log_method_noarg, log_method
 from src.pyside_ext.elements.base import BasePanelElement
 from src.pyside_ext.elements.utility.layout_helpers import empty_widget
 from src.pyside_ext.markup import css
@@ -44,3 +45,15 @@ class LabeledLineEdit(BasePanelElement):
         self.layout.addWidget(self.label)
         self.layout.addWidget(self.edit_widget)
         return self
+
+    @log_method
+    def set_editing_finished_handler(self, handler):
+        self.edit_widget.editingFinished.connect(handler)
+
+    @log_method_noarg
+    def get_text(self):
+        return self.edit_widget.text()
+
+    @log_method
+    def set_text(self, text: str):
+        self.edit_widget.setText(text)

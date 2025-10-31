@@ -33,7 +33,7 @@ class DataManager:
         return self.raw_data_result_id
 
     def get_latest_data(self):
-        return RESULTS[self.data_chain[-1]].config.data.copy()
+        return RESULTS[self.data_chain[-1]].data.copy()
 
     def get_data_before_result_id(self, result_id: str):
         if result_id not in self.data_chain:
@@ -41,7 +41,7 @@ class DataManager:
         index = self.data_chain.index(result_id)
         if index == 0:
             raise ValueError("No data before the first result ID.")
-        return RESULTS[self.data_chain[index - 1]].config.data.copy()
+        return RESULTS[self.data_chain[index - 1]].data.copy()
 
     def from_unpickled(self, data: "DataManager"):
         self.raw_data_result_id = data.raw_data_result_id

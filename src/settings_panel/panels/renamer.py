@@ -9,7 +9,6 @@ from src.common.ui_constructor import create_simple_tool_button_qta
 from src.pyside_ext.elements.base import BasePanelElement
 from src.pyside_ext.styling import Style
 
-
 class Renamer(BasePanelElement):
     renamed = Signal(dict)  # Signal to emit renamed columns dict
 
