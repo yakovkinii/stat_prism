@@ -254,7 +254,7 @@ class Data:
 # from src.data.data import Data, DataColumn
 # from src.common.constant import COLORS, COLUMN_TYPE_ICONS, ColumnType
 # from src.common.decorators import log_method, log_method_noarg
-# from src.modules.common.result.registry import RESULTS
+# from src.side_area_panel.modules.common.result.registry import RESULTS
 #
 # if TYPE_CHECKING:
 #     from src.ui_main import MainWindowClass

@@ -11,12 +11,12 @@ from src.main_area_panel.result_display.data_processing import (
     DataProcessingResultDisplay,
 )
 from src.main_area_panel.result_display.raw_data import RawDataResultDisplay
-from src.modules.common.result.registry import RESULTS
 from src.pyside_ext.elements.utility.layout_helpers import empty_widget
 from src.pyside_ext.elements.utility.primitive_elements import QWidgetClickable
 from src.pyside_ext.markup import css
 from src.pyside_ext.styling import Style
 from src.pyside_ext.unique_qss import set_stylesheet
+from src.side_area_panel.modules.common.result.registry import RESULTS
 from src.side_area_panel.registry import PanelRegistry
 
 if TYPE_CHECKING:

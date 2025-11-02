@@ -1,6 +1,6 @@
 #  Copyright (c) 2023 StatPrism Team. All rights reserved.
 from src.common.decorators import log_method
-from src.modules.common.result.registry import RESULTS
+from src.side_area_panel.modules.common.result.registry import RESULTS
 
 
 class DataManager:

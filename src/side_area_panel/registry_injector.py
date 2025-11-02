@@ -1,8 +1,8 @@
 #  Copyright (c) 2023 StatPrism Team. All rights reserved.
 
 
-from src.modules.common.result.html_result import HTMLTableV2
-from src.modules.common.result.plot_result import PlotV2
+from src.side_area_panel.modules.common.result.html_result import HTMLTableV2
+from src.side_area_panel.modules.common.result.plot_result import PlotV2
 from src.side_area_panel.panels.blank import Blank
 from src.side_area_panel.panels.column_selector import ColumnSelector
 from src.side_area_panel.panels.filter import Filter

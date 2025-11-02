@@ -10,12 +10,14 @@ from PySide6.QtWidgets import QMenu, QMenuBar, QProgressBar, QVBoxLayout
 
 from src.common.constant import SettingsPanelSize
 from src.common.languages import LANGUAGE, Languages
-from src.modules.registry import ModuleRegistry, ModuleRegistryItem
-from src.modules.registry_injector import inject_classes_to_module_registry
 from src.pyside_ext.elements.utility.layout_helpers import widget_in_layout
 from src.pyside_ext.markup import css
 from src.pyside_ext.styling import Style
 from src.pyside_ext.unique_qss import set_stylesheet
+from src.side_area_panel.modules.registry import ModuleRegistry, ModuleRegistryItem
+from src.side_area_panel.modules.registry_injector import (
+    inject_classes_to_module_registry,
+)
 from src.side_area_panel.registry import PanelRegistry, PanelRegistryItem
 from src.side_area_panel.registry_injector import inject_classes_to_panel_registry
 

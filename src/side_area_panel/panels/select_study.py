@@ -5,9 +5,16 @@ from typing import TYPE_CHECKING
 
 from src.common.decorators import log_method
 from src.common.messages import Message, MessageType
-from src.modules.common.result.registry import RESULTS, get_unique_result_id
-from src.modules.registry import ModuleRegistry, ModuleRegistryItem, ModuleType
 from src.pyside_ext.elements.button_large import LargeButton
+from src.side_area_panel.modules.common.result.registry import (
+    RESULTS,
+    get_unique_result_id,
+)
+from src.side_area_panel.modules.registry import (
+    ModuleRegistry,
+    ModuleRegistryItem,
+    ModuleType,
+)
 from src.side_area_panel.panels.base import BasePanel
 from src.side_area_panel.registry import PanelRegistry
 

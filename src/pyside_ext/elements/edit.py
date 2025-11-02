@@ -5,7 +5,7 @@ from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QHBoxLayout, QLabel, QLineEdit
 
 from src.common.constant import SettingsPanelSize
-from src.common.decorators import log_method_noarg, log_method
+from src.common.decorators import log_method, log_method_noarg
 from src.pyside_ext.elements.base import BasePanelElement
 from src.pyside_ext.elements.utility.layout_helpers import empty_widget
 from src.pyside_ext.markup import css

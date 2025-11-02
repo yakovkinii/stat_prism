@@ -13,9 +13,9 @@ from src.common.constant import MDASH, NDASH
 from src.common.decorators import log_method, log_method_noarg
 from src.common.messages import MessageType
 from src.data.data_manager import DATA_MANAGER
-from src.modules.common.result.registry import RESULTS
 from src.pyside_ext.elements.button_large import LargeButton
 from src.pyside_ext.elements.spacer import Spacer
+from src.side_area_panel.modules.common.result.registry import RESULTS
 from src.side_area_panel.panels.base import BasePanel
 from src.side_area_panel.registry import PanelRegistry
 

@@ -6,9 +6,9 @@ from typing import TYPE_CHECKING
 from src.common.constant import SettingsPanelSize
 from src.common.decorators import log_method
 from src.common.messages import Message, MessageType
-from src.modules.common.result.html_result import HTMLTableV2
-from src.modules.common.result.registry import RESULTS
 from src.pyside_ext.elements.tab import Tab
+from src.side_area_panel.modules.common.result.html_result import HTMLTableV2
+from src.side_area_panel.modules.common.result.registry import RESULTS
 from src.side_area_panel.panels.base import BasePanel
 
 if TYPE_CHECKING:

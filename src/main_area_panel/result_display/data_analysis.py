@@ -17,9 +17,6 @@ from src.main_area_panel.result_display.plot_result_element import (
 from src.main_area_panel.result_display.table_result_element import (
     TableResultElementDisplay,
 )
-from src.modules.common.result.html_result import HTMLTableV2
-from src.modules.common.result.plot_result import PlotV2
-from src.modules.common.result.registry import RESULTS
 from src.pyside_ext.elements.utility.layout_helpers import (
     empty_widget,
     widget_in_layout,
@@ -29,6 +26,9 @@ from src.pyside_ext.flow_layout import FlowLayout
 from src.pyside_ext.markup import css
 from src.pyside_ext.styling import Style
 from src.pyside_ext.unique_qss import set_stylesheet
+from src.side_area_panel.modules.common.result.html_result import HTMLTableV2
+from src.side_area_panel.modules.common.result.plot_result import PlotV2
+from src.side_area_panel.modules.common.result.registry import RESULTS
 
 
 class DataAnalysisResultDisplay(BaseResultDisplay):
