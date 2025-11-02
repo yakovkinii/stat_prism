@@ -15,7 +15,7 @@ from PySide6.QtWidgets import (
 from src.common.decorators import log_method, log_method_noarg
 from src.pyside_ext.elements.base import BasePanelElement
 from src.pyside_ext.styling import Style
-from src.settings_panel.panels.base import BasePanel
+from src.side_area_panel.panels.base import BasePanel
 
 if TYPE_CHECKING:
     pass

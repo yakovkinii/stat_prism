@@ -5,7 +5,7 @@ from typing import Any, Callable, Dict, List, Optional
 
 import pandas as pd
 
-from src.settings_panel.registry import PanelRegistry
+from src.side_area_panel.registry import PanelRegistry
 
 
 class PanelManager:

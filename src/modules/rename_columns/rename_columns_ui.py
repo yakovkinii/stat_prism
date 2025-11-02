@@ -10,7 +10,7 @@ from src.modules.rename_columns.result import (
     RenameColumnsResult,
     RenameColumnsStudyConfig,
 )
-from src.settings_panel.panels.renamer import Renamer
+from src.side_area_panel.panels.renamer import Renamer
 
 
 class RenameColumns(BaseModulePanel):

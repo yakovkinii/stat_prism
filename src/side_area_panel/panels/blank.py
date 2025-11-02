@@ -2,8 +2,8 @@
 
 
 from src.pyside_ext.elements.logo import Logo
-from src.settings_panel.panels.base import BasePanel
-from src.settings_panel.registry import PanelRegistry
+from src.side_area_panel.panels.base import BasePanel
+from src.side_area_panel.registry import PanelRegistry
 
 
 class Blank(BasePanel):

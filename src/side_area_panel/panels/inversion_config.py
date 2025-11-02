@@ -18,7 +18,7 @@ from src.pyside_ext.elements.title import Title
 from src.pyside_ext.markup import css
 from src.pyside_ext.styling import Style
 from src.pyside_ext.unique_qss import set_stylesheet
-from src.settings_panel.panels.base import BasePanel
+from src.side_area_panel.panels.base import BasePanel
 
 if TYPE_CHECKING:
     pass

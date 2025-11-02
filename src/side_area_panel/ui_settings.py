@@ -16,8 +16,8 @@ from src.pyside_ext.elements.utility.layout_helpers import widget_in_layout
 from src.pyside_ext.markup import css
 from src.pyside_ext.styling import Style
 from src.pyside_ext.unique_qss import set_stylesheet
-from src.settings_panel.registry import PanelRegistry, PanelRegistryItem
-from src.settings_panel.registry_injector import inject_classes_to_panel_registry
+from src.side_area_panel.registry import PanelRegistry, PanelRegistryItem
+from src.side_area_panel.registry_injector import inject_classes_to_panel_registry
 
 if TYPE_CHECKING:
     from src.ui_main import MainWindowClass

@@ -22,7 +22,7 @@ from src.pyside_ext.elements.column_selector import ColumnSelectorEx, Field
 from src.pyside_ext.elements.combo_box import ComboBox
 from src.pyside_ext.elements.title_editable import ColumnNameEditable
 from src.pyside_ext.markup import css
-from src.settings_panel.registry import PanelRegistry
+from src.side_area_panel.registry import PanelRegistry
 
 
 class CalculateScale(BaseModulePanel):

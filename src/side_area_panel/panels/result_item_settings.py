@@ -9,7 +9,7 @@ from src.common.messages import Message, MessageType
 from src.modules.common.result.html_result import HTMLTableV2
 from src.modules.common.result.registry import RESULTS
 from src.pyside_ext.elements.tab import Tab
-from src.settings_panel.panels.base import BasePanel
+from src.side_area_panel.panels.base import BasePanel
 
 if TYPE_CHECKING:
     pass

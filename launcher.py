@@ -72,7 +72,7 @@ if __name__ == "__main__":
         #     logging.debug("Saving recovered project to:")
         #     logging.debug(main_win.current_file_path)
         #
-        #     from src.settings_panel.registry import PanelRegistry
+        #     from src.side_area_panel.registry import PanelRegistry
         #
         #     PanelRegistry.HOME.ui_instance.save_handler()
         #

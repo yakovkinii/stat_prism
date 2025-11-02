@@ -13,7 +13,7 @@ from src.pyside_ext.elements.filter import (
 )
 from src.pyside_ext.elements.spacer_small import SpacerSmall
 from src.pyside_ext.elements.title import Title
-from src.settings_panel.panels.base import BasePanel
+from src.side_area_panel.panels.base import BasePanel
 
 if TYPE_CHECKING:
     pass

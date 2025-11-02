@@ -14,8 +14,8 @@ from src.modules.common.result.registry import RESULTS, get_unique_result_id
 from src.modules.registry import ModuleRegistry
 from src.pyside_ext.elements.button_large import LargeButton
 from src.pyside_ext.elements.spacer import Spacer
-from src.settings_panel.panels.base import BasePanel
-from src.settings_panel.registry import PanelRegistry
+from src.side_area_panel.panels.base import BasePanel
+from src.side_area_panel.registry import PanelRegistry
 
 if TYPE_CHECKING:
     pass

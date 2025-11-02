@@ -8,7 +8,7 @@ from src.pyside_ext.elements.column_selector import (
     ColumnSelectorExPopup,
     ColumnSelectorPopupHolder,
 )
-from src.settings_panel.panels.base import BasePanel
+from src.side_area_panel.panels.base import BasePanel
 
 if TYPE_CHECKING:
     pass

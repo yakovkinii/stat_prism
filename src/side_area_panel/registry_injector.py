@@ -3,18 +3,18 @@
 
 from src.modules.common.result.html_result import HTMLTableV2
 from src.modules.common.result.plot_result import PlotV2
-from src.settings_panel.panels.blank import Blank
-from src.settings_panel.panels.column_selector import ColumnSelector
-from src.settings_panel.panels.filter import Filter
-from src.settings_panel.panels.home import Home
-from src.settings_panel.panels.home_initial import HomeInitial
-from src.settings_panel.panels.inversion_config import InversionConfig
-from src.settings_panel.panels.mapping import Mapping
-from src.settings_panel.panels.order import Order
-from src.settings_panel.panels.result_item_settings import ResultItemSettingsV2
-from src.settings_panel.panels.select_data_processing import SelectDataProcessing
-from src.settings_panel.panels.select_study import SelectDataAnalysis
-from src.settings_panel.registry import PanelRegistry
+from src.side_area_panel.panels.blank import Blank
+from src.side_area_panel.panels.column_selector import ColumnSelector
+from src.side_area_panel.panels.filter import Filter
+from src.side_area_panel.panels.home import Home
+from src.side_area_panel.panels.home_initial import HomeInitial
+from src.side_area_panel.panels.inversion_config import InversionConfig
+from src.side_area_panel.panels.mapping import Mapping
+from src.side_area_panel.panels.order import Order
+from src.side_area_panel.panels.result_item_settings import ResultItemSettingsV2
+from src.side_area_panel.panels.select_data_processing import SelectDataProcessing
+from src.side_area_panel.panels.select_study import SelectDataAnalysis
+from src.side_area_panel.registry import PanelRegistry
 
 
 def inject_classes_to_panel_registry():

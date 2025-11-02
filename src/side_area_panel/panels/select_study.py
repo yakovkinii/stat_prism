@@ -5,29 +5,27 @@ from typing import TYPE_CHECKING
 
 from src.common.decorators import log_method
 from src.common.messages import Message, MessageType
-from src.data.data_manager import DATA_MANAGER
 from src.modules.common.result.registry import RESULTS, get_unique_result_id
 from src.modules.registry import ModuleRegistry, ModuleRegistryItem, ModuleType
 from src.pyside_ext.elements.button_large import LargeButton
-from src.settings_panel.panels.base import BasePanel
-from src.settings_panel.registry import PanelRegistry
+from src.side_area_panel.panels.base import BasePanel
+from src.side_area_panel.registry import PanelRegistry
 
 if TYPE_CHECKING:
     pass
 
 
-class SelectDataProcessing(BasePanel):
+class SelectDataAnalysis(BasePanel):
     def setup_ui(self):
         self.elements = {}
         for module in ModuleRegistry:
-            if module.value.module_type == ModuleType.DATA_PROCESSING:
+            if module.value.module_type == ModuleType.DATA_ANALYSIS:
                 self.elements[module.name] = LargeButton(
                     label_text=module.value.display_name,
                     icon_path=module.value.icon_path,
                 )
-
         self.caller_index = PanelRegistry.HOME.settings_stacked_widget_index
-        self.setup(stretch=True, navigation_elements=True, ok_button=False, label="Data Processing")
+        self.setup(stretch=True, navigation_elements=True, ok_button=False, label="Data Analysis")
 
     @log_method
     def handler(self, message: Message):
@@ -43,9 +41,12 @@ class SelectDataProcessing(BasePanel):
             settings_panel_index=module.settings_stacked_widget_index,
             config=module.config_class(),
         )
-        DATA_MANAGER.add_data_to_chain(result_id=result_id)
 
-        self.root_class.main_area_panel.add_data_processing(result_id=result_id)
+        # self.root_class.result_selector_panel.add_result(result_id)
+        # self.root_class.results_panel.display(result_id)
+        self.root_class.main_area_panel.add_data_analysis(result_id=result_id)
+        self.root_class.main_area_panel.update_focus(result_id=result_id)
+        # self.root_class.action_activate_results_panel()
 
         module.ui_instance.configure(result_id=result_id)
         self.root_class.action_activate_panel_by_index(module.settings_stacked_widget_index)

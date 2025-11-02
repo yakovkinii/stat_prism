@@ -9,7 +9,7 @@ from src.common.decorators import log_method_noarg
 from src.common.languages import LANGUAGE
 from src.modules.common.result.base_result import BaseResultElement
 from src.pyside_ext.elements.base import BasePanelElement
-from src.settings_panel.panels.result_item_settings_classes import (
+from src.side_area_panel.panels.result_item_settings_classes import (
     ContainerResultItemSetting,
     SingleLineTextResultItemSetting,
 )
