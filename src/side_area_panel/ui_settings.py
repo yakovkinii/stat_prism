@@ -18,8 +18,8 @@ from src.side_area_panel.modules.registry import ModuleRegistry, ModuleRegistryI
 from src.side_area_panel.modules.registry_injector import (
     inject_classes_to_module_registry,
 )
-from src.side_area_panel.registry import PanelRegistry, PanelRegistryItem
-from src.side_area_panel.registry_injector import inject_classes_to_panel_registry
+from src.side_area_panel.blueprint.registry import PanelRegistry, PanelRegistryItem
+from src.side_area_panel.blueprint.registry_injector import inject_classes_to_panel_registry
 
 if TYPE_CHECKING:
     from src.ui_main import MainWindowClass

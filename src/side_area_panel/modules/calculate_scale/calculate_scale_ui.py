@@ -22,7 +22,7 @@ from src.side_area_panel.modules.calculate_scale.result import (
     CalculateScaleStudyConfig,
 )
 from src.side_area_panel.modules.common.result.registry import RESULTS
-from src.side_area_panel.registry import PanelRegistry
+from src.side_area_panel.blueprint.registry import PanelRegistry
 
 
 class CalculateScale(BaseModulePanel):

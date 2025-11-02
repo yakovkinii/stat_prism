@@ -16,7 +16,7 @@ from src.side_area_panel.modules.registry import (
     ModuleType,
 )
 from src.side_area_panel.panels.base import BasePanel
-from src.side_area_panel.registry import PanelRegistry
+from src.side_area_panel.blueprint.registry import PanelRegistry
 
 if TYPE_CHECKING:
     pass

@@ -14,7 +14,7 @@ from src.side_area_panel.panels.order import Order
 from src.side_area_panel.panels.result_item_settings import ResultItemSettingsV2
 from src.side_area_panel.panels.select_data_processing import SelectDataProcessing
 from src.side_area_panel.panels.select_study import SelectDataAnalysis
-from src.side_area_panel.registry import PanelRegistry
+from src.side_area_panel.blueprint.registry import PanelRegistry
 
 
 def inject_classes_to_panel_registry():
