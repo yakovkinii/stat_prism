@@ -10,6 +10,7 @@ from src.pyside_ext.elements.button_large import LargeButton
 from src.pyside_ext.elements.column_selector import ColumnSelectorEx, Field
 from src.pyside_ext.elements.combo_box import ComboBox
 from src.pyside_ext.elements.edit import LabeledLineEdit
+from src.side_area_panel.blueprint.element import TextEditIISPWAC, ItemInSidePanelWithAutoConfigHolder
 from src.side_area_panel.modules.base.base import BaseModulePanel
 from src.side_area_panel.modules.common.result.registry import RESULTS
 from src.side_area_panel.modules.dp_process_column.dp_process_column_result import (
@@ -19,6 +20,10 @@ from src.side_area_panel.modules.mean_comparison.main import (
     recalculate_mean_comparison_study,
 )
 from src.side_area_panel.modules.mean_comparison.result import MeanComparisonStudyConfig
+
+
+class ProcessColumnElements(ItemInSidePanelWithAutoConfigHolder):
+    the_text = TextEditIISPWAC()
 
 
 class ProcessColumn(BaseModulePanel):
@@ -43,19 +48,26 @@ class ProcessColumn(BaseModulePanel):
                 icon_path="ph.arrows-clockwise",
             ),
         }
-        self.setup(stretch=True, label="Process Column")
+        self.setup(stretch=False, label="Process Column")
         self.elements["rename"].set_editing_finished_handler(self.recalculate)
+
+        self.elememts_new = ProcessColumnElements()
+        self.elememts_new.complete_init_of_items(
+            parent_widget=self.widget_for_elements,
+            parent_layout=self.widget_for_elements_layout,
+            stretch=True,
+        )
 
     @log_method
     def configure(self, result_id: int):
         self.configuring = True
         self.result_id = result_id
-        self.elements["column_selector"].configure(
-            columns=DATA_MANAGER.get_latest_data().get_all_columns_as_column_types(),
-            selected_columns_list=[
-                [RESULTS[result_id].config.column],
-            ],
-        )
+        # self.elements["column_selector"].configure(
+        #     columns=DATA_MANAGER.get_latest_data().get_all_columns_as_column_types(),
+        #     selected_columns_list=[
+        #         [RESULTS[result_id].config.column],
+        #     ],
+        # )
         self.elements["rename"].set_text(RESULTS[result_id].config.rename)
         self.set_recalculate_button_highlight(RESULTS[result_id].needs_update)
         self.configuring = False
@@ -70,18 +82,18 @@ class ProcessColumn(BaseModulePanel):
         # as a data source using its result id.
         # Later there will also be a choicer for data source in each module panel.
 
-        RESULTS[self.result_id].config = ProcessColumnStudyConfig(
-            data=DATA_MANAGER.get_data_before_result_id(self.result_id),
-            column=self.elements["column_selector"].get_selected_columns()[0][0],
-            rename=self.elements["rename"].get_text(),
-        )
-
-        def main(update):
-            return recalculate_mean_comparison_study(data=data, result=result)
-
-        run_in_separate_thread(
-            main, progress_bar=self.root_class.settings_panel.progress_bar, on_done=self.recalculate_on_done
-        )
+        # RESULTS[self.result_id].config = ProcessColumnStudyConfig(
+        #     data=DATA_MANAGER.get_data_before_result_id(self.result_id),
+        #     column=self.elements["column_selector"].get_selected_columns()[0][0],
+        #     rename=self.elements["rename"].get_text(),
+        # )
+        #
+        # def main(update):
+        #     return recalculate_mean_comparison_study(data=data, result=result)
+        #
+        # run_in_separate_thread(
+        #     main, progress_bar=self.root_class.settings_panel.progress_bar, on_done=self.recalculate_on_done
+        # )
 
     @log_method
     def recalculate_on_done(self, result):
