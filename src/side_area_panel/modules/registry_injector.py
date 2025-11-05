@@ -40,7 +40,7 @@ from src.side_area_panel.modules.dp_process_column.dp_process_column_result impo
     ProcessColumnStudyConfig,
 )
 from src.side_area_panel.modules.dp_process_column.dp_process_column_ui import (
-    ProcessColumn,
+    DpProcessColumn,
 )
 from src.side_area_panel.modules.exploratory_factor_analysis.factor_analysis_ui import (
     FactorAnalysis,
@@ -128,6 +128,6 @@ def inject_classes_to_module_registry():
     ModuleRegistry.CALCULATE_SCALE.value.result_class = CalculateScaleResult
     ModuleRegistry.CALCULATE_SCALE.value.config_class = CalculateScaleStudyConfig
 
-    ModuleRegistry.PROCESS_COLUMN.value.ui_class = ProcessColumn
-    ModuleRegistry.PROCESS_COLUMN.value.result_class = ProcessColumnResult
-    ModuleRegistry.PROCESS_COLUMN.value.config_class = ProcessColumnStudyConfig
+    ModuleRegistry.DP_PROCESS_COLUMN.value.ui_class = DpProcessColumn
+    ModuleRegistry.DP_PROCESS_COLUMN.value.result_class = ProcessColumnResult
+    ModuleRegistry.DP_PROCESS_COLUMN.value.config_class = ProcessColumnStudyConfig

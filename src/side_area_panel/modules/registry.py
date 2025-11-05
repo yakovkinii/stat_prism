@@ -88,7 +88,7 @@ class ModuleRegistry(Enum):
         module_type=ModuleType.DATA_PROCESSING,
     )
 
-    PROCESS_COLUMN = ModuleRegistryItem(
+    DP_PROCESS_COLUMN = ModuleRegistryItem(
         display_name="Process Column",
         icon_path="mdi6.cog-outline",
         module_type=ModuleType.DATA_PROCESSING,

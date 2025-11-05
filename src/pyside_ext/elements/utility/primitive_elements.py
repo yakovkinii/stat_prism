@@ -7,6 +7,7 @@ from PySide6 import QtCore, QtWidgets
 from PySide6.QtCore import QEvent, Qt, QTimer, Signal
 from PySide6.QtWidgets import QFrame, QLabel, QTextEdit
 
+from src.common.decorators import log_method
 from src.pyside_ext.markup import css
 from src.pyside_ext.styling import Style
 from src.pyside_ext.unique_qss import set_stylesheet
@@ -24,15 +25,18 @@ class QWidgetClickable(QFrame):
 
 
 class QListWidgetClickable(QtWidgets.QListWidget):
+    clicked = QtCore.Signal()
     def __init__(self, parent):
         super().__init__(parent)
         self.setSizePolicy(QtWidgets.QSizePolicy.Policy.Expanding, QtWidgets.QSizePolicy.Policy.Fixed)
         self.reasonable_number_of_columns = 6
         self.height = 20
 
+    @log_method
     def mousePressEvent(self, event):
         super().mousePressEvent(event)
-        self.parent().mousePressEvent(event)
+        # self.parent().mousePressEvent(event)
+        self.clicked.emit()
 
     def sizeHint(self):
         return QtCore.QSize(20, self.calculate_height())

@@ -1,7 +1,6 @@
 #  Copyright (c) 2023 StatPrism Team. All rights reserved.
 
 from abc import abstractmethod
-from PySide6.QtWidgets import QLabel, QVBoxLayout, QWidget, QTextEdit, QLineEdit
 
 
 class ItemInSidePanelWithAutoConfig:
@@ -36,19 +35,5 @@ class ItemInSidePanelWithAutoConfigHolder:
             parent_layout.addWidget(item.widget)
         if stretch:
             parent_layout.addStretch()
+        return self
 
-
-class TextEditIISPWAC(ItemInSidePanelWithAutoConfig):
-    def post_init(self, label, parent_widget):
-        self.label = label
-        self.widget = QLineEdit(parent_widget)
-
-    def get_kwargs(self):
-        return {self.label: self.widget.text()}
-
-    def configure(self, **kwargs):
-        text = kwargs[self.label]
-        self.widget.setText(text)
-
-    def set_handler_editing_finished(self, handler):
-        self.widget.editingFinished.connect(handler)
