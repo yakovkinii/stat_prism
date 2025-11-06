@@ -4,13 +4,20 @@
 import logging
 
 from PySide6 import QtCore, QtWidgets
-from PySide6.QtCore import QEvent, Qt, QTimer, Signal
-from PySide6.QtWidgets import QFrame, QLabel, QTextEdit
+from PySide6.QtCore import QEvent, Qt, QTimer, Signal, QRect
+from PySide6.QtWidgets import QFrame, QLabel, QTextEdit, QWidget
 
 from src.common.decorators import log_method
 from src.pyside_ext.markup import css
 from src.pyside_ext.styling import Style
 from src.pyside_ext.unique_qss import set_stylesheet
+
+from typing import Callable, Optional
+
+from PySide6.QtCore import QObject, QEvent, QPoint, Qt, Signal
+from PySide6.QtGui import QMouseEvent, QKeyEvent, QCursor, QGuiApplication
+from PySide6.QtWidgets import QApplication, QDialog
+
 
 
 class QWidgetClickable(QFrame):

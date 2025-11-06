@@ -37,6 +37,7 @@ BASE_STYLES = (
 
 class SettingsPanelSize:
     width: int = 320
+    popup_minimum_width: int = 700
     tab_width: int = 300
     even_col_width: int = 130
     max_col_width: int = 200

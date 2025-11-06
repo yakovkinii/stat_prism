@@ -15,6 +15,8 @@ def add_widget(
     widget_class=None,
     inner_layout_class=None,
     outer_layout=None,
+    outer_layout_grid_row=None,
+    outer_layout_grid_column=None,
     css=None,
 ):
     if widget is None:
@@ -31,7 +33,11 @@ def add_widget(
         layout = None
 
     if outer_layout is not None:
-        outer_layout.addWidget(widget)
+        args = []
+        if outer_layout_grid_row is not None:
+            assert outer_layout_grid_column is not None, "If specifying grid row, must also specify column"
+            args = [outer_layout_grid_row, outer_layout_grid_column]
+        outer_layout.addWidget(widget, *args)
 
     if css is not None:
         set_stylesheet(

@@ -4,23 +4,33 @@
 from typing import List
 
 import attrs
+import qtawesome as qta
 from PySide6 import QtCore, QtWidgets
-from PySide6.QtCore import QPoint
+from PySide6.QtCore import Qt
 from PySide6.QtWidgets import (
+    QDialog,
+    QFrame,
+    QHBoxLayout,
+    QLabel,
+    QListWidgetItem,
     QVBoxLayout,
-    QListWidget, QFrame,
+    QDialogButtonBox,
 )
 
-from src.common.constant import ColumnType, SettingsPanelSize
+from src.common.constant import COLUMN_TYPE_ICONS, ColumnType, SettingsPanelSize
+from src.common.decorators import log_method_noarg
+from src.common.ui_constructor import create_tool_button_qta
 from src.data.data import DataColumn
 from src.pyside_ext.elements.utility.layout_helpers import (
-    clean_up_list_widget,
     add_widget,
+    clean_up_list_widget,
+    widget_in_layout,
 )
 from src.pyside_ext.elements.utility.primitive_elements import (
-    QWidgetClickable, QListWidgetClickable,
+    QListWidgetClickable,
+    QWidgetClickable,
 )
-from src.pyside_ext.layout import VBoxLayout
+from src.pyside_ext.layout import VBoxLayout, HBoxLayout, GridLayout
 from src.pyside_ext.markup import css
 from src.pyside_ext.styling import Style
 from src.side_area_panel.blueprint.element import ItemInSidePanelWithAutoConfig
@@ -41,106 +51,466 @@ class ColumnSelectorIISPWAC(ItemInSidePanelWithAutoConfig):
     def __init__(self, fields: List[Field]):
         super().__init__()
         self.fields = fields
-        self.scroll = None
+        self.handler_changed = None
 
     def post_init(self, label, parent_widget):
+        self.popup = ColumnSelectorExPopup(None, self.fields, handler_popup_close=self.popup_closed)
+        self.popup.widget.hide()
+
         self.label = label
         self.widget, self.layout = add_widget(
             parent=parent_widget,
-            inner_layout_class=QVBoxLayout,
+            inner_layout_class=VBoxLayout,
             widget_class=QWidgetClickable,
         )
+        self.widget.clicked.connect(self.handler_open_popup)
 
-        self.main_field_frame, self.main_field_frame_layout = add_widget(
-            # parent=self.widget,
-            # outer_layout=self.layout,
-            inner_layout_class=VBoxLayout,
-            widget_class=QFrame,
-            css=css(background_color=Style.Color.BackgroundElevated,
-                     border=Style.General.border,
-                    )
-        )
-        self.main_field_frame.setFrameShape(QFrame.StyledPanel)
-        self.main_field_frame.setFixedWidth(SettingsPanelSize.width)
-        # self.main_field_frame.setFixedHeight(200)
-
-        self.main_field_frame.hide()
-
-        self.main_field, self.main_field_layout = add_widget(
-            parent=self.main_field_frame,
-            outer_layout=self.main_field_frame_layout,
-            widget=QListWidgetClickable(self.widget),
-        )
-        self.main_field.setSelectionMode(QtWidgets.QAbstractItemView.SelectionMode.ExtendedSelection)
-        self.main_field.setDragEnabled(True)
-        self.main_field.setAcceptDrops(True)
-        self.main_field.setDropIndicatorShown(True)
-        self.main_field.setDefaultDropAction(QtCore.Qt.DropAction.MoveAction)
-
-        self.field1, self.field1_layout = add_widget(
+        self.fields_panel, self.fields_panel_layout = add_widget(
             parent=self.widget,
+            inner_layout_class=VBoxLayout,
             outer_layout=self.layout,
-            # inner_layout_class=QHBoxLayout,
-            widget=QListWidgetClickable(self.widget),
         )
-        self.field1.setSelectionMode(QtWidgets.QAbstractItemView.SelectionMode.ExtendedSelection)
-        self.field1.setDragEnabled(True)
-        self.field1.setAcceptDrops(True)
-        self.field1.setDropIndicatorShown(True)
-        self.field1.setDefaultDropAction(QtCore.Qt.DropAction.MoveAction)
-        self.field1.clicked.connect(lambda: self.show_panel_for(self.field1))
+        self.fields_panel_layout.setContentsMargins(2, 2, 2, 2)
+        self.fields_panel_layout.setSpacing(15)
 
-    def configure(self, columns: List[DataColumn], selected_columns_list):
-        columns_for_main = columns.copy()
-        for panel_list, selected_columns in zip([self.field1], selected_columns_list):
-            clean_up_list_widget(panel_list)
-            panel_list.addItems(
-                [selected_column.column_name for selected_column in selected_columns]
-                if selected_columns not in [None, [None]]
-                else []
+        self.panel_list_widgets = []
+        self.panel_list_buttons = []
+        self.panel_list_icons = []
+        for index, field in enumerate(self.fields):
+            panel, panel_layout = add_widget(
+                parent=self.fields_panel,
+                inner_layout_class=VBoxLayout,
+                outer_layout=self.fields_panel_layout,
+                css=css(border="solid 1px blue"),
             )
-            for col_name in selected_columns:
-                columns_for_main = [col for col in columns_for_main if col != col_name]
 
-        clean_up_list_widget(self.main_field)
-        self.main_field.addItems([col.column_name for col in columns_for_main])
+            title, title_layout = add_widget(
+                parent=panel,
+                inner_layout_class=HBoxLayout,
+                outer_layout=panel_layout,
+            )
 
-    def inject_scroll_and_root_parent_widget(self, scroll, side_panel_root_widget, root_widget):
-        self.scroll = scroll
-        self.side_panel_root_widget = side_panel_root_widget
-        self.scroll.verticalScrollBar().valueChanged.connect(self.reposition_panel)
-        self.current_item = None
-        self.main_field_frame.setParent(root_widget)
-        self.root_widget = root_widget
+            field_label, _ = add_widget(
+                widget=QLabel(title),
+                outer_layout=title_layout,
+                css=css(
+                    font_size=Style.FontSize.regular,
+                ),
+            )
+            field_label.setText(field.name)
 
-    def show_panel_for(self, item_widget):
-        self.current_item = item_widget
-        self.main_field_frame.show()
-        self.main_field_frame.adjustSize()
-        self.reposition_panel()
+            title_layout.addStretch()
 
-    def reposition_panel(self):
-        if not self.current_item or not self.main_field_frame.isVisible():
+            pixmaps = [COLUMN_TYPE_ICONS[field.column_type].pixmap(24, 24)]
+            if field.column_type == ColumnType.ORDINAL:
+                pixmaps.append(COLUMN_TYPE_ICONS[ColumnType.NUMERIC].pixmap(24, 24))
+            elif field.column_type == ColumnType.NOMINAL:
+                pixmaps.append(COLUMN_TYPE_ICONS[ColumnType.ORDINAL].pixmap(24, 24))
+                pixmaps.append(COLUMN_TYPE_ICONS[ColumnType.NUMERIC].pixmap(24, 24))
+
+            for pixmap in pixmaps:
+                icon = widget_in_layout(
+                    widget=QLabel(title),
+                    layout=title_layout,
+                    setup=lambda widget, layout: [
+                        widget.setPixmap(pixmap),
+                    ],
+                )
+                self.panel_list_icons.append(icon)
+
+            panel_list, panel_list_layout = add_widget(
+                parent=panel,
+                widget_class=QListWidgetClickable,
+                outer_layout=panel_layout,
+                css=css(
+                    border=Style.General.border,
+                    border_color=Style.Color.BorderElevated,
+                ),
+            )
+            panel_list.setSelectionMode(QtWidgets.QAbstractItemView.SelectionMode.ExtendedSelection),
+            panel_list.clicked.connect(self.handler_open_popup)
+            panel_list.setFocusPolicy(Qt.FocusPolicy.NoFocus),
+            panel_list.setDragEnabled(True),
+            panel_list.setAcceptDrops(True),
+            panel_list.setDropIndicatorShown(True),
+            panel_list.setDefaultDropAction(QtCore.Qt.DropAction.MoveAction),
+            panel_list.reasonable_number_of_columns = field.reasonable_number_of_columns
+
+            self.panel_list_widgets.append(panel_list)
+
+    def configure(self, columns: List[DataColumn], selected_columns_list: List[List[str]]):
+        self.columns = columns
+        self.selected_columns_list = selected_columns_list
+
+        self.columns = columns
+        self.column_names = [column.column_name for column in columns]
+        main_list_names = [column.column_name for column in columns]
+
+        for panel_list, selected_columns in zip(self.panel_list_widgets, selected_columns_list):
+            clean_up_list_widget(panel_list)
+            for column in selected_columns:
+                if column not in main_list_names:
+                    continue
+                main_list_names.remove(column)
+                item = QListWidgetItem(column)
+                item.setIcon(COLUMN_TYPE_ICONS[columns[self.column_names.index(column)].column_type])
+                item.setSizeHint(QtCore.QSize(0, ITEM_HEIGHT))
+                panel_list.addItem(item)
+
+    @log_method_noarg
+    def handler_open_popup(self):
+        self.popup.configure(self.columns, self.selected_columns_list)
+        self.popup.widget.show()
+
+
+    @log_method_noarg
+    def popup_closed(self):
+        for i, (panel_list, popup_panel_list) in enumerate(zip(self.panel_list_widgets, self.popup.panel_list_widgets)):
+            clean_up_list_widget(panel_list)
+            selected_columns = [popup_panel_list.item(i).text() for i in range(popup_panel_list.count())]
+            self.selected_columns_list[i] = selected_columns
+            for column in selected_columns:
+                item = QListWidgetItem(column)
+                item.setIcon(COLUMN_TYPE_ICONS[self.columns[self.column_names.index(column)].column_type])
+                item.setSizeHint(QtCore.QSize(0, ITEM_HEIGHT))
+                panel_list.addItem(item)
+            # tell layout to recalculate heights
+            panel_list.updateGeometry()
+
+        if self.handler_changed is not None:
+            self.handler_changed()
+
+    def set_handler_changed(self, handler: callable):
+        self.handler_changed = handler
+
+
+class ColumnSelectorExPopup:
+    def __init__(self, parent_widget, fields: List[Field], handler_popup_close: callable):
+        self.fields = fields
+        self.columns: List[DataColumn] = []
+        self.column_names: List[str] = []
+        self.handler_popup_close = handler_popup_close
+        self.success = False
+
+        self.widget, self.layout = add_widget(
+            parent=parent_widget,
+            inner_layout_class=HBoxLayout,
+            widget_class=QDialog,
+        )
+        self.widget.setWindowModality(Qt.WindowModality.ApplicationModal)
+        self.widget.setWindowTitle("Select Columns")
+        self.widget.setMinimumWidth(SettingsPanelSize.popup_minimum_width)
+        self.layout.setContentsMargins(10, 10, 10, 10)
+        self.layout.setSpacing(10)
+        self.widget.closeEvent = lambda event: self.handler_close()
+        # self.widget.dismissed.connect(self.handler_close)
+
+        self.main_list, _ = add_widget(
+            parent=self.widget,
+            widget_class=QListWidgetClickable,
+            outer_layout=self.layout,
+            css=css(
+                border=Style.General.border,
+                border_color=Style.Color.BorderElevated,
+            ),
+        )
+        self.main_list.setSelectionMode(QtWidgets.QAbstractItemView.SelectionMode.ExtendedSelection)
+        self.main_list.clicked.connect(self.main_list_clicked)
+        self.main_list.selectionModel().selectionChanged.connect(self.main_list_clicked)
+        self.main_list.setFocusPolicy(Qt.FocusPolicy.NoFocus)
+        self.main_list.setDragEnabled(True)
+        self.main_list.setAcceptDrops(True)
+        self.main_list.setDropIndicatorShown(True)
+        self.main_list.setDefaultDropAction(QtCore.Qt.DropAction.MoveAction)
+
+        self.main_list.reasonable_number_of_columns = 16
+
+        self.fields_panel, self.fields_panel_layout = add_widget(
+            parent=self.widget,
+            inner_layout_class=VBoxLayout,
+            outer_layout=self.layout,
+        )
+        self.fields_panel_layout.setContentsMargins(2, 2, 2, 2)
+        self.fields_panel_layout.setSpacing(15)
+
+        self.panel_list_widgets = []
+        self.panel_list_buttons = []
+        self.panel_list_icons = []
+        for index, field in enumerate(fields):
+            panel, panel_layout = add_widget(
+                parent=self.fields_panel,
+                inner_layout_class=GridLayout,
+                outer_layout=self.fields_panel_layout,
+            )
+
+            title, title_layout = add_widget(
+                parent=panel,
+                inner_layout_class=HBoxLayout,
+                outer_layout=panel_layout,
+                outer_layout_grid_column=1,
+                outer_layout_grid_row=0,
+            )
+
+            field_label, _ = add_widget(
+                widget=QLabel(title),
+                outer_layout=title_layout,
+                css=css(
+                    font_size=Style.FontSize.regular,
+                ),
+            )
+            field_label.setText(field.name)
+
+            title_layout.addStretch()
+
+            pixmaps = [COLUMN_TYPE_ICONS[field.column_type].pixmap(24, 24)]
+            if field.column_type == ColumnType.ORDINAL:
+                pixmaps.append(COLUMN_TYPE_ICONS[ColumnType.NUMERIC].pixmap(24, 24))
+            elif field.column_type == ColumnType.NOMINAL:
+                pixmaps.append(COLUMN_TYPE_ICONS[ColumnType.ORDINAL].pixmap(24, 24))
+                pixmaps.append(COLUMN_TYPE_ICONS[ColumnType.NUMERIC].pixmap(24, 24))
+
+            for pixmap in pixmaps:
+                icon = widget_in_layout(
+                    widget=QLabel(title),
+                    layout=title_layout,
+                    setup=lambda widget, layout: [
+                        widget.setPixmap(pixmap),
+                    ],
+                )
+                self.panel_list_icons.append(icon)
+
+            button_stretch, button_stretch_layout = add_widget(
+                parent=panel,
+                inner_layout_class=VBoxLayout,
+                outer_layout=panel_layout,
+                outer_layout_grid_column=0,
+                outer_layout_grid_row=1,
+            )
+            button_stretch_layout.setContentsMargins(0, 0, 5, 0)
+
+            panel_list_button, _ = add_widget(
+                widget=create_tool_button_qta(
+                    parent=button_stretch,
+                    button_geometry=None,
+                    icon_path="ph.arrow-bend-down-right",
+                    icon_size=QtCore.QSize(25, 25),
+                ),
+                outer_layout=button_stretch_layout,
+            )
+            panel_list_button.setText("Add")
+            panel_list_button.clicked.connect((lambda _: lambda: self.button_pressed(_))(index))
+
+            button_stretch_layout.addStretch()
+
+            list_stretch, list_stretch_layout = add_widget(
+                parent=panel,
+                inner_layout_class=VBoxLayout,
+                outer_layout=panel_layout,
+                outer_layout_grid_column=1,
+                outer_layout_grid_row=1,
+            )
+
+            panel_list, panel_list_layout = add_widget(
+                widget=QListWidgetClickable(list_stretch),
+                outer_layout=list_stretch_layout,
+                css=css(
+                    border=Style.General.border,
+                    border_color=Style.Color.BorderElevated,
+                ),
+            )
+            panel_list.setSelectionMode(QtWidgets.QAbstractItemView.SelectionMode.ExtendedSelection),
+            panel_list.clicked.connect((lambda _: lambda: self.panel_list_clicked(_))(index)),
+            panel_list.selectionModel().selectionChanged.connect((lambda _: lambda: self.panel_list_clicked(_))(index)),
+            panel_list.setFocusPolicy(Qt.FocusPolicy.NoFocus),
+            panel_list.setDragEnabled(True),
+            panel_list.setAcceptDrops(True),
+            panel_list.setDropIndicatorShown(True),
+            panel_list.setDefaultDropAction(QtCore.Qt.DropAction.MoveAction),
+            # panel_list_layout.setContentsMargins(0, 0, 0, 0),
+            panel_list.reasonable_number_of_columns = field.reasonable_number_of_columns
+            list_stretch_layout.addStretch()
+
+            self.panel_list_widgets.append(panel_list)
+            self.panel_list_buttons.append(panel_list_button)
+
+            panel_list.dropEvent = lambda event, _=index: self.dropEvent(event, _)
+
+        self.main_list.dropEvent = lambda event: self.dropEvent(event, -1)
+
+        button_box, button_box_layout = add_widget(
+            parent=self.fields_panel,
+            inner_layout_class=HBoxLayout,
+            outer_layout=self.fields_panel_layout,
+        )
+        button_box_layout.addStretch()
+
+        ok_button = QtWidgets.QPushButton("OK")
+        button_box_layout.addWidget(ok_button)
+        ok_button.clicked.connect(self.handler_close)
+
+        self.main_list.itemDoubleClicked.connect(self.handle_double_click)
+        for panel_list in self.panel_list_widgets:
+            panel_list.itemDoubleClicked.connect(self.handle_double_click)
+
+    def configure(self, columns: List[DataColumn], selected_columns_list: List[List[str]]):
+        clean_up_list_widget(self.main_list)
+        self.columns = columns
+        self.column_names = [column.column_name for column in columns]
+        main_list_names = [column.column_name for column in columns]
+
+        for panel_list, selected_columns in zip(self.panel_list_widgets, selected_columns_list):
+            clean_up_list_widget(panel_list)
+            for column in selected_columns:
+                if column not in main_list_names:
+                    continue
+                main_list_names.remove(column)
+                item = QListWidgetItem(column)
+                item.setIcon(COLUMN_TYPE_ICONS[columns[self.column_names.index(column)].column_type])
+                item.setSizeHint(QtCore.QSize(0, ITEM_HEIGHT))
+                panel_list.addItem(item)
+
+        for column in main_list_names:
+            item = QListWidgetItem(column)
+            item.setIcon(COLUMN_TYPE_ICONS[columns[self.column_names.index(column)].column_type])
+            item.setSizeHint(QtCore.QSize(0, ITEM_HEIGHT))
+            self.main_list.addItem(item)
+        self.success = False
+
+    def main_list_clicked(self):
+        for button in self.panel_list_buttons:
+            button.setIcon(qta.icon("ph.arrow-bend-down-right"))
+            button.setText("Add")
+            button.setEnabled(True)
+
+    def panel_list_clicked(self, panel_index):
+        for button_index, button in enumerate(self.panel_list_buttons):
+            if button_index == panel_index:
+                button.setIcon(qta.icon("ph.arrow-bend-left-up"))
+                button.setText("Remove")
+                button.setEnabled(True)
+            else:
+                button.setIcon(qta.icon("ph.arrow-bend-left-up"))
+                button.setText("Remove")
+                button.setEnabled(False)
+
+    def dropEvent(self, event, index):
+        source_list = event.source()
+        target_list = self.panel_list_widgets[index] if index != -1 else self.main_list
+        if target_list == source_list:
+            super(QListWidgetClickable, source_list).dropEvent(event)
+            event.ignore()
             return
 
-        assert self.scroll is not None
-        assert self.side_panel_root_widget is not None
+        if isinstance(target_list, QListWidgetClickable):
+            if source_list == self.main_list:
+                # index != -1
+                self.button_pressed(index, from_drop=True, remove=False)
+            else:
+                index_of_source_list = self.panel_list_widgets.index(source_list)
+                if index == -1:
+                    # index_of_source_list -> main
+                    self.button_pressed(index_of_source_list, from_drop=True, remove=True)
+                else:
+                    # index_of_source_list -> index
+                    # index != -1
+                    selected_items = source_list.selectedItems()
+                    selected_items_text = [item.text() for item in selected_items]
+                    self.button_pressed(index_of_source_list, from_drop=True, remove=True)
+                    selected_items_in_main_list = [
+                        self.main_list.item(i)
+                        for i in range(self.main_list.count())
+                        if self.main_list.item(i).text() in selected_items_text
+                    ]
+                    for item in selected_items_in_main_list:
+                        item.setSelected(True)
+                    self.button_pressed(index, from_drop=True, remove=False)
 
-        item_pos_in_self = self.current_item.mapTo(self.side_panel_root_widget, QPoint(0, 0))
-        sidebar_pos_in_self = self.scroll.mapTo(self.side_panel_root_widget, QPoint(0, 0))
+        event.ignore()
 
-        gap = -10
-        x = sidebar_pos_in_self.x() - self.main_field_frame.width() - gap
+    def handle_double_click(self, item):
+        source_list = item.listWidget()
+        if source_list == self.main_list:
+            for i, panel_list in enumerate(self.panel_list_widgets):
+                if panel_list.count() == 0 or not self.fields[i].allow_only_single_column:
+                    self.button_pressed(i, from_double_click=True, remove=False, item=item)
+                    break
+        else:
+            # Move item back to the main list
+            panel_index = self.panel_list_widgets.index(source_list)
+            self.button_pressed(panel_index, from_double_click=True, remove=True, item=item)
 
-        # --- center panel on the item vertically ---
-        item_h = self.current_item.height
-        panel_h = self.main_field_frame.height()
-        y = item_pos_in_self.y() + (item_h // 2) - (panel_h // 2)
+    def button_pressed(self, button_index, from_drop=False, from_double_click=False, remove=False, item=None):
+        button = self.panel_list_buttons[button_index]
+        panel_list: QListWidgetClickable = self.panel_list_widgets[button_index]
+        if (
+            (button.text() == "Add" and not from_drop and not from_double_click)
+            or (from_drop and not remove)
+            or (from_double_click and not remove)
+        ):
+            selected_main = [item] if from_double_click else (self.main_list.selectedItems())
 
-        # clamp so it doesn't go off top/bottom of main widget
-        y = max(0, min(y, self.side_panel_root_widget.height() - panel_h - 5))
+            if self.fields[button_index].allow_only_single_column:
+                if (panel_list.count() > 0) or (len(selected_main) > 1):
+                    return
 
-        side_panel_pos = self.scroll.mapTo(self.root_widget, QPoint(0, 0))
+            if selected_main:
+                selected_main_names = [item.text() for item in selected_main]
+                selected_main_types = [
+                    self.columns[self.column_names.index(item)].column_type for item in selected_main_names
+                ]
+                panel_type = self.fields[button_index].column_type
+                if panel_type == ColumnType.NOMINAL:
+                    allowed_types = [
+                        ColumnType.NOMINAL,
+                        ColumnType.ORDINAL,
+                        ColumnType.NUMERIC,
+                    ]
+                elif panel_type == ColumnType.ORDINAL:
+                    allowed_types = [ColumnType.ORDINAL, ColumnType.NUMERIC]
+                else:
+                    allowed_types = [ColumnType.NUMERIC]
 
-        self.main_field_frame.move(x+side_panel_pos.x(), y+side_panel_pos.y())
-        self.main_field_frame.raise_()
+                if not all([selected_main_type in allowed_types for selected_main_type in selected_main_types]):
+                    icon = self.panel_list_icons[button_index]
+                    old_pixmap = icon.pixmap()
+                    icon.setPixmap(qta.icon("mdi.alert", color="red").pixmap(24, 24))
+                    QtCore.QTimer.singleShot(50, lambda _=old_pixmap: icon.setPixmap(_))
+                    return
+
+                for item in selected_main:
+                    new_item = QListWidgetItem(item.text())
+                    new_item.setIcon(item.icon())
+                    new_item.setSizeHint(QtCore.QSize(0, ITEM_HEIGHT))
+                    panel_list.addItem(new_item)
+                    self.main_list.takeItem(self.main_list.row(item))
+        elif (
+            (button.text() == "Remove" and not from_drop and not from_double_click)
+            or (from_drop and remove)
+            or (from_double_click and remove)
+        ):
+            selected_list = [item] if from_double_click else (panel_list.selectedItems())
+            if selected_list:
+                for item in selected_list:
+                    new_item = QListWidgetItem(item.text())
+                    new_item.setIcon(item.icon())
+                    new_item.setSizeHint(QtCore.QSize(0, ITEM_HEIGHT))
+                    self.main_list.addItem(new_item)
+                    panel_list.takeItem(panel_list.row(item))
+
+                sorted_items = sorted(
+                    (self.main_list.item(i).text() for i in range(self.main_list.count())),
+                    key=lambda x: self.column_names.index(x),
+                )
+                clean_up_list_widget(self.main_list)
+                for item in sorted_items:
+                    new_item = QListWidgetItem(item)
+                    new_item.setIcon(COLUMN_TYPE_ICONS[self.columns[self.column_names.index(item)].column_type])
+                    new_item.setSizeHint(QtCore.QSize(0, ITEM_HEIGHT))
+                    self.main_list.addItem(new_item)
+        for panel_list in self.panel_list_widgets:
+            panel_list.updateGeometry()
+
+    @log_method_noarg
+    def handler_close(self):
+        self.widget.hide()
+        self.handler_popup_close()

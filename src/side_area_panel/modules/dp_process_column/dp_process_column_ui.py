@@ -17,7 +17,6 @@ from src.side_area_panel.modules.common.result.registry import RESULTS
 
 
 class Elements(ItemInSidePanelWithAutoConfigHolder):
-    the_text = TextEditIISPWAC()
     column_selector = ColumnSelectorIISPWAC(
         fields=[
             Field(
@@ -29,51 +28,29 @@ class Elements(ItemInSidePanelWithAutoConfigHolder):
             ),
         ],
     )
+    rename_to = TextEditIISPWAC()
+
 
 
 class DpProcessColumn(BaseModulePanel):
     def setup_ui(self):
-        self.elements = {
-            "column_selector": ColumnSelectorEx(
-                fields=[
-                    Field(
-                        name="Column:",
-                        column_type=ColumnType.ORDINAL,
-                        reasonable_number_of_columns=1,
-                        allow_only_single_column=True,
-                        minimum_columns=1,
-                    ),
-                ],
-            ),
-            "rename": LabeledLineEdit(
-                label_text="Rename:",
-            ),
-            "encode": LargeButton(
-                label_text="Encode",
-                icon_path="ph.arrows-clockwise",
-            ),
-        }
-        self.setup(stretch=False, label="Process Column")
-        self.elements["rename"].set_editing_finished_handler(self.recalculate)
-
-        self.elememts_new = Elements().complete_init_of_items(
+        self.elements_ = Elements().complete_init_of_items(
             parent_widget=self.widget_for_elements,
             parent_layout=self.widget_for_elements_layout,
             stretch=True,
         )
-        self.elememts_new.column_selector.inject_scroll_and_root_parent_widget(self.scroll_area, self.widget, self.root_class.widget)
 
     @log_method
     def configure(self, result_id: int):
         self.configuring = True
         self.result_id = result_id
-        self.elememts_new.column_selector.configure(
+        self.elements_.column_selector.configure(
             columns=DATA_MANAGER.get_data_before_result_id(self.result_id).get_all_columns_as_column_types(),
             selected_columns_list=[
                 [RESULTS[result_id].config.column],
             ],
         )
-        self.elements["rename"].set_text(RESULTS[result_id].config.rename)
+        # self.elements["rename"].set_text(RESULTS[result_id].config.rename)
         self.set_recalculate_button_highlight(RESULTS[result_id].needs_update)
         self.configuring = False
 

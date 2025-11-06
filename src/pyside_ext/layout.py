@@ -1,7 +1,7 @@
 #  Copyright (c) 2023 StatPrism Team. All rights reserved.
 
 
-from PySide6.QtWidgets import QHBoxLayout, QVBoxLayout
+from PySide6.QtWidgets import QHBoxLayout, QVBoxLayout, QGridLayout
 
 
 class HBoxLayout(QHBoxLayout):
@@ -12,6 +12,13 @@ class HBoxLayout(QHBoxLayout):
 
 
 class VBoxLayout(QVBoxLayout):
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.setContentsMargins(0, 0, 0, 0)
+        self.setSpacing(0)
+
+
+class GridLayout(QGridLayout):
     def __init__(self, parent=None):
         super().__init__(parent)
         self.setContentsMargins(0, 0, 0, 0)
