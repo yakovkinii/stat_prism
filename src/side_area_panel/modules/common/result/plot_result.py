@@ -368,6 +368,19 @@ class PlotV2(BaseResultElement):
     def __setstate__(self, state):
         self.__init__(**state)
 
+    def load_settings_from(self, plot: "PlotV2"):
+        try:
+            self.plot_id = plot.plot_id
+            self.plot_title = plot.plot_title
+            self.x_axis_title = plot.x_axis_title
+            self.y_axis_title = plot.y_axis_title
+            self.tilt_x_axis_labels = plot.tilt_x_axis_labels
+            for self_item, plot_item in zip(self.items, plot.items):
+                self_item.config = plot_item.config
+
+        except Exception as e:
+            logging.warning(f"Error trying to set settings from another plot: {e}")
+
     def create_figure(self):
         plt.close("all")
         fig, ax = plt.subplots()

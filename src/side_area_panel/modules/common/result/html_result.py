@@ -103,6 +103,10 @@ class HTMLTableV2(BaseResultElement):
     def __setstate__(self, state):
         self.__init__(**state)
 
+    def load_settings_from(self, table: "HTMLTableV2"):
+        self.table_id = table.table_id
+        self.table_caption = table.table_caption
+
     @log_method_noarg
     def get_html(self, renderer=None):
         table_id = self.table_id.get_current_value()

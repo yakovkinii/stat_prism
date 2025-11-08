@@ -4,7 +4,6 @@
 import logging
 
 from src.common.decorators import log_function
-from src.data.data import Data
 from src.data.data_manager import DATA_MANAGER
 from src.side_area_panel.modules.mean_comparison.anova import (
     recalculate_mean_comparison_anova,

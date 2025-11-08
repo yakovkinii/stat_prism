@@ -204,11 +204,11 @@ class BaseModulePanel:
                 result=result,
             )
 
-        # return self.recalculate_on_done(self.main_function(elements=self.elements_, result=result))
+        return self.recalculate_on_done(self.main_function(elements=self.elements_, result=result))
 
-        run_in_separate_thread(
-            main, progress_bar=self.root_class.settings_panel.progress_bar, on_done=self.recalculate_on_done
-        )
+        # run_in_separate_thread(
+        #     main, progress_bar=self.root_class.settings_panel.progress_bar, on_done=self.recalculate_on_done
+        # )
 
     @log_method
     def recalculate_on_done(self, result):

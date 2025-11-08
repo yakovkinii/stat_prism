@@ -29,6 +29,7 @@ from src.pyside_ext.unique_qss import set_stylesheet
 from src.side_area_panel.modules.common.result.html_result import HTMLTableV2
 from src.side_area_panel.modules.common.result.plot_result import PlotV2
 from src.side_area_panel.modules.common.result.registry import RESULTS
+from src.side_area_panel.modules.registry import ModuleRegistry
 
 
 class DataAnalysisResultDisplay(BaseResultDisplay):
@@ -62,6 +63,36 @@ class DataAnalysisResultDisplay(BaseResultDisplay):
         )
 
         self.header_layout.addStretch()
+
+        self.recalculate_button = widget_in_layout(
+            widget=create_simple_tool_button_qta(
+                parent=self.header_widget,
+                icon_path="ph.arrows-clockwise-bold",
+                icon_size=QSize(20, 20),
+            ),
+            layout=self.header_layout,
+            alignment=Qt.AlignmentFlag.AlignTop,
+            setup=lambda w, l: [
+                w.setToolTip("Recalculate"),
+                w.clicked.connect(self.recalculate),
+            ],
+        )
+
+        self.delete_button = widget_in_layout(
+            widget=create_simple_tool_button_qta(
+                parent=self.header_widget,
+                icon_path="mdi6.delete",
+                icon_size=QSize(20, 20),
+            ),
+            layout=self.header_layout,
+            alignment=Qt.AlignmentFlag.AlignTop,
+            setup=lambda w, l: [
+                w.setToolTip("Recalculate"),
+                w.clicked.connect(self.delete),
+            ],
+        )
+        self.deleting = False
+        self.deleted = False
 
         self.copy_button = widget_in_layout(
             widget=create_simple_tool_button_qta(
@@ -123,6 +154,28 @@ class DataAnalysisResultDisplay(BaseResultDisplay):
         QGuiApplication.clipboard().setMimeData(mime_data)
 
         QTimer.singleShot(1000, lambda: self.copy_button.setIcon(qta.icon("fa.copy", color="#888")))
+
+    def recalculate(self):
+        panel = self.root_class.settings_panel.panels[RESULTS[self.result_id].settings_panel_index]
+        panel.configure(self.result_id)
+        panel.recalculate()
+
+    def delete(self):
+        if not self.deleting:
+            self.delete_button.setIcon(qta.icon("mdi6.delete-alert", color="#AF4C50"))
+            self.deleting = True
+            QTimer.singleShot(
+                1500, lambda: self.set_not_deleting()
+            )
+        else:
+            self.deleted = True
+            self.parent_class.delete_result(self.result_id)
+
+    def set_not_deleting(self):
+        if self.deleted:
+            return
+        self.delete_button.setIcon(qta.icon("mdi6.delete", color="#888"))
+        self.deleting = False
 
     def refresh_element(self, result_element_id):
         if result_element_id in self.element_display_objects:

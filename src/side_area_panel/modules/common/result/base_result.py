@@ -1,7 +1,7 @@
 #  Copyright (c) 2023 StatPrism Team. All rights reserved.
 
 
-from typing import List
+from typing import List, Dict
 
 from src.pyside_ext.markup import HTML
 from src.pyside_ext.styling import Style
@@ -27,6 +27,8 @@ class BaseResult:
         self.config = ...
         # Flag for updating the result
         self.needs_update: bool = False
+        # For keeping the user settings
+        self.old_result_elements: Dict[str, BaseResultElement] = dict()
 
         self.description = ""
 
@@ -37,6 +39,12 @@ class BaseResult:
 
     def add_header_info(self, text):
         self.header += HTML.div(text, font_size=Style.FontSize.smaller)
+
+    def update_and_add_element(self, element:BaseResultElement, name: str):
+        if name in self.old_result_elements:
+            element.load_settings_from(self.old_result_elements[name])
+        self.result_elements.append(element)
+        self.old_result_elements[name] = element
 
     @staticmethod
     def format_additional_info_html(text) -> str:

@@ -142,6 +142,11 @@ class MainAreaClass:
         else:
             result_object.refresh_element(result_element_id)
 
+    def delete_result(self, result_id):
+        self.root_class.action_activate_home_panel()
+        self.remove_result(result_id)
+        RESULTS.pop(result_id)
+
     def update_focus(self, result_id, result_element_id=None):
         if self.focused_result_id is not None:
             self.get_result_object(self.focused_result_id).remove_focus(self.focused_result_element_id)

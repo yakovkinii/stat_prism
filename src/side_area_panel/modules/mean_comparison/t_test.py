@@ -50,9 +50,7 @@ def recalculate_mean_comparison_t_test(
 ) -> MeanComparisonResult:
     cfg = result.config
     selected_columns = cfg.column_selector[0]
-    selected_columns_types = [
-        DATA_MANAGER.get_latest_data().get_column_type_from_column_name(col) for col in cfg.column_selector[0]
-    ]
+
     grouping_column = cfg.column_selector[1][0]
     df = prepare_df_for_mean_comparison(data=data, cfg=cfg)
 
@@ -70,7 +68,10 @@ def recalculate_mean_comparison_t_test(
                 grouping_column=grouping_column,
             )
             if len(numeric_columns) > 0:
-                result.result_elements.append(normality_table)
+                result.update_and_add_element(
+                    normality_table,
+                    "t_test normality_table",
+                )
 
     elif cfg.method == MeanComparisonMethod.NON_PARAMETRIC.value:
         normal_columns, non_normal_columns = [], selected_columns
@@ -81,7 +82,10 @@ def recalculate_mean_comparison_t_test(
                 grouping_column=grouping_column,
             )
             if len(numeric_columns) > 0:
-                result.result_elements.append(normality_table)
+                result.update_and_add_element(
+                    normality_table,
+                    "t_test normality_table",
+                )
     elif cfg.method == MeanComparisonMethod.AUTO.value:
         normal_columns, non_normal_columns, normality_table = process_normality_check(
             df=df,
@@ -89,7 +93,10 @@ def recalculate_mean_comparison_t_test(
             grouping_column=grouping_column,
         )
         if (len(numeric_columns) > 0) and not (cfg.assumption_checks == AssumptionChecksInGrouping.NEVER.value):
-            result.result_elements.append(normality_table)
+            result.update_and_add_element(
+                normality_table,
+                "t_test normality_table",
+            )
 
     homogeneous_columns, non_homogeneous_columns = [], []
     if cfg.method == MeanComparisonMethod.HOMOGENEOUS.value:
@@ -101,7 +108,10 @@ def recalculate_mean_comparison_t_test(
                 grouping_column=grouping_column,
             )
             if len(normal_columns) > 0:
-                result.result_elements.append(homogeneity_table)
+                result.update_and_add_element(
+                    homogeneity_table,
+                    "t_test homogeneity_table",
+                )
     elif cfg.method == MeanComparisonMethod.INHOMOGENEOUS.value:
         homogeneous_columns, non_homogeneous_columns = [], normal_columns
         if cfg.assumption_checks == AssumptionChecksInGrouping.ALWAYS.value:
@@ -111,7 +121,10 @@ def recalculate_mean_comparison_t_test(
                 grouping_column=grouping_column,
             )
             if len(normal_columns) > 0:
-                result.result_elements.append(homogeneity_table)
+                result.update_and_add_element(
+                    homogeneity_table,
+                    "t_test homogeneity_table",
+                )
     elif cfg.method == MeanComparisonMethod.AUTO.value:
         homogeneous_columns, non_homogeneous_columns, homogeneity_table = process_homogeneity_check(
             df=df,
@@ -121,10 +134,12 @@ def recalculate_mean_comparison_t_test(
             grouping_column=grouping_column,
         )
         if (len(normal_columns) > 0) and not (cfg.assumption_checks == AssumptionChecksInGrouping.NEVER.value):
-            result.result_elements.append(homogeneity_table)
-
+            result.update_and_add_element(
+                homogeneity_table,
+                "t_test homogeneity_table",
+            )
     if len(non_numeric_columns + non_normal_columns) > 0:
-        result.result_elements.append(
+        result.update_and_add_element(
             process_non_normal_t_test(
                 df=prepare_df_for_mean_comparison(
                     data=data,
@@ -136,29 +151,32 @@ def recalculate_mean_comparison_t_test(
                 grouping_column=grouping_column,
                 means=cfg.means,
                 effect_size=cfg.effect_size,
-            )
+            ),
+            "t_test non_normal_table",
         )
 
     if len(non_homogeneous_columns) > 0:
-        result.result_elements.append(
+        result.update_and_add_element(
             process_non_homogeneous_t_test(
                 df=df,
                 columns=non_homogeneous_columns,
                 grouping_column=grouping_column,
                 means=cfg.means,
                 effect_size=cfg.effect_size,
-            )
+            ),
+            "t_test non_homogeneous_table",
         )
 
     if len(homogeneous_columns) > 0:
-        result.result_elements.append(
+        result.update_and_add_element(
             process_homogeneous_t_test(
                 df=df,
                 columns=homogeneous_columns,
                 grouping_column=grouping_column,
                 means=cfg.means,
                 effect_size=cfg.effect_size,
-            )
+            ),
+            "t_test homogeneous_table",
         )
     if not cfg.plots:
         return result
@@ -166,7 +184,6 @@ def recalculate_mean_comparison_t_test(
     groupby_column = grouping_column
     groupby_values = df[groupby_column].drop_duplicates().values
     numeric_columns = [col for col in selected_columns if data[col].column_type == ColumnType.NUMERIC]
-    plot_result_elements = []
     for col in selected_columns:
         is_numeric = col in numeric_columns
         if not is_numeric:
@@ -225,7 +242,10 @@ def recalculate_mean_comparison_t_test(
             x_axis_title=col,
             y_axis_title="Density",
         )
-        plot_result_elements.append(plot_result)
+        result.update_and_add_element(
+            plot_result,
+            f"t_test distribution_plot_{col}",
+        )
 
         box_plot_result = create_box_plot(
             groups=[df.loc[df[groupby_column] == groupby_value][col].dropna() for groupby_value in groupby_values],
@@ -233,8 +253,10 @@ def recalculate_mean_comparison_t_test(
             column=col,
             grouping_column=groupby_column,
         )
-        plot_result_elements.append(box_plot_result)
-    result.result_elements.extend(plot_result_elements)
+        result.update_and_add_element(
+            box_plot_result,
+            f"t_test box_plot_{col}",
+        )
     return result
 
 
