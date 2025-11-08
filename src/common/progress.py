@@ -1,3 +1,5 @@
+import logging
+import traceback
 from typing import List
 
 from PySide6.QtCore import QObject, QThread, Signal
@@ -10,6 +12,7 @@ class Worker(QObject):
     progress = Signal(int)
     finished = Signal(object)
     canceled = Signal()
+    error = Signal(str)  # emits traceback string to be logged in main thread
 
     def __init__(self, func):
         super().__init__()
@@ -27,8 +30,13 @@ class Worker(QObject):
 
         try:
             result = self.func(update_progress)
-        except Exception:
+        except Exception as e:
             self.canceled.emit()
+            tb = traceback.format_exc()
+            try:
+                self.error.emit(tb)
+            except Exception:
+                logging.error(tb)
             return
         self.finished.emit(result)
 
@@ -45,6 +53,8 @@ def run_in_separate_thread(func, progress_bar: QProgressBar, steps=100, on_done=
     thread = QThread()
     worker = Worker(func)
     worker.moveToThread(thread)
+
+    worker.error.connect(lambda msg: logging.error(msg))
 
     progress_bar._thread = thread
     progress_bar._worker = worker

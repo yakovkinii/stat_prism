@@ -6,18 +6,21 @@ from src.common.decorators import log_method
 from src.common.messages import MessageType
 from src.common.progress import run_in_separate_thread
 from src.data.data_manager import DATA_MANAGER
-from src.pyside_ext.elements.button_large import LargeButton
-from src.pyside_ext.elements.column_selector import ColumnSelectorEx, Field
-from src.pyside_ext.elements.edit import LabeledLineEdit
+from src.pyside_ext.elements.column_selector import Field
 from src.side_area_panel.blueprint.element import ItemInSidePanelWithAutoConfigHolder
-from src.side_area_panel.blueprint.iispwac.column_selector import ColumnSelectorIISPWAC
-from src.side_area_panel.blueprint.iispwac.text_edit_iispwac import TextEditIISPWAC
+from src.side_area_panel.iispwac.iispwac_checkbox import IISPWACCheckBox
+from src.side_area_panel.iispwac.iispwac_column_selector import IISPWACColumnSelector
+from src.side_area_panel.iispwac.iispwac_combobox import IISPWACComboBox
+from src.side_area_panel.iispwac.iispwac_data_source import IISPWACDataSource
+from src.side_area_panel.iispwac.iispwac_text_edit import IISPWACLongTextEdit
 from src.side_area_panel.modules.base.base import BaseModulePanel
 from src.side_area_panel.modules.common.result.registry import RESULTS
 
 
 class Elements(ItemInSidePanelWithAutoConfigHolder):
-    column_selector = ColumnSelectorIISPWAC(
+    data_source = IISPWACDataSource()
+
+    column_selector = IISPWACColumnSelector(
         fields=[
             Field(
                 name="Column:",
@@ -28,8 +31,18 @@ class Elements(ItemInSidePanelWithAutoConfigHolder):
             ),
         ],
     )
-    rename_to = TextEditIISPWAC()
 
+    rename_to = IISPWACLongTextEdit(
+        label_text="Rename to:",
+    )
+    combo = IISPWACComboBox(
+        label_text="Action:",
+        items=["Analyze", "Transform", "Encode"],
+    )
+    check = IISPWACCheckBox(
+        label_text="Check",
+        default_state=False,
+    )
 
 
 class DpProcessColumn(BaseModulePanel):
@@ -37,76 +50,7 @@ class DpProcessColumn(BaseModulePanel):
         self.elements_ = Elements().complete_init_of_items(
             parent_widget=self.widget_for_elements,
             parent_layout=self.widget_for_elements_layout,
+            handler_on_recalculate=self.recalculate,
             stretch=True,
         )
-
-    @log_method
-    def configure(self, result_id: int):
-        self.configuring = True
-        self.result_id = result_id
-        self.elements_.column_selector.configure(
-            columns=DATA_MANAGER.get_data_before_result_id(self.result_id).get_all_columns_as_column_types(),
-            selected_columns_list=[
-                [RESULTS[result_id].config.column],
-            ],
-        )
-        # self.elements["rename"].set_text(RESULTS[result_id].config.rename)
-        self.set_recalculate_button_highlight(RESULTS[result_id].needs_update)
-        self.configuring = False
-
-    def recalculate(self):
-        if self.configuring:
-            return
-
-        # Data should not be stored in config, maybe except for raw data
-        # anyway, the data is to be stored in result.
-        # after each dp result recalculate, the result should be registered
-        # as a data source using its result id.
-        # Later there will also be a choicer for data source in each module panel.
-
-        # RESULTS[self.result_id].config = ProcessColumnStudyConfig(
-        #     data=DATA_MANAGER.get_data_before_result_id(self.result_id),
-        #     column=self.elements["column_selector"].get_selected_columns()[0][0],
-        #     rename=self.elements["rename"].get_text(),
-        # )
-        #
-        # def main(update):
-        #     return recalculate_mean_comparison_study(data=data, result=result)
-        #
-        # run_in_separate_thread(
-        #     main, progress_bar=self.root_class.settings_panel.progress_bar, on_done=self.recalculate_on_done
-        # )
-
-    @log_method
-    def recalculate_on_done(self, result):
-        RESULTS[self.result_id] = result
-        RESULTS[self.result_id].needs_update = False
-        self.configure(result_id=self.result_id)
-        self.root_class.main_area_panel.refresh_result(result_id=self.result_id)
-
-    def encode_handler(self):
-        selected_columns = self.elements["column_selector"].get_selected_columns()[0]
-        if not selected_columns:
-            return
-        column_to_encode = selected_columns[0]
-
-        def main(update):
-            data = DATA_MANAGER.get_latest_data()
-            df = data.get_dataframe().copy()
-            update(20)
-            df[column_to_encode] = df[column_to_encode].astype("category").cat.codes
-            update(80)
-            data.update_dataframe(df)
-            return
-
-        run_in_separate_thread(
-            main, progress_bar=self.root_class.settings_panel.progress_bar, on_done=self.encode_on_done
-        )
-
-    @log_method
-    def handler(self, message):
-        if message.message_type == MessageType.CLICKED:
-            if message.caller_id == "encode":
-                self.encode_handler()
-            return
-        super().handler(message)
+        self.set_label("Process Column")

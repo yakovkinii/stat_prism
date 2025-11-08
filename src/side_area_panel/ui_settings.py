@@ -14,12 +14,14 @@ from src.pyside_ext.elements.utility.layout_helpers import widget_in_layout
 from src.pyside_ext.markup import css
 from src.pyside_ext.styling import Style
 from src.pyside_ext.unique_qss import set_stylesheet
+from src.side_area_panel.blueprint.registry import PanelRegistry, PanelRegistryItem
+from src.side_area_panel.blueprint.registry_injector import (
+    inject_classes_to_panel_registry,
+)
 from src.side_area_panel.modules.registry import ModuleRegistry, ModuleRegistryItem
 from src.side_area_panel.modules.registry_injector import (
     inject_classes_to_module_registry,
 )
-from src.side_area_panel.blueprint.registry import PanelRegistry, PanelRegistryItem
-from src.side_area_panel.blueprint.registry_injector import inject_classes_to_panel_registry
 
 if TYPE_CHECKING:
     from src.ui_main import MainWindowClass
@@ -149,6 +151,7 @@ class SettingsPanelClass:
             root_class=self.root_class,
             stacked_widget_index=panel_registry_item.settings_stacked_widget_index,
         )
+        panel_registry_item.ui_instance.main_function = panel_registry_item.main_function
         panel_registry_item.ui_instance.setup_ui()
         self.panels.append(panel_registry_item.ui_instance)
         self.stacked_widget.addWidget(panel_registry_item.ui_instance.widget)

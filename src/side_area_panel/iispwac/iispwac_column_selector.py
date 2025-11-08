@@ -9,18 +9,19 @@ from PySide6 import QtCore, QtWidgets
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import (
     QDialog,
+    QDialogButtonBox,
     QFrame,
     QHBoxLayout,
     QLabel,
     QListWidgetItem,
     QVBoxLayout,
-    QDialogButtonBox,
 )
 
 from src.common.constant import COLUMN_TYPE_ICONS, ColumnType, SettingsPanelSize
-from src.common.decorators import log_method_noarg
+from src.common.decorators import log_method, log_method_noarg
 from src.common.ui_constructor import create_tool_button_qta
 from src.data.data import DataColumn
+from src.data.data_manager import DATA_MANAGER
 from src.pyside_ext.elements.utility.layout_helpers import (
     add_widget,
     clean_up_list_widget,
@@ -30,9 +31,10 @@ from src.pyside_ext.elements.utility.primitive_elements import (
     QListWidgetClickable,
     QWidgetClickable,
 )
-from src.pyside_ext.layout import VBoxLayout, HBoxLayout, GridLayout
+from src.pyside_ext.layout import GridLayout, HBoxLayout, VBoxLayout
 from src.pyside_ext.markup import css
 from src.pyside_ext.styling import Style
+from src.pyside_ext.unique_qss import set_stylesheet
 from src.side_area_panel.blueprint.element import ItemInSidePanelWithAutoConfig
 
 ITEM_HEIGHT = 20
@@ -47,21 +49,22 @@ class Field:
     minimum_columns: int = 0
 
 
-class ColumnSelectorIISPWAC(ItemInSidePanelWithAutoConfig):
+class IISPWACColumnSelector(ItemInSidePanelWithAutoConfig):
     def __init__(self, fields: List[Field]):
         super().__init__()
         self.fields = fields
         self.handler_changed = None
 
-    def post_init(self, label, parent_widget):
+    def post_init(self, name, parent_widget):
         self.popup = ColumnSelectorExPopup(None, self.fields, handler_popup_close=self.popup_closed)
         self.popup.widget.hide()
 
-        self.label = label
+        self.name = name
         self.widget, self.layout = add_widget(
             parent=parent_widget,
             inner_layout_class=VBoxLayout,
             widget_class=QWidgetClickable,
+            css=css(border=Style.General.border_elevated),
         )
         self.widget.clicked.connect(self.handler_open_popup)
 
@@ -138,7 +141,34 @@ class ColumnSelectorIISPWAC(ItemInSidePanelWithAutoConfig):
 
             self.panel_list_widgets.append(panel_list)
 
-    def configure(self, columns: List[DataColumn], selected_columns_list: List[List[str]]):
+        self.clear_alert()
+
+    @log_method
+    def set_alert(self, field_index: int):
+        set_stylesheet(self.panel_list_widgets[field_index], css(border="1px solid red"))
+
+    @log_method_noarg
+    def clear_alert(self):
+        for i in range(len(self.panel_list_widgets)):
+            set_stylesheet(self.panel_list_widgets[i], css(border=Style.General.border_elevated))
+
+    def configure(self, **kwargs):
+        assert "data_source" in kwargs, "data_source element must be present to configure Column Selector."
+        data_label = kwargs["data_source"]
+        if data_label is None:
+            data_label = "Auto"
+        result_id = kwargs["result_id"]
+
+        selected_columns_list = kwargs[self.name]
+        if selected_columns_list is None:
+            selected_columns_list = [[] for _ in self.fields]
+        selected_columns_list = selected_columns_list.copy()
+
+        columns: List[DataColumn] = DATA_MANAGER.get_data_from_data_label(
+            data_label=data_label,
+            current_result_id=result_id,
+        ).get_all_columns_as_column_types()
+
         self.columns = columns
         self.selected_columns_list = selected_columns_list
 
@@ -162,7 +192,6 @@ class ColumnSelectorIISPWAC(ItemInSidePanelWithAutoConfig):
         self.popup.configure(self.columns, self.selected_columns_list)
         self.popup.widget.show()
 
-
     @log_method_noarg
     def popup_closed(self):
         for i, (panel_list, popup_panel_list) in enumerate(zip(self.panel_list_widgets, self.popup.panel_list_widgets)):
@@ -179,6 +208,10 @@ class ColumnSelectorIISPWAC(ItemInSidePanelWithAutoConfig):
 
         if self.handler_changed is not None:
             self.handler_changed()
+        self.on_recalculate()
+
+    def get_kwargs(self):
+        return {self.name: self.selected_columns_list.copy()}
 
     def set_handler_changed(self, handler: callable):
         self.handler_changed = handler

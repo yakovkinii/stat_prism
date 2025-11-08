@@ -12,6 +12,7 @@ from PySide6.QtWidgets import QScrollArea, QVBoxLayout
 from src.common.constant import SettingsPanelSize
 from src.common.decorators import log_method, log_method_noarg
 from src.common.messages import Message, MessageType
+from src.common.progress import run_in_separate_thread
 from src.common.ui_constructor import create_tool_button_qta
 from src.data.data_manager import DATA_MANAGER
 from src.pyside_ext.elements.utility.layout_helpers import add_widget
@@ -19,8 +20,9 @@ from src.pyside_ext.layout import HBoxLayout
 from src.pyside_ext.markup import css
 from src.pyside_ext.styling import Style
 from src.pyside_ext.unique_qss import set_stylesheet
-from src.side_area_panel.modules.common.result.registry import RESULTS
+from src.side_area_panel.blueprint.element import ItemInSidePanelWithAutoConfigHolder
 from src.side_area_panel.blueprint.registry import PanelRegistry
+from src.side_area_panel.modules.common.result.registry import RESULTS
 
 if TYPE_CHECKING:
     from src.ui_main import MainWindowClass
@@ -125,7 +127,15 @@ class BaseModulePanel:
         set_stylesheet(self.widget, css("#id>QScrollBar", width=Style.General.scrollbar_width_css))
         self.scroll_area.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAsNeeded)
         self.scroll_area.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
-        self.elements = {}
+        self.elements = {}  # Deprecated
+        self.elements_: ItemInSidePanelWithAutoConfigHolder = ...  # to be renamed after deprecating self.elements
+        self.main_function = ...
+
+    @log_method
+    def set_label(self, label: str):
+        self._label.setText(label)
+        self.delete_button.hide()
+        self.recalculate_button.hide()
 
     @log_method_noarg
     def is_auto_recalculate_enabled(self):
@@ -168,10 +178,45 @@ class BaseModulePanel:
         else:
             self.recalculate_button.setIcon(qta.icon("ph.arrows-clockwise", color="black"))
 
+    @log_method
+    def configure(self, result_id: int):
+        self.configuring = True
+        self.result_id = result_id
+        self.elements_.configure(
+            config=RESULTS[result_id].config,
+            result_id=result_id,
+        )
+        # self.set_recalculate_button_highlight(RESULTS[result_id].needs_update)
+        self.configuring = False
+
     @log_method_noarg
     def recalculate(self):
-        logging.warning("Recalculate handler not implemented")
-        ...
+        if self.configuring:
+            return
+        result = RESULTS[self.result_id]
+        config = result.config_class(**self.elements_.get_kwargs())
+        result.config = config
+        self.elements_.clear_alerts()
+
+        def main(update):
+            return self.main_function(
+                elements=self.elements_,
+                result=result,
+            )
+
+        # return self.recalculate_on_done(self.main_function(elements=self.elements_, result=result))
+
+        run_in_separate_thread(
+            main, progress_bar=self.root_class.settings_panel.progress_bar, on_done=self.recalculate_on_done
+        )
+
+    @log_method
+    def recalculate_on_done(self, result):
+        result.update_description()
+        RESULTS[self.result_id] = result
+        self.root_class.main_area_panel.refresh_result(result_id=self.result_id)
+        # RESULTS[self.result_id].needs_update = False
+        self.configure(result_id=self.result_id)
 
     @log_method_noarg
     def delete(self):

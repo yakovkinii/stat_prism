@@ -1,15 +1,18 @@
 #  Copyright (c) 2023 StatPrism Team. All rights reserved.
+import attrs
+
+from src.data.data import Data
 from src.data.data_manager import DATA_MANAGER
 from src.side_area_panel.modules.common.result.registry import BaseResult
 
 
+@attrs.define
 class ProcessColumnStudyConfig:
-    def __init__(self, data=None, column=None, rename=""):
-        if data is None:
-            data = DATA_MANAGER.get_latest_data()
-        self.data = data
-        self.column = column
-        self.rename = rename
+    data_source = attrs.field(default=None)
+    combo = attrs.field(default=None)
+    column_selector = attrs.field(default=None)
+    rename_to = attrs.field(default=None)
+    check = attrs.field(default=None)
 
 
 class ProcessColumnResult(BaseResult):
@@ -19,16 +22,13 @@ class ProcessColumnResult(BaseResult):
         self.title = "Process Column"
         self.title_context = ""
         self.settings_panel_index = settings_panel_index
+        self.config_class = ProcessColumnStudyConfig
         self.config: ProcessColumnStudyConfig = config
         self.needs_update: bool = False
-        self.description = self._make_description()
+        self.description = ...
+        self.update_description()
 
-    def _make_description(self):
-        lines = []
-        lines.append(f"Processed column: “{self.config.column}”")
-        if self.config.rename and self.config.rename != self.config.column:
-            lines.append(f"Renamed to: “{self.config.rename}”")
-        return "\n".join(lines)
+        self.data = Data([])
 
     def update_description(self):
-        self.description = self._make_description()
+        self.description = str(attrs.asdict(self.config))

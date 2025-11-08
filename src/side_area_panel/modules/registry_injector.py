@@ -35,6 +35,9 @@ from src.side_area_panel.modules.descriptive.result import (
     DescriptiveResult,
     DescriptiveStudyConfig,
 )
+from src.side_area_panel.modules.dp_process_column.dp_process_column_main import (
+    dp_process_column_main,
+)
 from src.side_area_panel.modules.dp_process_column.dp_process_column_result import (
     ProcessColumnResult,
     ProcessColumnStudyConfig,
@@ -131,3 +134,4 @@ def inject_classes_to_module_registry():
     ModuleRegistry.DP_PROCESS_COLUMN.value.ui_class = DpProcessColumn
     ModuleRegistry.DP_PROCESS_COLUMN.value.result_class = ProcessColumnResult
     ModuleRegistry.DP_PROCESS_COLUMN.value.config_class = ProcessColumnStudyConfig
+    ModuleRegistry.DP_PROCESS_COLUMN.value.main_function = dp_process_column_main

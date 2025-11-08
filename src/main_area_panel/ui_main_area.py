@@ -16,8 +16,8 @@ from src.pyside_ext.elements.utility.primitive_elements import QWidgetClickable
 from src.pyside_ext.markup import css
 from src.pyside_ext.styling import Style
 from src.pyside_ext.unique_qss import set_stylesheet
-from src.side_area_panel.modules.common.result.registry import RESULTS
 from src.side_area_panel.blueprint.registry import PanelRegistry
+from src.side_area_panel.modules.common.result.registry import RESULTS
 
 if TYPE_CHECKING:
     from src.ui_main import MainWindowClass

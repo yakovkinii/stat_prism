@@ -1,6 +1,7 @@
 #  Copyright (c) 2023 StatPrism Team. All rights reserved.
 
 
+from src.side_area_panel.blueprint.registry import PanelRegistry
 from src.side_area_panel.modules.common.result.html_result import HTMLTableV2
 from src.side_area_panel.modules.common.result.plot_result import PlotV2
 from src.side_area_panel.panels.blank import Blank
@@ -14,7 +15,6 @@ from src.side_area_panel.panels.order import Order
 from src.side_area_panel.panels.result_item_settings import ResultItemSettingsV2
 from src.side_area_panel.panels.select_data_processing import SelectDataProcessing
 from src.side_area_panel.panels.select_study import SelectDataAnalysis
-from src.side_area_panel.blueprint.registry import PanelRegistry
 
 
 def inject_classes_to_panel_registry():

@@ -15,6 +15,7 @@ from src.pyside_ext.elements.column_selector import ColumnSelectorEx, Field
 from src.pyside_ext.elements.combo_box import ComboBox
 from src.pyside_ext.elements.title_editable import ColumnNameEditable
 from src.pyside_ext.markup import css
+from src.side_area_panel.blueprint.registry import PanelRegistry
 from src.side_area_panel.modules.base.base import BaseModulePanel
 from src.side_area_panel.modules.calculate_scale.panel_manager import PanelManager
 from src.side_area_panel.modules.calculate_scale.result import (
@@ -22,7 +23,6 @@ from src.side_area_panel.modules.calculate_scale.result import (
     CalculateScaleStudyConfig,
 )
 from src.side_area_panel.modules.common.result.registry import RESULTS
-from src.side_area_panel.blueprint.registry import PanelRegistry
 
 
 class CalculateScale(BaseModulePanel):

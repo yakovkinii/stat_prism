@@ -18,6 +18,7 @@ class ModuleRegistryItem:
     ui_class: any = None
     result_class: any = None
     config_class: any = None
+    main_function: any = None
     ui_instance: any = None
     settings_stacked_widget_index: int = None
     icon_path: str = None
@@ -109,6 +110,10 @@ class ModuleRegistry(Enum):
     @property
     def ui_instance(self):
         return self.value.ui_instance
+
+    @property
+    def main_function(self):
+        return self.value.main_function
 
     @property
     def settings_stacked_widget_index(self):
