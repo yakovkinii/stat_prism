@@ -2,44 +2,23 @@
 
 
 import logging
-from typing import List
 
-from src.common.constant import ColumnType
-from src.pyside_ext.elements.filter import FilterSettings
+import attrs
+
 from src.side_area_panel.modules.common.result.registry import BaseResult
-from src.side_area_panel.modules.mean_comparison.constant import (
-    DESCRIPTION,
-    AssumptionChecksInGrouping,
-    MeanComparisonMethod,
-    MissingValuesInGrouping,
-)
+from src.side_area_panel.modules.mean_comparison.constant import DESCRIPTION
 
 
+@attrs.define
 class MeanComparisonStudyConfig:
-    def __init__(
-        self,
-        method: MeanComparisonMethod = None,
-        means: bool = True,
-        effect_size: bool = True,
-        plots: bool = False,
-        selected_columns: List[str] = None,
-        selected_columns_types: List[ColumnType] = None,
-        grouping_column: str = None,
-        filters: List[FilterSettings] = None,
-        grouping_missing: MissingValuesInGrouping = MissingValuesInGrouping.SKIP,
-        assumption_checks: AssumptionChecksInGrouping = AssumptionChecksInGrouping.AUTO,
-    ):
-        self.method = method if method is not None else MeanComparisonMethod.AUTO
-        self.means = means
-        self.effect_size = effect_size
-        self.plots = plots
-        self.selected_columns = selected_columns if selected_columns is not None else []
-        self.selected_columns_types = selected_columns_types if selected_columns_types is not None else []
-        self.grouping_column = grouping_column
-        self.generate_plots = True
-        self.filters: List[FilterSettings] = filters if filters is not None else []
-        self.grouping_missing: MissingValuesInGrouping = grouping_missing
-        self.assumption_checks: AssumptionChecksInGrouping = assumption_checks
+    data_source = attrs.field(default=None)
+    column_selector = attrs.field(default=None)
+    method = attrs.field(default=None)
+    grouping_missing = attrs.field(default=None)
+    assumption_checks = attrs.field(default=None)
+    effect_size = attrs.field(default=None)
+    means = attrs.field(default=None)
+    plots = attrs.field(default=None)
 
 
 class MeanComparisonResult(BaseResult):
@@ -51,6 +30,7 @@ class MeanComparisonResult(BaseResult):
         self.title = "T-test/ANOVA"
         self.title_context = ""
         self.settings_panel_index = settings_panel_index
+        self.config_class = MeanComparisonStudyConfig
         self.config: MeanComparisonStudyConfig = config
 
         self.needs_update: bool = False
@@ -75,3 +55,6 @@ class MeanComparisonResult(BaseResult):
         except Exception as e:
             logging.error(str(e))
             self.add_header_info("Error: " + str(e))
+
+    def update_description(self):
+        pass

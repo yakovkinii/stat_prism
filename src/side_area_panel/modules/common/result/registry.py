@@ -10,7 +10,9 @@ from src.side_area_panel.modules.descriptive.result import DescriptiveResult
 from src.side_area_panel.modules.exploratory_factor_analysis.result import (
     FactorAnalysisResult,
 )
-from src.side_area_panel.modules.mean_comparison.result import MeanComparisonResult
+from src.side_area_panel.modules.mean_comparison.mean_comparison_result import (
+    MeanComparisonResult,
+)
 from src.side_area_panel.modules.raw_data.result import RawDataResult
 from src.side_area_panel.modules.regression.result import RegressionResult
 from src.side_area_panel.modules.reliability.result import ReliabilityResult

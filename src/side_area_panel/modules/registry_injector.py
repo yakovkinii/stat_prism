@@ -52,12 +52,15 @@ from src.side_area_panel.modules.exploratory_factor_analysis.result import (
     FactorAnalysisResult,
     FactorAnalysisStudyConfig,
 )
-from src.side_area_panel.modules.mean_comparison.mean_comparison_ui import (
-    MeanComparison,
+from src.side_area_panel.modules.mean_comparison.mean_comparison_main import (
+    recalculate_mean_comparison_study,
 )
-from src.side_area_panel.modules.mean_comparison.result import (
+from src.side_area_panel.modules.mean_comparison.mean_comparison_result import (
     MeanComparisonResult,
     MeanComparisonStudyConfig,
+)
+from src.side_area_panel.modules.mean_comparison.mean_comparison_ui import (
+    MeanComparison,
 )
 from src.side_area_panel.modules.raw_data.raw_data_ui import RawData
 from src.side_area_panel.modules.raw_data.result import (
@@ -98,6 +101,7 @@ def inject_classes_to_module_registry():
     ModuleRegistry.MEAN_COMPARISON.value.ui_class = MeanComparison
     ModuleRegistry.MEAN_COMPARISON.value.result_class = MeanComparisonResult
     ModuleRegistry.MEAN_COMPARISON.value.config_class = MeanComparisonStudyConfig
+    ModuleRegistry.MEAN_COMPARISON.value.main_function = recalculate_mean_comparison_study
 
     ModuleRegistry.RELIABILITY.value.ui_class = Reliability
     ModuleRegistry.RELIABILITY.value.result_class = ReliabilityResult

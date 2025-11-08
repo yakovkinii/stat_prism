@@ -10,6 +10,7 @@ from src.common.constant import ColumnType
 from src.common.decorators import log_function
 from src.common.qcolor import Colors
 from src.data.data import Data
+from src.data.data_manager import DATA_MANAGER
 from src.side_area_panel.modules.common.homogeneity import process_homogeneity_check
 from src.side_area_panel.modules.common.normality import process_normality_check
 from src.side_area_panel.modules.common.result.html_result import Cell, HTMLTableV2, Row
@@ -34,10 +35,12 @@ from src.side_area_panel.modules.mean_comparison.constant import (
     AssumptionChecksInGrouping,
     MeanComparisonMethod,
 )
+from src.side_area_panel.modules.mean_comparison.mean_comparison_result import (
+    MeanComparisonResult,
+)
 from src.side_area_panel.modules.mean_comparison.preprocessing import (
     prepare_df_for_mean_comparison,
 )
-from src.side_area_panel.modules.mean_comparison.result import MeanComparisonResult
 
 
 @log_function
@@ -46,73 +49,78 @@ def recalculate_mean_comparison_t_test(
     result: MeanComparisonResult,
 ) -> MeanComparisonResult:
     cfg = result.config
+    selected_columns = cfg.column_selector[0]
+    selected_columns_types = [
+        DATA_MANAGER.get_latest_data().get_column_type_from_column_name(col) for col in cfg.column_selector[0]
+    ]
+    grouping_column = cfg.column_selector[1][0]
     df = prepare_df_for_mean_comparison(data=data, cfg=cfg)
 
-    numeric_columns = [col for col in cfg.selected_columns if data[col].column_type == ColumnType.NUMERIC]
-    non_numeric_columns = [col for col in cfg.selected_columns if col not in numeric_columns]
+    numeric_columns = [col for col in selected_columns if data[col].column_type == ColumnType.NUMERIC.value]
+    non_numeric_columns = [col for col in selected_columns if col not in numeric_columns]
 
     normal_columns, non_normal_columns = [], []
 
-    if cfg.method in [MeanComparisonMethod.HOMOGENEOUS, MeanComparisonMethod.INHOMOGENEOUS]:
-        normal_columns, non_normal_columns = cfg.selected_columns, []
-        if cfg.assumption_checks == AssumptionChecksInGrouping.ALWAYS:
+    if cfg.method in [MeanComparisonMethod.HOMOGENEOUS.value, MeanComparisonMethod.INHOMOGENEOUS.value]:
+        normal_columns, non_normal_columns = selected_columns, []
+        if cfg.assumption_checks == AssumptionChecksInGrouping.ALWAYS.value:
             _, _, normality_table = process_normality_check(
                 df=df,
                 selected_columns=numeric_columns,
-                grouping_column=cfg.grouping_column,
+                grouping_column=grouping_column,
             )
             if len(numeric_columns) > 0:
                 result.result_elements.append(normality_table)
 
-    elif cfg.method == MeanComparisonMethod.NON_PARAMETRIC:
-        normal_columns, non_normal_columns = [], cfg.selected_columns
-        if cfg.assumption_checks == AssumptionChecksInGrouping.ALWAYS:
+    elif cfg.method == MeanComparisonMethod.NON_PARAMETRIC.value:
+        normal_columns, non_normal_columns = [], selected_columns
+        if cfg.assumption_checks == AssumptionChecksInGrouping.ALWAYS.value:
             _, _, normality_table = process_normality_check(
                 df=df,
                 selected_columns=numeric_columns,
-                grouping_column=cfg.grouping_column,
+                grouping_column=grouping_column,
             )
             if len(numeric_columns) > 0:
                 result.result_elements.append(normality_table)
-    elif cfg.method == MeanComparisonMethod.AUTO:
+    elif cfg.method == MeanComparisonMethod.AUTO.value:
         normal_columns, non_normal_columns, normality_table = process_normality_check(
             df=df,
             selected_columns=numeric_columns,
-            grouping_column=cfg.grouping_column,
+            grouping_column=grouping_column,
         )
-        if (len(numeric_columns) > 0) and not (cfg.assumption_checks == AssumptionChecksInGrouping.NEVER):
+        if (len(numeric_columns) > 0) and not (cfg.assumption_checks == AssumptionChecksInGrouping.NEVER.value):
             result.result_elements.append(normality_table)
 
     homogeneous_columns, non_homogeneous_columns = [], []
-    if cfg.method == MeanComparisonMethod.HOMOGENEOUS:
+    if cfg.method == MeanComparisonMethod.HOMOGENEOUS.value:
         homogeneous_columns, non_homogeneous_columns = normal_columns, []
-        if cfg.assumption_checks == AssumptionChecksInGrouping.ALWAYS:
+        if cfg.assumption_checks == AssumptionChecksInGrouping.ALWAYS.value:
             _, _, homogeneity_table = process_homogeneity_check(
                 df=df,
                 selected_columns=numeric_columns,
-                grouping_column=cfg.grouping_column,
+                grouping_column=grouping_column,
             )
             if len(normal_columns) > 0:
                 result.result_elements.append(homogeneity_table)
-    elif cfg.method == MeanComparisonMethod.INHOMOGENEOUS:
+    elif cfg.method == MeanComparisonMethod.INHOMOGENEOUS.value:
         homogeneous_columns, non_homogeneous_columns = [], normal_columns
-        if cfg.assumption_checks == AssumptionChecksInGrouping.ALWAYS:
+        if cfg.assumption_checks == AssumptionChecksInGrouping.ALWAYS.value:
             _, _, homogeneity_table = process_homogeneity_check(
                 df=df,
                 selected_columns=numeric_columns,
-                grouping_column=cfg.grouping_column,
+                grouping_column=grouping_column,
             )
             if len(normal_columns) > 0:
                 result.result_elements.append(homogeneity_table)
-    elif cfg.method == MeanComparisonMethod.AUTO:
+    elif cfg.method == MeanComparisonMethod.AUTO.value:
         homogeneous_columns, non_homogeneous_columns, homogeneity_table = process_homogeneity_check(
             df=df,
             selected_columns=normal_columns
-            if (cfg.assumption_checks != AssumptionChecksInGrouping.ALWAYS)
+            if (cfg.assumption_checks != AssumptionChecksInGrouping.ALWAYS.value)
             else numeric_columns,
-            grouping_column=cfg.grouping_column,
+            grouping_column=grouping_column,
         )
-        if (len(normal_columns) > 0) and not (cfg.assumption_checks == AssumptionChecksInGrouping.NEVER):
+        if (len(normal_columns) > 0) and not (cfg.assumption_checks == AssumptionChecksInGrouping.NEVER.value):
             result.result_elements.append(homogeneity_table)
 
     if len(non_numeric_columns + non_normal_columns) > 0:
@@ -125,7 +133,7 @@ def recalculate_mean_comparison_t_test(
                 ),
                 non_numeric_columns=non_numeric_columns,
                 non_normal_columns=non_normal_columns,
-                grouping_column=cfg.grouping_column,
+                grouping_column=grouping_column,
                 means=cfg.means,
                 effect_size=cfg.effect_size,
             )
@@ -136,7 +144,7 @@ def recalculate_mean_comparison_t_test(
             process_non_homogeneous_t_test(
                 df=df,
                 columns=non_homogeneous_columns,
-                grouping_column=cfg.grouping_column,
+                grouping_column=grouping_column,
                 means=cfg.means,
                 effect_size=cfg.effect_size,
             )
@@ -147,7 +155,7 @@ def recalculate_mean_comparison_t_test(
             process_homogeneous_t_test(
                 df=df,
                 columns=homogeneous_columns,
-                grouping_column=cfg.grouping_column,
+                grouping_column=grouping_column,
                 means=cfg.means,
                 effect_size=cfg.effect_size,
             )
@@ -155,11 +163,11 @@ def recalculate_mean_comparison_t_test(
     if not cfg.plots:
         return result
 
-    groupby_column = cfg.grouping_column
+    groupby_column = grouping_column
     groupby_values = df[groupby_column].drop_duplicates().values
-    numeric_columns = [col for col in cfg.selected_columns if data[col].column_type == ColumnType.NUMERIC]
+    numeric_columns = [col for col in selected_columns if data[col].column_type == ColumnType.NUMERIC]
     plot_result_elements = []
-    for col in cfg.selected_columns:
+    for col in selected_columns:
         is_numeric = col in numeric_columns
         if not is_numeric:
             continue

@@ -2,10 +2,6 @@
 
 
 from src.common.constant import ColumnType
-from src.common.decorators import log_method
-from src.common.messages import MessageType
-from src.common.progress import run_in_separate_thread
-from src.data.data_manager import DATA_MANAGER
 from src.pyside_ext.elements.column_selector import Field
 from src.side_area_panel.blueprint.element import ItemInSidePanelWithAutoConfigHolder
 from src.side_area_panel.iispwac.iispwac_checkbox import IISPWACCheckBox
@@ -14,7 +10,6 @@ from src.side_area_panel.iispwac.iispwac_combobox import IISPWACComboBox
 from src.side_area_panel.iispwac.iispwac_data_source import IISPWACDataSource
 from src.side_area_panel.iispwac.iispwac_text_edit import IISPWACLongTextEdit
 from src.side_area_panel.modules.base.base import BaseModulePanel
-from src.side_area_panel.modules.common.result.registry import RESULTS
 
 
 class Elements(ItemInSidePanelWithAutoConfigHolder):

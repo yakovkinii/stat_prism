@@ -6,7 +6,9 @@ import pandas as pd
 
 from src.data.data import Data
 from src.side_area_panel.modules.mean_comparison.constant import MissingValuesInGrouping
-from src.side_area_panel.modules.mean_comparison.result import MeanComparisonStudyConfig
+from src.side_area_panel.modules.mean_comparison.mean_comparison_result import (
+    MeanComparisonStudyConfig,
+)
 
 
 def prepare_df_for_mean_comparison(
@@ -20,14 +22,18 @@ def prepare_df_for_mean_comparison(
 
     Note: Value columns are left as-is here; downstream tests should dropna explicitly.
     """
+    selected_columns = cfg.column_selector[0]
+
+    grouping_column = cfg.column_selector[1][0]
     df = data.get_dataframe(
-        filters=cfg.filters,
-        columns=cfg.selected_columns + [cfg.grouping_column],
+        # filters=cfg.filters,
+        filters=[],
+        columns=selected_columns + [grouping_column],
         map_ordinal=map_ordinal,
     ).copy()
 
     df.loc[
-        df[cfg.grouping_column].isin(
+        df[grouping_column].isin(
             [
                 pd.NA,
                 None,
@@ -42,14 +48,14 @@ def prepare_df_for_mean_comparison(
                 "nan",
             ]
         ),
-        cfg.grouping_column,
+        grouping_column,
     ] = pd.NA
 
-    if cfg.grouping_missing == MissingValuesInGrouping.SKIP:
-        df = df[df[cfg.grouping_column].notna()].copy()
-    elif cfg.grouping_missing == MissingValuesInGrouping.TREAT_AS_NA:
+    if cfg.grouping_missing == MissingValuesInGrouping.SKIP.value:
+        df = df[df[grouping_column].notna()].copy()
+    elif cfg.grouping_missing == MissingValuesInGrouping.TREAT_AS_NA.value:
         # Standardize missing-like values to a string label
-        df[cfg.grouping_column] = df[cfg.grouping_column].fillna("N/A")
+        df[grouping_column] = df[grouping_column].fillna("N/A")
     else:
         raise ValueError(f"Unknown MissingValuesInGrouping option: {cfg.grouping_missing}")
 
