@@ -5,7 +5,7 @@ from PySide6.QtWidgets import QHBoxLayout, QVBoxLayout
 
 from src.common.decorators import log_method
 from src.common.ui_constructor import create_tool_button_qta
-from src.data_viewer.data_viewer import view_data_popup
+from src.main_area_panel.data_viewer.data_viewer import view_data_popup
 from src.main_area_panel.result_display.base import BaseResultDisplay
 from src.main_area_panel.result_display.elements.result_label import ResultLabel
 from src.pyside_ext.elements.utility.layout_helpers import (
@@ -76,7 +76,7 @@ class RawDataResultDisplay(BaseResultDisplay):
                 w.setToolTip("View Data"),
                 w.clicked.connect(
                     lambda: view_data_popup(
-                        root_class=self.root_class,
+                        parent=self.root_class.main_area_panel.widget,
                         data=RESULTS[self.result_id].data,
                     )
                 ),

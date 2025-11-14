@@ -10,7 +10,6 @@ from src.common.constant import ColumnType
 from src.common.decorators import log_function
 from src.common.qcolor import Colors
 from src.data.data import Data
-from src.data.data_manager import DATA_MANAGER
 from src.side_area_panel.modules.common.homogeneity import process_homogeneity_check
 from src.side_area_panel.modules.common.normality import process_normality_check
 from src.side_area_panel.modules.common.result.html_result import Cell, HTMLTableV2, Row

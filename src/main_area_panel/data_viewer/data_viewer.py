@@ -15,7 +15,7 @@ from src.pyside_ext.markup import css
 from src.pyside_ext.unique_qss import set_stylesheet
 
 
-def view_data_popup(root_class, data: Data):
+def view_data_popup(parent, data: Data):
     model = QtGui.QStandardItemModel(data.n_rows(), data.n_columns())
     for r in range(data.n_rows()):
         for c in range(data.n_columns()):
@@ -23,7 +23,7 @@ def view_data_popup(root_class, data: Data):
             model.setItem(r, c, item)
     model.setHorizontalHeaderLabels(data.column_names())
 
-    TablePopup(root_class, model)
+    TablePopup(parent, model)
 
 
 class ReadOnlyDelegate(QStyledItemDelegate):

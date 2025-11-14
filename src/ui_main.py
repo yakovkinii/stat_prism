@@ -5,14 +5,14 @@ import logging
 
 from PySide6 import QtWidgets
 from PySide6.QtWebEngineWidgets import QWebEngineView
+from PySide6.QtWidgets import QStackedWidget, QWidget
 
-# from src._data_panel.ui_data import DataPanelClass
 from src.about import version
-from src.common.debt import DEBTS, DebtType
 from src.common.decorators import log_method, log_method_noarg
 from src.common.ui_constructor import icon
 from src.main_area_panel.ui_main_area import MainAreaClass
-from src.pyside_ext.layout import HBoxLayout
+from src.pyside_ext.elements.utility.layout_helpers import add_widget
+from src.pyside_ext.layout import HBoxLayout, VBoxLayout
 from src.pyside_ext.markup import css
 from src.pyside_ext.styling import Style
 from src.pyside_ext.unique_qss import set_stylesheet
@@ -42,9 +42,19 @@ class MainWindowClass(QtWidgets.QMainWindow):
         self.splitter = QtWidgets.QSplitter(self.central_widget)
         # self.tab_widget = main_tab_widget(self.splitter)
 
+        self.stacked_widget = QStackedWidget(self.central_widget)
         self.main_area_panel: MainAreaClass = MainAreaClass(
-            parent_widget=self.central_widget, parent_class=self.widget, root_class=self
+            parent_widget=self.stacked_widget, parent_class=self.widget, root_class=self
         )
+        self.stacked_widget.addWidget(self.main_area_panel.widget)
+
+        self.main_area_display_widget, self.main_area_display_widget_layout = add_widget(
+            parent=self.stacked_widget,
+            inner_layout_class=VBoxLayout,
+            # css=css(background_color=Style.Color.BackgroundElevated),
+        )
+        self.stacked_widget.addWidget(self.main_area_display_widget)
+
         self.settings_panel: SettingsPanelClass = SettingsPanelClass(
             parent_widget=self.central_widget, parent_class=self.widget, root_class=self
         )
@@ -54,7 +64,7 @@ class MainWindowClass(QtWidgets.QMainWindow):
         self.central_widget.setLayout(self.central_widget_layout)
         self.central_widget_layout.addWidget(self.splitter)
 
-        self.splitter.addWidget(self.main_area_panel.widget)
+        self.splitter.addWidget(self.stacked_widget)
         self.splitter.addWidget(self.settings_panel.widget)
         # increase size of splitter handle
         self.splitter.setHandleWidth(6)
@@ -70,6 +80,32 @@ class MainWindowClass(QtWidgets.QMainWindow):
 
         # Misc
         self.setWindowIcon(icon(":/mat/resources/StatPrism_icon_small.ico"))
+
+    @log_method_noarg
+    def activate_main_area_display(self):
+        self.stacked_widget.setCurrentIndex(1)
+
+    @log_method_noarg
+    def activate_main_area_panel(self):
+        self.stacked_widget.setCurrentIndex(0)
+
+    @log_method_noarg
+    def clean_up_main_area_display(self):
+        for i in reversed(range(self.main_area_display_widget_layout.count())):
+            widget_to_remove = self.main_area_display_widget_layout.itemAt(i).widget()
+            if widget_to_remove is not None:
+                self.main_area_display_widget_layout.removeWidget(widget_to_remove)
+                widget_to_remove.deleteLater()
+            else:
+                self.main_area_display_widget_layout.removeItem(
+                    self.main_area_display_widget_layout.itemAt(i)
+                )
+
+    @log_method
+    def set_widget_in_main_area_display(self, widget: QWidget):
+        self.clean_up_main_area_display()
+        self.main_area_display_widget_layout.addWidget(widget)
+        self.main_area_display_widget_layout.addStretch()
 
     def init_web_view_and_show_maximized(self, file_path=None):
         webview = QWebEngineView(self.central_widget)
@@ -109,18 +145,11 @@ class MainWindowClass(QtWidgets.QMainWindow):
 
     @log_method_noarg
     def action_activate_home_panel(self):
-        for debt in DEBTS:
-            if debt.debt_type == DebtType.ON_STUDY_CHANGE:
-                debt.resolve()
-
         self.settings_panel.stacked_widget.setCurrentIndex(PanelRegistry.HOME.settings_stacked_widget_index)
 
     @log_method
     def action_activate_panel_by_index(self, index):
         if index is not None:
-            for debt in DEBTS:
-                if debt.debt_type == DebtType.ON_STUDY_CHANGE:
-                    debt.resolve()
             self.settings_panel.stacked_widget.setCurrentIndex(index)
 
     @log_method

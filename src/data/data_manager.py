@@ -47,7 +47,6 @@ class DataManager:
     def from_unpickled(self, data: "DataManager"):
         self.raw_data_result_id = data.raw_data_result_id
         self.data_chain = data.data_chain.copy()
-        self.disabled_result_ids = data.disabled_result_ids.copy()
 
     def get_all_available_data_labels(self, result_id):
         ids = ["Auto"]

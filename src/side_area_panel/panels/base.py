@@ -160,10 +160,6 @@ class BasePanel:
     @log_method_noarg
     def activate_caller(self):
         if self.caller_index is not None:
-            for debt in DEBTS:
-                if DebtType.ON_STUDY_CHANGE in debt.debt_type:
-                    debt.resolve()
-
             self.root_class.action_activate_panel_by_index(self.caller_index)
         else:
             logging.warning(f"Trying to activate caller {self.caller_index=}, activating home panel instead")

@@ -73,7 +73,7 @@ class IISPWACColumnSelector(ItemInSidePanelWithAutoConfig):
             inner_layout_class=VBoxLayout,
             outer_layout=self.layout,
         )
-        self.fields_panel_layout.setContentsMargins(2, 2, 2, 2)
+        self.fields_panel_layout.setContentsMargins(5, 5, 5, 5)
         self.fields_panel_layout.setSpacing(15)
 
         self.panel_list_widgets = []
@@ -96,9 +96,9 @@ class IISPWACColumnSelector(ItemInSidePanelWithAutoConfig):
             field_label, _ = add_widget(
                 widget=QLabel(title),
                 outer_layout=title_layout,
-                css=css(
-                    font_size=Style.FontSize.regular,
-                ),
+                # css=css(
+                #     font_size=Style.FontSize.regular,
+                # ),
             )
             field_label.setText(field.name)
 
@@ -287,9 +287,9 @@ class ColumnSelectorExPopup:
             field_label, _ = add_widget(
                 widget=QLabel(title),
                 outer_layout=title_layout,
-                css=css(
-                    font_size=Style.FontSize.regular,
-                ),
+                # css=css(
+                #     font_size=Style.FontSize.regular,
+                # ),
             )
             field_label.setText(field.name)
 

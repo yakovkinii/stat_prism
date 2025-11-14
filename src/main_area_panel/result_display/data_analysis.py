@@ -29,7 +29,6 @@ from src.pyside_ext.unique_qss import set_stylesheet
 from src.side_area_panel.modules.common.result.html_result import HTMLTableV2
 from src.side_area_panel.modules.common.result.plot_result import PlotV2
 from src.side_area_panel.modules.common.result.registry import RESULTS
-from src.side_area_panel.modules.registry import ModuleRegistry
 
 
 class DataAnalysisResultDisplay(BaseResultDisplay):
@@ -130,9 +129,12 @@ class DataAnalysisResultDisplay(BaseResultDisplay):
             ],
         )
 
+        self.display_element_id = None
+        self.display_object = None
         self.element_display_objects = {}
         self.refresh()
         self.remove_focus(None)
+
 
     def copy_all_elements(self):
         self.copy_button.setIcon(qta.icon("fa.check", color="#4CAF50"))
@@ -153,7 +155,7 @@ class DataAnalysisResultDisplay(BaseResultDisplay):
         mime_data.setHtml(full_html)
         QGuiApplication.clipboard().setMimeData(mime_data)
 
-        QTimer.singleShot(1000, lambda: self.copy_button.setIcon(qta.icon("fa.copy", color="#888")))
+        QTimer.singleShot(500, lambda: self.copy_button.setIcon(qta.icon("fa.copy", color="#888")))
 
     def recalculate(self):
         panel = self.root_class.settings_panel.panels[RESULTS[self.result_id].settings_panel_index]
@@ -164,9 +166,7 @@ class DataAnalysisResultDisplay(BaseResultDisplay):
         if not self.deleting:
             self.delete_button.setIcon(qta.icon("mdi6.delete-alert", color="#AF4C50"))
             self.deleting = True
-            QTimer.singleShot(
-                1500, lambda: self.set_not_deleting()
-            )
+            QTimer.singleShot(1500, lambda: self.set_not_deleting())
         else:
             self.deleted = True
             self.parent_class.delete_result(self.result_id)
@@ -177,9 +177,42 @@ class DataAnalysisResultDisplay(BaseResultDisplay):
         self.delete_button.setIcon(qta.icon("mdi6.delete", color="#888"))
         self.deleting = False
 
+    @log_method
+    def set_display_element(self, result_element_id):
+        self.display_element_id = result_element_id
+        self.refresh_element(result_element_id)
+
+    @log_method
+    def unset_display_element(self, result_element_id):
+        self.display_element_id = None
+        self.refresh_element(result_element_id)
+
     def refresh_element(self, result_element_id):
+        if result_element_id != self.display_element_id and self.display_object is not None:
+            self.root_class.clean_up_main_area_display()
+            logging.warning('Setting display_element_id = None')
+            self.display_object = None
+            self.display_element_id = None
+
         if result_element_id in self.element_display_objects:
             self.element_display_objects[result_element_id].refresh()
+            if result_element_id==self.display_element_id:
+                if self.display_object is None:
+                    result_element = RESULTS[self.result_id].result_elements[result_element_id]
+                    self.display_object = PlotResultElementDisplay(
+                        parent_widget=self.plot_result_elements_container,
+                        parent_class=self,
+                        root_class=self.root_class,
+                        label_text=result_element.title,
+                        result_id=self.result_id,
+                        result_element_id=result_element_id,
+                    )
+                    self.display_object.set_zoomed()
+                    self.root_class.set_widget_in_main_area_display(self.display_object.widget)
+                self.display_object.refresh()
+                self.root_class.activate_main_area_display()
+            else:
+                self.root_class.activate_main_area_panel()
         else:
             result_element = RESULTS[self.result_id].result_elements[result_element_id]
             if isinstance(result_element, HTMLTableV2):
@@ -206,7 +239,7 @@ class DataAnalysisResultDisplay(BaseResultDisplay):
                 self.plot_result_elements_container_layout.addWidget(
                     self.element_display_objects[result_element_id].widget
                 )
-        # self.adjust_scroll_height()
+
 
     def adjust_scroll_height(self):
         self.plot_result_elements_container.adjustSize()

@@ -112,11 +112,11 @@ class PlotResultElementDisplay(BaseResultDisplay):
         renderer.load(buf.read())
         buf.close()
 
-        target_width = 600 if self.zoomed else 270
         default_size = renderer.defaultSize()  # returns QSize
         if default_size.isEmpty():
             raise ValueError("SVG has no size information.")
 
+        target_width = default_size.width() if self.zoomed else 270
         # Compute scaled height based on aspect ratio
         aspect_ratio = default_size.height() / default_size.width()
         target_height = int(target_width * aspect_ratio)
@@ -170,6 +170,14 @@ class PlotResultElementDisplay(BaseResultDisplay):
         )
 
     def zoom(self):
-        self.activate_result(self.result_id, self.result_element_id)
+        if self.zoomed:
+            self.activate_result(self.result_id, self.result_element_id)
+            self.parent_class.unset_display_element(self.result_element_id)
+        else:
+            self.activate_result(self.result_id, self.result_element_id)
+            self.parent_class.set_display_element(self.result_element_id)
+
+    def set_zoomed(self):
         self.zoomed = True
+        self.zoom_button.setIcon(qta.icon("fa.search-minus", color=Style.Color.SimpleToolButton.value))
         self.refresh()
