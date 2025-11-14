@@ -6,6 +6,7 @@ from PySide6 import QtWidgets
 from PySide6.QtWidgets import QVBoxLayout
 
 from src.common.decorators import log_method
+from src.data.data_manager import DATA_MANAGER
 from src.main_area_panel.result_display.data_analysis import DataAnalysisResultDisplay
 from src.main_area_panel.result_display.data_processing import (
     DataProcessingResultDisplay,
@@ -100,7 +101,7 @@ class MainAreaClass:
             parent_widget=self.raw_data_widget_container,
             parent_class=self,
             root_class=self.root_class,
-            label_text=RESULTS[result_id].title,
+            label_text=RESULTS[result_id].title + f" [Data{result_id}]",
             result_id=result_id,
         )
         self.raw_data_objects[result_id] = raw_data_object
@@ -111,7 +112,7 @@ class MainAreaClass:
             parent_widget=self.data_processing_widget_container,
             parent_class=self,
             root_class=self.root_class,
-            label_text=RESULTS[result_id].title,
+            label_text=RESULTS[result_id].title + f" [Data{result_id}]",
             result_id=result_id,
         )
         self.data_processing_objects[result_id] = data_processing_object
@@ -146,6 +147,7 @@ class MainAreaClass:
         self.root_class.action_activate_home_panel()
         self.remove_result(result_id)
         RESULTS.pop(result_id)
+        DATA_MANAGER.try_to_remove_result(result_id)
 
     def update_focus(self, result_id, result_element_id=None):
         if self.focused_result_id is not None:

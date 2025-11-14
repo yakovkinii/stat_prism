@@ -1,10 +1,11 @@
 #  Copyright (c) 2023 StatPrism Team. All rights reserved.
 from PySide6 import QtCore
+from PySide6.QtCore import QSize, QTimer
 from PySide6.QtGui import Qt
 from PySide6.QtWidgets import QHBoxLayout, QVBoxLayout
 
 from src.common.decorators import log_method
-from src.common.ui_constructor import create_tool_button_qta
+from src.common.ui_constructor import create_tool_button_qta, create_simple_tool_button_qta
 from src.main_area_panel.data_viewer.data_viewer import view_data_popup
 from src.main_area_panel.result_display.base import BaseResultDisplay
 from src.main_area_panel.result_display.elements.result_label import ResultLabel
@@ -20,7 +21,7 @@ from src.pyside_ext.markup import css
 from src.pyside_ext.styling import Style
 from src.pyside_ext.unique_qss import set_stylesheet
 from src.side_area_panel.modules.common.result.registry import RESULTS
-
+import qtawesome as qta
 
 class DataProcessingResultDisplay(BaseResultDisplay):
     def __init__(self, parent_widget, parent_class, root_class, label_text: str, result_id):
@@ -51,6 +52,42 @@ class DataProcessingResultDisplay(BaseResultDisplay):
             layout=self.header_layout,
             setup=lambda w, l: [w.clicked.connect(lambda: self.activate_result(self.result_id, None))],
         )
+
+        self.header_layout.addStretch()
+
+        self.recalculate_button = widget_in_layout(
+            widget=create_simple_tool_button_qta(
+                parent=self.header_widget,
+                icon_path="ph.arrows-clockwise-bold",
+                icon_size=QSize(20, 20),
+            ),
+            layout=self.header_layout,
+            alignment=Qt.AlignmentFlag.AlignTop,
+            setup=lambda w, l: [
+                w.setToolTip("Recalculate"),
+                w.clicked.connect(self.recalculate),
+            ],
+        )
+
+        self.delete_button = widget_in_layout(
+            widget=create_simple_tool_button_qta(
+                parent=self.header_widget,
+                icon_path="mdi6.delete",
+                icon_size=QSize(20, 20),
+            ),
+            layout=self.header_layout,
+            alignment=Qt.AlignmentFlag.AlignTop,
+            setup=lambda w, l: [
+                w.setToolTip("Recalculate"),
+                w.clicked.connect(self.delete),
+            ],
+        )
+        self.deleting = False
+        self.deleted = False
+
+
+
+
 
         self.body_widget, self.body_layout = empty_widget(
             widget_class=QWidgetClickable,
@@ -124,3 +161,23 @@ class DataProcessingResultDisplay(BaseResultDisplay):
         result = RESULTS[self.result_id]
         self.body_widget.show()
         self.info.setText(result.description)
+
+    def recalculate(self):
+        panel = self.root_class.settings_panel.panels[RESULTS[self.result_id].settings_panel_index]
+        panel.configure(self.result_id)
+        panel.recalculate()
+
+    def delete(self):
+        if not self.deleting:
+            self.delete_button.setIcon(qta.icon("mdi6.delete-alert", color="#AF4C50"))
+            self.deleting = True
+            QTimer.singleShot(1500, lambda: self.set_not_deleting())
+        else:
+            self.deleted = True
+            self.parent_class.delete_result(self.result_id)
+
+    def set_not_deleting(self):
+        if self.deleted:
+            return
+        self.delete_button.setIcon(qta.icon("mdi6.delete", color="#888"))
+        self.deleting = False

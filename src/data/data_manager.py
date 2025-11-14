@@ -14,8 +14,9 @@ class DataManager:
         assert (
             self.raw_data_result_id is None or self.raw_data_result_id == result_id
         ), "Raw data result ID is already set."
+        if self.raw_data_result_id is None:
+            self.data_chain.append(result_id)
         self.raw_data_result_id = result_id
-        self.data_chain.append(result_id)
 
     def add_data_to_chain(self, result_id: str):
         assert result_id not in self.data_chain, "Result ID already in data chain."
@@ -71,5 +72,10 @@ class DataManager:
 
         return RESULTS[result_id].data.copy()
 
+    def try_to_remove_result(self, result_id: int):
+        if result_id in self.data_chain:
+            self.data_chain.remove(result_id)
+            if self.raw_data_result_id == result_id:
+                self.raw_data_result_id = None
 
 DATA_MANAGER = DataManager()
