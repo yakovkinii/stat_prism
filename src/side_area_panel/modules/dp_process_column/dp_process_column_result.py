@@ -9,10 +9,10 @@ from src.side_area_panel.modules.common.result.registry import BaseResult
 @attrs.define
 class ProcessColumnStudyConfig:
     data_source = attrs.field(default=None)
-    combo = attrs.field(default=None)
     column_selector = attrs.field(default=None)
-    rename_to = attrs.field(default=None)
-    check = attrs.field(default=None)
+    rename = attrs.field(default=None)
+    flip = attrs.field(default=None)
+    scale = attrs.field(default=None)
 
 
 class ProcessColumnResult(BaseResult):

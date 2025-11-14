@@ -51,7 +51,7 @@ class MainWindowClass(QtWidgets.QMainWindow):
         self.main_area_display_widget, self.main_area_display_widget_layout = add_widget(
             parent=self.stacked_widget,
             inner_layout_class=VBoxLayout,
-            # css=css(background_color=Style.Color.BackgroundElevated),
+            css=css(background_color=Style.Color.Background),
         )
         self.stacked_widget.addWidget(self.main_area_display_widget)
 

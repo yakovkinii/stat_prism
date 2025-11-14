@@ -8,7 +8,9 @@ from src.side_area_panel.iispwac.iispwac_checkbox import IISPWACCheckBox
 from src.side_area_panel.iispwac.iispwac_column_selector import IISPWACColumnSelector
 from src.side_area_panel.iispwac.iispwac_combobox import IISPWACComboBox
 from src.side_area_panel.iispwac.iispwac_data_source import IISPWACDataSource
+from src.side_area_panel.iispwac.iispwac_flip import IISPWACFlip
 from src.side_area_panel.iispwac.iispwac_text_edit import IISPWACLongTextEdit
+from src.side_area_panel.iispwac.iispwac_text_edit_checkbox import IISPWACLongTextEditCheckBox
 from src.side_area_panel.modules.base.base import BaseModulePanel
 
 
@@ -27,16 +29,19 @@ class Elements(ItemInSidePanelWithAutoConfigHolder):
         ],
     )
 
-    rename_to = IISPWACLongTextEdit(
-        label_text="Rename to:",
-    )
-    combo = IISPWACComboBox(
-        label_text="Action:",
-        items=["Analyze", "Transform", "Encode"],
-    )
-    check = IISPWACCheckBox(
-        label_text="Check",
+    rename = IISPWACLongTextEditCheckBox(
+        label_text="Rename:",
         default_state=False,
+        default_from_column_selector=True,
+    )
+    flip = IISPWACFlip()
+    # Assume numeric:
+    # Map - not needed
+    # Flip
+    # Scale
+    scale = IISPWACComboBox(
+        label_text="Scale:",
+        items=["None", "Stanine"],
     )
 
 
