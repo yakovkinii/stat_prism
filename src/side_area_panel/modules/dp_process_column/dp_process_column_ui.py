@@ -35,13 +35,13 @@ class Elements(ItemInSidePanelWithAutoConfigHolder):
         default_from_column_selector=True,
     )
     flip = IISPWACFlip()
-    # Assume numeric:
-    # Map - not needed
-    # Flip
-    # Scale
     scale = IISPWACComboBox(
         label_text="Scale:",
         items=["None", "Stanine"],
+    )
+    keep_original = IISPWACCheckBox(
+        label_text="Keep Original Column",
+        default_state=False,
     )
 
 

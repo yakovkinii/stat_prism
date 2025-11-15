@@ -50,6 +50,10 @@ class SelectDataProcessing(BasePanel):
             settings_panel_index=module.settings_stacked_widget_index,
             config=module.config_class(),
         )
+        RESULTS[result_id].data = DATA_MANAGER.get_data_from_data_label(
+            data_label="Auto",
+            current_result_id=result_id,
+    )
         DATA_MANAGER.add_data_to_chain(result_id=result_id)
 
         self.root_class.main_area_panel.add_data_processing(result_id=result_id)

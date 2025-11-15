@@ -115,6 +115,9 @@ class DataColumn:
             self.order,
         )
 
+    def rename(self, new_name: str):
+        self.column_name = new_name
+        self.data_series.rename(new_name, inplace=True)
 
 class Data:
     def __init__(self, columns: List[DataColumn]):
@@ -164,18 +167,19 @@ class Data:
     def column_names(self):
         return [col.column_name for col in self.columns]
 
-    def add_new_column(self, column_to_the_left_index):
-        suffix = 1
-        while f"New column {suffix}" in self.column_names():
-            suffix += 1
-        new_column_name = f"New column {suffix}"
-
-        new_column = DataColumn.initialize_from_series(
-            pd.Series([""] * len(self.columns[0].data_series), name=new_column_name)
-        )
-        self.columns.insert(column_to_the_left_index + 1, new_column)
+    def add_column_after(self,column_name:str, column:DataColumn):
+        if column.column_name in self.name_to_index:
+            raise ValueError(f"Column name {column.column_name} already exists.")
+        column_to_the_left_index = self.name_to_index[column_name]
+        self.columns.insert(column_to_the_left_index + 1, column)
         self.update_lookups()
-        return new_column
+
+    def replace_column(self, column_name, new_column: DataColumn):
+        if column_name not in self.name_to_index:
+            raise ValueError(f"Column name {column_name} does not exist.")
+        index = self.name_to_index[column_name]
+        self.columns[index] = new_column
+        self.update_lookups()
 
     def insert_column_after_index(self, column: "DataColumn", after_index: int):
         """Insert a column after the specified index position"""

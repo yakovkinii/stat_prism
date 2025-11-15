@@ -2,6 +2,7 @@
 import logging
 
 from src.common.decorators import log_method
+from src.data.data import Data
 from src.side_area_panel.modules.common.result.registry import RESULTS
 
 
@@ -58,7 +59,7 @@ class DataManager:
 
         return ids
 
-    def get_data_from_data_label(self, data_label: str, current_result_id: int):
+    def get_data_from_data_label(self, data_label: str, current_result_id: int)->Data:
         if data_label == "Auto":
             result_id = self.data_chain[-1]
             if result_id == current_result_id:

@@ -2,7 +2,6 @@
 import attrs
 
 from src.data.data import Data
-from src.data.data_manager import DATA_MANAGER
 from src.side_area_panel.modules.common.result.registry import BaseResult
 
 
@@ -13,7 +12,7 @@ class ProcessColumnStudyConfig:
     rename = attrs.field(default=None)
     flip = attrs.field(default=None)
     scale = attrs.field(default=None)
-
+    keep_original = attrs.field(default=None)
 
 class ProcessColumnResult(BaseResult):
     def __init__(self, unique_id, settings_panel_index, config: ProcessColumnStudyConfig):
