@@ -77,23 +77,23 @@ class ModuleRegistry(Enum):
         icon_path="msc.unverified",
     )
 
-    RENAME_COLUMNS = ModuleRegistryItem(
-        display_name="Rename Columns",
-        icon_path="mdi6.rename-outline",
-        module_type=ModuleType.DATA_PROCESSING,
-    )
-
-    CALCULATE_SCALE = ModuleRegistryItem(
-        display_name="Calculate Scale",
-        icon_path="mdi6.scale-balance",
-        module_type=ModuleType.DATA_PROCESSING,
-    )
-
-    DP_PROCESS_COLUMN = ModuleRegistryItem(
-        display_name="Process Column",
-        icon_path="mdi6.cog-outline",
-        module_type=ModuleType.DATA_PROCESSING,
-    )
+    # RENAME_COLUMNS = ModuleRegistryItem(
+    #     display_name="Rename Columns",
+    #     icon_path="mdi6.rename-outline",
+    #     module_type=ModuleType.DATA_PROCESSING,
+    # )
+    #
+    # CALCULATE_SCALE = ModuleRegistryItem(
+    #     display_name="Calculate Scale",
+    #     icon_path="mdi6.scale-balance",
+    #     module_type=ModuleType.DATA_PROCESSING,
+    # )
+    #
+    # DP_PROCESS_COLUMN = ModuleRegistryItem(
+    #     display_name="Process Column",
+    #     icon_path="mdi6.cog-outline",
+    #     module_type=ModuleType.DATA_PROCESSING,
+    # )
 
     @property
     def display_name(self):

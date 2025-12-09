@@ -1,8 +1,9 @@
 #  Copyright (c) 2023 StatPrism Team. All rights reserved.
-from src.side_area_panel.modules.calculate_scale.calculate_scale_ui import (
+from src.side_area_panel.modules.dp_calculate_scale.dp_calculate_scale_main import dp_calculate_scale_main
+from src.side_area_panel.modules.dp_calculate_scale.dp_calculate_scale_ui import (
     CalculateScale,
 )
-from src.side_area_panel.modules.calculate_scale.result import (
+from src.side_area_panel.modules.dp_calculate_scale.dp_calculate_scale_result import (
     CalculateScaleResult,
     CalculateScaleStudyConfig,
 )
@@ -127,15 +128,16 @@ def inject_classes_to_module_registry():
     ModuleRegistry.CLUSTER_ANALYSIS.value.result_class = ClusterAnalysisResult
     ModuleRegistry.CLUSTER_ANALYSIS.value.config_class = ClusterAnalysisConfig
 
-    ModuleRegistry.RENAME_COLUMNS.value.ui_class = RenameColumns
-    ModuleRegistry.RENAME_COLUMNS.value.result_class = RenameColumnsResult
-    ModuleRegistry.RENAME_COLUMNS.value.config_class = RenameColumnsStudyConfig
-
-    ModuleRegistry.CALCULATE_SCALE.value.ui_class = CalculateScale
-    ModuleRegistry.CALCULATE_SCALE.value.result_class = CalculateScaleResult
-    ModuleRegistry.CALCULATE_SCALE.value.config_class = CalculateScaleStudyConfig
-
-    ModuleRegistry.DP_PROCESS_COLUMN.value.ui_class = DpProcessColumn
-    ModuleRegistry.DP_PROCESS_COLUMN.value.result_class = ProcessColumnResult
-    ModuleRegistry.DP_PROCESS_COLUMN.value.config_class = ProcessColumnStudyConfig
-    ModuleRegistry.DP_PROCESS_COLUMN.value.main_function = dp_process_column_main
+    # ModuleRegistry.RENAME_COLUMNS.value.ui_class = RenameColumns
+    # ModuleRegistry.RENAME_COLUMNS.value.result_class = RenameColumnsResult
+    # ModuleRegistry.RENAME_COLUMNS.value.config_class = RenameColumnsStudyConfig
+    #
+    # ModuleRegistry.CALCULATE_SCALE.value.ui_class = CalculateScale
+    # ModuleRegistry.CALCULATE_SCALE.value.result_class = CalculateScaleResult
+    # ModuleRegistry.CALCULATE_SCALE.value.config_class = CalculateScaleStudyConfig
+    # ModuleRegistry.CALCULATE_SCALE.value.main_function = dp_calculate_scale_main
+    #
+    # ModuleRegistry.DP_PROCESS_COLUMN.value.ui_class = DpProcessColumn
+    # ModuleRegistry.DP_PROCESS_COLUMN.value.result_class = ProcessColumnResult
+    # ModuleRegistry.DP_PROCESS_COLUMN.value.config_class = ProcessColumnStudyConfig
+    # ModuleRegistry.DP_PROCESS_COLUMN.value.main_function = dp_process_column_main

@@ -26,10 +26,10 @@ if TYPE_CHECKING:
 class Home(BasePanel):
     def setup_ui(self):
         self.elements = {
-            "data_processing": LargeButton(
-                label_text="Data Processing",
-                icon_path="ri.file-edit-line",
-            ),
+            # "data_processing": LargeButton(
+            #     label_text="Data Processing",
+            #     icon_path="ri.file-edit-line",
+            # ),
             "data_analysis": LargeButton(
                 label_text="Data Analysis",
                 icon_path="ri.bar-chart-line",

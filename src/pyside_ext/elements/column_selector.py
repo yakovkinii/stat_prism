@@ -43,7 +43,7 @@ class Field:
     column_type: ColumnType
     reasonable_number_of_columns: int = 5
     allow_only_single_column: bool = False
-    minimum_columns: int = 0
+    minimum_columns: int = 0  # not used
 
 
 class ColumnSelectorEx(BasePanelElement):

@@ -21,7 +21,7 @@ def inject_classes_to_panel_registry():
     PanelRegistry.HOME.value.ui_class = Home
     PanelRegistry.HOME_INITIAL.value.ui_class = HomeInitial
     PanelRegistry.SELECT_DATA_ANALYSIS.value.ui_class = SelectDataAnalysis
-    PanelRegistry.SELECT_DATA_PROCESSING.value.ui_class = SelectDataProcessing
+    # PanelRegistry.SELECT_DATA_PROCESSING.value.ui_class = SelectDataProcessing
     PanelRegistry.COLUMN_SELECTOR.value.ui_class = ColumnSelector
     PanelRegistry.FILTER.value.ui_class = Filter
     PanelRegistry.MAPPING.value.ui_class = Mapping
