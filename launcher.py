@@ -31,9 +31,9 @@ if __name__ == "__main__":
 
     fusion = QStyleFactory.create("Fusion")
     app.setStyle(fusion)
-    app.setPalette(fusion.standardPalette())
+    pal = fusion.standardPalette()
 
-    pal = app.style().standardPalette()
+    # pal = app.style().standardPalette()
     pal.setColor(QPalette.ColorRole.Window, QColor(Style.Color.BackgroundElevated.value))
     pal.setColor(QPalette.ColorRole.WindowText, QColor(Style.Color.Text.value))
     pal.setColor(QPalette.ColorRole.Button, QColor(Style.Color.BackgroundElevated.value))
