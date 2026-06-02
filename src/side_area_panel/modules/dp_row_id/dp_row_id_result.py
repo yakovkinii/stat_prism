@@ -20,7 +20,7 @@ class RowIdResult(BaseResult):
         self.config_class = RowIdStudyConfig
         self.config: RowIdStudyConfig = config
         self.needs_update: bool = False
-        self.description = "Adds an ID column (the row number) as the first column."
+        self.description = "Adds an ID column."
 
         self.data = Data([])
 
