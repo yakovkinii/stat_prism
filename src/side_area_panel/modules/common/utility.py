@@ -2,9 +2,29 @@
 
 
 import numpy as np
+import pandas as pd
 
 from src.common.constant import MDASH
 from src.common.translations import t
+
+
+def to_stanine(series: pd.Series) -> pd.Series:
+    """Map a numeric series onto the 1-9 stanine scale, preserving missing values."""
+    min_val = series.min()
+    max_val = series.max()
+    if pd.isna(min_val) or pd.isna(max_val) or max_val == min_val:
+        return series.apply(lambda x: 5 if pd.notna(x) else x)
+
+    def transform(x):
+        if pd.isna(x):
+            return x
+        if x <= min_val:
+            return 1
+        if x >= max_val:
+            return 9
+        return int(((x - min_val) / (max_val - min_val)) * 8) + 1
+
+    return series.apply(transform)
 
 
 def smart_comma_join(items):

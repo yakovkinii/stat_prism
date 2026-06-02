@@ -222,7 +222,12 @@ class BaseModulePanel:
         result = RESULTS[self.result_id]
         result.config = result.config_class(**self.elements_.get_kwargs())
         self.elements_.clear_alerts()
-        self.recalculate_on_done(self.main_function(elements=self.elements_, result=result))
+        try:
+            result = self.main_function(elements=self.elements_, result=result)
+        except Exception as e:
+            logging.error(f"Error during calculation: {e}")
+            result.set_placeholder(f"Error during calculation: {e}")
+        self.recalculate_on_done(result)
 
     @log_method
     def recalculate_on_done(self, result):

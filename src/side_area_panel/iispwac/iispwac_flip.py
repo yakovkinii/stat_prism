@@ -1,5 +1,6 @@
 #  Copyright (c) 2023 StatPrism Team. All rights reserved.
 
+import pandas as pd
 import qtawesome as qta
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QCheckBox, QLabel, QDoubleSpinBox, QPushButton, QGridLayout, \
@@ -17,12 +18,18 @@ from src.side_area_panel.blueprint.element import ItemInSidePanelWithAutoConfig
 
 
 class IISPWACFlip(ItemInSidePanelWithAutoConfig):
-    def __init__(self):
+    def __init__(self, label_text: str = "Flip", default_state: bool = False):
         super().__init__()
+        self.label_text = label_text
+        self.default_state = default_state
         self.handler_state_changed = None
-        self.recalculate_reference_when_able = True
+        # Pooled numeric values of all selected columns (for the auto reference / preview).
         self.column = None
-        self.column_name = None
+        # `manual` is True only once the user edits the spinbox; until then the
+        # reference is auto-inferred in the module's main() from live data, which
+        # avoids any stale-value lag when the column selection changes.
+        self.manual = False
+        self._programmatic = False
 
     def post_init(self, name, parent_widget):
         self.name = name
@@ -35,7 +42,7 @@ class IISPWACFlip(ItemInSidePanelWithAutoConfig):
         self.layout.setSpacing(5)
 
         self.check, _ = add_widget(parent=self.widget, outer_layout=self.layout, widget=QCheckBox(parent_widget))
-        self.check.setText("Flip")
+        self.check.setText(self.label_text)
         self.check.stateChanged.connect(self.on_state_changed)
 
         self.spinbox, _ = add_widget(
@@ -46,7 +53,7 @@ class IISPWACFlip(ItemInSidePanelWithAutoConfig):
         self.spinbox.setRange(-999999.0, 999999.0)
         self.spinbox.setDecimals(2)
         self.spinbox.setSingleStep(1.0)
-        self.spinbox.valueChanged.connect(self.on_state_changed)
+        self.spinbox.valueChanged.connect(self.on_spinbox_changed)
 
         self.view_button, _ = add_widget(
             parent=self.widget,
@@ -62,7 +69,8 @@ class IISPWACFlip(ItemInSidePanelWithAutoConfig):
         return {
             self.name: {
                 "flip": self.check.isChecked(),
-                "reference_value": self._get_reference_value(),
+                # None signals "auto" -> main() computes the reference from data.
+                "reference_value": self._get_reference_value() if self.manual else None,
             }
         }
 
@@ -71,15 +79,17 @@ class IISPWACFlip(ItemInSidePanelWithAutoConfig):
         self.update_column(**kwargs)
         if state is None:
             state = {
-                "flip": False,
+                "flip": self.default_state,
                 "reference_value": None,
             }
 
-        if self.recalculate_reference_when_able:
-            state["reference_value"] = self.get_default_reference_value()
+        self.manual = state["reference_value"] is not None
+        reference = state["reference_value"] if self.manual else self.get_default_reference_value()
 
         self.check.setChecked(state["flip"])
-        self.spinbox.setValue(state["reference_value"])
+        self._programmatic = True
+        self.spinbox.setValue(reference if reference is not None else 0.0)
+        self._programmatic = False
         self.spinbox.setEnabled(state["flip"])
         self.view_button.setEnabled(state["flip"])
 
@@ -96,20 +106,20 @@ class IISPWACFlip(ItemInSidePanelWithAutoConfig):
                 current_result_id=result_id,
             )
 
-            name = kwargs["column_selector"][0][0]
-            self.column = data[name].data_series
-            if self.column_name != data[name].column_name:
-                self.recalculate_reference_when_able = True
-            self.column_name = data[name].column_name
-        except Exception as e:
+            names = kwargs["column_selector"][0]
+            if not names:
+                raise ValueError("No columns selected")
+            # Pool all selected columns so they share one min/max reference.
+            self.column = pd.concat(
+                [pd.to_numeric(data[name].data_series, errors="coerce") for name in names],
+                ignore_index=True,
+            )
+        except Exception:
             self.column = None
-            self.column_name = None
 
     def get_default_reference_value(self) -> float:
-        if self.column is None:
-            self.recalculate_reference_when_able = True
+        if self.column is None or self.column.dropna().empty:
             return 0.0
-        self.recalculate_reference_when_able = False
         return self.column.max() + self.column.min()
 
     @log_method_noarg
@@ -127,6 +137,16 @@ class IISPWACFlip(ItemInSidePanelWithAutoConfig):
             self.handler_state_changed()
         self.on_recalculate()
 
+    @log_method_noarg
+    def on_spinbox_changed(self):
+        if self._programmatic:
+            return
+        # A genuine user edit engages the manual reference override.
+        self.manual = True
+        if self.handler_state_changed:
+            self.handler_state_changed()
+        self.on_recalculate()
+
     def set_handler_state_changed(self, handler):
         self.handler_state_changed = handler
 
@@ -139,7 +159,7 @@ class IISPWACFlip(ItemInSidePanelWithAutoConfig):
     def on_view_clicked(self):
         if self.column is None:
             return
-        unique_values = sorted(self.column.unique())
+        unique_values = sorted(self.column.dropna().unique())
         reference_value = self._get_reference_value()
 
         self.v_widget, self.layout_for_values = add_widget(
@@ -167,7 +187,6 @@ class IISPWACFlip(ItemInSidePanelWithAutoConfig):
             label_right.setText(str(reference_value - value))
             label_right.setFont(Style.font_regular)
             label_right.setAlignment(Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter)
-
 
             self.layout_for_values.addWidget(label_left, i, 0)
             self.layout_for_values.addWidget(label_center, i, 1)

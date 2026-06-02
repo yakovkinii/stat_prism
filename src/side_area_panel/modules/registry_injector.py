@@ -19,6 +19,36 @@ from src.side_area_panel.modules.confirmatory_factor_analysis.result import (
     CFAResult,
     CFAStudyConfig,
 )
+from src.side_area_panel.modules.dp_calculate_scale.dp_calculate_scale_main import (
+    dp_calculate_scale_main,
+)
+from src.side_area_panel.modules.dp_calculate_scale.dp_calculate_scale_result import (
+    CalculateScaleResult,
+    CalculateScaleStudyConfig,
+)
+from src.side_area_panel.modules.dp_calculate_scale.dp_calculate_scale_ui import (
+    CalculateScale,
+)
+from src.side_area_panel.modules.dp_process_column.dp_process_column_main import (
+    dp_process_column_main,
+)
+from src.side_area_panel.modules.dp_process_column.dp_process_column_result import (
+    ProcessColumnResult,
+    ProcessColumnStudyConfig,
+)
+from src.side_area_panel.modules.dp_process_column.dp_process_column_ui import (
+    DpProcessColumn,
+)
+from src.side_area_panel.modules.dp_invert_scale.dp_invert_scale_main import (
+    dp_invert_scale_main,
+)
+from src.side_area_panel.modules.dp_invert_scale.dp_invert_scale_result import (
+    InvertScaleResult,
+    InvertScaleStudyConfig,
+)
+from src.side_area_panel.modules.dp_invert_scale.dp_invert_scale_ui import (
+    InvertScale,
+)
 from src.side_area_panel.modules.contingency.contingency_ui import Contingency
 from src.side_area_panel.modules.contingency.main import recalculate_contingency_study
 from src.side_area_panel.modules.contingency.result import (
@@ -128,3 +158,18 @@ def inject_classes_to_module_registry():
     ModuleRegistry.CLUSTER_ANALYSIS.value.result_class = ClusterAnalysisResult
     ModuleRegistry.CLUSTER_ANALYSIS.value.config_class = ClusterAnalysisConfig
     ModuleRegistry.CLUSTER_ANALYSIS.value.main_function = recalculate_cluster_analysis_study
+
+    ModuleRegistry.CALCULATE_SCALE.value.ui_class = CalculateScale
+    ModuleRegistry.CALCULATE_SCALE.value.result_class = CalculateScaleResult
+    ModuleRegistry.CALCULATE_SCALE.value.config_class = CalculateScaleStudyConfig
+    ModuleRegistry.CALCULATE_SCALE.value.main_function = dp_calculate_scale_main
+
+    ModuleRegistry.DP_PROCESS_COLUMN.value.ui_class = DpProcessColumn
+    ModuleRegistry.DP_PROCESS_COLUMN.value.result_class = ProcessColumnResult
+    ModuleRegistry.DP_PROCESS_COLUMN.value.config_class = ProcessColumnStudyConfig
+    ModuleRegistry.DP_PROCESS_COLUMN.value.main_function = dp_process_column_main
+
+    ModuleRegistry.INVERT_SCALE.value.ui_class = InvertScale
+    ModuleRegistry.INVERT_SCALE.value.result_class = InvertScaleResult
+    ModuleRegistry.INVERT_SCALE.value.config_class = InvertScaleStudyConfig
+    ModuleRegistry.INVERT_SCALE.value.main_function = dp_invert_scale_main

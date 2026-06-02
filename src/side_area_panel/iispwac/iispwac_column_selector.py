@@ -191,11 +191,14 @@ class IISPWACColumnSelector(ItemInSidePanelWithAutoConfig):
         ).get_all_columns_as_column_types()
 
         self.columns = columns
-        self.selected_columns_list = selected_columns_list
-
-        self.columns = columns
         self.column_names = [column.column_name for column in columns]
         main_list_names = [column.column_name for column in columns]
+
+        # Drop any previously-selected columns that no longer exist in this data
+        # source (e.g. after the user switches the data source).
+        available = set(self.column_names)
+        selected_columns_list = [[col for col in selected if col in available] for selected in selected_columns_list]
+        self.selected_columns_list = selected_columns_list
 
         for panel_list, selected_columns in zip(self.panel_list_widgets, selected_columns_list):
             clean_up_list_widget(panel_list)

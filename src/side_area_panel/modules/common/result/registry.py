@@ -7,6 +7,15 @@ from src.side_area_panel.modules.common.result.base_result import BaseResult
 from src.side_area_panel.modules.contingency.result import ContingencyResult
 from src.side_area_panel.modules.correlation.result import CorrelationResult
 from src.side_area_panel.modules.descriptive.result import DescriptiveResult
+from src.side_area_panel.modules.dp_calculate_scale.dp_calculate_scale_result import (
+    CalculateScaleResult,
+)
+from src.side_area_panel.modules.dp_invert_scale.dp_invert_scale_result import (
+    InvertScaleResult,
+)
+from src.side_area_panel.modules.dp_process_column.dp_process_column_result import (
+    ProcessColumnResult,
+)
 from src.side_area_panel.modules.exploratory_factor_analysis.result import (
     FactorAnalysisResult,
 )
@@ -29,6 +38,9 @@ RESULTS: Dict[
         ContingencyResult,
         RawDataResult,
         FactorAnalysisResult,
+        CalculateScaleResult,
+        ProcessColumnResult,
+        InvertScaleResult,
     ],
 ] = {}
 

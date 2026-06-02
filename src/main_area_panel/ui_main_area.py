@@ -8,6 +8,9 @@ from PySide6.QtWidgets import QVBoxLayout
 from src.common.decorators import log_method
 from src.data.data_manager import DATA_MANAGER
 from src.main_area_panel.result_display.data_analysis import DataAnalysisResultDisplay
+from src.main_area_panel.result_display.data_processing import (
+    DataProcessingResultDisplay,
+)
 from src.main_area_panel.result_display.raw_data import RawDataResultDisplay
 from src.pyside_ext.elements.utility.layout_helpers import empty_widget
 from src.pyside_ext.elements.utility.primitive_elements import QWidgetClickable
@@ -58,6 +61,19 @@ class MainAreaClass:
             ],
         )
 
+        # Data Processing
+        self.data_processing_widget_container, self.data_processing_container_layout = empty_widget(
+            widget_class=QWidgetClickable,
+            parent=self.widget_in_scroll_area,
+            outer_layout=self.layout,
+            inner_layout_class=QVBoxLayout,
+            setup=lambda w, l: [
+                l.setContentsMargins(10, 10, 5, 5),
+                l.setSpacing(10),
+                w.clicked.connect(lambda: self.activate_result(None, None)),
+            ],
+        )
+
         # Data Analysis
         self.data_analysis_widget_container, self.data_analysis_container_layout = empty_widget(
             widget_class=QWidgetClickable,
@@ -77,6 +93,7 @@ class MainAreaClass:
         self.focused_result_element_id = None
 
         self.raw_data_objects = {}
+        self.data_processing_objects = {}
         self.data_analysis_objects = {}
 
     def add_raw_data(self, result_id):
@@ -89,6 +106,17 @@ class MainAreaClass:
         )
         self.raw_data_objects[result_id] = raw_data_object
         self.raw_data_container_layout.addWidget(raw_data_object.widget)
+
+    def add_data_processing(self, result_id):
+        data_processing_object = DataProcessingResultDisplay(
+            parent_widget=self.data_processing_widget_container,
+            parent_class=self,
+            root_class=self.root_class,
+            label_text=RESULTS[result_id].title + f" [Data{result_id}]",
+            result_id=result_id,
+        )
+        self.data_processing_objects[result_id] = data_processing_object
+        self.data_processing_container_layout.addWidget(data_processing_object.widget)
 
     def add_data_analysis(self, result_id):
         data_analysis_object = DataAnalysisResultDisplay(
@@ -104,6 +132,7 @@ class MainAreaClass:
     def get_result_object(self, result_id):
         return (
             self.data_analysis_objects.get(result_id)
+            or self.data_processing_objects.get(result_id)
             or self.raw_data_objects.get(result_id)
         )
 
@@ -160,6 +189,9 @@ class MainAreaClass:
         if result_id in self.data_analysis_objects:
             layout = self.data_analysis_container_layout
             del self.data_analysis_objects[result_id]
+        elif result_id in self.data_processing_objects:
+            layout = self.data_processing_container_layout
+            del self.data_processing_objects[result_id]
         elif result_id in self.raw_data_objects:
             layout = self.raw_data_container_layout
             del self.raw_data_objects[result_id]

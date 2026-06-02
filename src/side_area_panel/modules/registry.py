@@ -8,6 +8,7 @@ import attrs
 
 class ModuleType(Enum):
     RAW_DATA = "RAW_DATA"
+    DATA_PROCESSING = "DATA_PROCESSING"
     DATA_ANALYSIS = "DATA_ANALYSIS"
 
 
@@ -74,6 +75,24 @@ class ModuleRegistry(Enum):
     CLUSTER_ANALYSIS = ModuleRegistryItem(
         display_name="Cluster Analysis",
         icon_path="msc.unverified",
+    )
+
+    CALCULATE_SCALE = ModuleRegistryItem(
+        display_name="Calculate Scale",
+        icon_path="mdi6.scale-balance",
+        module_type=ModuleType.DATA_PROCESSING,
+    )
+
+    DP_PROCESS_COLUMN = ModuleRegistryItem(
+        display_name="Process Column",
+        icon_path="mdi6.cog-outline",
+        module_type=ModuleType.DATA_PROCESSING,
+    )
+
+    INVERT_SCALE = ModuleRegistryItem(
+        display_name="Invert Scale",
+        icon_path="ri.arrow-up-down-line",
+        module_type=ModuleType.DATA_PROCESSING,
     )
 
     @property

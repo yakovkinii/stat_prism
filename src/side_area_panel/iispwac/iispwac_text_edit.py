@@ -40,7 +40,7 @@ class IISPWACLongTextEdit(ItemInSidePanelWithAutoConfig):
 
     def configure(self, **kwargs):
         text = kwargs[self.name]
-        self.edit.setText(text)
+        self.edit.setText(text if text is not None else "")
 
     def set_alert(self):
         set_stylesheet(

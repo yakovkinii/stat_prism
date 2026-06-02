@@ -69,6 +69,12 @@ class HomeInitial(BasePanel):
                         RESULTS[result.unique_id] = result
                         if result.settings_panel_index in [ModuleRegistry.RAW_DATA.settings_stacked_widget_index]:
                             self.root_class.main_area_panel.add_raw_data(result.unique_id)
+                        elif result.settings_panel_index in [
+                            ModuleRegistry.CALCULATE_SCALE.settings_stacked_widget_index,
+                            ModuleRegistry.DP_PROCESS_COLUMN.settings_stacked_widget_index,
+                            ModuleRegistry.INVERT_SCALE.settings_stacked_widget_index,
+                        ]:
+                            self.root_class.main_area_panel.add_data_processing(result.unique_id)
                         else:
                             self.root_class.main_area_panel.add_data_analysis(result.unique_id)
 

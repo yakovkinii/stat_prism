@@ -210,6 +210,11 @@ class Data:
             logging.debug("No filter applied")
 
         if columns is not None:
+            missing = [col for col in columns if col not in df.columns]
+            if missing:
+                raise ValueError(
+                    "Selected column(s) not available in the current data source: " + ", ".join(map(str, missing))
+                )
             df = df[columns]
 
         # sort using order dicts
