@@ -6,7 +6,7 @@ from typing import List
 
 from src.common.constant import TABLE_OR_PLOT_ID_PLACEHOLDER
 from src.common.decorators import log_method_noarg
-from src.common.languages import LANGUAGE
+from src.common.translations import t
 from src.pyside_ext.elements.base import BasePanelElement
 from src.side_area_panel.modules.common.result.base_result import BaseResultElement
 from src.side_area_panel.panels.result_item_settings_classes import (
@@ -104,15 +104,14 @@ class HTMLTableV2(BaseResultElement):
         self.__init__(**state)
 
     def load_settings_from(self, table: "HTMLTableV2"):
-        self.table_id = table.table_id
-        self.table_caption = table.table_caption
+        self.table_id.set_up_from_other_instance(table.table_id)
+        self.table_caption.set_up_from_other_instance(table.table_caption)
 
     @log_method_noarg
     def get_html(self, renderer=None):
         table_id = self.table_id.get_current_value()
         id_suffix = f"{table_id}." if table_id else ""
-        # table_str = "Таблиця" if LANGUAGE.is_ua() else "Table"
-        note_str = "Нотатка" if LANGUAGE.is_ua() else "Note"
+        note_str = t("common.note")
 
         # Propagate top/bottom borders to cell flags
         if self.rows:

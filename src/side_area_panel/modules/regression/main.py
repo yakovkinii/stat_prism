@@ -9,7 +9,7 @@ import statsmodels.api as sm
 
 from src.common.decorators import log_function
 from src.common.qcolor import Colors
-from src.data.data import Data
+from src.data.data_manager import DATA_MANAGER
 from src.side_area_panel.modules.common.result.html_result import Cell, HTMLTableV2, Row
 from src.side_area_panel.modules.common.result.plot_result import (
     Band,
@@ -27,15 +27,26 @@ from src.side_area_panel.modules.regression.result import (
 
 
 @log_function
-def recalculate_regression_study(data: Data, result: RegressionResult) -> RegressionResult:
+def recalculate_regression_study(elements, result: RegressionResult) -> RegressionResult:
     cfg: RegressionStudyConfig = result.config
-    all_columns = [cfg.dependent_column] + cfg.independent_columns
-    if cfg.moderator_column is not None:
-        all_columns.append(cfg.moderator_column)
-    if cfg.mediator_column is not None:
-        all_columns.append(cfg.mediator_column)
+    data = DATA_MANAGER.get_data_from_data_label(
+        data_label=cfg.data_source,
+        current_result_id=result.unique_id,
+    )
 
-    df = data.get_dataframe(filters=result.config.filters, columns=all_columns, map_ordinal=True)
+    cs = cfg.column_selector
+    dependent_column = cs[0][0] if cs[0] else None
+    independent_columns = cs[1]
+    moderator_column = cs[2][0] if cs[2] else None
+    mediator_column = cs[3][0] if cs[3] else None
+
+    all_columns = [dependent_column] + independent_columns
+    if moderator_column is not None:
+        all_columns.append(moderator_column)
+    if mediator_column is not None:
+        all_columns.append(mediator_column)
+
+    df = data.get_dataframe(filters=cfg.filters or [], columns=all_columns, map_ordinal=True)
 
     if "const" in all_columns:
         msg = "The column name 'const' is reserved. Please rename the column."
@@ -43,32 +54,32 @@ def recalculate_regression_study(data: Data, result: RegressionResult) -> Regres
         logging.debug(msg)
         return result
 
-    independent_cols = cfg.independent_columns.copy()
+    independent_cols = independent_columns.copy()
 
-    if cfg.moderator_column:
+    if moderator_column:
         logging.info("Performing Moderation Analysis...\n")
         # Add interaction terms between the independent variables and the moderator
         original_independent_cols = independent_cols.copy()
-        independent_cols.append(cfg.moderator_column)
+        independent_cols.append(moderator_column)
         for ind_col in original_independent_cols:
-            interaction_term = f"{ind_col}&nbsp;*&nbsp;{cfg.moderator_column}"
-            df[interaction_term] = df[ind_col] * df[cfg.moderator_column]
+            interaction_term = f"{ind_col}&nbsp;*&nbsp;{moderator_column}"
+            df[interaction_term] = df[ind_col] * df[moderator_column]
             independent_cols.append(interaction_term)
 
     mediator_model = None
-    if cfg.mediator_column:
+    if mediator_column:
         logging.info("Performing Mediation Analysis...\n")
         # Step 1: Regress mediator on independent variables
         X_mediator = sm.add_constant(df[independent_cols])
-        mediator_model = sm.OLS(df[cfg.mediator_column], X_mediator).fit()
+        mediator_model = sm.OLS(df[mediator_column], X_mediator).fit()
 
         # Step 2: Regress dependent variable on independent variables and mediator
-        independent_cols.append(cfg.mediator_column)
+        independent_cols.append(mediator_column)
 
         # Fit the final regression model
 
     X = sm.add_constant(df[independent_cols])
-    model = sm.OLS(df[cfg.dependent_column], X).fit()
+    model = sm.OLS(df[dependent_column], X).fit()
 
     # Create fit table
     fit_table = HTMLTableV2(table_caption="Regression Metrics")
@@ -120,7 +131,7 @@ def recalculate_regression_study(data: Data, result: RegressionResult) -> Regres
         )
 
     mediator_table = None
-    if cfg.mediator_column:
+    if mediator_column:
         mediator_table = HTMLTableV2(table_caption="Path Estimates")
         mediator_table.add_title_row_apa(
             Row(
@@ -140,7 +151,7 @@ def recalculate_regression_study(data: Data, result: RegressionResult) -> Regres
             mediator_table.add_single_row_apa(
                 Row(
                     [
-                        Cell(f"{param_name}&nbsp;→&nbsp;{cfg.mediator_column}", push_to_left=True),
+                        Cell(f"{param_name}&nbsp;→&nbsp;{mediator_column}", push_to_left=True),
                         Cell(format_statistic_apa(param_value), center=True),
                         Cell(format_statistic_apa(mediator_model.bse[param_name]), center=True),
                         Cell(format_statistic_apa(mediator_model.tvalues[param_name]), center=True),
@@ -154,7 +165,7 @@ def recalculate_regression_study(data: Data, result: RegressionResult) -> Regres
             mediator_table.add_single_row_apa(
                 Row(
                     [
-                        Cell(f"{param_name}&nbsp;→&nbsp;{cfg.dependent_column}", push_to_left=True),
+                        Cell(f"{param_name}&nbsp;→&nbsp;{dependent_column}", push_to_left=True),
                         Cell(format_statistic_apa(param_value), center=True),
                         Cell(format_statistic_apa(model.bse[param_name]), center=True),
                         Cell(format_statistic_apa(model.tvalues[param_name]), center=True),
@@ -169,55 +180,55 @@ def recalculate_regression_study(data: Data, result: RegressionResult) -> Regres
         result.result_elements.append(mediator_table)
 
     plot_result_element = None
-    if len(cfg.independent_columns) == 1:
+    if len(independent_columns) == 1:
         scatter = Scatter(
-            x=df[cfg.independent_columns[0]],
-            y=df[cfg.dependent_column],
+            x=df[independent_columns[0]],
+            y=df[dependent_column],
             label="Data points",
         )
         items = [scatter]
 
-        x_values_original = np.linspace(df[cfg.independent_columns[0]].min(), df[cfg.independent_columns[0]].max(), 100)
+        x_values_original = np.linspace(df[independent_columns[0]].min(), df[independent_columns[0]].max(), 100)
         x_values_original = pd.DataFrame(
             {
                 "const": 1,
-                cfg.independent_columns[0]: x_values_original,
+                independent_columns[0]: x_values_original,
             }
         )
-        if cfg.moderator_column:
-            mean = df[cfg.moderator_column].mean()
-            std = df[cfg.moderator_column].std()
+        if moderator_column:
+            mean = df[moderator_column].mean()
+            std = df[moderator_column].std()
             colors = Colors()
             for number_of_sds in [-1, 0, 1]:
                 x_values = x_values_original.copy()
-                x_values[cfg.moderator_column] = mean + number_of_sds * std
-                x_values[f"{cfg.independent_columns[0]}&nbsp;*&nbsp;{cfg.moderator_column}"] = (
-                    x_values[cfg.independent_columns[0]] * x_values[cfg.moderator_column]
+                x_values[moderator_column] = mean + number_of_sds * std
+                x_values[f"{independent_columns[0]}&nbsp;*&nbsp;{moderator_column}"] = (
+                    x_values[independent_columns[0]] * x_values[moderator_column]
                 )
                 line = Line(
-                    x=x_values[cfg.independent_columns[0]],
+                    x=x_values[independent_columns[0]],
                     y=model.predict(x_values),
                     label=f"Regression Line ({number_of_sds} SD)",
                     legend_string=f"Regression Line ({number_of_sds} SD)",
                     config=LinePlotConfig(color=colors.get_color_list()),
                 )
                 items.append(line)
-        elif cfg.mediator_column:
+        elif mediator_column:
             colors = Colors()
             # ============================ DIRECT ================================
             x_values = x_values_original.copy()
-            x_values[cfg.mediator_column] = df[cfg.mediator_column].mean()
-            xx = x_values_original[cfg.independent_columns[0]]
+            x_values[mediator_column] = df[mediator_column].mean()
+            xx = x_values_original[independent_columns[0]]
 
             # Calculate the confidence intervals
             conf_static = model.bse["const"]
-            conf_direct = model.bse[cfg.independent_columns[0]]
+            conf_direct = model.bse[independent_columns[0]]
             conf_mediator_static = mediator_model.bse["const"]
-            conf_mediator_dynamic = mediator_model.bse[cfg.independent_columns[0]] * abs(xx - xx.mean())
+            conf_mediator_dynamic = mediator_model.bse[independent_columns[0]] * abs(xx - xx.mean())
             conf_mediator_total = np.sqrt(conf_mediator_static**2 + conf_mediator_dynamic**2)
             conf_indirect = np.sqrt(
-                (conf_mediator_total**2) * (model.params[cfg.mediator_column] ** 2)
-                + model.bse[cfg.mediator_column] ** 2
+                (conf_mediator_total**2) * (model.params[mediator_column] ** 2)
+                + model.bse[mediator_column] ** 2
             )
             conf_interval = np.sqrt(conf_static**2 + conf_direct**2 + conf_indirect**2)
 
@@ -243,7 +254,7 @@ def recalculate_regression_study(data: Data, result: RegressionResult) -> Regres
 
             # ============================ TOTAL ================================
             x_values = x_values_original.copy()
-            x_values[cfg.mediator_column] = mediator_model.predict(sm.add_constant(x_values))
+            x_values[mediator_column] = mediator_model.predict(sm.add_constant(x_values))
             yy = model.predict(sm.add_constant(x_values))
 
             color = colors.get_color_list()
@@ -256,7 +267,7 @@ def recalculate_regression_study(data: Data, result: RegressionResult) -> Regres
             )
 
             line_direct = Line(
-                x=x_values_original[cfg.independent_columns[0]],
+                x=x_values_original[independent_columns[0]],
                 y=model.predict(sm.add_constant(x_values)),
                 label="Total Effect",
                 legend_string="Total Effect",
@@ -267,27 +278,19 @@ def recalculate_regression_study(data: Data, result: RegressionResult) -> Regres
 
         else:
             line = Line(
-                x=x_values_original[cfg.independent_columns[0]],
+                x=x_values_original[independent_columns[0]],
                 y=model.predict(sm.add_constant(x_values_original)),
                 label="Regression Line",
             )
             items.append(line)
         plot_result_element = PlotV2(
             items=items,
-            title=f"Regression Plot: {cfg.dependent_column} vs {cfg.independent_columns[0]}",
-            plot_title=f"Regression Plot: {cfg.dependent_column} vs {cfg.independent_columns[0]}",
-            x_axis_title=cfg.independent_columns[0],
-            y_axis_title=cfg.dependent_column,
+            title=f"Regression Plot: {dependent_column} vs {independent_columns[0]}",
+            plot_title=f"Regression Plot: {dependent_column} vs {independent_columns[0]}",
+            x_axis_title=independent_columns[0],
+            y_axis_title=dependent_column,
         )
 
     if plot_result_element:
         result.result_elements.append(plot_result_element)
     return result
-
-
-def cronbach_alpha(corr_matrix: np.ndarray) -> float:
-    k = corr_matrix.shape[0]
-    trace = np.trace(corr_matrix)
-    matrix_sum = np.sum(corr_matrix)
-    alpha = (k / (k - 1)) * (1 - (trace / matrix_sum))
-    return alpha

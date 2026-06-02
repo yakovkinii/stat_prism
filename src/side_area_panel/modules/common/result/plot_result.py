@@ -370,13 +370,17 @@ class PlotV2(BaseResultElement):
 
     def load_settings_from(self, plot: "PlotV2"):
         try:
-            self.plot_id = plot.plot_id
-            self.plot_title = plot.plot_title
-            self.x_axis_title = plot.x_axis_title
-            self.y_axis_title = plot.y_axis_title
-            self.tilt_x_axis_labels = plot.tilt_x_axis_labels
+            self.plot_id.set_up_from_other_instance( plot.plot_id)
+            self.plot_title.set_up_from_other_instance( plot.plot_title)
+            self.x_axis_title.set_up_from_other_instance( plot.x_axis_title)
+            self.y_axis_title.set_up_from_other_instance( plot.y_axis_title)
+            self.tilt_x_axis_labels.set_up_from_other_instance( plot.tilt_x_axis_labels)
             for self_item, plot_item in zip(self.items, plot.items):
                 self_item.config = plot_item.config
+                if self_item.config.display_settings is not None:
+                    class_name = self_item.__class__.__name__
+                    label = class_name + ": " + self_item.label
+                    self.display_settings[label] = self_item.config.display_settings
 
         except Exception as e:
             logging.warning(f"Error trying to set settings from another plot: {e}")

@@ -70,7 +70,6 @@ class Style:
 
         # Legacy borders (to be deprecated)
         border_data_analysis = "5px solid #aaf"  # Todo deprecate
-        border_data_processing = "5px solid #afa"  # Todo deprecate
         border_thick_unselected = "5px solid #eee"
         border_thick_selected = "5px solid #05f"
         border_thin_unselected = "2px solid #eee"

@@ -4,10 +4,9 @@
 import pandas as pd
 from scipy import stats
 
-from src.common.constant import NDASH
 from src.common.decorators import log_function
-from src.common.languages import LANGUAGE
-from src.data.data import Data
+from src.common.translations import t
+from src.data.data_manager import DATA_MANAGER
 from src.side_area_panel.modules.common.result.html_result import Cell, HTMLTableV2, Row
 from src.side_area_panel.modules.common.result.plot_result import (
     ContingencyPlot,
@@ -22,34 +21,31 @@ from src.side_area_panel.modules.contingency.result import ContingencyResult
 
 
 @log_function
-def recalculate_contingency_study(data: Data, result: ContingencyResult) -> ContingencyResult:
-    # result.update_header()  # TODO implement
+def recalculate_contingency_study(elements, result: ContingencyResult) -> ContingencyResult:
     cfg = result.config
+    data = DATA_MANAGER.get_data_from_data_label(
+        data_label=cfg.data_source,
+        current_result_id=result.unique_id,
+    )
+    col1 = cfg.column_selector[0][0] if cfg.column_selector[0] else None
+    col2 = cfg.column_selector[1][0] if cfg.column_selector[1] else None
 
     df = data.get_dataframe(
-        filters=result.config.filters,
-        columns=[
-            result.config.selected_column1,
-            result.config.selected_column2,
-        ],
+        filters=cfg.filters or [],
+        columns=[col1, col2],
     )
 
     # calculate contingency table
-    contingency_table = pd.crosstab(df[cfg.selected_column1], df[cfg.selected_column2])
+    contingency_table = pd.crosstab(df[col1], df[col2])
 
-    if LANGUAGE.is_ua():
-        table = HTMLTableV2(table_caption=f"Таблиця сполученості між {cfg.selected_column1} та {cfg.selected_column2}")
-    else:
-        table = HTMLTableV2(
-            table_caption=f"Contingency Table between {cfg.selected_column1} and {cfg.selected_column2}"
-        )
+    table = HTMLTableV2(table_caption=t("contingency.table_caption", col1=col1, col2=col2))
 
     table.add_single_row_apa(
         Row(
             [
                 Cell(),
                 Cell(
-                    cfg.selected_column2,
+                    col2,
                     col_span=len(contingency_table.columns),
                     border_bottom=True,
                     center=True,
@@ -59,10 +55,10 @@ def recalculate_contingency_study(data: Data, result: ContingencyResult) -> Cont
         )
     )
 
-    total_str = "Загалом" if LANGUAGE.is_ua() else "Total"
+    total_str = t("contingency.total")
 
     table.add_title_row_apa(
-        Row([Cell(cfg.selected_column1)] + [Cell(c) for c in contingency_table.columns] + [Cell(total_str)])
+        Row([Cell(col1)] + [Cell(c) for c in contingency_table.columns] + [Cell(total_str)])
     )
 
     for index, row in contingency_table.iterrows():
@@ -85,41 +81,25 @@ def recalculate_contingency_study(data: Data, result: ContingencyResult) -> Cont
     if is_phi_eligible:
         assert phi == cramer_v
 
-    if LANGUAGE.is_ua():
-        chi2_table = HTMLTableV2(
-            table_caption=f"Хі-квадрат тест між {cfg.selected_column1} та {cfg.selected_column2}",
-            table_note=(
-                f"&chi;<sup>2</sup> {NDASH} статистика хі-квадрат, "
-                f"N {NDASH} кількість респондентів, df {NDASH} ступені свободи"
-                + f"&phi; {NDASH} коефіцієнт фі" * is_phi_eligible
-            ),
+    chi2_note = t("contingency.chi2_note")
+    if is_phi_eligible:
+        chi2_note += ", " + t("contingency.chi2_note_phi")
+
+    chi2_table = HTMLTableV2(
+        table_caption=t("contingency.chi2_caption", col1=col1, col2=col2),
+        table_note=chi2_note,
+    )
+    chi2_table.add_title_row_apa(
+        Row(
+            [
+                Cell("&chi;<sup>2</sup>"),
+                Cell("N"),
+                Cell("df"),
+                Cell(t("contingency.col_pvalue")),
+                Cell("&phi;" if is_phi_eligible else t("contingency.col_cramer")),
+            ]
         )
-        chi2_table.add_title_row_apa(
-            Row(
-                [
-                    Cell("&chi;<sup>2</sup>"),
-                    Cell("N"),
-                    Cell("df"),
-                    Cell("p-значення"),
-                    Cell("&phi;" if is_phi_eligible else "V Крамера"),
-                ]
-            )
-        )
-    else:
-        chi2_table = HTMLTableV2(
-            table_caption=f"Chi-square Test between {cfg.selected_column1} and {cfg.selected_column2}"
-        )
-        chi2_table.add_title_row_apa(
-            Row(
-                [
-                    Cell("&chi;<sup>2</sup>"),
-                    Cell("N"),
-                    Cell("df"),
-                    Cell("p-value"),
-                    Cell("&phi;" if is_phi_eligible else "Cramer's V"),
-                ],
-            )
-        )
+    )
 
     chi2_table.add_single_row_apa(
         Row(
@@ -134,14 +114,11 @@ def recalculate_contingency_study(data: Data, result: ContingencyResult) -> Cont
     )
 
     if cramer_v < 0.2:
-        interpretation = "weak relationship"
-        interpretation_ua = "слабкий зв'язок"
+        interpretation = t("contingency.rel_weak")
     elif cramer_v < 0.6:
-        interpretation = "moderate relationship"
-        interpretation_ua = "помірний зв'язок"
+        interpretation = t("contingency.rel_moderate")
     else:
-        interpretation = "strong relationship"
-        interpretation_ua = "сильний зв'язок"
+        interpretation = t("contingency.rel_strong")
 
     def format_chi2(chi2_value, p_value, dof):
         return (
@@ -149,41 +126,19 @@ def recalculate_contingency_study(data: Data, result: ContingencyResult) -> Cont
             f"{format_p_apa_full(p_value)}"
         )
 
-    chi2_table_text = ""
-
+    stats_str = format_chi2(chi2, p, dof)
     if p < 0.05:
-        if LANGUAGE.is_ua():
-            chi2_table_text += (
-                f"Знайдено статистично значущий зв'язок між {cfg.selected_column1} та "
-                f"{cfg.selected_column2}: {format_chi2(chi2, p, dof)}."
-            )
-        else:
-            chi2_table_text += (
-                f"A significant relationship was found between {cfg.selected_column1} and "
-                f"{cfg.selected_column2}: {format_chi2(chi2, p, dof)}."
-            )
+        chi2_table_text = t("contingency.significant", col1=col1, col2=col2, stats=stats_str)
     else:
-        if LANGUAGE.is_ua():
-            chi2_table_text += (
-                f"Не знайдено статистично значущого зв'язку між {cfg.selected_column1} та "
-                f"{cfg.selected_column2}: {format_chi2(chi2, p, dof)}."
-            )
-        else:
-            chi2_table_text += (
-                f"No significant relationship was found between {cfg.selected_column1} and "
-                f"{cfg.selected_column2}: {format_chi2(chi2, p, dof)}."
-            )
+        chi2_table_text = t("contingency.not_significant", col1=col1, col2=col2, stats=stats_str)
 
-    if LANGUAGE.is_ua():
-        chi2_table_text += (
-            f"V Крамера = {cramer_v:.2f}, що свідчить про {interpretation_ua} "
-            f"між {cfg.selected_column1} та {cfg.selected_column2}."
-        )
-    else:
-        chi2_table_text += (
-            f"The Cramer's V = {cramer_v:.2f}, indicating a {interpretation} "
-            f"between {cfg.selected_column1} and {cfg.selected_column2}."
-        )
+    chi2_table_text += t(
+        "contingency.cramer_text",
+        v=f"{cramer_v:.2f}",
+        interpretation=interpretation,
+        col1=col1,
+        col2=col2,
+    )
     chi2_table.add_text(chi2_table_text)
 
     plot = PlotV2(
@@ -193,9 +148,9 @@ def recalculate_contingency_study(data: Data, result: ContingencyResult) -> Cont
                 label="Contingency Plot",
             )
         ],
-        plot_title=f"Contingency Plot: {cfg.selected_column1} vs {cfg.selected_column2}",
-        x_axis_title=cfg.selected_column2,
-        y_axis_title=cfg.selected_column1 + " (%)",
+        plot_title=f"Contingency Plot: {col1} vs {col2}",
+        x_axis_title=col2,
+        y_axis_title=col1 + " (%)",
     )
 
     result.result_elements = [table, chi2_table, plot]

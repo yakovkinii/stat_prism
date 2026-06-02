@@ -1,7 +1,7 @@
 from enum import Enum
-from typing import List
 
-from src.pyside_ext.elements.filter import FilterSettings
+import attrs
+
 from src.side_area_panel.modules.common.result.registry import BaseResult
 from src.side_area_panel.modules.exploratory_factor_analysis.constant import DESCRIPTION
 
@@ -31,22 +31,15 @@ class ExtractionMethod(Enum):
         return [e.value for e in ExtractionMethod]
 
 
+@attrs.define
 class FactorAnalysisStudyConfig:
-    def __init__(
-        self,
-        columns: List[str] = None,
-        n_factors: int = 2,
-        rotation: RotationType = RotationType.OBLIMIN,
-        method: ExtractionMethod = ExtractionMethod.MINRES,
-        kaiser_normalization: bool = True,
-        filters: List[FilterSettings] = None,
-    ):
-        self.columns: List[str] = columns if columns is not None else []
-        self.n_factors: int = n_factors
-        self.rotation: RotationType = rotation
-        self.method: ExtractionMethod = method
-        self.kaiser_normalization: bool = kaiser_normalization
-        self.filters: List[FilterSettings] = filters if filters is not None else []
+    data_source = attrs.field(default=None)
+    column_selector = attrs.field(default=None)
+    method = attrs.field(default=None)
+    rotation = attrs.field(default=None)
+    n_factors = attrs.field(default=None)
+    kaiser_normalization = attrs.field(default=None)
+    filters = attrs.field(default=None)
 
 
 class FactorAnalysisResult(BaseResult):
@@ -55,13 +48,8 @@ class FactorAnalysisResult(BaseResult):
         self.title = "Exploratory Factor Analysis"
         self.title_context = ""
         self.settings_panel_index = settings_panel_index
+        self.config_class = FactorAnalysisStudyConfig
         self.config: FactorAnalysisStudyConfig = config
         self.needs_update: bool = False
         self.description = DESCRIPTION
         self.set_placeholder()
-
-    def rename_column(self, old_name, new_name):
-        # Update references in config
-        if old_name in self.config.columns:
-            idx = self.config.columns.index(old_name)
-            self.config.columns[idx] = new_name

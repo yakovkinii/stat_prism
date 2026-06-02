@@ -11,6 +11,7 @@ from scipy.stats import gaussian_kde
 from src.common.constant import MDASH, ColumnType
 from src.common.decorators import log_function
 from src.common.qcolor import Colors
+from src.common.translations import t
 from src.data.data import Data
 from src.data.data_manager import DATA_MANAGER
 from src.side_area_panel.modules.common.homogeneity import process_homogeneity_check
@@ -225,10 +226,10 @@ def recalculate_mean_comparison_anova(
 
         plot_result = PlotV2(
             items=plots,
-            title=f"Plot: Distribution of {col}",
-            plot_title=f"Distribution of {col}",
+            title=t("ttest.plot.distribution_tab", col=col),
+            plot_title=t("ttest.plot.distribution", col=col),
             x_axis_title=col,
-            y_axis_title="Density",
+            y_axis_title=t("ttest.plot.density"),
         )
         plot_result_elements.append(plot_result)
 
@@ -247,7 +248,7 @@ def recalculate_mean_comparison_anova(
 def process_non_normal_anova(
     df: pd.DataFrame, non_numeric_columns, non_normal_columns, grouping_column, means, effect_size
 ):
-    table = HTMLTableV2(table_caption="Kruskal-Wallis test")
+    table = HTMLTableV2(table_caption=t("ttest.caption.kruskal"))
 
     group_names = df[grouping_column].unique().tolist()
 
@@ -257,8 +258,8 @@ def process_non_normal_anova(
 
     table.add_title_row_apa(
         Row(
-            [Cell(), Cell("Kruskal-Wallis H", center=True), Cell("p-value", center=True), Cell("df", center=True)]
-            + [Cell("Median", center=True), Cell("IQR", center=True)] * len(group_names) * means
+            [Cell(), Cell(t("ttest.col.kruskal_h"), center=True), Cell(t("common.p_value"), center=True), Cell("df", center=True)]
+            + [Cell(t("common.median"), center=True), Cell("IQR", center=True)] * len(group_names) * means
         )
     )
 
@@ -310,12 +311,12 @@ def process_non_normal_anova(
 
     table.add_text(
         describe_single_test_multiple_variables(
-            test_name="Kruskal-Wallis test",
-            test_check="difference between groups",
+            test_name=t("ttest.test.kruskal"),
+            test_check=t("ttest.check.diff_groups"),
             yes_columns=rejected_columns,
             no_columns=accepted_columns,
-            yes_property="are significantly different across the groups",
-            no_property="are not significantly different across the groups",
+            yes_property=t("ttest.prop.sig_diff"),
+            no_property=t("ttest.prop.not_sig_diff"),
             subgroup_results=subgroup_results if means else None,
         )
     )
@@ -327,9 +328,9 @@ def process_non_normal_anova(
 
     for col in significant_columns:
         significant = []
-        post_hoc_table = HTMLTableV2(table_caption="Dunn's post-hoc test results")
+        post_hoc_table = HTMLTableV2(table_caption=t("ttest.caption.dunn"))
         post_hoc_table.add_single_row_apa(
-            Row([Cell()] + [Cell("p-value", col_span=len(group_names), center=True, border_bottom=True)])
+            Row([Cell()] + [Cell(t("common.p_value"), col_span=len(group_names), center=True, border_bottom=True)])
         )
         post_hoc_table.add_title_row_apa(Row([Cell()] + [Cell(name, center=True) for name in group_names]))
         df_val = df[[col, grouping_column]].dropna(subset=[col])
@@ -345,15 +346,22 @@ def process_non_normal_anova(
                         significant.append((i, j))
             post_hoc_table.add_single_row_apa(Row(row))
         post_hoc_table.add_text(
-            f"The Dunn's post-hoc test for {col} has revealed a "
-            f"significant difference between the following groups: "
-            + smart_comma_join(
-                [
-                    f"{group_names[i]} and {group_names[j]} ({format_p_apa_full(posthoc_results.iloc[i, j])})"
-                    for i, j in significant
-                ]
+            t(
+                "ttest.posthoc_sentence",
+                name=t("ttest.posthoc.dunn"),
+                col=col,
+                groups=smart_comma_join(
+                    [
+                        t(
+                            "ttest.group_pair",
+                            a=group_names[i],
+                            b=group_names[j],
+                            p=format_p_apa_full(posthoc_results.iloc[i, j]),
+                        )
+                        for i, j in significant
+                    ]
+                ),
             )
-            + "."
         )
         post_hoc_items.append(post_hoc_table)
 
@@ -361,7 +369,7 @@ def process_non_normal_anova(
 
 
 def process_non_homogeneous_anova(df: pd.DataFrame, columns, grouping_column, means, effect_size):
-    table = HTMLTableV2(table_caption="Welch's ANOVA results")
+    table = HTMLTableV2(table_caption=t("ttest.caption.welch_anova"))
 
     group_names = df[grouping_column].unique()
 
@@ -377,11 +385,11 @@ def process_non_homogeneous_anova(df: pd.DataFrame, columns, grouping_column, me
         Row(
             [
                 Cell(),
-                Cell("Welch's F", center=True),
-                Cell("p-value", center=True),
+                Cell(t("ttest.col.welch_f"), center=True),
+                Cell(t("common.p_value"), center=True),
                 Cell("df1", center=True),
                 Cell("df2", center=True),
-                *[Cell("Mean", center=True), Cell("SD", center=True)] * len(group_names),
+                *[Cell(t("common.mean"), center=True), Cell("SD", center=True)] * len(group_names),
             ]
         )
     )
@@ -439,12 +447,12 @@ def process_non_homogeneous_anova(df: pd.DataFrame, columns, grouping_column, me
 
     table.add_text(
         describe_single_test_multiple_variables(
-            test_name="Welch's ANOVA",
-            test_check="equality of means",
+            test_name=t("ttest.test.welch_anova"),
+            test_check=t("ttest.check.equality_means"),
             yes_columns=rejected_columns,
             no_columns=accepted_columns,
-            yes_property="have different means",
-            no_property="have equal means",
+            yes_property=t("ttest.prop.diff_means"),
+            no_property=t("ttest.prop.equal_means"),
             subgroup_results=subgroup_results,
         )
     )
@@ -456,9 +464,9 @@ def process_non_homogeneous_anova(df: pd.DataFrame, columns, grouping_column, me
 
     for col in significant_columns:
         significant = []
-        post_hoc_table = HTMLTableV2(table_caption="Tamhane's T2 post-hoc test results")
+        post_hoc_table = HTMLTableV2(table_caption=t("ttest.caption.tamhane"))
         post_hoc_table.add_single_row_apa(
-            Row([Cell()] + [Cell("p-value", col_span=len(group_names), center=True, border_bottom=True)])
+            Row([Cell()] + [Cell(t("common.p_value"), col_span=len(group_names), center=True, border_bottom=True)])
         )
         post_hoc_table.add_title_row_apa(Row([Cell()] + [Cell(name, center=True) for name in group_names]))
         df_val = df[[col, grouping_column]].dropna(subset=[col])
@@ -476,15 +484,22 @@ def process_non_homogeneous_anova(df: pd.DataFrame, columns, grouping_column, me
             post_hoc_table.add_single_row_apa(Row(row))
 
         post_hoc_table.add_text(
-            f"The Tamhane's T2 post-hoc test for {col} has revealed a "
-            f"significant difference between the following groups: "
-            + smart_comma_join(
-                [
-                    f"{group_names[i]} and {group_names[j]} ({format_p_apa_full(posthoc_results.iloc[i, j])})"
-                    for i, j in significant
-                ]
+            t(
+                "ttest.posthoc_sentence",
+                name=t("ttest.posthoc.tamhane"),
+                col=col,
+                groups=smart_comma_join(
+                    [
+                        t(
+                            "ttest.group_pair",
+                            a=group_names[i],
+                            b=group_names[j],
+                            p=format_p_apa_full(posthoc_results.iloc[i, j]),
+                        )
+                        for i, j in significant
+                    ]
+                ),
             )
-            + "."
         )
         post_hoc_items.append(post_hoc_table)
 
@@ -492,7 +507,7 @@ def process_non_homogeneous_anova(df: pd.DataFrame, columns, grouping_column, me
 
 
 def process_homogeneous_anova(df: pd.DataFrame, columns, grouping_column, means, effect_size):
-    table = HTMLTableV2(table_caption="One-Way ANOVA results")
+    table = HTMLTableV2(table_caption=t("ttest.caption.one_way_anova"))
 
     group_names = df[grouping_column].unique()
 
@@ -509,11 +524,11 @@ def process_homogeneous_anova(df: pd.DataFrame, columns, grouping_column, means,
         Row(
             [
                 Cell(),
-                Cell("F-statistic", center=True),
-                Cell("p-value", center=True),
+                Cell(t("ttest.col.f_statistic"), center=True),
+                Cell(t("common.p_value"), center=True),
                 Cell("df1", center=True),
                 Cell("df2", center=True),
-                *[Cell("Mean", center=True), Cell("SD", center=True)] * len(group_names),
+                *[Cell(t("common.mean"), center=True), Cell("SD", center=True)] * len(group_names),
             ]
         )
     )
@@ -572,12 +587,12 @@ def process_homogeneous_anova(df: pd.DataFrame, columns, grouping_column, means,
 
     table.add_text(
         describe_single_test_multiple_variables(
-            test_name="One-Way ANOVA",
-            test_check="equality of means",
+            test_name=t("ttest.test.one_way_anova"),
+            test_check=t("ttest.check.equality_means"),
             yes_columns=rejected_columns,
             no_columns=accepted_columns,
-            yes_property="have different means",
-            no_property="have equal means",
+            yes_property=t("ttest.prop.diff_means"),
+            no_property=t("ttest.prop.equal_means"),
             subgroup_results=subgroup_results,
         )
     )
@@ -589,9 +604,9 @@ def process_homogeneous_anova(df: pd.DataFrame, columns, grouping_column, means,
 
     for col in significant_columns:
         significant = []
-        posthoc_table = HTMLTableV2(table_caption="Tukey's HSD post-hoc test results")
+        posthoc_table = HTMLTableV2(table_caption=t("ttest.caption.tukey"))
         posthoc_table.add_single_row_apa(
-            Row([Cell()] + [Cell("p-value", col_span=len(group_names), center=True, border_bottom=True)])
+            Row([Cell()] + [Cell(t("common.p_value"), col_span=len(group_names), center=True, border_bottom=True)])
         )
         posthoc_table.add_title_row_apa(Row([Cell()] + [Cell(name, center=True) for name in group_names]))
         df_val = df[[col, grouping_column]].dropna(subset=[col])
@@ -608,15 +623,22 @@ def process_homogeneous_anova(df: pd.DataFrame, columns, grouping_column, means,
                         significant.append((i, j))
             posthoc_table.add_single_row_apa(Row(row))
         posthoc_table.add_text(
-            f"The Tukey's HSD post-hoc test for {col} has revealed a "
-            f"significant difference between the following groups: "
-            + smart_comma_join(
-                [
-                    f"{group_names[i]} and {group_names[j]} ({format_p_apa_full(posthoc_results.iloc[i, j])})"
-                    for i, j in significant
-                ]
+            t(
+                "ttest.posthoc_sentence",
+                name=t("ttest.posthoc.tukey"),
+                col=col,
+                groups=smart_comma_join(
+                    [
+                        t(
+                            "ttest.group_pair",
+                            a=group_names[i],
+                            b=group_names[j],
+                            p=format_p_apa_full(posthoc_results.iloc[i, j]),
+                        )
+                        for i, j in significant
+                    ]
+                ),
             )
-            + "."
         )
         post_hoc_items.append(posthoc_table)
 

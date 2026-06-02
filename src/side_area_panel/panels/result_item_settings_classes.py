@@ -39,6 +39,9 @@ class ColorGridItemSetting(BasePanelElement):
     def get_current_value(self):
         return self.current_color
 
+    def set_up_from_other_instance(self, other: "ColorGridItemSetting"):
+        self.current_color = other.current_color
+
     def setup(self):
         self.widget, self.layout = empty_widget(
             parent=self.parent_widget,
@@ -120,6 +123,9 @@ class SingleLineTextResultItemSetting(BasePanelElement):
     def get_current_value(self):
         return self.current_value
 
+    def set_up_from_other_instance(self, other: "SingleLineTextResultItemSetting"):
+        self.current_value = other.current_value
+
     def setup(self):
         self.widget, self.layout = empty_widget(
             parent=self.parent_widget,
@@ -138,55 +144,31 @@ class SingleLineTextResultItemSetting(BasePanelElement):
         self.handler(Message(MessageType.EDITING_FINISHED, payload=None, caller_id=self.element_id))
 
 
-class NumberCaptionResultItemSetting(BasePanelElement):
-    def __init__(self, current_number, current_caption, add_stretch=False):
-        super().__init__()
-        self.number = SingleLineTextResultItemSetting("Number:", current_number)
-        self.caption = SingleLineTextResultItemSetting("Caption:", current_caption)
-        self.add_stretch = add_stretch
-
-    def setup(self):
-        self.widget, self.layout = empty_widget(
-            parent=self.parent_widget,
-            inner_layout_class=QVBoxLayout,
-            setup=lambda widget, layout: [
-                layout.setContentsMargins(0, 5, 0, 5),
-                layout.setSpacing(10),
-            ],
-        )
-
-        self.number.inject(self.widget, self.handler, self.element_id)
-        self.number.setup()
-        self.layout.addWidget(self.number.widget)
-
-        self.caption.inject(self.widget, self.handler, self.element_id)
-        self.caption.setup()
-        self.layout.addWidget(self.caption.widget)
-        if self.add_stretch:
-            self.layout.addStretch()
-
-    def get_number(self):
-        return self.number.current_value
-
-    def get_caption(self):
-        return self.caption.current_value
-
-
 class ContainerResultItemSetting(BasePanelElement):
-    def __init__(self, items, add_stretch=False):
+    def __init__(self, items, add_stretch=False, label: str = "Container:"):
         super().__init__()
         self.items = items
         self.add_stretch = add_stretch
+        self.label = label
+
+    def set_up_from_other_instance(self, other: "ContainerResultItemSetting"):
+        pass
 
     def setup(self):
         self.widget, self.layout = empty_widget(
             parent=self.parent_widget,
             inner_layout_class=QVBoxLayout,
             setup=lambda widget, layout: [
-                layout.setContentsMargins(0, 5, 0, 5),
+                layout.setContentsMargins(2, 5, 2, 5),
                 layout.setSpacing(10),
             ],
         )
+
+        if self.label is not None:
+            label = QLabel(text=self.label, parent=self.widget)
+            label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+            self.layout.addWidget(label)
+
         for item in self.items:
             item.inject(self.widget, self.handler, self.element_id)
             item.setup()
@@ -210,6 +192,9 @@ class SliderResultItemSetting(BasePanelElement):
 
     def get_current_value(self):
         return self.current_value
+
+    def set_up_from_other_instance(self, other: "SliderResultItemSetting"):
+        self.current_value = other.current_value
 
     def setup(self):
         self.widget, self.layout = empty_widget(
@@ -259,6 +244,9 @@ class CheckboxResultItemSetting(BasePanelElement):
 
     def get_current_value(self):
         return self.current_value
+
+    def set_up_from_other_instance(self, other: "CheckboxResultItemSetting"):
+        self.current_value = other.current_value
 
     def setup(self):
         self.large_checkbox = LargeCheckbox(label_text=self.label)

@@ -2,7 +2,7 @@ import numpy as np
 import pandas as pd
 
 from src.common.decorators import log_function
-from src.data.data import Data
+from src.data.data_manager import DATA_MANAGER
 from src.side_area_panel.modules.common.result.html_result import Cell, HTMLTableV2, Row
 from src.side_area_panel.modules.confirmatory_factor_analysis.cfa_numpy import (
     CFAEstimator,
@@ -62,21 +62,25 @@ def _fit_quality_text(fit_indices):
 
 
 @log_function
-def recalculate_cfa_study(data: Data, result: CFAResult) -> CFAResult:
+def recalculate_cfa_study(elements, result: CFAResult) -> CFAResult:
     cfg: CFAStudyConfig = result.config
-    all_vars = [var for factor_vars in cfg.columns_list for var in factor_vars]
-    df = data.get_dataframe(filters=cfg.filters, columns=all_vars, map_ordinal=False)
-    if df is None or all(len(factor_vars) == 0 for factor_vars in cfg.columns_list):
+    data = DATA_MANAGER.get_data_from_data_label(
+        data_label=cfg.data_source,
+        current_result_id=result.unique_id,
+    )
+    all_vars = [var for factor_vars in cfg.column_selector for var in factor_vars]
+    df = data.get_dataframe(filters=cfg.filters or [], columns=all_vars, map_ordinal=False)
+    if df is None or all(len(factor_vars) == 0 for factor_vars in cfg.column_selector):
         result.set_placeholder("Assign at least one variable to each factor.")
         return result
     n_factors = cfg.n_factors
-    variables = [var for factor_vars in cfg.columns_list for var in factor_vars]
+    variables = [var for factor_vars in cfg.column_selector for var in factor_vars]
     if len(variables) < 2 or n_factors < 1:
         result.set_placeholder("At least two variables and one factor required.")
         return result
     X = df.values
     # Use new CFAEstimator
-    structure = cfg.columns_list
+    structure = cfg.column_selector
     estimator = CFAEstimator(structure=structure, allow_factor_correlation=cfg.allow_factor_correlation)
     try:
         cfa_result = estimator.fit(X, var_names=list(df.columns))

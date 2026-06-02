@@ -10,6 +10,7 @@ from src.common.constant import MDASH, ColumnType
 from src.common.decorators import log_function
 from src.common.qcolor import Colors
 from src.data.data import Data
+from src.data.data_manager import DATA_MANAGER
 from src.side_area_panel.modules.common.result.plot_result import (
     Bar,
     BarPlotConfig,
@@ -27,16 +28,17 @@ from src.side_area_panel.modules.descriptive.table import (
 
 def calculate_descriptive_study_no_groupby(data: Data, result: DescriptiveResult):
     cfg = result.config
+    selected_columns = cfg.column_selector[0]
     df = data.get_dataframe(
-        filters=result.config.filters,
-        columns=cfg.selected_columns,
+        filters=cfg.filters or [],
+        columns=selected_columns,
     )
 
-    numeric_columns = [col for col in cfg.selected_columns if data[col].column_type == ColumnType.NUMERIC]
+    numeric_columns = [col for col in selected_columns if data[col].column_type == ColumnType.NUMERIC]
 
     descriptive_results = []
     plot_result_elements = []
-    for col in cfg.selected_columns:
+    for col in selected_columns:
         is_numeric = col in numeric_columns
 
         shapiro_wilk_w, shapiro_wilk_p = stats.shapiro(df[col].dropna()) if is_numeric else (MDASH, MDASH)
@@ -95,25 +97,27 @@ def calculate_descriptive_study_no_groupby(data: Data, result: DescriptiveResult
 
     html_table = get_descriptive_table_no_groupby(descriptive_df, caption="Descriptive statistics")
 
-    result.title_context = ", ".join([f"{col[:16]}" for col in cfg.selected_columns])
+    result.title_context = ", ".join([f"{col[:16]}" for col in selected_columns])
     result.result_elements = [html_table] + plot_result_elements
     return result
 
 
 def calculate_descriptive_study_groupby(data: Data, result: DescriptiveResult):
     cfg = result.config
+    selected_columns = cfg.column_selector[0]
+    grouping_column = cfg.column_selector[1][0]
     df = data.get_dataframe(
-        filters=result.config.filters,
-        columns=cfg.selected_columns + [cfg.grouping_column],
+        filters=cfg.filters or [],
+        columns=selected_columns + [grouping_column],
     )
-    groupby_column = cfg.grouping_column
+    groupby_column = grouping_column
     groupby_values = df[groupby_column].drop_duplicates().values
 
-    numeric_columns = [col for col in cfg.selected_columns if data[col].column_type == ColumnType.NUMERIC]
+    numeric_columns = [col for col in selected_columns if data[col].column_type == ColumnType.NUMERIC]
 
     descriptive_results = []
     plot_result_elements = []
-    for col in cfg.selected_columns:
+    for col in selected_columns:
         is_numeric = col in numeric_columns
 
         var_results = {}
@@ -207,18 +211,20 @@ def calculate_descriptive_study_groupby(data: Data, result: DescriptiveResult):
         caption="Descriptive statistics",
     )
 
-    result.title_context = (
-        ", ".join([f"{col[:16]}" for col in cfg.selected_columns]) + "\n" + f"{cfg.grouping_column[:16]}"
-        if cfg.grouping_column is not None
-        else ""
-    )
+    result.title_context = ", ".join([f"{col[:16]}" for col in selected_columns]) + "\n" + f"{grouping_column[:16]}"
     result.result_elements = [html_table] + plot_result_elements
     return result
 
 
 @log_function
-def recalculate_descriptive_study(data: Data, result: DescriptiveResult) -> DescriptiveResult:
-    if result.config.grouping_column is None:
+def recalculate_descriptive_study(elements, result: DescriptiveResult) -> DescriptiveResult:
+    data = DATA_MANAGER.get_data_from_data_label(
+        data_label=result.config.data_source,
+        current_result_id=result.unique_id,
+    )
+
+    grouping = result.config.column_selector[1]
+    if not grouping:
         result = calculate_descriptive_study_no_groupby(data, result)
     else:
         result = calculate_descriptive_study_groupby(data, result)

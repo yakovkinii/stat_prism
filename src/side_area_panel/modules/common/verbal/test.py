@@ -3,6 +3,7 @@
 
 from typing import Dict, List, Union
 
+from src.common.translations import t
 from src.side_area_panel.modules.common.utility import (
     format_p_apa,
     format_statistic_apa,
@@ -69,8 +70,9 @@ def describe_single_test_multiple_variables(
     no_property: str,
     subgroup_results: Dict[str, List[TestResult]] = None,
 ):
-    text = "<div class='meta'>[Compact description]</div>" if subgroup_results is not None else ""
-    text += f"""The {test_name} was used to check the {test_check} and has shown that """
+    text = f"<div class='meta'>{t('ttest.verbal.compact')}</div>" if subgroup_results is not None else ""
+    intro = t("ttest.verbal.used_to_check", test_name=test_name, test_check=test_check)
+    text += intro
 
     def _wrap_with_parentheses(x):
         return f" ({x})" if str(x) != "" else ""
@@ -82,7 +84,7 @@ def describe_single_test_multiple_variables(
             smart_comma_join([f"{result.variable}{_wrap_with_parentheses(result)}" for result in yes_columns])
             + f" {yes_property}."
         )
-        suffix = " On the other hand, "
+        suffix = t("ttest.verbal.on_other_hand")
 
     if len(no_columns) != 0:
         text += (
@@ -91,14 +93,20 @@ def describe_single_test_multiple_variables(
             + f" {no_property}."
         )
 
-    suffix = f"""The {test_name} was used to check the {test_check} and has shown that """
+    suffix = intro
     if subgroup_results is not None:
-        text += "<br><br><div class='meta'>[Detailed description]</div>"
+        text += f"<br><br><div class='meta'>{t('ttest.verbal.detailed')}</div>"
         for result in yes_columns:
             suffix = ""
-            text += f"The {test_name} has shown that {result.variable} {yes_property}{_wrap_with_parentheses(result)}. "
+            text += t(
+                "ttest.verbal.has_shown",
+                test_name=test_name,
+                variable=result.variable,
+                property=yes_property,
+                stats=_wrap_with_parentheses(result),
+            )
             for subgroup_result in subgroup_results[result.variable]:
-                text += f"For the group {subgroup_result.variable}, {subgroup_result}. "
+                text += t("ttest.verbal.for_group", group=subgroup_result.variable, stats=subgroup_result)
 
         if len(no_columns) != 0:
             text += (

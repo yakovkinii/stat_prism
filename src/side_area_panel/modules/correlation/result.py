@@ -2,9 +2,9 @@
 
 
 from enum import Enum
-from typing import List
 
-from src.pyside_ext.elements.filter import FilterSettings
+import attrs
+
 from src.side_area_panel.modules.common.result.registry import BaseResult
 from src.side_area_panel.modules.correlation.constant import DESCRIPTION
 
@@ -26,24 +26,16 @@ CORRELATION_TYPE_MAP = {
 }
 
 
+@attrs.define
 class CorrelationStudyConfig:
-    def __init__(
-        self,
-        selected_columns: List[str] = None,
-        correlation_type: CorrelationType = CorrelationType.PEARSON,
-        compact: bool = False,
-        generate_heatmap: bool = False,
-        generate_plots: bool = False,
-        report_only_significant: bool = True,
-        filters: List[FilterSettings] = None,
-    ):
-        self.selected_columns = selected_columns if selected_columns is not None else []
-        self.compact = compact
-        self.generate_heatmap = generate_heatmap
-        self.generate_plots = generate_plots
-        self.correlation_type = correlation_type
-        self.report_only_significant = report_only_significant
-        self.filters: List[FilterSettings] = filters if filters is not None else []
+    data_source = attrs.field(default=None)
+    column_selector = attrs.field(default=None)
+    correlation_type = attrs.field(default=None)
+    compact = attrs.field(default=None)
+    generate_heatmap = attrs.field(default=None)
+    generate_plots = attrs.field(default=None)
+    report_only_significant = attrs.field(default=None)
+    filters = attrs.field(default=None)
 
 
 class CorrelationResult(BaseResult):
@@ -55,12 +47,9 @@ class CorrelationResult(BaseResult):
         self.title = "Correlation"
         self.title_context = ""
         self.settings_panel_index = settings_panel_index
+        self.config_class = CorrelationStudyConfig
         self.config: CorrelationStudyConfig = config
 
         self.needs_update: bool = False
         self.description = DESCRIPTION
         self.set_placeholder()
-
-    def rename_column(self, old_name, new_name):
-        self.config.selected_columns = [new_name if col == old_name else col for col in self.config.selected_columns]
-        self.needs_update = True

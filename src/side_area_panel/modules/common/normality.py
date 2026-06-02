@@ -7,6 +7,7 @@ import pandas as pd
 from scipy import stats
 from scipy.stats._morestats import ShapiroResult
 
+from src.common.translations import t
 from src.side_area_panel.modules.common.result.html_result import Cell, HTMLTableV2, Row
 from src.side_area_panel.modules.common.utility import (
     format_p_apa,
@@ -23,14 +24,14 @@ def process_normality_check(
     selected_columns,
     grouping_column,
 ):
-    table = HTMLTableV2(table_caption="Shapiro-Wilk normality test")
+    table = HTMLTableV2(table_caption=t("ttest.caption.shapiro"))
     table.add_title_row_apa(
         Row(
             [
                 Cell(),
                 Cell(grouping_column, center=True),
-                Cell("Shapiro-Wilk W", center=True),
-                Cell("p-value", center=True),
+                Cell(t("ttest.col.shapiro_w"), center=True),
+                Cell(t("common.p_value"), center=True),
             ]
         )
     )
@@ -67,12 +68,12 @@ def process_normality_check(
 
     table.add_text(
         describe_single_test_multiple_variables(
-            test_name="Shapiro-Wilk test",
-            test_check="normality within groups",
+            test_name=t("ttest.test.shapiro"),
+            test_check=t("ttest.check.normality"),
             yes_columns=normal_columns_classes,
             no_columns=non_normal_columns_classes,
-            yes_property="are normally distributed (p > 0.05)",
-            no_property="are not normally distributed (p < 0.05)",
+            yes_property=t("ttest.prop.normal"),
+            no_property=t("ttest.prop.not_normal"),
         )
     )
 

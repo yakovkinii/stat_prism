@@ -7,7 +7,7 @@ from numpy.linalg import eigh, inv, svd
 from scipy.stats import chi2
 
 from src.common.decorators import log_function
-from src.data.data import Data
+from src.data.data_manager import DATA_MANAGER
 from src.side_area_panel.modules.common.result.html_result import Cell, HTMLTableV2, Row
 from src.side_area_panel.modules.common.result.plot_result import Heatmap, PlotV2
 from src.side_area_panel.modules.exploratory_factor_analysis.result import (
@@ -169,9 +169,13 @@ def _principal_axis_from_corr(R: np.ndarray, n_factors: int) -> Tuple[np.ndarray
 
 
 @log_function
-def recalculate_factor_analysis_study(data: Data, result: FactorAnalysisResult) -> FactorAnalysisResult:
+def recalculate_factor_analysis_study(elements, result: FactorAnalysisResult) -> FactorAnalysisResult:
     cfg = result.config
-    df = data.get_dataframe(filters=cfg.filters, columns=cfg.columns, map_ordinal=False)
+    data = DATA_MANAGER.get_data_from_data_label(
+        data_label=cfg.data_source,
+        current_result_id=result.unique_id,
+    )
+    df = data.get_dataframe(filters=cfg.filters or [], columns=cfg.column_selector[0], map_ordinal=False)
 
     if df is None or df.shape[1] < 2:
         result.set_placeholder("Select at least two variables.")
@@ -230,8 +234,8 @@ def recalculate_factor_analysis_study(data: Data, result: FactorAnalysisResult) 
         ExtractionMethod.ML: "ml",
         ExtractionMethod.PRINCIPAL: "principal",
     }
-    rotation = rotation_map.get(cfg.rotation, None)
-    method = method_map[cfg.method]
+    rotation = rotation_map.get(RotationType(cfg.rotation), None)
+    method = method_map[ExtractionMethod(cfg.method)]
 
     if cfg.kaiser_normalization:
         rotation_kwargs = {"normalize": True}
@@ -262,7 +266,7 @@ def recalculate_factor_analysis_study(data: Data, result: FactorAnalysisResult) 
     diag_table.add_single_row_apa(Row([Cell("df"), Cell(f"{bart_df}")]))
     diag_table.add_single_row_apa(Row([Cell("p-value"), Cell(f"{bart_p:.5f}")]))
 
-    load_table = HTMLTableV2(table_caption=f"Factor Loadings ({cfg.rotation.value})")
+    load_table = HTMLTableV2(table_caption=f"Factor Loadings ({cfg.rotation})")
     headers = [Cell("Variable")] + [Cell(f"F{i+1}") for i in range(m)] + [Cell("Communality"), Cell("Uniqueness")]
     load_table.add_single_row_apa(Row(headers))
     for idx, var in enumerate(df.columns):
@@ -311,6 +315,6 @@ def recalculate_factor_analysis_study(data: Data, result: FactorAnalysisResult) 
     # Header with method/rotation info
     result.header = ""
     result.add_header_info(
-        f"Method: <i>{cfg.method.value.upper()}</i>; Rotation: <i>{cfg.rotation.value}</i>; Factors: <i>{m}</i>"
+        f"Method: <i>{cfg.method.upper()}</i>; Rotation: <i>{cfg.rotation}</i>; Factors: <i>{m}</i>"
     )
     return result

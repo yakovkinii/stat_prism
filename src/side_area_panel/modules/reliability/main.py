@@ -6,14 +6,17 @@ import logging
 import numpy as np
 
 from src.common.decorators import log_function
-from src.data.data import Data
+from src.data.data_manager import DATA_MANAGER
 from src.side_area_panel.modules.common.mathematics.correlation.binary_correlations import (
     phi_correlation_table,
     tetrachoric_corr_matrix,
 )
 from src.side_area_panel.modules.common.result.html_result import Cell, HTMLTableV2, Row
 from src.side_area_panel.modules.common.utility import format_statistic_apa
-from src.side_area_panel.modules.correlation.result import CorrelationType
+from src.side_area_panel.modules.correlation.result import (
+    CORRELATION_TYPE_MAP,
+    CorrelationType,
+)
 from src.side_area_panel.modules.reliability.result import (
     ReliabilityResult,
     ReliabilityStudyConfig,
@@ -21,10 +24,18 @@ from src.side_area_panel.modules.reliability.result import (
 
 
 @log_function
-def recalculate_reliability_study(data: Data, result: ReliabilityResult) -> ReliabilityResult:
+def recalculate_reliability_study(elements, result: ReliabilityResult) -> ReliabilityResult:
     config: ReliabilityStudyConfig = result.config
+    data = DATA_MANAGER.get_data_from_data_label(
+        data_label=config.data_source,
+        current_result_id=result.unique_id,
+    )
 
-    df = data.get_dataframe(filters=result.config.filters, columns=result.config.selected_columns, map_ordinal=True)
+    df = data.get_dataframe(filters=config.filters or [], columns=config.column_selector[0], map_ordinal=True)
+
+    scale_columns = config.column_selector[1]
+    scale_column = scale_columns[0] if scale_columns else None
+    correlation_type = CORRELATION_TYPE_MAP[config.correlation_type]
 
     correlation_type_map = {
         CorrelationType.PEARSON: "pearson",
@@ -32,8 +43,8 @@ def recalculate_reliability_study(data: Data, result: ReliabilityResult) -> Reli
         CorrelationType.KENDALL: "kendall",
     }
 
-    if config.correlation_type in correlation_type_map.keys():
-        correlation_matrix = df.corr(method=correlation_type_map[config.correlation_type])
+    if correlation_type in correlation_type_map.keys():
+        correlation_matrix = df.corr(method=correlation_type_map[correlation_type])
         alpha = cronbach_alpha(correlation_matrix.values)
     else:
         # Check if all columns have most 2 unique values
@@ -48,7 +59,7 @@ def recalculate_reliability_study(data: Data, result: ReliabilityResult) -> Reli
             if df[col].max() != 0:
                 df[col] = df[col] / df[col].max()
 
-        if config.correlation_type == CorrelationType.PHI:
+        if correlation_type == CorrelationType.PHI:
             correlation_matrix = phi_correlation_table(df)
         else:
             correlation_matrix = tetrachoric_corr_matrix(df)[0]
@@ -68,7 +79,7 @@ def recalculate_reliability_study(data: Data, result: ReliabilityResult) -> Reli
     table.add_single_row_apa(
         Row(
             [
-                Cell(config.scale_column if config.scale_column is not None else "", push_to_left=True),
+                Cell(scale_column if scale_column is not None else "", push_to_left=True),
                 Cell(format_statistic_apa(alpha), center=True),
             ]
         )

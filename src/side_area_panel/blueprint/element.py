@@ -48,6 +48,10 @@ class ItemInSidePanelWithAutoConfig:
 
 
 class ItemInSidePanelWithAutoConfigHolder:
+    def iter_items(self):
+        cls = self.__class__
+        return [v for k, v in vars(cls).items() if not k.startswith("_") and not callable(v)]
+
     def complete_init_of_items(self, parent_widget, parent_layout, handler_on_recalculate, stretch=True):
         cls = self.__class__
         items = {k: v for k, v in vars(cls).items() if not k.startswith("_") and not callable(v)}
@@ -64,7 +68,7 @@ class ItemInSidePanelWithAutoConfigHolder:
         cls = self.__class__
         items = {k: v for k, v in vars(cls).items() if not k.startswith("_") and not callable(v)}
 
-        kwargs = attrs.asdict(config)
+        kwargs = attrs.asdict(config, recurse=False)
         kwargs["result_id"] = result_id
         for name, item in items.items():
             item.configure(**kwargs)

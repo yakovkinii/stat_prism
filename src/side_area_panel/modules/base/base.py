@@ -11,8 +11,7 @@ from PySide6.QtWidgets import QScrollArea, QVBoxLayout
 
 from src.common.constant import SettingsPanelSize
 from src.common.decorators import log_method, log_method_noarg
-from src.common.messages import Message, MessageType
-from src.common.progress import run_in_separate_thread
+from src.common.messages import Message
 from src.common.ui_constructor import create_tool_button_qta
 from src.data.data_manager import DATA_MANAGER
 from src.pyside_ext.elements.utility.layout_helpers import add_widget
@@ -81,7 +80,7 @@ class BaseModulePanel:
         self.recalculate_button, _ = add_widget(
             widget=create_tool_button_qta(
                 parent=self.widget,
-                icon_path="mdi6.delete-outline",
+                icon_path="ph.arrows-clockwise",
                 icon_size=QtCore.QSize(40, 40),
             ),
             outer_layout=self._navigation_widget_layout,
@@ -136,6 +135,33 @@ class BaseModulePanel:
         self._label.setText(label)
         self.delete_button.hide()
         self.recalculate_button.hide()
+
+    def init_elements(self, elements_class):
+        """Instantiate an iispwac Elements holder, lay it out, and wire its
+        recalculate + filter-open handlers. New-pattern modules call this in setup_ui."""
+        self.elements_ = elements_class().complete_init_of_items(
+            parent_widget=self.widget_for_elements,
+            parent_layout=self.widget_for_elements_layout,
+            handler_on_recalculate=self.recalculate,
+            stretch=True,
+        )
+        for item in self.elements_.iter_items():
+            if hasattr(item, "set_handler_open_filter"):
+                item.set_handler_open_filter(lambda it=item: self.open_filter_for(it))
+        return self.elements_
+
+    def open_filter_for(self, item):
+        self._active_filter_item = item
+        PanelRegistry.FILTER.ui_instance.configure(
+            caller_index=self.stacked_widget_index,
+            finished_handler=self.filter_closed_for,
+            filters=item.filters,
+        )
+        self.root_class.action_activate_panel_by_index(PanelRegistry.FILTER.settings_stacked_widget_index)
+
+    def filter_closed_for(self, filters):
+        self._active_filter_item.set_filters(filters)
+        self.recalculate()
 
     @log_method_noarg
     def is_auto_recalculate_enabled(self):
@@ -194,21 +220,9 @@ class BaseModulePanel:
         if self.configuring:
             return
         result = RESULTS[self.result_id]
-        config = result.config_class(**self.elements_.get_kwargs())
-        result.config = config
+        result.config = result.config_class(**self.elements_.get_kwargs())
         self.elements_.clear_alerts()
-
-        def main(update):
-            return self.main_function(
-                elements=self.elements_,
-                result=result,
-            )
-
-        return self.recalculate_on_done(self.main_function(elements=self.elements_, result=result))
-
-        # run_in_separate_thread(
-        #     main, progress_bar=self.root_class.settings_panel.progress_bar, on_done=self.recalculate_on_done
-        # )
+        self.recalculate_on_done(self.main_function(elements=self.elements_, result=result))
 
     @log_method
     def recalculate_on_done(self, result):
@@ -237,52 +251,7 @@ class BaseModulePanel:
 
     @log_method
     def handler(self, message: Message):
-        if message.message_type == MessageType.STATE_CHANGED:
-            if self.configuring:
-                return
-
-            RESULTS[self.result_id].needs_update = True
-
-            if self.is_auto_recalculate_enabled():
-                self.recalculate()
-            else:
-                self.set_recalculate_button_highlight(True)
-            return
-        if message.message_type == MessageType.CLICKED:
-            if message.caller_id == "compiled_filters":
-                self.open_filter_handler()
-                return
-            if message.caller_id == "column_selector":
-                self.open_column_selector_popup()
-                return
-
-        elif message.message_type == MessageType.FILTER_CLICKED:
-            self.open_filter_handler()
-            return
+        # Fallback handler. iispwac elements drive recalculation/filters directly
+        # (see init_elements / open_filter_for); only legacy panels that still use
+        # the self.elements dict (e.g. RawData) reach this, and they override it.
         logging.error(f"Handler not implemented for {message=}")
-
-    def open_column_selector_popup(self):
-        self.elements["column_selector"].configure_popup()
-        PanelRegistry.COLUMN_SELECTOR.ui_instance.configure(
-            caller_index=self.stacked_widget_index,
-            finished_handler=self.popup_closed_handler,
-            popup=self.elements["column_selector"].popup,
-        )
-        self.root_class.action_activate_panel_by_index(PanelRegistry.COLUMN_SELECTOR.settings_stacked_widget_index)
-
-    def open_filter_handler(self):
-        PanelRegistry.FILTER.ui_instance.configure(
-            caller_index=self.stacked_widget_index,
-            finished_handler=self.filter_closed_handler,
-            filters=RESULTS[self.result_id].config.filters,
-        )
-        self.root_class.action_activate_panel_by_index(PanelRegistry.FILTER.settings_stacked_widget_index)
-
-    def popup_closed_handler(self):
-        self.elements["column_selector"].configure_from_popup()
-
-    @log_method
-    def filter_closed_handler(self, filters):
-        RESULTS[self.result_id].config.filters = filters
-        self.elements["compiled_filters"].configure(filters)
-        self.handler(Message(message_type=MessageType.STATE_CHANGED, payload=None, caller_id="filter"))

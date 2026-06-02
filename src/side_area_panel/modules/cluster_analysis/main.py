@@ -4,7 +4,7 @@ import numpy as np
 from sklearn.cluster import KMeans
 
 from src.common.decorators import log_function
-from src.data.data import Data
+from src.data.data_manager import DATA_MANAGER
 from src.side_area_panel.modules.cluster_analysis.result import (
     ClusterAnalysisResult,
     ClusterMethod,
@@ -13,9 +13,14 @@ from src.side_area_panel.modules.common.result.html_result import Cell, HTMLTabl
 
 
 @log_function
-def recalculate_cluster_analysis_study(data: Data, result: ClusterAnalysisResult) -> ClusterAnalysisResult:
+def recalculate_cluster_analysis_study(elements, result: ClusterAnalysisResult) -> ClusterAnalysisResult:
     cfg = result.config
-    df = data.get_dataframe(filters=cfg.filters, columns=cfg.columns, map_ordinal=False)
+    data = DATA_MANAGER.get_data_from_data_label(
+        data_label=cfg.data_source,
+        current_result_id=result.unique_id,
+    )
+    method = ClusterMethod(cfg.method)
+    df = data.get_dataframe(filters=cfg.filters or [], columns=cfg.column_selector[0], map_ordinal=False)
     if df is None or df.shape[1] < 1:
         result.set_placeholder("Select at least one variable.")
         return result
@@ -26,7 +31,7 @@ def recalculate_cluster_analysis_study(data: Data, result: ClusterAnalysisResult
         result.set_placeholder(f"Not enough data for {cfg.n_clusters} clusters.")
         return result
     X = df.values
-    if cfg.method == ClusterMethod.KMEANS:
+    if method == ClusterMethod.KMEANS:
         kmeans = KMeans(n_clusters=cfg.n_clusters, n_init=10, random_state=0)
         labels = kmeans.fit_predict(X)
         centroids = kmeans.cluster_centers_
@@ -47,5 +52,5 @@ def recalculate_cluster_analysis_study(data: Data, result: ClusterAnalysisResult
         centroid_table.add_single_row_apa(Row(row))
     result.result_elements = [assign_table, centroid_table]
     result.header = ""
-    result.add_header_info(f"Method: <i>{cfg.method.value}</i>; Clusters: <i>{cfg.n_clusters}</i>")
+    result.add_header_info(f"Method: <i>{cfg.method}</i>; Clusters: <i>{cfg.n_clusters}</i>")
     return result

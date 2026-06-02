@@ -9,7 +9,7 @@ from scipy.stats import linregress
 
 from src.common.constant import ColumnType
 from src.common.decorators import log_function
-from src.data.data import Data
+from src.data.data_manager import DATA_MANAGER
 from src.side_area_panel.modules.common.mathematics.correlation.correlation import (
     calculate_correlations,
 )
@@ -22,6 +22,7 @@ from src.side_area_panel.modules.common.result.plot_result import (
 )
 from src.side_area_panel.modules.correlation.report import get_report
 from src.side_area_panel.modules.correlation.result import (
+    CORRELATION_TYPE_MAP,
     CorrelationResult,
     CorrelationType,
 )
@@ -45,18 +46,23 @@ def to_full_matrix(df: pd.DataFrame) -> pd.DataFrame:
 
 
 @log_function
-def recalculate_correlation_study(data: Data, result: CorrelationResult) -> CorrelationResult:
+def recalculate_correlation_study(elements, result: CorrelationResult) -> CorrelationResult:
     cfg = result.config
-    df = data.get_dataframe(filters=result.config.filters, columns=result.config.selected_columns, map_ordinal=True)
+    data = DATA_MANAGER.get_data_from_data_label(
+        data_label=cfg.data_source,
+        current_result_id=result.unique_id,
+    )
+    df = data.get_dataframe(filters=cfg.filters or [], columns=cfg.column_selector[0], map_ordinal=True)
 
     columns = list(df.columns)
+    kind = CORRELATION_TYPE_MAP[cfg.correlation_type]
 
-    correlation_matrix, p_matrix, df_matrix = calculate_correlations(df, cfg.correlation_type)
+    correlation_matrix, p_matrix, df_matrix = calculate_correlations(df, kind)
 
     if cfg.compact:
-        html_table = get_table_compact(columns, correlation_matrix, p_matrix, kind=cfg.correlation_type)
+        html_table = get_table_compact(columns, correlation_matrix, p_matrix, kind=kind)
     else:
-        html_table = get_table_full(columns, correlation_matrix, p_matrix, df_matrix, kind=cfg.correlation_type)
+        html_table = get_table_full(columns, correlation_matrix, p_matrix, df_matrix, kind=kind)
 
     # Verbal
     verbal = get_report(
@@ -65,18 +71,16 @@ def recalculate_correlation_study(data: Data, result: CorrelationResult) -> Corr
         p_matrix,
         df_matrix,
         report_non_significant=not cfg.report_only_significant,
-        kind=cfg.correlation_type,
+        kind=kind,
     )
     html_table.add_text(verbal)
 
-    if any([data[col].column_type == ColumnType.ORDINAL for col in columns]) and (
-        cfg.correlation_type == CorrelationType.PEARSON
-    ):
+    if any([data[col].column_type == ColumnType.ORDINAL for col in columns]) and (kind == CorrelationType.PEARSON):
         msg = "Warning: Ordinal data detected. Pearson correlation is not suitable for ordinal data."
         logging.warning(msg)
         html_table.add_text(msg)
 
-    result.title_context = ", ".join([f"{col[:16]}" for col in cfg.selected_columns])
+    result.title_context = ", ".join([f"{col[:16]}" for col in columns])
     result.result_elements = [html_table]
 
     if cfg.generate_heatmap:

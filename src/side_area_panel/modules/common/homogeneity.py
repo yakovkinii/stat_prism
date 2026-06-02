@@ -7,6 +7,7 @@ import pandas as pd
 from scipy import stats
 from scipy.stats._morestats import LeveneResult
 
+from src.common.translations import t
 from src.side_area_panel.modules.common.result.html_result import Cell, HTMLTableV2, Row
 from src.side_area_panel.modules.common.utility import (
     format_p_apa,
@@ -23,13 +24,13 @@ def process_homogeneity_check(
     selected_columns,
     grouping_column,
 ):
-    table = HTMLTableV2(table_caption="Levene's test for homogeneity of variance")
+    table = HTMLTableV2(table_caption=t("ttest.caption.levene"))
     table.add_title_row_apa(
         Row(
             [
                 Cell(),
-                Cell("Levene's F", center=True),
-                Cell("p-value", center=True),
+                Cell(t("ttest.col.levene_f"), center=True),
+                Cell(t("common.p_value"), center=True),
             ]
         )
     )
@@ -77,12 +78,12 @@ def process_homogeneity_check(
 
     table.add_text(
         describe_single_test_multiple_variables(
-            test_name="Levene's test",
-            test_check="homogeneity of variance",
+            test_name=t("ttest.test.levene"),
+            test_check=t("ttest.check.homogeneity"),
             yes_columns=homogeneous_columns_classes,
             no_columns=non_homogeneous_columns_classes,
-            yes_property="have homogeneity of variance",
-            no_property="have inhomogeneous variance",
+            yes_property=t("ttest.prop.homogeneous"),
+            no_property=t("ttest.prop.inhomogeneous"),
         )
     )
 

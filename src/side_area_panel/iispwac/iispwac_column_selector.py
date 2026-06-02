@@ -76,6 +76,10 @@ class IISPWACColumnSelector(ItemInSidePanelWithAutoConfig):
         self.fields_panel_layout.setContentsMargins(5, 5, 5, 5)
         self.fields_panel_layout.setSpacing(15)
 
+        self._build_field_panels()
+        self.clear_alert()
+
+    def _build_field_panels(self):
         self.panel_list_widgets = []
         self.panel_list_buttons = []
         self.panel_list_icons = []
@@ -141,6 +145,23 @@ class IISPWACColumnSelector(ItemInSidePanelWithAutoConfig):
 
             self.panel_list_widgets.append(panel_list)
 
+    def change_fields(self, fields: List[Field]):
+        """Rebuild the field panels (and popup) for a new set of fields. Used by
+        modules whose number of inputs depends on another control (e.g. CFA factors)."""
+        self.fields = fields
+        self.popup = ColumnSelectorExPopup(None, self.fields, handler_popup_close=self.popup_closed)
+        self.popup.widget.hide()
+
+        self.fields_panel.deleteLater()
+        self.fields_panel, self.fields_panel_layout = add_widget(
+            parent=self.widget,
+            inner_layout_class=VBoxLayout,
+            outer_layout=self.layout,
+        )
+        self.fields_panel_layout.setContentsMargins(5, 5, 5, 5)
+        self.fields_panel_layout.setSpacing(15)
+
+        self._build_field_panels()
         self.clear_alert()
 
     @log_method

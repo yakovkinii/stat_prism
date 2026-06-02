@@ -72,6 +72,9 @@ class BaseResult:
     def configure(self, *args, **kwargs):
         pass
 
+    def update_description(self):
+        pass
+
     def rename_column(self, old_name, new_name):
         pass
 

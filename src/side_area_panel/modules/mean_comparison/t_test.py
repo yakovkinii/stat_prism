@@ -9,6 +9,7 @@ from scipy.stats import gaussian_kde
 from src.common.constant import ColumnType
 from src.common.decorators import log_function
 from src.common.qcolor import Colors
+from src.common.translations import t
 from src.data.data import Data
 from src.side_area_panel.modules.common.homogeneity import process_homogeneity_check
 from src.side_area_panel.modules.common.normality import process_normality_check
@@ -236,10 +237,10 @@ def recalculate_mean_comparison_t_test(
 
         plot_result = PlotV2(
             items=plots,
-            title=f"Plot: Distribution of {col}",
-            plot_title=f"Distribution of {col}",
+            title=t("ttest.plot.distribution_tab", col=col),
+            plot_title=t("ttest.plot.distribution", col=col),
             x_axis_title=col,
-            y_axis_title="Density",
+            y_axis_title=t("ttest.plot.density"),
         )
         result.update_and_add_element(
             plot_result,
@@ -262,7 +263,7 @@ def recalculate_mean_comparison_t_test(
 def process_non_normal_t_test(
     df: pd.DataFrame, non_numeric_columns, non_normal_columns, grouping_column, means, effect_size
 ) -> HTMLTableV2:
-    table = HTMLTableV2(table_caption="Mann-Whitney U test")
+    table = HTMLTableV2(table_caption=t("ttest.caption.mann_whitney"))
     group1_name = df[grouping_column].unique()[0]
     group2_name = df[grouping_column].unique()[1]
 
@@ -280,16 +281,16 @@ def process_non_normal_t_test(
         Row(
             [
                 Cell(),
-                Cell("Mann-Whitney U", center=True),
-                Cell("p-value", center=True),
+                Cell(t("ttest.col.mann_whitney_u"), center=True),
+                Cell(t("common.p_value"), center=True),
             ]
             + [
-                Cell("Median", center=True),
+                Cell(t("common.median"), center=True),
                 Cell("IQR", center=True),
             ]
             * means
             + [
-                Cell("Median", center=True),
+                Cell(t("common.median"), center=True),
                 Cell("IQR", center=True),
             ]
             * means
@@ -364,12 +365,12 @@ def process_non_normal_t_test(
 
     table.add_text(
         describe_single_test_multiple_variables(
-            test_name="Mann-Whitney U test",
-            test_check="difference between the groups",
+            test_name=t("ttest.test.mann_whitney"),
+            test_check=t("ttest.check.diff_groups"),
             yes_columns=rejected_columns,
             no_columns=accepted_columns,
-            yes_property="are significantly different across the groups",
-            no_property="are not significantly different across the groups",
+            yes_property=t("ttest.prop.sig_diff"),
+            no_property=t("ttest.prop.not_sig_diff"),
             subgroup_results=subgroup_results if means else None,
         )
     )
@@ -377,7 +378,7 @@ def process_non_normal_t_test(
 
 
 def process_homogeneous_t_test(df: pd.DataFrame, columns, grouping_column, means, effect_size) -> HTMLTableV2:
-    table = HTMLTableV2(table_caption="Independent Samples T-test")
+    table = HTMLTableV2(table_caption=t("ttest.caption.ttest_independent"))
 
     group1_name = df[grouping_column].unique()[0]
     group2_name = df[grouping_column].unique()[1]
@@ -396,14 +397,14 @@ def process_homogeneous_t_test(df: pd.DataFrame, columns, grouping_column, means
         Row(
             [
                 Cell(),
-                Cell("t-statistic", center=True),
-                Cell("p-value", center=True),
+                Cell(t("ttest.col.t_statistic"), center=True),
+                Cell(t("common.p_value"), center=True),
                 Cell("df", center=True),
             ]
             + [
-                Cell("Mean", center=True),
+                Cell(t("common.mean"), center=True),
                 Cell("SD", center=True),
-                Cell("Mean", center=True),
+                Cell(t("common.mean"), center=True),
                 Cell("SD", center=True),
             ]
             * means
@@ -466,12 +467,12 @@ def process_homogeneous_t_test(df: pd.DataFrame, columns, grouping_column, means
 
     table.add_text(
         describe_single_test_multiple_variables(
-            test_name="Independent Samples T-test",
-            test_check="equality of means",
+            test_name=t("ttest.test.ttest_independent"),
+            test_check=t("ttest.check.equality_means"),
             yes_columns=rejected_columns,
             no_columns=accepted_columns,
-            yes_property="are significantly different across the groups",
-            no_property="are not significantly different across the groups",
+            yes_property=t("ttest.prop.sig_diff"),
+            no_property=t("ttest.prop.not_sig_diff"),
             subgroup_results=subgroup_results if means else None,
         )
     )
@@ -480,7 +481,7 @@ def process_homogeneous_t_test(df: pd.DataFrame, columns, grouping_column, means
 
 def process_non_homogeneous_t_test(df: pd.DataFrame, columns, grouping_column, means, effect_size) -> HTMLTableV2:
     # inhomogeneous => Welch's t-test
-    table = HTMLTableV2(table_caption="Welch's T-test results")
+    table = HTMLTableV2(table_caption=t("ttest.caption.welch_ttest"))
 
     group1_name = df[grouping_column].unique()[0]
     group2_name = df[grouping_column].unique()[1]
@@ -499,14 +500,14 @@ def process_non_homogeneous_t_test(df: pd.DataFrame, columns, grouping_column, m
         Row(
             [
                 Cell(),
-                Cell("t-statistic", center=True),
-                Cell("p-value", center=True),
+                Cell(t("ttest.col.t_statistic"), center=True),
+                Cell(t("common.p_value"), center=True),
                 Cell("df", center=True),
             ]
             + [
-                Cell("Mean", center=True),
+                Cell(t("common.mean"), center=True),
                 Cell("SD", center=True),
-                Cell("Mean", center=True),
+                Cell(t("common.mean"), center=True),
                 Cell("SD", center=True),
             ]
             * means
@@ -568,12 +569,12 @@ def process_non_homogeneous_t_test(df: pd.DataFrame, columns, grouping_column, m
 
     table.add_text(
         describe_single_test_multiple_variables(
-            test_name="Welch's T-test",
-            test_check="equality of means",
+            test_name=t("ttest.test.welch_ttest"),
+            test_check=t("ttest.check.equality_means"),
             yes_columns=rejected_columns,
             no_columns=accepted_columns,
-            yes_property="are significantly different across the groups",
-            no_property="are not significantly different across the groups",
+            yes_property=t("ttest.prop.sig_diff"),
+            no_property=t("ttest.prop.not_sig_diff"),
             subgroup_results=subgroup_results if means else None,
         )
     )

@@ -26,10 +26,6 @@ if TYPE_CHECKING:
 class Home(BasePanel):
     def setup_ui(self):
         self.elements = {
-            # "data_processing": LargeButton(
-            #     label_text="Data Processing",
-            #     icon_path="ri.file-edit-line",
-            # ),
             "data_analysis": LargeButton(
                 label_text="Data Analysis",
                 icon_path="ri.bar-chart-line",
@@ -93,10 +89,6 @@ class Home(BasePanel):
         if message.message_type == MessageType.CLICKED:
             if message.caller_id == "about":
                 return self.about_handler()
-            elif message.caller_id == "data_processing":
-                return self.root_class.action_activate_panel_by_index(
-                    PanelRegistry.SELECT_DATA_PROCESSING.settings_stacked_widget_index
-                )
             elif message.caller_id == "data_analysis":
                 return self.root_class.action_activate_panel_by_index(
                     PanelRegistry.SELECT_DATA_ANALYSIS.settings_stacked_widget_index

@@ -1,23 +1,17 @@
 #  Copyright (c) 2023 StatPrism Team. All rights reserved.
 
 
-from typing import List
+import attrs
 
-from src.pyside_ext.elements.filter import FilterSettings
 from src.side_area_panel.modules.common.result.registry import BaseResult
 from src.side_area_panel.modules.contingency.constant import DESCRIPTION
 
 
+@attrs.define
 class ContingencyStudyConfig:
-    def __init__(
-        self,
-        selected_column1: str = None,
-        selected_column2: str = None,
-        filters: List[FilterSettings] = None,
-    ):
-        self.selected_column1 = selected_column1
-        self.selected_column2 = selected_column2
-        self.filters: List[FilterSettings] = filters if filters is not None else []
+    data_source = attrs.field(default=None)
+    column_selector = attrs.field(default=None)
+    filters = attrs.field(default=None)
 
 
 class ContingencyResult(BaseResult):
@@ -29,15 +23,9 @@ class ContingencyResult(BaseResult):
         self.title = "Contingency Table"
         self.title_context = ""
         self.settings_panel_index = settings_panel_index
+        self.config_class = ContingencyStudyConfig
         self.config: ContingencyStudyConfig = config
 
         self.needs_update: bool = False
         self.description = DESCRIPTION
         self.set_placeholder()
-
-    def rename_column(self, old_name, new_name):
-        if self.config.selected_column1 == old_name:
-            self.config.selected_column1 = new_name
-        if self.config.selected_column2 == old_name:
-            self.config.selected_column2 = new_name
-        self.needs_update = True

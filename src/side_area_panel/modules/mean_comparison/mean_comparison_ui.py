@@ -2,25 +2,19 @@
 
 
 from src.common.constant import ColumnType
-from src.common.decorators import log_method
-from src.common.progress import run_in_separate_thread
-from src.data.data_manager import DATA_MANAGER
 from src.pyside_ext.elements.column_selector import Field
 from src.side_area_panel.blueprint.element import ItemInSidePanelWithAutoConfigHolder
 from src.side_area_panel.iispwac.iispwac_checkbox import IISPWACCheckBox
 from src.side_area_panel.iispwac.iispwac_column_selector import IISPWACColumnSelector
 from src.side_area_panel.iispwac.iispwac_combobox import IISPWACComboBox
 from src.side_area_panel.iispwac.iispwac_data_source import IISPWACDataSource
+from src.side_area_panel.iispwac.iispwac_filter import IISPWACFilter
 from src.side_area_panel.iispwac.iispwac_spacer import IISPWACSpacer
 from src.side_area_panel.modules.base.base import BaseModulePanel
-from src.side_area_panel.modules.common.result.registry import RESULTS
 from src.side_area_panel.modules.mean_comparison.constant import (
     AssumptionChecksInGrouping,
     MeanComparisonMethod,
     MissingValuesInGrouping,
-)
-from src.side_area_panel.modules.mean_comparison.mean_comparison_result import (
-    MeanComparisonStudyConfig,
 )
 
 
@@ -68,14 +62,10 @@ class Elements(ItemInSidePanelWithAutoConfigHolder):
         label_text="Plots",
         default_state=False,
     )
+    filters = IISPWACFilter()
 
 
 class MeanComparison(BaseModulePanel):
     def setup_ui(self):
-        self.elements_ = Elements().complete_init_of_items(
-            parent_widget=self.widget_for_elements,
-            parent_layout=self.widget_for_elements_layout,
-            handler_on_recalculate=self.recalculate,
-            stretch=True,
-        )
+        self.init_elements(Elements)
         self.set_label("T-test/ANOVA")

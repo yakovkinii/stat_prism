@@ -41,7 +41,6 @@ def recalculate_mean_comparison_study(elements: Elements, result: MeanComparison
         current_result_id=result.unique_id,
     )
 
-    result.update_header()
     result.result_elements = []
 
     # Apply filters and grouping-missing policy

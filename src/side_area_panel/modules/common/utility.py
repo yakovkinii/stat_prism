@@ -4,6 +4,7 @@
 import numpy as np
 
 from src.common.constant import MDASH
+from src.common.translations import t
 
 
 def smart_comma_join(items):
@@ -13,10 +14,12 @@ def smart_comma_join(items):
     if len(items) == 1:
         return items[0]
 
-    if len(items) == 2:
-        return f"{items[0]} and {items[1]}"
+    and_word = t("common.and")  # " and " / " та "
 
-    return ", ".join(items[:-1]) + f", and {items[-1]}"
+    if len(items) == 2:
+        return f"{items[0]}{and_word}{items[1]}"
+
+    return ", ".join(items[:-1]) + f",{and_word}{items[-1]}"
 
 
 def format_value_apa(value, decimals=1):
