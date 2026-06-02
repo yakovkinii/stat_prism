@@ -1,23 +1,37 @@
 #  Copyright (c) 2023 StatPrism Team. All rights reserved.
 
-
 import logging
 
+logging.info("PySide6 1")
 from PySide6 import QtWidgets
+logging.info("PySide6 2")
 from PySide6.QtWebEngineWidgets import QWebEngineView
+logging.info("PySide6 3")
 from PySide6.QtWidgets import QStackedWidget, QWidget
 
+logging.info("scr 1")
 from src.about import version
+logging.info("scr 2")
 from src.common.decorators import log_method, log_method_noarg
+logging.info("scr 3")
 from src.common.ui_constructor import icon
+logging.info("scr 4")
 from src.main_area_panel.ui_main_area import MainAreaClass
+logging.info("scr 5")
 from src.pyside_ext.elements.utility.layout_helpers import add_widget
+logging.info("scr 6")
 from src.pyside_ext.layout import HBoxLayout, VBoxLayout
+logging.info("scr 7")
 from src.pyside_ext.markup import css
+logging.info("scr 8")
 from src.pyside_ext.styling import Style
+logging.info("scr 9")
 from src.pyside_ext.unique_qss import set_stylesheet
+logging.info("scr 10")
 from src.side_area_panel.blueprint.registry import PanelRegistry
+logging.info("scr 11")
 from src.side_area_panel.ui_settings import SettingsPanelClass
+logging.info("done imports")
 
 
 class MainWindowClass(QtWidgets.QMainWindow):
