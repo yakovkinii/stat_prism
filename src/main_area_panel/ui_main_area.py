@@ -40,7 +40,7 @@ class MainAreaClass:
             parent=self.parent_widget,
             inner_layout_class=QVBoxLayout,
             setup=lambda w, l: [
-                l.setSpacing(10),
+                l.setSpacing(2),
                 w.clicked.connect(lambda: self.activate_result(None, None)),
             ],
         )
@@ -55,8 +55,8 @@ class MainAreaClass:
             outer_layout=self.layout,
             inner_layout_class=QVBoxLayout,
             setup=lambda w, l: [
-                l.setContentsMargins(10, 10, 5, 5),
-                l.setSpacing(10),
+                l.setContentsMargins(10, 0, 5, 0),
+                l.setSpacing(4),
                 w.clicked.connect(lambda: self.activate_result(None, None)),
             ],
         )
@@ -68,8 +68,8 @@ class MainAreaClass:
             outer_layout=self.layout,
             inner_layout_class=QVBoxLayout,
             setup=lambda w, l: [
-                l.setContentsMargins(10, 10, 5, 5),
-                l.setSpacing(10),
+                l.setContentsMargins(10, 0, 5, 0),
+                l.setSpacing(4),
                 w.clicked.connect(lambda: self.activate_result(None, None)),
             ],
         )
@@ -81,8 +81,8 @@ class MainAreaClass:
             outer_layout=self.layout,
             inner_layout_class=QVBoxLayout,
             setup=lambda w, l: [
-                l.setContentsMargins(10, 10, 5, 5),
-                l.setSpacing(10),
+                l.setContentsMargins(10, 0, 5, 0),
+                l.setSpacing(4),
                 w.clicked.connect(lambda: self.activate_result(None, None)),
             ],
         )

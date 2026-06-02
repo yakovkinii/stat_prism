@@ -35,72 +35,13 @@ class DataProcessingResultDisplay(BaseResultDisplay):
             parent=self.parent_widget,
             inner_layout_class=QVBoxLayout,
             setup=lambda w, l: [
-                l.setContentsMargins(10, 10, 5, 5),
-                l.setSpacing(10),
+                l.setContentsMargins(8, 2, 8, 2),
+                l.setSpacing(0),
                 w.clicked.connect(lambda: self.activate_result(self.result_id, None)),
             ],
         )
 
-        self.header_widget, self.header_layout = empty_widget(
-            widget_class=QWidgetClickable,
-            parent=self.widget,
-            outer_layout=self.layout,
-            inner_layout_class=QHBoxLayout,
-            setup=lambda w, l: [w.clicked.connect(lambda: self.activate_result(self.result_id, None))],
-        )
-
-        self.label = widget_in_layout(
-            widget=ResultLabel(parent=self.header_widget, label_text=label_text),
-            layout=self.header_layout,
-            setup=lambda w, l: [w.clicked.connect(lambda: self.activate_result(self.result_id, None))],
-        )
-
-        self.header_layout.addStretch()
-
-        self.recalculate_button = widget_in_layout(
-            widget=create_simple_tool_button_qta(
-                parent=self.header_widget,
-                icon_path="ph.arrows-clockwise-bold",
-                icon_size=QSize(20, 20),
-            ),
-            layout=self.header_layout,
-            alignment=Qt.AlignmentFlag.AlignTop,
-            setup=lambda w, l: [
-                w.setToolTip("Recalculate"),
-                w.clicked.connect(self.recalculate),
-            ],
-        )
-
-        self.export_button = widget_in_layout(
-            widget=create_simple_tool_button_qta(
-                parent=self.header_widget,
-                icon_path="mdi6.microsoft-excel",
-                icon_size=QSize(20, 20),
-            ),
-            layout=self.header_layout,
-            alignment=Qt.AlignmentFlag.AlignTop,
-            setup=lambda w, l: [
-                w.setToolTip("Export to Excel"),
-                w.clicked.connect(self.export_to_excel),
-            ],
-        )
-
-        self.delete_button = widget_in_layout(
-            widget=create_simple_tool_button_qta(
-                parent=self.header_widget,
-                icon_path="mdi6.delete",
-                icon_size=QSize(20, 20),
-            ),
-            layout=self.header_layout,
-            alignment=Qt.AlignmentFlag.AlignTop,
-            setup=lambda w, l: [
-                w.setToolTip("Delete"),
-                w.clicked.connect(self.delete),
-            ],
-        )
-        self.deleting = False
-        self.deleted = False
-
+        # One compact band: [view data] [title + info] [actions] [toggle].
         self.body_widget, self.body_layout = empty_widget(
             widget_class=QWidgetClickable,
             parent=self.widget,
@@ -108,8 +49,8 @@ class DataProcessingResultDisplay(BaseResultDisplay):
             inner_layout_class=QHBoxLayout,
             setup=lambda w, l: [
                 w.clicked.connect(lambda: self.activate_result(self.result_id, None)),
-                l.setContentsMargins(10, 10, 5, 5),
-                l.setSpacing(10),
+                l.setContentsMargins(4, 2, 4, 2),
+                l.setSpacing(8),
             ],
         )
 
@@ -120,7 +61,7 @@ class DataProcessingResultDisplay(BaseResultDisplay):
                 icon_size=QtCore.QSize(50, 50),
             ),
             layout=self.body_layout,
-            alignment=Qt.AlignmentFlag.AlignTop,
+            alignment=Qt.AlignmentFlag.AlignVCenter,
             setup=lambda w, l: [
                 w.setToolTip("View Data"),
                 w.clicked.connect(
@@ -132,24 +73,95 @@ class DataProcessingResultDisplay(BaseResultDisplay):
             ],
         )
 
+        # Title and description stacked next to the view button (no separate row).
+        self.text_widget, self.text_layout = empty_widget(
+            widget_class=QWidgetClickable,
+            parent=self.body_widget,
+            inner_layout_class=QVBoxLayout,
+            setup=lambda w, l: [
+                l.setContentsMargins(0, 0, 0, 0),
+                l.setSpacing(0),
+                w.clicked.connect(lambda: self.activate_result(self.result_id, None)),
+            ],
+        )
+        self.body_layout.addWidget(self.text_widget, 1)
+
+        self.label = widget_in_layout(
+            widget=ResultLabel(parent=self.text_widget, label_text=label_text),
+            layout=self.text_layout,
+            setup=lambda w, l: [w.clicked.connect(lambda: self.activate_result(self.result_id, None))],
+        )
+
         self.info = widget_in_layout(
-            widget=QLabelClickable(self.body_widget),
-            layout=self.body_layout,
+            widget=QLabelClickable(self.text_widget),
+            layout=self.text_layout,
             setup=lambda w, l: [
                 w.setWordWrap(True),
                 w.clicked.connect(lambda: self.activate_result(self.result_id, None)),
             ],
         )
 
-        # Large enable/disable toggle for toggleable results (e.g. the Filter module),
-        # flush to the right of the view-data button and description.
+        # Action buttons, top-right.
+        self.actions_widget, self.actions_layout = empty_widget(
+            widget_class=QWidgetClickable,
+            parent=self.body_widget,
+            inner_layout_class=QHBoxLayout,
+            setup=lambda w, l: [
+                l.setContentsMargins(0, 0, 0, 0),
+                l.setSpacing(2),
+            ],
+        )
+        self.body_layout.addWidget(self.actions_widget, alignment=Qt.AlignmentFlag.AlignTop)
+
+        self.recalculate_button = widget_in_layout(
+            widget=create_simple_tool_button_qta(
+                parent=self.actions_widget,
+                icon_path="ph.arrows-clockwise-bold",
+                icon_size=QSize(20, 20),
+            ),
+            layout=self.actions_layout,
+            setup=lambda w, l: [
+                w.setToolTip("Recalculate"),
+                w.clicked.connect(self.recalculate),
+            ],
+        )
+
+        self.export_button = widget_in_layout(
+            widget=create_simple_tool_button_qta(
+                parent=self.actions_widget,
+                icon_path="mdi6.microsoft-excel",
+                icon_size=QSize(20, 20),
+            ),
+            layout=self.actions_layout,
+            setup=lambda w, l: [
+                w.setToolTip("Export to Excel"),
+                w.clicked.connect(self.export_to_excel),
+            ],
+        )
+
+        self.delete_button = widget_in_layout(
+            widget=create_simple_tool_button_qta(
+                parent=self.actions_widget,
+                icon_path="mdi6.delete",
+                icon_size=QSize(20, 20),
+            ),
+            layout=self.actions_layout,
+            setup=lambda w, l: [
+                w.setToolTip("Delete"),
+                w.clicked.connect(self.delete),
+            ],
+        )
+        self.deleting = False
+        self.deleted = False
+
+        # Enable/disable toggle for toggleable results (e.g. the Filter module),
+        # flush to the right.
         self.toggle_button = None
         if getattr(RESULTS[self.result_id], "toggleable", False):
-            self.body_layout.addStretch()
             self.toggle_button = widget_in_layout(
                 widget=QPushButton(self.body_widget),
                 layout=self.body_layout,
-                alignment=Qt.AlignmentFlag.AlignTop,
+                alignment=Qt.AlignmentFlag.AlignVCenter,
                 setup=lambda w, l: [
                     w.setMinimumHeight(40),
                     w.setCursor(Qt.CursorShape.PointingHandCursor),

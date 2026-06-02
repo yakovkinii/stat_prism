@@ -32,26 +32,13 @@ class RawDataResultDisplay(BaseResultDisplay):
             parent=self.parent_widget,
             inner_layout_class=QVBoxLayout,
             setup=lambda w, l: [
-                l.setContentsMargins(10, 10, 5, 5),
-                l.setSpacing(10),
+                l.setContentsMargins(8, 2, 8, 2),
+                l.setSpacing(0),
                 w.clicked.connect(lambda: self.activate_result(self.result_id, None)),
             ],
         )
 
-        self.header_widget, self.header_layout = empty_widget(
-            widget_class=QWidgetClickable,
-            parent=self.widget,
-            outer_layout=self.layout,
-            inner_layout_class=QHBoxLayout,
-            setup=lambda w, l: [w.clicked.connect(lambda: self.activate_result(self.result_id, None))],
-        )
-
-        self.label = widget_in_layout(
-            widget=ResultLabel(parent=self.header_widget, label_text=label_text),
-            layout=self.header_layout,
-            setup=lambda w, l: [w.clicked.connect(lambda: self.activate_result(self.result_id, None))],
-        )
-
+        # One compact band: [view data] [title + info].
         self.body_widget, self.body_layout = empty_widget(
             widget_class=QWidgetClickable,
             parent=self.widget,
@@ -59,8 +46,8 @@ class RawDataResultDisplay(BaseResultDisplay):
             inner_layout_class=QHBoxLayout,
             setup=lambda w, l: [
                 w.clicked.connect(lambda: self.activate_result(self.result_id, None)),
-                l.setContentsMargins(10, 10, 5, 5),
-                l.setSpacing(10),
+                l.setContentsMargins(4, 2, 4, 2),
+                l.setSpacing(8),
             ],
         )
 
@@ -71,7 +58,7 @@ class RawDataResultDisplay(BaseResultDisplay):
                 icon_size=QtCore.QSize(50, 50),
             ),
             layout=self.body_layout,
-            alignment=Qt.AlignmentFlag.AlignTop,
+            alignment=Qt.AlignmentFlag.AlignVCenter,
             setup=lambda w, l: [
                 w.setToolTip("View Data"),
                 w.clicked.connect(
@@ -83,9 +70,28 @@ class RawDataResultDisplay(BaseResultDisplay):
             ],
         )
 
+        # Title and description stacked next to the view button (no separate row).
+        self.text_widget, self.text_layout = empty_widget(
+            widget_class=QWidgetClickable,
+            parent=self.body_widget,
+            inner_layout_class=QVBoxLayout,
+            setup=lambda w, l: [
+                l.setContentsMargins(0, 0, 0, 0),
+                l.setSpacing(0),
+                w.clicked.connect(lambda: self.activate_result(self.result_id, None)),
+            ],
+        )
+        self.body_layout.addWidget(self.text_widget, 1)
+
+        self.label = widget_in_layout(
+            widget=ResultLabel(parent=self.text_widget, label_text=label_text),
+            layout=self.text_layout,
+            setup=lambda w, l: [w.clicked.connect(lambda: self.activate_result(self.result_id, None))],
+        )
+
         self.info = widget_in_layout(
-            widget=QLabelClickable(self.body_widget),
-            layout=self.body_layout,
+            widget=QLabelClickable(self.text_widget),
+            layout=self.text_layout,
             setup=lambda w, l: [
                 w.setWordWrap(True),
                 w.clicked.connect(lambda: self.activate_result(self.result_id, None)),
