@@ -29,6 +29,10 @@ if __name__ == "__main__":
 
     from src.pyside_ext.styling import Style
 
+    fusion = QStyleFactory.create("Fusion")
+    app.setStyle(fusion)
+    app.setPalette(fusion.standardPalette())
+
     pal = app.style().standardPalette()
     pal.setColor(QPalette.ColorRole.Window, QColor(Style.Color.BackgroundElevated.value))
     pal.setColor(QPalette.ColorRole.WindowText, QColor(Style.Color.Text.value))
@@ -39,7 +43,7 @@ if __name__ == "__main__":
     pal.setColor(QPalette.ColorRole.Text, QColor(Style.Color.Text.value))
     pal.setColor(QPalette.ColorRole.Highlight, QColor(Style.Color.Highlight.value))
     pal.setColor(QPalette.ColorRole.HighlightedText, QColor(Style.Color.Text.value))
-
+    app.setPalette(pal)
     import logging
 
     from yatools import logging_config
