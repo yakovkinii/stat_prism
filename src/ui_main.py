@@ -131,10 +131,11 @@ class MainWindowClass(QtWidgets.QMainWindow):
         self.central_widget_layout.removeWidget(webview)
         webview.deleteLater()
 
-        if file_path is not None:
-            PanelRegistry.HOME.ui_instance.open_file(file_path)
-            if file_path.endswith(".sp"):
-                self.set_current_file_path(file_path)
+        # Todo
+        # if file_path is not None:
+        #     PanelRegistry.HOME.ui_instance.open_file(file_path)
+        #     if file_path.endswith(".sp"):
+        #         self.set_current_file_path(file_path)
 
     def set_current_file_path(self, file_path):
         self.current_file_path = file_path
