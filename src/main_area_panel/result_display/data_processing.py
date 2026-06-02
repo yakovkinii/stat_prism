@@ -4,7 +4,7 @@ import logging
 from PySide6 import QtCore
 from PySide6.QtCore import QSize, QTimer
 from PySide6.QtGui import Qt
-from PySide6.QtWidgets import QFileDialog, QHBoxLayout, QVBoxLayout
+from PySide6.QtWidgets import QFileDialog, QHBoxLayout, QPushButton, QVBoxLayout
 
 from src.common.decorators import log_method
 from src.common.ui_constructor import create_tool_button_qta, create_simple_tool_button_qta
@@ -101,10 +101,6 @@ class DataProcessingResultDisplay(BaseResultDisplay):
         self.deleting = False
         self.deleted = False
 
-
-
-
-
         self.body_widget, self.body_layout = empty_widget(
             widget_class=QWidgetClickable,
             parent=self.widget,
@@ -144,6 +140,23 @@ class DataProcessingResultDisplay(BaseResultDisplay):
                 w.clicked.connect(lambda: self.activate_result(self.result_id, None)),
             ],
         )
+
+        # Large enable/disable toggle for toggleable results (e.g. the Filter module),
+        # flush to the right of the view-data button and description.
+        self.toggle_button = None
+        if getattr(RESULTS[self.result_id], "toggleable", False):
+            self.body_layout.addStretch()
+            self.toggle_button = widget_in_layout(
+                widget=QPushButton(self.body_widget),
+                layout=self.body_layout,
+                alignment=Qt.AlignmentFlag.AlignTop,
+                setup=lambda w, l: [
+                    w.setMinimumHeight(40),
+                    w.setCursor(Qt.CursorShape.PointingHandCursor),
+                    w.clicked.connect(self.toggle_enabled),
+                ],
+            )
+
         self.refresh()
         self.remove_focus(None)
 
@@ -177,6 +190,25 @@ class DataProcessingResultDisplay(BaseResultDisplay):
         result = RESULTS[self.result_id]
         self.body_widget.show()
         self.info.setText(result.description)
+        self._update_toggle()
+
+    def _update_toggle(self):
+        if self.toggle_button is None:
+            return
+        enabled = getattr(RESULTS[self.result_id].config, "enabled", True)
+        if enabled:
+            self.toggle_button.setText("Enabled")
+            set_stylesheet(self.toggle_button, css(background_color="#cdeacd", font_size=Style.FontSize.regular))
+        else:
+            self.toggle_button.setText("Disabled")
+            set_stylesheet(self.toggle_button, css(background_color="#e0e0e0", font_size=Style.FontSize.regular))
+
+    def toggle_enabled(self):
+        result = RESULTS[self.result_id]
+        result.config.enabled = not getattr(result.config, "enabled", True)
+        # Round-trips enabled through the side panel (configure pushes it into the
+        # hidden checkbox, recalculate reads it back) and refreshes this card.
+        self.recalculate()
 
     def recalculate(self):
         panel = self.root_class.settings_panel.panels[RESULTS[self.result_id].settings_panel_index]

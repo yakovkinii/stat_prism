@@ -73,6 +73,8 @@ class HomeInitial(BasePanel):
                             ModuleRegistry.CALCULATE_SCALE.settings_stacked_widget_index,
                             ModuleRegistry.DP_PROCESS_COLUMN.settings_stacked_widget_index,
                             ModuleRegistry.INVERT_SCALE.settings_stacked_widget_index,
+                            ModuleRegistry.FILTER.settings_stacked_widget_index,
+                            ModuleRegistry.ROW_ID.settings_stacked_widget_index,
                         ]:
                             self.root_class.main_area_panel.add_data_processing(result.unique_id)
                         else:

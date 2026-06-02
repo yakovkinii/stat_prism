@@ -95,6 +95,18 @@ class ModuleRegistry(Enum):
         module_type=ModuleType.DATA_PROCESSING,
     )
 
+    FILTER = ModuleRegistryItem(
+        display_name="Filter",
+        icon_path="mdi6.filter-outline",
+        module_type=ModuleType.DATA_PROCESSING,
+    )
+
+    ROW_ID = ModuleRegistryItem(
+        display_name="Row ID",
+        icon_path="mdi6.format-list-numbered",
+        module_type=ModuleType.DATA_PROCESSING,
+    )
+
     @property
     def display_name(self):
         return self.value.display_name

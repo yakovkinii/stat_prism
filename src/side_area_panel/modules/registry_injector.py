@@ -49,6 +49,18 @@ from src.side_area_panel.modules.dp_invert_scale.dp_invert_scale_result import (
 from src.side_area_panel.modules.dp_invert_scale.dp_invert_scale_ui import (
     InvertScale,
 )
+from src.side_area_panel.modules.dp_filter.dp_filter_main import dp_filter_main
+from src.side_area_panel.modules.dp_filter.dp_filter_result import (
+    FilterDataResult,
+    FilterDataStudyConfig,
+)
+from src.side_area_panel.modules.dp_filter.dp_filter_ui import FilterData
+from src.side_area_panel.modules.dp_row_id.dp_row_id_main import dp_row_id_main
+from src.side_area_panel.modules.dp_row_id.dp_row_id_result import (
+    RowIdResult,
+    RowIdStudyConfig,
+)
+from src.side_area_panel.modules.dp_row_id.dp_row_id_ui import RowId
 from src.side_area_panel.modules.contingency.contingency_ui import Contingency
 from src.side_area_panel.modules.contingency.main import recalculate_contingency_study
 from src.side_area_panel.modules.contingency.result import (
@@ -173,3 +185,13 @@ def inject_classes_to_module_registry():
     ModuleRegistry.INVERT_SCALE.value.result_class = InvertScaleResult
     ModuleRegistry.INVERT_SCALE.value.config_class = InvertScaleStudyConfig
     ModuleRegistry.INVERT_SCALE.value.main_function = dp_invert_scale_main
+
+    ModuleRegistry.FILTER.value.ui_class = FilterData
+    ModuleRegistry.FILTER.value.result_class = FilterDataResult
+    ModuleRegistry.FILTER.value.config_class = FilterDataStudyConfig
+    ModuleRegistry.FILTER.value.main_function = dp_filter_main
+
+    ModuleRegistry.ROW_ID.value.ui_class = RowId
+    ModuleRegistry.ROW_ID.value.result_class = RowIdResult
+    ModuleRegistry.ROW_ID.value.config_class = RowIdStudyConfig
+    ModuleRegistry.ROW_ID.value.main_function = dp_row_id_main

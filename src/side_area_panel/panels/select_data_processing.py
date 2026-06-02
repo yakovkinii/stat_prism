@@ -59,4 +59,6 @@ class SelectDataProcessing(BasePanel):
         self.root_class.main_area_panel.add_data_processing(result_id=result_id)
 
         module.ui_instance.configure(result_id=result_id)
+        if getattr(module.ui_instance, "recalculate_on_create", False):
+            module.ui_instance.recalculate()
         self.root_class.action_activate_panel_by_index(module.settings_stacked_widget_index)

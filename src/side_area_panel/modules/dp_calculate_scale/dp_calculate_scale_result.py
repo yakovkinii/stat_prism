@@ -12,6 +12,7 @@ class CalculateScaleStudyConfig:
     name = attrs.field(default=None)
     method = attrs.field(default=None)
     scale = attrs.field(default=None)
+    questions_action = attrs.field(default=None)
 
 
 class CalculateScaleResult(BaseResult):
@@ -39,4 +40,7 @@ class CalculateScaleResult(BaseResult):
         ]
         if cfg.scale and cfg.scale != "None":
             parts.append(f"Normalization: {cfg.scale}")
+        action = cfg.questions_action or "Keep"
+        if action != "Keep":
+            parts.append(f"Used questions: {action.lower()}")
         self.description = "<br>".join(parts)

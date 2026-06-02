@@ -28,6 +28,10 @@ if TYPE_CHECKING:
 
 
 class BaseModulePanel:
+    # When True, the module runs once right after it is created (used by modules
+    # with no user inputs, e.g. Row ID, that would otherwise never be computed).
+    recalculate_on_create = False
+
     def __init__(
         self,
         parent_widget,

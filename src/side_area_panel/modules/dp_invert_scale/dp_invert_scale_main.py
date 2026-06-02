@@ -4,19 +4,11 @@ import pandas as pd
 
 from src.common.decorators import log_function
 from src.data.data_manager import DATA_MANAGER
+from src.side_area_panel.modules.common.utility import unique_name
 from src.side_area_panel.modules.dp_invert_scale.dp_invert_scale_result import (
     InvertScaleResult,
 )
 from src.side_area_panel.modules.dp_invert_scale.dp_invert_scale_ui import Elements
-
-
-def _unique_name(base: str, existing: set) -> str:
-    name = base
-    i = 2
-    while name in existing:
-        name = f"{base} ({i})"
-        i += 1
-    return name
 
 
 @log_function
@@ -48,7 +40,7 @@ def dp_invert_scale_main(elements: Elements, result: InvertScaleResult):
 
     existing = set(data.column_names())
     for original_column_name in columns:
-        new_name = _unique_name(f"{original_column_name} (inverted)", existing)
+        new_name = unique_name(f"{original_column_name} (inverted)", existing)
 
         inverted = data[original_column_name].copy()
         inverted.data_series = reference - pd.to_numeric(inverted.data_series, errors="coerce")

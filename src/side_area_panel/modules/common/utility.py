@@ -8,6 +8,16 @@ from src.common.constant import MDASH
 from src.common.translations import t
 
 
+def unique_name(base: str, existing) -> str:
+    """Return `base`, or `base (2)`, `base (3)`, ... until it is not in `existing`."""
+    name = base
+    i = 2
+    while name in existing:
+        name = f"{base} ({i})"
+        i += 1
+    return name
+
+
 def to_stanine(series: pd.Series) -> pd.Series:
     """Map a numeric series onto the 1-9 stanine scale, preserving missing values."""
     min_val = series.min()

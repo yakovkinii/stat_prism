@@ -167,6 +167,12 @@ class Data:
     def column_names(self):
         return [col.column_name for col in self.columns]
 
+    def add_column_first(self, column: DataColumn):
+        if column.column_name in self.name_to_index:
+            raise ValueError(f"Column name {column.column_name} already exists.")
+        self.columns.insert(0, column)
+        self.update_lookups()
+
     def add_column_after(self,column_name:str, column:DataColumn):
         if column.column_name in self.name_to_index:
             raise ValueError(f"Column name {column.column_name} already exists.")
@@ -179,6 +185,18 @@ class Data:
             raise ValueError(f"Column name {column_name} does not exist.")
         index = self.name_to_index[column_name]
         self.columns[index] = new_column
+        self.update_lookups()
+
+    def remove_column(self, column_name: str):
+        if column_name not in self.name_to_index:
+            raise ValueError(f"Column name {column_name} does not exist.")
+        del self.columns[self.name_to_index[column_name]]
+        self.update_lookups()
+
+    def rename_column(self, old_name: str, new_name: str):
+        if old_name not in self.name_to_index:
+            raise ValueError(f"Column name {old_name} does not exist.")
+        self.columns[self.name_to_index[old_name]].rename(new_name)
         self.update_lookups()
 
     def insert_column_after_index(self, column: "DataColumn", after_index: int):

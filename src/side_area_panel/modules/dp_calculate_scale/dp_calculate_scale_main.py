@@ -5,7 +5,7 @@ import pandas as pd
 from src.common.decorators import log_function
 from src.data.data import DataColumn
 from src.data.data_manager import DATA_MANAGER
-from src.side_area_panel.modules.common.utility import to_stanine
+from src.side_area_panel.modules.common.utility import to_stanine, unique_name
 from src.side_area_panel.modules.dp_calculate_scale.dp_calculate_scale_result import (
     CalculateScaleResult,
 )
@@ -59,5 +59,20 @@ def dp_calculate_scale_main(elements: Elements, result: CalculateScaleResult):
     new_column = DataColumn.initialize_from_series(scale_series)
 
     data.add_column_after(question_columns[-1], new_column)
+
+    # Decide what happens to the question columns the scale was built from.
+    action = cfg.questions_action or "Keep"
+    if action == "Delete":
+        for column in question_columns:
+            data.remove_column(column)
+    elif action == "Auto-rename":
+        for i, column in enumerate(question_columns, start=1):
+            target = f"{scale_name} Q{i}"
+            if target != column:
+                target = unique_name(target, set(data.column_names()) - {column})
+                data.rename_column(column, target)
+    elif action != "Keep":
+        raise ValueError(f"Unknown questions action: {action}")
+
     result.data = data.copy()
     return result

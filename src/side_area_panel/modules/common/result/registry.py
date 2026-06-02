@@ -10,8 +10,14 @@ from src.side_area_panel.modules.descriptive.result import DescriptiveResult
 from src.side_area_panel.modules.dp_calculate_scale.dp_calculate_scale_result import (
     CalculateScaleResult,
 )
+from src.side_area_panel.modules.dp_filter.dp_filter_result import (
+    FilterDataResult,
+)
 from src.side_area_panel.modules.dp_invert_scale.dp_invert_scale_result import (
     InvertScaleResult,
+)
+from src.side_area_panel.modules.dp_row_id.dp_row_id_result import (
+    RowIdResult,
 )
 from src.side_area_panel.modules.dp_process_column.dp_process_column_result import (
     ProcessColumnResult,
@@ -41,6 +47,8 @@ RESULTS: Dict[
         CalculateScaleResult,
         ProcessColumnResult,
         InvertScaleResult,
+        FilterDataResult,
+        RowIdResult,
     ],
 ] = {}
 
