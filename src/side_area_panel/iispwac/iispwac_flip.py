@@ -1,18 +1,14 @@
 #  Copyright (c) 2023 StatPrism Team. All rights reserved.
 
 import pandas as pd
-import qtawesome as qta
-from PySide6.QtCore import Qt
-from PySide6.QtWidgets import QCheckBox, QLabel, QDoubleSpinBox, QPushButton, QGridLayout, \
-    QDialog
+from PySide6.QtWidgets import QCheckBox, QDoubleSpinBox, QPushButton
 
-from src.common.constant import SettingsPanelSize
 from src.common.decorators import log_method_noarg
 from src.data.data_manager import DATA_MANAGER
 from src.pyside_ext.elements.utility.layout_helpers import add_widget
 from src.pyside_ext.layout import HBoxLayout
 from src.pyside_ext.markup import css
-from src.pyside_ext.styling import Style
+from src.pyside_ext.overlay_popup import show_value_mapping_popup
 from src.pyside_ext.unique_qss import set_stylesheet
 from src.side_area_panel.blueprint.element import ItemInSidePanelWithAutoConfig
 
@@ -160,36 +156,4 @@ class IISPWACFlip(ItemInSidePanelWithAutoConfig):
         if self.column is None:
             return
         unique_values = sorted(self.column.dropna().unique())
-        reference_value = self._get_reference_value()
-
-        self.v_widget, self.layout_for_values = add_widget(
-            widget=QDialog(self.widget),
-            outer_layout=self.layout,
-            inner_layout_class=QGridLayout,
-        )
-        self.v_widget.setWindowModality(Qt.WindowModality.ApplicationModal)
-        self.v_widget.setAttribute(Qt.WidgetAttribute.WA_DeleteOnClose)
-        self.v_widget.setWindowTitle("Flip Preview")
-        self.v_widget.setMinimumWidth(SettingsPanelSize.popup_minimum_width)
-
-        for i, value in enumerate(unique_values):
-            label_left = QLabel(self.v_widget)
-            label_left.setText(str(value))
-            label_left.setFont(Style.font_regular)
-            label_left.setAlignment(Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignVCenter)
-
-            label_center = QLabel(self.v_widget)
-            icon = qta.icon("mdi.arrow-right", color="black")
-            label_center.setPixmap(icon.pixmap(20, 20))
-            label_center.setFixedWidth(20)
-
-            label_right = QLabel(self.v_widget)
-            label_right.setText(str(reference_value - value))
-            label_right.setFont(Style.font_regular)
-            label_right.setAlignment(Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter)
-
-            self.layout_for_values.addWidget(label_left, i, 0)
-            self.layout_for_values.addWidget(label_center, i, 1)
-            self.layout_for_values.addWidget(label_right, i, 2)
-
-        self.v_widget.exec()
+        self.v_widget = show_value_mapping_popup(self.view_button, unique_values, self._get_reference_value())

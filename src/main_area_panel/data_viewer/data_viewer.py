@@ -152,9 +152,12 @@ class DataTableView(QTableView):
 
 class TablePopup(QWidget):
     def __init__(self, parent, model):
-        super().__init__(parent, QtCore.Qt.FramelessWindowHint)
+        # Cover the whole top-level window (main + side panel) so clicking anywhere
+        # outside the table -- including the side panel -- closes the popup.
+        window = parent.window()
+        super().__init__(window, QtCore.Qt.FramelessWindowHint)
         self.setAttribute(QtCore.Qt.WA_DeleteOnClose)
-        self.setGeometry(parent.rect())
+        self.setGeometry(window.rect())
 
         overlay = QWidget(self)
         overlay.setGeometry(self.rect())
@@ -162,9 +165,9 @@ class TablePopup(QWidget):
         overlay.show()
 
         self.popup = QFrame(self)
-        w, h = int(parent.width() * 0.95), int(parent.height() * 0.95)
+        w, h = int(window.width() * 0.95), int(window.height() * 0.95)
         self.popup.setFixedSize(w, h)
-        self.popup.move((parent.width() - w) // 2, (parent.height() - h) // 2)
+        self.popup.move((window.width() - w) // 2, (window.height() - h) // 2)
         set_stylesheet(self.popup, css(background="white"))
         self.popup.mousePressEvent = lambda e: e.accept()
 
@@ -181,6 +184,7 @@ class TablePopup(QWidget):
         self._setup_table(table, model)
         padding_layout.addWidget(table)
         popup_layout.addWidget(padding_widget)
+        self.raise_()
         self.show()
 
     def _setup_table(self, table, model):
