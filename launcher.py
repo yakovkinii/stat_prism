@@ -15,6 +15,14 @@ if __name__ == "__main__":
 
     _ = resources_rc
 
+    import os
+
+    if sys.platform == "win32":
+        # Always use the light theme: tell the Windows platform plugin to ignore the
+        # system dark mode, so auto-inferred (palette) colors stay light on Win11.
+        # Must be set before the QApplication is constructed.
+        os.environ.setdefault("QT_QPA_PLATFORM", "windows:darkmode=0")
+
     app = QApplication(sys.argv)
     pixmap = QPixmap(":/mat/resources/banner22.png")
     splash = QSplashScreen(pixmap)
@@ -24,6 +32,15 @@ if __name__ == "__main__":
     from PySide6.QtWidgets import QStyleFactory
 
     app.setStyle(QStyleFactory.create("Fusion"))
+
+    # Force the light color scheme where the setter exists (Qt 6.8+); for Qt 6.5-6.7
+    # the QT_QPA_PLATFORM darkmode=0 option above already forces light.
+    try:
+        from PySide6.QtCore import Qt as _Qt
+
+        app.styleHints().setColorScheme(_Qt.ColorScheme.Light)
+    except (AttributeError, TypeError, ImportError):
+        pass
 
     from PySide6.QtGui import QColor, QPalette
 
