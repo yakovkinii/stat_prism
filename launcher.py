@@ -36,8 +36,12 @@ if __name__ == "__main__":
 
     # Force the light color scheme where the setter exists (Qt 6.8+); for Qt 6.5-6.7
     # the QT_QPA_PLATFORM darkmode=0 option above already forces light.
-    from PySide6.QtCore import Qt as _Qt
-    app.styleHints().setColorScheme(_Qt.ColorScheme.Light)
+    try:
+        from PySide6.QtCore import Qt as _Qt
+
+        app.styleHints().setColorScheme(_Qt.ColorScheme.Light)
+    except (AttributeError, TypeError, ImportError):
+        pass
 
     from PySide6.QtGui import QColor, QPalette
 
