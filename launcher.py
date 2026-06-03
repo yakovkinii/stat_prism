@@ -1,5 +1,6 @@
 #  Copyright (c) 2023 StatPrism Team. All rights reserved.
-
+# pre-import because dynamic import causes crashes on win11
+from PySide6.QtWebEngineWidgets import QWebEngineView
 
 if __name__ == "__main__":
     import time
