@@ -36,10 +36,14 @@ def get_correlation_name(kind: CorrelationType) -> str:
         return "Spearman's r"
     elif kind == CorrelationType.KENDALL:
         return "Kendall's τ"
+    elif kind == CorrelationType.KENDALL_C:
+        return "Kendall's τ<sub>c</sub>"
     elif kind == CorrelationType.PHI:
         return "Phi φ"
     elif kind == CorrelationType.TETRACHORIC:
-        return "Tetrachoric ρt"
+        return "Tetrachoric ρ<sub>t</sub>"
+    elif kind == CorrelationType.POLYCHORIC:
+        return "Polychoric ρ<sub>pc</sub>"
     else:
         raise ValueError(f"Invalid correlation type: {kind}")
 
@@ -51,10 +55,14 @@ def get_correlation_short_name(kind: CorrelationType) -> str:
         return "rs"
     elif kind == CorrelationType.KENDALL:
         return "τ"
+    elif kind == CorrelationType.KENDALL_C:
+        return "τ<sub>c</sub>"
     elif kind == CorrelationType.PHI:
         return "φ"
     elif kind == CorrelationType.TETRACHORIC:
         return "ρt"
+    elif kind == CorrelationType.POLYCHORIC:
+        return "ρpc"
     else:
         raise ValueError(f"Invalid correlation type: {kind}")
 

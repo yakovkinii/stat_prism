@@ -15,14 +15,18 @@ class CorrelationType(Enum):
     KENDALL = 2
     PHI = 3
     TETRACHORIC = 4
+    POLYCHORIC = 5
+    KENDALL_C = 6
 
 
 CORRELATION_TYPE_MAP = {
     "Pearson": CorrelationType.PEARSON,
     "Spearman": CorrelationType.SPEARMAN,
     "Kendall": CorrelationType.KENDALL,
+    "Kendall tau c": CorrelationType.KENDALL_C,
     "Phi": CorrelationType.PHI,
     "Tetrachoric": CorrelationType.TETRACHORIC,
+    "Polychoric": CorrelationType.POLYCHORIC,
 }
 
 

@@ -111,12 +111,18 @@ def get_report(columns, correlation_matrix, p_matrix, df_matrix, report_non_sign
     elif kind == CorrelationType.KENDALL:
         correlation_name = "Kendall rank correlation coefficient"
         letter = "τ"
+    elif kind == CorrelationType.KENDALL_C:
+        correlation_name = "Kendall τ<sub>c</sub> rank correlation coefficient"
+        letter = "τ<sub>c</sub>"
     elif kind == CorrelationType.PHI:
         correlation_name = "Phi binary correlation coefficient"
         letter = "φ"
     elif kind == CorrelationType.TETRACHORIC:
         correlation_name = "Tetrachoric binary correlation coefficient"
         letter = "ρ<sub>t</sub>"
+    elif kind == CorrelationType.POLYCHORIC:
+        correlation_name = "Polychoric ordinal correlation coefficient"
+        letter = "ρ<sub>pc</sub>"
     else:
         raise ValueError(f"Unknown correlation type: {kind}")
 
