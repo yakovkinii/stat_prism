@@ -61,6 +61,12 @@ from src.side_area_panel.modules.dp_row_id.dp_row_id_result import (
     RowIdStudyConfig,
 )
 from src.side_area_panel.modules.dp_row_id.dp_row_id_ui import RowId
+from src.side_area_panel.modules.dp_preprocess.dp_preprocess_main import dp_preprocess_main
+from src.side_area_panel.modules.dp_preprocess.dp_preprocess_result import (
+    PreprocessResult,
+    PreprocessStudyConfig,
+)
+from src.side_area_panel.modules.dp_preprocess.dp_preprocess_ui import Preprocess
 from src.side_area_panel.modules.contingency.contingency_ui import Contingency
 from src.side_area_panel.modules.contingency.main import recalculate_contingency_study
 from src.side_area_panel.modules.contingency.result import (
@@ -195,3 +201,8 @@ def inject_classes_to_module_registry():
     ModuleRegistry.ROW_ID.value.result_class = RowIdResult
     ModuleRegistry.ROW_ID.value.config_class = RowIdStudyConfig
     ModuleRegistry.ROW_ID.value.main_function = dp_row_id_main
+
+    ModuleRegistry.PREPROCESS.value.ui_class = Preprocess
+    ModuleRegistry.PREPROCESS.value.result_class = PreprocessResult
+    ModuleRegistry.PREPROCESS.value.config_class = PreprocessStudyConfig
+    ModuleRegistry.PREPROCESS.value.main_function = dp_preprocess_main

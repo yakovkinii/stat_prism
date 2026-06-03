@@ -107,6 +107,12 @@ class ModuleRegistry(Enum):
         module_type=ModuleType.DATA_PROCESSING,
     )
 
+    PREPROCESS = ModuleRegistryItem(
+        display_name="Preprocess",
+        icon_path="mdi6.table-edit",
+        module_type=ModuleType.DATA_PROCESSING,
+    )
+
     @property
     def display_name(self):
         return self.value.display_name

@@ -16,6 +16,9 @@ from src.side_area_panel.modules.dp_filter.dp_filter_result import (
 from src.side_area_panel.modules.dp_invert_scale.dp_invert_scale_result import (
     InvertScaleResult,
 )
+from src.side_area_panel.modules.dp_preprocess.dp_preprocess_result import (
+    PreprocessResult,
+)
 from src.side_area_panel.modules.dp_row_id.dp_row_id_result import (
     RowIdResult,
 )
@@ -49,6 +52,7 @@ RESULTS: Dict[
         InvertScaleResult,
         FilterDataResult,
         RowIdResult,
+        PreprocessResult,
     ],
 ] = {}
 

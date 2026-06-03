@@ -13,11 +13,12 @@ class OverlayPopup(QWidget):
     """Full-window dimmed overlay with a centered content panel that closes when
     the user clicks anywhere outside the panel (same UX as the data-table popup)."""
 
-    def __init__(self, anchor_widget, content: QWidget):
+    def __init__(self, anchor_widget, content: QWidget, on_close=None):
         window = anchor_widget.window()
         super().__init__(window, Qt.WindowType.FramelessWindowHint)
         self.setAttribute(Qt.WidgetAttribute.WA_DeleteOnClose)
         self.setGeometry(window.rect())
+        self._on_close = on_close
 
         self._overlay = QWidget(self)
         self._overlay.setGeometry(self.rect())
@@ -41,6 +42,11 @@ class OverlayPopup(QWidget):
     def mousePressEvent(self, event):
         if not self.content.geometry().contains(event.position().toPoint()):
             self.close()
+
+    def closeEvent(self, event):
+        if self._on_close is not None:
+            self._on_close()
+        super().closeEvent(event)
 
 
 def show_value_mapping_popup(anchor_widget, unique_values, reference_value) -> OverlayPopup:
