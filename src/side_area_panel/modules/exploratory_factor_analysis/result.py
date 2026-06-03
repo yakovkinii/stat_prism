@@ -39,7 +39,6 @@ class FactorAnalysisStudyConfig:
     rotation = attrs.field(default=None)
     n_factors = attrs.field(default=None)
     kaiser_normalization = attrs.field(default=None)
-    filters = attrs.field(default=None)
 
 
 class FactorAnalysisResult(BaseResult):

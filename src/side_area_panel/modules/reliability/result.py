@@ -12,7 +12,6 @@ class ReliabilityStudyConfig:
     data_source = attrs.field(default=None)
     column_selector = attrs.field(default=None)
     correlation_type = attrs.field(default=None)
-    filters = attrs.field(default=None)
 
 
 class ReliabilityResult(BaseResult):

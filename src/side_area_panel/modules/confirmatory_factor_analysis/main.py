@@ -69,7 +69,7 @@ def recalculate_cfa_study(elements, result: CFAResult) -> CFAResult:
         current_result_id=result.unique_id,
     )
     all_vars = [var for factor_vars in cfg.column_selector for var in factor_vars]
-    df = data.get_dataframe(filters=cfg.filters or [], columns=all_vars, map_ordinal=False)
+    df = data.get_dataframe(columns=all_vars, map_ordinal=False)
     if df is None or all(len(factor_vars) == 0 for factor_vars in cfg.column_selector):
         result.set_placeholder("Assign at least one variable to each factor.")
         return result

@@ -6,7 +6,6 @@ from src.pyside_ext.elements.column_selector import Field
 from src.side_area_panel.blueprint.element import ItemInSidePanelWithAutoConfigHolder
 from src.side_area_panel.iispwac.iispwac_column_selector import IISPWACColumnSelector
 from src.side_area_panel.iispwac.iispwac_data_source import IISPWACDataSource
-from src.side_area_panel.iispwac.iispwac_filter import IISPWACFilter
 from src.side_area_panel.iispwac.iispwac_spacer import IISPWACSpacer
 from src.side_area_panel.modules.base.base import BaseModulePanel
 
@@ -41,7 +40,6 @@ class Elements(ItemInSidePanelWithAutoConfigHolder):
         ],
     )
     spacer = IISPWACSpacer()
-    filters = IISPWACFilter()
 
 
 class Regression(BaseModulePanel):

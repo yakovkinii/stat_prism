@@ -31,7 +31,7 @@ def recalculate_reliability_study(elements, result: ReliabilityResult) -> Reliab
         current_result_id=result.unique_id,
     )
 
-    df = data.get_dataframe(filters=config.filters or [], columns=config.column_selector[0], map_ordinal=True)
+    df = data.get_dataframe(columns=config.column_selector[0], map_ordinal=True)
 
     scale_columns = config.column_selector[1]
     scale_column = scale_columns[0] if scale_columns else None

@@ -175,7 +175,7 @@ def recalculate_factor_analysis_study(elements, result: FactorAnalysisResult) ->
         data_label=cfg.data_source,
         current_result_id=result.unique_id,
     )
-    df = data.get_dataframe(filters=cfg.filters or [], columns=cfg.column_selector[0], map_ordinal=False)
+    df = data.get_dataframe(columns=cfg.column_selector[0], map_ordinal=False)
 
     if df is None or df.shape[1] < 2:
         result.set_placeholder("Select at least two variables.")

@@ -20,7 +20,6 @@ class PanelRegistry(Enum):
     HOME_INITIAL = PanelRegistryItem(unique_id_for_enum="HOME_INITIAL")
     SELECT_DATA_PROCESSING = PanelRegistryItem(unique_id_for_enum="SELECT_DATA_PROCESSING")
     SELECT_DATA_ANALYSIS = PanelRegistryItem(unique_id_for_enum="SELECT_DATA_ANALYSIS")
-    FILTER = PanelRegistryItem(unique_id_for_enum="FILTER")
     COLUMN_SELECTOR = PanelRegistryItem(unique_id_for_enum="COLUMN_SELECTOR")
     HTML_TABLE_V2_SETTINGS = PanelRegistryItem(unique_id_for_enum="HTML_TABLE_V2_SETTINGS")
     HTML_MULTI_TABLE_V2_SETTINGS = PanelRegistryItem(unique_id_for_enum="HTML_MULTI_TABLE_V2_SETTINGS")

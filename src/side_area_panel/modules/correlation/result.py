@@ -39,7 +39,6 @@ class CorrelationStudyConfig:
     generate_heatmap = attrs.field(default=None)
     generate_plots = attrs.field(default=None)
     report_only_significant = attrs.field(default=None)
-    filters = attrs.field(default=None)
 
 
 class CorrelationResult(BaseResult):

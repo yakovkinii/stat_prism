@@ -20,7 +20,7 @@ def recalculate_cluster_analysis_study(elements, result: ClusterAnalysisResult) 
         current_result_id=result.unique_id,
     )
     method = ClusterMethod(cfg.method)
-    df = data.get_dataframe(filters=cfg.filters or [], columns=cfg.column_selector[0], map_ordinal=False)
+    df = data.get_dataframe(columns=cfg.column_selector[0], map_ordinal=False)
     if df is None or df.shape[1] < 1:
         result.set_placeholder("Select at least one variable.")
         return result

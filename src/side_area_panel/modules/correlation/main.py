@@ -52,7 +52,7 @@ def recalculate_correlation_study(elements, result: CorrelationResult) -> Correl
         data_label=cfg.data_source,
         current_result_id=result.unique_id,
     )
-    df = data.get_dataframe(filters=cfg.filters or [], columns=cfg.column_selector[0], map_ordinal=True)
+    df = data.get_dataframe(columns=cfg.column_selector[0], map_ordinal=True)
 
     columns = list(df.columns)
     kind = CORRELATION_TYPE_MAP[cfg.correlation_type]

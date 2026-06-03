@@ -11,7 +11,6 @@ from src.side_area_panel.modules.regression.constant import DESCRIPTION
 class RegressionStudyConfig:
     data_source = attrs.field(default=None)
     column_selector = attrs.field(default=None)
-    filters = attrs.field(default=None)
 
 
 class RegressionResult(BaseResult):

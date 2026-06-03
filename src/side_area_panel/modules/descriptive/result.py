@@ -11,7 +11,6 @@ from src.side_area_panel.modules.descriptive.constant import DESCRIPTION
 class DescriptiveStudyConfig:
     data_source = attrs.field(default=None)
     column_selector = attrs.field(default=None)
-    filters = attrs.field(default=None)
 
 
 class DescriptiveResult(BaseResult):

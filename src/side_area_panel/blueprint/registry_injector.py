@@ -6,7 +6,6 @@ from src.side_area_panel.modules.common.result.html_result import HTMLTableV2
 from src.side_area_panel.modules.common.result.plot_result import PlotV2
 from src.side_area_panel.panels.blank import Blank
 from src.side_area_panel.panels.column_selector import ColumnSelector
-from src.side_area_panel.panels.filter import Filter
 from src.side_area_panel.panels.home import Home
 from src.side_area_panel.panels.home_initial import HomeInitial
 from src.side_area_panel.panels.inversion_config import InversionConfig
@@ -23,7 +22,6 @@ def inject_classes_to_panel_registry():
     PanelRegistry.SELECT_DATA_ANALYSIS.value.ui_class = SelectDataAnalysis
     PanelRegistry.SELECT_DATA_PROCESSING.value.ui_class = SelectDataProcessing
     PanelRegistry.COLUMN_SELECTOR.value.ui_class = ColumnSelector
-    PanelRegistry.FILTER.value.ui_class = Filter
     PanelRegistry.MAPPING.value.ui_class = Mapping
     PanelRegistry.INVERSION_CONFIG.value.ui_class = InversionConfig
     PanelRegistry.BLANK.value.ui_class = Blank

@@ -31,7 +31,6 @@ def recalculate_contingency_study(elements, result: ContingencyResult) -> Contin
     col2 = cfg.column_selector[1][0] if cfg.column_selector[1] else None
 
     df = data.get_dataframe(
-        filters=cfg.filters or [],
         columns=[col1, col2],
     )
 

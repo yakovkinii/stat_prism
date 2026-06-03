@@ -46,7 +46,7 @@ def recalculate_regression_study(elements, result: RegressionResult) -> Regressi
     if mediator_column is not None:
         all_columns.append(mediator_column)
 
-    df = data.get_dataframe(filters=cfg.filters or [], columns=all_columns, map_ordinal=True)
+    df = data.get_dataframe(columns=all_columns, map_ordinal=True)
 
     if "const" in all_columns:
         msg = "The column name 'const' is reserved. Please rename the column."

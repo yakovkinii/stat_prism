@@ -30,7 +30,6 @@ def calculate_descriptive_study_no_groupby(data: Data, result: DescriptiveResult
     cfg = result.config
     selected_columns = cfg.column_selector[0]
     df = data.get_dataframe(
-        filters=cfg.filters or [],
         columns=selected_columns,
     )
 
@@ -107,7 +106,6 @@ def calculate_descriptive_study_groupby(data: Data, result: DescriptiveResult):
     selected_columns = cfg.column_selector[0]
     grouping_column = cfg.column_selector[1][0]
     df = data.get_dataframe(
-        filters=cfg.filters or [],
         columns=selected_columns + [grouping_column],
     )
     groupby_column = grouping_column

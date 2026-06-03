@@ -6,7 +6,6 @@ from src.side_area_panel.blueprint.element import ItemInSidePanelWithAutoConfigH
 from src.side_area_panel.iispwac.iispwac_column_selector import IISPWACColumnSelector
 from src.side_area_panel.iispwac.iispwac_combobox import IISPWACComboBox
 from src.side_area_panel.iispwac.iispwac_data_source import IISPWACDataSource
-from src.side_area_panel.iispwac.iispwac_filter import IISPWACFilter
 from src.side_area_panel.iispwac.iispwac_spacer import IISPWACSpacer
 from src.side_area_panel.iispwac.iispwac_spin import IISPWACSpin
 from src.side_area_panel.modules.base.base import BaseModulePanel
@@ -27,7 +26,6 @@ class Elements(ItemInSidePanelWithAutoConfigHolder):
     method = IISPWACComboBox(label_text="Method:", items=ClusterMethod.get_values())
     n_clusters = IISPWACSpin(label_text="Number of clusters:", min_value=2, max_value=20, default_value=2)
     spacer = IISPWACSpacer()
-    filters = IISPWACFilter()
 
 
 class ClusterAnalysis(BaseModulePanel):

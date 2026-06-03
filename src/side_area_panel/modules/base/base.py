@@ -142,30 +142,14 @@ class BaseModulePanel:
 
     def init_elements(self, elements_class):
         """Instantiate an iispwac Elements holder, lay it out, and wire its
-        recalculate + filter-open handlers. New-pattern modules call this in setup_ui."""
+        recalculate handler. New-pattern modules call this in setup_ui."""
         self.elements_ = elements_class().complete_init_of_items(
             parent_widget=self.widget_for_elements,
             parent_layout=self.widget_for_elements_layout,
             handler_on_recalculate=self.recalculate,
             stretch=True,
         )
-        for item in self.elements_.iter_items():
-            if hasattr(item, "set_handler_open_filter"):
-                item.set_handler_open_filter(lambda it=item: self.open_filter_for(it))
         return self.elements_
-
-    def open_filter_for(self, item):
-        self._active_filter_item = item
-        PanelRegistry.FILTER.ui_instance.configure(
-            caller_index=self.stacked_widget_index,
-            finished_handler=self.filter_closed_for,
-            filters=item.filters,
-        )
-        self.root_class.action_activate_panel_by_index(PanelRegistry.FILTER.settings_stacked_widget_index)
-
-    def filter_closed_for(self, filters):
-        self._active_filter_item.set_filters(filters)
-        self.recalculate()
 
     @log_method_noarg
     def is_auto_recalculate_enabled(self):
@@ -260,7 +244,7 @@ class BaseModulePanel:
 
     @log_method
     def handler(self, message: Message):
-        # Fallback handler. iispwac elements drive recalculation/filters directly
-        # (see init_elements / open_filter_for); only legacy panels that still use
-        # the self.elements dict (e.g. RawData) reach this, and they override it.
+        # Fallback handler. iispwac elements drive recalculation directly (see
+        # init_elements); only legacy panels that still use the self.elements dict
+        # (e.g. RawData) reach this, and they override it.
         logging.error(f"Handler not implemented for {message=}")

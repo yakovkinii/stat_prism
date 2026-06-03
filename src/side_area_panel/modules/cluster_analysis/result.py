@@ -23,7 +23,6 @@ class ClusterAnalysisConfig:
     column_selector = attrs.field(default=None)
     method = attrs.field(default=None)
     n_clusters = attrs.field(default=None)
-    filters = attrs.field(default=None)
 
 
 class ClusterAnalysisResult(BaseResult):

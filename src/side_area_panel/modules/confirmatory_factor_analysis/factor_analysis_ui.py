@@ -6,7 +6,6 @@ from src.side_area_panel.blueprint.element import ItemInSidePanelWithAutoConfigH
 from src.side_area_panel.iispwac.iispwac_checkbox import IISPWACCheckBox
 from src.side_area_panel.iispwac.iispwac_column_selector import IISPWACColumnSelector
 from src.side_area_panel.iispwac.iispwac_data_source import IISPWACDataSource
-from src.side_area_panel.iispwac.iispwac_filter import IISPWACFilter
 from src.side_area_panel.iispwac.iispwac_spacer import IISPWACSpacer
 from src.side_area_panel.iispwac.iispwac_spin import IISPWACSpin
 from src.side_area_panel.modules.base.base import BaseModulePanel
@@ -33,7 +32,6 @@ class Elements(ItemInSidePanelWithAutoConfigHolder):
     )
     spacer = IISPWACSpacer()
     column_selector = IISPWACColumnSelector(fields=_make_factor_fields(2))
-    filters = IISPWACFilter()
 
 
 class ConfirmatoryFactorAnalysis(BaseModulePanel):

@@ -28,7 +28,6 @@ class CFAStudyConfig:
     column_selector = attrs.field(default=None)
     n_factors = attrs.field(default=None)
     allow_factor_correlation = attrs.field(default=None)
-    filters = attrs.field(default=None)
 
 
 class CFAResult(BaseResult):

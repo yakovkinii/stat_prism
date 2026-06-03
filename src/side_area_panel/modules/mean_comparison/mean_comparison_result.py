@@ -17,7 +17,6 @@ class MeanComparisonStudyConfig:
     effect_size = attrs.field(default=None)
     means = attrs.field(default=None)
     plots = attrs.field(default=None)
-    filters = attrs.field(default=None)
 
 
 class MeanComparisonResult(BaseResult):

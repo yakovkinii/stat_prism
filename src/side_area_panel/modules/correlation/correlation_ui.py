@@ -8,7 +8,6 @@ from src.side_area_panel.iispwac.iispwac_checkbox import IISPWACCheckBox
 from src.side_area_panel.iispwac.iispwac_column_selector import IISPWACColumnSelector
 from src.side_area_panel.iispwac.iispwac_combobox import IISPWACComboBox
 from src.side_area_panel.iispwac.iispwac_data_source import IISPWACDataSource
-from src.side_area_panel.iispwac.iispwac_filter import IISPWACFilter
 from src.side_area_panel.iispwac.iispwac_spacer import IISPWACSpacer
 from src.side_area_panel.modules.base.base import BaseModulePanel
 from src.side_area_panel.modules.correlation.result import CORRELATION_TYPE_MAP
@@ -37,7 +36,6 @@ class Elements(ItemInSidePanelWithAutoConfigHolder):
     )
     generate_heatmap = IISPWACCheckBox(label_text="Heatmap", default_state=False)
     generate_plots = IISPWACCheckBox(label_text="Pairwise plots", default_state=False)
-    filters = IISPWACFilter()
 
 
 class Correlation(BaseModulePanel):

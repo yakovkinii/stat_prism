@@ -8,7 +8,6 @@ from src.side_area_panel.iispwac.iispwac_checkbox import IISPWACCheckBox
 from src.side_area_panel.iispwac.iispwac_column_selector import IISPWACColumnSelector
 from src.side_area_panel.iispwac.iispwac_combobox import IISPWACComboBox
 from src.side_area_panel.iispwac.iispwac_data_source import IISPWACDataSource
-from src.side_area_panel.iispwac.iispwac_filter import IISPWACFilter
 from src.side_area_panel.iispwac.iispwac_spacer import IISPWACSpacer
 from src.side_area_panel.modules.base.base import BaseModulePanel
 from src.side_area_panel.modules.mean_comparison.constant import (
@@ -62,7 +61,6 @@ class Elements(ItemInSidePanelWithAutoConfigHolder):
         label_text="Plots",
         default_state=False,
     )
-    filters = IISPWACFilter()
 
 
 class MeanComparison(BaseModulePanel):

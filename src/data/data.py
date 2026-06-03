@@ -9,7 +9,6 @@ import pandas as pd
 
 from src.common.constant import ColumnType
 from src.common.decorators import log_method
-from src.pyside_ext.elements.filter import FilterSettings
 
 ORDER_COLUMN = "__ORDER__"
 
@@ -217,15 +216,8 @@ class Data:
     def copy(self):
         return Data([col.copy() for col in self.columns])
 
-    def get_dataframe(self, filters: List[FilterSettings] = None, columns: List[str] = None, map_ordinal: bool = False):
+    def get_dataframe(self, columns: List[str] = None, map_ordinal: bool = False):
         df = pd.DataFrame({col.column_name: col.data_series for col in self.columns})
-        if filters is not None and len(filters) > 0:
-            for filter_settings in filters:
-                query = filter_settings.get_query()
-                logging.debug(f"Applying Filter: {query}")
-                df = df.query(query)
-        else:
-            logging.debug("No filter applied")
 
         if columns is not None:
             missing = [col for col in columns if col not in df.columns]

@@ -7,7 +7,6 @@ from src.side_area_panel.blueprint.element import ItemInSidePanelWithAutoConfigH
 from src.side_area_panel.iispwac.iispwac_column_selector import IISPWACColumnSelector
 from src.side_area_panel.iispwac.iispwac_combobox import IISPWACComboBox
 from src.side_area_panel.iispwac.iispwac_data_source import IISPWACDataSource
-from src.side_area_panel.iispwac.iispwac_filter import IISPWACFilter
 from src.side_area_panel.iispwac.iispwac_spacer import IISPWACSpacer
 from src.side_area_panel.modules.base.base import BaseModulePanel
 from src.side_area_panel.modules.correlation.result import CORRELATION_TYPE_MAP
@@ -35,7 +34,6 @@ class Elements(ItemInSidePanelWithAutoConfigHolder):
         label_text="Correlation type: ",
         items=list(CORRELATION_TYPE_MAP.keys()),
     )
-    filters = IISPWACFilter()
 
 
 class Reliability(BaseModulePanel):

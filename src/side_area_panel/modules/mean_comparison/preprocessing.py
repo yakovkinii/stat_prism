@@ -26,7 +26,6 @@ def prepare_df_for_mean_comparison(
 
     grouping_column = cfg.column_selector[1][0]
     df = data.get_dataframe(
-        filters=cfg.filters or [],
         columns=selected_columns + [grouping_column],
         map_ordinal=map_ordinal,
     ).copy()
