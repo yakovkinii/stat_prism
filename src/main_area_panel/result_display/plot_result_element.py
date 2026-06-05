@@ -141,7 +141,7 @@ class PlotResultElementDisplay(BaseResultDisplay):
         set_stylesheet(
             self.widget,
             css(
-                border=Style.General.border_thin_selected,
+                border=Style.General.border_thin_selected_element,
                 border_radius=Style.General.border_radius_medium,
             ),
         )
