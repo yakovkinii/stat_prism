@@ -3,7 +3,6 @@
 import ast
 
 from PySide6.QtWidgets import (
-    QComboBox,
     QFrame,
     QHBoxLayout,
     QLabel,
@@ -17,6 +16,7 @@ from src.common.constant import ColumnType
 from src.common.decorators import log_method_noarg
 from src.data.data_manager import DATA_MANAGER
 from src.pyside_ext.elements.order import CustomListWidget
+from src.pyside_ext.elements.utility.primitive_elements import NoScrollComboBox
 from src.pyside_ext.markup import css
 from src.pyside_ext.overlay_popup import OverlayPopup
 from src.pyside_ext.styling import Style
@@ -154,7 +154,7 @@ class IISPWACColumnEditor(ItemInSidePanelWithAutoConfig):
 
             type_row = QHBoxLayout()
             type_row.addWidget(QLabel("Type:", card))
-            type_combo = QComboBox(card)
+            type_combo = NoScrollComboBox(card)
             type_combo.addItems(_TYPES)
             type_combo.setCurrentText(self.specs[name]["type"])
             type_combo.currentTextChanged.connect(lambda text, n=name: self._on_type(n, text))

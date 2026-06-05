@@ -7,12 +7,20 @@ from typing import Callable, Optional
 from PySide6 import QtCore, QtWidgets
 from PySide6.QtCore import QEvent, QObject, QPoint, QRect, Qt, QTimer, Signal
 from PySide6.QtGui import QCursor, QGuiApplication, QKeyEvent, QMouseEvent
-from PySide6.QtWidgets import QApplication, QDialog, QFrame, QLabel, QTextEdit, QWidget
+from PySide6.QtWidgets import QApplication, QComboBox, QDialog, QFrame, QLabel, QTextEdit, QWidget
 
 from src.common.decorators import log_method
 from src.pyside_ext.markup import css
 from src.pyside_ext.styling import Style
 from src.pyside_ext.unique_qss import set_stylesheet
+
+
+class NoScrollComboBox(QComboBox):
+    """A combo box that ignores wheel events so scrolling over it scrolls the
+    enclosing scroll area instead of changing the selected value."""
+
+    def wheelEvent(self, event):
+        event.ignore()
 
 
 class QWidgetClickable(QFrame):

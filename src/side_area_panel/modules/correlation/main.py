@@ -9,6 +9,7 @@ from scipy.stats import linregress
 
 from src.common.constant import ColumnType
 from src.common.decorators import log_function
+from src.common.translations import t
 from src.data.data_manager import DATA_MANAGER
 from src.side_area_panel.modules.common.mathematics.correlation.correlation import (
     calculate_correlations,
@@ -76,7 +77,7 @@ def recalculate_correlation_study(elements, result: CorrelationResult) -> Correl
     html_table.add_text(verbal)
 
     if any([data[col].column_type == ColumnType.ORDINAL for col in columns]) and (kind == CorrelationType.PEARSON):
-        msg = "Warning: Ordinal data detected. Pearson correlation is not suitable for ordinal data."
+        msg = t("correlation.warning.ordinal_pearson")
         logging.warning(msg)
         html_table.add_text(msg)
 
@@ -92,8 +93,8 @@ def recalculate_correlation_study(elements, result: CorrelationResult) -> Correl
                     label="Correlations",
                 )
             ],
-            title="Correlation Matrix",
-            plot_title="Correlation Matrix",
+            title=t("correlation.plot.matrix_title"),
+            plot_title=t("correlation.plot.matrix_title"),
             x_axis_title="",
             y_axis_title="",
         )
@@ -144,8 +145,8 @@ def recalculate_correlation_study(elements, result: CorrelationResult) -> Correl
 
                     plot_result = PlotV2(
                         items=[plot, plot_band, plot_line],
-                        title=f"Plot: {name1[:16]} vs {name2[:16]}",
-                        plot_title=f"Correlation between {name1} and {name2}",
+                        title=t("correlation.plot.scatter_tab", a=name1[:16], b=name2[:16]),
+                        plot_title=t("correlation.plot.scatter_title", a=name1, b=name2),
                         x_axis_title=name1,
                         y_axis_title=name2,
                     )

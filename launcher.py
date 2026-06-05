@@ -29,6 +29,24 @@ if __name__ == "__main__":
     splash = QSplashScreen(pixmap)
     splash.show()
 
+    # Loading line drawn along the bottom of the splash; extended after each
+    # import in src/ui_main.py finishes (see report_splash_progress).
+    from PySide6.QtGui import QColor, QPainter
+
+    from src.common.progress import set_splash_callback
+
+    def _update_splash_progress(value, maximum):
+        fraction = value / max(maximum, 1)
+        frame = pixmap.copy()
+        painter = QPainter(frame)
+        painter.fillRect(40, frame.height() - 24, int((frame.width()-80) * fraction), 2, QColor("#eedd88"))
+        painter.end()
+        splash.setPixmap(frame)
+        app.processEvents()
+
+    set_splash_callback(_update_splash_progress)
+    app.processEvents()
+
     # ================= Set Global Styles =================
     from PySide6.QtWidgets import QStyleFactory
 

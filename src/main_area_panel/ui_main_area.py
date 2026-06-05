@@ -91,10 +91,48 @@ class MainAreaClass:
 
         self.focused_result_id = None
         self.focused_result_element_id = None
+        self._cascading = False
 
         self.raw_data_objects = {}
         self.data_processing_objects = {}
         self.data_analysis_objects = {}
+
+    def _recompute_result(self, result_id):
+        panel = self.root_class.settings_panel.panels[RESULTS[result_id].settings_panel_index]
+        panel.configure(result_id)
+        panel.recalculate()
+
+    def cascade_update(self, source_result_id):
+        """When a data-processing / raw-data result changes, recompute every
+        downstream data-processing study (in chain order) and every data-analysis
+        study. Analysis edits do not propagate (they are leaves)."""
+        if self._cascading or source_result_id not in DATA_MANAGER.data_chain:
+            return
+        self._cascading = True
+        try:
+            chain = list(DATA_MANAGER.data_chain)
+            start = chain.index(source_result_id) + 1
+            for result_id in chain[start:]:
+                if result_id in self.data_processing_objects:
+                    self._recompute_result(result_id)
+            for result_id in list(self.data_analysis_objects):
+                self._recompute_result(result_id)
+        finally:
+            self._cascading = False
+
+    def recompute_all(self):
+        """Recompute every data-processing study (chain order) and every analysis."""
+        if self._cascading:
+            return
+        self._cascading = True
+        try:
+            for result_id in list(DATA_MANAGER.data_chain):
+                if result_id in self.data_processing_objects:
+                    self._recompute_result(result_id)
+            for result_id in list(self.data_analysis_objects):
+                self._recompute_result(result_id)
+        finally:
+            self._cascading = False
 
     def add_raw_data(self, result_id):
         raw_data_object = RawDataResultDisplay(
@@ -117,6 +155,20 @@ class MainAreaClass:
         )
         self.data_processing_objects[result_id] = data_processing_object
         self.data_processing_container_layout.addWidget(data_processing_object.widget)
+
+    def move_data_processing(self, result_id, delta):
+        """Move a data-processing study up/down in the chain, re-order the cards to
+        match, and recompute the processing chain (downstream inputs that became
+        invalid are pruned automatically on reconfigure)."""
+        if not DATA_MANAGER.move_in_chain(result_id, delta):
+            return
+        layout = self.data_processing_container_layout
+        for chain_id in DATA_MANAGER.data_chain:
+            obj = self.data_processing_objects.get(chain_id)
+            if obj is not None:
+                layout.removeWidget(obj.widget)
+                layout.addWidget(obj.widget)
+        self.recompute_all()
 
     def add_data_analysis(self, result_id):
         data_analysis_object = DataAnalysisResultDisplay(

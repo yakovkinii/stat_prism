@@ -19,11 +19,11 @@ from src.side_area_panel.modules.dp_invert_scale.dp_invert_scale_result import (
 from src.side_area_panel.modules.dp_preprocess.dp_preprocess_result import (
     PreprocessResult,
 )
-from src.side_area_panel.modules.dp_row_id.dp_row_id_result import (
-    RowIdResult,
+from src.side_area_panel.modules.dp_group.dp_group_result import (
+    GroupValuesResult,
 )
-from src.side_area_panel.modules.dp_process_column.dp_process_column_result import (
-    ProcessColumnResult,
+from src.side_area_panel.modules.dp_outliers.dp_outliers_result import (
+    OutliersResult,
 )
 from src.side_area_panel.modules.exploratory_factor_analysis.result import (
     FactorAnalysisResult,
@@ -48,11 +48,11 @@ RESULTS: Dict[
         RawDataResult,
         FactorAnalysisResult,
         CalculateScaleResult,
-        ProcessColumnResult,
         InvertScaleResult,
         FilterDataResult,
-        RowIdResult,
         PreprocessResult,
+        GroupValuesResult,
+        OutliersResult,
     ],
 ] = {}
 

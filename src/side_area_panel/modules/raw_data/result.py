@@ -11,10 +11,12 @@ class RawDataStudyConfig:
         dataframe: pd.DataFrame = None,
         path="",
         timestamp="",
+        add_id=True,
     ):
         self.dataframe = dataframe
         self.path = path
         self.timestamp = timestamp
+        self.add_id = add_id
 
 
 class RawDataResult(BaseResult):

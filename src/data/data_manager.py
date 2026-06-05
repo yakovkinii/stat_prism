@@ -32,6 +32,18 @@ class DataManager:
         if result_id in self.data_chain:
             self.data_chain.remove(result_id)
 
+    def move_in_chain(self, result_id: int, delta: int) -> bool:
+        """Swap a data-processing result with its neighbour in the chain. Index 0
+        (raw data) always stays first. Returns True if a move happened."""
+        if result_id not in self.data_chain:
+            return False
+        i = self.data_chain.index(result_id)
+        j = i + delta
+        if j < 1 or j >= len(self.data_chain):
+            return False
+        self.data_chain[i], self.data_chain[j] = self.data_chain[j], self.data_chain[i]
+        return True
+
     def get_latest_data(self):
         logging.error("Deprecated")
 

@@ -113,6 +113,32 @@ class DataProcessingResultDisplay(BaseResultDisplay):
         )
         self.body_layout.addWidget(self.actions_widget, alignment=Qt.AlignmentFlag.AlignTop)
 
+        self.move_up_button = widget_in_layout(
+            widget=create_simple_tool_button_qta(
+                parent=self.actions_widget,
+                icon_path="mdi6.arrow-up",
+                icon_size=QSize(20, 20),
+            ),
+            layout=self.actions_layout,
+            setup=lambda w, l: [
+                w.setToolTip("Move up"),
+                w.clicked.connect(lambda: self.parent_class.move_data_processing(self.result_id, -1)),
+            ],
+        )
+
+        self.move_down_button = widget_in_layout(
+            widget=create_simple_tool_button_qta(
+                parent=self.actions_widget,
+                icon_path="mdi6.arrow-down",
+                icon_size=QSize(20, 20),
+            ),
+            layout=self.actions_layout,
+            setup=lambda w, l: [
+                w.setToolTip("Move down"),
+                w.clicked.connect(lambda: self.parent_class.move_data_processing(self.result_id, 1)),
+            ],
+        )
+
         self.recalculate_button = widget_in_layout(
             widget=create_simple_tool_button_qta(
                 parent=self.actions_widget,

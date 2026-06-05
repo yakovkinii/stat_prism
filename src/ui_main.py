@@ -1,23 +1,45 @@
 #  Copyright (c) 2023 StatPrism Team. All rights reserved.
+# isort: skip_file
+# flake8: noqa: E402
+# Imports are deliberately interleaved with splash-progress ticks: each tick
+# extends the loading line on the splash screen once that (often heavy) import
+# has finished. Keep them in order -- do not let isort reorder this file.
 
 
 import logging
 
-from PySide6 import QtWidgets
-from PySide6.QtWebEngineWidgets import QWebEngineView
-from PySide6.QtWidgets import QStackedWidget, QWidget
+from src.common.progress import report_splash_progress as _tick
 
+_TICKS = 14
+
+from PySide6 import QtWidgets
+_tick(1, _TICKS)
+from PySide6.QtWebEngineWidgets import QWebEngineView
+_tick(2, _TICKS)
+from PySide6.QtWidgets import QStackedWidget, QWidget
+_tick(3, _TICKS)
 from src.about import version
+_tick(4, _TICKS)
 from src.common.decorators import log_method, log_method_noarg
+_tick(5, _TICKS)
 from src.common.ui_constructor import icon
+_tick(6, _TICKS)
 from src.main_area_panel.ui_main_area import MainAreaClass
+_tick(7, _TICKS)
 from src.pyside_ext.elements.utility.layout_helpers import add_widget
+_tick(8, _TICKS)
 from src.pyside_ext.layout import HBoxLayout, VBoxLayout
+_tick(9, _TICKS)
 from src.pyside_ext.markup import css
+_tick(10, _TICKS)
 from src.pyside_ext.styling import Style
+_tick(11, _TICKS)
 from src.pyside_ext.unique_qss import set_stylesheet
+_tick(12, _TICKS)
 from src.side_area_panel.blueprint.registry import PanelRegistry
+_tick(13, _TICKS)
 from src.side_area_panel.ui_settings import SettingsPanelClass
+_tick(14, _TICKS)
 
 
 class MainWindowClass(QtWidgets.QMainWindow):

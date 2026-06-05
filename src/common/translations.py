@@ -321,6 +321,147 @@ TRANSLATIONS = {
         "en": "Density",
         "ua": "Щільність",
     },
+    # ----- Reliability -----
+    "reliability.caption.cronbach": {
+        "en": "Cronbach's Alpha",
+        "ua": "Альфа Кронбаха",
+    },
+    "reliability.msg.binary_required": {
+        "en": "All columns must have at most 2 unique values for the selected correlation type",
+        "ua": "Усі стовпці повинні мати щонайбільше 2 унікальні значення для обраного типу кореляції",
+    },
+    # ----- Cluster analysis -----
+    "cluster.caption.assignments": {
+        "en": "Cluster Assignments",
+        "ua": "Призначення кластерів",
+    },
+    "cluster.caption.centroids": {
+        "en": "Cluster Centroids",
+        "ua": "Центроїди кластерів",
+    },
+    "cluster.col.observation": {
+        "en": "Observation",
+        "ua": "Спостереження",
+    },
+    "cluster.col.cluster": {
+        "en": "Cluster",
+        "ua": "Кластер",
+    },
+    "cluster.msg.select_variable": {
+        "en": "Select at least one variable.",
+        "ua": "Оберіть щонайменше одну змінну.",
+    },
+    "cluster.msg.not_enough": {
+        "en": "Not enough data for {n} clusters.",
+        "ua": "Недостатньо даних для {n} кластерів.",
+    },
+    "cluster.msg.method_not_implemented": {
+        "en": "Selected clustering method not implemented.",
+        "ua": "Обраний метод кластеризації не реалізовано.",
+    },
+    "cluster.header": {
+        "en": "Method: <i>{method}</i>; Clusters: <i>{n}</i>",
+        "ua": "Метод: <i>{method}</i>; Кластерів: <i>{n}</i>",
+    },
+    # ----- Correlation -----
+    "correlation.name.pearson": {
+        "en": "Pearson correlation coefficient",
+        "ua": "коефіцієнт кореляції Пірсона",
+    },
+    "correlation.name.spearman": {
+        "en": "Spearman rank correlation coefficient",
+        "ua": "коефіцієнт рангової кореляції Спірмена",
+    },
+    "correlation.name.kendall": {
+        "en": "Kendall rank correlation coefficient",
+        "ua": "коефіцієнт рангової кореляції Кендалла",
+    },
+    "correlation.name.kendall_c": {
+        "en": "Kendall τ<sub>c</sub> rank correlation coefficient",
+        "ua": "коефіцієнт рангової кореляції Кендалла τ<sub>c</sub>",
+    },
+    "correlation.name.phi": {
+        "en": "Phi binary correlation coefficient",
+        "ua": "коефіцієнт бінарної кореляції φ (фі)",
+    },
+    "correlation.name.tetrachoric": {
+        "en": "Tetrachoric binary correlation coefficient",
+        "ua": "тетрахоричний коефіцієнт кореляції",
+    },
+    "correlation.name.polychoric": {
+        "en": "Polychoric ordinal correlation coefficient",
+        "ua": "поліхоричний коефіцієнт кореляції",
+    },
+    "correlation.strength.strong": {"en": "strong", "ua": "сильну"},
+    "correlation.strength.moderate": {"en": "moderate", "ua": "помірну"},
+    "correlation.strength.weak": {"en": "weak", "ua": "слабку"},
+    "correlation.strength.very_weak": {"en": "very weak", "ua": "дуже слабку"},
+    "correlation.sign.positive": {"en": "positive", "ua": "позитивну"},
+    "correlation.sign.negative": {"en": "negative", "ua": "негативну"},
+    "correlation.report.intro": {
+        "en": "A {name} was calculated to assess the relationship between the variables {vars} (Table {table}). ",
+        "ua": "Розраховано {name} для оцінки зв'язку між змінними {vars} (Таблиця {table}). ",
+    },
+    "correlation.report.two_significant": {
+        "en": "There was a {strength} {sign} correlation between the two variables, {stats}. ",
+        "ua": "Виявлено {strength} {sign} кореляцію між двома змінними, {stats}. ",
+    },
+    "correlation.report.two_nonsignificant": {
+        "en": "The relationship between the two variables was not significant, {stats}. ",
+        "ua": "Зв'язок між двома змінними статистично незначущий, {stats}. ",
+    },
+    "correlation.report.multi_significant": {
+        "en": "There was a {strength} {sign} correlation between '{var1}' and '{var2}', {stats}. ",
+        "ua": "Виявлено {strength} {sign} кореляцію між «{var1}» та «{var2}», {stats}. ",
+    },
+    "correlation.report.multi_nonsignificant": {
+        "en": "The correlation between '{var1}' and '{var2}' was not significant, {stats}. ",
+        "ua": "Кореляція між «{var1}» та «{var2}» статистично незначуща, {stats}. ",
+    },
+    "correlation.report.negligible": {
+        "en": "Although statistically significant, the relationship is negligible. ",
+        "ua": "Попри статистичну значущість, зв'язок є незначним за величиною. ",
+    },
+    "correlation.report.none_significant": {
+        "en": "No significant correlations were found between the selected variables.",
+        "ua": "Статистично значущих кореляцій між обраними змінними не виявлено.",
+    },
+    "correlation.warning.ordinal_pearson": {
+        "en": "Warning: Ordinal data detected. Pearson correlation is not suitable for ordinal data.",
+        "ua": "Увага: виявлено порядкові дані. Кореляція Пірсона не підходить для порядкових даних.",
+    },
+    "correlation.plot.matrix_title": {
+        "en": "Correlation Matrix",
+        "ua": "Матриця кореляцій",
+    },
+    "correlation.plot.scatter_tab": {
+        "en": "Plot: {a} vs {b}",
+        "ua": "Графік: {a} проти {b}",
+    },
+    "correlation.plot.scatter_title": {
+        "en": "Correlation between {a} and {b}",
+        "ua": "Кореляція між {a} та {b}",
+    },
+    "correlation.table.caption": {
+        "en": "{name} between {vars}.",
+        "ua": "{name} між {vars}.",
+    },
+    "correlation.table.name.pearson": {"en": "Pearson's r", "ua": "r Пірсона"},
+    "correlation.table.name.spearman": {"en": "Spearman's r", "ua": "r Спірмена"},
+    "correlation.table.name.kendall": {"en": "Kendall's τ", "ua": "τ Кендалла"},
+    "correlation.table.name.kendall_c": {
+        "en": "Kendall's τ<sub>c</sub>",
+        "ua": "τ<sub>c</sub> Кендалла",
+    },
+    "correlation.table.name.phi": {"en": "Phi φ", "ua": "φ (фі)"},
+    "correlation.table.name.tetrachoric": {
+        "en": "Tetrachoric ρ<sub>t</sub>",
+        "ua": "тетрахоричний ρ<sub>t</sub>",
+    },
+    "correlation.table.name.polychoric": {
+        "en": "Polychoric ρ<sub>pc</sub>",
+        "ua": "поліхоричний ρ<sub>pc</sub>",
+    },
 }
 
 

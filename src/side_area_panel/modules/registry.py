@@ -83,12 +83,6 @@ class ModuleRegistry(Enum):
         module_type=ModuleType.DATA_PROCESSING,
     )
 
-    DP_PROCESS_COLUMN = ModuleRegistryItem(
-        display_name="Process Column",
-        icon_path="mdi6.cog-outline",
-        module_type=ModuleType.DATA_PROCESSING,
-    )
-
     INVERT_SCALE = ModuleRegistryItem(
         display_name="Invert Scale",
         icon_path="ri.arrow-up-down-line",
@@ -101,15 +95,21 @@ class ModuleRegistry(Enum):
         module_type=ModuleType.DATA_PROCESSING,
     )
 
-    ROW_ID = ModuleRegistryItem(
-        display_name="Row ID",
-        icon_path="mdi6.format-list-numbered",
-        module_type=ModuleType.DATA_PROCESSING,
-    )
-
     PREPROCESS = ModuleRegistryItem(
         display_name="Preprocess",
         icon_path="mdi6.table-edit",
+        module_type=ModuleType.DATA_PROCESSING,
+    )
+
+    GROUP_VALUES = ModuleRegistryItem(
+        display_name="Group Values",
+        icon_path="mdi6.format-list-group",
+        module_type=ModuleType.DATA_PROCESSING,
+    )
+
+    OUTLIERS = ModuleRegistryItem(
+        display_name="Outliers",
+        icon_path="mdi6.chart-scatter-plot",
         module_type=ModuleType.DATA_PROCESSING,
     )
 

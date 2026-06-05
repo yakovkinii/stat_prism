@@ -2,7 +2,9 @@
 import logging
 from abc import abstractmethod
 
-from PySide6.QtWidgets import QComboBox, QHBoxLayout, QLabel
+from PySide6.QtWidgets import QHBoxLayout, QLabel
+
+from src.pyside_ext.elements.utility.primitive_elements import NoScrollComboBox
 
 from src.common.decorators import log_method_noarg
 from src.common.messages import Message, MessageType
@@ -38,7 +40,7 @@ class IISPWACDataSource(ItemInSidePanelWithAutoConfig):
         )
 
         self.combo_box, _ = add_widget(
-            widget=QComboBox(self.widget),
+            widget=NoScrollComboBox(self.widget),
             outer_layout=self.layout,
         )
 

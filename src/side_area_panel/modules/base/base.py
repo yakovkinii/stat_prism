@@ -224,6 +224,8 @@ class BaseModulePanel:
         self.root_class.main_area_panel.refresh_result(result_id=self.result_id)
         # RESULTS[self.result_id].needs_update = False
         self.configure(result_id=self.result_id)
+        # Propagate to downstream data-processing studies and all analyses.
+        self.root_class.main_area_panel.cascade_update(self.result_id)
 
     @log_method_noarg
     def delete(self):

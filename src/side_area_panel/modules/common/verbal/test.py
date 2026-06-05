@@ -70,14 +70,13 @@ def describe_single_test_multiple_variables(
     no_property: str,
     subgroup_results: Dict[str, List[TestResult]] = None,
 ):
-    text = f"<div class='meta'>{t('ttest.verbal.compact')}</div>" if subgroup_results is not None else ""
-    intro = t("ttest.verbal.used_to_check", test_name=test_name, test_check=test_check)
-    text += intro
+    # Single report (the previous compact + detailed duality was removed).
+    # `subgroup_results` is accepted for call-site compatibility but no longer used.
+    text = t("ttest.verbal.used_to_check", test_name=test_name, test_check=test_check)
 
     def _wrap_with_parentheses(x):
         return f" ({x})" if str(x) != "" else ""
 
-    # If all variables have the same property, return a simple message
     suffix = ""
     if len(yes_columns) != 0:
         text += (
@@ -93,25 +92,4 @@ def describe_single_test_multiple_variables(
             + f" {no_property}."
         )
 
-    suffix = intro
-    if subgroup_results is not None:
-        text += f"<br><br><div class='meta'>{t('ttest.verbal.detailed')}</div>"
-        for result in yes_columns:
-            suffix = ""
-            text += t(
-                "ttest.verbal.has_shown",
-                test_name=test_name,
-                variable=result.variable,
-                property=yes_property,
-                stats=_wrap_with_parentheses(result),
-            )
-            for subgroup_result in subgroup_results[result.variable]:
-                text += t("ttest.verbal.for_group", group=subgroup_result.variable, stats=subgroup_result)
-
-        if len(no_columns) != 0:
-            text += (
-                suffix
-                + smart_comma_join([f"{result.variable}{_wrap_with_parentheses(result)}" for result in no_columns])
-                + f" {no_property}."
-            )
     return text

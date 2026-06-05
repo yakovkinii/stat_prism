@@ -29,16 +29,6 @@ from src.side_area_panel.modules.dp_calculate_scale.dp_calculate_scale_result im
 from src.side_area_panel.modules.dp_calculate_scale.dp_calculate_scale_ui import (
     CalculateScale,
 )
-from src.side_area_panel.modules.dp_process_column.dp_process_column_main import (
-    dp_process_column_main,
-)
-from src.side_area_panel.modules.dp_process_column.dp_process_column_result import (
-    ProcessColumnResult,
-    ProcessColumnStudyConfig,
-)
-from src.side_area_panel.modules.dp_process_column.dp_process_column_ui import (
-    DpProcessColumn,
-)
 from src.side_area_panel.modules.dp_invert_scale.dp_invert_scale_main import (
     dp_invert_scale_main,
 )
@@ -55,18 +45,24 @@ from src.side_area_panel.modules.dp_filter.dp_filter_result import (
     FilterDataStudyConfig,
 )
 from src.side_area_panel.modules.dp_filter.dp_filter_ui import FilterData
-from src.side_area_panel.modules.dp_row_id.dp_row_id_main import dp_row_id_main
-from src.side_area_panel.modules.dp_row_id.dp_row_id_result import (
-    RowIdResult,
-    RowIdStudyConfig,
-)
-from src.side_area_panel.modules.dp_row_id.dp_row_id_ui import RowId
 from src.side_area_panel.modules.dp_preprocess.dp_preprocess_main import dp_preprocess_main
 from src.side_area_panel.modules.dp_preprocess.dp_preprocess_result import (
     PreprocessResult,
     PreprocessStudyConfig,
 )
 from src.side_area_panel.modules.dp_preprocess.dp_preprocess_ui import Preprocess
+from src.side_area_panel.modules.dp_group.dp_group_main import dp_group_main
+from src.side_area_panel.modules.dp_group.dp_group_result import (
+    GroupValuesResult,
+    GroupValuesStudyConfig,
+)
+from src.side_area_panel.modules.dp_group.dp_group_ui import GroupValues
+from src.side_area_panel.modules.dp_outliers.dp_outliers_main import dp_outliers_main
+from src.side_area_panel.modules.dp_outliers.dp_outliers_result import (
+    OutliersResult,
+    OutliersStudyConfig,
+)
+from src.side_area_panel.modules.dp_outliers.dp_outliers_ui import Outliers
 from src.side_area_panel.modules.contingency.contingency_ui import Contingency
 from src.side_area_panel.modules.contingency.main import recalculate_contingency_study
 from src.side_area_panel.modules.contingency.result import (
@@ -182,11 +178,6 @@ def inject_classes_to_module_registry():
     ModuleRegistry.CALCULATE_SCALE.value.config_class = CalculateScaleStudyConfig
     ModuleRegistry.CALCULATE_SCALE.value.main_function = dp_calculate_scale_main
 
-    ModuleRegistry.DP_PROCESS_COLUMN.value.ui_class = DpProcessColumn
-    ModuleRegistry.DP_PROCESS_COLUMN.value.result_class = ProcessColumnResult
-    ModuleRegistry.DP_PROCESS_COLUMN.value.config_class = ProcessColumnStudyConfig
-    ModuleRegistry.DP_PROCESS_COLUMN.value.main_function = dp_process_column_main
-
     ModuleRegistry.INVERT_SCALE.value.ui_class = InvertScale
     ModuleRegistry.INVERT_SCALE.value.result_class = InvertScaleResult
     ModuleRegistry.INVERT_SCALE.value.config_class = InvertScaleStudyConfig
@@ -197,12 +188,17 @@ def inject_classes_to_module_registry():
     ModuleRegistry.FILTER.value.config_class = FilterDataStudyConfig
     ModuleRegistry.FILTER.value.main_function = dp_filter_main
 
-    ModuleRegistry.ROW_ID.value.ui_class = RowId
-    ModuleRegistry.ROW_ID.value.result_class = RowIdResult
-    ModuleRegistry.ROW_ID.value.config_class = RowIdStudyConfig
-    ModuleRegistry.ROW_ID.value.main_function = dp_row_id_main
-
     ModuleRegistry.PREPROCESS.value.ui_class = Preprocess
     ModuleRegistry.PREPROCESS.value.result_class = PreprocessResult
     ModuleRegistry.PREPROCESS.value.config_class = PreprocessStudyConfig
     ModuleRegistry.PREPROCESS.value.main_function = dp_preprocess_main
+
+    ModuleRegistry.GROUP_VALUES.value.ui_class = GroupValues
+    ModuleRegistry.GROUP_VALUES.value.result_class = GroupValuesResult
+    ModuleRegistry.GROUP_VALUES.value.config_class = GroupValuesStudyConfig
+    ModuleRegistry.GROUP_VALUES.value.main_function = dp_group_main
+
+    ModuleRegistry.OUTLIERS.value.ui_class = Outliers
+    ModuleRegistry.OUTLIERS.value.result_class = OutliersResult
+    ModuleRegistry.OUTLIERS.value.config_class = OutliersStudyConfig
+    ModuleRegistry.OUTLIERS.value.main_function = dp_outliers_main

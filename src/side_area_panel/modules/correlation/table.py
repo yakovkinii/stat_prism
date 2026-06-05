@@ -2,9 +2,27 @@
 
 
 from src.common.constant import MDASH
+from src.common.translations import t
 from src.side_area_panel.modules.common.result.html_result import Cell, HTMLTableV2, Row
 from src.side_area_panel.modules.common.utility import smart_comma_join
 from src.side_area_panel.modules.correlation.result import CorrelationType
+
+_TABLE_NAME_KEY = {
+    CorrelationType.PEARSON: "correlation.table.name.pearson",
+    CorrelationType.SPEARMAN: "correlation.table.name.spearman",
+    CorrelationType.KENDALL: "correlation.table.name.kendall",
+    CorrelationType.PHI: "correlation.table.name.phi",
+    CorrelationType.TETRACHORIC: "correlation.table.name.tetrachoric",
+    CorrelationType.POLYCHORIC: "correlation.table.name.polychoric",
+}
+if hasattr(CorrelationType, "KENDALL_C"):
+    _TABLE_NAME_KEY[CorrelationType.KENDALL_C] = "correlation.table.name.kendall_c"
+
+
+def _caption(kind, columns):
+    name = t(_TABLE_NAME_KEY[kind])
+    variables = smart_comma_join([f"«{var}»" for var in columns])
+    return t("correlation.table.caption", name=name, vars=variables)
 
 
 def format_r_apa(r, decimals=2):
@@ -68,11 +86,7 @@ def get_correlation_short_name(kind: CorrelationType) -> str:
 
 
 def get_table_compact(columns, correlation_matrix, p_matrix, kind: CorrelationType) -> HTMLTableV2:
-    table = HTMLTableV2(
-        table_caption=(
-            f"{get_correlation_name(kind)} between " + smart_comma_join([f"'{var}'" for var in columns]) + "."
-        )
-    )
+    table = HTMLTableV2(table_caption=_caption(kind, columns))
 
     # Add header
     table.add_title_row_apa(Row([Cell()] + [Cell(column, col_span=2, center=True) for column in columns]))
@@ -105,11 +119,7 @@ def get_table_compact(columns, correlation_matrix, p_matrix, kind: CorrelationTy
 
 
 def get_table_full(columns, correlation_matrix, p_matrix, df_matrix, kind: CorrelationType) -> HTMLTableV2:
-    table = HTMLTableV2(
-        table_caption=(
-            f"{get_correlation_name(kind)} between " + smart_comma_join([f"'{var}'" for var in columns]) + "."
-        )
-    )
+    table = HTMLTableV2(table_caption=_caption(kind, columns))
 
     hide_df_matrix = all(df_matrix.isnull().values.flatten())
 
@@ -140,7 +150,7 @@ def get_table_full(columns, correlation_matrix, p_matrix, df_matrix, kind: Corre
                 table_row_1.append(Cell(push_to_right=True, is_doubled=True))
                 table_row_1.append(Cell(push_to_left=True, is_doubled=True))
 
-        table_row_2 = [Cell("p-value", no_wrap=True)]
+        table_row_2 = [Cell(t("common.p_value"), no_wrap=True)]
         for i_column, column in enumerate(columns):
             if i_column < i_row:
                 table_row_2.append(

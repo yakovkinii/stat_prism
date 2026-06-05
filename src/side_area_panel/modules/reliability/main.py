@@ -6,6 +6,7 @@ import logging
 import numpy as np
 
 from src.common.decorators import log_function
+from src.common.translations import t
 from src.data.data_manager import DATA_MANAGER
 from src.side_area_panel.modules.common.mathematics.correlation.binary_correlations import (
     phi_correlation_table,
@@ -49,7 +50,7 @@ def recalculate_reliability_study(elements, result: ReliabilityResult) -> Reliab
     else:
         # Check if all columns have most 2 unique values
         if not all(df[col].nunique() <= 2 for col in df.columns):
-            msg = "All columns must have at most 2 unique values for the selected correlation type"
+            msg = t("reliability.msg.binary_required")
             result.set_placeholder(msg)
             logging.debug(msg)
             return result
@@ -66,12 +67,12 @@ def recalculate_reliability_study(elements, result: ReliabilityResult) -> Reliab
 
         alpha = cronbach_alpha(correlation_matrix.values)
 
-    table = HTMLTableV2(table_caption="Cronbach's Alpha")
+    table = HTMLTableV2(table_caption=t("reliability.caption.cronbach"))
     table.add_title_row_apa(
         Row(
             [
                 Cell(),
-                Cell("Cronbach's Alpha", center=True),
+                Cell(t("reliability.caption.cronbach"), center=True),
             ]
         )
     )

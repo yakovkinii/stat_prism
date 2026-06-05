@@ -78,7 +78,6 @@ class SettingsPanelClass:
             ),
         )
 
-        file_menu = QMenu("File", self.widget)
         language_menu = QMenu("Language", self.widget)
         help_menu = QMenu("Help", self.widget)
 
@@ -88,20 +87,11 @@ class SettingsPanelClass:
         self.en_action.setCheckable(True)
         self.ua_action.setCheckable(True)
         self.en_action.setChecked(True)  # Default to English
-        open_action = QAction("Open...", self.widget)
-        open_action.setEnabled(False)
-        save_action = QAction("Save", self.widget)
-        save_action.setEnabled(False)
-        save_as_action = QAction("Save As...", self.widget)
         about_action = QAction("About", self.widget)
 
-        menu_bar.addMenu(file_menu)
         menu_bar.addMenu(language_menu)
         menu_bar.addMenu(help_menu)
 
-        file_menu.addAction(open_action)
-        file_menu.addAction(save_action)
-        file_menu.addAction(save_as_action)
         language_menu.addAction(self.en_action)
         language_menu.addAction(self.ua_action)
         help_menu.addAction(about_action)
@@ -119,22 +109,20 @@ class SettingsPanelClass:
         # post-init
         self.stacked_widget.setCurrentIndex(PanelRegistry.HOME_INITIAL.value.settings_stacked_widget_index)
 
-        # open_action.triggered.connect(PanelRegistry.HOME.value.ui_instance.open_handler)
-        # save_action.triggered.connect(PanelRegistry.HOME.value.ui_instance.save_handler)
         self.en_action.triggered.connect(self.set_language_EN)
         self.ua_action.triggered.connect(self.set_language_UA)
-        # save_as_action.triggered.connect(PanelRegistry.HOME.value.ui_instance.save_as_handler)
-        # about_action.triggered.connect(PanelRegistry.HOME.value.ui_instance.about_handler)
 
     def set_language_EN(self):
         LANGUAGE.set_language(Languages.EN)
         self.en_action.setChecked(True)
         self.ua_action.setChecked(False)
+        self.root_class.main_area_panel.recompute_all()
 
     def set_language_UA(self):
         LANGUAGE.set_language(Languages.UA)
         self.en_action.setChecked(False)
         self.ua_action.setChecked(True)
+        self.root_class.main_area_panel.recompute_all()
 
     def get_available_index(self):
         if self.max_used_panel_index is None:

@@ -7,6 +7,19 @@ from PySide6.QtWidgets import QProgressBar
 
 WORKER_COUNT = 0
 
+# Optional callback used to drive the startup splash-screen progress bar.
+_splash_callback = None
+
+
+def set_splash_callback(fn):
+    global _splash_callback
+    _splash_callback = fn
+
+
+def report_splash_progress(value, maximum):
+    if _splash_callback is not None:
+        _splash_callback(value, maximum)
+
 
 class Worker(QObject):
     progress = Signal(int)
