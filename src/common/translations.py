@@ -39,6 +39,14 @@ TRANSLATIONS = {
         "en": "Median",
         "ua": "Медіана",
     },
+    "common.calc_error": {
+        "en": "An error occurred during calculation: {error}",
+        "ua": "Під час обчислення сталася помилка: {error}",
+    },
+    "common.configure_hint": {
+        "en": "Please configure the analysis using the panel on the right.",
+        "ua": "Будь ласка, налаштуйте аналіз на панелі праворуч.",
+    },
     # ----- Contingency -----
     "contingency.table_caption": {
         "en": "Contingency Table between {col1} and {col2}",
@@ -320,6 +328,84 @@ TRANSLATIONS = {
     "ttest.plot.density": {
         "en": "Density",
         "ua": "Щільність",
+    },
+    # Validation / error messages
+    "ttest.error.one_grouping": {
+        "en": "Please select exactly one grouping column.",
+        "ua": "Будь ласка, оберіть рівно один стовпець групування.",
+    },
+    "ttest.error.not_enough_groups": {
+        "en": "The grouping column needs at least two distinct values (found: {groups}).",
+        "ua": "Стовпець групування повинен мати щонайменше два різні значення (знайдено: {groups}).",
+    },
+    "ttest.error.auto_no_assumptions": {
+        "en": (
+            "Assumption checks are off and the method is Automatic, so the appropriate test "
+            "cannot be determined. Choose a method or enable assumption checks."
+        ),
+        "ua": (
+            "Перевірку припущень вимкнено, а метод — «Визначити автоматично», тому неможливо "
+            "обрати відповідний тест. Оберіть метод або увімкніть перевірку припущень."
+        ),
+    },
+    "ttest.error.insufficient_population": {
+        "en": "Some groups have too few observations (at least 3 required): {groups}.",
+        "ua": "Деякі групи містять замало спостережень (потрібно щонайменше 3): {groups}.",
+    },
+    # Module help (shown as the placeholder before the analysis is configured)
+    "ttest.description": {
+        "en": (
+            "<h2>Mean Comparison (Independent Samples)</h2>"
+            "<h3>Description</h3>"
+            "<div>Compare the means of two or more groups to determine if they are "
+            "significantly different.</div>"
+            "<div>If the grouping column has two unique values, the t-test family is used:"
+            "<ul>"
+            "<li>If the variable is non-numerical, or not normally distributed (Shapiro-Wilk "
+            "test), the Mann-Whitney U test is used.</li>"
+            "<li>If homogeneity of variance (Levene's test) is violated, Welch's t-test is used.</li>"
+            "<li>Otherwise, the independent-samples t-test is used.</li>"
+            "</ul></div>"
+            "<div>If the grouping column has more than two unique values, the ANOVA family is used:"
+            "<ul>"
+            "<li>If the variable is non-numerical, or not normally distributed (Shapiro-Wilk "
+            "test), the Kruskal-Wallis test is used.</li>"
+            "<li>If homogeneity of variance (Levene's test) is violated, Welch's ANOVA is used.</li>"
+            "<li>Otherwise, one-way ANOVA is used.</li>"
+            "</ul></div>"
+            "<h3>Inputs</h3>"
+            "<div><b>Variable(s):</b><br>The variable(s) to compare.</div>"
+            "<div><b>Grouping Column:</b><br>The column that defines the groups to compare "
+            "(such as respondent's sex or age group).</div>"
+        ),
+        "ua": (
+            "<h2>Порівняння середніх (незалежні вибірки)</h2>"
+            "<h3>Опис</h3>"
+            "<div>Порівняння середніх двох або більше груп для визначення, чи відрізняються "
+            "вони статистично значущо.</div>"
+            "<div>Якщо стовпець групування має два унікальні значення, використовується "
+            "родина t-критерію:"
+            "<ul>"
+            "<li>Якщо змінна нечислова або не розподілена нормально (критерій Шапіро–Уілка), "
+            "використовується U-критерій Манна–Уітні.</li>"
+            "<li>Якщо порушено однорідність дисперсій (критерій Лівіня), використовується "
+            "t-критерій Велча.</li>"
+            "<li>Інакше використовується t-критерій для незалежних вибірок.</li>"
+            "</ul></div>"
+            "<div>Якщо стовпець групування має більше двох унікальних значень, "
+            "використовується родина ANOVA:"
+            "<ul>"
+            "<li>Якщо змінна нечислова або не розподілена нормально (критерій Шапіро–Уілка), "
+            "використовується критерій Краскела–Уолліса.</li>"
+            "<li>Якщо порушено однорідність дисперсій (критерій Лівіня), використовується "
+            "ANOVA Велча.</li>"
+            "<li>Інакше використовується однофакторний дисперсійний аналіз (ANOVA).</li>"
+            "</ul></div>"
+            "<h3>Вхідні дані</h3>"
+            "<div><b>Змінна(і):</b><br>Змінні для порівняння.</div>"
+            "<div><b>Стовпець групування:</b><br>Стовпець, що визначає групи для порівняння "
+            "(наприклад, стать або вікова група респондента).</div>"
+        ),
     },
     # ----- Reliability -----
     "reliability.caption.cronbach": {

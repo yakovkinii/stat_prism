@@ -3,6 +3,7 @@
 
 from typing import List, Dict
 
+from src.common.translations import t
 from src.pyside_ext.markup import HTML
 from src.pyside_ext.styling import Style
 from src.side_area_panel.modules.common.result.base_result_element import (
@@ -48,16 +49,15 @@ class BaseResult:
 
     @staticmethod
     def format_additional_info_html(text) -> str:
-        return HTML.div(HTML.bold(text), font_size=Style.FontSize.smaller)
+        return HTML.div(HTML.bold(text), font_size=Style.FontSize.smaller) + HTML.hr()
 
     @staticmethod
     def format_description_html(text):
         return HTML.div(text)
 
-    def set_placeholder(
-        self,
-        additional_info_html: str = "Please configure the analysis using the panel on the right",
-    ):
+    def set_placeholder(self, additional_info_html: str = None):
+        if additional_info_html is None:
+            additional_info_html = t("common.configure_hint")
         self.result_elements = [
             HTMLTableV2(
                 texts=[
@@ -67,6 +67,22 @@ class BaseResult:
                     )
                 ]
             )
+        ]
+
+    def set_error(self, message: str):
+        """Show an error / validation message highlighted distinctly from the
+        description (muted dark red, not bright), followed by an <hr> and the
+        normal help description -- same layout as the configure placeholder."""
+        error_html = (
+            HTML.div(
+                HTML.bold(message),
+                color=Style.Color.Danger.value,
+                font_size=Style.FontSize.smaller,
+            )
+            + HTML.hr()
+        )
+        self.result_elements = [
+            HTMLTableV2(texts=[error_html + self.format_description_html(self.description)])
         ]
 
     def configure(self, *args, **kwargs):

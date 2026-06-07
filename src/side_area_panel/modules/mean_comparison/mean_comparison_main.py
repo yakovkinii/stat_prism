@@ -4,6 +4,7 @@
 import logging
 
 from src.common.decorators import log_function
+from src.common.translations import t
 from src.data.data_manager import DATA_MANAGER
 from src.side_area_panel.modules.mean_comparison.anova import (
     recalculate_mean_comparison_anova,
@@ -23,57 +24,49 @@ from src.side_area_panel.modules.mean_comparison.t_test import (
     recalculate_mean_comparison_t_test,
 )
 
+# Smallest per-group sample size the tests can run on.
+_MIN_GROUP_SIZE = 3
+
+
+def _fail(result: MeanComparisonResult, message: str) -> MeanComparisonResult:
+    """Show a validation message to the user and log it, then stop."""
+    logging.warning("T-test/ANOVA: %s", message)
+    result.set_error(message)
+    return result
+
 
 @log_function
 def recalculate_mean_comparison_study(elements: Elements, result: MeanComparisonResult) -> MeanComparisonResult:
+    """Validate the inputs, then route to the t-test family (two groups) or the
+    ANOVA family (three or more groups). Unexpected exceptions are handled centrally
+    by the panel's recalculate()."""
     cfg = result.config
+    result.result_elements = []
 
     grouping_columns = cfg.column_selector[1]
     if len(grouping_columns) != 1:
-        msg = "Please select exactly one grouping column."
-        result.set_placeholder(msg)
-        logging.debug(msg)
-        return result
+        return _fail(result, t("ttest.error.one_grouping"))
     grouping_column = grouping_columns[0]
+
+    if cfg.assumption_checks == AssumptionChecksInGrouping.NEVER.value and (
+        cfg.method == MeanComparisonMethod.AUTO.value
+    ):
+        return _fail(result, t("ttest.error.auto_no_assumptions"))
 
     data = DATA_MANAGER.get_data_from_data_label(
         data_label=cfg.data_source,
         current_result_id=result.unique_id,
     )
-
-    result.result_elements = []
-
-    # Apply filters and grouping-missing policy
     df = prepare_df_for_mean_comparison(data=data, cfg=cfg)
 
-    n_unique_values_in_grouping_column = len(df[grouping_column].unique())
-    if n_unique_values_in_grouping_column < 2:
-        msg = f"Not enough unique values in grouping column: {df[grouping_column].unique()}"
-        result.set_placeholder(msg)
-        logging.debug(msg)
-        return result
+    groups = list(df[grouping_column].dropna().unique())
+    if len(groups) < 2:
+        return _fail(result, t("ttest.error.not_enough_groups", groups=", ".join(map(str, groups))))
 
-    if (cfg.assumption_checks == AssumptionChecksInGrouping.NEVER.value) and (
-        cfg.method == MeanComparisonMethod.AUTO.value
-    ):
-        msg = f"Assumption checks are disabled and method is set to AUTO. Cannot determine appropriate test."
-        result.set_placeholder(msg)
-        logging.debug(msg)
-        return result
+    group_sizes = df.groupby(grouping_column).size()
+    if group_sizes.min() < _MIN_GROUP_SIZE:
+        return _fail(result, t("ttest.error.insufficient_population", groups=str(group_sizes.to_dict())))
 
-    if n_unique_values_in_grouping_column == 2:
-        n_rows_per_group = df.groupby(grouping_column).size()
-        if n_rows_per_group.min() < 3:
-            msg = f"Insufficient population in some groups: {n_rows_per_group.to_dict()}"
-            result.set_placeholder(msg)
-            logging.debug(msg)
-            return result
+    if len(groups) == 2:
         return recalculate_mean_comparison_t_test(data, result)
-
-    n_rows_per_group = df.groupby(grouping_column).size()
-    if n_rows_per_group.min() < 3:
-        msg = f"Insufficient population in some groups: {n_rows_per_group.to_dict()}"
-        result.set_placeholder(msg)
-        logging.debug(msg)
-        return result
     return recalculate_mean_comparison_anova(data, result)

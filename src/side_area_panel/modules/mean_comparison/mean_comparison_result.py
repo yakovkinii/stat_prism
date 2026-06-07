@@ -3,8 +3,8 @@
 
 import attrs
 
+from src.common.translations import t
 from src.side_area_panel.modules.common.result.registry import BaseResult
-from src.side_area_panel.modules.mean_comparison.constant import DESCRIPTION
 
 
 @attrs.define
@@ -32,5 +32,9 @@ class MeanComparisonResult(BaseResult):
         self.config: MeanComparisonStudyConfig = config
 
         self.needs_update: bool = False
-        self.description = DESCRIPTION
+        self.update_description()
         self.set_placeholder()
+
+    def update_description(self):
+        # Resolved against the current language each time it is shown.
+        self.description = t("ttest.description")

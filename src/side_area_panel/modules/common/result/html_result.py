@@ -64,7 +64,7 @@ class HTMLTableV2(BaseResultElement):
         border_top: bool = True,
         border_bottom: bool = True,
         table_id="",
-        table_caption="(Table caption)",
+        table_caption="",
         table_note="",
         texts: List[str] = None,
     ):
@@ -122,58 +122,61 @@ class HTMLTableV2(BaseResultElement):
                 for cell in self.rows[-1].cells:
                     cell.border_bottom = True
 
-        html = f'<table style="border-collapse: collapse;" class="font">'
-
         total_rows = len(self.rows)
-        for r_idx, row in enumerate(self.rows):
-            html += "<tr>"
-            for cell in row.cells:
-                # Base cell style with increased line-height
-                cell_style = "padding: 5px;"
-                if cell.is_bold:
-                    cell_style += " font-weight: bold;"
-                if cell.is_italic:
-                    cell_style += " font-style: italic;"
-                if cell.no_wrap:
-                    cell_style += " white-space: nowrap;"
-                if cell.push_to_right:
-                    cell_style += " text-align: right;"
-                elif cell.push_to_left:
-                    cell_style += " text-align: left;"
-                elif cell.center:
-                    cell_style += " text-align: center;"
+        if total_rows == 0:
+            html = ""
+        else:
+            html = f'<table style="border-collapse: collapse;" class="font">'
 
-                # Top border
-                if r_idx == 0 and self.border_top:
-                    cell_style += " border-top: 2px solid black;"
-                elif cell.border_top:
-                    cell_style += " border-top: 1px solid black;"
-                # Bottom border
-                if r_idx == total_rows - 1 and self.border_bottom:
-                    cell_style += " border-bottom: 2px solid black;"
-                elif cell.border_bottom:
-                    cell_style += " border-bottom: 1px solid black;"
+            for r_idx, row in enumerate(self.rows):
+                html += "<tr>"
+                for cell in row.cells:
+                    # Base cell style with increased line-height
+                    cell_style = "padding: 5px;"
+                    if cell.is_bold:
+                        cell_style += " font-weight: bold;"
+                    if cell.is_italic:
+                        cell_style += " font-style: italic;"
+                    if cell.no_wrap:
+                        cell_style += " white-space: nowrap;"
+                    if cell.push_to_right:
+                        cell_style += " text-align: right;"
+                    elif cell.push_to_left:
+                        cell_style += " text-align: left;"
+                    elif cell.center:
+                        cell_style += " text-align: center;"
 
-                # Span
-                attrs = ""
-                if cell.col_span > 1:
-                    attrs += f' colspan="{cell.col_span}"'
-                if cell.row_span > 1:
-                    attrs += f' rowspan="{cell.row_span}"'
+                    # Top border
+                    if r_idx == 0 and self.border_top:
+                        cell_style += " border-top: 2px solid black;"
+                    elif cell.border_top:
+                        cell_style += " border-top: 1px solid black;"
+                    # Bottom border
+                    if r_idx == total_rows - 1 and self.border_bottom:
+                        cell_style += " border-bottom: 2px solid black;"
+                    elif cell.border_bottom:
+                        cell_style += " border-bottom: 1px solid black;"
 
-                html += f'<td style="{cell_style}"{attrs}>{cell.text}</td>'
-            html += "</tr>"
-        html += "</table>\n"
+                    # Span
+                    attrs = ""
+                    if cell.col_span > 1:
+                        attrs += f' colspan="{cell.col_span}"'
+                    if cell.row_span > 1:
+                        attrs += f' rowspan="{cell.row_span}"'
 
-        # Note
-        if self.table_note:
-            html += f'<div class="font"><i>{note_str}.</i> {self.table_note}</div>\n'
+                    html += f'<td style="{cell_style}"{attrs}>{cell.text}</td>'
+                html += "</tr>"
+            html += "</table>\n"
+
+            # Note
+            if self.table_note:
+                html += f'<div class="font"><i>{note_str}.</i> {self.table_note}</div>\n'
 
         # Additional texts
-        for text in self.texts:
-            html += (
-                "<br><br>\n" f'<div class="font">{text.replace(TABLE_OR_PLOT_ID_PLACEHOLDER, id_suffix)}</div><br>\n'
-            )
+        for i, text in enumerate(self.texts):
+            if (total_rows > 0) or (i > 0):
+                html += "<br><br>\n"
+            html += f'<div class="font">{text.replace(TABLE_OR_PLOT_ID_PLACEHOLDER, id_suffix)}</div><br>\n'
         return html
 
     def add_title_row_apa(self, row: Row):

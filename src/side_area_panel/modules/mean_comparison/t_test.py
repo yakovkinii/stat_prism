@@ -54,7 +54,7 @@ def recalculate_mean_comparison_t_test(
     grouping_column = cfg.column_selector[1][0]
     df = prepare_df_for_mean_comparison(data=data, cfg=cfg)
 
-    numeric_columns = [col for col in selected_columns if data[col].column_type == ColumnType.NUMERIC.value]
+    numeric_columns = [col for col in selected_columns if data[col].column_type == ColumnType.NUMERIC]
     non_numeric_columns = [col for col in selected_columns if col not in numeric_columns]
 
     normal_columns, non_normal_columns = [], []

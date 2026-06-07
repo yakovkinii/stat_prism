@@ -12,6 +12,7 @@ from PySide6.QtWidgets import QScrollArea, QVBoxLayout
 from src.common.constant import SettingsPanelSize
 from src.common.decorators import log_method, log_method_noarg
 from src.common.messages import Message
+from src.common.translations import t
 from src.common.ui_constructor import create_tool_button_qta
 from src.data.data_manager import DATA_MANAGER
 from src.pyside_ext.elements.utility.layout_helpers import add_widget
@@ -213,8 +214,8 @@ class BaseModulePanel:
         try:
             result = self.main_function(elements=self.elements_, result=result)
         except Exception as e:
-            logging.error(f"Error during calculation: {e}")
-            result.set_placeholder(f"Error during calculation: {e}")
+            logging.exception("Error during recalculation")
+            result.set_error(t("common.calc_error", error=str(e)))
         self.recalculate_on_done(result)
 
     @log_method
