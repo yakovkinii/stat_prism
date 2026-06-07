@@ -13,7 +13,6 @@ from src.common.decorators import log_function
 from src.common.qcolor import Colors
 from src.common.translations import t
 from src.data.data import Data
-from src.data.data_manager import DATA_MANAGER
 from src.side_area_panel.modules.common.homogeneity import process_homogeneity_check
 from src.side_area_panel.modules.common.normality import process_normality_check
 from src.side_area_panel.modules.common.result.html_result import Cell, HTMLTableV2, Row
@@ -55,9 +54,6 @@ def recalculate_mean_comparison_anova(
 ) -> MeanComparisonResult:
     cfg = result.config
     selected_columns = cfg.column_selector[0]
-    selected_columns_types = [
-        DATA_MANAGER.get_latest_data().get_column_type_from_column_name(col) for col in cfg.column_selector[0]
-    ]
     grouping_column = cfg.column_selector[1][0]
     # Apply filters and grouping-missing policy
     df = prepare_df_for_mean_comparison(data=data, cfg=cfg)
@@ -75,7 +71,7 @@ def recalculate_mean_comparison_anova(
                 grouping_column=grouping_column,
             )
             if len(numeric_columns) > 0:
-                result.result_elements.append(normality_table)
+                result.update_and_add_element(normality_table, "anova normality_table")
     elif cfg.method == MeanComparisonMethod.NON_PARAMETRIC.value:
         normal_columns, non_normal_columns = [], selected_columns
         if cfg.assumption_checks == AssumptionChecksInGrouping.ALWAYS.value:
@@ -85,7 +81,7 @@ def recalculate_mean_comparison_anova(
                 grouping_column=grouping_column,
             )
             if len(numeric_columns) > 0:
-                result.result_elements.append(normality_table)
+                result.update_and_add_element(normality_table, "anova normality_table")
     elif cfg.method == MeanComparisonMethod.AUTO.value:
         normal_columns, non_normal_columns, normality_table = process_normality_check(
             df=df,
@@ -93,7 +89,7 @@ def recalculate_mean_comparison_anova(
             grouping_column=grouping_column,
         )
         if (len(numeric_columns) > 0) and (cfg.assumption_checks != AssumptionChecksInGrouping.NEVER.value):
-            result.result_elements.append(normality_table)
+            result.update_and_add_element(normality_table, "anova normality_table")
 
     homogeneous_columns, non_homogeneous_columns = [], []
     if cfg.method == MeanComparisonMethod.HOMOGENEOUS.value:
@@ -105,7 +101,7 @@ def recalculate_mean_comparison_anova(
                 grouping_column=grouping_column,
             )
             if len(normal_columns) > 0:
-                result.result_elements.append(homogeneity_table)
+                result.update_and_add_element(homogeneity_table, "anova homogeneity_table")
     elif cfg.method == MeanComparisonMethod.INHOMOGENEOUS.value:
         homogeneous_columns, non_homogeneous_columns = [], normal_columns
         if cfg.assumption_checks == AssumptionChecksInGrouping.ALWAYS.value:
@@ -115,7 +111,7 @@ def recalculate_mean_comparison_anova(
                 grouping_column=grouping_column,
             )
             if len(normal_columns) > 0:
-                result.result_elements.append(homogeneity_table)
+                result.update_and_add_element(homogeneity_table, "anova homogeneity_table")
     elif cfg.method == MeanComparisonMethod.AUTO.value:
         homogeneous_columns, non_homogeneous_columns, homogeneity_table = process_homogeneity_check(
             df=df,
@@ -125,7 +121,7 @@ def recalculate_mean_comparison_anova(
             grouping_column=grouping_column,
         )
         if (len(normal_columns) > 0) and (cfg.assumption_checks != AssumptionChecksInGrouping.NEVER.value):
-            result.result_elements.append(homogeneity_table)
+            result.update_and_add_element(homogeneity_table, "anova homogeneity_table")
 
     if len(non_numeric_columns + non_normal_columns) > 0:
         items = process_non_normal_anova(
@@ -140,8 +136,8 @@ def recalculate_mean_comparison_anova(
             means=cfg.means,
             effect_size=cfg.effect_size,
         )
-        for item in items:
-            result.result_elements.append(item)
+        for i, item in enumerate(items):
+            result.update_and_add_element(item, f"anova non_normal_{i}")
 
     if len(non_homogeneous_columns) > 0:
         items = process_non_homogeneous_anova(
@@ -151,8 +147,8 @@ def recalculate_mean_comparison_anova(
             means=cfg.means,
             effect_size=cfg.effect_size,
         )
-        for item in items:
-            result.result_elements.append(item)
+        for i, item in enumerate(items):
+            result.update_and_add_element(item, f"anova non_homogeneous_{i}")
 
     if len(homogeneous_columns) > 0:
         items = process_homogeneous_anova(
@@ -162,8 +158,8 @@ def recalculate_mean_comparison_anova(
             means=cfg.means,
             effect_size=cfg.effect_size,
         )
-        for item in items:
-            result.result_elements.append(item)
+        for i, item in enumerate(items):
+            result.update_and_add_element(item, f"anova homogeneous_{i}")
 
     if not cfg.plots:
         return result
@@ -171,7 +167,6 @@ def recalculate_mean_comparison_anova(
     groupby_column = grouping_column
     groupby_values = df[groupby_column].drop_duplicates().values
     numeric_columns = [col for col in selected_columns if data[col].column_type == ColumnType.NUMERIC]
-    plot_result_elements = []
     for col in selected_columns:
         is_numeric = col in numeric_columns
 
@@ -231,7 +226,7 @@ def recalculate_mean_comparison_anova(
             x_axis_title=col,
             y_axis_title=t("ttest.plot.density"),
         )
-        plot_result_elements.append(plot_result)
+        result.update_and_add_element(plot_result, f"anova distribution_plot_{col}")
 
         box_plot_result = create_box_plot(
             groups=[df.loc[df[groupby_column] == groupby_value][col].dropna() for groupby_value in groupby_values],
@@ -239,9 +234,7 @@ def recalculate_mean_comparison_anova(
             column=col,
             grouping_column=groupby_column,
         )
-
-        plot_result_elements.append(box_plot_result)
-    result.result_elements.extend(plot_result_elements)
+        result.update_and_add_element(box_plot_result, f"anova box_plot_{col}")
     return result
 
 
