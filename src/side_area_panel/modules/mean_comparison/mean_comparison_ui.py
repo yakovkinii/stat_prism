@@ -53,10 +53,6 @@ class Elements(ItemInSidePanelWithAutoConfigHolder):
         label_text="Effect size/Post-hoc",
         default_state=True,
     )
-    means = IISPWACCheckBox(
-        label_text="Means/Medians",
-        default_state=True,
-    )
     plots = IISPWACCheckBox(
         label_text="Plots",
         default_state=False,

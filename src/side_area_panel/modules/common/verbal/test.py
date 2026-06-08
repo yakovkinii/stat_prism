@@ -1,7 +1,7 @@
 #  Copyright (c) 2023 StatPrism Team. All rights reserved.
 
 
-from typing import Dict, List, Union
+from typing import List, Union
 
 from src.common.translations import t
 from src.side_area_panel.modules.common.utility import (
@@ -68,10 +68,8 @@ def describe_single_test_multiple_variables(
     no_columns: list[TestResult],
     yes_property: str,
     no_property: str,
-    subgroup_results: Dict[str, List[TestResult]] = None,
 ):
     # Single report (the previous compact + detailed duality was removed).
-    # `subgroup_results` is accepted for call-site compatibility but no longer used.
     text = t("ttest.verbal.used_to_check", test_name=test_name, test_check=test_check)
 
     def _wrap_with_parentheses(x):

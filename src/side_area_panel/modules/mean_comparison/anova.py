@@ -133,7 +133,6 @@ def recalculate_mean_comparison_anova(
             non_numeric_columns=non_numeric_columns,
             non_normal_columns=non_normal_columns,
             grouping_column=grouping_column,
-            means=cfg.means,
             effect_size=cfg.effect_size,
         )
         for i, item in enumerate(items):
@@ -144,7 +143,6 @@ def recalculate_mean_comparison_anova(
             df=df,
             columns=non_homogeneous_columns,
             grouping_column=grouping_column,
-            means=cfg.means,
             effect_size=cfg.effect_size,
         )
         for i, item in enumerate(items):
@@ -155,7 +153,6 @@ def recalculate_mean_comparison_anova(
             df=df,
             columns=homogeneous_columns,
             grouping_column=grouping_column,
-            means=cfg.means,
             effect_size=cfg.effect_size,
         )
         for i, item in enumerate(items):
@@ -166,7 +163,6 @@ def recalculate_mean_comparison_anova(
 
     groupby_column = grouping_column
     groupby_values = df[groupby_column].drop_duplicates().values
-    numeric_columns = [col for col in selected_columns if data[col].column_type == ColumnType.NUMERIC]
     for col in selected_columns:
         is_numeric = col in numeric_columns
 
@@ -239,7 +235,7 @@ def recalculate_mean_comparison_anova(
 
 
 def process_non_normal_anova(
-    df: pd.DataFrame, non_numeric_columns, non_normal_columns, grouping_column, means, effect_size
+    df: pd.DataFrame, non_numeric_columns, non_normal_columns, grouping_column, effect_size
 ):
     table = HTMLTableV2(table_caption=t("ttest.caption.kruskal"))
 
@@ -252,7 +248,7 @@ def process_non_normal_anova(
     table.add_title_row_apa(
         Row(
             [Cell(), Cell(t("ttest.col.kruskal_h"), center=True), Cell(t("common.p_value"), center=True), Cell("df", center=True)]
-            + [Cell(t("common.median"), center=True), Cell("IQR", center=True)] * len(group_names) * means
+            + [Cell(t("common.median"), center=True), Cell("IQR", center=True)] * len(group_names)
         )
     )
 
@@ -260,7 +256,6 @@ def process_non_normal_anova(
 
     accepted_columns = []
     rejected_columns = []
-    subgroup_results = {}
     significant_columns = []
 
     for col in columns:
@@ -276,11 +271,6 @@ def process_non_normal_anova(
         else:
             rejected_columns.append(TestResult(variable=col, letter="H", statistic=h_stat, p=p_val))
             significant_columns.append(col)
-
-        subgroup_results[col] = [
-            TestResult(variable=group_name, letter=["Median", "IQR"], statistic=[median[i], iqr[i]], decimals=1)
-            for i, group_name in enumerate(group_names)
-        ]
 
         table.add_single_row_apa(
             Row(
@@ -298,7 +288,6 @@ def process_non_normal_anova(
                         Cell(format_value_apa(iqr_value), center=True),
                     )
                 ]
-                * means
             )
         )
 
@@ -310,7 +299,6 @@ def process_non_normal_anova(
             no_columns=accepted_columns,
             yes_property=t("ttest.prop.sig_diff"),
             no_property=t("ttest.prop.not_sig_diff"),
-            subgroup_results=subgroup_results if means else None,
         )
     )
 
@@ -361,7 +349,7 @@ def process_non_normal_anova(
     return table, *post_hoc_items
 
 
-def process_non_homogeneous_anova(df: pd.DataFrame, columns, grouping_column, means, effect_size):
+def process_non_homogeneous_anova(df: pd.DataFrame, columns, grouping_column, effect_size):
     table = HTMLTableV2(table_caption=t("ttest.caption.welch_anova"))
 
     group_names = df[grouping_column].unique()
@@ -389,7 +377,6 @@ def process_non_homogeneous_anova(df: pd.DataFrame, columns, grouping_column, me
 
     accepted_columns = []
     rejected_columns = []
-    subgroup_results = {}
     significant_columns = []
 
     for col in columns:
@@ -413,13 +400,6 @@ def process_non_homogeneous_anova(df: pd.DataFrame, columns, grouping_column, me
 
         group_means = [group.mean() for group in group_data]
         group_stds = [group.std() for group in group_data]
-
-        subgroup_results[col] = [
-            TestResult(
-                variable=group_name, letter=["Mean", "SD"], statistic=[group_means[i], group_stds[i]], decimals=1
-            )
-            for i, group_name in enumerate(group_names)
-        ]
 
         table.add_single_row_apa(
             Row(
@@ -446,7 +426,6 @@ def process_non_homogeneous_anova(df: pd.DataFrame, columns, grouping_column, me
             no_columns=accepted_columns,
             yes_property=t("ttest.prop.diff_means"),
             no_property=t("ttest.prop.equal_means"),
-            subgroup_results=subgroup_results,
         )
     )
 
@@ -499,7 +478,7 @@ def process_non_homogeneous_anova(df: pd.DataFrame, columns, grouping_column, me
     return table, *post_hoc_items
 
 
-def process_homogeneous_anova(df: pd.DataFrame, columns, grouping_column, means, effect_size):
+def process_homogeneous_anova(df: pd.DataFrame, columns, grouping_column, effect_size):
     table = HTMLTableV2(table_caption=t("ttest.caption.one_way_anova"))
 
     group_names = df[grouping_column].unique()
@@ -527,7 +506,6 @@ def process_homogeneous_anova(df: pd.DataFrame, columns, grouping_column, means,
     )
     accepted_columns = []
     rejected_columns = []
-    subgroup_results = {}
     significant_columns = []
 
     for col in columns:
@@ -552,13 +530,6 @@ def process_homogeneous_anova(df: pd.DataFrame, columns, grouping_column, means,
 
         group_means = [group.mean() for group in group_data]
         group_stds = [group.std() for group in group_data]
-
-        subgroup_results[col] = [
-            TestResult(
-                variable=group_name, letter=["Mean", "SD"], statistic=[group_means[i], group_stds[i]], decimals=1
-            )
-            for i, group_name in enumerate(group_names)
-        ]
 
         # Adding the rows with calculated values
         table.add_single_row_apa(
@@ -586,7 +557,6 @@ def process_homogeneous_anova(df: pd.DataFrame, columns, grouping_column, means,
             no_columns=accepted_columns,
             yes_property=t("ttest.prop.diff_means"),
             no_property=t("ttest.prop.equal_means"),
-            subgroup_results=subgroup_results,
         )
     )
 
