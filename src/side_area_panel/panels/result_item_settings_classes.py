@@ -31,16 +31,43 @@ from src.pyside_ext.unique_qss import set_stylesheet
 
 
 class ColorGridItemSetting(BasePanelElement):
-    def __init__(self, current_color: Tuple[int, int, int], add_stretch=False):
+    def __init__(self, current_color: Tuple[int, int, int], add_stretch=False, label: str = None):
         super().__init__()
         self.current_color = current_color
         self.add_stretch = add_stretch
+        self.label = label
 
     def get_current_value(self):
         return self.current_color
 
     def set_up_from_other_instance(self, other: "ColorGridItemSetting"):
         self.current_color = other.current_color
+
+    @staticmethod
+    def build_palette_rows():
+        """Palette shown in the picker: tasteful lighter/base/darker variants of the
+        StatPrism default colours, plus a neutrals row (white -> black) so backgrounds,
+        frames, etc. can use white/grey/black. The "base" row is the set returned by
+        Colors().get_color_list(), i.e. the defaults actually assigned to series."""
+        base_colors = Colors().colors
+
+        def _mix(c, target, t):
+            return tuple(int(round(c[i] + (target[i] - c[i]) * t)) for i in range(3))
+
+        white = (255, 255, 255)
+        black = (0, 0, 0)
+        lighter = [_mix(c, white, 0.45) for c in base_colors]
+        darker = [_mix(c, black, 0.35) for c in base_colors]
+        neutrals = [
+            (255, 255, 255),
+            (224, 224, 224),
+            (176, 176, 176),
+            (128, 128, 128),
+            (96, 96, 96),
+            (48, 48, 48),
+            (0, 0, 0),
+        ]
+        return [lighter, list(base_colors), darker, neutrals]
 
     def setup(self):
         self.widget, self.layout = empty_widget(
@@ -52,9 +79,14 @@ class ColorGridItemSetting(BasePanelElement):
         self.selected_color = QColor(initial or QColor(255, 255, 255))
         self.selected_btn = None
 
-        base_colors = Colors().colors
+        if self.label is not None:
+            label_widget = QLabel(self.label, parent=self.widget)
+            label_widget.setAlignment(Qt.AlignmentFlag.AlignCenter)
+            self.layout.addWidget(label_widget)
 
-        # Grid of color buttons (4 rows x 7 cols)
+        rows = self.build_palette_rows()
+
+        # Grid of color buttons (rows x 7 cols)
         self.grid_widget, self.grid_layout = empty_widget(
             parent=self.widget,
             inner_layout_class=QGridLayout,
@@ -65,34 +97,10 @@ class ColorGridItemSetting(BasePanelElement):
             ],
         )
 
-        for row in range(4):
-            for col, (r, g, b) in enumerate(base_colors):
-                # determine RGB variant per row
-                if row == 0:
-                    # raw: original
-                    pr = 255 if r > 120 else 0
-                    pg = 255 if g > 120 else 0
-                    pb = 255 if b > 120 else 0
-                    if (r, g, b) == (255, 100, 0):  # Exception for orange
-                        pr, pg, pb = (255, 128, 0)
-
-                elif row == 3:
-                    # lighter: mix with white 50%
-                    pr = int(r + (255 - r) * 0.5)
-                    pg = int(g + (255 - g) * 0.5)
-                    pb = int(b + (255 - b) * 0.5)
-                elif row == 2:
-                    # base: original (repeat raw)
-                    pr, pg, pb = r, g, b
-                else:
-                    # darker: mix with black 40%
-                    pr = int(r * 0.6)
-                    pg = int(g * 0.6)
-                    pb = int(b * 0.6)
-
+        for row, row_colors in enumerate(rows):
+            for col, (pr, pg, pb) in enumerate(row_colors):
                 color = QtGui.QColor(pr, pg, pb)
                 btn = QPushButton()
-                # btn.setFixedSize(20, 30)
                 btn.setFixedHeight(30)
                 set_stylesheet(
                     btn,
@@ -145,7 +153,7 @@ class SingleLineTextResultItemSetting(BasePanelElement):
 
 
 class ContainerResultItemSetting(BasePanelElement):
-    def __init__(self, items, add_stretch=False, label: str = "Container:"):
+    def __init__(self, items, add_stretch=False, label: str = None):
         super().__init__()
         self.items = items
         self.add_stretch = add_stretch

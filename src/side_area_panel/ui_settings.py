@@ -10,6 +10,7 @@ from PySide6.QtWidgets import QMenu, QMenuBar, QProgressBar, QVBoxLayout
 
 from src.common.constant import SettingsPanelSize
 from src.common.languages import LANGUAGE, Languages
+from src.common.theme import THEME, Themes
 from src.pyside_ext.elements.utility.layout_helpers import widget_in_layout
 from src.pyside_ext.markup import css
 from src.pyside_ext.styling import Style
@@ -79,6 +80,7 @@ class SettingsPanelClass:
         )
 
         language_menu = QMenu("Language", self.widget)
+        theme_menu = QMenu("Theme", self.widget)
         help_menu = QMenu("Help", self.widget)
 
         # EN and UA checkable actions
@@ -89,7 +91,19 @@ class SettingsPanelClass:
         self.en_action.setChecked(True)  # Default to English
         about_action = QAction("About", self.widget)
 
+        # One checkable action per theme (driven by the Themes enum, so adding a
+        # theme there automatically adds a menu entry).
+        self.theme_actions = {}
+        for theme in Themes:
+            theme_action = QAction(theme.value, self.widget)
+            theme_action.setCheckable(True)
+            theme_action.setChecked(theme == Themes.DEFAULT)
+            theme_action.triggered.connect(lambda _checked=False, t=theme: self.set_theme(t))
+            theme_menu.addAction(theme_action)
+            self.theme_actions[theme] = theme_action
+
         menu_bar.addMenu(language_menu)
+        menu_bar.addMenu(theme_menu)
         menu_bar.addMenu(help_menu)
 
         language_menu.addAction(self.en_action)
@@ -123,6 +137,19 @@ class SettingsPanelClass:
         self.en_action.setChecked(False)
         self.ua_action.setChecked(True)
         self.root_class.main_area_panel.recompute_all()
+
+    def set_theme(self, theme: Themes):
+        THEME.set_theme(theme)
+        for candidate, action in self.theme_actions.items():
+            action.setChecked(candidate == theme)
+        # Recompute so every plot rebuilds with the new theme defaults. Plots detect
+        # the theme switch (via theme_id) and adopt the new colours while keeping user
+        # content and size tweaks; tables are unaffected.
+        self.root_class.main_area_panel.recompute_all()
+        # The recompute rebuilds result elements, so any currently-focused study's
+        # settings panel would reference stale elements. Deselect and return home.
+        self.root_class.main_area_panel.update_focus(None, None)
+        self.root_class.action_activate_panel_by_index(PanelRegistry.HOME.settings_stacked_widget_index)
 
     def get_available_index(self):
         if self.max_used_panel_index is None:

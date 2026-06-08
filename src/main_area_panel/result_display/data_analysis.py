@@ -72,8 +72,22 @@ class DataAnalysisResultDisplay(BaseResultDisplay):
             layout=self.header_layout,
             alignment=Qt.AlignmentFlag.AlignTop,
             setup=lambda w, l: [
-                w.setToolTip("Recalculate"),
+                w.setToolTip("Refresh"),
                 w.clicked.connect(self.recalculate),
+            ],
+        )
+
+        self.recalculate_full_button = widget_in_layout(
+            widget=create_simple_tool_button_qta(
+                parent=self.header_widget,
+                icon_path="mdi6.restart",
+                icon_size=QSize(20, 20),
+            ),
+            layout=self.header_layout,
+            alignment=Qt.AlignmentFlag.AlignTop,
+            setup=lambda w, l: [
+                w.setToolTip("Reset & refresh"),
+                w.clicked.connect(self.recalculate_full),
             ],
         )
 
@@ -161,6 +175,12 @@ class DataAnalysisResultDisplay(BaseResultDisplay):
         panel = self.root_class.settings_panel.panels[RESULTS[self.result_id].settings_panel_index]
         panel.configure(self.result_id)
         panel.recalculate()
+
+    def recalculate_full(self):
+        # Drop the cache of user edits (axis titles, plot colours, table numbers...) so
+        # every element rebuilds from its module defaults, then recalculate normally.
+        RESULTS[self.result_id].old_result_elements = {}
+        self.recalculate()
 
     def delete(self):
         if not self.deleting:

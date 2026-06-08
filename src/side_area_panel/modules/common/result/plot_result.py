@@ -14,6 +14,7 @@ from PySide6.QtGui import QImage
 from PySide6.QtWidgets import QApplication
 
 from src.common.qcolor import Colors, rgba_tuple_from_rgb_and_a
+from src.common.theme import THEME
 from src.pyside_ext.elements.base import BasePanelElement
 from src.side_area_panel.modules.common.result.base_result import BaseResultElement
 from src.side_area_panel.modules.correlation.table import format_r_apa
@@ -150,15 +151,21 @@ class ContingencyPlotConfig(BasePlotConfig):
 class ScatterPlotConfig(BasePlotConfig):
     def __init__(
         self,
-        color: Tuple[int, int, int] = Colors().get_color_list(),
-        fill_alpha: int = 100,
-        line_alpha: int = 0,
-        marker_shape: str = "Circle",
-        point_size: int = 8,
+        color: Tuple[int, int, int] = None,
+        fill_alpha: int = None,
+        line_alpha: int = None,
+        marker_shape: str = None,
+        point_size: int = None,
         jitter_x: float = 0,
         jitter_y: float = 0,
     ):
         super().__init__()
+        theme = THEME.current
+        color = color if color is not None else Colors().get_color_list()
+        fill_alpha = fill_alpha if fill_alpha is not None else theme.scatter_fill_alpha
+        line_alpha = line_alpha if line_alpha is not None else theme.scatter_line_alpha
+        marker_shape = marker_shape if marker_shape is not None else theme.marker_shape
+        point_size = point_size if point_size is not None else theme.point_size
         self.color: ColorGridItemSetting = ColorGridItemSetting(current_color=color)
         self.fill_alpha: SliderResultItemSetting = SliderResultItemSetting(
             label="Fill Alpha", current_value=fill_alpha, min_value=0, max_value=250, step=50
@@ -190,8 +197,11 @@ class ScatterPlotConfig(BasePlotConfig):
 
 
 class BarPlotConfig(BasePlotConfig):
-    def __init__(self, color: Tuple[int, int, int] = Colors().get_color_list(), fill_alpha: int = 50):
+    def __init__(self, color: Tuple[int, int, int] = None, fill_alpha: int = None):
         super().__init__()
+        theme = THEME.current
+        color = color if color is not None else Colors().get_color_list()
+        fill_alpha = fill_alpha if fill_alpha is not None else theme.bar_fill_alpha
         self.color: ColorGridItemSetting = ColorGridItemSetting(current_color=color)
         self.fill_alpha: SliderResultItemSetting = SliderResultItemSetting(
             label="Fill Alpha", current_value=fill_alpha, min_value=0, max_value=250, step=50
@@ -203,8 +213,11 @@ class BarPlotConfig(BasePlotConfig):
 
 
 class BoxPlotConfig(BasePlotConfig):
-    def __init__(self, color: Tuple[int, int, int] = Colors().get_color_list(), fill_alpha: int = 50):
+    def __init__(self, color: Tuple[int, int, int] = None, fill_alpha: int = None):
         super().__init__()
+        theme = THEME.current
+        color = color if color is not None else Colors().get_color_list()
+        fill_alpha = fill_alpha if fill_alpha is not None else theme.box_fill_alpha
         self.color: ColorGridItemSetting = ColorGridItemSetting(current_color=color)
         self.fill_alpha: SliderResultItemSetting = SliderResultItemSetting(
             label="Fill Alpha", current_value=fill_alpha, min_value=0, max_value=250, step=50
@@ -218,12 +231,17 @@ class BoxPlotConfig(BasePlotConfig):
 class LinePlotConfig(BasePlotConfig):
     def __init__(
         self,
-        color: Tuple[int, int, int] = Colors().get_color_list(),
-        line_alpha: int = 200,
-        line_width: int = 3,
-        line_style: str = "Solid",
+        color: Tuple[int, int, int] = None,
+        line_alpha: int = None,
+        line_width: int = None,
+        line_style: str = None,
     ):
         super().__init__()
+        theme = THEME.current
+        color = color if color is not None else Colors().get_color_list()
+        line_alpha = line_alpha if line_alpha is not None else theme.line_alpha
+        line_width = line_width if line_width is not None else theme.line_width
+        line_style = line_style if line_style is not None else theme.line_style
         self.color: ColorGridItemSetting = ColorGridItemSetting(current_color=color)
         self.line_alpha: SliderResultItemSetting = SliderResultItemSetting(
             label="Line Alpha", current_value=line_alpha, min_value=0, max_value=250, step=50
@@ -239,8 +257,11 @@ class LinePlotConfig(BasePlotConfig):
 
 
 class BandPlotConfig(BasePlotConfig):
-    def __init__(self, color: Tuple[int, int, int] = Colors().get_color_list(), fill_alpha: int = 50):
+    def __init__(self, color: Tuple[int, int, int] = None, fill_alpha: int = None):
         super().__init__()
+        theme = THEME.current
+        color = color if color is not None else Colors().get_color_list()
+        fill_alpha = fill_alpha if fill_alpha is not None else theme.band_fill_alpha
         self.color: ColorGridItemSetting = ColorGridItemSetting(current_color=color)
         self.fill_alpha: SliderResultItemSetting = SliderResultItemSetting(
             label="Fill Alpha", current_value=fill_alpha, min_value=0, max_value=250, step=50
@@ -301,15 +322,33 @@ class PlotV2(BaseResultElement):
         x_axis_title="",
         y_axis_title="",
         x_axis_items=None,
-        plot_x_size=600,
-        plot_y_size=500,
+        plot_x_size=None,
+        plot_y_size=None,
         x_range: Tuple[float, float] = None,
         y_range: Tuple[float, float] = None,
         tilt_x_axis_labels=0,
+        axis_title_font_size=None,
+        tick_label_font_size=None,
+        legend_font_size=None,
+        frame_thickness=None,
+        frame_color: Tuple[int, int, int] = None,
+        background_color: Tuple[int, int, int] = None,
     ):
         super().__init__()
-        self.plot_x_size = plot_x_size
-        self.plot_y_size = plot_y_size
+        # Defaults come from the active theme unless explicitly provided (e.g. restored
+        # from a saved state). theme_id records which theme built this plot, so a theme
+        # switch can reset colours while preserving content and size tweaks.
+        theme = THEME.current
+        self.theme_id = THEME.name()
+        plot_x_size = plot_x_size if plot_x_size is not None else theme.plot_x_size
+        plot_y_size = plot_y_size if plot_y_size is not None else theme.plot_y_size
+        axis_title_font_size = axis_title_font_size if axis_title_font_size is not None else theme.axis_title_font_size
+        tick_label_font_size = tick_label_font_size if tick_label_font_size is not None else theme.tick_label_font_size
+        legend_font_size = legend_font_size if legend_font_size is not None else theme.legend_font_size
+        frame_thickness = frame_thickness if frame_thickness is not None else theme.frame_thickness
+        frame_color = frame_color if frame_color is not None else theme.frame_color
+        background_color = background_color if background_color is not None else theme.background_color
+
         self.x_range = x_range
         self.y_range = y_range
 
@@ -328,6 +367,27 @@ class PlotV2(BaseResultElement):
             max_value=90,
             step=15,
         )
+        # --- Figure-level appearance (applies to every plot type) ---
+        self.plot_x_size = SliderResultItemSetting(
+            label="Plot Width", current_value=plot_x_size, min_value=200, max_value=1400, step=50
+        )
+        self.plot_y_size = SliderResultItemSetting(
+            label="Plot Height", current_value=plot_y_size, min_value=200, max_value=1400, step=50
+        )
+        self.axis_title_font_size = SliderResultItemSetting(
+            label="Axis Title Size", current_value=axis_title_font_size, min_value=6, max_value=30, step=1
+        )
+        self.tick_label_font_size = SliderResultItemSetting(
+            label="Tick Label Size", current_value=tick_label_font_size, min_value=6, max_value=30, step=1
+        )
+        self.legend_font_size = SliderResultItemSetting(
+            label="Legend Size", current_value=legend_font_size, min_value=6, max_value=30, step=1
+        )
+        self.frame_thickness = SliderResultItemSetting(
+            label="Frame Thickness", current_value=frame_thickness, min_value=0, max_value=5, step=0.5
+        )
+        self.frame_color = ColorGridItemSetting(current_color=frame_color, label="Frame / Tick Color")
+        self.background_color = ColorGridItemSetting(current_color=background_color, label="Background Color")
         self.display_settings = {
             "General": ContainerResultItemSetting(
                 items=[
@@ -336,6 +396,14 @@ class PlotV2(BaseResultElement):
                     self.x_axis_title,
                     self.y_axis_title,
                     self.tilt_x_axis_labels,
+                    self.plot_x_size,
+                    self.plot_y_size,
+                    self.axis_title_font_size,
+                    self.tick_label_font_size,
+                    self.legend_font_size,
+                    self.frame_thickness,
+                    self.frame_color,
+                    self.background_color,
                 ],
                 add_stretch=True,
             ),
@@ -358,6 +426,7 @@ class PlotV2(BaseResultElement):
         state.pop("display_settings", None)
         state.pop("class_id", None)
         state.pop("_gc_ignore", None)
+        state.pop("theme_id", None)
 
         for k, v in state.items():
             if issubclass(type(v), BasePanelElement):
@@ -370,20 +439,69 @@ class PlotV2(BaseResultElement):
 
     def load_settings_from(self, plot: "PlotV2"):
         try:
-            self.plot_id.set_up_from_other_instance( plot.plot_id)
-            self.plot_title.set_up_from_other_instance( plot.plot_title)
-            self.x_axis_title.set_up_from_other_instance( plot.x_axis_title)
-            self.y_axis_title.set_up_from_other_instance( plot.y_axis_title)
-            self.tilt_x_axis_labels.set_up_from_other_instance( plot.tilt_x_axis_labels)
-            for self_item, plot_item in zip(self.items, plot.items):
-                self_item.config = plot_item.config
-                if self_item.config.display_settings is not None:
-                    class_name = self_item.__class__.__name__
-                    label = class_name + ": " + self_item.label
-                    self.display_settings[label] = self_item.config.display_settings
+            # Content + sizes are always preserved (sizes are shared across themes, so a
+            # theme switch must not discard a user's size tweaks).
+            self.plot_id.set_up_from_other_instance(plot.plot_id)
+            self.plot_title.set_up_from_other_instance(plot.plot_title)
+            self.x_axis_title.set_up_from_other_instance(plot.x_axis_title)
+            self.y_axis_title.set_up_from_other_instance(plot.y_axis_title)
+            self.tilt_x_axis_labels.set_up_from_other_instance(plot.tilt_x_axis_labels)
+            self.plot_x_size.set_up_from_other_instance(plot.plot_x_size)
+            self.plot_y_size.set_up_from_other_instance(plot.plot_y_size)
+            self.axis_title_font_size.set_up_from_other_instance(plot.axis_title_font_size)
+            self.tick_label_font_size.set_up_from_other_instance(plot.tick_label_font_size)
+            self.legend_font_size.set_up_from_other_instance(plot.legend_font_size)
+            self.frame_thickness.set_up_from_other_instance(plot.frame_thickness)
+
+            # Colour appearance is theme-controlled. Only carry it over when the theme
+            # is unchanged; on a theme switch keep this freshly-built plot's new theme
+            # colours instead of restoring the previous theme's.
+            same_theme = getattr(plot, "theme_id", None) == self.theme_id
+            if same_theme:
+                self.frame_color.set_up_from_other_instance(plot.frame_color)
+                self.background_color.set_up_from_other_instance(plot.background_color)
+                for self_item, plot_item in zip(self.items, plot.items):
+                    self_item.config = plot_item.config
+                    if self_item.config.display_settings is not None:
+                        class_name = self_item.__class__.__name__
+                        label = class_name + ": " + self_item.label
+                        self.display_settings[label] = self_item.config.display_settings
 
         except Exception as e:
             logging.warning(f"Error trying to set settings from another plot: {e}")
+
+    def reset_to_defaults(self):
+        """Reset this plot's *appearance* (figure chrome + per-series look) to the
+        active theme's defaults. Content the user authored -- plot number/title, axis
+        titles, label rotation -- is intentionally kept."""
+        theme = THEME.current
+        self.theme_id = THEME.name()
+        self.plot_x_size.current_value = theme.plot_x_size
+        self.plot_y_size.current_value = theme.plot_y_size
+        self.axis_title_font_size.current_value = theme.axis_title_font_size
+        self.tick_label_font_size.current_value = theme.tick_label_font_size
+        self.legend_font_size.current_value = theme.legend_font_size
+        self.frame_thickness.current_value = theme.frame_thickness
+        self.frame_color.current_color = theme.frame_color
+        self.background_color.current_color = theme.background_color
+
+        # Re-assign palette colours preserving the original grouping: items that share
+        # a colour now (e.g. the line + bar of one group) get the same new palette
+        # colour, in first-seen order -- matching how the module assigns colours per
+        # group rather than per item.
+        colors = Colors()
+        color_map = {}
+        for item in self.items:
+            old_color = tuple(item.config.color.get_current_value()) if hasattr(item.config, "color") else None
+            new_config = type(item.config)()
+            if hasattr(new_config, "color"):
+                if old_color not in color_map:
+                    color_map[old_color] = colors.get_color_list()
+                new_config.color.current_color = color_map[old_color]
+            item.config = new_config
+            if new_config.display_settings is not None:
+                label = item.__class__.__name__ + ": " + item.label
+                self.display_settings[label] = new_config.display_settings
 
     def create_figure(self):
         plt.close("all")
@@ -392,12 +510,15 @@ class PlotV2(BaseResultElement):
         # self._gc_ignore.append(ax)
 
         # set background color
-        face_color = (255, 255, 255)
+        face_color = self.background_color.get_current_value()
         fig.patch.set_facecolor(rgba_tuple_from_rgb_and_a(face_color, 255))
         ax.set_facecolor(rgba_tuple_from_rgb_and_a(face_color, 255))
 
         dpi = fig.get_dpi()
-        fig.set_size_inches(self.plot_x_size / dpi, self.plot_y_size / dpi)
+        fig.set_size_inches(
+            self.plot_x_size.get_current_value() / dpi,
+            self.plot_y_size.get_current_value() / dpi,
+        )
         legend = False
 
         for item in self.items:
@@ -634,12 +755,19 @@ class PlotV2(BaseResultElement):
                 ax2.spines["top"].set_visible(False)
                 ax2.spines["bottom"].set_visible(False)
 
-        # increase font size, set Times New Roman
-        ax.tick_params(axis="both", which="major", labelsize=14, colors="grey")
-        ax.spines["top"].set_color("grey")
-        ax.spines["right"].set_color("grey")
-        ax.spines["left"].set_color("grey")
-        ax.spines["bottom"].set_color("grey")
+        # frame (spines + ticks): user-configurable color and thickness
+        frame_color = rgba_tuple_from_rgb_and_a(self.frame_color.get_current_value(), 255)
+        frame_thickness = self.frame_thickness.get_current_value()
+        ax.tick_params(
+            axis="both",
+            which="major",
+            labelsize=self.tick_label_font_size.get_current_value(),
+            colors=frame_color,
+            width=frame_thickness,
+        )
+        for side in ("top", "right", "left", "bottom"):
+            ax.spines[side].set_color(frame_color)
+            ax.spines[side].set_linewidth(frame_thickness)
 
         if self.x_axis_items is not None:
             ax.set_xticks(range(len(self.x_axis_items)))
@@ -650,8 +778,8 @@ class PlotV2(BaseResultElement):
         # axis titles
         ax.set_xlabel(self.x_axis_title.get_current_value())
         ax.set_ylabel(self.y_axis_title.get_current_value())
-        ax.xaxis.label.set_fontsize(18)
-        ax.yaxis.label.set_fontsize(18)
+        ax.xaxis.label.set_fontsize(self.axis_title_font_size.get_current_value())
+        ax.yaxis.label.set_fontsize(self.axis_title_font_size.get_current_value())
         # set axis label font
         ax.xaxis.label.set_fontname("Times New Roman")
         ax.yaxis.label.set_fontname("Times New Roman")
@@ -663,7 +791,7 @@ class PlotV2(BaseResultElement):
             ax.set_ylim(*self.y_range)
 
         if legend:
-            ax.legend()
+            ax.legend(fontsize=self.legend_font_size.get_current_value())
 
         fig.tight_layout()
         return fig, ax
