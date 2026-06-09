@@ -3,9 +3,8 @@ import logging
 
 import qtawesome as qta
 from PySide6 import QtCore
-from PySide6.QtCore import QMimeData, QSize, Qt
-from PySide6.QtGui import QGuiApplication, QPainter, QPixmap
-from PySide6.QtSvg import QSvgRenderer
+from PySide6.QtCore import QMimeData, Qt
+from PySide6.QtGui import QGuiApplication, QPixmap
 from PySide6.QtWidgets import QFrame, QHBoxLayout, QLabel, QVBoxLayout
 
 from src.common.decorators import log_method
@@ -110,30 +109,10 @@ class PlotResultElementDisplay(BaseResultDisplay):
 
     def refresh(self):
         result_element = RESULTS[self.result_id].result_elements[self.result_element_id]
-        # result_element = cast(result_element, PlotV2)
-        buf = result_element.get_svg_buffer()
-
-        renderer = QSvgRenderer()
-        renderer.load(buf.read())
-        buf.close()
-
-        default_size = renderer.defaultSize()  # returns QSize
-        if default_size.isEmpty():
-            raise ValueError("SVG has no size information.")
-
-        target_width = 265
-        # Compute scaled height based on aspect ratio
-        aspect_ratio = default_size.height() / default_size.width()
-        target_height = int(target_width * aspect_ratio)
-        target_size = QSize(target_width, target_height)
-
-        pixmap = QPixmap(target_size)
-        pixmap.fill(Qt.transparent)
-
-        painter = QPainter(pixmap)
-        renderer.render(painter)
-        painter.end()
-
+        # Render straight to a raster QImage (fast) and scale to the thumbnail width.
+        pixmap = QPixmap.fromImage(result_element.render_qimage(dpi=100))
+        if pixmap.width() > 0:
+            pixmap = pixmap.scaledToWidth(265, Qt.TransformationMode.SmoothTransformation)
         self.image.setPixmap(pixmap)
         self.label.setText(result_element.plot_title.get_current_value())
 
@@ -194,22 +173,7 @@ class ZoomedPlotView(QFrame):
 
     def refresh(self):
         result_element = RESULTS[self.result_id].result_elements[self.result_element_id]
-        buf = result_element.get_svg_buffer()
-
-        renderer = QSvgRenderer()
-        renderer.load(buf.read())
-        buf.close()
-
-        size = renderer.defaultSize()
-        if size.isEmpty():
-            return
-
-        pixmap = QPixmap(size)
-        pixmap.fill(Qt.transparent)
-        painter = QPainter(pixmap)
-        renderer.render(painter)
-        painter.end()
-
+        pixmap = QPixmap.fromImage(result_element.render_qimage(dpi=100))
         self.image.setPixmap(pixmap)
-        self.image.setFixedSize(size)
+        self.image.setFixedSize(pixmap.size())
         self.adjustSize()

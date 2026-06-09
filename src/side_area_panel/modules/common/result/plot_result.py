@@ -960,6 +960,18 @@ class PlotV2(BaseResultElement):
         buf.seek(0)
         return buf
 
+    def render_qimage(self, dpi=150):
+        """Render directly to a QImage via a raster (PNG/Agg) buffer. Avoids the slow
+        SVG serialize + QSvgRenderer parse round-trip used previously for on-screen
+        display."""
+        fig, _ = self.create_figure()
+        buf = io.BytesIO()
+        fig.savefig(buf, format="png", bbox_inches="tight", pad_inches=self.margin.get_current_value(), dpi=dpi)
+        plt.close(fig)
+        image = QImage.fromData(buf.getvalue(), "PNG")
+        buf.close()
+        return image
+
     def copy_to_clipboard(self):
         buf = self.get_png_buffer()
         image = QImage.fromData(buf.getvalue(), "PNG")
