@@ -3,7 +3,7 @@
 
 from typing import Tuple
 
-from PySide6.QtCore import QPoint, Qt
+from PySide6.QtCore import QPoint, Qt, QTimer
 from PySide6.QtWidgets import (
     QCheckBox,
     QFrame,
@@ -204,6 +204,7 @@ class SliderResultItemSetting(BasePanelElement):
         self.add_stretch = add_stretch
         # ---
         self.slider = None
+        self._debounce = None
 
     def get_current_value(self):
         return self.current_value
@@ -242,8 +243,18 @@ class SliderResultItemSetting(BasePanelElement):
             ],
         )
 
+        # Debounce: while dragging, the value updates live but the (expensive) re-render
+        # is coalesced so it runs once after the drag settles, not on every tick.
+        self._debounce = QTimer(self.widget)
+        self._debounce.setSingleShot(True)
+        self._debounce.setInterval(120)
+        self._debounce.timeout.connect(self._emit_change)
+
     def slider_value_changed(self, value):
         self.current_value = self.min_value + value * self.step
+        self._debounce.start()
+
+    def _emit_change(self):
         self.handler(Message(MessageType.EDITING_FINISHED, payload=None, caller_id=self.element_id))
 
 
