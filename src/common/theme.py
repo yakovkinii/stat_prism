@@ -112,6 +112,7 @@ _STRICT = PlotTheme(
     marker_shape="Circle",
     band_fill_alpha=100,
     axis_layout="Centered",
+    box_frame=False,
 )
 
 # Dark look: dark background, light frame/text, brighter series colours.

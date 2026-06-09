@@ -91,7 +91,8 @@ class TableResultElementDisplay(BaseResultDisplay):
     def refresh(self):
         table: HTMLTableV2 = RESULTS[self.result_id].result_elements[self.result_element_id]
         self.text_browser.set_html(BASE_STYLES + table.get_html())
-        self.label.setText(table.table_caption.get_current_value())
+        # Title is rendered inside the table HTML now, so no separate header label.
+        self.label.setText("")
 
     @log_method
     def activate_result(self, result_id, result_element_id):

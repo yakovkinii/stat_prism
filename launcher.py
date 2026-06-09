@@ -73,7 +73,7 @@ if __name__ == "__main__":
     pal.setColor(QPalette.ColorRole.Base, QColor(Style.Color.BackgroundEdit.value))
     pal.setColor(QPalette.ColorRole.AlternateBase, QColor(Style.Color.BackgroundEdit.value))
     pal.setColor(QPalette.ColorRole.Text, QColor(Style.Color.Text.value))
-    pal.setColor(QPalette.ColorRole.Highlight, QColor(Style.Color.Highlight.value))
+    pal.setColor(QPalette.ColorRole.Highlight, QColor(Style.Color.Selection.value))
     pal.setColor(QPalette.ColorRole.HighlightedText, QColor(Style.Color.Text.value))
     app.setPalette(pal)
     import logging

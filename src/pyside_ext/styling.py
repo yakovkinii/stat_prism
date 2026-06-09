@@ -32,6 +32,7 @@ class Style:
         BorderElevated = "#ccc"
         Border = "#eee"
         Highlight = "#05f"
+        Selection = "#cfe3ff"  # light blue for selection backgrounds (keeps black text readable)
         Danger = "#700"
         Text = "#000"
         SimpleToolButton = "#888"

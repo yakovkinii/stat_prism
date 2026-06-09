@@ -3,8 +3,8 @@ import logging
 
 import qtawesome as qta
 from PySide6 import QtCore
-from PySide6.QtCore import QSize, Qt
-from PySide6.QtGui import QPainter, QPixmap
+from PySide6.QtCore import QMimeData, QSize, Qt
+from PySide6.QtGui import QGuiApplication, QPainter, QPixmap
 from PySide6.QtSvg import QSvgRenderer
 from PySide6.QtWidgets import QFrame, QHBoxLayout, QLabel, QVBoxLayout
 
@@ -57,7 +57,7 @@ class PlotResultElementDisplay(BaseResultDisplay):
         )
 
         self.label = widget_in_layout(
-            widget=ResultElementLabel(parent=self.header_widget, label_text=label_text),
+            widget=ResultElementLabel(parent=self.header_widget, label_text=""),
             layout=self.header_layout,
             setup=lambda w, l: [
                 w.clicked.connect(lambda: self.activate_result(self.result_id, self.result_element_id))
@@ -135,6 +135,7 @@ class PlotResultElementDisplay(BaseResultDisplay):
         painter.end()
 
         self.image.setPixmap(pixmap)
+        self.label.setText(result_element.plot_title.get_current_value())
 
     @log_method
     def activate_result(self, result_id, result_element_id):
@@ -165,7 +166,10 @@ class PlotResultElementDisplay(BaseResultDisplay):
     def copy_plot(self):
         self.copy_button.setIcon(qta.icon("fa.check", color=Style.Color.SimpleToolButton.value))
         result_element = RESULTS[self.result_id].result_elements[self.result_element_id]
-        result_element.copy_to_clipboard()
+        # Copy as HTML (title text + image) so the title can be edited after pasting.
+        mime = QMimeData()
+        mime.setHtml(result_element.get_html())
+        QGuiApplication.clipboard().setMimeData(mime)
         QtCore.QTimer.singleShot(
             500, lambda: self.copy_button.setIcon(qta.icon("fa.copy", color=Style.Color.SimpleToolButton.value))
         )

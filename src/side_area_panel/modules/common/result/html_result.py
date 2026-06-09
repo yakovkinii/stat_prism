@@ -63,7 +63,6 @@ class HTMLTableV2(BaseResultElement):
         title="Table",
         border_top: bool = True,
         border_bottom: bool = True,
-        table_id="",
         table_caption="",
         table_note="",
         texts: List[str] = None,
@@ -78,12 +77,11 @@ class HTMLTableV2(BaseResultElement):
         self.table_note: str = table_note
         self.texts: List[str] = texts if texts is not None else []
 
-        self.table_id = SingleLineTextResultItemSetting(label="Number:", current_value=table_id)
         self.table_caption = SingleLineTextResultItemSetting(label="Title:", current_value=table_caption)
 
         self.display_settings = {
             "General": ContainerResultItemSetting(
-                items=[self.table_id, self.table_caption],
+                items=[self.table_caption],
                 add_stretch=True,
             ),
         }
@@ -104,13 +102,11 @@ class HTMLTableV2(BaseResultElement):
         self.__init__(**state)
 
     def load_settings_from(self, table: "HTMLTableV2"):
-        self.table_id.set_up_from_other_instance(table.table_id)
         self.table_caption.set_up_from_other_instance(table.table_caption)
 
     @log_method_noarg
     def get_html(self, renderer=None):
-        table_id = self.table_id.get_current_value()
-        id_suffix = f"{table_id}." if table_id else ""
+        id_suffix = ""
         note_str = t("common.note")
 
         # Propagate top/bottom borders to cell flags
@@ -123,10 +119,11 @@ class HTMLTableV2(BaseResultElement):
                     cell.border_bottom = True
 
         total_rows = len(self.rows)
-        if total_rows == 0:
-            html = ""
-        else:
-            html = f'<table style="border-collapse: collapse;" class="font">'
+        caption = self.table_caption.get_current_value()
+        # Title rendered as a bold caption above the table (shown and copied with it).
+        html = f'<div class="font"><b>{caption}</b></div>\n' if caption else ""
+        if total_rows > 0:
+            html += '<table style="border-collapse: collapse;" class="font">'
 
             for r_idx, row in enumerate(self.rows):
                 html += "<tr>"

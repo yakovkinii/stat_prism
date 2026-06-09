@@ -329,7 +329,6 @@ class PlotV2(BaseResultElement):
         self,
         items: List[Union[Scatter, Line, Band, Bar, Box, Heatmap, ContingencyPlot]],
         title="Plot Result Element",
-        plot_id="",
         plot_title="Correlation plot",
         x_axis_title="",
         y_axis_title="",
@@ -378,7 +377,6 @@ class PlotV2(BaseResultElement):
         self.class_id: str = "PlotV2"
         self.items = items if items else []
         self.x_axis_items = x_axis_items
-        self.plot_id = SingleLineTextResultItemSetting(label="Number:", current_value=plot_id)
         self.plot_title = SingleLineTextResultItemSetting(label="Title:", current_value=plot_title)
         self.x_axis_title = SingleLineTextResultItemSetting(label="X axis title", current_value=x_axis_title)
         self.y_axis_title = SingleLineTextResultItemSetting(label="Y axis title", current_value=y_axis_title)
@@ -426,7 +424,6 @@ class PlotV2(BaseResultElement):
         self.display_settings = {
             "General": ContainerResultItemSetting(
                 items=[
-                    self.plot_id,
                     self.plot_title,
                     self.x_axis_title,
                     self.y_axis_title,
@@ -481,7 +478,6 @@ class PlotV2(BaseResultElement):
         try:
             # Content + sizes are always preserved (sizes are shared across themes, so a
             # theme switch must not discard a user's size tweaks).
-            self.plot_id.set_up_from_other_instance(plot.plot_id)
             self.plot_title.set_up_from_other_instance(plot.plot_title)
             self.x_axis_title.set_up_from_other_instance(plot.x_axis_title)
             self.y_axis_title.set_up_from_other_instance(plot.y_axis_title)
@@ -698,6 +694,8 @@ class PlotV2(BaseResultElement):
                 )
 
             if isinstance(item, Heatmap):
+                # cell + colorbar text follow the tick/frame colour
+                tick_color = rgba_tuple_from_rgb_and_a(self.frame_color.get_current_value(), 255)
                 is_symmetric = item.config.symmetric_color_scale.get_current_value()
                 alpha = item.config.alpha.get_current_value()
                 if is_symmetric:
@@ -719,7 +717,8 @@ class PlotV2(BaseResultElement):
                 )
                 # add colorbar
                 ax.images[0].set_clim(vmin, vmax)
-                fig.colorbar(ax.images[0], ax=ax, orientation="vertical")
+                cbar = fig.colorbar(ax.images[0], ax=ax, orientation="vertical")
+                cbar.ax.tick_params(colors=tick_color)
 
                 plt.xticks(range(len(item.df.columns)), item.df.columns)
                 plt.yticks(range(len(item.df.index)), item.df.index)
@@ -742,7 +741,7 @@ class PlotV2(BaseResultElement):
                                     text,
                                     ha="center",
                                     va="center",
-                                    color="black",
+                                    color=tick_color,
                                     fontsize=item.config.font_size.get_current_value(),
                                 )
                             )
@@ -934,11 +933,12 @@ class PlotV2(BaseResultElement):
         base64_png = base64.b64encode(png_bytes).decode("ascii")
         buf.close()
 
-        # 4) embed into an <img> tag
+        # 4) title as editable text, then the image below (so it can be edited after
+        # pasting into Word etc.)
+        title = self.plot_title.get_current_value()
+        title_html = f'<div class="double-spacing font"><b>{title}</b></div><br>\n' if title else ""
         html = f"""
-        <div><b>Figure {self.plot_id.get_current_value()}</b></div>
-        <div class="double-spacing font"><i>{self.plot_title.get_current_value()}</i></div><br>
-        <img src="data:image/png;base64,{base64_png}"
+        {title_html}<img src="data:image/png;base64,{base64_png}"
              alt="Plot Image"
              style="width:400px; height:auto;">
         """
