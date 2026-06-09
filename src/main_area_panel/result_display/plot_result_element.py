@@ -6,7 +6,7 @@ from PySide6 import QtCore
 from PySide6.QtCore import QSize, Qt
 from PySide6.QtGui import QPainter, QPixmap
 from PySide6.QtSvg import QSvgRenderer
-from PySide6.QtWidgets import QHBoxLayout, QVBoxLayout
+from PySide6.QtWidgets import QFrame, QHBoxLayout, QLabel, QVBoxLayout
 
 from src.common.decorators import log_method
 from src.common.ui_constructor import create_simple_tool_button_qta
@@ -88,7 +88,7 @@ class PlotResultElementDisplay(BaseResultDisplay):
             alignment=Qt.AlignmentFlag.AlignTop,
             setup=lambda w, l: [
                 w.setToolTip("Zoom plot"),
-                w.clicked.connect(self.zoom),
+                w.clicked.connect(self.open_zoom),
             ],
         )
 
@@ -97,11 +97,16 @@ class PlotResultElementDisplay(BaseResultDisplay):
             layout=self.layout,
             setup=lambda w, l: [
                 w.clicked.connect(lambda: self.activate_result(self.result_id, self.result_element_id)),
+                w.doubleClicked.connect(self.open_zoom),
             ],
         )
-        self.zoomed = False
         self.refresh()
         self.remove_focus(self.result_element_id)
+
+    def open_zoom(self):
+        # Select the plot (so its settings show) and open the zoom popup.
+        self.activate_result(self.result_id, self.result_element_id)
+        self.parent_class.set_display_element(self.result_element_id)
 
     def refresh(self):
         result_element = RESULTS[self.result_id].result_elements[self.result_element_id]
@@ -116,7 +121,7 @@ class PlotResultElementDisplay(BaseResultDisplay):
         if default_size.isEmpty():
             raise ValueError("SVG has no size information.")
 
-        target_width = default_size.width() if self.zoomed else 270
+        target_width = 270
         # Compute scaled height based on aspect ratio
         aspect_ratio = default_size.height() / default_size.width()
         target_height = int(target_width * aspect_ratio)
@@ -157,10 +162,6 @@ class PlotResultElementDisplay(BaseResultDisplay):
             ),
         )
 
-        if self.zoomed:
-            self.zoomed = False
-            self.refresh()
-
     def copy_plot(self):
         self.copy_button.setIcon(qta.icon("fa.check", color=Style.Color.SimpleToolButton.value))
         result_element = RESULTS[self.result_id].result_elements[self.result_element_id]
@@ -169,15 +170,42 @@ class PlotResultElementDisplay(BaseResultDisplay):
             500, lambda: self.copy_button.setIcon(qta.icon("fa.copy", color=Style.Color.SimpleToolButton.value))
         )
 
-    def zoom(self):
-        if self.zoomed:
-            self.activate_result(self.result_id, self.result_element_id)
-            self.parent_class.unset_display_element(self.result_element_id)
-        else:
-            self.activate_result(self.result_id, self.result_element_id)
-            self.parent_class.set_display_element(self.result_element_id)
 
-    def set_zoomed(self):
-        self.zoomed = True
-        self.zoom_button.setIcon(qta.icon("fa.search-minus", color=Style.Color.SimpleToolButton.value))
+class ZoomedPlotView(QFrame):
+    """Minimal enlarged plot for the zoom popup: the figure at its native size with a
+    small margin -- no title, buttons, or selectable border. Sizes to the plot."""
+
+    def __init__(self, result_id, result_element_id, parent=None):
+        super().__init__(parent)
+        self.result_id = result_id
+        self.result_element_id = result_element_id
+        set_stylesheet(self, css(background="white"))
+
+        layout = QVBoxLayout(self)
+        layout.setContentsMargins(16, 16, 16, 16)
+        layout.setSpacing(0)
+        self.image = QLabel(self)
+        layout.addWidget(self.image)
         self.refresh()
+
+    def refresh(self):
+        result_element = RESULTS[self.result_id].result_elements[self.result_element_id]
+        buf = result_element.get_svg_buffer()
+
+        renderer = QSvgRenderer()
+        renderer.load(buf.read())
+        buf.close()
+
+        size = renderer.defaultSize()
+        if size.isEmpty():
+            return
+
+        pixmap = QPixmap(size)
+        pixmap.fill(Qt.transparent)
+        painter = QPainter(pixmap)
+        renderer.render(painter)
+        painter.end()
+
+        self.image.setPixmap(pixmap)
+        self.image.setFixedSize(size)
+        self.adjustSize()

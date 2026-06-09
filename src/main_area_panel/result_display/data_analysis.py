@@ -11,8 +11,10 @@ from src.common.progress import with_progress
 from src.common.ui_constructor import create_simple_tool_button_qta
 from src.main_area_panel.result_display.base import BaseResultDisplay
 from src.main_area_panel.result_display.elements.result_label import ResultLabel
+from src.main_area_panel.show_in_main_area_popup import view_widget_in_popup
 from src.main_area_panel.result_display.plot_result_element import (
     PlotResultElementDisplay,
+    ZoomedPlotView,
 )
 from src.main_area_panel.result_display.table_result_element import (
     TableResultElementDisplay,
@@ -145,6 +147,7 @@ class DataAnalysisResultDisplay(BaseResultDisplay):
 
         self.display_element_id = None
         self.display_object = None
+        self.display_popup = None
         self.element_display_objects = {}
         self.refresh()
         self.remove_focus(None)
@@ -199,40 +202,48 @@ class DataAnalysisResultDisplay(BaseResultDisplay):
 
     @log_method
     def set_display_element(self, result_element_id):
+        # Zoom = show an enlarged copy of the plot in a popup that covers only the main
+        # area (the settings panel stays visible/interactive), closing on click outside.
+        self._close_zoom_popup()
         self.display_element_id = result_element_id
-        self.refresh_element(result_element_id)
+        self.display_object = ZoomedPlotView(
+            result_id=self.result_id,
+            result_element_id=result_element_id,
+        )
+        self.display_popup = view_widget_in_popup(
+            parent=self.root_class.main_area_panel.widget,
+            widget=self.display_object,
+            handler_on_close=self._on_zoom_popup_closed,
+        )
 
     @log_method
     def unset_display_element(self, result_element_id):
+        self._close_zoom_popup()
+
+    def _close_zoom_popup(self):
+        """Close the zoom popup programmatically (refs cleared first so the popup's
+        close doesn't re-enter)."""
+        popup = self.display_popup
+        self.display_popup = None
+        self.display_object = None
         self.display_element_id = None
-        self.refresh_element(result_element_id)
+        if popup is not None:
+            popup.close()
+
+    def _on_zoom_popup_closed(self):
+        """Called when the user clicks outside the plot (popup self-closes)."""
+        self.display_popup = None
+        self.display_object = None
+        self.display_element_id = None
 
     def refresh_element(self, result_element_id):
-        if result_element_id != self.display_element_id and self.display_object is not None:
-            self.root_class.clean_up_main_area_display()
-            logging.warning('Setting display_element_id = None')
-            self.display_object = None
-            self.display_element_id = None
-
         if result_element_id in self.element_display_objects:
             self.element_display_objects[result_element_id].refresh()
-            if result_element_id==self.display_element_id:
-                if self.display_object is None:
-                    result_element = RESULTS[self.result_id].result_elements[result_element_id]
-                    self.display_object = PlotResultElementDisplay(
-                        parent_widget=self.plot_result_elements_container,
-                        parent_class=self,
-                        root_class=self.root_class,
-                        label_text=result_element.title,
-                        result_id=self.result_id,
-                        result_element_id=result_element_id,
-                    )
-                    self.display_object.set_zoomed()
-                    self.root_class.set_widget_in_main_area_display(self.display_object.widget)
+            # Keep the zoom popup live while settings change, resizing it with the plot.
+            if result_element_id == self.display_element_id and self.display_object is not None:
                 self.display_object.refresh()
-                self.root_class.activate_main_area_display()
-            else:
-                self.root_class.activate_main_area_panel()
+                if self.display_popup is not None:
+                    self.display_popup.recenter_content()
         else:
             result_element = RESULTS[self.result_id].result_elements[result_element_id]
             if isinstance(result_element, HTMLTableV2):
@@ -267,6 +278,8 @@ class DataAnalysisResultDisplay(BaseResultDisplay):
         self.scroll_area.setFixedHeight(height + self.scroll_area.horizontalScrollBar().height())
 
     def refresh(self):
+        # A full rebuild invalidates any zoomed copy; close the popup first.
+        self._close_zoom_popup()
         while self.html_result_elements_container_layout.count():
             item = self.html_result_elements_container_layout.takeAt(0)
             if item.widget():
