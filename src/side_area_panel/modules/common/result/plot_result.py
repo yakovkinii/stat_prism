@@ -146,14 +146,22 @@ class BasePlotConfig:
         state = self.__dict__.copy()
         state.pop("display_settings", None)
 
-        for k, v in state.items():
-            if isinstance(v, BasePanelElement):  # Todo make intermediate subclass
+        # Flatten settings to current values; persist their defaults in parallel.
+        setting_defaults = {}
+        for k, v in list(state.items()):
+            if isinstance(v, BasePanelElement) and hasattr(v, "get_current_value"):
+                setting_defaults[k] = v.get_default_value()
                 state[k] = v.get_current_value()
-        logging.warning(f"{state=}")
+        state["_setting_defaults"] = setting_defaults
         return state
 
     def __setstate__(self, state):
+        setting_defaults = state.pop("_setting_defaults", {})
         self.__init__(**state)
+        for k, default in setting_defaults.items():
+            setting = getattr(self, k, None)
+            if setting is not None and hasattr(setting, "set_default_value"):
+                setting.set_default_value(default)
 
 
 class ContingencyPlotConfig(BasePlotConfig):
@@ -352,10 +360,10 @@ class PlotV2(BaseResultElement):
     ):
         super().__init__()
         # Defaults come from the active theme unless explicitly provided (e.g. restored
-        # from a saved state). theme_id records which theme built this plot, so a theme
-        # switch can reset colours while preserving content and size tweaks.
+        # from a saved state). Each setting records the value it is created with as its
+        # own default (see _ValueDefaultsMixin), which drives reset and the
+        # carry-over-only-if-modified behaviour in load_settings_from.
         theme = THEME.current
-        self.theme_id = THEME.name()
         plot_size = plot_size if plot_size is not None else theme.plot_size
         plot_aspect = plot_aspect if plot_aspect is not None else theme.plot_aspect
         axis_title_font_size = axis_title_font_size if axis_title_font_size is not None else theme.axis_title_font_size
@@ -458,96 +466,61 @@ class PlotV2(BaseResultElement):
         # ===
         self._gc_ignore = []
 
+    def _value_settings(self):
+        """All value-holding settings in a stable order: figure-level first, then each
+        series' config settings. Self and a sibling plot built the same way share this
+        order, so they can be zipped for load_settings_from."""
+        settings = []
+        for value in self.__dict__.values():
+            if isinstance(value, BasePanelElement) and hasattr(value, "get_current_value"):
+                settings.append(value)
+        for item in self.items:
+            for value in item.config.__dict__.values():
+                if isinstance(value, BasePanelElement) and hasattr(value, "get_current_value"):
+                    settings.append(value)
+        return settings
+
     def __getstate__(self):
         state = self.__dict__.copy()
         state.pop("display_settings", None)
         state.pop("class_id", None)
         state.pop("_gc_ignore", None)
-        state.pop("theme_id", None)
 
-        for k, v in state.items():
-            if issubclass(type(v), BasePanelElement):
+        # Flatten settings to their current value for pickling, and persist their
+        # defaults in parallel so a reloaded project still knows each setting's default.
+        setting_defaults = {}
+        for k, v in list(state.items()):
+            if isinstance(v, BasePanelElement) and hasattr(v, "get_current_value"):
+                setting_defaults[k] = v.get_default_value()
                 state[k] = v.get_current_value()
-        logging.warning(f"PlotV2 {state=}")
+        state["_setting_defaults"] = setting_defaults
         return state
 
     def __setstate__(self, state):
+        setting_defaults = state.pop("_setting_defaults", {})
         self.__init__(**state)
+        for k, default in setting_defaults.items():
+            setting = getattr(self, k, None)
+            if setting is not None and hasattr(setting, "set_default_value"):
+                setting.set_default_value(default)
 
     def load_settings_from(self, plot: "PlotV2"):
+        """Carry the user's edits from a previous build onto this freshly-built plot.
+        This plot already holds the current theme/module defaults; we only override a
+        setting when the cached one was actually changed from its own default. So
+        untouched settings adopt the new defaults (e.g. on a theme switch) while the
+        user's explicit tweaks are preserved."""
         try:
-            # Content + sizes are always preserved (sizes are shared across themes, so a
-            # theme switch must not discard a user's size tweaks).
-            self.plot_title.set_up_from_other_instance(plot.plot_title)
-            self.x_axis_title.set_up_from_other_instance(plot.x_axis_title)
-            self.y_axis_title.set_up_from_other_instance(plot.y_axis_title)
-            self.tilt_x_axis_labels.set_up_from_other_instance(plot.tilt_x_axis_labels)
-            self.plot_size.set_up_from_other_instance(plot.plot_size)
-            self.plot_aspect.set_up_from_other_instance(plot.plot_aspect)
-            self.axis_title_font_size.set_up_from_other_instance(plot.axis_title_font_size)
-            self.tick_label_font_size.set_up_from_other_instance(plot.tick_label_font_size)
-            self.legend_font_size.set_up_from_other_instance(plot.legend_font_size)
-            self.frame_thickness.set_up_from_other_instance(plot.frame_thickness)
-            self.margin.set_up_from_other_instance(plot.margin)
-
-            # Theme-controlled appearance (colours + axis layout). Only carry it over
-            # when the theme is unchanged; on a theme switch keep this freshly-built
-            # plot's new theme values instead of restoring the previous theme's.
-            same_theme = getattr(plot, "theme_id", None) == self.theme_id
-            if same_theme:
-                self.frame_color.set_up_from_other_instance(plot.frame_color)
-                self.background_color.set_up_from_other_instance(plot.background_color)
-                self.background_alpha.set_up_from_other_instance(plot.background_alpha)
-                self.axis_layout.set_up_from_other_instance(plot.axis_layout)
-                self.box_frame.set_up_from_other_instance(plot.box_frame)
-                self.gridlines.set_up_from_other_instance(plot.gridlines)
-                for self_item, plot_item in zip(self.items, plot.items):
-                    self_item.config = plot_item.config
-                    if self_item.config.display_settings is not None:
-                        class_name = self_item.__class__.__name__
-                        label = class_name + ": " + self_item.label
-                        self.display_settings[label] = self_item.config.display_settings
-
+            for new_setting, old_setting in zip(self._value_settings(), plot._value_settings()):
+                if old_setting.is_modified():
+                    new_setting.set_up_from_other_instance(old_setting)
         except Exception as e:
             logging.warning(f"Error trying to set settings from another plot: {e}")
 
     def reset_to_defaults(self):
-        """Reset this plot's *appearance* (figure chrome + per-series look) to the
-        active theme's defaults. Content the user authored -- plot number/title, axis
-        titles, label rotation -- is intentionally kept."""
-        theme = THEME.current
-        self.theme_id = THEME.name()
-        self.plot_size.current_value = theme.plot_size
-        self.plot_aspect.current_value = theme.plot_aspect
-        self.axis_title_font_size.current_value = theme.axis_title_font_size
-        self.tick_label_font_size.current_value = theme.tick_label_font_size
-        self.legend_font_size.current_value = theme.legend_font_size
-        self.frame_thickness.current_value = theme.frame_thickness
-        self.margin.current_value = theme.margin
-        self.frame_color.current_color = theme.frame_color
-        self.background_color.current_color = theme.background_color
-        self.background_alpha.current_value = theme.background_alpha
-        self.axis_layout.current_value = theme.axis_layout
-        self.box_frame.current_value = theme.box_frame
-        self.gridlines.current_value = theme.gridlines
-
-        # Re-assign palette colours preserving the original grouping: items that share
-        # a colour now (e.g. the line + bar of one group) get the same new palette
-        # colour, in first-seen order -- matching how the module assigns colours per
-        # group rather than per item.
-        colors = Colors()
-        color_map = {}
-        for item in self.items:
-            old_color = tuple(item.config.color.get_current_value()) if hasattr(item.config, "color") else None
-            new_config = type(item.config)()
-            if hasattr(new_config, "color"):
-                if old_color not in color_map:
-                    color_map[old_color] = colors.get_color_list()
-                new_config.color.current_color = color_map[old_color]
-            item.config = new_config
-            if new_config.display_settings is not None:
-                label = item.__class__.__name__ + ": " + item.label
-                self.display_settings[label] = new_config.display_settings
+        """Reset every setting to the default it was created with."""
+        for setting in self._value_settings():
+            setting.restore_default_value()
 
     def create_figure(self):
         plt.close("all")

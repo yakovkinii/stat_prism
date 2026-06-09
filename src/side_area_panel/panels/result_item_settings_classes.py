@@ -31,10 +31,28 @@ from src.pyside_ext.markup import css
 from src.pyside_ext.unique_qss import set_stylesheet
 
 
+class _ValueDefaultsMixin:
+    """Default-value tracking for settings that hold a single ``current_value``.
+    Subclasses must set ``self.default_value`` in __init__ (to the initial value)."""
+
+    def get_default_value(self):
+        return self.default_value
+
+    def set_default_value(self, value):
+        self.default_value = value
+
+    def restore_default_value(self):
+        self.current_value = self.default_value
+
+    def is_modified(self):
+        return self.current_value != self.default_value
+
+
 class ColorGridItemSetting(BasePanelElement):
     def __init__(self, current_color: Tuple[int, int, int], add_stretch=False, label: str = None):
         super().__init__()
         self.current_color = current_color
+        self.default_color = current_color
         self.add_stretch = add_stretch
         self.label = label
         # ---
@@ -46,6 +64,18 @@ class ColorGridItemSetting(BasePanelElement):
 
     def set_up_from_other_instance(self, other: "ColorGridItemSetting"):
         self.current_color = other.current_color
+
+    def get_default_value(self):
+        return self.default_color
+
+    def set_default_value(self, value):
+        self.default_color = value
+
+    def restore_default_value(self):
+        self.current_color = self.default_color
+
+    def is_modified(self):
+        return tuple(self.current_color) != tuple(self.default_color)
 
     @staticmethod
     def build_palette_rows():
@@ -126,12 +156,13 @@ class ColorGridItemSetting(BasePanelElement):
         self.handler(Message(MessageType.EDITING_FINISHED, payload=None, caller_id=self.element_id))
 
 
-class SingleLineTextResultItemSetting(BasePanelElement):
+class SingleLineTextResultItemSetting(_ValueDefaultsMixin, BasePanelElement):
     def __init__(self, label, current_value):
         super().__init__()
 
         self.label = label
         self.current_value = current_value
+        self.default_value = current_value
         # ---
         self.line_edit = None
 
@@ -192,11 +223,12 @@ class ContainerResultItemSetting(BasePanelElement):
             self.layout.addStretch()
 
 
-class SliderResultItemSetting(BasePanelElement):
+class SliderResultItemSetting(_ValueDefaultsMixin, BasePanelElement):
     def __init__(self, label, current_value, min_value, max_value, step, add_stretch=False):
         super().__init__()
         self.label = label
         self.current_value = current_value
+        self.default_value = current_value
         self.min_value = min_value
         self.max_value = max_value
         self.step = step
@@ -258,11 +290,12 @@ class SliderResultItemSetting(BasePanelElement):
         self.handler(Message(MessageType.EDITING_FINISHED, payload=None, caller_id=self.element_id))
 
 
-class CheckboxResultItemSetting(BasePanelElement):
+class CheckboxResultItemSetting(_ValueDefaultsMixin, BasePanelElement):
     def __init__(self, label, current_value, add_stretch=False):
         super().__init__()
         self.label = label
         self.current_value = current_value
+        self.default_value = current_value
         assert add_stretch is False, "Stretch is not supported for CheckboxResultItemSetting"
         self.add_stretch = add_stretch
         # ---
@@ -288,11 +321,12 @@ class CheckboxResultItemSetting(BasePanelElement):
         self.handler(Message(MessageType.EDITING_FINISHED, payload=None, caller_id=self.element_id))
 
 
-class DropdownResultItemSetting(BasePanelElement):
+class DropdownResultItemSetting(_ValueDefaultsMixin, BasePanelElement):
     def __init__(self, label, current_value, items, add_stretch=False):
         super().__init__()
         self.label = label
         self.current_value = current_value
+        self.default_value = current_value
         self.items = items
         assert add_stretch is False, "Stretch is not supported for DropdownResultItemSetting"
         self.add_stretch = add_stretch
@@ -331,7 +365,7 @@ class DropdownResultItemSetting(BasePanelElement):
         self.handler(Message(MessageType.EDITING_FINISHED, payload=None, caller_id=self.element_id))
 
 
-class PlainCheckboxResultItemSetting(BasePanelElement):
+class PlainCheckboxResultItemSetting(_ValueDefaultsMixin, BasePanelElement):
     """A standard QCheckBox whose label uses the regular font, unlike the larger,
     heavily-styled CheckboxResultItemSetting."""
 
@@ -339,6 +373,7 @@ class PlainCheckboxResultItemSetting(BasePanelElement):
         super().__init__()
         self.label = label
         self.current_value = current_value
+        self.default_value = current_value
         assert add_stretch is False, "Stretch is not supported for PlainCheckboxResultItemSetting"
         self.add_stretch = add_stretch
         # ---

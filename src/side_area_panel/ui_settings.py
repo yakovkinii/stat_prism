@@ -142,9 +142,9 @@ class SettingsPanelClass:
         THEME.set_theme(theme)
         for candidate, action in self.theme_actions.items():
             action.setChecked(candidate == theme)
-        # Recompute so every plot rebuilds with the new theme defaults. Plots detect
-        # the theme switch (via theme_id) and adopt the new colours while keeping user
-        # content and size tweaks; tables are unaffected.
+        # Recompute so every plot rebuilds with the new theme defaults. Each setting
+        # adopts the new default unless the user had changed it from its previous
+        # default, in which case load_settings_from carries the edit over.
         self.root_class.main_area_panel.recompute_all()
         # The recompute rebuilds result elements, so any currently-focused study's
         # settings panel would reference stale elements. Deselect and return home.

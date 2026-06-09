@@ -69,6 +69,7 @@ class BasePanel:
             outer_layout=self._navigation_widget_layout,
         )
         self._ok_button.clicked.connect(self.ok_button_pressed)
+        self._ok_button.setToolTip("OK")
 
         self._cancel_button, _ = add_widget(
             widget=create_tool_button_qta(
@@ -79,6 +80,7 @@ class BasePanel:
             outer_layout=self._navigation_widget_layout,
         )
         self._cancel_button.clicked.connect(self.back_button_pressed)
+        self._cancel_button.setToolTip("Back")
 
         self._navigation_widget_layout.addStretch()
 

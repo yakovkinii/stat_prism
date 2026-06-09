@@ -92,17 +92,28 @@ class HTMLTableV2(BaseResultElement):
         state.pop("class_id", None)
         state.pop("_gc_ignore", None)
 
-        for k, v in state.items():
-            if issubclass(type(v), BasePanelElement):
+        # Flatten settings to current values; persist their defaults in parallel.
+        setting_defaults = {}
+        for k, v in list(state.items()):
+            if isinstance(v, BasePanelElement) and hasattr(v, "get_current_value"):
+                setting_defaults[k] = v.get_default_value()
                 state[k] = v.get_current_value()
-        logging.warning(f"HTMLTableV2 {state=}")
+        state["_setting_defaults"] = setting_defaults
         return state
 
     def __setstate__(self, state):
+        setting_defaults = state.pop("_setting_defaults", {})
         self.__init__(**state)
+        for k, default in setting_defaults.items():
+            setting = getattr(self, k, None)
+            if setting is not None and hasattr(setting, "set_default_value"):
+                setting.set_default_value(default)
 
     def load_settings_from(self, table: "HTMLTableV2"):
-        self.table_caption.set_up_from_other_instance(table.table_caption)
+        # Carry the caption over only if the user actually changed it (otherwise adopt
+        # this build's default caption).
+        if table.table_caption.is_modified():
+            self.table_caption.set_up_from_other_instance(table.table_caption)
 
     @log_method_noarg
     def get_html(self, renderer=None):

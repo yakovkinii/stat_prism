@@ -81,6 +81,7 @@ class BaseModulePanel:
                 self.root_class.action_activate_panel_by_index(PanelRegistry.HOME.settings_stacked_widget_index),
             ]
         )
+        self._cancel_button.setToolTip("Back")
 
         self.recalculate_button, _ = add_widget(
             widget=create_tool_button_qta(
