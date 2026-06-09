@@ -3,10 +3,10 @@
 
 from typing import Tuple
 
-from PySide6 import QtGui
-from PySide6.QtCore import Qt
-from PySide6.QtGui import QColor
+from PySide6.QtCore import QPoint, Qt
 from PySide6.QtWidgets import (
+    QCheckBox,
+    QFrame,
     QGridLayout,
     QHBoxLayout,
     QLabel,
@@ -26,6 +26,7 @@ from src.pyside_ext.elements.utility.layout_helpers import (
     empty_widget,
     widget_in_layout,
 )
+from src.pyside_ext.elements.utility.primitive_elements import NoScrollComboBox
 from src.pyside_ext.markup import css
 from src.pyside_ext.unique_qss import set_stylesheet
 
@@ -36,6 +37,9 @@ class ColorGridItemSetting(BasePanelElement):
         self.current_color = current_color
         self.add_stretch = add_stretch
         self.label = label
+        # ---
+        self.color_button = None
+        self._popup = None
 
     def get_current_value(self):
         return self.current_color
@@ -70,52 +74,55 @@ class ColorGridItemSetting(BasePanelElement):
         return [lighter, list(base_colors), darker, neutrals]
 
     def setup(self):
+        # Compact row: "label:" + a button showing the current colour. Clicking the
+        # button drops a palette popup next to it (no dimmed overlay); picking a tile
+        # updates the swatch and closes the popup.
         self.widget, self.layout = empty_widget(
             parent=self.parent_widget,
-            inner_layout_class=QVBoxLayout,
-            setup=lambda w, l: [l.setContentsMargins(5, 0, 5, 0)],
+            inner_layout_class=QHBoxLayout,
+            setup=lambda w, l: [l.setContentsMargins(5, 0, 5, 0), l.setSpacing(8)],
         )
-        initial: QColor = None
-        self.selected_color = QColor(initial or QColor(255, 255, 255))
-        self.selected_btn = None
+        self.layout.addWidget(QLabel((self.label or "Color") + ":"))
 
-        if self.label is not None:
-            label_widget = QLabel(self.label, parent=self.widget)
-            label_widget.setAlignment(Qt.AlignmentFlag.AlignCenter)
-            self.layout.addWidget(label_widget)
+        self.color_button = QPushButton()
+        self.color_button.setFixedSize(70, 22)
+        self.color_button.setCursor(Qt.CursorShape.PointingHandCursor)
+        self._update_swatch()
+        self.color_button.clicked.connect(self._open_popup)
+        self.layout.addWidget(self.color_button)
+        self.layout.addStretch()
 
-        rows = self.build_palette_rows()
+    def _update_swatch(self):
+        r, g, b = self.current_color
+        set_stylesheet(self.color_button, css(background_color=f"rgb({r},{g},{b})", border="1px solid #888888"))
 
-        # Grid of color buttons (rows x 7 cols)
-        self.grid_widget, self.grid_layout = empty_widget(
-            parent=self.widget,
-            inner_layout_class=QGridLayout,
-            outer_layout=self.layout,
-            setup=lambda w, l: [
-                l.setSpacing(4),
-                l.setContentsMargins(2, 2, 2, 2),
-            ],
-        )
+    def _open_popup(self):
+        popup = QFrame(self.color_button, Qt.WindowType.Popup)
+        popup.setAttribute(Qt.WidgetAttribute.WA_DeleteOnClose)
+        set_stylesheet(popup, css(background_color="white", border="1px solid #888888"))
+        grid = QGridLayout(popup)
+        grid.setSpacing(4)
+        grid.setContentsMargins(6, 6, 6, 6)
 
-        for row, row_colors in enumerate(rows):
+        for row, row_colors in enumerate(self.build_palette_rows()):
             for col, (pr, pg, pb) in enumerate(row_colors):
-                color = QtGui.QColor(pr, pg, pb)
-                btn = QPushButton()
-                btn.setFixedHeight(30)
-                set_stylesheet(
-                    btn,
-                    css(
-                        background_color=f"rgb({pr},{pg},{pb})",
-                    ),
-                )
-                btn.clicked.connect(lambda _, b=btn, c=color: self._on_color_selected(b, c))
-                self.grid_layout.addWidget(btn, row, col)
+                btn = QPushButton(popup)
+                btn.setFixedSize(22, 22)
+                btn.setCursor(Qt.CursorShape.PointingHandCursor)
+                set_stylesheet(btn, css(background_color=f"rgb({pr},{pg},{pb})", border="1px solid #cccccc"))
+                btn.clicked.connect(lambda _, c=(pr, pg, pb): self._select(c))
+                grid.addWidget(btn, row, col)
 
-        if self.add_stretch:
-            self.layout.addStretch()
+        self._popup = popup
+        popup.move(self.color_button.mapToGlobal(QPoint(0, self.color_button.height() + 2)))
+        popup.show()
 
-    def _on_color_selected(self, btn: QPushButton, color: QColor):
-        self.current_color = color.getRgb()[:3]
+    def _select(self, color: Tuple[int, int, int]):
+        self.current_color = color
+        self._update_swatch()
+        if self._popup is not None:
+            self._popup.close()
+            self._popup = None
         self.handler(Message(MessageType.EDITING_FINISHED, payload=None, caller_id=self.element_id))
 
 
@@ -267,4 +274,83 @@ class CheckboxResultItemSetting(BasePanelElement):
 
     def on_checkbox_state_changed(self, state):
         self.current_value = state == Qt.CheckState.Checked.value
+        self.handler(Message(MessageType.EDITING_FINISHED, payload=None, caller_id=self.element_id))
+
+
+class DropdownResultItemSetting(BasePanelElement):
+    def __init__(self, label, current_value, items, add_stretch=False):
+        super().__init__()
+        self.label = label
+        self.current_value = current_value
+        self.items = items
+        assert add_stretch is False, "Stretch is not supported for DropdownResultItemSetting"
+        self.add_stretch = add_stretch
+        # ---
+        self.combo_box = None
+
+    def get_current_value(self):
+        return self.current_value
+
+    def set_up_from_other_instance(self, other: "DropdownResultItemSetting"):
+        self.current_value = other.current_value
+
+    def setup(self):
+        self.widget, self.layout = empty_widget(
+            parent=self.parent_widget,
+            inner_layout_class=QVBoxLayout,
+            setup=lambda widget, layout: [
+                layout.setContentsMargins(5, 0, 5, 0),
+                layout.setSpacing(2),
+            ],
+        )
+        self.label_widget = widget_in_layout(widget=QLabel(self.label), layout=self.layout)
+        self.combo_box = widget_in_layout(
+            widget=NoScrollComboBox(),
+            layout=self.layout,
+            setup=lambda widget, layout: [
+                widget.addItems(self.items),
+                widget.setCurrentText(self.current_value if self.current_value in self.items else self.items[0]),
+                # connect last so the initial population does not emit a change
+                widget.currentTextChanged.connect(self.on_changed),
+            ],
+        )
+
+    def on_changed(self, value):
+        self.current_value = value
+        self.handler(Message(MessageType.EDITING_FINISHED, payload=None, caller_id=self.element_id))
+
+
+class PlainCheckboxResultItemSetting(BasePanelElement):
+    """A standard QCheckBox whose label uses the regular font, unlike the larger,
+    heavily-styled CheckboxResultItemSetting."""
+
+    def __init__(self, label, current_value, add_stretch=False):
+        super().__init__()
+        self.label = label
+        self.current_value = current_value
+        assert add_stretch is False, "Stretch is not supported for PlainCheckboxResultItemSetting"
+        self.add_stretch = add_stretch
+        # ---
+        self.checkbox = None
+
+    def get_current_value(self):
+        return self.current_value
+
+    def set_up_from_other_instance(self, other: "PlainCheckboxResultItemSetting"):
+        self.current_value = other.current_value
+
+    def setup(self):
+        self.widget, self.layout = empty_widget(
+            parent=self.parent_widget,
+            inner_layout_class=QHBoxLayout,
+            setup=lambda w, l: [l.setContentsMargins(5, 0, 5, 0)],
+        )
+        self.checkbox = QCheckBox(self.label)
+        self.checkbox.setChecked(bool(self.current_value))
+        self.checkbox.stateChanged.connect(self.on_changed)
+        self.layout.addWidget(self.checkbox)
+        self.layout.addStretch()
+
+    def on_changed(self, _state):
+        self.current_value = self.checkbox.isChecked()
         self.handler(Message(MessageType.EDITING_FINISHED, payload=None, caller_id=self.element_id))

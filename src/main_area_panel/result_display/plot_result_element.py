@@ -121,7 +121,7 @@ class PlotResultElementDisplay(BaseResultDisplay):
         if default_size.isEmpty():
             raise ValueError("SVG has no size information.")
 
-        target_width = 270
+        target_width = 265
         # Compute scaled height based on aspect ratio
         aspect_ratio = default_size.height() / default_size.width()
         target_height = int(target_width * aspect_ratio)

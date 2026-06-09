@@ -22,9 +22,21 @@ from src.side_area_panel.panels.result_item_settings_classes import (
     CheckboxResultItemSetting,
     ColorGridItemSetting,
     ContainerResultItemSetting,
+    DropdownResultItemSetting,
+    PlainCheckboxResultItemSetting,
     SingleLineTextResultItemSetting,
     SliderResultItemSetting,
 )
+
+# Axis-title layout presets. Titles can be long, so these control where the x/y
+# titles sit and whether the y title is rotated.
+#   Centered: classic centered titles, y rotated vertical.
+#   Edges:    x title pushed right, y title pushed to the top (still vertical).
+#   Flat Y:   x title pushed right, y title horizontal above the axis, pushed left.
+AXIS_LAYOUTS = ["Centered", "Edges", "Flat Y"]
+
+# Gridline modes.
+GRIDLINES = ["None", "Both", "Horizontal", "Vertical"]
 
 
 class ContingencyPlot:
@@ -322,8 +334,8 @@ class PlotV2(BaseResultElement):
         x_axis_title="",
         y_axis_title="",
         x_axis_items=None,
-        plot_x_size=None,
-        plot_y_size=None,
+        plot_size=None,
+        plot_aspect=None,
         x_range: Tuple[float, float] = None,
         y_range: Tuple[float, float] = None,
         tilt_x_axis_labels=0,
@@ -333,6 +345,11 @@ class PlotV2(BaseResultElement):
         frame_thickness=None,
         frame_color: Tuple[int, int, int] = None,
         background_color: Tuple[int, int, int] = None,
+        background_alpha=None,
+        axis_layout=None,
+        margin=None,
+        box_frame=None,
+        gridlines=None,
     ):
         super().__init__()
         # Defaults come from the active theme unless explicitly provided (e.g. restored
@@ -340,14 +357,19 @@ class PlotV2(BaseResultElement):
         # switch can reset colours while preserving content and size tweaks.
         theme = THEME.current
         self.theme_id = THEME.name()
-        plot_x_size = plot_x_size if plot_x_size is not None else theme.plot_x_size
-        plot_y_size = plot_y_size if plot_y_size is not None else theme.plot_y_size
+        plot_size = plot_size if plot_size is not None else theme.plot_size
+        plot_aspect = plot_aspect if plot_aspect is not None else theme.plot_aspect
         axis_title_font_size = axis_title_font_size if axis_title_font_size is not None else theme.axis_title_font_size
         tick_label_font_size = tick_label_font_size if tick_label_font_size is not None else theme.tick_label_font_size
         legend_font_size = legend_font_size if legend_font_size is not None else theme.legend_font_size
         frame_thickness = frame_thickness if frame_thickness is not None else theme.frame_thickness
         frame_color = frame_color if frame_color is not None else theme.frame_color
         background_color = background_color if background_color is not None else theme.background_color
+        background_alpha = background_alpha if background_alpha is not None else theme.background_alpha
+        axis_layout = axis_layout if axis_layout is not None else theme.axis_layout
+        margin = margin if margin is not None else theme.margin
+        box_frame = box_frame if box_frame is not None else theme.box_frame
+        gridlines = gridlines if gridlines is not None else theme.gridlines
 
         self.x_range = x_range
         self.y_range = y_range
@@ -368,11 +390,11 @@ class PlotV2(BaseResultElement):
             step=15,
         )
         # --- Figure-level appearance (applies to every plot type) ---
-        self.plot_x_size = SliderResultItemSetting(
-            label="Plot Width", current_value=plot_x_size, min_value=200, max_value=1400, step=50
+        self.plot_size = SliderResultItemSetting(
+            label="Plot Size", current_value=plot_size, min_value=200, max_value=1400, step=50
         )
-        self.plot_y_size = SliderResultItemSetting(
-            label="Plot Height", current_value=plot_y_size, min_value=200, max_value=1400, step=50
+        self.plot_aspect = SliderResultItemSetting(
+            label="Aspect (H/W)", current_value=plot_aspect, min_value=0.3, max_value=2.0, step=0.1
         )
         self.axis_title_font_size = SliderResultItemSetting(
             label="Axis Title Size", current_value=axis_title_font_size, min_value=6, max_value=30, step=1
@@ -386,8 +408,21 @@ class PlotV2(BaseResultElement):
         self.frame_thickness = SliderResultItemSetting(
             label="Frame Thickness", current_value=frame_thickness, min_value=0, max_value=5, step=0.5
         )
+        self.margin = SliderResultItemSetting(
+            label="Margin", current_value=margin, min_value=0, max_value=2.0, step=0.1
+        )
         self.frame_color = ColorGridItemSetting(current_color=frame_color, label="Frame / Tick Color")
         self.background_color = ColorGridItemSetting(current_color=background_color, label="Background Color")
+        self.background_alpha = SliderResultItemSetting(
+            label="Background Alpha", current_value=background_alpha, min_value=0, max_value=255, step=15
+        )
+        self.axis_layout = DropdownResultItemSetting(
+            label="Axis layout", current_value=axis_layout, items=AXIS_LAYOUTS
+        )
+        self.box_frame = PlainCheckboxResultItemSetting(label="Full box frame (top/right)", current_value=box_frame)
+        self.gridlines = DropdownResultItemSetting(
+            label="Gridlines", current_value=gridlines, items=GRIDLINES
+        )
         self.display_settings = {
             "General": ContainerResultItemSetting(
                 items=[
@@ -395,15 +430,20 @@ class PlotV2(BaseResultElement):
                     self.plot_title,
                     self.x_axis_title,
                     self.y_axis_title,
+                    self.axis_layout,
                     self.tilt_x_axis_labels,
-                    self.plot_x_size,
-                    self.plot_y_size,
+                    self.plot_size,
+                    self.plot_aspect,
+                    self.margin,
                     self.axis_title_font_size,
                     self.tick_label_font_size,
                     self.legend_font_size,
                     self.frame_thickness,
+                    self.box_frame,
+                    self.gridlines,
                     self.frame_color,
                     self.background_color,
+                    self.background_alpha,
                 ],
                 add_stretch=True,
             ),
@@ -446,20 +486,25 @@ class PlotV2(BaseResultElement):
             self.x_axis_title.set_up_from_other_instance(plot.x_axis_title)
             self.y_axis_title.set_up_from_other_instance(plot.y_axis_title)
             self.tilt_x_axis_labels.set_up_from_other_instance(plot.tilt_x_axis_labels)
-            self.plot_x_size.set_up_from_other_instance(plot.plot_x_size)
-            self.plot_y_size.set_up_from_other_instance(plot.plot_y_size)
+            self.plot_size.set_up_from_other_instance(plot.plot_size)
+            self.plot_aspect.set_up_from_other_instance(plot.plot_aspect)
             self.axis_title_font_size.set_up_from_other_instance(plot.axis_title_font_size)
             self.tick_label_font_size.set_up_from_other_instance(plot.tick_label_font_size)
             self.legend_font_size.set_up_from_other_instance(plot.legend_font_size)
             self.frame_thickness.set_up_from_other_instance(plot.frame_thickness)
+            self.margin.set_up_from_other_instance(plot.margin)
 
-            # Colour appearance is theme-controlled. Only carry it over when the theme
-            # is unchanged; on a theme switch keep this freshly-built plot's new theme
-            # colours instead of restoring the previous theme's.
+            # Theme-controlled appearance (colours + axis layout). Only carry it over
+            # when the theme is unchanged; on a theme switch keep this freshly-built
+            # plot's new theme values instead of restoring the previous theme's.
             same_theme = getattr(plot, "theme_id", None) == self.theme_id
             if same_theme:
                 self.frame_color.set_up_from_other_instance(plot.frame_color)
                 self.background_color.set_up_from_other_instance(plot.background_color)
+                self.background_alpha.set_up_from_other_instance(plot.background_alpha)
+                self.axis_layout.set_up_from_other_instance(plot.axis_layout)
+                self.box_frame.set_up_from_other_instance(plot.box_frame)
+                self.gridlines.set_up_from_other_instance(plot.gridlines)
                 for self_item, plot_item in zip(self.items, plot.items):
                     self_item.config = plot_item.config
                     if self_item.config.display_settings is not None:
@@ -476,14 +521,19 @@ class PlotV2(BaseResultElement):
         titles, label rotation -- is intentionally kept."""
         theme = THEME.current
         self.theme_id = THEME.name()
-        self.plot_x_size.current_value = theme.plot_x_size
-        self.plot_y_size.current_value = theme.plot_y_size
+        self.plot_size.current_value = theme.plot_size
+        self.plot_aspect.current_value = theme.plot_aspect
         self.axis_title_font_size.current_value = theme.axis_title_font_size
         self.tick_label_font_size.current_value = theme.tick_label_font_size
         self.legend_font_size.current_value = theme.legend_font_size
         self.frame_thickness.current_value = theme.frame_thickness
+        self.margin.current_value = theme.margin
         self.frame_color.current_color = theme.frame_color
         self.background_color.current_color = theme.background_color
+        self.background_alpha.current_value = theme.background_alpha
+        self.axis_layout.current_value = theme.axis_layout
+        self.box_frame.current_value = theme.box_frame
+        self.gridlines.current_value = theme.gridlines
 
         # Re-assign palette colours preserving the original grouping: items that share
         # a colour now (e.g. the line + bar of one group) get the same new palette
@@ -511,14 +561,14 @@ class PlotV2(BaseResultElement):
 
         # set background color
         face_color = self.background_color.get_current_value()
-        fig.patch.set_facecolor(rgba_tuple_from_rgb_and_a(face_color, 255))
-        ax.set_facecolor(rgba_tuple_from_rgb_and_a(face_color, 255))
+        bg_alpha = self.background_alpha.get_current_value()
+        fig.patch.set_facecolor(rgba_tuple_from_rgb_and_a(face_color, bg_alpha))
+        ax.set_facecolor(rgba_tuple_from_rgb_and_a(face_color, bg_alpha))
 
         dpi = fig.get_dpi()
-        fig.set_size_inches(
-            self.plot_x_size.get_current_value() / dpi,
-            self.plot_y_size.get_current_value() / dpi,
-        )
+        width = self.plot_size.get_current_value()
+        height = width * self.plot_aspect.get_current_value()
+        fig.set_size_inches(width / dpi, height / dpi)
         legend = False
 
         for item in self.items:
@@ -768,6 +818,16 @@ class PlotV2(BaseResultElement):
         for side in ("top", "right", "left", "bottom"):
             ax.spines[side].set_color(frame_color)
             ax.spines[side].set_linewidth(frame_thickness)
+        if not self.box_frame.get_current_value():
+            ax.spines["top"].set_visible(False)
+            ax.spines["right"].set_visible(False)
+
+        # gridlines (behind the data)
+        grid_mode = self.gridlines.get_current_value()
+        if grid_mode != "None":
+            grid_axis = {"Both": "both", "Horizontal": "y", "Vertical": "x"}.get(grid_mode, "both")
+            ax.set_axisbelow(True)
+            ax.grid(True, axis=grid_axis, color=frame_color, alpha=0.35, linewidth=max(0.5, frame_thickness * 0.6))
 
         if self.x_axis_items is not None:
             ax.set_xticks(range(len(self.x_axis_items)))
@@ -775,14 +835,32 @@ class PlotV2(BaseResultElement):
 
         ax.tick_params(axis="x", rotation=self.tilt_x_axis_labels.current_value)
 
-        # axis titles
-        ax.set_xlabel(self.x_axis_title.get_current_value())
-        ax.set_ylabel(self.y_axis_title.get_current_value())
-        ax.xaxis.label.set_fontsize(self.axis_title_font_size.get_current_value())
-        ax.yaxis.label.set_fontsize(self.axis_title_font_size.get_current_value())
-        # set axis label font
-        ax.xaxis.label.set_fontname("Times New Roman")
-        ax.yaxis.label.set_fontname("Times New Roman")
+        # axis titles -- placement follows the chosen layout (titles can be long)
+        x_title = self.x_axis_title.get_current_value()
+        y_title = self.y_axis_title.get_current_value()
+        layout = self.axis_layout.get_current_value()
+        if layout == "Edges":
+            ax.set_xlabel(x_title, loc="right")
+            ax.set_ylabel(y_title, loc="top")
+        elif layout == "Flat Y":
+            ax.set_xlabel(x_title, loc="right")
+            # Horizontal y-title above the axis; precise left/top position is set after
+            # tight_layout (so it can align to the left of the y tick labels).
+            ax.set_ylabel(y_title, rotation=0, ha="left", va="bottom")
+        else:  # Centered
+            ax.set_xlabel(x_title)
+            ax.set_ylabel(y_title)
+
+        # Title colour auto-contrasts with the background (black on light, light on
+        # dark) so titles stay readable on the Dark theme / dark backgrounds.
+        bg = self.background_color.get_current_value()
+        luminance = 0.299 * bg[0] + 0.587 * bg[1] + 0.114 * bg[2]
+        title_color = (0, 0, 0) if luminance > 140 else (235, 235, 235)
+        font_size = self.axis_title_font_size.get_current_value()
+        for axis_label in (ax.xaxis.label, ax.yaxis.label):
+            axis_label.set_fontsize(font_size)
+            axis_label.set_fontname("Times New Roman")
+            axis_label.set_color(rgba_tuple_from_rgb_and_a(title_color, 255))
 
         # set axis ranges
         if self.x_range is not None:
@@ -791,10 +869,37 @@ class PlotV2(BaseResultElement):
             ax.set_ylim(*self.y_range)
 
         if legend:
-            ax.legend(fontsize=self.legend_font_size.get_current_value())
+            leg = ax.legend(fontsize=self.legend_font_size.get_current_value())
+            # Legend follows the background so it stays readable on dark themes.
+            leg.get_frame().set_facecolor(rgba_tuple_from_rgb_and_a(face_color, max(bg_alpha, 200)))
+            leg.get_frame().set_edgecolor(frame_color)
+            for text in leg.get_texts():
+                text.set_color(rgba_tuple_from_rgb_and_a(title_color, 255))
 
         fig.tight_layout()
+
+        if layout == "Flat Y":
+            self._place_flat_ylabel(fig, ax)
+
         return fig, ax
+
+    @staticmethod
+    def _place_flat_ylabel(fig, ax):
+        """Position a horizontal (Flat Y) y-title at the top-left, aligned to the left
+        edge of the y tick labels and lifted above the top spine so glyphs don't cross
+        it. Measured after layout, in axes coordinates."""
+        try:
+            fig.canvas.draw()
+            inv = ax.transAxes.inverted()
+            left_edges = [
+                inv.transform((t.get_window_extent().x0, 0))[0]
+                for t in ax.get_yticklabels()
+                if t.get_text()
+            ]
+            left_x = min(left_edges) if left_edges else -0.05
+        except Exception:
+            left_x = -0.05
+        ax.yaxis.set_label_coords(left_x, 1.05)
 
     # def get_html(self):
     #     fig, _ = self.create_figure()
@@ -820,7 +925,7 @@ class PlotV2(BaseResultElement):
 
         # 2) dump it into an in-memory bytes buffer as PNG
         buf = io.BytesIO()
-        fig.savefig(buf, format="png", bbox_inches="tight", dpi=150)
+        fig.savefig(buf, format="png", bbox_inches="tight", pad_inches=self.margin.get_current_value(), dpi=150)
         plt.close(fig)
         buf.seek(0)
 
@@ -842,7 +947,7 @@ class PlotV2(BaseResultElement):
     def get_svg_buffer(self):
         fig, _ = self.create_figure()
         buf = io.BytesIO()
-        fig.savefig(buf, format="svg", bbox_inches="tight")
+        fig.savefig(buf, format="svg", bbox_inches="tight", pad_inches=self.margin.get_current_value())
         plt.close(fig)
         buf.seek(0)
         return buf
@@ -850,7 +955,7 @@ class PlotV2(BaseResultElement):
     def get_png_buffer(self):
         fig, _ = self.create_figure()
         buf = io.BytesIO()
-        fig.savefig(buf, format="png", bbox_inches="tight", dpi=150)
+        fig.savefig(buf, format="png", bbox_inches="tight", pad_inches=self.margin.get_current_value(), dpi=150)
         plt.close(fig)
         buf.seek(0)
         return buf
