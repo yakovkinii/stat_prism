@@ -19,7 +19,7 @@ from src.side_area_panel.modules.common.result.plot_result import (
     PlotV2,
 )
 from src.side_area_panel.modules.descriptive.plot import create_box_plot
-from src.side_area_panel.modules.descriptive.result import DescriptiveResult
+from src.side_area_panel.modules.descriptive.descriptive_result import DescriptiveResult
 from src.side_area_panel.modules.descriptive.table import (
     get_descriptive_table_groupby,
     get_descriptive_table_no_groupby,

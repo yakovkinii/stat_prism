@@ -5,7 +5,7 @@ import numpy as np
 
 from src.common.translations import t
 from src.side_area_panel.modules.common.utility import smart_comma_join
-from src.side_area_panel.modules.correlation.result import CorrelationType
+from src.side_area_panel.modules.correlation.correlation_result import CorrelationType
 
 _NAME_KEY = {
     CorrelationType.PEARSON: "correlation.name.pearson",

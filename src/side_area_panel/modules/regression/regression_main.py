@@ -20,7 +20,7 @@ from src.side_area_panel.modules.common.result.plot_result import (
     Scatter,
 )
 from src.side_area_panel.modules.common.utility import format_statistic_apa
-from src.side_area_panel.modules.regression.result import (
+from src.side_area_panel.modules.regression.regression_result import (
     RegressionResult,
     RegressionStudyConfig,
 )

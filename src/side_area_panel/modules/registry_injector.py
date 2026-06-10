@@ -2,20 +2,20 @@
 from src.side_area_panel.modules.cluster_analysis.cluster_analysis_ui import (
     ClusterAnalysis,
 )
-from src.side_area_panel.modules.cluster_analysis.main import (
+from src.side_area_panel.modules.cluster_analysis.cluster_analysis_main import (
     recalculate_cluster_analysis_study,
 )
-from src.side_area_panel.modules.cluster_analysis.result import (
+from src.side_area_panel.modules.cluster_analysis.cluster_analysis_result import (
     ClusterAnalysisConfig,
     ClusterAnalysisResult,
 )
 from src.side_area_panel.modules.confirmatory_factor_analysis.factor_analysis_ui import (
     ConfirmatoryFactorAnalysis,
 )
-from src.side_area_panel.modules.confirmatory_factor_analysis.main import (
+from src.side_area_panel.modules.confirmatory_factor_analysis.confirmatory_factor_analysis_main import (
     recalculate_cfa_study,
 )
-from src.side_area_panel.modules.confirmatory_factor_analysis.result import (
+from src.side_area_panel.modules.confirmatory_factor_analysis.confirmatory_factor_analysis_result import (
     CFAResult,
     CFAStudyConfig,
 )
@@ -64,14 +64,14 @@ from src.side_area_panel.modules.dp_outliers.dp_outliers_result import (
 )
 from src.side_area_panel.modules.dp_outliers.dp_outliers_ui import Outliers
 from src.side_area_panel.modules.contingency.contingency_ui import Contingency
-from src.side_area_panel.modules.contingency.main import recalculate_contingency_study
-from src.side_area_panel.modules.contingency.result import (
+from src.side_area_panel.modules.contingency.contingency_main import recalculate_contingency_study
+from src.side_area_panel.modules.contingency.contingency_result import (
     ContingencyResult,
     ContingencyStudyConfig,
 )
 from src.side_area_panel.modules.correlation.correlation_ui import Correlation
-from src.side_area_panel.modules.correlation.main import recalculate_correlation_study
-from src.side_area_panel.modules.correlation.result import (
+from src.side_area_panel.modules.correlation.correlation_main import recalculate_correlation_study
+from src.side_area_panel.modules.correlation.correlation_result import (
     CorrelationResult,
     CorrelationStudyConfig,
 )
@@ -79,17 +79,17 @@ from src.side_area_panel.modules.descriptive.descriptive_main import (
     recalculate_descriptive_study,
 )
 from src.side_area_panel.modules.descriptive.descriptive_ui import Descriptive
-from src.side_area_panel.modules.descriptive.result import (
+from src.side_area_panel.modules.descriptive.descriptive_result import (
     DescriptiveResult,
     DescriptiveStudyConfig,
 )
 from src.side_area_panel.modules.exploratory_factor_analysis.factor_analysis_ui import (
     FactorAnalysis,
 )
-from src.side_area_panel.modules.exploratory_factor_analysis.main import (
+from src.side_area_panel.modules.exploratory_factor_analysis.exploratory_factor_analysis_main import (
     recalculate_factor_analysis_study,
 )
-from src.side_area_panel.modules.exploratory_factor_analysis.result import (
+from src.side_area_panel.modules.exploratory_factor_analysis.exploratory_factor_analysis_result import (
     FactorAnalysisResult,
     FactorAnalysisStudyConfig,
 )
@@ -104,20 +104,20 @@ from src.side_area_panel.modules.mean_comparison.mean_comparison_ui import (
     MeanComparison,
 )
 from src.side_area_panel.modules.raw_data.raw_data_ui import RawData
-from src.side_area_panel.modules.raw_data.result import (
+from src.side_area_panel.modules.raw_data.raw_data_result import (
     RawDataResult,
     RawDataStudyConfig,
 )
 from src.side_area_panel.modules.registry import ModuleRegistry
-from src.side_area_panel.modules.regression.main import recalculate_regression_study
+from src.side_area_panel.modules.regression.regression_main import recalculate_regression_study
 from src.side_area_panel.modules.regression.regression_ui import Regression
-from src.side_area_panel.modules.regression.result import (
+from src.side_area_panel.modules.regression.regression_result import (
     RegressionResult,
     RegressionStudyConfig,
 )
-from src.side_area_panel.modules.reliability.main import recalculate_reliability_study
+from src.side_area_panel.modules.reliability.reliability_main import recalculate_reliability_study
 from src.side_area_panel.modules.reliability.reliability_ui import Reliability
-from src.side_area_panel.modules.reliability.result import (
+from src.side_area_panel.modules.reliability.reliability_result import (
     ReliabilityResult,
     ReliabilityStudyConfig,
 )

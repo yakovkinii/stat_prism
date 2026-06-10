@@ -10,7 +10,7 @@ from src.common.decorators import log_function
 from src.data.data_manager import DATA_MANAGER
 from src.side_area_panel.modules.common.result.html_result import Cell, HTMLTableV2, Row
 from src.side_area_panel.modules.common.result.plot_result import Heatmap, PlotV2
-from src.side_area_panel.modules.exploratory_factor_analysis.result import (
+from src.side_area_panel.modules.exploratory_factor_analysis.exploratory_factor_analysis_result import (
     ExtractionMethod,
     FactorAnalysisResult,
     RotationType,

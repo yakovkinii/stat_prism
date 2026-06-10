@@ -586,6 +586,10 @@ TRANSLATIONS = {
         "en": "{name} between {vars}.",
         "ua": "{name} між {vars}.",
     },
+    "correlation.table.significance_note": {
+        "en": "* p &lt; .05; ** p &lt; .01; *** p &lt; .001",
+        "ua": "* p &lt; .05; ** p &lt; .01; *** p &lt; .001",
+    },
     "correlation.table.name.pearson": {"en": "Pearson's r", "ua": "r Пірсона"},
     "correlation.table.name.spearman": {"en": "Spearman's r", "ua": "r Спірмена"},
     "correlation.table.name.kendall": {"en": "Kendall's τ", "ua": "τ Кендалла"},

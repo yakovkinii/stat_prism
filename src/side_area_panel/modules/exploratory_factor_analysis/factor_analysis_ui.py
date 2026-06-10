@@ -10,7 +10,7 @@ from src.side_area_panel.iispwac.iispwac_data_source import IISPWACDataSource
 from src.side_area_panel.iispwac.iispwac_spacer import IISPWACSpacer
 from src.side_area_panel.iispwac.iispwac_spin import IISPWACSpin
 from src.side_area_panel.modules.base.base import BaseModulePanel
-from src.side_area_panel.modules.exploratory_factor_analysis.result import (
+from src.side_area_panel.modules.exploratory_factor_analysis.exploratory_factor_analysis_result import (
     ExtractionMethod,
     RotationType,
 )

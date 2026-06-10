@@ -6,7 +6,7 @@ from sklearn.cluster import KMeans
 from src.common.decorators import log_function
 from src.common.translations import t
 from src.data.data_manager import DATA_MANAGER
-from src.side_area_panel.modules.cluster_analysis.result import (
+from src.side_area_panel.modules.cluster_analysis.cluster_analysis_result import (
     ClusterAnalysisResult,
     ClusterMethod,
 )

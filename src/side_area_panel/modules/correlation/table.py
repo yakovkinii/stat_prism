@@ -5,7 +5,7 @@ from src.common.constant import MDASH
 from src.common.translations import t
 from src.side_area_panel.modules.common.result.html_result import Cell, HTMLTableV2, Row
 from src.side_area_panel.modules.common.utility import smart_comma_join
-from src.side_area_panel.modules.correlation.result import CorrelationType
+from src.side_area_panel.modules.correlation.correlation_result import CorrelationType
 
 _TABLE_NAME_KEY = {
     CorrelationType.PEARSON: "correlation.table.name.pearson",
@@ -45,25 +45,6 @@ def format_p_apa(p, decimals=3):
         return "&lt;&nbsp;.001"
     else:
         return f"{round(p, decimals):.{decimals}f}".replace("0.", ".")
-
-
-def get_correlation_name(kind: CorrelationType) -> str:
-    if kind == CorrelationType.PEARSON:
-        return "Pearson's r"
-    elif kind == CorrelationType.SPEARMAN:
-        return "Spearman's r"
-    elif kind == CorrelationType.KENDALL:
-        return "Kendall's τ"
-    elif kind == CorrelationType.KENDALL_C:
-        return "Kendall's τ<sub>c</sub>"
-    elif kind == CorrelationType.PHI:
-        return "Phi φ"
-    elif kind == CorrelationType.TETRACHORIC:
-        return "Tetrachoric ρ<sub>t</sub>"
-    elif kind == CorrelationType.POLYCHORIC:
-        return "Polychoric ρ<sub>pc</sub>"
-    else:
-        raise ValueError(f"Invalid correlation type: {kind}")
 
 
 def get_correlation_short_name(kind: CorrelationType) -> str:
@@ -113,7 +94,7 @@ def get_table_compact(columns, correlation_matrix, p_matrix, kind: CorrelationTy
                 table_row.append(Cell(push_to_left=True, is_doubled=True))
         table.add_single_row_apa(Row(table_row))
 
-    table.table_note = "* p &lt; .05; ** p &lt; .01; *** p &lt; .001"
+    table.table_note = t("correlation.table.significance_note")
 
     return table
 
@@ -193,6 +174,6 @@ def get_table_full(columns, correlation_matrix, p_matrix, df_matrix, kind: Corre
                 ]
             )
 
-    table.table_note = "* p &lt; .05; ** p &lt; .01; *** p &lt; .001"
+    table.table_note = t("correlation.table.significance_note")
 
     return table

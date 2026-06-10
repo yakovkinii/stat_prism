@@ -15,7 +15,7 @@ from src.pyside_ext.elements.checkbox import LargeCheckbox
 from src.side_area_panel.modules.base.base import BaseModulePanel
 from src.side_area_panel.modules.common.result.registry import RESULTS
 from src.side_area_panel.modules.common.utility import unique_name
-from src.side_area_panel.modules.raw_data.result import RawDataStudyConfig
+from src.side_area_panel.modules.raw_data.raw_data_result import RawDataStudyConfig
 
 
 class RawData(BaseModulePanel):

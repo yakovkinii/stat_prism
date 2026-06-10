@@ -14,11 +14,11 @@ from src.side_area_panel.modules.common.mathematics.correlation.binary_correlati
 )
 from src.side_area_panel.modules.common.result.html_result import Cell, HTMLTableV2, Row
 from src.side_area_panel.modules.common.utility import format_statistic_apa
-from src.side_area_panel.modules.correlation.result import (
+from src.side_area_panel.modules.correlation.correlation_result import (
     CORRELATION_TYPE_MAP,
     CorrelationType,
 )
-from src.side_area_panel.modules.reliability.result import (
+from src.side_area_panel.modules.reliability.reliability_result import (
     ReliabilityResult,
     ReliabilityStudyConfig,
 )

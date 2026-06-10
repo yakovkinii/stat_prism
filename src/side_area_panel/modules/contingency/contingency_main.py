@@ -19,7 +19,7 @@ from src.side_area_panel.modules.common.utility import (
     format_p_apa_full,
     format_statistic_apa,
 )
-from src.side_area_panel.modules.contingency.result import ContingencyResult
+from src.side_area_panel.modules.contingency.contingency_result import ContingencyResult
 
 
 def _fail(result: ContingencyResult, message: str) -> ContingencyResult:

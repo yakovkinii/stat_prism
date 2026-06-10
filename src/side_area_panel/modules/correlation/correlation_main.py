@@ -22,7 +22,7 @@ from src.side_area_panel.modules.common.result.plot_result import (
     Scatter,
 )
 from src.side_area_panel.modules.correlation.report import get_report
-from src.side_area_panel.modules.correlation.result import (
+from src.side_area_panel.modules.correlation.correlation_result import (
     CORRELATION_TYPE_MAP,
     CorrelationResult,
     CorrelationType,

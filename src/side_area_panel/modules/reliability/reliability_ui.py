@@ -9,7 +9,7 @@ from src.side_area_panel.iispwac.iispwac_combobox import IISPWACComboBox
 from src.side_area_panel.iispwac.iispwac_data_source import IISPWACDataSource
 from src.side_area_panel.iispwac.iispwac_spacer import IISPWACSpacer
 from src.side_area_panel.modules.base.base import BaseModulePanel
-from src.side_area_panel.modules.correlation.result import CORRELATION_TYPE_MAP
+from src.side_area_panel.modules.correlation.correlation_result import CORRELATION_TYPE_MAP
 
 
 class Elements(ItemInSidePanelWithAutoConfigHolder):

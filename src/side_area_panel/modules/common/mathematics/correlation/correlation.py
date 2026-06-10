@@ -11,7 +11,7 @@ from src.side_area_panel.modules.common.mathematics.correlation.binary_correlati
     phi_coefficient,
     tetrachoric_corr_2x2_table,
 )
-from src.side_area_panel.modules.correlation.result import CorrelationType
+from src.side_area_panel.modules.correlation.correlation_result import CorrelationType
 
 
 def polychoric_corr_with_pvalue(x, y, min_prob=1e-12):

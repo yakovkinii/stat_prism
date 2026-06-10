@@ -9,7 +9,7 @@ from src.side_area_panel.iispwac.iispwac_data_source import IISPWACDataSource
 from src.side_area_panel.iispwac.iispwac_spacer import IISPWACSpacer
 from src.side_area_panel.iispwac.iispwac_spin import IISPWACSpin
 from src.side_area_panel.modules.base.base import BaseModulePanel
-from src.side_area_panel.modules.cluster_analysis.result import ClusterMethod
+from src.side_area_panel.modules.cluster_analysis.cluster_analysis_result import ClusterMethod
 
 
 class Elements(ItemInSidePanelWithAutoConfigHolder):

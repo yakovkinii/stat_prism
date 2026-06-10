@@ -7,7 +7,7 @@ from src.side_area_panel.modules.common.result.html_result import Cell, HTMLTabl
 from src.side_area_panel.modules.confirmatory_factor_analysis.cfa_numpy import (
     CFAEstimator,
 )
-from src.side_area_panel.modules.confirmatory_factor_analysis.result import (
+from src.side_area_panel.modules.confirmatory_factor_analysis.confirmatory_factor_analysis_result import (
     CFAResult,
     CFAStudyConfig,
 )
