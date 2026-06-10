@@ -644,6 +644,81 @@ TRANSLATIONS = {
             "</ul></div>"
         ),
     },
+    # ----- Descriptive statistics -----
+    "descriptive.error.no_variables": {
+        "en": "Please select at least one variable.",
+        "ua": "Будь ласка, оберіть щонайменше одну змінну.",
+    },
+    "descriptive.table.caption": {
+        "en": "Descriptive statistics",
+        "ua": "Описова статистика",
+    },
+    "descriptive.freq.caption": {
+        "en": "Frequencies: {col}",
+        "ua": "Частоти: {col}",
+    },
+    "descriptive.freq.category": {"en": "Category", "ua": "Категорія"},
+    "descriptive.freq.count": {"en": "Count", "ua": "Кількість"},
+    "descriptive.freq.percent": {"en": "%", "ua": "%"},
+    "descriptive.freq.total": {"en": "Total", "ua": "Загалом"},
+    "descriptive.density": {"en": "Density", "ua": "Щільність"},
+    "descriptive.plot.distribution": {
+        "en": "Distribution of {col}",
+        "ua": "Розподіл «{col}»",
+    },
+    "descriptive.plot.box": {
+        "en": "Box plot of {col}",
+        "ua": "Діаграма розмаху «{col}»",
+    },
+    "descriptive.plot.qq": {
+        "en": "Normal Q-Q plot of {col}",
+        "ua": "Графік Q-Q (нормальний) «{col}»",
+    },
+    "descriptive.plot.frequency": {
+        "en": "Frequencies of {col}",
+        "ua": "Частоти «{col}»",
+    },
+    "descriptive.plot.pie": {
+        "en": "Composition of {col}",
+        "ua": "Склад «{col}»",
+    },
+    "descriptive.qq.theoretical": {
+        "en": "Theoretical quantiles",
+        "ua": "Теоретичні квантилі",
+    },
+    "descriptive.qq.sample": {
+        "en": "Sample quantiles",
+        "ua": "Вибіркові квантилі",
+    },
+    "descriptive.description": {
+        "en": (
+            "<h2>Descriptive Statistics</h2>"
+            "<h3>Description</h3>"
+            "<div>Summarises the selected variables. Numeric variables get a summary table "
+            "(N, missing, mean, SD, min, max, Shapiro&ndash;Wilk; optionally median, IQR, "
+            "SE, skewness and kurtosis); categorical variables get frequency tables.</div>"
+            "<div>Optional plots (each opt-in): distribution histograms with a KDE curve, "
+            "box plots with outliers, normal Q-Q plots, and &mdash; for categorical "
+            "variables &mdash; frequency bar charts and pie charts. A grouping column "
+            "splits the numeric summary, distributions and box plots by group.</div>"
+            "<div>For distributions you can set the histogram bin width (1 for Likert "
+            "scales) and the KDE smoothing.</div>"
+        ),
+        "ua": (
+            "<h2>Описова статистика</h2>"
+            "<h3>Опис</h3>"
+            "<div>Підсумовує обрані змінні. Для числових змінних будується підсумкова "
+            "таблиця (N, пропуски, середнє, SD, мінімум, максимум, Шапіро&ndash;Вілк; за "
+            "бажанням медіана, IQR, SE, асиметрія та ексцес); для категоріальних &mdash; "
+            "таблиці частот.</div>"
+            "<div>Додаткові графіки (кожен вмикається окремо): гістограми розподілу з "
+            "кривою KDE, діаграми розмаху з викидами, графіки Q-Q, а для категоріальних "
+            "змінних &mdash; стовпчасті діаграми частот і кругові діаграми. Стовпець "
+            "групування розбиває підсумок, розподіли та діаграми розмаху за групами.</div>"
+            "<div>Для розподілів можна задати ширину інтервалу гістограми (1 для шкал "
+            "Лайкерта) та згладжування KDE.</div>"
+        ),
+    },
 }
 
 

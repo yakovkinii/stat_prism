@@ -32,51 +32,6 @@ class ModuleRegistry(Enum):
         module_type=ModuleType.RAW_DATA,
     )
 
-    MEAN_COMPARISON = ModuleRegistryItem(
-        display_name="T-test/ANOVA",
-        icon_path="ph.scales",
-    )
-
-    CONTINGENCY = ModuleRegistryItem(
-        display_name="Contingency Table",
-        icon_path="msc.table",
-    )
-
-    CORRELATION = ModuleRegistryItem(
-        display_name="Correlation",
-        icon_path="msc.link",
-    )
-
-    DESCRIPTIVE = ModuleRegistryItem(
-        display_name="Descriptive Statistics",
-        icon_path="msc.unverified",
-    )
-
-    RELIABILITY = ModuleRegistryItem(
-        display_name="Reliability",
-        icon_path="msc.unverified",
-    )
-
-    REGRESSION = ModuleRegistryItem(
-        display_name="Regression",
-        icon_path="msc.unverified",
-    )
-
-    FACTOR_ANALYSIS = ModuleRegistryItem(
-        display_name="Exploratory Factor Analysis",
-        icon_path="msc.unverified",
-    )
-
-    CFA = ModuleRegistryItem(
-        display_name="Confirmatory Factor Analysis",
-        icon_path="msc.unverified",
-    )
-
-    CLUSTER_ANALYSIS = ModuleRegistryItem(
-        display_name="Cluster Analysis",
-        icon_path="msc.unverified",
-    )
-
     CALCULATE_SCALE = ModuleRegistryItem(
         display_name="Calculate Scale",
         icon_path="mdi6.scale-balance",
@@ -111,6 +66,51 @@ class ModuleRegistry(Enum):
         display_name="Outliers",
         icon_path="mdi6.chart-scatter-plot",
         module_type=ModuleType.DATA_PROCESSING,
+    )
+
+    DESCRIPTIVE = ModuleRegistryItem(
+        display_name="Descriptive Statistics",
+        icon_path="ph.note",
+    )
+
+    MEAN_COMPARISON = ModuleRegistryItem(
+        display_name="T-test/ANOVA",
+        icon_path="ph.scales",
+    )
+
+    CONTINGENCY = ModuleRegistryItem(
+        display_name="Contingency Table",
+        icon_path="msc.table",
+    )
+
+    CORRELATION = ModuleRegistryItem(
+        display_name="Correlation",
+        icon_path="msc.link",
+    )
+
+    RELIABILITY = ModuleRegistryItem(
+        display_name="Reliability",
+        icon_path="msc.unverified",
+    )
+
+    REGRESSION = ModuleRegistryItem(
+        display_name="Regression",
+        icon_path="msc.unverified",
+    )
+
+    FACTOR_ANALYSIS = ModuleRegistryItem(
+        display_name="Exploratory Factor Analysis",
+        icon_path="msc.unverified",
+    )
+
+    CFA = ModuleRegistryItem(
+        display_name="Confirmatory Factor Analysis",
+        icon_path="msc.unverified",
+    )
+
+    CLUSTER_ANALYSIS = ModuleRegistryItem(
+        display_name="Cluster Analysis",
+        icon_path="msc.unverified",
     )
 
     @property

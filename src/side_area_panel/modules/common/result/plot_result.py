@@ -46,6 +46,14 @@ class ContingencyPlot:
         self.config = config if config else ContingencyPlotConfig()
 
 
+class Pie:
+    def __init__(self, labels, values, label, config=None):
+        self.labels = labels
+        self.values = values
+        self.label = label
+        self.config = config if config else PiePlotConfig()
+
+
 class Scatter:
     def __init__(self, x, y, label, config=None):
         self.x = x
@@ -165,6 +173,10 @@ class BasePlotConfig:
 
 
 class ContingencyPlotConfig(BasePlotConfig):
+    pass
+
+
+class PiePlotConfig(BasePlotConfig):
     pass
 
 
@@ -335,7 +347,7 @@ class PlotV2(BaseResultElement):
 
     def __init__(
         self,
-        items: List[Union[Scatter, Line, Band, Bar, Box, Heatmap, ContingencyPlot]],
+        items: List[Union[Scatter, Line, Band, Bar, Box, Heatmap, ContingencyPlot, Pie]],
         title="Plot Result Element",
         plot_title="Correlation plot",
         x_axis_title="",
@@ -776,6 +788,27 @@ class PlotV2(BaseResultElement):
                 ax2.spines["right"].set_color("grey")
                 ax2.spines["top"].set_visible(False)
                 ax2.spines["bottom"].set_visible(False)
+
+            if isinstance(item, Pie):
+                bg = self.background_color.get_current_value()
+                luminance = 0.299 * bg[0] + 0.587 * bg[1] + 0.114 * bg[2]
+                text_color = (0, 0, 0) if luminance > 140 else (235, 235, 235)
+                color_manager = Colors()
+                slice_colors = [
+                    rgba_tuple_from_rgb_and_a(color_manager.get_color_list(), 255) for _ in item.values
+                ]
+                ax.pie(
+                    item.values,
+                    labels=item.labels,
+                    colors=slice_colors,
+                    autopct="%1.1f%%",
+                    startangle=90,
+                    counterclock=False,
+                    textprops={"color": rgba_tuple_from_rgb_and_a(text_color, 255)},
+                    wedgeprops={"edgecolor": rgba_tuple_from_rgb_and_a(bg, 255), "linewidth": 1},
+                )
+                ax.set_aspect("equal")
+                ax.axis("off")  # a pie needs no axes/frame
 
         # frame (spines + ticks): user-configurable color and thickness
         frame_color = rgba_tuple_from_rgb_and_a(self.frame_color.get_current_value(), 255)
