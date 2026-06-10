@@ -141,7 +141,7 @@ def recalculate_contingency_study(elements, result: ContingencyResult) -> Contin
         else:
             interpretation = t("contingency.rel_strong")
         effect_name = "&phi;" if is_2x2 else t("contingency.col_cramer")
-        chi2_text += t(
+        chi2_text += " " + t(
             "contingency.cramer_text",
             name=effect_name,
             v=f"{cramer_v:.2f}",
