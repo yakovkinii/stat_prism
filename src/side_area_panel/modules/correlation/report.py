@@ -3,7 +3,6 @@
 
 import numpy as np
 
-from src.common.constant import TABLE_OR_PLOT_ID_PLACEHOLDER
 from src.common.translations import t
 from src.side_area_panel.modules.common.utility import smart_comma_join
 from src.side_area_panel.modules.correlation.result import CorrelationType
@@ -69,7 +68,7 @@ def get_report(columns, correlation_matrix, p_matrix, df_matrix, report_non_sign
     letter = _LETTER[kind]
 
     variables = smart_comma_join([f"«{var}»" for var in columns])
-    text = t("correlation.report.intro", name=name, vars=variables, table=TABLE_OR_PLOT_ID_PLACEHOLDER)
+    text = t("correlation.report.intro", name=name, vars=variables)
 
     if len(columns) == 2:
         r = correlation_matrix.loc[columns[1], columns[0]]

@@ -21,6 +21,7 @@ class Elements(ItemInSidePanelWithAutoConfigHolder):
                 name="Variables:",
                 column_type=ColumnType.ORDINAL,
                 reasonable_number_of_columns=10,
+                minimum_columns=2,
             ),
         ],
     )

@@ -539,8 +539,8 @@ TRANSLATIONS = {
     "correlation.sign.positive": {"en": "positive", "ua": "позитивну"},
     "correlation.sign.negative": {"en": "negative", "ua": "негативну"},
     "correlation.report.intro": {
-        "en": "A {name} was calculated to assess the relationship between the variables {vars} (Table {table}). ",
-        "ua": "Розраховано {name} для оцінки зв'язку між змінними {vars} (Таблиця {table}). ",
+        "en": "A {name} was calculated to assess the relationship between the variables {vars}. ",
+        "ua": "Розраховано {name} для оцінки зв'язку між змінними {vars}. ",
     },
     "correlation.report.two_significant": {
         "en": "There was a {strength} {sign} correlation between the two variables, {stats}. ",
@@ -601,6 +601,44 @@ TRANSLATIONS = {
     "correlation.table.name.polychoric": {
         "en": "Polychoric ρ<sub>pc</sub>",
         "ua": "поліхоричний ρ<sub>pc</sub>",
+    },
+    "correlation.error.min_variables": {
+        "en": "Please select at least two variables to correlate.",
+        "ua": "Будь ласка, оберіть щонайменше дві змінні для кореляції.",
+    },
+    "correlation.description": {
+        "en": (
+            "<h2>Correlation</h2>"
+            "<h3>Description</h3>"
+            "<div>Estimates the strength and direction of association between the selected "
+            "variables and reports a correlation matrix (with significance), an optional "
+            "verbal summary, a heatmap, and pairwise scatter plots with regression lines.</div>"
+            "<div>Choose the correlation coefficient that matches your data:"
+            "<ul>"
+            "<li>Pearson's r &ndash; linear association between continuous variables.</li>"
+            "<li>Spearman's ρ / Kendall's τ &ndash; monotonic (rank) association for ordinal "
+            "data; Kendall is preferred for small samples or many ties.</li>"
+            "<li>Phi φ &ndash; association between two binary variables.</li>"
+            "<li>Tetrachoric / Polychoric &ndash; association between binary / ordinal "
+            "variables assumed to reflect underlying continuous variables.</li>"
+            "</ul></div>"
+        ),
+        "ua": (
+            "<h2>Кореляція</h2>"
+            "<h3>Опис</h3>"
+            "<div>Оцінює силу та напрямок зв'язку між обраними змінними та виводить "
+            "кореляційну матрицю (зі значущістю), необов'язковий словесний підсумок, теплову "
+            "карту та парні діаграми розсіювання з лініями регресії.</div>"
+            "<div>Оберіть коефіцієнт кореляції відповідно до ваших даних:"
+            "<ul>"
+            "<li>r Пірсона &ndash; лінійний зв'язок між неперервними змінними.</li>"
+            "<li>ρ Спірмена / τ Кендалла &ndash; монотонний (ранговий) зв'язок для порядкових "
+            "даних; Кендалл краще підходить для малих вибірок або багатьох зв'язків.</li>"
+            "<li>φ (фі) &ndash; зв'язок між двома бінарними змінними.</li>"
+            "<li>Тетрахоричний / поліхоричний &ndash; зв'язок між бінарними / порядковими "
+            "змінними, що відображають приховані неперервні змінні.</li>"
+            "</ul></div>"
+        ),
     },
 }
 

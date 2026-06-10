@@ -177,9 +177,13 @@ def calculate_correlations(df, kind: CorrelationType):
             elif kind == CorrelationType.PHI:
                 corr, p_value, degrees_of_freedom = phi_coefficient(valid_data[col1], valid_data[col2])
             elif kind == CorrelationType.TETRACHORIC:
-                corr, _, p_value, degrees_of_freedom = tetrachoric_corr_2x2_table(
-                    table=pd.crosstab(df.iloc[:, 0], df.iloc[:, 1]).values
-                )
+                # Tetrachoric is defined for 2x2 tables of the current pair; return blank
+                # otherwise instead of crashing.
+                table = pd.crosstab(valid_data[col1], valid_data[col2]).values
+                if table.shape == (2, 2):
+                    corr, _, p_value, degrees_of_freedom = tetrachoric_corr_2x2_table(table=table)
+                else:
+                    corr, p_value, degrees_of_freedom = np.nan, np.nan, np.nan
             else:
                 raise ValueError(f"Invalid correlation type: {kind}")
 

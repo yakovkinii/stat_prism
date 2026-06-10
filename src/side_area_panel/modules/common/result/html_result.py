@@ -154,13 +154,23 @@ class HTMLTableV2(BaseResultElement):
                     elif cell.center:
                         cell_style += " text-align: center;"
 
+                    # Doubled cells are a value + its adjacent marker (e.g. "0.8" "***"):
+                    # drop the padding on the shared edge so they hug (right value, left
+                    # stars) instead of being separated by both cells' padding.
+                    if cell.is_doubled:
+                        if cell.push_to_right:
+                            cell_style += " padding-right: 0;"
+                        elif cell.push_to_left:
+                            cell_style += " padding-left: 0;"
+
                     # Top border
                     if r_idx == 0 and self.border_top:
                         cell_style += " border-top: 2px solid black;"
                     elif cell.border_top:
                         cell_style += " border-top: 1px solid black;"
-                    # Bottom border
-                    if r_idx == total_rows - 1 and self.border_bottom:
+                    # Bottom border -- a cell reaches the last row at r_idx + row_span - 1,
+                    # so row-spanning labels (e.g. multi-row APA tables) get it too.
+                    if (r_idx + cell.row_span - 1) == total_rows - 1 and self.border_bottom:
                         cell_style += " border-bottom: 2px solid black;"
                     elif cell.border_bottom:
                         cell_style += " border-bottom: 1px solid black;"
