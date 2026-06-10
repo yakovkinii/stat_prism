@@ -17,7 +17,7 @@ from src.common.qcolor import Colors, rgba_tuple_from_rgb_and_a
 from src.common.theme import THEME
 from src.pyside_ext.elements.base import BasePanelElement
 from src.side_area_panel.modules.common.result.base_result import BaseResultElement
-from src.side_area_panel.modules.correlation.table import format_r_apa
+from src.side_area_panel.modules.common.utility import format_r_apa
 from src.side_area_panel.panels.result_item_settings_classes import (
     CheckboxResultItemSetting,
     ColorGridItemSetting,

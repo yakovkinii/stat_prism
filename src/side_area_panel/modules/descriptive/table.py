@@ -6,32 +6,7 @@ from typing import Any, Dict, List
 import pandas as pd
 
 from src.side_area_panel.modules.common.result.html_result import Cell, HTMLTableV2, Row
-
-
-def format_w_apa(r, decimals=3):
-    if isinstance(r, str):
-        return r
-    return str(f"{round(r, decimals):.{decimals}f}".replace("0.", "."))
-
-
-def get_stars(p):
-    if p < 0.001:
-        return "***"
-    elif p < 0.01:
-        return "**"
-    elif p < 0.05:
-        return "*"
-    else:
-        return ""
-
-
-def format_p_apa(p, decimals=3):
-    if isinstance(p, str):
-        return p
-    if p < 0.001:
-        return "&lt;&nbsp;.001"
-    else:
-        return f"{round(p, decimals):.{decimals}f}".replace("0.", ".")
+from src.side_area_panel.modules.common.utility import format_p_apa_exact, format_r_apa
 
 
 def get_descriptive_table_no_groupby(
@@ -75,8 +50,8 @@ def get_descriptive_table_no_groupby(
                     Cell(f'{df.loc[row, "std"]}', center=True),
                     Cell(f'{df.loc[row, "min"]}', center=True),
                     Cell(f'{df.loc[row, "max"]}', center=True),
-                    Cell(format_w_apa(df.loc[row, "shapiro_wilk_w"]), center=True),
-                    Cell(format_p_apa(df.loc[row, "shapiro_wilk_p"]), center=True),
+                    Cell(format_r_apa(df.loc[row, "shapiro_wilk_w"], decimals=3), center=True),
+                    Cell(format_p_apa_exact(df.loc[row, "shapiro_wilk_p"]), center=True),
                 ]
             )
         )
@@ -138,8 +113,8 @@ def get_descriptive_table_groupby(
                         Cell(f'{row[groupby_value]["std"]}', center=True),
                         Cell(f'{row[groupby_value]["min"]}', center=True),
                         Cell(f'{row[groupby_value]["max"]}', center=True),
-                        Cell(format_w_apa(row[groupby_value]["shapiro_wilk_w"]), center=True),
-                        Cell(format_p_apa(row[groupby_value]["shapiro_wilk_p"]), center=True),
+                        Cell(format_r_apa(row[groupby_value]["shapiro_wilk_w"], decimals=3), center=True),
+                        Cell(format_p_apa_exact(row[groupby_value]["shapiro_wilk_p"]), center=True),
                     ]
                 )
             )

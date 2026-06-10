@@ -92,3 +92,56 @@ def format_p_apa_full(p, decimals=3):
     if p < 0.05:
         return "p&lt;.05"
     return f"p={round(p, decimals):.{decimals}f}".replace("0.", ".")
+
+
+def format_r_apa(value, decimals=2):
+    """APA coefficient (correlation / effect size): fixed decimals with the leading zero
+    dropped, e.g. .85, -.30. Intended for values in (-1, 1)."""
+    if isinstance(value, str):
+        return value
+    if value is None or np.isnan(value):
+        return MDASH
+    return f"{round(value, decimals):.{decimals}f}".replace("0.", ".")
+
+
+def get_stars(p):
+    """Significance stars: *** p<.001, ** p<.01, * p<.05, otherwise empty."""
+    if p is None or np.isnan(p):
+        return ""
+    if p < 0.001:
+        return "***"
+    if p < 0.01:
+        return "**"
+    if p < 0.05:
+        return "*"
+    return ""
+
+
+def format_p_apa_exact(p, decimals=3):
+    """p shown exactly (leading zero dropped); only p < .001 is bracketed. Used in
+    correlation / descriptive tables where the exact p is wanted."""
+    if isinstance(p, str):
+        return p
+    if p is None or np.isnan(p):
+        return MDASH
+    if p < 0.001:
+        return "&lt;&nbsp;.001"
+    return f"{round(p, decimals):.{decimals}f}".replace("0.", ".")
+
+
+def format_p_apa_prose(p, decimals=3):
+    """Inline prose form: 'p &lt; .001' or 'p = .023' (exact for p >= .001)."""
+    if isinstance(p, str):
+        return p
+    if p is None or np.isnan(p):
+        return MDASH
+    if p < 0.001:
+        return "p &lt; .001"
+    return f"p = {round(p, decimals):.{decimals}f}".replace("0.", ".")
+
+
+def format_apa(r, p, df, letter):
+    """Composite stat string: 'letter(df) = .52, p = .003' (df omitted when NaN)."""
+    if np.isnan(df):
+        return f"{letter} = {format_r_apa(r)}, {format_p_apa_prose(p)}"
+    return f"{letter}({df}) = {format_r_apa(r)}, {format_p_apa_prose(p)}"

@@ -1,10 +1,8 @@
 #  Copyright (c) 2023 StatPrism Team. All rights reserved.
 
 
-import numpy as np
-
 from src.common.translations import t
-from src.side_area_panel.modules.common.utility import smart_comma_join
+from src.side_area_panel.modules.common.utility import format_apa, smart_comma_join
 from src.side_area_panel.modules.correlation.correlation_result import CorrelationType
 
 _NAME_KEY = {
@@ -28,22 +26,6 @@ _LETTER = {
 if hasattr(CorrelationType, "KENDALL_C"):
     _NAME_KEY[CorrelationType.KENDALL_C] = "correlation.name.kendall_c"
     _LETTER[CorrelationType.KENDALL_C] = "τ<sub>c</sub>"
-
-
-def format_r_apa(r, decimals=2):
-    return f"{round(r, decimals):.{decimals}f}".replace("0.", ".")
-
-
-def format_p_apa(p, decimals=3):
-    if p < 0.001:
-        return "p &lt; .001"
-    return f"p = {round(p, decimals):.{decimals}f}".replace("0.", ".")
-
-
-def format_apa(r, p, df, letter):
-    if np.isnan(df):
-        return f"{letter} = {format_r_apa(r)}, {format_p_apa(p)}"
-    return f"{letter}({df}) = {format_r_apa(r)}, {format_p_apa(p)}"
 
 
 def _strength(r):

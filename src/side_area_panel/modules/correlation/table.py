@@ -4,7 +4,12 @@
 from src.common.constant import MDASH
 from src.common.translations import t
 from src.side_area_panel.modules.common.result.html_result import Cell, HTMLTableV2, Row
-from src.side_area_panel.modules.common.utility import smart_comma_join
+from src.side_area_panel.modules.common.utility import (
+    format_p_apa_exact,
+    format_r_apa,
+    get_stars,
+    smart_comma_join,
+)
 from src.side_area_panel.modules.correlation.correlation_result import CorrelationType
 
 _TABLE_NAME_KEY = {
@@ -23,28 +28,6 @@ def _caption(kind, columns):
     name = t(_TABLE_NAME_KEY[kind])
     variables = smart_comma_join([f"«{var}»" for var in columns])
     return t("correlation.table.caption", name=name, vars=variables)
-
-
-def format_r_apa(r, decimals=2):
-    return str(f"{round(r, decimals):.{decimals}f}".replace("0.", "."))
-
-
-def get_stars(p):
-    if p < 0.001:
-        return "***"
-    elif p < 0.01:
-        return "**"
-    elif p < 0.05:
-        return "*"
-    else:
-        return ""
-
-
-def format_p_apa(p, decimals=3):
-    if p < 0.001:
-        return "&lt;&nbsp;.001"
-    else:
-        return f"{round(p, decimals):.{decimals}f}".replace("0.", ".")
 
 
 def get_correlation_short_name(kind: CorrelationType) -> str:
@@ -135,7 +118,7 @@ def get_table_full(columns, correlation_matrix, p_matrix, df_matrix, kind: Corre
         for i_column, column in enumerate(columns):
             if i_column < i_row:
                 table_row_2.append(
-                    Cell(format_p_apa(p_matrix.loc[row, column]), push_to_right=True, is_doubled=True, no_wrap=True)
+                    Cell(format_p_apa_exact(p_matrix.loc[row, column]), push_to_right=True, is_doubled=True, no_wrap=True)
                 )
                 table_row_2.append(Cell(push_to_left=True, is_doubled=True))
             elif i_column == i_row:
