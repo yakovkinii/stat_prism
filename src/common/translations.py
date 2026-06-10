@@ -103,8 +103,62 @@ TRANSLATIONS = {
         "ua": "Не знайдено статистично значущого зв'язку між {col1} та {col2}: {stats}.",
     },
     "contingency.cramer_text": {
-        "en": "The Cramer's V = {v}, indicating a {interpretation} between {col1} and {col2}.",
-        "ua": "V Крамера = {v}, що свідчить про {interpretation} між {col1} та {col2}.",
+        "en": "The {name} = {v}, indicating a {interpretation} between {col1} and {col2}.",
+        "ua": "{name} = {v}, що свідчить про {interpretation} між {col1} та {col2}.",
+    },
+    "contingency.plot_title": {
+        "en": "Distribution of {col1} by {col2}",
+        "ua": "Розподіл «{col1}» за «{col2}»",
+    },
+    "contingency.plot_y_axis": {
+        "en": "{col} (%)",
+        "ua": "{col} (%)",
+    },
+    "contingency.fisher_caption": {
+        "en": "Fisher's Exact Test between {col1} and {col2}",
+        "ua": "Точний тест Фішера між {col1} та {col2}",
+    },
+    "contingency.fisher_text": {
+        "en": "Fisher's exact test: odds ratio = {odds}, {p}.",
+        "ua": "Точний тест Фішера: відношення шансів = {odds}, {p}.",
+    },
+    "contingency.error.select_two": {
+        "en": "Please select two variables (one for each axis).",
+        "ua": "Будь ласка, оберіть дві змінні (по одній на кожну вісь).",
+    },
+    "contingency.error.distinct": {
+        "en": "Please select two different variables.",
+        "ua": "Будь ласка, оберіть дві різні змінні.",
+    },
+    "contingency.error.min_categories": {
+        "en": "Each variable must have at least two distinct categories.",
+        "ua": "Кожна змінна повинна мати щонайменше дві різні категорії.",
+    },
+    "contingency.error.no_data": {
+        "en": "No complete observations for the selected variables.",
+        "ua": "Немає повних спостережень для обраних змінних.",
+    },
+    "contingency.description": {
+        "en": (
+            "<h2>Contingency Table &amp; Chi-square Test</h2>"
+            "<h3>Description</h3>"
+            "<div>Cross-tabulates two categorical variables and tests whether they are "
+            "associated, using Pearson's chi-square test of independence.</div>"
+            "<div>It reports the contingency table with row/column totals, the chi-square "
+            "statistic with its p-value, an effect size (&phi; for 2&times;2 tables, "
+            "otherwise Cramer's V), and a 100% stacked-bar plot of the distribution. For "
+            "2&times;2 tables Fisher's exact test is added when expected counts are small.</div>"
+        ),
+        "ua": (
+            "<h2>Таблиця сполученості та тест хі-квадрат</h2>"
+            "<h3>Опис</h3>"
+            "<div>Будує таблицю сполученості двох категоріальних змінних і перевіряє "
+            "наявність зв'язку між ними за допомогою тесту незалежності хі-квадрат Пірсона.</div>"
+            "<div>Виводить таблицю сполученості з підсумками за рядками та стовпцями, "
+            "статистику хі-квадрат із p-значенням, розмір ефекту (&phi; для таблиць 2&times;2, "
+            "інакше V Крамера) та стовпчасту діаграму розподілу (100%). Для таблиць 2&times;2 "
+            "додається точний тест Фішера, якщо очікувані частоти малі.</div>"
+        ),
     },
     # ----- T-test / ANOVA (mean comparison) -----
     # Table captions

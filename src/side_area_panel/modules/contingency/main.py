@@ -1,6 +1,8 @@
 #  Copyright (c) 2023 StatPrism Team. All rights reserved.
 
 
+import logging
+
 import pandas as pd
 from scipy import stats
 
@@ -20,137 +22,158 @@ from src.side_area_panel.modules.common.utility import (
 from src.side_area_panel.modules.contingency.result import ContingencyResult
 
 
+def _fail(result: ContingencyResult, message: str) -> ContingencyResult:
+    """Show a validation message to the user and log it, then stop."""
+    logging.warning("Contingency: %s", message)
+    result.set_error(message)
+    return result
+
+
+def _build_counts_table(contingency_table: pd.DataFrame, col1: str, col2: str) -> HTMLTableV2:
+    """The cross-tabulation of counts with row/column totals."""
+    table = HTMLTableV2(table_caption=t("contingency.table_caption", col1=col1, col2=col2))
+    total_str = t("contingency.total")
+
+    table.add_single_row_apa(
+        Row(
+            [
+                Cell(),
+                Cell(col2, col_span=len(contingency_table.columns), border_bottom=True, center=True),
+                Cell(),
+            ]
+        )
+    )
+    table.add_title_row_apa(
+        Row([Cell(col1)] + [Cell(c) for c in contingency_table.columns] + [Cell(total_str)])
+    )
+    for index, row in contingency_table.iterrows():
+        table.add_single_row_apa(Row([Cell(str(index))] + [Cell(c) for c in row] + [Cell(row.sum())]))
+    table.add_single_row_apa(
+        Row([Cell(total_str)] + [Cell(c) for c in contingency_table.sum()] + [Cell(contingency_table.sum().sum())])
+    )
+    return table
+
+
 @log_function
 def recalculate_contingency_study(elements, result: ContingencyResult) -> ContingencyResult:
+    """Validate the inputs, build the contingency table, run the chi-square test (with an
+    effect size and, for small 2x2 tables, Fisher's exact test), and a distribution plot.
+    Unexpected exceptions are handled centrally by the panel's recalculate()."""
     cfg = result.config
+    result.result_elements = []
+
+    cols1 = cfg.column_selector[0]
+    cols2 = cfg.column_selector[1]
+    if not cols1 or not cols2:
+        return _fail(result, t("contingency.error.select_two"))
+    col1, col2 = cols1[0], cols2[0]
+    if col1 == col2:
+        return _fail(result, t("contingency.error.distinct"))
+
     data = DATA_MANAGER.get_data_from_data_label(
         data_label=cfg.data_source,
         current_result_id=result.unique_id,
     )
-    col1 = cfg.column_selector[0][0] if cfg.column_selector[0] else None
-    col2 = cfg.column_selector[1][0] if cfg.column_selector[1] else None
+    df = data.get_dataframe(columns=[col1, col2])
 
-    df = data.get_dataframe(
-        columns=[col1, col2],
-    )
-
-    # calculate contingency table
     contingency_table = pd.crosstab(df[col1], df[col2])
+    if contingency_table.empty or contingency_table.values.sum() == 0:
+        return _fail(result, t("contingency.error.no_data"))
+    if contingency_table.shape[0] < 2 or contingency_table.shape[1] < 2:
+        return _fail(result, t("contingency.error.min_categories"))
 
-    table = HTMLTableV2(table_caption=t("contingency.table_caption", col1=col1, col2=col2))
+    # ----- Counts table -----
+    result.update_and_add_element(_build_counts_table(contingency_table, col1, col2), "contingency counts")
 
-    table.add_single_row_apa(
-        Row(
-            [
-                Cell(),
-                Cell(
-                    col2,
-                    col_span=len(contingency_table.columns),
-                    border_bottom=True,
-                    center=True,
-                ),
-                Cell(),
-            ]
-        )
-    )
+    # ----- Chi-square test -----
+    # The continuity-correction toggle is applied consistently to BOTH the chi-square
+    # statistic and the effect size (Yates affects 2x2 tables only).
+    correction = bool(cfg.continuity_correction)
+    chi2, p, dof, expected = stats.chi2_contingency(contingency_table, correction=correction)
 
-    total_str = t("contingency.total")
-
-    table.add_title_row_apa(
-        Row([Cell(col1)] + [Cell(c) for c in contingency_table.columns] + [Cell(total_str)])
-    )
-
-    for index, row in contingency_table.iterrows():
-        table.add_single_row_apa(Row([Cell(str(index))] + [Cell(c) for c in row] + [Cell(row.sum())]))
-
-    table.add_single_row_apa(
-        Row([Cell(total_str)] + [Cell(c) for c in contingency_table.sum()] + [Cell(contingency_table.sum().sum())])
-    )
-
-    # calculate chi-square test
-    chi2, p, dof, expected = stats.chi2_contingency(contingency_table)
-    chi2_no_yates, _, _, _ = stats.chi2_contingency(contingency_table, correction=False)
-
-    # Phi coefficient and Cramer's V
     n = contingency_table.sum().sum()
-    phi = (chi2_no_yates / n) ** 0.5  # report only for 2x2 tables
-    cramer_v = (chi2_no_yates / n / (min(contingency_table.shape) - 1)) ** 0.5  # valid for any size table
+    is_2x2 = contingency_table.shape == (2, 2)
+    # phi == Cramer's V for 2x2 (min(r,c) - 1 == 1); one formula covers both.
+    cramer_v = (chi2 / n / (min(contingency_table.shape) - 1)) ** 0.5
 
-    is_phi_eligible = contingency_table.shape[0] == 2 and contingency_table.shape[1] == 2
-    if is_phi_eligible:
-        assert phi == cramer_v
+    show_effect = bool(cfg.effect_size)
 
-    chi2_note = t("contingency.chi2_note")
-    if is_phi_eligible:
-        chi2_note += ", " + t("contingency.chi2_note_phi")
+    note = t("contingency.chi2_note")
+    if show_effect and is_2x2:
+        note += ", " + t("contingency.chi2_note_phi")
 
     chi2_table = HTMLTableV2(
         table_caption=t("contingency.chi2_caption", col1=col1, col2=col2),
-        table_note=chi2_note,
-    )
-    chi2_table.add_title_row_apa(
-        Row(
-            [
-                Cell("&chi;<sup>2</sup>"),
-                Cell("N"),
-                Cell("df"),
-                Cell(t("contingency.col_pvalue")),
-                Cell("&phi;" if is_phi_eligible else t("contingency.col_cramer")),
-            ]
-        )
+        table_note=note,
     )
 
-    chi2_table.add_single_row_apa(
-        Row(
-            [
-                Cell(format_statistic_apa(chi2)),
-                Cell(contingency_table.sum().sum()),
-                Cell(dof),
-                Cell(format_p_apa(p)),
-                Cell(format_statistic_apa(cramer_v)),
-            ]
-        )
+    header = [
+        Cell("&chi;<sup>2</sup>"),
+        Cell("N"),
+        Cell("df"),
+        Cell(t("contingency.col_pvalue")),
+    ]
+    values = [
+        Cell(format_statistic_apa(chi2)),
+        Cell(n),
+        Cell(dof),
+        Cell(format_p_apa(p)),
+    ]
+    if show_effect:
+        header.append(Cell("&phi;" if is_2x2 else t("contingency.col_cramer")))
+        values.append(Cell(format_statistic_apa(cramer_v)))
+    chi2_table.add_title_row_apa(Row(header))
+    chi2_table.add_single_row_apa(Row(values))
+
+    stats_str = (
+        f"&chi;<sup>2</sup>({dof}, N = {n}) = {format_statistic_apa(chi2)}, {format_p_apa_full(p)}"
     )
-
-    if cramer_v < 0.2:
-        interpretation = t("contingency.rel_weak")
-    elif cramer_v < 0.6:
-        interpretation = t("contingency.rel_moderate")
-    else:
-        interpretation = t("contingency.rel_strong")
-
-    def format_chi2(chi2_value, p_value, dof):
-        return (
-            f"&chi;<sup>2</sup>({dof}, N = {contingency_table.sum().sum()}) = {format_statistic_apa(chi2_value)}, "
-            f"{format_p_apa_full(p_value)}"
-        )
-
-    stats_str = format_chi2(chi2, p, dof)
     if p < 0.05:
-        chi2_table_text = t("contingency.significant", col1=col1, col2=col2, stats=stats_str)
+        chi2_text = t("contingency.significant", col1=col1, col2=col2, stats=stats_str)
     else:
-        chi2_table_text = t("contingency.not_significant", col1=col1, col2=col2, stats=stats_str)
+        chi2_text = t("contingency.not_significant", col1=col1, col2=col2, stats=stats_str)
 
-    chi2_table_text += t(
-        "contingency.cramer_text",
-        v=f"{cramer_v:.2f}",
-        interpretation=interpretation,
-        col1=col1,
-        col2=col2,
-    )
-    chi2_table.add_text(chi2_table_text)
+    if show_effect:
+        if cramer_v < 0.2:
+            interpretation = t("contingency.rel_weak")
+        elif cramer_v < 0.6:
+            interpretation = t("contingency.rel_moderate")
+        else:
+            interpretation = t("contingency.rel_strong")
+        effect_name = "&phi;" if is_2x2 else t("contingency.col_cramer")
+        chi2_text += t(
+            "contingency.cramer_text",
+            name=effect_name,
+            v=f"{cramer_v:.2f}",
+            interpretation=interpretation,
+            col1=col1,
+            col2=col2,
+        )
+    chi2_table.add_text(chi2_text)
 
-    plot = PlotV2(
-        items=[
-            ContingencyPlot(
-                contingency_table=contingency_table,
-                label="Contingency Plot",
+    # For 2x2 tables that violate the expected-count assumption, report Fisher's exact
+    # test instead (the assumption itself is documented in the method's fine-print).
+    low_expected_count = int((expected < 5).sum())
+    if is_2x2 and low_expected_count > 0:
+        odds_ratio, fisher_p = stats.fisher_exact(contingency_table.to_numpy())
+        chi2_table.add_text(
+            t(
+                "contingency.fisher_text",
+                odds=format_statistic_apa(odds_ratio),
+                p=format_p_apa_full(fisher_p),
             )
-        ],
-        plot_title=f"Contingency Plot: {col1} vs {col2}",
-        x_axis_title=col2,
-        y_axis_title=col1 + " (%)",
-    )
+        )
 
-    result.result_elements = [table, chi2_table, plot]
+    result.update_and_add_element(chi2_table, "contingency chi2")
+
+    # ----- Plot -----
+    if cfg.plots:
+        plot = PlotV2(
+            items=[ContingencyPlot(contingency_table=contingency_table, label="Contingency Plot")],
+            plot_title=t("contingency.plot_title", col1=col1, col2=col2),
+            x_axis_title=col2,
+            y_axis_title=t("contingency.plot_y_axis", col=col1),
+        )
+        result.update_and_add_element(plot, "contingency plot")
+
     return result

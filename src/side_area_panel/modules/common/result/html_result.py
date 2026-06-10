@@ -184,7 +184,7 @@ class HTMLTableV2(BaseResultElement):
         for i, text in enumerate(self.texts):
             if (total_rows > 0) or (i > 0):
                 html += "<br><br>\n"
-            html += f'<div class="font">{text.replace(TABLE_OR_PLOT_ID_PLACEHOLDER, id_suffix)}</div><br>\n'
+            html += f'<div class="font">{text.replace(TABLE_OR_PLOT_ID_PLACEHOLDER, id_suffix)}</div>\n'
         return html
 
     def add_title_row_apa(self, row: Row):
