@@ -89,7 +89,7 @@ class SettingsPanelClass:
         self.en_action.setCheckable(True)
         self.ua_action.setCheckable(True)
         self.en_action.setChecked(True)  # Default to English
-        about_action = QAction("About", self.widget)
+        self.about_action = QAction("About", self.widget)
 
         # One checkable action per theme (driven by the Themes enum, so adding a
         # theme there automatically adds a menu entry).
@@ -108,7 +108,7 @@ class SettingsPanelClass:
 
         language_menu.addAction(self.en_action)
         language_menu.addAction(self.ua_action)
-        help_menu.addAction(about_action)
+        help_menu.addAction(self.about_action)
 
         # Add all panels
         inject_classes_to_panel_registry()
@@ -125,7 +125,7 @@ class SettingsPanelClass:
 
         self.en_action.triggered.connect(self.set_language_EN)
         self.ua_action.triggered.connect(self.set_language_UA)
-
+        self.about_action.triggered.connect(PanelRegistry.HOME.value.ui_instance.about_handler)
     def set_language_EN(self):
         LANGUAGE.set_language(Languages.EN)
         self.en_action.setChecked(True)
