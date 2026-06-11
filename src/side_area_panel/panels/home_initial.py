@@ -89,6 +89,8 @@ class HomeInitial(BasePanel):
                             ModuleRegistry.PREPROCESS.settings_stacked_widget_index,
                             ModuleRegistry.GROUP_VALUES.settings_stacked_widget_index,
                             ModuleRegistry.OUTLIERS.settings_stacked_widget_index,
+                            ModuleRegistry.GROUPED_OUTLIERS.settings_stacked_widget_index,
+                            ModuleRegistry.TWO_D_OUTLIERS.settings_stacked_widget_index,
                         ]:
                             self.root_class.main_area_panel.add_data_processing(result.unique_id)
                         else:

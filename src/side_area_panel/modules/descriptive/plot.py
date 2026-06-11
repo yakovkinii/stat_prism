@@ -235,16 +235,21 @@ def make_qq_plot(series: pd.Series, col: str):
     )
 
 
-def make_frequency_bar_plot(df, col: str, groupby_column=None, groupby_values=None):
+def make_frequency_bar_plot(df, col: str, groupby_column=None, groupby_values=None, category_order=None):
     """Counts per category. One bar per category for the whole variable, or grouped
-    side-by-side bars (one colour + legend entry per group) when grouping is set."""
+    side-by-side bars (one colour + legend entry per group) when grouping is set.
+    `category_order` (if given) sets the category display order, e.g. ordinality."""
     colors = Colors()
     title = t("descriptive.plot.frequency", col=col)
 
     if groupby_column is None:
-        value_counts = df[col].value_counts().sort_index()
+        value_counts = df[col].value_counts()
         if value_counts.empty:
             return None
+        if category_order is not None:
+            value_counts = value_counts.reindex(category_order)
+        else:
+            value_counts = value_counts.sort_index()
         categories = [str(c) for c in value_counts.index]
         items = [
             Bar(
@@ -256,8 +261,8 @@ def make_frequency_bar_plot(df, col: str, groupby_column=None, groupby_values=No
             )
         ]
     else:
-        all_categories = sorted(df[col].dropna().unique(), key=str)
-        if not all_categories:
+        all_categories = category_order if category_order is not None else sorted(df[col].dropna().unique(), key=str)
+        if len(all_categories) == 0:
             return None
         categories = [str(c) for c in all_categories]
         n_groups = len(groupby_values)
@@ -288,11 +293,16 @@ def make_frequency_bar_plot(df, col: str, groupby_column=None, groupby_values=No
     )
 
 
-def make_pie_plot(series: pd.Series, col: str):
-    """Category-share pie for a categorical variable (whole variable)."""
-    value_counts = series.value_counts().sort_index()
+def make_pie_plot(series: pd.Series, col: str, category_order=None):
+    """Category-share pie for a categorical variable (whole variable). `category_order`
+    (if given) sets the slice display order, e.g. ordinality."""
+    value_counts = series.value_counts()
     if value_counts.empty:
         return None
+    if category_order is not None:
+        value_counts = value_counts.reindex(category_order)
+    else:
+        value_counts = value_counts.sort_index()
     title = t("descriptive.plot.pie", col=col)
     return PlotV2(
         items=[

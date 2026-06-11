@@ -241,6 +241,17 @@ class Data:
 
         return df
 
+    def ordered_categories(self, column_name: str, values) -> list:
+        """Order category `values` by the column's defined order (its ordinality for
+        ordinal columns; the stored order for nominal), with any value missing from the
+        order dict appended in natural sort. Use this for the *display* order of
+        categories, because pandas `crosstab` / `value_counts().sort_index()` otherwise
+        sort alphabetically and ignore the user-defined ordinal order."""
+        order = self[column_name].order or {}
+        present = sorted((v for v in values if v in order), key=lambda v: order[v])
+        missing = sorted(v for v in values if v not in order)
+        return present + missing
+
     def n_columns(self):
         return len(self.columns)
 

@@ -32,7 +32,7 @@ class Elements(ItemInSidePanelWithAutoConfigHolder):
                 allow_only_single_column=True,
             ),
             Field(
-                name="ID Column (optional):",
+                name="ID Column (for outliers, optional):",
                 column_type=ColumnType.NOMINAL,
                 reasonable_number_of_columns=1,
                 allow_only_single_column=True,

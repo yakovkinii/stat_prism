@@ -169,7 +169,10 @@ def recalculate_descriptive_study(elements, result: DescriptiveResult) -> Descri
         if outlier_sentences:
             text = "".join(outlier_sentences)
             if id_column is not None and all_ids:
-                text += t("descriptive.outliers.id_list", ids=", ".join(all_ids))
+                # The same ID can be an outlier on several variables/groups -- de-duplicate
+                # (order-preserving) so each is listed once.
+                unique_ids = list(dict.fromkeys(all_ids))
+                text += t("descriptive.outliers.id_list", ids=", ".join(unique_ids))
             summary.add_text(text)
 
         result.update_and_add_element(summary, "descriptive summary")
@@ -200,17 +203,22 @@ def recalculate_descriptive_study(elements, result: DescriptiveResult) -> Descri
     # ----- Categorical frequency tables (split by group when grouping is set) -----
     if cfg.frequency_table:
         for col in categorical_columns:
+            # Order categories by the column's defined order (ordinality / custom order)
+            # rather than alphabetically.
+            def _ordered(vc):
+                return vc.reindex(data.ordered_categories(col, list(vc.index)))
+
             if grouping_column is None:
                 value_counts = df[col].value_counts()
                 if value_counts.empty:
                     continue
                 freq = get_frequency_table(
                     caption=t("descriptive.freq.caption", col=col),
-                    value_counts=value_counts.sort_index(),
+                    value_counts=_ordered(value_counts),
                 )
             else:
                 group_counts = [
-                    (gv, df.loc[df[grouping_column] == gv, col].value_counts().sort_index())
+                    (gv, _ordered(df.loc[df[grouping_column] == gv, col].value_counts()))
                     for gv in groupby_values
                 ]
                 if all(vc.empty for _, vc in group_counts):
@@ -247,12 +255,13 @@ def recalculate_descriptive_study(elements, result: DescriptiveResult) -> Descri
                 if plot is not None:
                     result.update_and_add_element(plot, f"descriptive qq {col}")
         else:
+            category_order = data.ordered_categories(col, list(df[col].dropna().unique()))
             if cfg.show_frequency_bars:
-                plot = make_frequency_bar_plot(df, col, grouping_column, groupby_values)
+                plot = make_frequency_bar_plot(df, col, grouping_column, groupby_values, category_order)
                 if plot is not None:
                     result.update_and_add_element(plot, f"descriptive frequency {col}")
             if cfg.show_pie:
-                plot = make_pie_plot(df[col], col)
+                plot = make_pie_plot(df[col], col, category_order)
                 if plot is not None:
                     result.update_and_add_element(plot, f"descriptive pie {col}")
 

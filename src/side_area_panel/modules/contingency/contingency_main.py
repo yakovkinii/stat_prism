@@ -83,6 +83,13 @@ def recalculate_contingency_study(elements, result: ContingencyResult) -> Contin
     if contingency_table.shape[0] < 2 or contingency_table.shape[1] < 2:
         return _fail(result, t("contingency.error.min_categories"))
 
+    # crosstab sorts categories alphabetically; reorder both axes by each column's defined
+    # order so ordinal categories follow their ordinality rather than the alphabet.
+    contingency_table = contingency_table.reindex(
+        index=data.ordered_categories(col1, list(contingency_table.index)),
+        columns=data.ordered_categories(col2, list(contingency_table.columns)),
+    )
+
     # ----- Counts table -----
     result.update_and_add_element(_build_counts_table(contingency_table, col1, col2), "contingency counts")
 

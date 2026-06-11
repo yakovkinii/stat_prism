@@ -68,6 +68,18 @@ class ModuleRegistry(Enum):
         module_type=ModuleType.DATA_PROCESSING,
     )
 
+    GROUPED_OUTLIERS = ModuleRegistryItem(
+        display_name="Grouped Outliers",
+        icon_path="mdi6.chart-scatter-plot",
+        module_type=ModuleType.DATA_PROCESSING,
+    )
+
+    TWO_D_OUTLIERS = ModuleRegistryItem(
+        display_name="2D Outliers",
+        icon_path="mdi6.chart-scatter-plot",
+        module_type=ModuleType.DATA_PROCESSING,
+    )
+
     DESCRIPTIVE = ModuleRegistryItem(
         display_name="Descriptive Statistics",
         icon_path="ph.note",

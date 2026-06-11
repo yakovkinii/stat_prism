@@ -63,6 +63,20 @@ from src.side_area_panel.modules.dp_outliers.dp_outliers_result import (
     OutliersStudyConfig,
 )
 from src.side_area_panel.modules.dp_outliers.dp_outliers_ui import Outliers
+from src.side_area_panel.modules.dp_grouped_outliers.dp_grouped_outliers_main import (
+    dp_grouped_outliers_main,
+)
+from src.side_area_panel.modules.dp_grouped_outliers.dp_grouped_outliers_result import (
+    GroupedOutliersResult,
+    GroupedOutliersStudyConfig,
+)
+from src.side_area_panel.modules.dp_grouped_outliers.dp_grouped_outliers_ui import GroupedOutliers
+from src.side_area_panel.modules.dp_2d_outliers.dp_2d_outliers_main import dp_2d_outliers_main
+from src.side_area_panel.modules.dp_2d_outliers.dp_2d_outliers_result import (
+    TwoDOutliersResult,
+    TwoDOutliersStudyConfig,
+)
+from src.side_area_panel.modules.dp_2d_outliers.dp_2d_outliers_ui import TwoDOutliers
 from src.side_area_panel.modules.contingency.contingency_ui import Contingency
 from src.side_area_panel.modules.contingency.contingency_main import recalculate_contingency_study
 from src.side_area_panel.modules.contingency.contingency_result import (
@@ -202,3 +216,13 @@ def inject_classes_to_module_registry():
     ModuleRegistry.OUTLIERS.value.result_class = OutliersResult
     ModuleRegistry.OUTLIERS.value.config_class = OutliersStudyConfig
     ModuleRegistry.OUTLIERS.value.main_function = dp_outliers_main
+
+    ModuleRegistry.GROUPED_OUTLIERS.value.ui_class = GroupedOutliers
+    ModuleRegistry.GROUPED_OUTLIERS.value.result_class = GroupedOutliersResult
+    ModuleRegistry.GROUPED_OUTLIERS.value.config_class = GroupedOutliersStudyConfig
+    ModuleRegistry.GROUPED_OUTLIERS.value.main_function = dp_grouped_outliers_main
+
+    ModuleRegistry.TWO_D_OUTLIERS.value.ui_class = TwoDOutliers
+    ModuleRegistry.TWO_D_OUTLIERS.value.result_class = TwoDOutliersResult
+    ModuleRegistry.TWO_D_OUTLIERS.value.config_class = TwoDOutliersStudyConfig
+    ModuleRegistry.TWO_D_OUTLIERS.value.main_function = dp_2d_outliers_main
