@@ -102,17 +102,17 @@ class ModuleRegistry(Enum):
 
     RELIABILITY = ModuleRegistryItem(
         display_name="Reliability",
-        icon_path="msc.unverified",
+        icon_path="mdi6.check-decagram",
     )
 
     REGRESSION = ModuleRegistryItem(
         display_name="Regression",
-        icon_path="msc.unverified",
+        icon_path="mdi6.chart-bell-curve-cumulative",
     )
 
     FACTOR_ANALYSIS = ModuleRegistryItem(
         display_name="Exploratory Factor Analysis",
-        icon_path="msc.unverified",
+        icon_path="mdi6.chart-bubble",
     )
 
     CFA = ModuleRegistryItem(

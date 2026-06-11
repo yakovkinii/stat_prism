@@ -4,7 +4,7 @@ import logging
 import qtawesome as qta
 from PySide6.QtCore import QMimeData, QSize, Qt, QTimer
 from PySide6.QtGui import QGuiApplication
-from PySide6.QtWidgets import QHBoxLayout, QVBoxLayout
+from PySide6.QtWidgets import QHBoxLayout, QTextBrowser, QVBoxLayout, QWidget
 
 from src.common.decorators import log_method
 from src.common.progress import with_progress
@@ -123,6 +123,21 @@ class DataAnalysisResultDisplay(BaseResultDisplay):
             ],
         )
 
+        self.info_button = widget_in_layout(
+            widget=create_simple_tool_button_qta(
+                parent=self.header_widget,
+                icon_path="mdi6.information-outline",
+                icon_size=QSize(20, 20),
+            ),
+            layout=self.header_layout,
+            alignment=Qt.AlignmentFlag.AlignTop,
+            setup=lambda w, l: [
+                w.setToolTip("About this analysis (description & methodology)"),
+                w.clicked.connect(self.show_description_popup),
+            ],
+        )
+        self.description_popup = None
+
         self.html_result_elements_container, self.html_result_elements_container_layout = empty_widget(
             widget_class=QWidgetClickable,
             parent=self.widget,
@@ -199,6 +214,48 @@ class DataAnalysisResultDisplay(BaseResultDisplay):
             return
         self.delete_button.setIcon(qta.icon("mdi6.delete", color="#888"))
         self.deleting = False
+
+    def show_description_popup(self):
+        """Show the study's description + methodology fine-print in a dimmed popup (closing
+        on click outside), so it's available even when the study has results. Mirrors the
+        plot-zoom popup."""
+        description_html = getattr(RESULTS[self.result_id], "description", "") or ""
+
+        container = QWidget()
+        container_layout = QVBoxLayout(container)
+        container_layout.setContentsMargins(0, 0, 0, 0)
+        browser = QTextBrowser(container)
+        browser.setOpenExternalLinks(True)
+        browser.setHtml(description_html)
+        container_layout.addWidget(browser)
+        container.setFixedSize(QSize(620, 680))
+        set_stylesheet(
+            browser,
+            css(
+                background_color=Style.Color.BackgroundElevated,
+                color=Style.Color.Text,
+                border=Style.General.border,
+                border_color=Style.Color.BorderElevated,
+                border_radius="8px",
+                padding="16px",
+            ),
+        )
+
+        self._close_description_popup()
+        self.description_popup = view_widget_in_popup(
+            parent=self.root_class.main_area_panel.widget,
+            widget=container,
+            handler_on_close=self._on_description_popup_closed,
+        )
+
+    def _close_description_popup(self):
+        popup = self.description_popup
+        self.description_popup = None
+        if popup is not None:
+            popup.close()
+
+    def _on_description_popup_closed(self):
+        self.description_popup = None
 
     @log_method
     def set_display_element(self, result_element_id):

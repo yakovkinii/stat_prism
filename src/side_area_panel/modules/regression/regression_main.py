@@ -9,6 +9,7 @@ import statsmodels.api as sm
 
 from src.common.decorators import log_function
 from src.common.qcolor import Colors
+from src.common.translations import t
 from src.data.data_manager import DATA_MANAGER
 from src.side_area_panel.modules.common.result.html_result import Cell, HTMLTableV2, Row
 from src.side_area_panel.modules.common.result.plot_result import (
@@ -19,46 +20,130 @@ from src.side_area_panel.modules.common.result.plot_result import (
     PlotV2,
     Scatter,
 )
-from src.side_area_panel.modules.common.utility import format_statistic_apa
+from src.side_area_panel.modules.common.utility import (
+    format_p_apa_exact,
+    format_p_apa_full,
+    format_r_apa,
+    format_statistic_apa,
+    format_value_apa,
+    smart_comma_join,
+)
+from src.side_area_panel.modules.common.verbal.significance import significance_verbal
 from src.side_area_panel.modules.regression.regression_result import (
     RegressionResult,
     RegressionStudyConfig,
 )
 
 
+def _fail(result: RegressionResult, message: str) -> RegressionResult:
+    """Show a validation message to the user and log it, then stop."""
+    logging.warning("Regression: %s", message)
+    result.set_error(message)
+    return result
+
+
+def _coefficient_table(model, dependent_sd, show_std, verbal, x, caption, intercept_label):
+    """Coefficients table: B, SE, optional standardised beta, t, p, optional Significant?.
+    `x` is the design matrix (for predictor SDs in the standardised beta)."""
+    table = HTMLTableV2(table_caption=caption)
+
+    header = [
+        Cell(),
+        Cell(t("regression.col.b"), center=True),
+        Cell(t("regression.col.se"), center=True),
+    ]
+    if show_std:
+        header.append(Cell(t("regression.col.beta"), center=True))
+    header += [Cell(t("regression.col.t"), center=True), Cell(t("common.p_value"), center=True)]
+    if verbal:
+        header.append(Cell(t("verbal.col_significant"), center=True))
+    table.add_title_row_apa(Row(header))
+
+    for param in model.params.index:
+        b = model.params[param]
+        p = model.pvalues[param]
+        name = intercept_label if param == "const" else param
+        cells = [
+            Cell(name, push_to_left=True),
+            Cell(format_statistic_apa(b), center=True),
+            Cell(format_statistic_apa(model.bse[param]), center=True),
+        ]
+        if show_std:
+            if param == "const":
+                beta_str = "—"
+            else:
+                sd_x = x[param].std()
+                beta_str = format_r_apa(b * sd_x / dependent_sd) if (dependent_sd and sd_x) else "—"
+            cells.append(Cell(beta_str, center=True))
+        cells += [
+            Cell(format_statistic_apa(model.tvalues[param]), center=True),
+            Cell(format_p_apa_exact(p), center=True),
+        ]
+        if verbal:
+            cells.append(Cell(significance_verbal(p), center=True))
+        table.add_single_row_apa(Row(cells))
+
+    return table
+
+
+def _coefficient_prose(model, dependent_column) -> str:
+    """Explain what the coefficients mean and name the significant predictors (with the
+    sign of their association)."""
+    text = t("regression.report.coef_intro", dv=dependent_column)
+    significant = []
+    for param in model.params.index:
+        if param == "const" or model.pvalues[param] >= 0.05:
+            continue
+        direction = (
+            t("regression.dir.positive") if model.params[param] >= 0 else t("regression.dir.negative")
+        )
+        significant.append(f"{param} ({direction})")
+    if significant:
+        text += t("regression.report.coef_sig", dv=dependent_column, items=smart_comma_join(significant))
+    else:
+        text += t("regression.report.coef_none", dv=dependent_column)
+    return text
+
+
 @log_function
 def recalculate_regression_study(elements, result: RegressionResult) -> RegressionResult:
+    """Validate the inputs, fit an OLS model (with optional moderation / mediation), and
+    build the fit, coefficient and (when relevant) path tables plus a plot. Unexpected
+    exceptions are handled centrally by the panel's recalculate()."""
     cfg: RegressionStudyConfig = result.config
-    data = DATA_MANAGER.get_data_from_data_label(
-        data_label=cfg.data_source,
-        current_result_id=result.unique_id,
-    )
+    result.result_elements = []
 
     cs = cfg.column_selector
     dependent_column = cs[0][0] if cs[0] else None
-    independent_columns = cs[1]
-    moderator_column = cs[2][0] if cs[2] else None
-    mediator_column = cs[3][0] if cs[3] else None
+    independent_columns = list(cs[1]) if cs[1] else []
+    moderator_column = cs[2][0] if (len(cs) > 2 and cs[2]) else None
+    mediator_column = cs[3][0] if (len(cs) > 3 and cs[3]) else None
+
+    if not dependent_column:
+        return _fail(result, t("regression.error.no_dependent"))
+    if not independent_columns:
+        return _fail(result, t("regression.error.no_independent"))
 
     all_columns = [dependent_column] + independent_columns
     if moderator_column is not None:
         all_columns.append(moderator_column)
     if mediator_column is not None:
         all_columns.append(mediator_column)
-
-    df = data.get_dataframe(columns=all_columns, map_ordinal=True)
-
     if "const" in all_columns:
-        msg = "The column name 'const' is reserved. Please rename the column."
-        result.set_placeholder(msg)
-        logging.debug(msg)
-        return result
+        return _fail(result, t("regression.error.const_reserved"))
+
+    data = DATA_MANAGER.get_data_from_data_label(
+        data_label=cfg.data_source,
+        current_result_id=result.unique_id,
+    )
+    # Drop rows with any missing value in the used columns (list-wise) so OLS doesn't fail.
+    df = data.get_dataframe(columns=all_columns, map_ordinal=True).dropna()
+
+    verbal = bool(cfg.verbal_indicators)
+    show_std = bool(cfg.standardized)
 
     independent_cols = independent_columns.copy()
-
     if moderator_column:
-        logging.info("Performing Moderation Analysis...\n")
-        # Add interaction terms between the independent variables and the moderator
         original_independent_cols = independent_cols.copy()
         independent_cols.append(moderator_column)
         for ind_col in original_independent_cols:
@@ -68,229 +153,240 @@ def recalculate_regression_study(elements, result: RegressionResult) -> Regressi
 
     mediator_model = None
     if mediator_column:
-        logging.info("Performing Mediation Analysis...\n")
-        # Step 1: Regress mediator on independent variables
-        X_mediator = sm.add_constant(df[independent_cols])
-        mediator_model = sm.OLS(df[mediator_column], X_mediator).fit()
-
-        # Step 2: Regress dependent variable on independent variables and mediator
+        x_mediator = sm.add_constant(df[independent_cols])
+        mediator_model = sm.OLS(df[mediator_column], x_mediator).fit()
         independent_cols.append(mediator_column)
 
-        # Fit the final regression model
+    n = len(df)
+    if n < len(independent_cols) + 2:
+        return _fail(result, t("regression.error.insufficient_data"))
 
-    X = sm.add_constant(df[independent_cols])
-    model = sm.OLS(df[dependent_column], X).fit()
+    x = sm.add_constant(df[independent_cols])
+    model = sm.OLS(df[dependent_column], x).fit()
+    dependent_sd = df[dependent_column].std()
 
-    # Create fit table
-    fit_table = HTMLTableV2(table_caption="Regression Metrics")
-    fit_table.add_title_row_apa(
-        Row(
-            [
-                Cell(),
-                Cell("R<sup>2</sup>", center=True),
-                Cell("Adjusted&nbsp;R<sup>2</sup>", center=True),
-            ]
-        )
+    # ----- Model fit table + verbal report -----
+    fit_table = HTMLTableV2(table_caption=t("regression.caption.fit"))
+    fit_header = [
+        Cell(),
+        Cell(t("regression.col.n"), center=True),
+        Cell("R<sup>2</sup>", center=True),
+        Cell(t("regression.col.adj_r2"), center=True),
+        Cell(t("regression.col.f"), center=True),
+        Cell("df", center=True),
+        Cell(t("common.p_value"), center=True),
+    ]
+    if verbal:
+        fit_header.append(Cell(t("verbal.col_significant"), center=True))
+    fit_table.add_title_row_apa(Row(fit_header))
+
+    fit_row = [
+        Cell(t("regression.row.model"), push_to_left=True),
+        Cell(str(n), center=True),
+        Cell(format_r_apa(model.rsquared), center=True),
+        Cell(format_r_apa(model.rsquared_adj), center=True),
+        Cell(format_statistic_apa(model.fvalue), center=True),
+        Cell(f"{int(model.df_model)}, {int(model.df_resid)}", center=True),
+        Cell(format_p_apa_exact(model.f_pvalue), center=True),
+    ]
+    if verbal:
+        fit_row.append(Cell(significance_verbal(model.f_pvalue), center=True))
+    fit_table.add_single_row_apa(Row(fit_row))
+
+    report = t(
+        "regression.report.fit",
+        pct=format_value_apa(model.rsquared * 100, 1),
+        dv=dependent_column,
+        r2=format_r_apa(model.rsquared),
+        adj=format_r_apa(model.rsquared_adj),
+        df1=int(model.df_model),
+        df2=int(model.df_resid),
+        f=format_statistic_apa(model.fvalue),
+        p=format_p_apa_full(model.f_pvalue),
     )
-
-    fit_table.add_single_row_apa(
-        Row(
-            [
-                Cell("Model", push_to_left=True),
-                Cell(format_statistic_apa(model.rsquared), center=True),
-                Cell(format_statistic_apa(model.rsquared_adj), center=True),
-            ]
-        )
+    report += (
+        t("regression.report.significant")
+        if model.f_pvalue < 0.05
+        else t("regression.report.not_significant")
     )
-
-    # Create coefficients table
-    coefficients_table = HTMLTableV2(table_caption="Coefficients")
-    coefficients_table.add_title_row_apa(
-        Row(
-            [
-                Cell(),
-                Cell("Coefficient", center=True),
-                Cell("SD", center=True),
-                Cell("t-value", center=True),
-                Cell("p-value", center=True),
-            ]
-        )
+    significant_predictors = [
+        name for name in model.params.index if name != "const" and model.pvalues[name] < 0.05
+    ]
+    report += (
+        t("regression.report.predictors", items=smart_comma_join(significant_predictors))
+        if significant_predictors
+        else t("regression.report.predictors_none")
     )
+    fit_table.add_text(report)
+    result.update_and_add_element(fit_table, "regression fit")
 
-    for param_name, param_value in model.params.items():
-        coefficients_table.add_single_row_apa(
-            Row(
-                [
-                    Cell(param_name if param_name != "const" else "Intercept", push_to_left=True),
-                    Cell(format_statistic_apa(param_value), center=True),
-                    Cell(format_statistic_apa(model.bse[param_name]), center=True),
-                    Cell(format_statistic_apa(model.tvalues[param_name]), center=True),
-                    Cell(format_statistic_apa(model.pvalues[param_name]), center=True),
-                ]
-            )
-        )
+    # ----- Coefficients table -----
+    coefficients_table = _coefficient_table(
+        model, dependent_sd, show_std, verbal, x,
+        caption=t("regression.caption.coefficients"),
+        intercept_label=t("regression.row.intercept"),
+    )
+    coefficients_table.add_text(_coefficient_prose(model, dependent_column))
+    result.update_and_add_element(coefficients_table, "regression coefficients")
 
-    mediator_table = None
+    # ----- Path estimates table (mediation) -----
     if mediator_column:
-        mediator_table = HTMLTableV2(table_caption="Path Estimates")
-        mediator_table.add_title_row_apa(
-            Row(
-                [
-                    Cell(),
-                    Cell("Coefficient", center=True),
-                    Cell("SD", center=True),
-                    Cell("t-value", center=True),
-                    Cell("p-value", center=True),
+        path_table = HTMLTableV2(table_caption=t("regression.caption.paths"))
+        path_header = [
+            Cell(),
+            Cell(t("regression.col.b"), center=True),
+            Cell(t("regression.col.se"), center=True),
+            Cell(t("regression.col.t"), center=True),
+            Cell(t("common.p_value"), center=True),
+        ]
+        if verbal:
+            path_header.append(Cell(t("verbal.col_significant"), center=True))
+        path_table.add_title_row_apa(Row(path_header))
+
+        def _add_path_rows(path_model, target):
+            for param in path_model.params.index:
+                if param == "const":
+                    continue
+                p = path_model.pvalues[param]
+                cells = [
+                    Cell(f"{param}&nbsp;→&nbsp;{target}", push_to_left=True),
+                    Cell(format_statistic_apa(path_model.params[param]), center=True),
+                    Cell(format_statistic_apa(path_model.bse[param]), center=True),
+                    Cell(format_statistic_apa(path_model.tvalues[param]), center=True),
+                    Cell(format_p_apa_exact(p), center=True),
                 ]
-            )
-        )
+                if verbal:
+                    cells.append(Cell(significance_verbal(p), center=True))
+                path_table.add_single_row_apa(Row(cells))
 
-        for param_name, param_value in mediator_model.params.items():
-            if param_name == "const":
-                continue
-            mediator_table.add_single_row_apa(
-                Row(
-                    [
-                        Cell(f"{param_name}&nbsp;→&nbsp;{mediator_column}", push_to_left=True),
-                        Cell(format_statistic_apa(param_value), center=True),
-                        Cell(format_statistic_apa(mediator_model.bse[param_name]), center=True),
-                        Cell(format_statistic_apa(mediator_model.tvalues[param_name]), center=True),
-                        Cell(format_statistic_apa(mediator_model.pvalues[param_name]), center=True),
-                    ]
-                )
-            )
-        for i, (param_name, param_value) in enumerate(model.params.items()):
-            if param_name == "const":
-                continue
-            mediator_table.add_single_row_apa(
-                Row(
-                    [
-                        Cell(f"{param_name}&nbsp;→&nbsp;{dependent_column}", push_to_left=True),
-                        Cell(format_statistic_apa(param_value), center=True),
-                        Cell(format_statistic_apa(model.bse[param_name]), center=True),
-                        Cell(format_statistic_apa(model.tvalues[param_name]), center=True),
-                        Cell(format_statistic_apa(model.pvalues[param_name]), center=True),
-                    ]
-                )
-            )
-    result.result_elements = []
-    result.result_elements.append(fit_table)
-    result.result_elements.append(coefficients_table)
-    if mediator_table:
-        result.result_elements.append(mediator_table)
+        _add_path_rows(mediator_model, mediator_column)
+        _add_path_rows(model, dependent_column)
 
-    plot_result_element = None
-    if len(independent_columns) == 1:
-        scatter = Scatter(
-            x=df[independent_columns[0]],
-            y=df[dependent_column],
-            label="Data points",
+        # Prose: the b path (mediator -> outcome) and each predictor's indirect effect a*b.
+        b_path = model.params[mediator_column]
+        indirect_items = [
+            f"{param}: {format_statistic_apa(mediator_model.params[param] * b_path)}"
+            for param in independent_columns
+            if param in mediator_model.params.index
+        ]
+        med_text = t("regression.report.med_intro", dv=dependent_column, mediator=mediator_column)
+        med_text += t(
+            "regression.report.med_b",
+            mediator=mediator_column,
+            dv=dependent_column,
+            b=format_statistic_apa(b_path),
+            p=format_p_apa_full(model.pvalues[mediator_column]),
         )
-        items = [scatter]
+        if indirect_items:
+            med_text += t("regression.report.med_indirect", items=smart_comma_join(indirect_items))
+        path_table.add_text(med_text)
+        result.update_and_add_element(path_table, "regression paths")
 
-        x_values_original = np.linspace(df[independent_columns[0]].min(), df[independent_columns[0]].max(), 100)
-        x_values_original = pd.DataFrame(
-            {
-                "const": 1,
-                independent_columns[0]: x_values_original,
-            }
-        )
-        if moderator_column:
-            mean = df[moderator_column].mean()
-            std = df[moderator_column].std()
-            colors = Colors()
-            for number_of_sds in [-1, 0, 1]:
-                x_values = x_values_original.copy()
-                x_values[moderator_column] = mean + number_of_sds * std
-                x_values[f"{independent_columns[0]}&nbsp;*&nbsp;{moderator_column}"] = (
-                    x_values[independent_columns[0]] * x_values[moderator_column]
-                )
-                line = Line(
-                    x=x_values[independent_columns[0]],
+    # ----- Plot (only for a single independent variable) -----
+    plot_result_element = _build_plot(
+        df, model, mediator_model, dependent_column, independent_columns, moderator_column, mediator_column
+    )
+    if plot_result_element is not None:
+        result.update_and_add_element(plot_result_element, "regression plot")
+
+    return result
+
+
+def _build_plot(df, model, mediator_model, dependent_column, independent_columns, moderator_column, mediator_column):
+    """Regression plot for a single predictor: scatter + fitted line, plus moderator simple
+    slopes or mediation direct/total effects when those are in play."""
+    if len(independent_columns) != 1:
+        return None
+
+    predictor = independent_columns[0]
+    scatter = Scatter(x=df[predictor], y=df[dependent_column], label=t("regression.plot.data"))
+    items = [scatter]
+
+    x_grid = np.linspace(df[predictor].min(), df[predictor].max(), 100)
+    x_values_original = pd.DataFrame({"const": 1, predictor: x_grid})
+
+    if moderator_column:
+        mean = df[moderator_column].mean()
+        std = df[moderator_column].std()
+        colors = Colors()
+        for number_of_sds in [-1, 0, 1]:
+            x_values = x_values_original.copy()
+            x_values[moderator_column] = mean + number_of_sds * std
+            x_values[f"{predictor}&nbsp;*&nbsp;{moderator_column}"] = (
+                x_values[predictor] * x_values[moderator_column]
+            )
+            label = t("regression.plot.line_sd", sd=number_of_sds)
+            items.append(
+                Line(
+                    x=x_values[predictor],
                     y=model.predict(x_values),
-                    label=f"Regression Line ({number_of_sds} SD)",
-                    legend_string=f"Regression Line ({number_of_sds} SD)",
+                    label=label,
+                    legend_string=label,
                     config=LinePlotConfig(color=colors.get_color_list()),
                 )
-                items.append(line)
-        elif mediator_column:
-            colors = Colors()
-            # ============================ DIRECT ================================
-            x_values = x_values_original.copy()
-            x_values[mediator_column] = df[mediator_column].mean()
-            xx = x_values_original[independent_columns[0]]
-
-            # Calculate the confidence intervals
-            conf_static = model.bse["const"]
-            conf_direct = model.bse[independent_columns[0]]
-            conf_mediator_static = mediator_model.bse["const"]
-            conf_mediator_dynamic = mediator_model.bse[independent_columns[0]] * abs(xx - xx.mean())
-            conf_mediator_total = np.sqrt(conf_mediator_static**2 + conf_mediator_dynamic**2)
-            conf_indirect = np.sqrt(
-                (conf_mediator_total**2) * (model.params[mediator_column] ** 2)
-                + model.bse[mediator_column] ** 2
             )
-            conf_interval = np.sqrt(conf_static**2 + conf_direct**2 + conf_indirect**2)
+    elif mediator_column:
+        colors = Colors()
+        xx = x_values_original[predictor]
 
-            yy = model.predict(sm.add_constant(x_values))
+        # Confidence band shared by the direct and total effect lines.
+        conf_static = model.bse["const"]
+        conf_direct = model.bse[predictor]
+        conf_mediator_static = mediator_model.bse["const"]
+        conf_mediator_dynamic = mediator_model.bse[predictor] * abs(xx - xx.mean())
+        conf_mediator_total = np.sqrt(conf_mediator_static**2 + conf_mediator_dynamic**2)
+        conf_indirect = np.sqrt(
+            (conf_mediator_total**2) * (model.params[mediator_column] ** 2) + model.bse[mediator_column] ** 2
+        )
+        conf_interval = np.sqrt(conf_static**2 + conf_direct**2 + conf_indirect**2)
 
-            color = colors.get_color_list()
-            plot_band = Band(
-                x=xx,
-                y1=yy - conf_interval,
-                y2=yy + conf_interval,
-                label="Band: Standard Error",
-                config=BandPlotConfig(color=color),
+        # Direct effect (mediator held at its mean). Band first so the line sits on top.
+        x_values = x_values_original.copy()
+        x_values[mediator_column] = df[mediator_column].mean()
+        yy = model.predict(sm.add_constant(x_values))
+        color = colors.get_color_list()
+        # Band labels must be unique across the plot (they key the settings panel), so they
+        # carry the effect name rather than a shared "Standard error".
+        items.append(
+            Band(x=xx, y1=yy - conf_interval, y2=yy + conf_interval,
+                 label=t("regression.plot.direct"), config=BandPlotConfig(color=color))
+        )
+        items.append(
+            Line(
+                x=xx, y=yy, label=t("regression.plot.direct"),
+                legend_string=t("regression.plot.direct"), config=LinePlotConfig(color=color),
             )
-            line_direct = Line(
-                x=xx,
-                y=yy,
-                label="Direct Effect",
-                legend_string="Direct Effect (corrected for mediation)",
-                config=LinePlotConfig(color=color),
-            )
-            items.append(line_direct)
-            items.append(plot_band)
-
-            # ============================ TOTAL ================================
-            x_values = x_values_original.copy()
-            x_values[mediator_column] = mediator_model.predict(sm.add_constant(x_values))
-            yy = model.predict(sm.add_constant(x_values))
-
-            color = colors.get_color_list()
-            plot_band = Band(
-                x=xx,
-                y1=yy - conf_interval,
-                y2=yy + conf_interval,
-                label="Band: Standard Error",
-                config=BandPlotConfig(color=color),
-            )
-
-            line_direct = Line(
-                x=x_values_original[independent_columns[0]],
-                y=model.predict(sm.add_constant(x_values)),
-                label="Total Effect",
-                legend_string="Total Effect",
-                config=LinePlotConfig(color=color),
-            )
-            items.append(plot_band)
-            items.append(line_direct)
-
-        else:
-            line = Line(
-                x=x_values_original[independent_columns[0]],
-                y=model.predict(sm.add_constant(x_values_original)),
-                label="Regression Line",
-            )
-            items.append(line)
-        plot_result_element = PlotV2(
-            items=items,
-            title=f"Regression Plot: {dependent_column} vs {independent_columns[0]}",
-            plot_title=f"Regression Plot: {dependent_column} vs {independent_columns[0]}",
-            x_axis_title=independent_columns[0],
-            y_axis_title=dependent_column,
         )
 
-    if plot_result_element:
-        result.result_elements.append(plot_result_element)
-    return result
+        # Total effect (mediator follows its own regression on the predictor).
+        x_values = x_values_original.copy()
+        x_values[mediator_column] = mediator_model.predict(sm.add_constant(x_values))
+        yy = model.predict(sm.add_constant(x_values))
+        color = colors.get_color_list()
+        items.append(
+            Band(x=xx, y1=yy - conf_interval, y2=yy + conf_interval,
+                 label=t("regression.plot.total"), config=BandPlotConfig(color=color))
+        )
+        items.append(
+            Line(
+                x=xx, y=yy, label=t("regression.plot.total"),
+                legend_string=t("regression.plot.total"), config=LinePlotConfig(color=color),
+            )
+        )
+    else:
+        items.append(
+            Line(
+                x=x_values_original[predictor],
+                y=model.predict(sm.add_constant(x_values_original)),
+                label=t("regression.plot.line"),
+            )
+        )
+
+    title = t("regression.plot.title", dv=dependent_column, iv=predictor)
+    return PlotV2(
+        items=items,
+        title=title,
+        plot_title=title,
+        x_axis_title=predictor,
+        y_axis_title=dependent_column,
+    )

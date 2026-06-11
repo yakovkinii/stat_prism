@@ -4,6 +4,7 @@
 from src.common.constant import ColumnType
 from src.pyside_ext.elements.column_selector import Field
 from src.side_area_panel.blueprint.element import ItemInSidePanelWithAutoConfigHolder
+from src.side_area_panel.iispwac.iispwac_checkbox import IISPWACCheckBox
 from src.side_area_panel.iispwac.iispwac_column_selector import IISPWACColumnSelector
 from src.side_area_panel.iispwac.iispwac_data_source import IISPWACDataSource
 from src.side_area_panel.iispwac.iispwac_spacer import IISPWACSpacer
@@ -40,6 +41,8 @@ class Elements(ItemInSidePanelWithAutoConfigHolder):
         ],
     )
     spacer = IISPWACSpacer()
+    standardized = IISPWACCheckBox(label_text="Standardized coefficients (β)", default_state=True)
+    verbal_indicators = IISPWACCheckBox(label_text="Verbal indicators in tables", default_state=True)
 
 
 class Regression(BaseModulePanel):

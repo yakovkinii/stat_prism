@@ -470,6 +470,261 @@ TRANSLATIONS = {
         "en": "All columns must have at most 2 unique values for the selected correlation type",
         "ua": "Усі стовпці повинні мати щонайбільше 2 унікальні значення для обраного типу кореляції",
     },
+    "reliability.description": {
+        "en": (
+            "Reliability analysis estimates the internal consistency of a scale &mdash; how "
+            "closely its items measure the same underlying construct &mdash; with Cronbach's "
+            "&alpha;. Values closer to 1 indicate more consistent items. Select the items that "
+            "make up the scale; the optional Scale name only labels the scale in the output."
+        ),
+        "ua": (
+            "Аналіз надійності оцінює внутрішню узгодженість шкали &mdash; наскільки її пункти "
+            "вимірюють той самий латентний конструкт &mdash; за допомогою альфи Кронбаха. "
+            "Значення, ближчі до 1, свідчать про більшу узгодженість пунктів. Виберіть пункти, "
+            "що утворюють шкалу; необов'язкова «Назва шкали» лише підписує шкалу у звіті."
+        ),
+    },
+    "reliability.error.min_items": {
+        "en": "Select at least two items for the scale.",
+        "ua": "Виберіть щонайменше два пункти для шкали.",
+    },
+    "reliability.caption.item_deleted": {
+        "en": "Reliability if item removed",
+        "ua": "Надійність за вилучення пункту",
+    },
+    "reliability.col.item": {"en": "Item", "ua": "Пункт"},
+    "reliability.col.item_total": {"en": "Item&ndash;total r", "ua": "Кореляція пункт&ndash;сума"},
+    "reliability.col.alpha_deleted": {"en": "&alpha; if removed", "ua": "&alpha; за вилучення"},
+    "reliability.col.interpretation": {"en": "Interpretation", "ua": "Інтерпретація"},
+    "reliability.col.improves": {"en": "Improves &alpha;?", "ua": "Покращує &alpha;?"},
+    "reliability.scale_default": {"en": "The scale", "ua": "Шкала"},
+    "reliability.interpret.excellent": {"en": "excellent", "ua": "відмінну"},
+    "reliability.interpret.good": {"en": "good", "ua": "добру"},
+    "reliability.interpret.acceptable": {"en": "acceptable", "ua": "прийнятну"},
+    "reliability.interpret.questionable": {"en": "questionable", "ua": "сумнівну"},
+    "reliability.interpret.poor": {"en": "poor", "ua": "низьку"},
+    "reliability.interpret.unacceptable": {"en": "unacceptable", "ua": "неприйнятну"},
+    "reliability.report.main": {
+        "en": "{scale} ({n} items) shows {level} internal consistency, Cronbach's α = {alpha}. ",
+        "ua": "{scale} ({n} пунктів) має {level} внутрішню узгодженість, альфа Кронбаха = {alpha}. ",
+    },
+    "reliability.report.item_improve": {
+        "en": "Removing {items} would increase α. ",
+        "ua": "Вилучення {items} підвищило б α. ",
+    },
+    "reliability.report.item_none": {
+        "en": "Removing any single item would not increase α. ",
+        "ua": "Вилучення будь-якого окремого пункту не підвищило б α. ",
+    },
+    # ----- Regression -----
+    "regression.description": {
+        "en": (
+            "Linear regression (ordinary least squares) models a numeric dependent variable as "
+            "a linear combination of one or more independent variables. R&sup2; is the share of "
+            "the dependent variable's variance the model explains; each coefficient is the "
+            "expected change in the dependent variable per one-unit increase in that predictor, "
+            "holding the others constant. Optionally add a moderator (its interaction with the "
+            "predictors) or a mediator (an intermediate variable on the path)."
+        ),
+        "ua": (
+            "Лінійна регресія (метод найменших квадратів) моделює числову залежну змінну як "
+            "лінійну комбінацію однієї чи кількох незалежних змінних. R&sup2; &mdash; частка "
+            "дисперсії залежної змінної, яку пояснює модель; кожен коефіцієнт &mdash; очікувана "
+            "зміна залежної змінної на одиницю зростання предиктора за інших незмінних. За "
+            "потреби додайте модератор (його взаємодію з предикторами) або медіатор (проміжну "
+            "змінну на шляху впливу)."
+        ),
+    },
+    "regression.error.no_dependent": {
+        "en": "Select a dependent variable.",
+        "ua": "Виберіть залежну змінну.",
+    },
+    "regression.error.no_independent": {
+        "en": "Select at least one independent variable.",
+        "ua": "Виберіть щонайменше одну незалежну змінну.",
+    },
+    "regression.error.const_reserved": {
+        "en": "The column name 'const' is reserved. Please rename the column.",
+        "ua": "Назва стовпця «const» зарезервована. Будь ласка, перейменуйте стовпець.",
+    },
+    "regression.error.insufficient_data": {
+        "en": "Not enough complete rows for the number of predictors.",
+        "ua": "Недостатньо повних рядків для такої кількості предикторів.",
+    },
+    "regression.caption.fit": {"en": "Model fit", "ua": "Якість моделі"},
+    "regression.caption.coefficients": {"en": "Coefficients", "ua": "Коефіцієнти"},
+    "regression.caption.paths": {"en": "Path estimates", "ua": "Оцінки шляхів"},
+    "regression.row.model": {"en": "Model", "ua": "Модель"},
+    "regression.row.intercept": {"en": "Intercept", "ua": "Вільний член"},
+    "regression.col.n": {"en": "N", "ua": "N"},
+    "regression.col.adj_r2": {"en": "Adjusted R<sup>2</sup>", "ua": "Скориговане R<sup>2</sup>"},
+    "regression.col.f": {"en": "F", "ua": "F"},
+    "regression.col.b": {"en": "B", "ua": "B"},
+    "regression.col.se": {"en": "SE", "ua": "SE"},
+    "regression.col.beta": {"en": "β", "ua": "β"},
+    "regression.col.ci": {"en": "95% CI", "ua": "95% ДІ"},
+    "regression.col.t": {"en": "t", "ua": "t"},
+    "regression.report.fit": {
+        "en": (
+            "The model explains {pct}% of the variance in {dv} "
+            "(R² = {r2}, adjusted R² = {adj}); F({df1}, {df2}) = {f}, {p}. "
+        ),
+        "ua": (
+            "Модель пояснює {pct}% дисперсії «{dv}» "
+            "(R² = {r2}, скориговане R² = {adj}); F({df1}, {df2}) = {f}, {p}. "
+        ),
+    },
+    "regression.report.significant": {
+        "en": "The overall model is statistically significant. ",
+        "ua": "Модель загалом статистично значуща. ",
+    },
+    "regression.report.not_significant": {
+        "en": "The overall model is not statistically significant. ",
+        "ua": "Модель загалом статистично незначуща. ",
+    },
+    "regression.report.predictors": {
+        "en": "Significant predictors: {items}. ",
+        "ua": "Значущі предиктори: {items}. ",
+    },
+    "regression.report.predictors_none": {
+        "en": "No individual predictor is statistically significant. ",
+        "ua": "Жоден окремий предиктор не є статистично значущим. ",
+    },
+    "regression.dir.positive": {"en": "positive", "ua": "позитивний"},
+    "regression.dir.negative": {"en": "negative", "ua": "негативний"},
+    "regression.report.coef_intro": {
+        "en": (
+            "Each B is the expected change in {dv} per one-unit increase in that predictor, "
+            "with the other predictors held constant; it is significant when p &lt; .05. "
+        ),
+        "ua": (
+            "Кожен B &mdash; очікувана зміна «{dv}» на одиницю зростання предиктора за інших "
+            "незмінних; він значущий, коли p &lt; .05. "
+        ),
+    },
+    "regression.report.coef_sig": {
+        "en": "Significant predictors of {dv}: {items}. ",
+        "ua": "Значущі предиктори «{dv}»: {items}. ",
+    },
+    "regression.report.coef_none": {
+        "en": "No predictor significantly predicts {dv} once the others are held constant. ",
+        "ua": "Жоден предиктор не передбачає «{dv}» значущо за інших незмінних. ",
+    },
+    "regression.report.med_intro": {
+        "en": (
+            "Mediation splits each predictor's effect on {dv} into a direct path and an "
+            "indirect path through {mediator}. "
+        ),
+        "ua": (
+            "Медіація розкладає вплив кожного предиктора на «{dv}» на прямий шлях і непрямий "
+            "шлях через «{mediator}». "
+        ),
+    },
+    "regression.report.med_b": {
+        "en": "{mediator} predicts {dv} with b = {b} ({p}). ",
+        "ua": "«{mediator}» передбачає «{dv}» з b = {b} ({p}). ",
+    },
+    "regression.report.med_indirect": {
+        "en": "Estimated indirect effects (a&times;b): {items}. ",
+        "ua": "Оцінені непрямі ефекти (a&times;b): {items}. ",
+    },
+    "regression.plot.title": {
+        "en": "Regression: {dv} vs {iv}",
+        "ua": "Регресія: «{dv}» від «{iv}»",
+    },
+    "regression.plot.data": {"en": "Data points", "ua": "Спостереження"},
+    "regression.plot.line": {"en": "Regression line", "ua": "Лінія регресії"},
+    "regression.plot.line_sd": {
+        "en": "Regression line ({sd} SD)",
+        "ua": "Лінія регресії ({sd} SD)",
+    },
+    "regression.plot.direct": {
+        "en": "Direct effect (corrected for mediation)",
+        "ua": "Прямий ефект (з поправкою на медіацію)",
+    },
+    "regression.plot.total": {"en": "Total effect", "ua": "Загальний ефект"},
+    "regression.plot.band": {"en": "Standard error", "ua": "Стандартна похибка"},
+    # ----- Exploratory Factor Analysis -----
+    "efa.description": {
+        "en": (
+            "Exploratory factor analysis (EFA) uncovers a small number of latent factors that "
+            "explain the correlations among the observed variables. It reports the sampling "
+            "adequacy (KMO &amp; Bartlett), the eigenvalues, the factor loadings with each "
+            "variable's communality/uniqueness, and &mdash; for oblique rotations &mdash; the "
+            "factor correlations and structure matrix. Interpret variables using the loadings "
+            "(pattern) matrix."
+        ),
+        "ua": (
+            "Експлораторний факторний аналіз (EFA) виявляє невелику кількість латентних "
+            "факторів, що пояснюють кореляції між спостережуваними змінними. Він подає "
+            "адекватність вибірки (KMO та Бартлетт), власні значення, факторні навантаження з "
+            "спільністю/унікальністю кожної змінної та &mdash; для косокутних обертань &mdash; "
+            "кореляції факторів і структурну матрицю. Інтерпретуйте змінні за матрицею "
+            "навантажень (патерну)."
+        ),
+    },
+    "efa.error.min_variables": {
+        "en": "Select at least two variables.",
+        "ua": "Виберіть щонайменше дві змінні.",
+    },
+    "efa.error.insufficient": {
+        "en": "Not enough complete data for factor analysis.",
+        "ua": "Недостатньо повних даних для факторного аналізу.",
+    },
+    "efa.error.too_many_factors": {
+        "en": "Number of factors ({m}) cannot exceed the number of variables ({n}).",
+        "ua": "Кількість факторів ({m}) не може перевищувати кількість змінних ({n}).",
+    },
+    "efa.caption.kmo": {"en": "KMO and Bartlett's test", "ua": "Тест KMO і Бартлетта"},
+    "efa.caption.eigen": {"en": "Eigenvalues (correlation matrix)", "ua": "Власні значення (кореляційна матриця)"},
+    "efa.caption.loadings": {"en": "Factor loadings ({rotation})", "ua": "Факторні навантаження ({rotation})"},
+    "efa.caption.phi": {"en": "Factor correlation matrix (Φ)", "ua": "Матриця кореляцій факторів (Φ)"},
+    "efa.caption.structure": {"en": "Structure matrix", "ua": "Структурна матриця"},
+    "efa.col.component": {"en": "Component", "ua": "Компонента"},
+    "efa.col.eigenvalue": {"en": "Eigenvalue", "ua": "Власне значення"},
+    "efa.col.variance_pct": {"en": "% of variance", "ua": "% дисперсії"},
+    "efa.col.cumulative": {"en": "Cumulative %", "ua": "Накопичений %"},
+    "efa.col.variable": {"en": "Variable", "ua": "Змінна"},
+    "efa.col.communality": {"en": "Communality", "ua": "Спільність"},
+    "efa.col.uniqueness": {"en": "Uniqueness", "ua": "Унікальність"},
+    "efa.row.kmo": {"en": "KMO (overall)", "ua": "KMO (загальний)"},
+    "efa.row.msa": {"en": "MSA: {name}", "ua": "MSA: {name}"},
+    "efa.row.bartlett": {"en": "Bartlett's χ²", "ua": "χ² Бартлетта"},
+    "efa.row.df": {"en": "df", "ua": "df"},
+    "efa.kmo.marvelous": {"en": "marvelous", "ua": "чудовий"},
+    "efa.kmo.meritorious": {"en": "meritorious", "ua": "гідний"},
+    "efa.kmo.middling": {"en": "middling", "ua": "посередній"},
+    "efa.kmo.mediocre": {"en": "mediocre", "ua": "задовільний"},
+    "efa.kmo.miserable": {"en": "miserable", "ua": "низький"},
+    "efa.kmo.unacceptable": {"en": "unacceptable", "ua": "неприйнятний"},
+    "efa.report.kmo": {
+        "en": "Sampling adequacy is {label} (KMO = {kmo}). ",
+        "ua": "Адекватність вибірки {label} (KMO = {kmo}). ",
+    },
+    "efa.report.bartlett_sig": {
+        "en": "Bartlett's test of sphericity is significant (χ²({df}) = {chi2}, {p}), so the variables are sufficiently correlated for factoring. ",
+        "ua": "Тест сферичності Бартлетта значущий (χ²({df}) = {chi2}, {p}), тож змінні достатньо корельовані для факторизації. ",
+    },
+    "efa.report.bartlett_ns": {
+        "en": "Bartlett's test of sphericity is not significant (χ²({df}) = {chi2}, {p}); the variables may be too weakly correlated for factoring. ",
+        "ua": "Тест сферичності Бартлетта незначущий (χ²({df}) = {chi2}, {p}); змінні можуть бути надто слабко корельовані для факторизації. ",
+    },
+    "efa.report.kaiser": {
+        "en": "The Kaiser criterion (eigenvalue > 1) suggests {n} factor(s). ",
+        "ua": "Критерій Кайзера (власне значення > 1) пропонує {n} фактор(ів). ",
+    },
+    "efa.report.kaiser_none": {
+        "en": "No eigenvalue exceeds 1; consider a scree plot or parallel analysis to choose the number of factors. ",
+        "ua": "Жодне власне значення не перевищує 1; для вибору кількості факторів скористайтеся графіком осипу або паралельним аналізом. ",
+    },
+    "efa.plot.scree": {"en": "Scree plot", "ua": "Графік осипу"},
+    "efa.plot.kaiser_line": {
+        "en": "Eigenvalue = 1 (Kaiser criterion)",
+        "ua": "Власне значення = 1 (критерій Кайзера)",
+    },
+    "efa.plot.loadings": {"en": "Factor loadings heatmap", "ua": "Теплокарта факторних навантажень"},
+    "efa.plot.factors": {"en": "Factors", "ua": "Фактори"},
+    "efa.plot.variables": {"en": "Variables", "ua": "Змінні"},
     # ----- Cluster analysis -----
     "cluster.caption.assignments": {
         "en": "Cluster Assignments",
