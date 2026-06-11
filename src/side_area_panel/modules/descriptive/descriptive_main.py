@@ -8,6 +8,7 @@ from src.common.constant import ColumnType
 from src.common.decorators import log_function
 from src.common.translations import t
 from src.data.data_manager import DATA_MANAGER
+from src.side_area_panel.modules.common.result.html_result import HTMLTableV2
 from src.side_area_panel.modules.descriptive.descriptive_result import DescriptiveResult
 from src.side_area_panel.modules.descriptive.plot import (
     make_box_plot,
@@ -18,8 +19,11 @@ from src.side_area_panel.modules.descriptive.plot import (
 )
 from src.side_area_panel.modules.descriptive.table import (
     get_frequency_table,
+    get_normality_table,
     get_numeric_summary_table,
 )
+
+_KS = "Kolmogorov-Smirnov"
 
 
 def _fail(result: DescriptiveResult, message: str) -> DescriptiveResult:
@@ -38,10 +42,18 @@ def _parse_positive_float(text):
     return value if value > 0 else None
 
 
+def _parse_float_or_none(text):
+    """Parse a user-entered number; blank / invalid -> None (0 and negatives allowed)."""
+    try:
+        return float(text)
+    except (TypeError, ValueError):
+        return None
+
+
 def _numeric_stats(col, group, series) -> dict:
     data = series.dropna()
     n = int(data.count())
-    row = {
+    return {
         "variable": col,
         "group": group,
         "N": n,
@@ -56,15 +68,25 @@ def _numeric_stats(col, group, series) -> dict:
         "kurtosis": data.kurtosis() if n > 3 else np.nan,
         "min": data.min() if n else np.nan,
         "max": data.max() if n else np.nan,
-        "shapiro_w": np.nan,
-        "shapiro_p": np.nan,
     }
-    if n >= 3:
+
+
+def _normality_stats(col, group, series, test) -> dict:
+    data = series.dropna()
+    n = int(data.count())
+    statistic, p_value = np.nan, np.nan
+    if n >= 3 and data.nunique() > 1:
         try:
-            row["shapiro_w"], row["shapiro_p"] = stats.shapiro(data)
+            if test == _KS:
+                sigma = data.std()
+                if sigma > 0:
+                    result = stats.kstest(data, "norm", args=(data.mean(), sigma))
+                    statistic, p_value = result.statistic, result.pvalue
+            else:  # Shapiro-Wilk
+                statistic, p_value = stats.shapiro(data)
         except Exception as e:  # pragma: no cover - defensive
-            logging.warning("Shapiro-Wilk failed for %s: %s", col, e)
-    return row
+            logging.warning("Normality test failed for %s: %s", col, e)
+    return {"variable": col, "group": group, "norm_stat": statistic, "norm_p": p_value}
 
 
 @log_function
@@ -80,12 +102,17 @@ def recalculate_descriptive_study(elements, result: DescriptiveResult) -> Descri
 
     grouping = cfg.column_selector[1]
     grouping_column = grouping[0] if grouping else None
+    id_selection = cfg.column_selector[2] if len(cfg.column_selector) > 2 else []
+    id_column = id_selection[0] if id_selection else None
 
     data = DATA_MANAGER.get_data_from_data_label(
         data_label=cfg.data_source,
         current_result_id=result.unique_id,
     )
-    columns = selected_columns + ([grouping_column] if grouping_column else [])
+    columns = list(selected_columns)
+    for extra in (grouping_column, id_column):
+        if extra and extra not in columns:
+            columns.append(extra)
     # Ordinal columns are mapped to numeric codes so they get quantitative treatment
     # (summary / distribution / box / Q-Q) -- e.g. Likert scales; nominal stay as labels.
     df = data.get_dataframe(columns=columns, map_ordinal=True)
@@ -113,6 +140,28 @@ def recalculate_descriptive_study(elements, result: DescriptiveResult) -> Descri
         )
         result.update_and_add_element(summary, "descriptive summary")
 
+    # ----- Normality table + verbal report -----
+    if cfg.show_normality and numeric_columns:
+        test = cfg.normality_test or "Shapiro-Wilk"
+        letter = "D" if test == _KS else "W"
+        norm_rows = []
+        for col in numeric_columns:
+            if grouping_column is None:
+                norm_rows.append(_normality_stats(col, None, df[col], test))
+            else:
+                for groupby_value in groupby_values:
+                    norm_rows.append(
+                        _normality_stats(col, groupby_value, df.loc[df[grouping_column] == groupby_value][col], test)
+                    )
+        normality = get_normality_table(
+            norm_rows,
+            caption=t("descriptive.normality.caption", test=test),
+            test_name=test,
+            statistic_letter=letter,
+            groupby_column=grouping_column,
+        )
+        result.update_and_add_element(normality, "descriptive normality")
+
     # ----- Categorical frequency tables -----
     if cfg.frequency_table:
         for col in categorical_columns:
@@ -127,20 +176,25 @@ def recalculate_descriptive_study(elements, result: DescriptiveResult) -> Descri
 
     # ----- Plots -----
     bin_width = _parse_positive_float(cfg.bin_width)
+    bin_reference = _parse_float_or_none(cfg.bin_reference)
     kde_smoothing = _parse_positive_float(cfg.kde_smoothing)
 
     for col in selected_columns:
         if col in numeric_columns:
             if cfg.show_distribution:
                 plot = make_distribution_plot(
-                    df, col, grouping_column, groupby_values, bin_width, kde_smoothing, bool(cfg.show_kde)
+                    df, col, grouping_column, groupby_values, bin_width, bin_reference, kde_smoothing, bool(cfg.show_kde)
                 )
                 if plot is not None:
                     result.update_and_add_element(plot, f"descriptive distribution {col}")
             if cfg.show_box:
-                plot = make_box_plot(df, col, grouping_column, groupby_values)
+                plot, outlier_text = make_box_plot(
+                    df, col, grouping_column, groupby_values, id_column=id_column, mark_outliers=bool(cfg.mark_outliers)
+                )
                 if plot is not None:
                     result.update_and_add_element(plot, f"descriptive box {col}")
+                if outlier_text:
+                    result.update_and_add_element(HTMLTableV2(texts=[outlier_text]), f"descriptive box outliers {col}")
             if cfg.show_qq:
                 plot = make_qq_plot(df[col], col)
                 if plot is not None:

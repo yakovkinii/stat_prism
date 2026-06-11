@@ -21,6 +21,7 @@ from src.side_area_panel.modules.common.result.plot_result import (
     Scatter,
     ScatterPlotConfig,
 )
+from src.side_area_panel.modules.common.utility import format_value_apa, smart_comma_join
 
 
 def create_box_plot(
@@ -47,17 +48,25 @@ def create_box_plot(
     return plot_result
 
 
-def _histogram_edges(series: pd.Series, bin_width):
-    """Histogram bin edges for a series. `bin_width` None/<=0 -> automatic; otherwise a
-    fixed width with edges centred so each multiple of the width is a bar centre (so
-    Likert 1..7 with width 1 gives one bar per value)."""
+def _histogram_edges(series: pd.Series, bin_width, bin_reference=None):
+    """Histogram bin edges for a series. `bin_width` None/<=0 -> automatic. Otherwise a
+    fixed width; `bin_reference` (if given) is the centre of one bin, so the bars align to
+    it (e.g. reference 0 + width 1 centres a bar on every integer). With no reference the
+    bins are centred on the data minimum (so Likert 1..7 with width 1 gives one bar per
+    value)."""
     data = series.dropna()
     if data.empty:
         return None
     if bin_width and bin_width > 0:
-        start = data.min() - bin_width / 2.0
-        stop = data.max() + bin_width
-        return np.arange(start, stop, bin_width)
+        w = bin_width
+        if bin_reference is not None:
+            k_start = int(np.floor((data.min() - bin_reference) / w))
+            k_end = int(np.ceil((data.max() - bin_reference) / w))
+            centers = bin_reference + np.arange(k_start, k_end + 1) * w
+            return np.append(centers - w / 2.0, centers[-1] + w / 2.0)
+        start = data.min() - w / 2.0
+        stop = data.max() + w
+        return np.arange(start, stop, w)
     _, edges = np.histogram(data, bins="auto")
     return edges
 
@@ -76,9 +85,11 @@ def _kde_curve(series: pd.Series, edges, kde_smoothing):
         return None, None
 
 
-def make_distribution_plot(df, col, groupby_column, groupby_values, bin_width, kde_smoothing, show_kde):
+def make_distribution_plot(
+    df, col, groupby_column, groupby_values, bin_width, bin_reference, kde_smoothing, show_kde
+):
     """Histogram (density) + optional KDE; overlaid per group when grouping is set."""
-    edges = _histogram_edges(df[col], bin_width)
+    edges = _histogram_edges(df[col], bin_width, bin_reference)
     if edges is None or len(edges) < 2:
         return None
 
@@ -144,38 +155,71 @@ def make_distribution_plot(df, col, groupby_column, groupby_values, bin_width, k
     )
 
 
-def make_box_plot(df, col, groupby_column, groupby_values):
-    """Box plot with outliers; one box (whole variable) or one per group."""
+def _outliers(subframe, col, id_column):
+    """Return Tukey outliers as a list of (value, label) where label is the row's ID
+    (when an id_column is given) or the formatted value."""
+    values = subframe[col].dropna()
+    if values.empty:
+        return []
+    q1, q3 = values.quantile(0.25), values.quantile(0.75)
+    iqr = q3 - q1
+    low, high = q1 - 1.5 * iqr, q3 + 1.5 * iqr
+    labels = []
+    for index, value in values[(values < low) | (values > high)].items():
+        label = str(subframe.loc[index, id_column]) if id_column is not None else format_value_apa(value, 2)
+        labels.append((value, label))
+    return labels
+
+
+def make_box_plot(df, col, groupby_column, groupby_values, id_column=None, mark_outliers=False):
+    """Box plot with outliers; one box (whole variable) or one per group. Outliers are
+    listed beneath the plot and optionally labelled on it."""
     items = []
     colors = Colors()
+    outlier_sentences = []
+
     if groupby_column is None:
-        data = df[col].dropna()
-        if data.empty:
-            return None
-        items.append(Box.from_data(data, index=0, label=col, color=colors.get_color_list()))
-        x_axis_items = [col]
-        x_axis_title = ""
+        boxes_data = [(col, df)]
     else:
-        x_axis_items = []
-        for i, groupby_value in enumerate(groupby_values):
-            data = df.loc[df[groupby_column] == groupby_value][col].dropna()
-            if data.empty:
-                continue
-            items.append(Box.from_data(data, index=i, label=str(groupby_value), color=colors.get_color_list()))
-            x_axis_items.append(str(groupby_value))
-        x_axis_title = groupby_column
+        boxes_data = [(str(gv), df.loc[df[groupby_column] == gv]) for gv in groupby_values]
+
+    x_axis_items = []
+    for label, subframe in boxes_data:
+        values = subframe[col].dropna()
+        if values.empty:
+            continue
+        position = len(items)  # contiguous positions so boxes align with the tick labels
+        box = Box.from_data(values, index=position, label=label, color=colors.get_color_list())
+        outliers = _outliers(subframe, col, id_column)
+        if outliers:
+            if mark_outliers:
+                box.outlier_labels = outliers
+            listed = smart_comma_join(
+                [
+                    f"{lab} ({format_value_apa(val, 2)})" if id_column is not None else lab
+                    for val, lab in outliers
+                ]
+            )
+            outlier_sentences.append(
+                t("descriptive.outliers.line", target=label, n=len(outliers), items=listed)
+            )
+        items.append(box)
+        x_axis_items.append(label)
 
     if not items:
-        return None
+        return None, None
+
     title = t("descriptive.plot.box", col=col)
-    return PlotV2(
+    plot = PlotV2(
         items=items,
         title=title,
         plot_title=title,
-        x_axis_title=x_axis_title,
+        x_axis_title=(groupby_column if groupby_column else ""),
         y_axis_title=col,
         x_axis_items=x_axis_items,
     )
+    outlier_text = " ".join(outlier_sentences) if outlier_sentences else None
+    return plot, outlier_text
 
 
 def make_qq_plot(series: pd.Series, col: str):

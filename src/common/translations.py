@@ -661,6 +661,29 @@ TRANSLATIONS = {
     "descriptive.freq.count": {"en": "Count", "ua": "Кількість"},
     "descriptive.freq.percent": {"en": "%", "ua": "%"},
     "descriptive.freq.total": {"en": "Total", "ua": "Загалом"},
+    "descriptive.normality.caption": {
+        "en": "Normality test ({test})",
+        "ua": "Перевірка нормальності ({test})",
+    },
+    "descriptive.normality.col_normal": {"en": "Normal?", "ua": "Нормальний?"},
+    "descriptive.normality.yes": {"en": "Yes", "ua": "Так"},
+    "descriptive.normality.no": {"en": "No", "ua": "Ні"},
+    "descriptive.normality.intro": {
+        "en": "A {test} test of normality was conducted. ",
+        "ua": "Проведено перевірку нормальності за критерієм {test}. ",
+    },
+    "descriptive.normality.normal": {
+        "en": "{var} was normally distributed ({stats}). ",
+        "ua": "{var} має нормальний розподіл ({stats}). ",
+    },
+    "descriptive.normality.not_normal": {
+        "en": "{var} was not normally distributed ({stats}). ",
+        "ua": "{var} не має нормального розподілу ({stats}). ",
+    },
+    "descriptive.outliers.line": {
+        "en": "Analysis of {target} identified {n} outlier(s): {items}. ",
+        "ua": "Аналіз «{target}» виявив {n} викид(ів): {items}. ",
+    },
     "descriptive.density": {"en": "Density", "ua": "Щільність"},
     "descriptive.plot.distribution": {
         "en": "Distribution of {col}",

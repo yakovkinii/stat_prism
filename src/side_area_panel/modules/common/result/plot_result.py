@@ -78,11 +78,14 @@ class Box:
         stats,
         label,
         config=None,
+        outlier_labels=None,
     ):
         self.x_value = x_value
         self.stats = stats
         self.label = label
         self.config = config if config else BoxPlotConfig()
+        # Optional list of (value, text) to annotate each outlier point with.
+        self.outlier_labels = outlier_labels
 
     @staticmethod
     def from_data(data, index, label, color):
@@ -177,7 +180,28 @@ class ContingencyPlotConfig(BasePlotConfig):
 
 
 class PiePlotConfig(BasePlotConfig):
-    pass
+    def __init__(
+        self,
+        show_percent: bool = True,
+        show_counts: bool = False,
+        label_font_size: int = 11,
+        donut_hole: float = 0.0,
+        label_color: Tuple[int, int, int] = (0, 0, 0),
+    ):
+        super().__init__()
+        self.show_percent = CheckboxResultItemSetting(label="Show %", current_value=show_percent)
+        self.show_counts = CheckboxResultItemSetting(label="Show counts", current_value=show_counts)
+        self.label_font_size = SliderResultItemSetting(
+            label="Label Size", current_value=label_font_size, min_value=6, max_value=24, step=1
+        )
+        self.donut_hole = SliderResultItemSetting(
+            label="Donut Hole", current_value=donut_hole, min_value=0, max_value=0.8, step=0.1
+        )
+        self.label_color = ColorGridItemSetting(current_color=label_color, label="Label Color")
+        self.display_settings = ContainerResultItemSetting(
+            items=[self.show_percent, self.show_counts, self.label_font_size, self.donut_hole, self.label_color],
+            add_stretch=True,
+        )
 
 
 class ScatterPlotConfig(BasePlotConfig):
@@ -229,17 +253,21 @@ class ScatterPlotConfig(BasePlotConfig):
 
 
 class BarPlotConfig(BasePlotConfig):
-    def __init__(self, color: Tuple[int, int, int] = None, fill_alpha: int = None):
+    def __init__(self, color: Tuple[int, int, int] = None, fill_alpha: int = None, width_scale: float = None):
         super().__init__()
         theme = THEME.current
         color = color if color is not None else Colors().get_color_list()
         fill_alpha = fill_alpha if fill_alpha is not None else theme.bar_fill_alpha
+        width_scale = width_scale if width_scale is not None else 1.0
         self.color: ColorGridItemSetting = ColorGridItemSetting(current_color=color)
         self.fill_alpha: SliderResultItemSetting = SliderResultItemSetting(
             label="Fill Alpha", current_value=fill_alpha, min_value=0, max_value=250, step=50
         )
+        self.width_scale: SliderResultItemSetting = SliderResultItemSetting(
+            label="Bar Width", current_value=width_scale, min_value=0.1, max_value=1.5, step=0.1
+        )
         self.display_settings = ContainerResultItemSetting(
-            items=[self.color, self.fill_alpha],
+            items=[self.color, self.fill_alpha, self.width_scale],
             add_stretch=True,
         )
 
@@ -621,7 +649,7 @@ class PlotV2(BaseResultElement):
                 ax.bar(
                     item.x,
                     item.y,
-                    width=item.width,
+                    width=item.width * item.config.width_scale.get_current_value(),
                     color=fill_color,
                     linewidth=2,
                 )
@@ -664,6 +692,18 @@ class PlotV2(BaseResultElement):
                         "linewidth": 2,
                     },
                 )
+                if item.outlier_labels:
+                    annotation_color = rgba_tuple_from_rgb_and_a(self.frame_color.get_current_value(), 255)
+                    for value, text in item.outlier_labels:
+                        ax.annotate(
+                            str(text),
+                            (item.x_value, value),
+                            textcoords="offset points",
+                            xytext=(7, 0),
+                            fontsize=8,
+                            color=annotation_color,
+                            va="center",
+                        )
 
             if isinstance(item, Band):
                 fill_color = rgba_tuple_from_rgb_and_a(
@@ -790,23 +830,44 @@ class PlotV2(BaseResultElement):
                 ax2.spines["bottom"].set_visible(False)
 
             if isinstance(item, Pie):
+                cfg = item.config
                 bg = self.background_color.get_current_value()
-                luminance = 0.299 * bg[0] + 0.587 * bg[1] + 0.114 * bg[2]
-                text_color = (0, 0, 0) if luminance > 140 else (235, 235, 235)
                 color_manager = Colors()
                 slice_colors = [
                     rgba_tuple_from_rgb_and_a(color_manager.get_color_list(), 255) for _ in item.values
                 ]
-                ax.pie(
+                label_color = rgba_tuple_from_rgb_and_a(cfg.label_color.get_current_value(), 255)
+                label_size = cfg.label_font_size.get_current_value()
+                show_percent = cfg.show_percent.get_current_value()
+                show_counts = cfg.show_counts.get_current_value()
+                hole = cfg.donut_hole.get_current_value()
+                total = float(sum(item.values))
+
+                def _autopct(pct, _total=total, _p=show_percent, _c=show_counts):
+                    parts = []
+                    if _p:
+                        parts.append(f"{pct:.1f}%")
+                    if _c:
+                        parts.append(f"({int(round(pct * _total / 100.0))})")
+                    return "\n".join(parts)
+
+                wedge_props = {"edgecolor": rgba_tuple_from_rgb_and_a(bg, 255), "linewidth": 1}
+                if hole > 0:
+                    wedge_props["width"] = 1 - hole
+                pie_result = ax.pie(
                     item.values,
                     labels=item.labels,
                     colors=slice_colors,
-                    autopct="%1.1f%%",
+                    autopct=_autopct if (show_percent or show_counts) else None,
                     startangle=90,
                     counterclock=False,
-                    textprops={"color": rgba_tuple_from_rgb_and_a(text_color, 255)},
-                    wedgeprops={"edgecolor": rgba_tuple_from_rgb_and_a(bg, 255), "linewidth": 1},
+                    wedgeprops=wedge_props,
                 )
+                # ax.pie returns (wedges, texts) or (wedges, texts, autotexts).
+                text_artists = list(pie_result[1]) + (list(pie_result[2]) if len(pie_result) > 2 else [])
+                for text_artist in text_artists:
+                    text_artist.set_color(label_color)
+                    text_artist.set_fontsize(label_size)
                 ax.set_aspect("equal")
                 ax.axis("off")  # a pie needs no axes/frame
 

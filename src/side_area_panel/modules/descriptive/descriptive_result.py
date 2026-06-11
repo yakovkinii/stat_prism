@@ -16,15 +16,19 @@ class DescriptiveStudyConfig:
     # Tables
     extended_stats = attrs.field(default=None)
     frequency_table = attrs.field(default=None)
+    show_normality = attrs.field(default=None)
+    normality_test = attrs.field(default=None)
     # Plots
     show_distribution = attrs.field(default=None)
     show_box = attrs.field(default=None)
+    mark_outliers = attrs.field(default=None)
     show_frequency_bars = attrs.field(default=None)
     show_pie = attrs.field(default=None)
     show_qq = attrs.field(default=None)
     # Distribution-plot controls
     show_kde = attrs.field(default=None)
     bin_width = attrs.field(default=None)
+    bin_reference = attrs.field(default=None)
     kde_smoothing = attrs.field(default=None)
 
 
@@ -37,17 +41,22 @@ _ASSUMPTIONS_FINE_PRINT_EN = (
     "<li><b>Numeric summary.</b> N, missing, mean, SD, min and max; optionally (Extended "
     "stats) median, Q1/Q3 (IQR), the standard error of the mean, and skewness &amp; "
     "kurtosis (Fisher / excess, so a normal distribution has 0).</li>"
-    "<li><b>Normality.</b> Shapiro&ndash;Wilk W with its p (needs N &ge; 3).</li>"
+    "<li><b>Normality.</b> A selectable test &mdash; Shapiro&ndash;Wilk (W) or "
+    "Kolmogorov&ndash;Smirnov (D, against a normal with the sample mean &amp; SD; the basic "
+    "KS, not Lilliefors-corrected) &mdash; needs N &ge; 3. Shown as a separate table plus a "
+    "verbal summary.</li>"
     "<li><b>Categorical summary.</b> A per-variable frequency table with counts and "
     "percentages (of non-missing) is shown for non-numeric variables.</li>"
     "<li><b>Histograms.</b> Densities. Bin width is automatic (Freedman&ndash;Diaconis / "
     "&lsquo;auto&rsquo;) unless a Bin width is given &mdash; set it to 1 for Likert-type "
-    "scales so each value is its own bar.</li>"
+    "scales so each value is its own bar. A Bin reference value, if given, becomes the centre "
+    "of one bin (the rest follow the width).</li>"
     "<li><b>KDE.</b> Gaussian kernel, Scott&rsquo;s-rule bandwidth multiplied by the KDE "
     "smoothing factor (1 = default; raise it to avoid a spiky curve on discrete/Likert "
     "data).</li>"
     "<li><b>Box plots.</b> Tukey boxes (median, IQR, 1.5&times;IQR whiskers) with outliers "
-    "drawn as points. Computed on non-missing values.</li>"
+    "drawn as points and listed beneath the plot (by ID when an ID column is set). Enable "
+    "&lsquo;Label outliers&rsquo; to also tag each outlier point on the plot.</li>"
     "<li><b>Q-Q plots.</b> Sample quantiles vs theoretical normal quantiles, with a "
     "reference line.</li>"
     "<li><b>Grouping.</b> A grouping column splits the numeric summary, distribution plots "

@@ -3,12 +3,14 @@
 
 from typing import List
 
+import numpy as np
 import pandas as pd
 
 from src.common.translations import t
 from src.side_area_panel.modules.common.result.html_result import Cell, HTMLTableV2, Row
 from src.side_area_panel.modules.common.utility import (
     format_p_apa_exact,
+    format_p_apa_prose,
     format_r_apa,
     format_value_apa,
 )
@@ -35,21 +37,13 @@ def get_numeric_summary_table(
     table = HTMLTableV2(table_caption=caption)
     grouped = groupby_column is not None
 
-    # leading (non Shapiro-Wilk) columns: variable [+ group] + N, Missing, Mean, SD
-    # [+ extended] + Min, Max
-    n_lead = 1 + (1 if grouped else 0) + 4 + (len(_EXTENDED_COLUMNS) if extended else 0) + 2
-
-    table.add_single_row_apa(
-        Row([Cell() for _ in range(n_lead)] + [Cell("Shapiro-Wilk", col_span=2, center=True, border_bottom=True)])
-    )
-
     header = [Cell()]
     if grouped:
         header.append(Cell(groupby_column, center=True))
     header += [Cell("N", center=True), Cell("Missing", center=True), Cell("Mean", center=True), Cell("SD", center=True)]
     if extended:
         header += [Cell(label, center=True) for label, _, _ in _EXTENDED_COLUMNS]
-    header += [Cell("Min", center=True), Cell("Max", center=True), Cell("W", center=True), Cell("p", center=True)]
+    header += [Cell("Min", center=True), Cell("Max", center=True)]
     table.add_title_row_apa(Row(header))
 
     prev_variable = None
@@ -69,12 +63,75 @@ def get_numeric_summary_table(
         cells += [
             Cell(format_value_apa(r["min"], 2), center=True),
             Cell(format_value_apa(r["max"], 2), center=True),
-            Cell(format_r_apa(r["shapiro_w"], 3), center=True),
-            Cell(format_p_apa_exact(r["shapiro_p"]), center=True),
         ]
         table.add_single_row_apa(Row(cells))
 
     return table
+
+
+def _variable_label(variable, group):
+    return f"{variable} ({group})" if group is not None else str(variable)
+
+
+def get_normality_table(
+    rows: List[dict],
+    caption: str,
+    test_name: str,
+    statistic_letter: str,
+    groupby_column: str = None,
+) -> HTMLTableV2:
+    """Normality results: per variable (or per group) the test statistic, p, and a
+    normal? conclusion, followed by a verbal summary. `rows` have keys: variable, group,
+    norm_stat, norm_p."""
+    table = HTMLTableV2(table_caption=caption)
+    grouped = groupby_column is not None
+
+    header = [Cell()]
+    if grouped:
+        header.append(Cell(groupby_column, center=True))
+    header += [
+        Cell(statistic_letter, center=True),
+        Cell(t("common.p_value"), center=True),
+        Cell(t("descriptive.normality.col_normal"), center=True),
+    ]
+    table.add_title_row_apa(Row(header))
+
+    prev_variable = None
+    for r in rows:
+        is_normal = (r["norm_p"] is not None) and (not np.isnan(r["norm_p"])) and (r["norm_p"] > 0.05)
+        normal_text = (
+            t("descriptive.normality.yes")
+            if is_normal
+            else (t("descriptive.normality.no") if not _is_nan(r["norm_p"]) else "—")
+        )
+        cells = [Cell(r["variable"] if r["variable"] != prev_variable else "", push_to_left=True)]
+        prev_variable = r["variable"]
+        if grouped:
+            cells.append(Cell(str(r.get("group", "")), center=True))
+        cells += [
+            Cell(format_r_apa(r["norm_stat"], 3), center=True),
+            Cell(format_p_apa_exact(r["norm_p"]), center=True),
+            Cell(normal_text, center=True),
+        ]
+        table.add_single_row_apa(Row(cells))
+
+    table.add_text(_normality_report(rows, test_name, statistic_letter))
+    return table
+
+
+def _is_nan(value):
+    return value is None or (isinstance(value, float) and np.isnan(value))
+
+
+def _normality_report(rows, test_name, statistic_letter) -> str:
+    text = t("descriptive.normality.intro", test=test_name)
+    for r in rows:
+        if _is_nan(r["norm_p"]):
+            continue
+        stats_str = f"{statistic_letter} = {format_r_apa(r['norm_stat'], 3)}, {format_p_apa_prose(r['norm_p'])}"
+        key = "descriptive.normality.normal" if r["norm_p"] > 0.05 else "descriptive.normality.not_normal"
+        text += t(key, var=_variable_label(r["variable"], r.get("group")), stats=stats_str)
+    return text
 
 
 def get_frequency_table(caption: str, value_counts: pd.Series) -> HTMLTableV2:
