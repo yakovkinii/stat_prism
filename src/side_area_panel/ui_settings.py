@@ -126,6 +126,7 @@ class SettingsPanelClass:
         self.en_action.triggered.connect(self.set_language_EN)
         self.ua_action.triggered.connect(self.set_language_UA)
         self.about_action.triggered.connect(PanelRegistry.HOME.value.ui_instance.about_handler)
+
     def set_language_EN(self):
         LANGUAGE.set_language(Languages.EN)
         self.en_action.setChecked(True)

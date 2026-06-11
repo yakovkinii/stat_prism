@@ -21,7 +21,7 @@ from src.side_area_panel.modules.common.result.plot_result import (
     Scatter,
     ScatterPlotConfig,
 )
-from src.side_area_panel.modules.common.utility import format_value_apa, smart_comma_join
+from src.side_area_panel.modules.common.utility import format_value_apa
 
 
 def create_box_plot(
@@ -172,11 +172,10 @@ def _outliers(subframe, col, id_column):
 
 
 def make_box_plot(df, col, groupby_column, groupby_values, id_column=None, mark_outliers=False):
-    """Box plot with outliers; one box (whole variable) or one per group. Outliers are
-    listed beneath the plot and optionally labelled on it."""
+    """Box plot; one box (whole variable) or one per group. Outliers are optionally
+    labelled on the plot (the verbal outlier report lives under the summary table)."""
     items = []
     colors = Colors()
-    outlier_sentences = []
 
     if groupby_column is None:
         boxes_data = [(col, df)]
@@ -190,27 +189,18 @@ def make_box_plot(df, col, groupby_column, groupby_values, id_column=None, mark_
             continue
         position = len(items)  # contiguous positions so boxes align with the tick labels
         box = Box.from_data(values, index=position, label=label, color=colors.get_color_list())
-        outliers = _outliers(subframe, col, id_column)
-        if outliers:
-            if mark_outliers:
+        if mark_outliers:
+            outliers = _outliers(subframe, col, id_column)
+            if outliers:
                 box.outlier_labels = outliers
-            listed = smart_comma_join(
-                [
-                    f"{lab} ({format_value_apa(val, 2)})" if id_column is not None else lab
-                    for val, lab in outliers
-                ]
-            )
-            outlier_sentences.append(
-                t("descriptive.outliers.line", target=label, n=len(outliers), items=listed)
-            )
         items.append(box)
         x_axis_items.append(label)
 
     if not items:
-        return None, None
+        return None
 
     title = t("descriptive.plot.box", col=col)
-    plot = PlotV2(
+    return PlotV2(
         items=items,
         title=title,
         plot_title=title,
@@ -218,8 +208,6 @@ def make_box_plot(df, col, groupby_column, groupby_values, id_column=None, mark_
         y_axis_title=col,
         x_axis_items=x_axis_items,
     )
-    outlier_text = " ".join(outlier_sentences) if outlier_sentences else None
-    return plot, outlier_text
 
 
 def make_qq_plot(series: pd.Series, col: str):
@@ -247,22 +235,51 @@ def make_qq_plot(series: pd.Series, col: str):
     )
 
 
-def make_frequency_bar_plot(series: pd.Series, col: str):
-    """Counts per category for a categorical variable (whole variable)."""
-    value_counts = series.value_counts().sort_index()
-    if value_counts.empty:
-        return None
-    categories = [str(c) for c in value_counts.index]
-    bar = Bar(
-        x=np.arange(len(categories)),
-        y=value_counts.values,
-        width=0.8,
-        label="Frequency",
-        config=BarPlotConfig(color=Colors().get_color_list()),
-    )
+def make_frequency_bar_plot(df, col: str, groupby_column=None, groupby_values=None):
+    """Counts per category. One bar per category for the whole variable, or grouped
+    side-by-side bars (one colour + legend entry per group) when grouping is set."""
+    colors = Colors()
     title = t("descriptive.plot.frequency", col=col)
+
+    if groupby_column is None:
+        value_counts = df[col].value_counts().sort_index()
+        if value_counts.empty:
+            return None
+        categories = [str(c) for c in value_counts.index]
+        items = [
+            Bar(
+                x=np.arange(len(categories)),
+                y=value_counts.values,
+                width=0.8,
+                label="Frequency",
+                config=BarPlotConfig(color=colors.get_color_list()),
+            )
+        ]
+    else:
+        all_categories = sorted(df[col].dropna().unique(), key=str)
+        if not all_categories:
+            return None
+        categories = [str(c) for c in all_categories]
+        n_groups = len(groupby_values)
+        width = 0.8 / n_groups
+        items = []
+        for i, groupby_value in enumerate(groupby_values):
+            counts = df.loc[df[groupby_column] == groupby_value, col].value_counts()
+            y = [int(counts.get(category, 0)) for category in all_categories]
+            x = np.arange(len(all_categories)) - 0.4 + width / 2.0 + i * width
+            items.append(
+                Bar(
+                    x=x,
+                    y=y,
+                    width=width,
+                    label=str(groupby_value),
+                    legend_string=str(groupby_value),
+                    config=BarPlotConfig(color=colors.get_color_list()),
+                )
+            )
+
     return PlotV2(
-        items=[bar],
+        items=items,
         title=title,
         plot_title=title,
         x_axis_title=col,

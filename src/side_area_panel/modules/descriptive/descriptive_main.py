@@ -8,9 +8,10 @@ from src.common.constant import ColumnType
 from src.common.decorators import log_function
 from src.common.translations import t
 from src.data.data_manager import DATA_MANAGER
-from src.side_area_panel.modules.common.result.html_result import HTMLTableV2
+from src.side_area_panel.modules.common.utility import format_value_apa, smart_comma_join
 from src.side_area_panel.modules.descriptive.descriptive_result import DescriptiveResult
 from src.side_area_panel.modules.descriptive.plot import (
+    _outliers,
     make_box_plot,
     make_distribution_plot,
     make_frequency_bar_plot,
@@ -19,6 +20,7 @@ from src.side_area_panel.modules.descriptive.plot import (
 )
 from src.side_area_panel.modules.descriptive.table import (
     get_frequency_table,
+    get_grouped_frequency_table,
     get_normality_table,
     get_numeric_summary_table,
 )
@@ -138,6 +140,38 @@ def recalculate_descriptive_study(elements, result: DescriptiveResult) -> Descri
             extended=bool(cfg.extended_stats),
             groupby_column=grouping_column,
         )
+
+        # Outlier report, placed directly beneath the main summary table. Each sentence
+        # names both the variable and (when grouping is set) the group; finally every
+        # outlier's ID is listed comma-separated for easy copying.
+        outlier_sentences = []
+        all_ids = []
+        for col in numeric_columns:
+            if grouping_column is None:
+                groups_iter = [(None, df)]
+            else:
+                groups_iter = [(gv, df.loc[df[grouping_column] == gv]) for gv in groupby_values]
+            for group_value, subframe in groups_iter:
+                outliers = _outliers(subframe, col, id_column)
+                if not outliers:
+                    continue
+                target = col if group_value is None else f"{col} ({group_value})"
+                listed = smart_comma_join(
+                    [
+                        f"{lab} ({format_value_apa(val, 2)})" if id_column is not None else lab
+                        for val, lab in outliers
+                    ]
+                )
+                outlier_sentences.append(
+                    t("descriptive.outliers.line", target=target, n=len(outliers), items=listed)
+                )
+                all_ids.extend(lab for val, lab in outliers)
+        if outlier_sentences:
+            text = "".join(outlier_sentences)
+            if id_column is not None and all_ids:
+                text += t("descriptive.outliers.id_list", ids=", ".join(all_ids))
+            summary.add_text(text)
+
         result.update_and_add_element(summary, "descriptive summary")
 
     # ----- Normality table + verbal report -----
@@ -159,19 +193,34 @@ def recalculate_descriptive_study(elements, result: DescriptiveResult) -> Descri
             test_name=test,
             statistic_letter=letter,
             groupby_column=grouping_column,
+            show_normal_column=bool(cfg.verbal_indicators),
         )
         result.update_and_add_element(normality, "descriptive normality")
 
-    # ----- Categorical frequency tables -----
+    # ----- Categorical frequency tables (split by group when grouping is set) -----
     if cfg.frequency_table:
         for col in categorical_columns:
-            value_counts = df[col].value_counts()
-            if value_counts.empty:
-                continue
-            freq = get_frequency_table(
-                caption=t("descriptive.freq.caption", col=col),
-                value_counts=value_counts.sort_index(),
-            )
+            if grouping_column is None:
+                value_counts = df[col].value_counts()
+                if value_counts.empty:
+                    continue
+                freq = get_frequency_table(
+                    caption=t("descriptive.freq.caption", col=col),
+                    value_counts=value_counts.sort_index(),
+                )
+            else:
+                group_counts = [
+                    (gv, df.loc[df[grouping_column] == gv, col].value_counts().sort_index())
+                    for gv in groupby_values
+                ]
+                if all(vc.empty for _, vc in group_counts):
+                    continue
+                freq = get_grouped_frequency_table(
+                    caption=t("descriptive.freq.caption", col=col),
+                    groupby_column=grouping_column,
+                    col=col,
+                    group_counts=group_counts,
+                )
             result.update_and_add_element(freq, f"descriptive freq {col}")
 
     # ----- Plots -----
@@ -188,20 +237,18 @@ def recalculate_descriptive_study(elements, result: DescriptiveResult) -> Descri
                 if plot is not None:
                     result.update_and_add_element(plot, f"descriptive distribution {col}")
             if cfg.show_box:
-                plot, outlier_text = make_box_plot(
+                plot = make_box_plot(
                     df, col, grouping_column, groupby_values, id_column=id_column, mark_outliers=bool(cfg.mark_outliers)
                 )
                 if plot is not None:
                     result.update_and_add_element(plot, f"descriptive box {col}")
-                if outlier_text:
-                    result.update_and_add_element(HTMLTableV2(texts=[outlier_text]), f"descriptive box outliers {col}")
             if cfg.show_qq:
                 plot = make_qq_plot(df[col], col)
                 if plot is not None:
                     result.update_and_add_element(plot, f"descriptive qq {col}")
         else:
             if cfg.show_frequency_bars:
-                plot = make_frequency_bar_plot(df[col], col)
+                plot = make_frequency_bar_plot(df, col, grouping_column, groupby_values)
                 if plot is not None:
                     result.update_and_add_element(plot, f"descriptive frequency {col}")
             if cfg.show_pie:

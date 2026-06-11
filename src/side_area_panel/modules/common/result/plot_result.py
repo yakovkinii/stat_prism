@@ -63,11 +63,12 @@ class Scatter:
 
 
 class Bar:
-    def __init__(self, x, y, width, label, config=None):
+    def __init__(self, x, y, width, label, legend_string: str = "", config=None):
         self.x = x
         self.y = y
         self.width = width
         self.label = label
+        self.legend_string = legend_string
         self.config = config if config else BarPlotConfig()
 
 
@@ -176,7 +177,12 @@ class BasePlotConfig:
 
 
 class ContingencyPlotConfig(BasePlotConfig):
-    pass
+    def __init__(self, numbered_labels: bool = False):
+        super().__init__()
+        self.numbered_labels = CheckboxResultItemSetting(
+            label="Numbered labels", current_value=numbered_labels
+        )
+        self.display_settings = ContainerResultItemSetting(items=[self.numbered_labels], add_stretch=True)
 
 
 class PiePlotConfig(BasePlotConfig):
@@ -187,10 +193,14 @@ class PiePlotConfig(BasePlotConfig):
         label_font_size: int = 11,
         donut_hole: float = 0.0,
         label_color: Tuple[int, int, int] = (0, 0, 0),
+        numbered_labels: bool = False,
     ):
         super().__init__()
         self.show_percent = CheckboxResultItemSetting(label="Show %", current_value=show_percent)
         self.show_counts = CheckboxResultItemSetting(label="Show counts", current_value=show_counts)
+        self.numbered_labels = CheckboxResultItemSetting(
+            label="Numbered labels", current_value=numbered_labels
+        )
         self.label_font_size = SliderResultItemSetting(
             label="Label Size", current_value=label_font_size, min_value=6, max_value=24, step=1
         )
@@ -199,7 +209,14 @@ class PiePlotConfig(BasePlotConfig):
         )
         self.label_color = ColorGridItemSetting(current_color=label_color, label="Label Color")
         self.display_settings = ContainerResultItemSetting(
-            items=[self.show_percent, self.show_counts, self.label_font_size, self.donut_hole, self.label_color],
+            items=[
+                self.show_percent,
+                self.show_counts,
+                self.numbered_labels,
+                self.label_font_size,
+                self.donut_hole,
+                self.label_color,
+            ],
             add_stretch=True,
         )
 
@@ -334,7 +351,12 @@ class BandPlotConfig(BasePlotConfig):
 
 class HeatmapPlotConfig(BasePlotConfig):
     def __init__(
-        self, symmetric_color_scale: bool = True, only_significant: bool = False, alpha: float = 0.5, font_size=10
+        self,
+        symmetric_color_scale: bool = True,
+        only_significant: bool = False,
+        alpha: float = 0.5,
+        font_size=10,
+        numbered_labels: bool = False,
     ):
         super().__init__()
         self.symmetric_color_scale: CheckboxResultItemSetting = CheckboxResultItemSetting(
@@ -344,6 +366,10 @@ class HeatmapPlotConfig(BasePlotConfig):
         self.only_significant: CheckboxResultItemSetting = CheckboxResultItemSetting(
             label="Significant Only",
             current_value=only_significant,
+        )
+        self.numbered_labels: CheckboxResultItemSetting = CheckboxResultItemSetting(
+            label="Numbered labels",
+            current_value=numbered_labels,
         )
         self.alpha: SliderResultItemSetting = SliderResultItemSetting(
             label="Alpha",
@@ -363,6 +389,7 @@ class HeatmapPlotConfig(BasePlotConfig):
             items=[
                 self.symmetric_color_scale,
                 self.only_significant,
+                self.numbered_labels,
                 self.alpha,
                 self.font_size,
             ],
@@ -397,6 +424,10 @@ class PlotV2(BaseResultElement):
         margin=None,
         box_frame=None,
         gridlines=None,
+        x_tick_step="",
+        x_tick_reference="",
+        y_tick_step="",
+        y_tick_reference="",
     ):
         super().__init__()
         # Defaults come from the active theme unless explicitly provided (e.g. restored
@@ -469,6 +500,17 @@ class PlotV2(BaseResultElement):
         self.gridlines = DropdownResultItemSetting(
             label="Gridlines", current_value=gridlines, items=GRIDLINES
         )
+        # Per-axis numeric tick control. Both blank = automatic. "step" sets the spacing
+        # between ticks; "ref. tick" anchors one tick on that value (default 0). Ignored
+        # for the x-axis when it carries categorical labels (x_axis_items).
+        self.x_tick_step = SingleLineTextResultItemSetting(label="X step (blank=auto)", current_value=x_tick_step)
+        self.x_tick_reference = SingleLineTextResultItemSetting(
+            label="X ref. tick", current_value=x_tick_reference
+        )
+        self.y_tick_step = SingleLineTextResultItemSetting(label="Y step (blank=auto)", current_value=y_tick_step)
+        self.y_tick_reference = SingleLineTextResultItemSetting(
+            label="Y ref. tick", current_value=y_tick_reference
+        )
         self.display_settings = {
             "General": ContainerResultItemSetting(
                 items=[
@@ -489,6 +531,15 @@ class PlotV2(BaseResultElement):
                     self.frame_color,
                     self.background_color,
                     self.background_alpha,
+                ],
+                add_stretch=True,
+            ),
+            "Axes": ContainerResultItemSetting(
+                items=[
+                    self.x_tick_step,
+                    self.x_tick_reference,
+                    self.y_tick_step,
+                    self.y_tick_reference,
                 ],
                 add_stretch=True,
             ),
@@ -646,12 +697,16 @@ class PlotV2(BaseResultElement):
                     item.config.color.get_current_value(), item.config.fill_alpha.get_current_value()
                 )
 
+                if item.legend_string != "":
+                    legend = True
+
                 ax.bar(
                     item.x,
                     item.y,
                     width=item.width * item.config.width_scale.get_current_value(),
                     color=fill_color,
                     linewidth=2,
+                    label=item.legend_string if item.legend_string != "" else None,
                 )
 
             if isinstance(item, Box):
@@ -700,7 +755,7 @@ class PlotV2(BaseResultElement):
                             (item.x_value, value),
                             textcoords="offset points",
                             xytext=(7, 0),
-                            fontsize=8,
+                            fontsize=self.tick_label_font_size.get_current_value(),
                             color=annotation_color,
                             va="center",
                         )
@@ -745,8 +800,14 @@ class PlotV2(BaseResultElement):
                 cbar = fig.colorbar(ax.images[0], ax=ax, orientation="vertical")
                 cbar.ax.tick_params(colors=tick_color)
 
-                plt.xticks(range(len(item.df.columns)), item.df.columns)
-                plt.yticks(range(len(item.df.index)), item.df.index)
+                if item.config.numbered_labels.get_current_value():
+                    col_labels = [str(i + 1) for i in range(len(item.df.columns))]
+                    row_labels = [str(i + 1) for i in range(len(item.df.index))]
+                else:
+                    col_labels = item.df.columns
+                    row_labels = item.df.index
+                plt.xticks(range(len(item.df.columns)), col_labels)
+                plt.yticks(range(len(item.df.index)), row_labels)
 
                 data = item.df
                 # Adding annotations
@@ -798,9 +859,13 @@ class PlotV2(BaseResultElement):
                             label=col if i == 0 else None,  # Only label the first bar
                         )
                         bottom += data_pct.iloc[i, j]
+                numbered = item.config.numbered_labels.get_current_value()
                 # Set the x-ticks to the positions of the bars
                 ax.set_xticks(positions)
-                ax.set_xticklabels(data_pct.columns)
+                if numbered:
+                    ax.set_xticklabels([str(i + 1) for i in range(len(data_pct.columns))])
+                else:
+                    ax.set_xticklabels(data_pct.columns)
 
                 ax.set_ylim(0, 100)
                 ax.set_xlim(-bar_widths.iloc[0] / 2, positions[-1] + bar_widths.iloc[-1] / 2)
@@ -821,7 +886,10 @@ class PlotV2(BaseResultElement):
                 ax2.set_ylim(0, 100)
                 # place one tick per segment, at its midpoint
                 ax2.set_yticks(midpoints)
-                ax2.set_yticklabels(contingency_table.index)
+                if numbered:
+                    ax2.set_yticklabels([str(i + 1) for i in range(len(contingency_table.index))])
+                else:
+                    ax2.set_yticklabels(contingency_table.index)
                 # y ticks on the right
                 ax2.yaxis.tick_right()
                 ax2.spines["left"].set_visible(False)
@@ -851,12 +919,17 @@ class PlotV2(BaseResultElement):
                         parts.append(f"({int(round(pct * _total / 100.0))})")
                     return "\n".join(parts)
 
+                if cfg.numbered_labels.get_current_value():
+                    pie_labels = [str(i + 1) for i in range(len(item.values))]
+                else:
+                    pie_labels = item.labels
+
                 wedge_props = {"edgecolor": rgba_tuple_from_rgb_and_a(bg, 255), "linewidth": 1}
                 if hole > 0:
                     wedge_props["width"] = 1 - hole
                 pie_result = ax.pie(
                     item.values,
-                    labels=item.labels,
+                    labels=pie_labels,
                     colors=slice_colors,
                     autopct=_autopct if (show_percent or show_counts) else None,
                     startangle=90,
@@ -934,6 +1007,12 @@ class PlotV2(BaseResultElement):
         if self.y_range is not None:
             ax.set_ylim(*self.y_range)
 
+        # custom numeric ticks (step + reference). Applied after limits are known; skipped
+        # on the x-axis when it carries categorical labels.
+        if self.x_axis_items is None:
+            self._apply_axis_ticks(ax, "x")
+        self._apply_axis_ticks(ax, "y")
+
         if legend:
             leg = ax.legend(fontsize=self.legend_font_size.get_current_value())
             # Legend follows the background so it stays readable on dark themes.
@@ -948,6 +1027,39 @@ class PlotV2(BaseResultElement):
             self._place_flat_ylabel(fig, ax)
 
         return fig, ax
+
+    def _apply_axis_ticks(self, ax, axis):
+        """Place evenly-spaced ticks on one axis from the user's step / reference fields.
+        Blank step -> leave matplotlib's automatic ticks untouched."""
+        if axis == "x":
+            step_text = self.x_tick_step.get_current_value()
+            ref_text = self.x_tick_reference.get_current_value()
+            lo, hi = ax.get_xlim()
+        else:
+            step_text = self.y_tick_step.get_current_value()
+            ref_text = self.y_tick_reference.get_current_value()
+            lo, hi = ax.get_ylim()
+
+        try:
+            step = float(step_text)
+        except (TypeError, ValueError):
+            return
+        if step <= 0:
+            return
+        try:
+            reference = float(ref_text)
+        except (TypeError, ValueError):
+            reference = 0.0
+
+        k_start = int(np.ceil((lo - reference) / step))
+        k_end = int(np.floor((hi - reference) / step))
+        if k_end < k_start:
+            return
+        ticks = reference + np.arange(k_start, k_end + 1) * step
+        if axis == "x":
+            ax.set_xticks(ticks)
+        else:
+            ax.set_yticks(ticks)
 
     @staticmethod
     def _place_flat_ylabel(fig, ax):

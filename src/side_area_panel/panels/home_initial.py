@@ -57,6 +57,19 @@ class HomeInitial(BasePanel):
             logging.info("No file selected")
             return
 
+        self.load_file(file_path)
+
+    @log_method
+    def load_file(self, file_path):
+        """Load a project (.sp) or raw data file (.xlsx/.csv). Shared by the Open button
+        and the command-line / file-association startup path (launcher -> ui_main)."""
+        import os
+
+        file_path = os.path.abspath(file_path)
+        if not os.path.exists(file_path):
+            logging.warning("File to load does not exist: %s", file_path)
+            return
+
         if file_path.endswith(".sp"):
             with tempfile.TemporaryDirectory() as temp_dir:
                 with zipfile.ZipFile(file_path, "r") as zipf:

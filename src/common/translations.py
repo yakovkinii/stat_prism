@@ -536,6 +536,17 @@ TRANSLATIONS = {
     "correlation.strength.moderate": {"en": "moderate", "ua": "помірну"},
     "correlation.strength.weak": {"en": "weak", "ua": "слабку"},
     "correlation.strength.very_weak": {"en": "very weak", "ua": "дуже слабку"},
+    "effect.col.magnitude": {"en": "Magnitude", "ua": "Величина"},
+    "verbal.significant": {"en": "significant", "ua": "значущий"},
+    "verbal.not_significant": {"en": "not significant", "ua": "незначущий"},
+    "verbal.yes": {"en": "yes", "ua": "так"},
+    "verbal.no": {"en": "no", "ua": "ні"},
+    "verbal.col_significant": {"en": "Significant?", "ua": "Значущість?"},
+    "verbal.col_equal_var": {"en": "Equal var.?", "ua": "Рівні дисп.?"},
+    "effect.magnitude.negligible": {"en": "negligible", "ua": "незначна"},
+    "effect.magnitude.small": {"en": "small", "ua": "мала"},
+    "effect.magnitude.medium": {"en": "medium", "ua": "середня"},
+    "effect.magnitude.large": {"en": "large", "ua": "велика"},
     "correlation.sign.positive": {"en": "positive", "ua": "позитивну"},
     "correlation.sign.negative": {"en": "negative", "ua": "негативну"},
     "correlation.report.intro": {
@@ -661,6 +672,10 @@ TRANSLATIONS = {
     "descriptive.freq.count": {"en": "Count", "ua": "Кількість"},
     "descriptive.freq.percent": {"en": "%", "ua": "%"},
     "descriptive.freq.total": {"en": "Total", "ua": "Загалом"},
+    "descriptive.freq.group_line": {
+        "en": "In {group} (n = {n}), the most common {col} was “{category}” ({pct}%). ",
+        "ua": "У групі {group} (n = {n}) найпоширеніше значення «{col}» — «{category}» ({pct}%). ",
+    },
     "descriptive.normality.caption": {
         "en": "Normality test ({test})",
         "ua": "Перевірка нормальності ({test})",
@@ -683,6 +698,10 @@ TRANSLATIONS = {
     "descriptive.outliers.line": {
         "en": "Analysis of {target} identified {n} outlier(s): {items}. ",
         "ua": "Аналіз «{target}» виявив {n} викид(ів): {items}. ",
+    },
+    "descriptive.outliers.id_list": {
+        "en": "All outlier IDs: ({ids}). ",
+        "ua": "Усі ID викидів: ({ids}). ",
     },
     "descriptive.density": {"en": "Density", "ua": "Щільність"},
     "descriptive.plot.distribution": {

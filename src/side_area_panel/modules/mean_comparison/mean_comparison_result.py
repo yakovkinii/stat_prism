@@ -17,6 +17,7 @@ class MeanComparisonStudyConfig:
     grouping_missing = attrs.field(default=None)
     assumption_checks = attrs.field(default=None)
     effect_size = attrs.field(default=None)
+    verbal_indicators = attrs.field(default=None)
     plots = attrs.field(default=None)
 
 
@@ -55,6 +56,12 @@ _ASSUMPTIONS_FINE_PRINT_EN = (
     "<li>The ANOVA family reports no effect-size statistic &mdash; the "
     "&ldquo;Effect size / Post-hoc&rdquo; switch controls only the post-hoc tests.</li>"
     "</ul></li>"
+    "<li><b>Verbal indicators.</b> &lsquo;Verbal indicators in tables&rsquo; adds plain-language "
+    "columns next to each p-value: a Significant? conclusion on the result tables and a "
+    "Normal? / Equal var.? conclusion on the assumption-check tables (all at &alpha; = .05). "
+    "Where an effect size is shown it also adds a Magnitude column: Cohen&rsquo;s d as "
+    "negligible / small / medium / large (|d| 0.2 / 0.5 / 0.8); the rank-biserial r by the "
+    "correlation bands (|r| .1 / .3 / .5). Post-hoc p-value matrices are left unannotated.</li>"
     "<li><b>Post-hoc</b> (only when enabled and the omnibus test is significant): one-way "
     "ANOVA &rarr; Tukey HSD; Welch&rsquo;s ANOVA &rarr; Tamhane&rsquo;s T2; "
     "Kruskal&ndash;Wallis &rarr; Dunn&rsquo;s test.</li>"

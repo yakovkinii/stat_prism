@@ -13,6 +13,7 @@ from src.side_area_panel.modules.common.utility import (
     format_p_apa,
     format_statistic_apa,
 )
+from src.side_area_panel.modules.common.verbal.significance import assumption_met_verbal
 from src.side_area_panel.modules.common.verbal.test import (
     TestResult,
     describe_single_test_multiple_variables,
@@ -23,7 +24,9 @@ def process_homogeneity_check(
     df: pd.DataFrame,
     selected_columns,
     grouping_column,
+    verbal_indicators=False,
 ):
+    show_verbal = 1 if verbal_indicators else 0
     table = HTMLTableV2(table_caption=t("ttest.caption.levene"))
     table.add_title_row_apa(
         Row(
@@ -32,6 +35,7 @@ def process_homogeneity_check(
                 Cell(t("ttest.col.levene_f"), center=True),
                 Cell(t("common.p_value"), center=True),
             ]
+            + [Cell(t("verbal.col_equal_var"), center=True)] * show_verbal
         )
     )
 
@@ -53,6 +57,7 @@ def process_homogeneity_check(
                     Cell(format_statistic_apa(levene_result.statistic), center=True),
                     Cell(format_p_apa(levene_result.pvalue), center=True),
                 ]
+                + [Cell(assumption_met_verbal(levene_result.pvalue), center=True)] * show_verbal
             )
         )
         if levene_result.pvalue <= 0.05:

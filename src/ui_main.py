@@ -139,11 +139,16 @@ class MainWindowClass(QtWidgets.QMainWindow):
         self.central_widget_layout.removeWidget(webview)
         webview.deleteLater()
 
-        # Todo
-        # if file_path is not None:
-        #     PanelRegistry.HOME.ui_instance.open_file(file_path)
-        #     if file_path.endswith(".sp"):
-        #         self.set_current_file_path(file_path)
+        # Opened via command line / file association (double-click an .sp). The path
+        # comes from the launcher's sys.argv[1]; resolve it to an absolute path before
+        # loading, because the process's working directory may differ from the file's.
+        if file_path is not None:
+            import os
+
+            file_path = os.path.abspath(file_path)
+            PanelRegistry.HOME_INITIAL.ui_instance.load_file(file_path)
+            if file_path.endswith(".sp"):
+                self.set_current_file_path(file_path)
 
     def set_current_file_path(self, file_path):
         self.current_file_path = file_path

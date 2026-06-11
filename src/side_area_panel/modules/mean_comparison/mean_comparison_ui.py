@@ -53,6 +53,10 @@ class Elements(ItemInSidePanelWithAutoConfigHolder):
         label_text="Effect size/Post-hoc",
         default_state=True,
     )
+    verbal_indicators = IISPWACCheckBox(
+        label_text="Verbal indicators in tables",
+        default_state=True,
+    )
     plots = IISPWACCheckBox(
         label_text="Plots",
         default_state=False,

@@ -18,6 +18,7 @@ class DescriptiveStudyConfig:
     frequency_table = attrs.field(default=None)
     show_normality = attrs.field(default=None)
     normality_test = attrs.field(default=None)
+    verbal_indicators = attrs.field(default=None)
     # Plots
     show_distribution = attrs.field(default=None)
     show_box = attrs.field(default=None)
@@ -54,14 +55,17 @@ _ASSUMPTIONS_FINE_PRINT_EN = (
     "<li><b>KDE.</b> Gaussian kernel, Scott&rsquo;s-rule bandwidth multiplied by the KDE "
     "smoothing factor (1 = default; raise it to avoid a spiky curve on discrete/Likert "
     "data).</li>"
-    "<li><b>Box plots.</b> Tukey boxes (median, IQR, 1.5&times;IQR whiskers) with outliers "
-    "drawn as points and listed beneath the plot (by ID when an ID column is set). Enable "
-    "&lsquo;Label outliers&rsquo; to also tag each outlier point on the plot.</li>"
+    "<li><b>Outliers.</b> Tukey outliers (beyond 1.5&times;IQR) are reported beneath the "
+    "numeric summary table, naming each outlier&rsquo;s variable and group, with the full "
+    "list of IDs (when an ID column is set) for easy copying. Box plots draw them as points; "
+    "enable &lsquo;Label outliers&rsquo; to also tag each point on the plot.</li>"
     "<li><b>Q-Q plots.</b> Sample quantiles vs theoretical normal quantiles, with a "
     "reference line.</li>"
-    "<li><b>Grouping.</b> A grouping column splits the numeric summary, distribution plots "
-    "and box plots by group. Frequency tables/bars, pie and Q-Q plots always use the whole "
-    "variable.</li>"
+    "<li><b>Verbal indicators.</b> &lsquo;Verbal indicators in tables&rsquo; adds plain-language "
+    "columns (e.g. the Normal? conclusion) to the tables; untick it for numbers only.</li>"
+    "<li><b>Grouping.</b> A grouping column splits the numeric summary, distribution plots, "
+    "box plots and the categorical frequency table/bars by group. Pie and Q-Q plots always "
+    "use the whole variable.</li>"
     "<li><b>Missing data.</b> Each variable is summarised/plotted on its own non-missing "
     "values.</li>"
     "</ul>"

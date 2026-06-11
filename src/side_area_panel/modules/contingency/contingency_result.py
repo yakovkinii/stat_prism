@@ -15,6 +15,7 @@ class ContingencyStudyConfig:
     column_selector = attrs.field(default=None)
     continuity_correction = attrs.field(default=None)
     effect_size = attrs.field(default=None)
+    verbal_indicators = attrs.field(default=None)
     plots = attrs.field(default=None)
 
 
@@ -34,6 +35,9 @@ _ASSUMPTIONS_FINE_PRINT_EN = (
     "<li><b>Effect size.</b> &phi; (phi) for 2&times;2 tables, Cramer&rsquo;s V otherwise, with "
     "V = &radic;(&chi;<sup>2</sup> / (N&middot;(min(r,c)&minus;1))). Interpretation thresholds: "
     "&lt; 0.2 weak, &lt; 0.6 moderate, otherwise strong.</li>"
+    "<li><b>Verbal indicators.</b> &lsquo;Verbal indicators in tables&rsquo; adds a Significant? "
+    "conclusion next to the &chi;<sup>2</sup> p-value and, when an effect size is shown, a "
+    "Magnitude column (weak / moderate / strong by the thresholds above).</li>"
     "<li><b>Small samples.</b> The chi-square test assumes expected cell counts &ge; 5. For "
     "2&times;2 tables where this is violated, Fisher&rsquo;s exact test (two-sided) is reported "
     "instead; for larger tables a low-count chi-square should be interpreted with caution.</li>"

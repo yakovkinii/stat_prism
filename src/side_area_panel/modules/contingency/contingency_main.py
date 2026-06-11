@@ -19,6 +19,7 @@ from src.side_area_panel.modules.common.utility import (
     format_p_apa_full,
     format_statistic_apa,
 )
+from src.side_area_panel.modules.common.verbal.significance import significance_verbal
 from src.side_area_panel.modules.contingency.contingency_result import ContingencyResult
 
 
@@ -97,6 +98,15 @@ def recalculate_contingency_study(elements, result: ContingencyResult) -> Contin
     cramer_v = (chi2 / n / (min(contingency_table.shape) - 1)) ** 0.5
 
     show_effect = bool(cfg.effect_size)
+    show_verbal = bool(cfg.verbal_indicators)
+
+    # Verbal magnitude of the association, reused by both the table column and the prose.
+    if cramer_v < 0.2:
+        cramer_interpretation = t("contingency.rel_weak")
+    elif cramer_v < 0.6:
+        cramer_interpretation = t("contingency.rel_moderate")
+    else:
+        cramer_interpretation = t("contingency.rel_strong")
 
     note = t("contingency.chi2_note")
     if show_effect and is_2x2:
@@ -119,9 +129,15 @@ def recalculate_contingency_study(elements, result: ContingencyResult) -> Contin
         Cell(dof),
         Cell(format_p_apa(p)),
     ]
+    if show_verbal:
+        header.append(Cell(t("verbal.col_significant")))
+        values.append(Cell(significance_verbal(p)))
     if show_effect:
         header.append(Cell("&phi;" if is_2x2 else t("contingency.col_cramer")))
         values.append(Cell(format_statistic_apa(cramer_v)))
+        if show_verbal:
+            header.append(Cell(t("effect.col.magnitude")))
+            values.append(Cell(cramer_interpretation))
     chi2_table.add_title_row_apa(Row(header))
     chi2_table.add_single_row_apa(Row(values))
 
@@ -134,18 +150,12 @@ def recalculate_contingency_study(elements, result: ContingencyResult) -> Contin
         chi2_text = t("contingency.not_significant", col1=col1, col2=col2, stats=stats_str)
 
     if show_effect:
-        if cramer_v < 0.2:
-            interpretation = t("contingency.rel_weak")
-        elif cramer_v < 0.6:
-            interpretation = t("contingency.rel_moderate")
-        else:
-            interpretation = t("contingency.rel_strong")
         effect_name = "&phi;" if is_2x2 else t("contingency.col_cramer")
         chi2_text += " " + t(
             "contingency.cramer_text",
             name=effect_name,
             v=f"{cramer_v:.2f}",
-            interpretation=interpretation,
+            interpretation=cramer_interpretation,
             col1=col1,
             col2=col2,
         )

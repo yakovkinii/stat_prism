@@ -30,6 +30,7 @@ from src.side_area_panel.modules.common.utility import (
     format_value_apa,
     smart_comma_join,
 )
+from src.side_area_panel.modules.common.verbal.significance import significance_verbal
 from src.side_area_panel.modules.common.verbal.test import (
     TestResult,
     describe_single_test_multiple_variables,
@@ -69,6 +70,7 @@ def recalculate_mean_comparison_anova(
                 df=df,
                 selected_columns=numeric_columns,
                 grouping_column=grouping_column,
+                verbal_indicators=cfg.verbal_indicators,
             )
             if len(numeric_columns) > 0:
                 result.update_and_add_element(normality_table, "anova normality_table")
@@ -79,6 +81,7 @@ def recalculate_mean_comparison_anova(
                 df=df,
                 selected_columns=numeric_columns,
                 grouping_column=grouping_column,
+                verbal_indicators=cfg.verbal_indicators,
             )
             if len(numeric_columns) > 0:
                 result.update_and_add_element(normality_table, "anova normality_table")
@@ -87,6 +90,7 @@ def recalculate_mean_comparison_anova(
             df=df,
             selected_columns=numeric_columns,
             grouping_column=grouping_column,
+            verbal_indicators=cfg.verbal_indicators,
         )
         if (len(numeric_columns) > 0) and (cfg.assumption_checks != AssumptionChecksInGrouping.NEVER.value):
             result.update_and_add_element(normality_table, "anova normality_table")
@@ -99,6 +103,7 @@ def recalculate_mean_comparison_anova(
                 df=df,
                 selected_columns=numeric_columns,
                 grouping_column=grouping_column,
+                verbal_indicators=cfg.verbal_indicators,
             )
             if len(normal_columns) > 0:
                 result.update_and_add_element(homogeneity_table, "anova homogeneity_table")
@@ -109,6 +114,7 @@ def recalculate_mean_comparison_anova(
                 df=df,
                 selected_columns=numeric_columns,
                 grouping_column=grouping_column,
+                verbal_indicators=cfg.verbal_indicators,
             )
             if len(normal_columns) > 0:
                 result.update_and_add_element(homogeneity_table, "anova homogeneity_table")
@@ -119,6 +125,7 @@ def recalculate_mean_comparison_anova(
             if cfg.assumption_checks != AssumptionChecksInGrouping.NEVER.value
             else numeric_columns,
             grouping_column=grouping_column,
+            verbal_indicators=cfg.verbal_indicators,
         )
         if (len(normal_columns) > 0) and (cfg.assumption_checks != AssumptionChecksInGrouping.NEVER.value):
             result.update_and_add_element(homogeneity_table, "anova homogeneity_table")
@@ -134,6 +141,7 @@ def recalculate_mean_comparison_anova(
             non_normal_columns=non_normal_columns,
             grouping_column=grouping_column,
             effect_size=cfg.effect_size,
+            verbal_indicators=cfg.verbal_indicators,
         )
         for i, item in enumerate(items):
             result.update_and_add_element(item, f"anova non_normal_{i}")
@@ -144,6 +152,7 @@ def recalculate_mean_comparison_anova(
             columns=non_homogeneous_columns,
             grouping_column=grouping_column,
             effect_size=cfg.effect_size,
+            verbal_indicators=cfg.verbal_indicators,
         )
         for i, item in enumerate(items):
             result.update_and_add_element(item, f"anova non_homogeneous_{i}")
@@ -154,6 +163,7 @@ def recalculate_mean_comparison_anova(
             columns=homogeneous_columns,
             grouping_column=grouping_column,
             effect_size=cfg.effect_size,
+            verbal_indicators=cfg.verbal_indicators,
         )
         for i, item in enumerate(items):
             result.update_and_add_element(item, f"anova homogeneous_{i}")
@@ -235,19 +245,22 @@ def recalculate_mean_comparison_anova(
 
 
 def process_non_normal_anova(
-    df: pd.DataFrame, non_numeric_columns, non_normal_columns, grouping_column, effect_size
+    df: pd.DataFrame, non_numeric_columns, non_normal_columns, grouping_column, effect_size, verbal_indicators=False
 ):
+    show_sig = 1 if verbal_indicators else 0
     table = HTMLTableV2(table_caption=t("ttest.caption.kruskal"))
 
     group_names = df[grouping_column].unique().tolist()
 
     table.add_single_row_apa(
-        Row([Cell()] * 4 + [Cell(name, center=True, col_span=2, border_bottom=True) for name in group_names])
+        Row([Cell()] * (4 + show_sig) + [Cell(name, center=True, col_span=2, border_bottom=True) for name in group_names])
     )
 
     table.add_title_row_apa(
         Row(
-            [Cell(), Cell(t("ttest.col.kruskal_h"), center=True), Cell(t("common.p_value"), center=True), Cell("df", center=True)]
+            [Cell(), Cell(t("ttest.col.kruskal_h"), center=True), Cell(t("common.p_value"), center=True)]
+            + [Cell(t("verbal.col_significant"), center=True)] * show_sig
+            + [Cell("df", center=True)]
             + [Cell(t("common.median"), center=True), Cell("IQR", center=True)] * len(group_names)
         )
     )
@@ -278,8 +291,9 @@ def process_non_normal_anova(
                     Cell(col, push_to_left=True),
                     Cell(format_statistic_apa(h_stat), center=True),
                     Cell(format_p_apa(p_val), center=True),
-                    Cell(str(len(groups) - 1), center=True),
                 ]
+                + [Cell(significance_verbal(p_val), center=True)] * show_sig
+                + [Cell(str(len(groups) - 1), center=True)]
                 + [
                     _
                     for median_value, iqr_value in zip(median, iqr)
@@ -349,7 +363,8 @@ def process_non_normal_anova(
     return table, *post_hoc_items
 
 
-def process_non_homogeneous_anova(df: pd.DataFrame, columns, grouping_column, effect_size):
+def process_non_homogeneous_anova(df: pd.DataFrame, columns, grouping_column, effect_size, verbal_indicators=False):
+    show_sig = 1 if verbal_indicators else 0
     table = HTMLTableV2(table_caption=t("ttest.caption.welch_anova"))
 
     group_names = df[grouping_column].unique()
@@ -358,6 +373,7 @@ def process_non_homogeneous_anova(df: pd.DataFrame, columns, grouping_column, ef
         Row(
             [Cell()]
             + [Cell(), Cell(), Cell(), Cell()]
+            + [Cell()] * show_sig
             + [Cell(name, center=True, col_span=2, border_bottom=True) for name in group_names]
         )
     )
@@ -368,6 +384,9 @@ def process_non_homogeneous_anova(df: pd.DataFrame, columns, grouping_column, ef
                 Cell(),
                 Cell(t("ttest.col.welch_f"), center=True),
                 Cell(t("common.p_value"), center=True),
+            ]
+            + [Cell(t("verbal.col_significant"), center=True)] * show_sig
+            + [
                 Cell("df1", center=True),
                 Cell("df2", center=True),
                 *[Cell(t("common.mean"), center=True), Cell("SD", center=True)] * len(group_names),
@@ -407,6 +426,7 @@ def process_non_homogeneous_anova(df: pd.DataFrame, columns, grouping_column, ef
                     Cell(col, push_to_left=True),
                     Cell(format_statistic_apa(f_stat), center=True),
                     Cell(format_p_apa(p_val), center=True),
+                    *([Cell(significance_verbal(p_val), center=True)] * show_sig),
                     Cell(f"{df_between}", center=True),
                     Cell(f"{df_within}", center=True),
                     *[
@@ -478,7 +498,8 @@ def process_non_homogeneous_anova(df: pd.DataFrame, columns, grouping_column, ef
     return table, *post_hoc_items
 
 
-def process_homogeneous_anova(df: pd.DataFrame, columns, grouping_column, effect_size):
+def process_homogeneous_anova(df: pd.DataFrame, columns, grouping_column, effect_size, verbal_indicators=False):
+    show_sig = 1 if verbal_indicators else 0
     table = HTMLTableV2(table_caption=t("ttest.caption.one_way_anova"))
 
     group_names = df[grouping_column].unique()
@@ -488,6 +509,7 @@ def process_homogeneous_anova(df: pd.DataFrame, columns, grouping_column, effect
         Row(
             [Cell()]
             + [Cell(), Cell(), Cell(), Cell()]
+            + [Cell()] * show_sig
             + [Cell(name, center=True, col_span=2, border_bottom=True) for name in group_names]
         )
     )
@@ -498,6 +520,9 @@ def process_homogeneous_anova(df: pd.DataFrame, columns, grouping_column, effect
                 Cell(),
                 Cell(t("ttest.col.f_statistic"), center=True),
                 Cell(t("common.p_value"), center=True),
+            ]
+            + [Cell(t("verbal.col_significant"), center=True)] * show_sig
+            + [
                 Cell("df1", center=True),
                 Cell("df2", center=True),
                 *[Cell(t("common.mean"), center=True), Cell("SD", center=True)] * len(group_names),
@@ -538,6 +563,7 @@ def process_homogeneous_anova(df: pd.DataFrame, columns, grouping_column, effect
                     Cell(col, push_to_left=True),
                     Cell(format_statistic_apa(f_stat), center=True),
                     Cell(format_p_apa(p_val), center=True),
+                    *([Cell(significance_verbal(p_val), center=True)] * show_sig),
                     Cell(f"{df_between}", center=True),
                     Cell(f"{df_within}", center=True),
                     *[

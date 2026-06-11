@@ -79,10 +79,11 @@ def get_normality_table(
     test_name: str,
     statistic_letter: str,
     groupby_column: str = None,
+    show_normal_column: bool = True,
 ) -> HTMLTableV2:
-    """Normality results: per variable (or per group) the test statistic, p, and a
-    normal? conclusion, followed by a verbal summary. `rows` have keys: variable, group,
-    norm_stat, norm_p."""
+    """Normality results: per variable (or per group) the test statistic, p, and (when
+    `show_normal_column`) a verbal normal? conclusion, followed by a verbal summary.
+    `rows` have keys: variable, group, norm_stat, norm_p."""
     table = HTMLTableV2(table_caption=caption)
     grouped = groupby_column is not None
 
@@ -92,8 +93,9 @@ def get_normality_table(
     header += [
         Cell(statistic_letter, center=True),
         Cell(t("common.p_value"), center=True),
-        Cell(t("descriptive.normality.col_normal"), center=True),
     ]
+    if show_normal_column:
+        header.append(Cell(t("descriptive.normality.col_normal"), center=True))
     table.add_title_row_apa(Row(header))
 
     prev_variable = None
@@ -111,8 +113,9 @@ def get_normality_table(
         cells += [
             Cell(format_r_apa(r["norm_stat"], 3), center=True),
             Cell(format_p_apa_exact(r["norm_p"]), center=True),
-            Cell(normal_text, center=True),
         ]
+        if show_normal_column:
+            cells.append(Cell(normal_text, center=True))
         table.add_single_row_apa(Row(cells))
 
     table.add_text(_normality_report(rows, test_name, statistic_letter))
@@ -171,3 +174,62 @@ def get_frequency_table(caption: str, value_counts: pd.Series) -> HTMLTableV2:
         )
     )
     return table
+
+
+def get_grouped_frequency_table(caption: str, groupby_column: str, col: str, group_counts) -> HTMLTableV2:
+    """Frequency table split by a grouping column. `group_counts` is a list of
+    (group_value, value_counts Series). Each block lists that group's category counts and
+    within-group percentages; the group label is shown once per block. A verbal summary
+    of each group's modal category follows."""
+    table = HTMLTableV2(table_caption=caption)
+    table.add_title_row_apa(
+        Row(
+            [
+                Cell(groupby_column, push_to_left=True),
+                Cell(t("descriptive.freq.category"), push_to_left=True),
+                Cell(t("descriptive.freq.count"), center=True),
+                Cell(t("descriptive.freq.percent"), center=True),
+            ]
+        )
+    )
+    for group_value, value_counts in group_counts:
+        group_total = int(value_counts.sum())
+        first = True
+        for category, count in value_counts.items():
+            count = int(count)
+            pct = (100.0 * count / group_total) if group_total else 0.0
+            table.add_single_row_apa(
+                Row(
+                    [
+                        Cell(str(group_value) if first else "", push_to_left=True),
+                        Cell(str(category), push_to_left=True),
+                        Cell(str(count), center=True),
+                        Cell(format_value_apa(pct, 1), center=True),
+                    ]
+                )
+            )
+            first = False
+
+    table.add_text(_grouped_frequency_report(col, group_counts))
+    return table
+
+
+def _grouped_frequency_report(col, group_counts) -> str:
+    """One sentence per group naming its most common category."""
+    text = ""
+    for group_value, value_counts in group_counts:
+        if value_counts.empty:
+            continue
+        group_total = int(value_counts.sum())
+        top_category = value_counts.idxmax()
+        top_count = int(value_counts.max())
+        pct = (100.0 * top_count / group_total) if group_total else 0.0
+        text += t(
+            "descriptive.freq.group_line",
+            group=group_value,
+            col=col,
+            category=top_category,
+            pct=format_value_apa(pct, 1),
+            n=group_total,
+        )
+    return text

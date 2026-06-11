@@ -40,6 +40,10 @@ class Elements(ItemInSidePanelWithAutoConfigHolder):
         label_text="Effect size",
         default_state=True,
     )
+    verbal_indicators = IISPWACCheckBox(
+        label_text="Verbal indicators in tables",
+        default_state=True,
+    )
     plots = IISPWACCheckBox(
         label_text="Plot",
         default_state=True,

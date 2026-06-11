@@ -26,6 +26,11 @@ from src.side_area_panel.modules.common.utility import (
     format_statistic_apa,
     format_value_apa,
 )
+from src.side_area_panel.modules.common.verbal.effect_size import (
+    cohen_d_magnitude,
+    correlation_magnitude,
+)
+from src.side_area_panel.modules.common.verbal.significance import significance_verbal
 from src.side_area_panel.modules.common.verbal.test import (
     TestResult,
     describe_single_test_multiple_variables,
@@ -66,6 +71,7 @@ def recalculate_mean_comparison_t_test(
                 df=df,
                 selected_columns=numeric_columns,
                 grouping_column=grouping_column,
+                verbal_indicators=cfg.verbal_indicators,
             )
             if len(numeric_columns) > 0:
                 result.update_and_add_element(
@@ -80,6 +86,7 @@ def recalculate_mean_comparison_t_test(
                 df=df,
                 selected_columns=numeric_columns,
                 grouping_column=grouping_column,
+                verbal_indicators=cfg.verbal_indicators,
             )
             if len(numeric_columns) > 0:
                 result.update_and_add_element(
@@ -91,6 +98,7 @@ def recalculate_mean_comparison_t_test(
             df=df,
             selected_columns=numeric_columns,
             grouping_column=grouping_column,
+            verbal_indicators=cfg.verbal_indicators,
         )
         if (len(numeric_columns) > 0) and not (cfg.assumption_checks == AssumptionChecksInGrouping.NEVER.value):
             result.update_and_add_element(
@@ -106,6 +114,7 @@ def recalculate_mean_comparison_t_test(
                 df=df,
                 selected_columns=numeric_columns,
                 grouping_column=grouping_column,
+                verbal_indicators=cfg.verbal_indicators,
             )
             if len(normal_columns) > 0:
                 result.update_and_add_element(
@@ -119,6 +128,7 @@ def recalculate_mean_comparison_t_test(
                 df=df,
                 selected_columns=numeric_columns,
                 grouping_column=grouping_column,
+                verbal_indicators=cfg.verbal_indicators,
             )
             if len(normal_columns) > 0:
                 result.update_and_add_element(
@@ -132,6 +142,7 @@ def recalculate_mean_comparison_t_test(
             if (cfg.assumption_checks != AssumptionChecksInGrouping.ALWAYS.value)
             else numeric_columns,
             grouping_column=grouping_column,
+            verbal_indicators=cfg.verbal_indicators,
         )
         if (len(normal_columns) > 0) and not (cfg.assumption_checks == AssumptionChecksInGrouping.NEVER.value):
             result.update_and_add_element(
@@ -150,6 +161,7 @@ def recalculate_mean_comparison_t_test(
                 non_normal_columns=non_normal_columns,
                 grouping_column=grouping_column,
                 effect_size=cfg.effect_size,
+                verbal_indicators=cfg.verbal_indicators,
             ),
             "t_test non_normal_table",
         )
@@ -161,6 +173,7 @@ def recalculate_mean_comparison_t_test(
                 columns=non_homogeneous_columns,
                 grouping_column=grouping_column,
                 effect_size=cfg.effect_size,
+                verbal_indicators=cfg.verbal_indicators,
             ),
             "t_test non_homogeneous_table",
         )
@@ -172,6 +185,7 @@ def recalculate_mean_comparison_t_test(
                 columns=homogeneous_columns,
                 grouping_column=grouping_column,
                 effect_size=cfg.effect_size,
+                verbal_indicators=cfg.verbal_indicators,
             ),
             "t_test homogeneous_table",
         )
@@ -257,8 +271,12 @@ def recalculate_mean_comparison_t_test(
 
 
 def process_non_normal_t_test(
-    df: pd.DataFrame, non_numeric_columns, non_normal_columns, grouping_column, effect_size
+    df: pd.DataFrame, non_numeric_columns, non_normal_columns, grouping_column, effect_size, verbal_indicators=False
 ) -> HTMLTableV2:
+    # The verbal magnitude column only makes sense alongside the numeric effect size; the
+    # significance verbal follows the p-value whenever verbal indicators are on.
+    show_verbal = 1 if (effect_size and verbal_indicators) else 0
+    show_sig = 1 if verbal_indicators else 0
     table = HTMLTableV2(table_caption=t("ttest.caption.mann_whitney"))
     group1_name = df[grouping_column].unique()[0]
     group2_name = df[grouping_column].unique()[1]
@@ -267,9 +285,11 @@ def process_non_normal_t_test(
         Row(
             [Cell()]
             + [Cell(), Cell()]
+            + [Cell()] * show_sig
             + [Cell(group1_name, center=True, col_span=2, border_bottom=True)]
             + [Cell(group2_name, center=True, col_span=2, border_bottom=True)]
             + [Cell()] * effect_size
+            + [Cell()] * show_verbal
         )
     )
 
@@ -280,6 +300,7 @@ def process_non_normal_t_test(
                 Cell(t("ttest.col.mann_whitney_u"), center=True),
                 Cell(t("common.p_value"), center=True),
             ]
+            + [Cell(t("verbal.col_significant"), center=True)] * show_sig
             + [
                 Cell(t("common.median"), center=True),
                 Cell("IQR", center=True),
@@ -292,6 +313,7 @@ def process_non_normal_t_test(
                 Cell("r<sub>rb</sub>", center=True),
             ]
             * effect_size
+            + [Cell(t("effect.col.magnitude"), center=True)] * show_verbal
         )
     )
 
@@ -336,6 +358,7 @@ def process_non_normal_t_test(
                     Cell(format_statistic_apa(u_stat), center=True),
                     Cell(format_p_apa(p_val), center=True),
                 ]
+                + [Cell(significance_verbal(p_val), center=True)] * show_sig
                 + [
                     Cell(format_value_apa(median[0]), center=True),
                     Cell(format_value_apa(iqr[0]), center=True),
@@ -348,6 +371,7 @@ def process_non_normal_t_test(
                     Cell(format_statistic_apa(rank_biserial_correlation), center=True),
                 ]
                 * effect_size
+                + [Cell(correlation_magnitude(rank_biserial_correlation), center=True)] * show_verbal
             )
         )
 
@@ -364,7 +388,9 @@ def process_non_normal_t_test(
     return table
 
 
-def process_homogeneous_t_test(df: pd.DataFrame, columns, grouping_column, effect_size) -> HTMLTableV2:
+def process_homogeneous_t_test(df: pd.DataFrame, columns, grouping_column, effect_size, verbal_indicators=False) -> HTMLTableV2:
+    show_verbal = 1 if (effect_size and verbal_indicators) else 0
+    show_sig = 1 if verbal_indicators else 0
     table = HTMLTableV2(table_caption=t("ttest.caption.ttest_independent"))
 
     group1_name = df[grouping_column].unique()[0]
@@ -374,9 +400,11 @@ def process_homogeneous_t_test(df: pd.DataFrame, columns, grouping_column, effec
         Row(
             [Cell()]
             + [Cell(), Cell(), Cell()]
+            + [Cell()] * show_sig
             + [Cell(group1_name, center=True, col_span=2, border_bottom=True)]
             + [Cell(group2_name, center=True, col_span=2, border_bottom=True)]
             + [Cell()] * effect_size
+            + [Cell()] * show_verbal
         )
     )
 
@@ -386,8 +414,9 @@ def process_homogeneous_t_test(df: pd.DataFrame, columns, grouping_column, effec
                 Cell(),
                 Cell(t("ttest.col.t_statistic"), center=True),
                 Cell(t("common.p_value"), center=True),
-                Cell("df", center=True),
             ]
+            + [Cell(t("verbal.col_significant"), center=True)] * show_sig
+            + [Cell("df", center=True)]
             + [
                 Cell(t("common.mean"), center=True),
                 Cell("SD", center=True),
@@ -395,6 +424,7 @@ def process_homogeneous_t_test(df: pd.DataFrame, columns, grouping_column, effec
                 Cell("SD", center=True),
             ]
             + [Cell("Cohen's d", center=True)] * effect_size
+            + [Cell(t("effect.col.magnitude"), center=True)] * show_verbal
         )
     )
 
@@ -430,6 +460,9 @@ def process_homogeneous_t_test(df: pd.DataFrame, columns, grouping_column, effec
                     Cell(col, push_to_left=True),
                     Cell(format_statistic_apa(t_stat), center=True),
                     Cell(format_p_apa(p_val), center=True),
+                ]
+                + [Cell(significance_verbal(p_val), center=True)] * show_sig
+                + [
                     Cell(f"{deg_free:.0f}", center=True),
                 ]
                 + [
@@ -442,6 +475,7 @@ def process_homogeneous_t_test(df: pd.DataFrame, columns, grouping_column, effec
                     Cell(format_statistic_apa(cohen_d), center=True),
                 ]
                 * effect_size
+                + [Cell(cohen_d_magnitude(cohen_d), center=True)] * show_verbal
             )
         )
 
@@ -458,8 +492,10 @@ def process_homogeneous_t_test(df: pd.DataFrame, columns, grouping_column, effec
     return table
 
 
-def process_non_homogeneous_t_test(df: pd.DataFrame, columns, grouping_column, effect_size) -> HTMLTableV2:
+def process_non_homogeneous_t_test(df: pd.DataFrame, columns, grouping_column, effect_size, verbal_indicators=False) -> HTMLTableV2:
     # inhomogeneous => Welch's t-test
+    show_verbal = 1 if (effect_size and verbal_indicators) else 0
+    show_sig = 1 if verbal_indicators else 0
     table = HTMLTableV2(table_caption=t("ttest.caption.welch_ttest"))
 
     group1_name = df[grouping_column].unique()[0]
@@ -469,9 +505,11 @@ def process_non_homogeneous_t_test(df: pd.DataFrame, columns, grouping_column, e
         Row(
             [Cell()]
             + [Cell(), Cell(), Cell()]
+            + [Cell()] * show_sig
             + [Cell(group1_name, center=True, col_span=2, border_bottom=True)]
             + [Cell(group2_name, center=True, col_span=2, border_bottom=True)]
             + [Cell()] * effect_size
+            + [Cell()] * show_verbal
         )
     )
 
@@ -481,8 +519,9 @@ def process_non_homogeneous_t_test(df: pd.DataFrame, columns, grouping_column, e
                 Cell(),
                 Cell(t("ttest.col.t_statistic"), center=True),
                 Cell(t("common.p_value"), center=True),
-                Cell("df", center=True),
             ]
+            + [Cell(t("verbal.col_significant"), center=True)] * show_sig
+            + [Cell("df", center=True)]
             + [
                 Cell(t("common.mean"), center=True),
                 Cell("SD", center=True),
@@ -490,6 +529,7 @@ def process_non_homogeneous_t_test(df: pd.DataFrame, columns, grouping_column, e
                 Cell("SD", center=True),
             ]
             + [Cell("Cohen's d", center=True)] * effect_size
+            + [Cell(t("effect.col.magnitude"), center=True)] * show_verbal
         )
     )
 
@@ -527,6 +567,9 @@ def process_non_homogeneous_t_test(df: pd.DataFrame, columns, grouping_column, e
                     Cell(col, push_to_left=True),
                     Cell(format_statistic_apa(t_stat), center=True),
                     Cell(format_p_apa(p_val), center=True),
+                ]
+                + [Cell(significance_verbal(p_val), center=True)] * show_sig
+                + [
                     Cell(f"{deg_free:.0f}", center=True),
                 ]
                 + [
@@ -536,6 +579,7 @@ def process_non_homogeneous_t_test(df: pd.DataFrame, columns, grouping_column, e
                     Cell(format_value_apa(std[1]), center=True),
                 ]
                 + [Cell(format_statistic_apa(cohen_d), center=True)] * effect_size
+                + [Cell(cohen_d_magnitude(cohen_d), center=True)] * show_verbal
             )
         )
 
