@@ -193,4 +193,5 @@ def recalculate_contingency_study(elements, result: ContingencyResult) -> Contin
         )
         result.update_and_add_element(plot, "contingency plot")
 
+    result.title_context = f"{str(col1)[:16]} × {str(col2)[:16]}"
     return result

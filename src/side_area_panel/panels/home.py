@@ -1,4 +1,5 @@
 #  Copyright (c) 2023 StatPrism Team. All rights reserved.
+import json
 import pickle
 import tempfile
 import zipfile
@@ -11,7 +12,9 @@ from PySide6.QtWidgets import QDialog, QHBoxLayout, QLabel, QPushButton, QVBoxLa
 from src.about import version
 from src.common.constant import MDASH, NDASH
 from src.common.decorators import log_method, log_method_noarg
+from src.common.languages import LANGUAGE
 from src.common.messages import MessageType
+from src.common.theme import THEME
 from src.data.data_manager import DATA_MANAGER
 from src.pyside_ext.elements.button_large import LargeButton
 from src.pyside_ext.elements.spacer import Spacer
@@ -74,15 +77,25 @@ class Home(BasePanel):
         else:
             file_path = self.root_class.current_file_path
 
+        # Project metadata: StatPrism version + the active theme / language, so the
+        # project reopens in the look & language it was saved with.
+        meta = {
+            "format": 1,
+            "version": version,
+            "theme": THEME.name(),
+            "language": LANGUAGE.language.value,
+        }
+
         with tempfile.TemporaryDirectory() as temp_dir:
-            # DATA_MANAGER.get_raw_data().to_parquet(f"{temp_dir}/tabledata_df.parquet")
+            with open(f"{temp_dir}/meta.json", "w", encoding="utf-8") as file:
+                json.dump(meta, file, ensure_ascii=False, indent=2)
             with open(f"{temp_dir}/data_manager.pkl", "wb") as file:
                 pickle.dump(DATA_MANAGER, file)
             with open(f"{temp_dir}/results.pkl", "wb") as file:
                 pickle.dump(RESULTS, file)
             # Zip all files
             with zipfile.ZipFile(file_path, "w") as zipf:
-                # zipf.write(f"{temp_dir}/tabledata_df.parquet", "tabledata_df.parquet")
+                zipf.write(f"{temp_dir}/meta.json", "meta.json")
                 zipf.write(f"{temp_dir}/data_manager.pkl", "data_manager.pkl")
                 zipf.write(f"{temp_dir}/results.pkl", "results.pkl")
 

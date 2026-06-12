@@ -15,6 +15,7 @@ class RegressionStudyConfig:
     column_selector = attrs.field(default=None)
     standardized = attrs.field(default=None)
     verbal_indicators = attrs.field(default=None)
+    plots = attrs.field(default=None)
 
 
 # Fine-print on the exact methodology / variants this module uses. English only by

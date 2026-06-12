@@ -283,12 +283,14 @@ def recalculate_regression_study(elements, result: RegressionResult) -> Regressi
         result.update_and_add_element(path_table, "regression paths")
 
     # ----- Plot (only for a single independent variable) -----
-    plot_result_element = _build_plot(
-        df, model, mediator_model, dependent_column, independent_columns, moderator_column, mediator_column
-    )
-    if plot_result_element is not None:
-        result.update_and_add_element(plot_result_element, "regression plot")
+    if cfg.plots:
+        plot_result_element = _build_plot(
+            df, model, mediator_model, dependent_column, independent_columns, moderator_column, mediator_column
+        )
+        if plot_result_element is not None:
+            result.update_and_add_element(plot_result_element, "regression plot")
 
+    result.title_context = f"{str(dependent_column)[:16]} ~ " + ", ".join(str(c)[:16] for c in independent_columns)
     return result
 
 

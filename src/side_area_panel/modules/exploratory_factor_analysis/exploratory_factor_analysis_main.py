@@ -184,30 +184,31 @@ def recalculate_factor_analysis_study(elements, result: FactorAnalysisResult) ->
     )
     result.update_and_add_element(eig_table, "efa eigenvalues")
 
-    colors = Colors()
-    component_axis = np.arange(1, len(eigenvalues) + 1)
-    scree_color = colors.get_color_list()
-    scree_items = [
-        Line(
-            x=component_axis, y=eigenvalues, label=t("efa.col.eigenvalue"),
-            legend_string=t("efa.col.eigenvalue"), config=LinePlotConfig(color=scree_color),
-        ),
-        Scatter(x=component_axis, y=eigenvalues, label=t("efa.col.eigenvalue")),
-        Line(
-            x=np.array([1, len(eigenvalues)]), y=np.array([1.0, 1.0]), label=t("efa.plot.kaiser_line"),
-            legend_string=t("efa.plot.kaiser_line"), config=LinePlotConfig(color=colors.get_color_list()),
-        ),
-    ]
-    result.update_and_add_element(
-        PlotV2(
-            items=scree_items,
-            title=t("efa.plot.scree"),
-            plot_title=t("efa.plot.scree"),
-            x_axis_title=t("efa.col.component"),
-            y_axis_title=t("efa.col.eigenvalue"),
-        ),
-        "efa scree",
-    )
+    if cfg.plots:
+        colors = Colors()
+        component_axis = np.arange(1, len(eigenvalues) + 1)
+        scree_color = colors.get_color_list()
+        scree_items = [
+            Line(
+                x=component_axis, y=eigenvalues, label=t("efa.col.eigenvalue"),
+                legend_string=t("efa.col.eigenvalue"), config=LinePlotConfig(color=scree_color),
+            ),
+            Scatter(x=component_axis, y=eigenvalues, label=t("efa.col.eigenvalue")),
+            Line(
+                x=np.array([1, len(eigenvalues)]), y=np.array([1.0, 1.0]), label=t("efa.plot.kaiser_line"),
+                legend_string=t("efa.plot.kaiser_line"), config=LinePlotConfig(color=colors.get_color_list()),
+            ),
+        ]
+        result.update_and_add_element(
+            PlotV2(
+                items=scree_items,
+                title=t("efa.plot.scree"),
+                plot_title=t("efa.plot.scree"),
+                x_axis_title=t("efa.col.component"),
+                y_axis_title=t("efa.col.eigenvalue"),
+            ),
+            "efa scree",
+        )
 
     # ----- Extraction + rotation -----
     rotation = _ROTATION_MAP.get(RotationType(cfg.rotation), None)
@@ -242,17 +243,18 @@ def recalculate_factor_analysis_study(elements, result: FactorAnalysisResult) ->
     result.update_and_add_element(load_table, "efa loadings")
 
     # ----- Loadings heatmap -----
-    loadings_df = pd.DataFrame(loadings, index=columns, columns=factor_names)
-    result.update_and_add_element(
-        PlotV2(
-            items=[Heatmap(df=loadings_df, p=None, label=t("efa.plot.loadings"))],
-            title=t("efa.plot.loadings"),
-            plot_title=t("efa.plot.loadings"),
-            x_axis_title=t("efa.plot.factors"),
-            y_axis_title=t("efa.plot.variables"),
-        ),
-        "efa loadings heatmap",
-    )
+    if cfg.plots:
+        loadings_df = pd.DataFrame(loadings, index=columns, columns=factor_names)
+        result.update_and_add_element(
+            PlotV2(
+                items=[Heatmap(df=loadings_df, p=None, label=t("efa.plot.loadings"))],
+                title=t("efa.plot.loadings"),
+                plot_title=t("efa.plot.loadings"),
+                x_axis_title=t("efa.plot.factors"),
+                y_axis_title=t("efa.plot.variables"),
+            ),
+            "efa loadings heatmap",
+        )
 
     # ----- Oblique-only: factor correlations + structure matrix -----
     if is_oblique:

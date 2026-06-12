@@ -25,6 +25,7 @@ class ClusterAnalysisConfig:
     method = attrs.field(default=None)
     n_clusters = attrs.field(default=None)
     standardize = attrs.field(default=None)
+    plots = attrs.field(default=None)
     show_assignments = attrs.field(default=None)
     verbal_indicators = attrs.field(default=None)
 

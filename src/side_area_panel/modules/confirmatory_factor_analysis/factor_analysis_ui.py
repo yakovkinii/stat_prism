@@ -35,6 +35,7 @@ class Elements(ItemInSidePanelWithAutoConfigHolder):
         label_text="Verbal indicators in tables",
         default_state=True,
     )
+    plots = IISPWACCheckBox(label_text="Plots", default_state=True)
     spacer = IISPWACSpacer()
 
 

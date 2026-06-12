@@ -953,6 +953,9 @@ TRANSLATIONS = {
         "en": "Correlation between {a} and {b}",
         "ua": "Кореляція між {a} та {b}",
     },
+    "correlation.plot.points": {"en": "Data points", "ua": "Спостереження"},
+    "correlation.plot.regression_line": {"en": "Linear regression", "ua": "Лінійна регресія"},
+    "correlation.plot.band": {"en": "Standard error", "ua": "Стандартна похибка"},
     "correlation.table.caption": {
         "en": "{name} between {vars}.",
         "ua": "{name} між {vars}.",

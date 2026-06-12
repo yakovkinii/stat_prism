@@ -67,6 +67,11 @@ def recalculate_mean_comparison_study(elements: Elements, result: MeanComparison
     if group_sizes.min() < _MIN_GROUP_SIZE:
         return _fail(result, t("ttest.error.insufficient_population", groups=str(group_sizes.to_dict())))
 
+    selected_columns = cfg.column_selector[0]
+    result.title_context = ", ".join(col[:16] for col in selected_columns)
+    if grouping_column:
+        result.title_context += "\n" + str(grouping_column)[:16]
+
     if len(groups) == 2:
         return recalculate_mean_comparison_t_test(data, result)
     return recalculate_mean_comparison_anova(data, result)

@@ -166,17 +166,18 @@ def recalculate_cfa_study(elements, result: CFAResult) -> CFAResult:
     result.update_and_add_element(load_table, "cfa loadings")
 
     # ----- Loadings heatmap -----
-    loadings_df = pd.DataFrame(loadings, index=columns, columns=factor_names)
-    result.update_and_add_element(
-        PlotV2(
-            items=[Heatmap(df=loadings_df, p=None, label=t("cfa.plot.loadings"))],
-            title=t("cfa.plot.loadings"),
-            plot_title=t("cfa.plot.loadings"),
-            x_axis_title=t("cfa.plot.factors"),
-            y_axis_title=t("cfa.plot.variables"),
-        ),
-        "cfa loadings heatmap",
-    )
+    if cfg.plots:
+        loadings_df = pd.DataFrame(loadings, index=columns, columns=factor_names)
+        result.update_and_add_element(
+            PlotV2(
+                items=[Heatmap(df=loadings_df, p=None, label=t("cfa.plot.loadings"))],
+                title=t("cfa.plot.loadings"),
+                plot_title=t("cfa.plot.loadings"),
+                x_axis_title=t("cfa.plot.factors"),
+                y_axis_title=t("cfa.plot.variables"),
+            ),
+            "cfa loadings heatmap",
+        )
 
     # ----- Factor correlations (oblique only) -----
     if cfg.allow_factor_correlation and n_factors > 1:

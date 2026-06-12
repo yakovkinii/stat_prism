@@ -194,4 +194,6 @@ def recalculate_reliability_study(elements, result: ReliabilityResult) -> Reliab
         item_table.add_text(t("reliability.report.item_none"))
     result.update_and_add_element(item_table, "reliability item_deleted")
 
+    provided_name = (config.scale_name or "").strip()
+    result.title_context = provided_name if provided_name else ", ".join(str(i)[:16] for i in items)
     return result

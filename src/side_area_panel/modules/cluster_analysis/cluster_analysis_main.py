@@ -154,9 +154,10 @@ def recalculate_cluster_analysis_study(elements, result: ClusterAnalysisResult) 
     result.update_and_add_element(quality_table, "cluster quality")
 
     # ----- 2-D cluster scatter (raw two variables, else first two PCs) -----
-    scatter_plot = _build_scatter(x, original, labels, k, columns)
-    if scatter_plot is not None:
-        result.update_and_add_element(scatter_plot, "cluster scatter")
+    if cfg.plots:
+        scatter_plot = _build_scatter(x, original, labels, k, columns)
+        if scatter_plot is not None:
+            result.update_and_add_element(scatter_plot, "cluster scatter")
 
     # ----- Per-observation assignments (optional; can be large) -----
     if cfg.show_assignments:

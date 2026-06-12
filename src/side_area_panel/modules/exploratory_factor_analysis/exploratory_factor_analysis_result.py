@@ -44,6 +44,7 @@ class FactorAnalysisStudyConfig:
     rotation = attrs.field(default=None)
     n_factors = attrs.field(default=None)
     kaiser_normalization = attrs.field(default=None)
+    plots = attrs.field(default=None)
 
 
 # Fine-print on the exact methodology / variants this module uses. English only by

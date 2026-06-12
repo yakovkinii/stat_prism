@@ -1,39 +1,39 @@
 @echo off
-REM Batch script to associate .sp files with a batch file and set a custom icon
+setlocal
+REM Associate .sp files with the development launcher for the current Windows user.
 
-REM Define paths
-set BAT_FILE_PATH=%~dp0_RUN.bat
-set ICON_FILE_PATH=%~dp0resources\Icon.ico
-set "REG_BAT_FILE_PATH=%BAT_FILE_PATH:\=\\%"
-set "REG_ICON_FILE_PATH=%ICON_FILE_PATH:\=\\%"
+set "BAT_FILE_PATH=%~dp0_RUN.bat"
+set "ICON_FILE_PATH=%~dp0resources\Icon.ico"
 
-REM Associate .sp files. Likely redundant but anyway
-assoc .sp=StatPrismProjectFile
+if not exist "%BAT_FILE_PATH%" (
+    echo Missing launcher: "%BAT_FILE_PATH%"
+    pause
+    exit /b 1
+)
 
-REM Define the command to run when an .sp file is opened. Likely redundant but anyway
-ftype StatPrismProjectFile="%BAT_FILE_PATH%" "%%1"
+if not exist "%ICON_FILE_PATH%" (
+    echo Missing icon: "%ICON_FILE_PATH%"
+    pause
+    exit /b 1
+)
 
-(
-echo Windows Registry Editor Version 5.00
-echo.
-echo [HKEY_CLASSES_ROOT\.sp]
-echo @="StatPrismProjectFile"
-echo.
-echo [HKEY_CLASSES_ROOT\StatPrismProjectFile]
-echo @="StatPrism Project File"
-echo.
-echo [HKEY_CLASSES_ROOT\StatPrismProjectFile\DefaultIcon]
-echo @="%REG_ICON_FILE_PATH%"
-echo.
-echo [HKEY_CLASSES_ROOT\StatPrismProjectFile\Shell\Open\Command]
-echo @="\"%REG_BAT_FILE_PATH%\" \"%%1\""
-) > "./spfile_association.reg"
+reg add "HKCU\Software\Classes\.sp" /ve /d "StatPrismProjectFile" /f
+if errorlevel 1 goto :failed
 
-REM Import the .reg file to update the registry
-regedit /s "./spfile_association.reg"
+reg add "HKCU\Software\Classes\StatPrismProjectFile" /ve /d "StatPrism Project File" /f
+if errorlevel 1 goto :failed
 
-REM Clean up
-del "./spfile_association.reg"
+reg add "HKCU\Software\Classes\StatPrismProjectFile\DefaultIcon" /ve /d "%ICON_FILE_PATH%" /f
+if errorlevel 1 goto :failed
 
-echo Association complete. The changes will take effect after a restart.
+reg add "HKCU\Software\Classes\StatPrismProjectFile\Shell\Open\Command" /ve /d "\"%BAT_FILE_PATH%\" \"%%1\"" /f
+if errorlevel 1 goto :failed
+
+echo Association complete. If Explorer has cached the old association, sign out and back in.
 pause
+exit /b 0
+
+:failed
+echo Failed to associate .sp files.
+pause
+exit /b 1

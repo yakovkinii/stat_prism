@@ -123,7 +123,7 @@ def recalculate_correlation_study(elements, result: CorrelationResult) -> Correl
                     continue
                 if cfg.report_only_significant and p_matrix.loc[name1, name2] > 0.05:
                     continue
-                scatter = Scatter(x=df[name1], y=df[name2], label="Scatter: data points")
+                scatter = Scatter(x=df[name1], y=df[name2], label=t("correlation.plot.points"))
 
                 # Regression line + standard-error band
                 regression = linregress(df[name1], df[name2])
@@ -138,12 +138,12 @@ def recalculate_correlation_study(elements, result: CorrelationResult) -> Correl
                 conf_dynamic = std_err * abs(x_pred - df[name1].mean())
                 conf_interval = np.sqrt(intercept_std_err**2 + conf_dynamic**2)
 
-                plot_line = Line(x=x_pred[1:-1], y=y_pred[1:-1], label="Line: linear regression")
+                plot_line = Line(x=x_pred[1:-1], y=y_pred[1:-1], label=t("correlation.plot.regression_line"))
                 plot_band = Band(
                     x=x_pred,
                     y1=y_pred - conf_interval,
                     y2=y_pred + conf_interval,
-                    label="Band: Standard Error",
+                    label=t("correlation.plot.band"),
                 )
 
                 plot_result = PlotV2(
