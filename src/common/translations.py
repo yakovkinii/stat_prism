@@ -725,6 +725,64 @@ TRANSLATIONS = {
     "efa.plot.loadings": {"en": "Factor loadings heatmap", "ua": "Теплокарта факторних навантажень"},
     "efa.plot.factors": {"en": "Factors", "ua": "Фактори"},
     "efa.plot.variables": {"en": "Variables", "ua": "Змінні"},
+    # ----- Confirmatory Factor Analysis -----
+    "cfa.description": {
+        "en": (
+            "Confirmatory factor analysis (CFA) tests a factor structure you specify &mdash; you "
+            "assign the observed variables to each latent factor. The model is fitted by maximum "
+            "likelihood and reports model-fit indices (&chi;&sup2;, RMSEA, CFI, TLI, SRMR), the "
+            "standardised factor loadings, and (for an oblique model) the factor correlations. "
+            "Use the loadings to judge how well each variable measures its assigned factor."
+        ),
+        "ua": (
+            "Конфірматорний факторний аналіз (CFA) перевіряє задану вами факторну структуру "
+            "&mdash; ви призначаєте спостережувані змінні кожному латентному фактору. Модель "
+            "оцінюється методом максимальної правдоподібності та подає індекси відповідності "
+            "(&chi;&sup2;, RMSEA, CFI, TLI, SRMR), стандартизовані факторні навантаження та "
+            "(для косокутної моделі) кореляції факторів. За навантаженнями оцінюйте, наскільки "
+            "добре змінна вимірює призначений їй фактор."
+        ),
+    },
+    "cfa.error.min_per_factor": {
+        "en": "Each factor needs at least two variables (for identification).",
+        "ua": "Кожен фактор потребує щонайменше двох змінних (для ідентифікації).",
+    },
+    "cfa.error.fit_failed": {
+        "en": "The CFA model could not be fit: {error}",
+        "ua": "Не вдалося оцінити модель CFA: {error}",
+    },
+    "cfa.caption.fit": {"en": "Model fit indices", "ua": "Індекси відповідності моделі"},
+    "cfa.caption.loadings": {"en": "Factor loadings (standardized)", "ua": "Факторні навантаження (стандартизовані)"},
+    "cfa.caption.phi": {"en": "Factor correlation matrix (Φ)", "ua": "Матриця кореляцій факторів (Φ)"},
+    "cfa.col.index": {"en": "Index", "ua": "Індекс"},
+    "cfa.col.value": {"en": "Value", "ua": "Значення"},
+    "cfa.col.interpretation": {"en": "Interpretation", "ua": "Інтерпретація"},
+    "cfa.col.variable": {"en": "Variable", "ua": "Змінна"},
+    "cfa.fit.close": {"en": "close", "ua": "близька"},
+    "cfa.fit.acceptable": {"en": "acceptable", "ua": "прийнятна"},
+    "cfa.fit.mediocre": {"en": "mediocre", "ua": "посередня"},
+    "cfa.fit.poor": {"en": "poor", "ua": "погана"},
+    "cfa.fit.good": {"en": "good", "ua": "добра"},
+    "cfa.fit.excellent": {"en": "excellent", "ua": "відмінна"},
+    "cfa.report.chi2_good": {
+        "en": "The exact-fit χ² test is non-significant (χ²({df}) = {chi2}, {p}), consistent with good fit. ",
+        "ua": "Тест точної відповідності χ² незначущий (χ²({df}) = {chi2}, {p}), що узгоджується з доброю відповідністю. ",
+    },
+    "cfa.report.chi2_poor": {
+        "en": "The exact-fit χ² test is significant (χ²({df}) = {chi2}, {p}), indicating some misfit &mdash; though χ² is sensitive to sample size. ",
+        "ua": "Тест точної відповідності χ² значущий (χ²({df}) = {chi2}, {p}), що вказує на певну невідповідність &mdash; хоча χ² чутливий до обсягу вибірки. ",
+    },
+    "cfa.report.indices": {
+        "en": "RMSEA = {rmsea} ({rmsea_label}); CFI = {cfi} ({cfi_label}); TLI = {tli} ({tli_label}); SRMR = {srmr} ({srmr_label}). ",
+        "ua": "RMSEA = {rmsea} ({rmsea_label}); CFI = {cfi} ({cfi_label}); TLI = {tli} ({tli_label}); SRMR = {srmr} ({srmr_label}). ",
+    },
+    "cfa.report.not_converged": {
+        "en": "Warning: the optimiser did not fully converge, so the solution may be unreliable. ",
+        "ua": "Увага: оптимізатор не повністю збігся, тож розв'язок може бути ненадійним. ",
+    },
+    "cfa.plot.loadings": {"en": "Factor loadings heatmap", "ua": "Теплокарта факторних навантажень"},
+    "cfa.plot.factors": {"en": "Factors", "ua": "Фактори"},
+    "cfa.plot.variables": {"en": "Variables", "ua": "Змінні"},
     # ----- Cluster analysis -----
     "cluster.caption.assignments": {
         "en": "Cluster Assignments",
@@ -758,6 +816,54 @@ TRANSLATIONS = {
         "en": "Method: <i>{method}</i>; Clusters: <i>{n}</i>",
         "ua": "Метод: <i>{method}</i>; Кластерів: <i>{n}</i>",
     },
+    "cluster.description": {
+        "en": (
+            "Cluster analysis groups observations so that those within a cluster are more "
+            "similar to each other than to those in other clusters. K-means partitions the data "
+            "into a chosen number of clusters by minimising the within-cluster sum of squares. "
+            "The module reports the cluster sizes, the cluster centroids (in the original units), "
+            "a silhouette quality score, and a 2-D scatter of the clusters."
+        ),
+        "ua": (
+            "Кластерний аналіз групує спостереження так, щоб усередині кластера вони були "
+            "подібнішими між собою, ніж до спостережень з інших кластерів. K-середніх розбиває "
+            "дані на задану кількість кластерів, мінімізуючи внутрішньокластерну суму квадратів. "
+            "Модуль подає розміри кластерів, центроїди (в оригінальних одиницях), оцінку якості "
+            "(силует) та двовимірну діаграму розсіювання кластерів."
+        ),
+    },
+    "cluster.caption.summary": {"en": "Cluster summary", "ua": "Зведення кластерів"},
+    "cluster.caption.quality": {"en": "Cluster quality", "ua": "Якість кластеризації"},
+    "cluster.col.size": {"en": "Size", "ua": "Розмір"},
+    "cluster.col.percent": {"en": "%", "ua": "%"},
+    "cluster.col.metric": {"en": "Metric", "ua": "Показник"},
+    "cluster.col.value": {"en": "Value", "ua": "Значення"},
+    "cluster.col.interpretation": {"en": "Interpretation", "ua": "Інтерпретація"},
+    "cluster.metric.silhouette": {"en": "Mean silhouette", "ua": "Середній силует"},
+    "cluster.metric.inertia": {"en": "Within-cluster SS (inertia)", "ua": "Внутрішньокластерна сума квадратів"},
+    "cluster.sil.strong": {"en": "strong structure", "ua": "сильна структура"},
+    "cluster.sil.reasonable": {"en": "reasonable structure", "ua": "помірна структура"},
+    "cluster.sil.weak": {"en": "weak structure", "ua": "слабка структура"},
+    "cluster.sil.none": {"en": "no substantial structure", "ua": "немає суттєвої структури"},
+    "cluster.report.summary": {
+        "en": "K-means formed {k} clusters (sizes: {sizes}). ",
+        "ua": "K-середніх утворив {k} кластерів (розміри: {sizes}). ",
+    },
+    "cluster.report.silhouette": {
+        "en": "The mean silhouette is {sil} ({label}). ",
+        "ua": "Середній силует дорівнює {sil} ({label}). ",
+    },
+    "cluster.report.standardized": {
+        "en": "Variables were standardised (z-scored) before clustering. ",
+        "ua": "Перед кластеризацією змінні стандартизовано (z-оцінки). ",
+    },
+    "cluster.report.unstandardized": {
+        "en": "Variables were clustered on their original scale. ",
+        "ua": "Кластеризацію виконано в оригінальному масштабі змінних. ",
+    },
+    "cluster.plot.scatter": {"en": "Cluster scatter plot", "ua": "Діаграма розсіювання кластерів"},
+    "cluster.plot.cluster_label": {"en": "Cluster {n}", "ua": "Кластер {n}"},
+    "cluster.plot.pc": {"en": "PC{n} ({pct}%)", "ua": "ГК{n} ({pct}%)"},
     # ----- Correlation -----
     "correlation.name.pearson": {
         "en": "Pearson correlation coefficient",

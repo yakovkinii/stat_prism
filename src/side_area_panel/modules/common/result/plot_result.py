@@ -55,10 +55,11 @@ class Pie:
 
 
 class Scatter:
-    def __init__(self, x, y, label, config=None):
+    def __init__(self, x, y, label, legend_string: str = "", config=None):
         self.x = x
         self.y = y
         self.label = label
+        self.legend_string = legend_string
         self.config: ScatterPlotConfig = config if config else ScatterPlotConfig()
 
 
@@ -359,15 +360,15 @@ class HeatmapPlotConfig(BasePlotConfig):
         numbered_labels: bool = False,
     ):
         super().__init__()
-        self.symmetric_color_scale: CheckboxResultItemSetting = CheckboxResultItemSetting(
+        self.symmetric_color_scale = PlainCheckboxResultItemSetting(
             label="Symmetric Color Scale",
             current_value=symmetric_color_scale,
         )
-        self.only_significant: CheckboxResultItemSetting = CheckboxResultItemSetting(
+        self.only_significant = PlainCheckboxResultItemSetting(
             label="Significant Only",
             current_value=only_significant,
         )
-        self.numbered_labels: CheckboxResultItemSetting = CheckboxResultItemSetting(
+        self.numbered_labels = PlainCheckboxResultItemSetting(
             label="Numbered labels",
             current_value=numbered_labels,
         )
@@ -554,6 +555,15 @@ class PlotV2(BaseResultElement):
                     raise ValueError(f"duplicated label found: {label}")
                 self.display_settings[label] = item.config.display_settings
 
+        # Grey out controls that can't affect this plot's actual contents: the legend size
+        # when nothing carries a legend entry, and a heatmap's "Significant Only" when no
+        # p-value matrix was supplied (e.g. factor-loading heatmaps, where it is meaningless).
+        legend_used = any(getattr(item, "legend_string", "") for item in self.items)
+        self.legend_font_size.enabled = bool(legend_used)
+        for item in self.items:
+            if isinstance(item, Heatmap):
+                item.config.only_significant.enabled = item.p is not None
+
         # ===
         self._gc_ignore = []
 
@@ -664,6 +674,9 @@ class PlotV2(BaseResultElement):
                     item.config.color.get_current_value(), item.config.fill_alpha.get_current_value()
                 )
 
+                if item.legend_string != "":
+                    legend = True
+
                 ax.scatter(
                     x_data,
                     y_data,
@@ -672,6 +685,7 @@ class PlotV2(BaseResultElement):
                     edgecolors=line_color,
                     facecolors=fill_color,
                     linewidth=2,
+                    label=item.legend_string if item.legend_string != "" else None,
                 )
 
             if isinstance(item, Line):

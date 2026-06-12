@@ -62,8 +62,9 @@ class CFAEstimator:
         # Use ML covariance (divide by N, not N-1)
         S = np.cov(X, rowvar=False, bias=True)
         n_obs = X.shape[0]  # ensure n_obs is N, not N-1
-        # Initial values
-        loadings0 = np.random.uniform(0.5, 0.8, size=(n_vars, n_factors)) * mask
+        # Initial values. Fixed-seed RNG so the same model reproduces the same solution.
+        rng = np.random.default_rng(0)
+        loadings0 = rng.uniform(0.5, 0.8, size=(n_vars, n_factors)) * mask
         # Apply fixed loadings if provided
         for (v, f), val in self.fixed_loadings.items():
             if v in var_names and 0 <= f < n_factors:
@@ -148,6 +149,13 @@ class CFAEstimator:
         converged = res.success
         message = res.message
         L, uniq, phi = unpack_params(res.x)
+        # Sign-normalise each factor so its dominant loading direction is positive (a
+        # factor's sign is otherwise arbitrary). Sigma = L phi L' is invariant to this.
+        for j in range(n_factors):
+            if np.sum(L[:, j]) < 0:
+                L[:, j] *= -1
+                phi[j, :] *= -1
+                phi[:, j] *= -1
         # Fit indices
         Sigma = L @ phi @ L.T + np.diag(uniq)
         sign, logdet_S = np.linalg.slogdet(S)

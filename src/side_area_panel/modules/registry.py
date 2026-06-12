@@ -117,12 +117,12 @@ class ModuleRegistry(Enum):
 
     CFA = ModuleRegistryItem(
         display_name="Confirmatory Factor Analysis",
-        icon_path="msc.unverified",
+        icon_path="mdi6.sitemap-outline",
     )
 
     CLUSTER_ANALYSIS = ModuleRegistryItem(
         display_name="Cluster Analysis",
-        icon_path="msc.unverified",
+        icon_path="mdi6.scatter-plot-outline",
     )
 
     @property

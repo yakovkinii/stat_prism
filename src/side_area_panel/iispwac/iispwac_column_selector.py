@@ -149,6 +149,12 @@ class IISPWACColumnSelector(ItemInSidePanelWithAutoConfig):
         """Rebuild the field panels (and popup) for a new set of fields. Used by
         modules whose number of inputs depends on another control (e.g. CFA factors)."""
         self.fields = fields
+        # Keep selected_columns_list length in sync with the new field count, preserving
+        # selections for the fields that remain. Otherwise popup_closed (which iterates the
+        # rebuilt panels) indexes past the old, shorter list -> IndexError.
+        previous = getattr(self, "selected_columns_list", [])
+        self.selected_columns_list = [previous[i] if i < len(previous) else [] for i in range(len(fields))]
+
         self.popup = ColumnSelectorExPopup(None, self.fields, handler_popup_close=self.popup_closed)
         self.popup.widget.hide()
 
@@ -162,7 +168,25 @@ class IISPWACColumnSelector(ItemInSidePanelWithAutoConfig):
         self.fields_panel_layout.setSpacing(15)
 
         self._build_field_panels()
+        self._render_selected_into_panels()
         self.clear_alert()
+
+    def _render_selected_into_panels(self):
+        """Show the current per-field selections in the inline panels (each column appears
+        once across the fields). No-op until the element has been configured with data."""
+        if not getattr(self, "columns", None):
+            return
+        main_list_names = [column.column_name for column in self.columns]
+        for panel_list, selected_columns in zip(self.panel_list_widgets, self.selected_columns_list):
+            clean_up_list_widget(panel_list)
+            for column in selected_columns:
+                if column not in main_list_names:
+                    continue
+                main_list_names.remove(column)
+                item = QListWidgetItem(column)
+                item.setIcon(COLUMN_TYPE_ICONS[self.columns[self.column_names.index(column)].column_type])
+                item.setSizeHint(QtCore.QSize(0, ITEM_HEIGHT))
+                panel_list.addItem(item)
 
     @log_method
     def set_alert(self, field_index: int):

@@ -30,6 +30,10 @@ class Elements(ItemInSidePanelWithAutoConfigHolder):
         label_text="Allow factor correlation (oblique)",
         default_state=True,
     )
+    verbal_indicators = IISPWACCheckBox(
+        label_text="Verbal indicators in tables",
+        default_state=True,
+    )
     spacer = IISPWACSpacer()
     column_selector = IISPWACColumnSelector(fields=_make_factor_fields(2))
 
