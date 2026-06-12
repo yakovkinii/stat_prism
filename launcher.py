@@ -1,4 +1,38 @@
 #  Copyright (c) 2023 StatPrism Team. All rights reserved.
+
+# Nuitka build configuration. Build with:
+#   python -m nuitka launcher.py
+#
+# nuitka-project-set: APP_VERSION = __import__("src.about", fromlist=["version"]).version
+# nuitka-project: --mode=standalone
+# nuitka-project: --output-dir={MAIN_DIRECTORY}/build/nuitka
+# nuitka-project: --remove-output
+# nuitka-project: --python-flag=unbuffered
+# nuitka-project: --enable-plugin=pyside6
+# nuitka-project: --enable-plugin=matplotlib
+# nuitka-project: --include-package=src
+# nuitka-project: --include-module=main
+# nuitka-project: --include-module=resources_rc
+# nuitka-project: --include-package=qtawesome
+# nuitka-project: --include-package-data=qtawesome
+# nuitka-project: --include-package-data=matplotlib
+# nuitka-project: --include-package-data=pandas
+# nuitka-project: --include-package-data=openpyxl
+# nuitka-project: --include-package-data=pyarrow
+# nuitka-project: --include-package-data=sklearn
+# nuitka-project: --include-package-data=scipy
+# nuitka-project: --include-package-data=statsmodels
+# nuitka-project: --include-package-data=pingouin
+# nuitka-project: --include-package-data=scikit_posthocs
+# nuitka-project: --include-package-data=factor_analyzer
+# nuitka-project-if: {OS} == "Windows":
+#    nuitka-project: --windows-console-mode=force
+#    nuitka-project: --windows-icon-from-ico={MAIN_DIRECTORY}/resources/StatPrism_icon_small.ico
+#    nuitka-project: --product-name=StatPrism
+#    nuitka-project: --file-description=StatPrism
+#    nuitka-project: --file-version={APP_VERSION}
+#    nuitka-project: --product-version={APP_VERSION}
+
 # pre-import because dynamic import causes crashes on win11
 from PySide6.QtWebEngineWidgets import QWebEngineView
 

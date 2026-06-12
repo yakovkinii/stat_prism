@@ -7,6 +7,32 @@ import logging
 level = 0
 
 
+def _source_location(callable_):
+    source_file = inspect.getsourcefile(callable_) or inspect.getfile(callable_)
+    try:
+        line_number = inspect.getsourcelines(callable_)[1]
+    except (OSError, TypeError):
+        code = getattr(callable_, "__code__", None)
+        line_number = code.co_firstlineno if code is not None else 0
+    return source_file, line_number
+
+
+def _log_call(callable_, label):
+    logger = logging.getLogger()
+    source_file, line_number = _source_location(callable_)
+    lr = logger.makeRecord(
+        logger.name,
+        logging.INFO,
+        source_file,
+        line_number,
+        label,
+        {},
+        None,
+        "",
+    )
+    logger.handle(lr)
+
+
 def log_method(method):
     """
     A decorator to log the name of a class method when it is executed.
@@ -17,20 +43,7 @@ def log_method(method):
         class_name = self.__class__.__name__
         ident = "⋅ " * level
 
-        logger = logging.getLogger()
-        source_file = inspect.getsourcefile(method)
-        line_number = inspect.getsourcelines(method)[1]
-        lr = logger.makeRecord(
-            logger.name,
-            logging.INFO,
-            source_file,
-            line_number,
-            ident + f"{class_name}.{method.__name__}",
-            {},
-            None,
-            "",
-        )
-        logger.handle(lr)
+        _log_call(method, ident + f"{class_name}.{method.__name__}")
 
         level += 1
         if args or kwargs:
@@ -55,20 +68,7 @@ def log_method_noarg(method):
         class_name = self.__class__.__name__
         ident = "⋅ " * level
 
-        logger = logging.getLogger()
-        source_file = inspect.getsourcefile(method)
-        line_number = inspect.getsourcelines(method)[1]
-        lr = logger.makeRecord(
-            logger.name,
-            logging.INFO,
-            source_file,
-            line_number,
-            ident + f"{class_name}.{method.__name__}",
-            {},
-            None,
-            "",
-        )
-        logger.handle(lr)
+        _log_call(method, ident + f"{class_name}.{method.__name__}")
 
         level += 1
         result = method(self)
@@ -87,20 +87,7 @@ def log_function(function):
         global level
         ident = "⋅ " * level
 
-        logger = logging.getLogger()
-        source_file = inspect.getsourcefile(function)
-        line_number = inspect.getsourcelines(function)[1]
-        lr = logger.makeRecord(
-            logger.name,
-            logging.INFO,
-            source_file,
-            line_number,
-            ident + f"{function.__name__}",
-            {},
-            None,
-            "",
-        )
-        logger.handle(lr)
+        _log_call(function, ident + f"{function.__name__}")
 
         level += 1
         result = function(*args, **kwargs)
