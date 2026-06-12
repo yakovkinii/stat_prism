@@ -26,6 +26,7 @@ def _make_factor_fields(n_factors: int):
 class Elements(ItemInSidePanelWithAutoConfigHolder):
     data_source = IISPWACDataSource()
     n_factors = IISPWACSpin(label_text="Number of factors:", min_value=1, max_value=20, default_value=2)
+    column_selector = IISPWACColumnSelector(fields=_make_factor_fields(2))
     allow_factor_correlation = IISPWACCheckBox(
         label_text="Allow factor correlation (oblique)",
         default_state=True,
@@ -35,7 +36,6 @@ class Elements(ItemInSidePanelWithAutoConfigHolder):
         default_state=True,
     )
     spacer = IISPWACSpacer()
-    column_selector = IISPWACColumnSelector(fields=_make_factor_fields(2))
 
 
 class ConfirmatoryFactorAnalysis(BaseModulePanel):

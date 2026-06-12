@@ -19,7 +19,6 @@ from src.pyside_ext.elements.base import BasePanelElement
 from src.side_area_panel.modules.common.result.base_result import BaseResultElement
 from src.side_area_panel.modules.common.utility import format_r_apa
 from src.side_area_panel.panels.result_item_settings_classes import (
-    CheckboxResultItemSetting,
     ColorGridItemSetting,
     ContainerResultItemSetting,
     DropdownResultItemSetting,
@@ -180,7 +179,7 @@ class BasePlotConfig:
 class ContingencyPlotConfig(BasePlotConfig):
     def __init__(self, numbered_labels: bool = False):
         super().__init__()
-        self.numbered_labels = CheckboxResultItemSetting(
+        self.numbered_labels = PlainCheckboxResultItemSetting(
             label="Numbered labels", current_value=numbered_labels
         )
         self.display_settings = ContainerResultItemSetting(items=[self.numbered_labels], add_stretch=True)
@@ -197,9 +196,9 @@ class PiePlotConfig(BasePlotConfig):
         numbered_labels: bool = False,
     ):
         super().__init__()
-        self.show_percent = CheckboxResultItemSetting(label="Show %", current_value=show_percent)
-        self.show_counts = CheckboxResultItemSetting(label="Show counts", current_value=show_counts)
-        self.numbered_labels = CheckboxResultItemSetting(
+        self.show_percent = PlainCheckboxResultItemSetting(label="Show %", current_value=show_percent)
+        self.show_counts = PlainCheckboxResultItemSetting(label="Show counts", current_value=show_counts)
+        self.numbered_labels = PlainCheckboxResultItemSetting(
             label="Numbered labels", current_value=numbered_labels
         )
         self.label_font_size = SliderResultItemSetting(

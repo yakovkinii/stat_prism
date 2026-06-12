@@ -45,6 +45,13 @@ class CFAEstimator:
         if np.isnan(X).any():
             X = X[~np.isnan(X).any(axis=1)]
         n_obs, n_vars = X.shape
+        # Standardize, so the model is fit on the correlation matrix. Factor variances are
+        # fixed to 1, so this is the natural scale; it is far better-conditioned than the raw
+        # covariance, which (with free factor correlations) let the optimiser push Phi to the
+        # +/-1 boundary (a singular, degenerate solution).
+        col_std = X.std(axis=0, ddof=0)
+        col_std[col_std == 0] = 1.0
+        X = (X - X.mean(axis=0)) / col_std
         n_factors = len(self.structure)
         if var_names is None:
             var_names = [f"x{i+1}" for i in range(n_vars)]
@@ -122,13 +129,17 @@ class CFAEstimator:
                 if mask[i, j]:
                     if (var_names[i], j) in self.fixed_loadings:
                         continue
-                    bounds.append((None, None))  # unconstrained loadings
+                    # Standardized loadings: keep within [-1, 1] (a value at the boundary is
+                    # already a Heywood case) so they can't blow up while Phi compensates.
+                    bounds.append((-1.0, 1.0))
         for _ in range(n_vars):
             bounds.append((1e-6, None))
         if self.allow_factor_correlation and n_factors > 1:
             n_phi = int(n_factors * (n_factors - 1) / 2)
             for _ in range(n_phi):
-                bounds.append((None, None))
+                # Bound in Fisher-z space so |correlation| <= tanh(2.5) ~= .987, i.e. keep
+                # Phi away from the singular +/-1 boundary.
+                bounds.append((-2.5, 2.5))
 
         # Negative log-likelihood
         def nll(p):

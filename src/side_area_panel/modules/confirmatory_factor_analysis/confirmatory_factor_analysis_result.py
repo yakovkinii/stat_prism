@@ -34,7 +34,7 @@ _ASSUMPTIONS_FINE_PRINT_EN = (
     "interpret its magnitude. Loadings are sign-normalised so each factor's dominant direction "
     "is positive.</li>"
     "<li><b>Fit indices.</b> <b>&chi;&sup2;</b> tests <i>exact</i> fit (non-significant = good, "
-    "but it is sensitive to sample size). <b>RMSEA</b>: &lt; .05 close, &lt; .08 acceptable, "
+    "but it is sensitive to sample size). <b>RMSEA</b>: &lt; .05 good, &lt; .08 acceptable, "
     "&lt; .10 mediocre, otherwise poor. <b>CFI / TLI</b>: &ge; .95 excellent, &ge; .90 "
     "acceptable, otherwise poor. <b>SRMR</b>: &le; .08 good, otherwise poor. <b>df</b> are the "
     "model degrees of freedom.</li>"

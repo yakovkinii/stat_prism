@@ -45,7 +45,7 @@ def _interpretation_key(name: str, value) -> str:
         return None
     if name == "RMSEA":
         if value < 0.05:
-            return "close"
+            return "good"
         if value < 0.08:
             return "acceptable"
         if value < 0.10:

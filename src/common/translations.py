@@ -758,7 +758,6 @@ TRANSLATIONS = {
     "cfa.col.value": {"en": "Value", "ua": "Значення"},
     "cfa.col.interpretation": {"en": "Interpretation", "ua": "Інтерпретація"},
     "cfa.col.variable": {"en": "Variable", "ua": "Змінна"},
-    "cfa.fit.close": {"en": "close", "ua": "близька"},
     "cfa.fit.acceptable": {"en": "acceptable", "ua": "прийнятна"},
     "cfa.fit.mediocre": {"en": "mediocre", "ua": "посередня"},
     "cfa.fit.poor": {"en": "poor", "ua": "погана"},
