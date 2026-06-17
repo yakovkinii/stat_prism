@@ -4,11 +4,12 @@ import logging
 from PySide6 import QtCore
 from PySide6.QtCore import QSize, QTimer
 from PySide6.QtGui import Qt
-from PySide6.QtWidgets import QFileDialog, QHBoxLayout, QPushButton, QVBoxLayout
+from PySide6.QtWidgets import QFileDialog, QHBoxLayout, QPushButton, QTextBrowser, QVBoxLayout, QWidget
 
 from src.common.decorators import log_method
 from src.common.ui_constructor import create_tool_button_qta, create_simple_tool_button_qta
 from src.main_area_panel.data_viewer.data_viewer import view_data_popup
+from src.main_area_panel.show_in_main_area_popup import view_widget_in_popup
 from src.main_area_panel.result_display.base import BaseResultDisplay
 from src.main_area_panel.result_display.elements.result_label import ResultLabel
 from src.pyside_ext.elements.utility.layout_helpers import (
@@ -152,6 +153,20 @@ class DataProcessingResultDisplay(BaseResultDisplay):
             ],
         )
 
+        self.info_button = widget_in_layout(
+            widget=create_simple_tool_button_qta(
+                parent=self.actions_widget,
+                icon_path="mdi6.information-outline",
+                icon_size=QSize(20, 20),
+            ),
+            layout=self.actions_layout,
+            setup=lambda w, l: [
+                w.setToolTip("About this step (description & methodology)"),
+                w.clicked.connect(self.show_description_popup),
+            ],
+        )
+        self.description_popup = None
+
         self.export_button = widget_in_layout(
             widget=create_simple_tool_button_qta(
                 parent=self.actions_widget,
@@ -247,6 +262,48 @@ class DataProcessingResultDisplay(BaseResultDisplay):
         # Round-trips enabled through the side panel (configure pushes it into the
         # hidden checkbox, recalculate reads it back) and refreshes this card.
         self.recalculate()
+
+    def show_description_popup(self):
+        """Show this step's methodology (falling back to its live summary) in a dimmed
+        popup that closes on click-outside -- mirrors the analysis cards' info button."""
+        result = RESULTS[self.result_id]
+        html = getattr(result, "methodology", "") or getattr(result, "description", "") or ""
+
+        container = QWidget()
+        container_layout = QVBoxLayout(container)
+        container_layout.setContentsMargins(0, 0, 0, 0)
+        browser = QTextBrowser(container)
+        browser.setOpenExternalLinks(True)
+        browser.setHtml(html)
+        container_layout.addWidget(browser)
+        container.setFixedSize(QSize(560, 520))
+        set_stylesheet(
+            browser,
+            css(
+                background_color=Style.Color.BackgroundElevated,
+                color=Style.Color.Text,
+                border=Style.General.border,
+                border_color=Style.Color.BorderElevated,
+                border_radius="8px",
+                padding="16px",
+            ),
+        )
+
+        self._close_description_popup()
+        self.description_popup = view_widget_in_popup(
+            parent=self.root_class.main_area_panel.widget,
+            widget=container,
+            handler_on_close=self._on_description_popup_closed,
+        )
+
+    def _close_description_popup(self):
+        popup = self.description_popup
+        self.description_popup = None
+        if popup is not None:
+            popup.close()
+
+    def _on_description_popup_closed(self):
+        self.description_popup = None
 
     def recalculate(self):
         panel = self.root_class.settings_panel.panels[RESULTS[self.result_id].settings_panel_index]

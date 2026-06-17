@@ -5,6 +5,14 @@ from src.data.data import Data
 from src.side_area_panel.modules.common.result.registry import BaseResult
 
 
+_METHODOLOGY = (
+    "<b>Grouped outliers</b><br>"
+    "Like Outliers, but the threshold is computed <i>within each subgroup</i> of the grouping "
+    "column (IQR or Z-score), so every value is judged against its own group's distribution. "
+    "A row is dropped if it is an outlier on any selected column within its group."
+)
+
+
 @attrs.define
 class GroupedOutliersStudyConfig:
     data_source = attrs.field(default=None)
@@ -27,6 +35,7 @@ class GroupedOutliersResult(BaseResult):
         self.removed_count: int = 0
         self.removed_ids: list = []
         self.description = ""
+        self.methodology = _METHODOLOGY
         self.update_description()
 
         self.data = Data([])

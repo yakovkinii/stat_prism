@@ -5,6 +5,14 @@ from src.data.data import Data
 from src.side_area_panel.modules.common.result.registry import BaseResult
 
 
+_METHODOLOGY = (
+    "<b>Invert scale</b><br>"
+    "Reverse-scores the selected columns: each value x becomes (reference &minus; x). With no "
+    "reference, it uses (max + min) of the column, so e.g. a 1&ndash;5 Likert item maps 1&harr;5, "
+    "2&harr;4, 3&harr;3. Use it to fix reverse-keyed items before building a scale."
+)
+
+
 @attrs.define
 class InvertScaleStudyConfig:
     data_source = attrs.field(default=None)
@@ -23,6 +31,7 @@ class InvertScaleResult(BaseResult):
         self.config: InvertScaleStudyConfig = config
         self.needs_update: bool = False
         self.description = ""
+        self.methodology = _METHODOLOGY
         self.update_description()
 
         self.data = Data([])

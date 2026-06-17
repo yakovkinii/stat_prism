@@ -5,6 +5,7 @@ import logging
 
 import numpy as np
 import pandas as pd
+from factor_analyzer import FactorAnalyzer
 
 from src.common.decorators import log_function
 from src.common.translations import t
@@ -63,6 +64,23 @@ def _full_correlation_matrix(df: pd.DataFrame, kind: CorrelationType) -> pd.Data
     return pd.DataFrame(arr, index=df.columns, columns=df.columns)
 
 
+def mcdonald_omega(corr_matrix: np.ndarray) -> float:
+    """McDonald's omega-total from a single common-factor solution fitted to the item
+    correlation matrix: omega = (Sum loadings)^2 / [(Sum loadings)^2 + Sum residual
+    variances]. Analytic (one factor extraction), no bootstrap."""
+    try:
+        fa = FactorAnalyzer(n_factors=1, rotation=None, is_corr_matrix=True)
+        fa.fit(corr_matrix)
+        loadings = fa.loadings_[:, 0]
+        residual = fa.get_uniquenesses()
+        sum_loadings = float(np.sum(loadings))
+        denominator = sum_loadings**2 + float(np.sum(residual))
+        return (sum_loadings**2) / denominator if denominator > 0 else float("nan")
+    except Exception as e:  # pragma: no cover - defensive
+        logging.warning("Reliability: omega computation failed: %s", e)
+        return float("nan")
+
+
 def _alpha_level_key(alpha: float) -> str:
     if np.isnan(alpha):
         return "unacceptable"
@@ -119,30 +137,34 @@ def recalculate_reliability_study(elements, result: ReliabilityResult) -> Reliab
     scale_name = (config.scale_name or "").strip() or t("reliability.scale_default")
     level_word = t(f"reliability.interpret.{_alpha_level_key(alpha)}")
 
-    # ----- Cronbach's alpha table + verbal report -----
-    alpha_table = HTMLTableV2(table_caption=t("reliability.caption.cronbach"))
-    alpha_table.add_title_row_apa(
-        Row(
-            [Cell(), Cell(t("reliability.caption.cronbach"), center=True)]
-            + [Cell(t("reliability.col.interpretation"), center=True)] * show_verbal
-        )
+    # ----- Reliability coefficients table (alpha, optional omega) + verbal report -----
+    coef_table = HTMLTableV2(table_caption=t("reliability.caption.coefficients"))
+    header = [Cell(t("reliability.col.coefficient")), Cell(t("reliability.col.value"), center=True)]
+    if show_verbal:
+        header.append(Cell(t("reliability.col.interpretation"), center=True))
+    coef_table.add_title_row_apa(Row(header))
+
+    alpha_row = [Cell(t("reliability.caption.cronbach"), push_to_left=True), Cell(format_r_apa(alpha), center=True)]
+    if show_verbal:
+        alpha_row.append(Cell(level_word.capitalize(), center=True))
+    coef_table.add_single_row_apa(Row(alpha_row))
+
+    report = t(
+        "reliability.report.main", scale=scale_name, n=len(items), level=level_word, alpha=format_r_apa(alpha)
     )
-    alpha_table.add_single_row_apa(
-        Row(
-            [Cell(scale_name, push_to_left=True), Cell(format_r_apa(alpha), center=True)]
-            + [Cell(level_word.capitalize(), center=True)] * show_verbal
-        )
-    )
-    alpha_table.add_text(
-        t(
-            "reliability.report.main",
-            scale=scale_name,
-            n=len(items),
-            level=level_word,
-            alpha=format_r_apa(alpha),
-        )
-    )
-    result.update_and_add_element(alpha_table, "reliability alpha")
+
+    if config.mcdonald_omega:
+        omega = mcdonald_omega(corr_values)
+        omega_level = t(f"reliability.interpret.{_alpha_level_key(omega)}")
+        omega_row = [Cell(t("reliability.row.omega"), push_to_left=True), Cell(format_r_apa(omega), center=True)]
+        if show_verbal:
+            omega_row.append(Cell(omega_level.capitalize() if not np.isnan(omega) else "—", center=True))
+        coef_table.add_single_row_apa(Row(omega_row))
+        if not np.isnan(omega):
+            report += t("reliability.report.omega", omega=format_r_apa(omega), level=omega_level)
+
+    coef_table.add_text(report)
+    result.update_and_add_element(coef_table, "reliability alpha")
 
     # ----- If item removed table -----
     # All quantities derive from the same item correlation matrix as the (standardised)

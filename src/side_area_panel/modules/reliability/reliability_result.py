@@ -15,6 +15,7 @@ class ReliabilityStudyConfig:
     column_selector = attrs.field(default=None)
     correlation_type = attrs.field(default=None)
     scale_name = attrs.field(default=None)
+    mcdonald_omega = attrs.field(default=None)
     verbal_indicators = attrs.field(default=None)
 
 
@@ -24,9 +25,13 @@ class ReliabilityStudyConfig:
 _ASSUMPTIONS_FINE_PRINT_EN = (
     "<b>Methodology &amp; assumptions</b>"
     "<ul>"
-    "<li><b>Coefficient.</b> Cronbach&rsquo;s &alpha; computed from the item correlation "
-    "matrix (standardised &alpha;): &alpha; = k/(k&minus;1) &middot; (1 &minus; tr(R)/&Sigma;R), "
-    "where k is the number of items and R the item correlation matrix.</li>"
+    "<li><b>Coefficients.</b> Cronbach&rsquo;s &alpha; from the item correlation matrix "
+    "(standardised &alpha;): &alpha; = k/(k&minus;1) &middot; (1 &minus; tr(R)/&Sigma;R), where k "
+    "is the number of items and R the item correlation matrix. Optionally <b>McDonald&rsquo;s "
+    "&omega;</b> (omega-total) from a single common-factor fit: &omega; = (&Sigma;&lambda;)&sup2; "
+    "/ [(&Sigma;&lambda;)&sup2; + &Sigma;&psi;], with loadings &lambda; and residual variances "
+    "&psi;. &omega; relaxes &alpha;&rsquo;s equal-loadings (tau-equivalence) assumption and is "
+    "often the better choice for congeneric scales.</li>"
     "<li><b>Correlation type.</b> The same estimators as the Correlation analysis. Pearson, "
     "Spearman, Kendall&rsquo;s &tau;-b and Kendall&rsquo;s &tau;-c work on the items directly; "
     "Polychoric assumes an underlying continuous variable behind each ordinal item. Phi and "
@@ -49,6 +54,10 @@ _ASSUMPTIONS_FINE_PRINT_EN = (
     "<li><b>Verbal indicators.</b> &lsquo;Verbal indicators in tables&rsquo; adds plain-language "
     "columns: the interpretation band next to &alpha;, and an &lsquo;Improves &alpha;?&rsquo; "
     "yes/no on the item table (yes = removing that item would raise &alpha;).</li>"
+    "<li><b>Caveat.</b> Cronbach&rsquo;s &alpha; assumes the items are unidimensional and "
+    "roughly tau-equivalent (equal true-score contributions); when that does not hold it can "
+    "under- or over-state reliability, and McDonald&rsquo;s &omega; may be preferable. &alpha; "
+    "also tends to rise simply with more items.</li>"
     "<li><b>Missing data.</b> Correlations are computed pairwise on the available values.</li>"
     "</ul>"
 )

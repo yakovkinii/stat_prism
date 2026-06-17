@@ -51,6 +51,10 @@ _ASSUMPTIONS_FINE_PRINT_EN = (
     "contrasts the direct and total effects.</li>"
     "<li><b>Verbal indicators.</b> &lsquo;Verbal indicators in tables&rsquo; adds a "
     "Significant? column next to each p-value (&alpha; = .05).</li>"
+    "<li><b>Assumptions (not checked here).</b> OLS assumes a roughly linear relationship, "
+    "independent and constant-variance (homoscedastic) errors, and &mdash; for exact small-"
+    "sample inference &mdash; approximately normal residuals. These are not tested in this "
+    "module; inspect residuals / use judgement if in doubt.</li>"
     "<li><b>Threshold.</b> Tests are two-sided and use &alpha; = .05.</li>"
     "</ul>"
 )

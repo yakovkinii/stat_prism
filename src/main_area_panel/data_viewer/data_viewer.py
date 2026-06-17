@@ -1,3 +1,6 @@
+import math
+
+import numpy as np
 from PySide6 import QtCore, QtGui
 from PySide6.QtWidgets import (
     QAbstractItemView,
@@ -15,11 +18,34 @@ from src.pyside_ext.markup import css
 from src.pyside_ext.unique_qss import set_stylesheet
 
 
+def _format_cell(value, sig_figs: int = 5) -> str:
+    """Display formatter for the data grid: floats are shown to at most `sig_figs`
+    significant figures, but never coarser than the ones place (the integer part is kept
+    intact and only the fractional part is rounded). Ints / strings are shown verbatim;
+    NaN shows blank."""
+    if isinstance(value, (float, np.floating)):
+        x = float(value)
+        if math.isnan(x):
+            return ""
+        if math.isinf(x) or x == 0:
+            return "0" if x == 0 else str(x)
+        magnitude = math.floor(math.log10(abs(x)))
+        if abs(x) >= 1:
+            decimals = max(0, sig_figs - (magnitude + 1))  # never round the integer part
+        else:
+            decimals = sig_figs - 1 - magnitude  # keep sig_figs after the leading zeros
+        text = f"{round(x, decimals):.{decimals}f}"
+        if "." in text:
+            text = text.rstrip("0").rstrip(".")
+        return text
+    return str(value)
+
+
 def view_data_popup(parent, data: Data):
     model = QtGui.QStandardItemModel(data.n_rows(), data.n_columns())
     for r in range(data.n_rows()):
         for c in range(data.n_columns()):
-            item = QtGui.QStandardItem(str(data[c][r]))
+            item = QtGui.QStandardItem(_format_cell(data[c][r]))
             model.setItem(r, c, item)
     model.setHorizontalHeaderLabels(data.column_names())
 

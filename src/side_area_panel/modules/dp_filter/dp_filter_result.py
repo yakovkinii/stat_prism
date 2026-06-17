@@ -5,6 +5,15 @@ from src.data.data import Data
 from src.side_area_panel.modules.common.result.registry import BaseResult
 
 
+_METHODOLOGY = (
+    "<b>Filter</b><br>"
+    "Keeps only the rows that match a condition on one column. For a numeric column, keep rows "
+    "where the value satisfies a comparison (&lt;, &le;, =, &ge;, &gt;, &ne;) against a value; "
+    "for a categorical column, keep only the chosen category values. Rows that don't match are "
+    "removed downstream. Toggle the step off (card button) to keep all rows."
+)
+
+
 @attrs.define
 class FilterDataStudyConfig:
     data_source = attrs.field(default=None)
@@ -26,6 +35,7 @@ class FilterDataResult(BaseResult):
         # Tells the result card to show the large enable/disable toggle.
         self.toggleable: bool = True
         self.description = ""
+        self.methodology = _METHODOLOGY
         self.update_description()
 
         self.data = Data([])

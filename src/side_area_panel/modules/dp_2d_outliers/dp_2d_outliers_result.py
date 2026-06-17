@@ -5,6 +5,14 @@ from src.data.data import Data
 from src.side_area_panel.modules.common.result.registry import BaseResult
 
 
+_METHODOLOGY = (
+    "<b>2D outliers</b><br>"
+    "Removes multivariate outliers from two columns using the <b>Mahalanobis distance</b> of "
+    "each point from the joint centre, with a chi-square cutoff (df = 2) at 95% confidence. "
+    "This accounts for the correlation between the two variables, unlike per-column thresholds."
+)
+
+
 @attrs.define
 class TwoDOutliersStudyConfig:
     data_source = attrs.field(default=None)
@@ -26,6 +34,7 @@ class TwoDOutliersResult(BaseResult):
         self.removed_count: int = 0
         self.removed_ids: list = []
         self.description = ""
+        self.methodology = _METHODOLOGY
         self.update_description()
 
         self.data = Data([])

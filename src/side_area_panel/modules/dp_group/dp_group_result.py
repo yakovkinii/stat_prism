@@ -5,6 +5,14 @@ from src.data.data import Data
 from src.side_area_panel.modules.common.result.registry import BaseResult
 
 
+_METHODOLOGY = (
+    "<b>Group values</b><br>"
+    "Bins a numeric column into ordered groups using the split points you provide (e.g. split "
+    "points 3, 6 give the bins &le;3, 3&ndash;6, &gt;6). Each bin can be given a label; the "
+    "result is added as a new column, leaving the original untouched."
+)
+
+
 @attrs.define
 class GroupValuesStudyConfig:
     data_source = attrs.field(default=None)
@@ -25,6 +33,7 @@ class GroupValuesResult(BaseResult):
         self.config: GroupValuesStudyConfig = config
         self.needs_update: bool = False
         self.description = ""
+        self.methodology = _METHODOLOGY
         self.update_description()
 
         self.data = Data([])

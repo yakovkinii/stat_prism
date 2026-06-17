@@ -5,6 +5,15 @@ from src.data.data import Data
 from src.side_area_panel.modules.common.result.registry import BaseResult
 
 
+_METHODOLOGY = (
+    "<b>Outliers</b><br>"
+    "Drops rows whose value on <i>any</i> selected column is an outlier. "
+    "<b>IQR</b>: outside Q1 &minus; 1.5&times;IQR .. Q3 + 1.5&times;IQR. "
+    "<b>Z-score</b>: |z| &gt; 3. When an 'ID' column is present, removed IDs are listed. "
+    "Toggle the step off (card button) to keep all rows."
+)
+
+
 @attrs.define
 class OutliersStudyConfig:
     data_source = attrs.field(default=None)
@@ -27,6 +36,7 @@ class OutliersResult(BaseResult):
         self.removed_count: int = 0
         self.removed_ids: list = []
         self.description = ""
+        self.methodology = _METHODOLOGY
         self.update_description()
 
         self.data = Data([])

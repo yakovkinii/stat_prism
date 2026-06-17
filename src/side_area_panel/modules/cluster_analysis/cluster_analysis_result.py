@@ -52,6 +52,9 @@ _ASSUMPTIONS_FINE_PRINT_EN = (
     "(with the % of variance each captures).</li>"
     "<li><b>Choosing k.</b> K-means does not choose k for you; compare the silhouette across a "
     "few values of k, or use domain knowledge.</li>"
+    "<li><b>Caveat.</b> K-means assumes roughly spherical, similarly-sized clusters and is "
+    "sensitive to outliers and the starting seed; standardise when variables differ in scale "
+    "and treat the partition as exploratory.</li>"
     "</ul>"
 )
 

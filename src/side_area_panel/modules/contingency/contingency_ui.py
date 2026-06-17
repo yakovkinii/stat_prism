@@ -45,7 +45,7 @@ class Elements(ItemInSidePanelWithAutoConfigHolder):
         default_state=True,
     )
     plots = IISPWACCheckBox(
-        label_text="Plot",
+        label_text="Plots",
         default_state=True,
     )
 

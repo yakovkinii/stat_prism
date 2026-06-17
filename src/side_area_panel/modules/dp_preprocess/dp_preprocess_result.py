@@ -5,6 +5,14 @@ from src.data.data import Data
 from src.side_area_panel.modules.common.result.registry import BaseResult
 
 
+_METHODOLOGY = (
+    "<b>Preprocess</b><br>"
+    "Per-column cleanup before analysis: rename a column, remap its values (e.g. recode "
+    "&lsquo;Yes&rsquo;/&lsquo;No&rsquo; to 1/0, or merge categories), and set the category "
+    "order for ordinal variables (which drives how categories sort in tables and plots)."
+)
+
+
 @attrs.define
 class PreprocessStudyConfig:
     data_source = attrs.field(default=None)
@@ -22,6 +30,7 @@ class PreprocessResult(BaseResult):
         self.config: PreprocessStudyConfig = config
         self.needs_update: bool = False
         self.description = ""
+        self.methodology = _METHODOLOGY
         self.update_description()
 
         self.data = Data([])

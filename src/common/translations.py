@@ -463,8 +463,16 @@ TRANSLATIONS = {
     },
     # ----- Reliability -----
     "reliability.caption.cronbach": {
-        "en": "Cronbach's Alpha",
-        "ua": "Альфа Кронбаха",
+        "en": "Cronbach's α",
+        "ua": "α Кронбаха",
+    },
+    "reliability.caption.coefficients": {"en": "Reliability", "ua": "Надійність"},
+    "reliability.col.coefficient": {"en": "Coefficient", "ua": "Коефіцієнт"},
+    "reliability.col.value": {"en": "Value", "ua": "Значення"},
+    "reliability.row.omega": {"en": "McDonald's ω", "ua": "ω Макдональда"},
+    "reliability.report.omega": {
+        "en": "McDonald's ω = {omega} ({level}). ",
+        "ua": "ω Макдональда = {omega} ({level}). ",
     },
     "reliability.msg.binary_required": {
         "en": "All columns must have at most 2 unique values for the selected correlation type",
