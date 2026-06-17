@@ -6,6 +6,8 @@ import logging
 import numpy as np
 import pandas as pd
 import statsmodels.api as sm
+from scipy import stats
+from statsmodels.stats.outliers_influence import variance_inflation_factor
 
 from src.common.decorators import log_function
 from src.common.qcolor import Colors
@@ -84,6 +86,84 @@ def _coefficient_table(model, dependent_sd, show_std, verbal, x, caption, interc
         table.add_single_row_apa(Row(cells))
 
     return table
+
+
+def _vif_key(vif: float) -> str:
+    if np.isnan(vif):
+        return "low"
+    if vif >= 10:
+        return "high"
+    if vif >= 5:
+        return "moderate"
+    return "low"
+
+
+def _add_diagnostics(result, model, x, verbal):
+    """OLS diagnostics: a VIF multicollinearity table (when there are >=2 predictors), a
+    residuals-vs-fitted plot, and a normal Q-Q plot of the residuals."""
+    fitted = np.asarray(model.fittedvalues, dtype=float)
+    resid = np.asarray(model.resid, dtype=float)
+
+    # ----- VIF (needs >=2 predictors; const stays in the design matrix for the formula) -----
+    predictors = [c for c in x.columns if c != "const"]
+    if len(predictors) >= 2:
+        design = x.values
+        vif_table = HTMLTableV2(table_caption=t("regression.diag.vif_caption"))
+        header = [Cell(), Cell(t("regression.col.vif"), center=True)]
+        if verbal:
+            header.append(Cell(t("regression.diag.concern"), center=True))
+        vif_table.add_title_row_apa(Row(header))
+
+        high = []
+        for i, name in enumerate(x.columns):
+            if name == "const":
+                continue
+            vif = variance_inflation_factor(design, i)
+            if not np.isnan(vif) and vif >= 10:
+                high.append(str(name))
+            cells = [Cell(str(name), push_to_left=True), Cell(format_statistic_apa(vif), center=True)]
+            if verbal:
+                cells.append(Cell(t(f"regression.vif.{_vif_key(vif)}"), center=True))
+            vif_table.add_single_row_apa(Row(cells))
+        vif_table.add_text(
+            t("regression.report.vif_high", items=smart_comma_join(high))
+            if high
+            else t("regression.report.vif_ok")
+        )
+        result.update_and_add_element(vif_table, "regression vif")
+
+    # ----- Residuals vs fitted -----
+    zero_x = np.array([fitted.min(), fitted.max()])
+    result.update_and_add_element(
+        PlotV2(
+            items=[
+                Scatter(x=fitted, y=resid, label=t("regression.diag.points")),
+                Line(x=zero_x, y=np.array([0.0, 0.0]), label=t("regression.diag.zero")),
+            ],
+            title=t("regression.diag.resid_fitted"),
+            plot_title=t("regression.diag.resid_fitted"),
+            x_axis_title=t("regression.diag.fitted"),
+            y_axis_title=t("regression.diag.residual"),
+        ),
+        "regression resid_fitted",
+    )
+
+    # ----- Normal Q-Q of residuals -----
+    (osm, osr), (slope, intercept, _r) = stats.probplot(resid, dist="norm")
+    line_x = np.array([osm.min(), osm.max()])
+    result.update_and_add_element(
+        PlotV2(
+            items=[
+                Scatter(x=osm, y=osr, label=t("regression.diag.points")),
+                Line(x=line_x, y=intercept + slope * line_x, label=t("regression.diag.ref")),
+            ],
+            title=t("regression.diag.qq"),
+            plot_title=t("regression.diag.qq"),
+            x_axis_title=t("regression.diag.theoretical"),
+            y_axis_title=t("regression.diag.sample"),
+        ),
+        "regression qq",
+    )
 
 
 def _coefficient_prose(model, dependent_column) -> str:
@@ -281,6 +361,10 @@ def recalculate_regression_study(elements, result: RegressionResult) -> Regressi
             med_text += t("regression.report.med_indirect", items=smart_comma_join(indirect_items))
         path_table.add_text(med_text)
         result.update_and_add_element(path_table, "regression paths")
+
+    # ----- Diagnostics (VIF + residual plots) -----
+    if cfg.diagnostics:
+        _add_diagnostics(result, model, x, verbal)
 
     # ----- Plot (only for a single independent variable) -----
     if cfg.plots:

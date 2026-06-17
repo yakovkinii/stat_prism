@@ -15,6 +15,7 @@ class RegressionStudyConfig:
     column_selector = attrs.field(default=None)
     standardized = attrs.field(default=None)
     verbal_indicators = attrs.field(default=None)
+    diagnostics = attrs.field(default=None)
     plots = attrs.field(default=None)
 
 
@@ -51,6 +52,12 @@ _ASSUMPTIONS_FINE_PRINT_EN = (
     "contrasts the direct and total effects.</li>"
     "<li><b>Verbal indicators.</b> &lsquo;Verbal indicators in tables&rsquo; adds a "
     "Significant? column next to each p-value (&alpha; = .05).</li>"
+    "<li><b>Diagnostics.</b> Optional. <b>VIF</b> (variance inflation factor) flags "
+    "multicollinearity among predictors: &gt; 5 moderate, &gt; 10 high (interaction terms in a "
+    "moderation model inflate VIF by construction &mdash; centring the predictors reduces it). "
+    "<b>Residuals vs fitted</b> should show a flat, structureless band &mdash; a funnel suggests "
+    "heteroscedasticity, a curve suggests non-linearity. The <b>normal Q-Q</b> of residuals "
+    "should track the reference line; systematic departures indicate non-normal residuals.</li>"
     "<li><b>Assumptions (not checked here).</b> OLS assumes a roughly linear relationship, "
     "independent and constant-variance (homoscedastic) errors, and &mdash; for exact small-"
     "sample inference &mdash; approximately normal residuals. These are not tested in this "

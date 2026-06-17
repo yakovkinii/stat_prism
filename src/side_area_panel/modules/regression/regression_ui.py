@@ -43,6 +43,7 @@ class Elements(ItemInSidePanelWithAutoConfigHolder):
     spacer = IISPWACSpacer()
     standardized = IISPWACCheckBox(label_text="Standardized coefficients (β)", default_state=True)
     verbal_indicators = IISPWACCheckBox(label_text="Verbal indicators in tables", default_state=True)
+    diagnostics = IISPWACCheckBox(label_text="Diagnostics (VIF, residual plots)", default_state=True)
     plots = IISPWACCheckBox(label_text="Plots", default_state=True)
 
 

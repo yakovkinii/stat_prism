@@ -652,6 +652,29 @@ TRANSLATIONS = {
     },
     "regression.plot.total": {"en": "Total effect", "ua": "Загальний ефект"},
     "regression.plot.band": {"en": "Standard error", "ua": "Стандартна похибка"},
+    "regression.diag.vif_caption": {"en": "Multicollinearity (VIF)", "ua": "Мультиколінеарність (VIF)"},
+    "regression.col.vif": {"en": "VIF", "ua": "VIF"},
+    "regression.diag.concern": {"en": "Concern", "ua": "Ризик"},
+    "regression.vif.low": {"en": "low", "ua": "низький"},
+    "regression.vif.moderate": {"en": "moderate", "ua": "помірний"},
+    "regression.vif.high": {"en": "high", "ua": "високий"},
+    "regression.report.vif_ok": {
+        "en": "All VIFs are below 5, indicating low multicollinearity. ",
+        "ua": "Усі VIF нижче 5, що вказує на низьку мультиколінеарність. ",
+    },
+    "regression.report.vif_high": {
+        "en": "High multicollinearity (VIF ≥ 10): {items}. ",
+        "ua": "Висока мультиколінеарність (VIF ≥ 10): {items}. ",
+    },
+    "regression.diag.resid_fitted": {"en": "Residuals vs fitted", "ua": "Залишки від прогнозу"},
+    "regression.diag.fitted": {"en": "Fitted values", "ua": "Прогнозовані значення"},
+    "regression.diag.residual": {"en": "Residual", "ua": "Залишок"},
+    "regression.diag.zero": {"en": "Zero", "ua": "Нуль"},
+    "regression.diag.points": {"en": "Residuals", "ua": "Залишки"},
+    "regression.diag.qq": {"en": "Normal Q-Q of residuals", "ua": "Нормальний Q-Q залишків"},
+    "regression.diag.theoretical": {"en": "Theoretical quantiles", "ua": "Теоретичні квантилі"},
+    "regression.diag.sample": {"en": "Sample quantiles", "ua": "Вибіркові квантилі"},
+    "regression.diag.ref": {"en": "Reference", "ua": "Опорна лінія"},
     # ----- Exploratory Factor Analysis -----
     "efa.description": {
         "en": (
