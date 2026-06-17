@@ -132,6 +132,13 @@ class Heatmap:
         self.config = config if config else HeatmapPlotConfig()
 
 
+class Dendrogram:
+    def __init__(self, linkage_matrix, label, config=None):
+        self.linkage_matrix = linkage_matrix
+        self.label = label
+        self.config = config if config else DendrogramPlotConfig()
+
+
 MARKER_SHAPE_TO_MATPLOTLIB = {
     "Circle": "o",
     "Square": "s",
@@ -174,6 +181,12 @@ class BasePlotConfig:
             setting = getattr(self, k, None)
             if setting is not None and hasattr(setting, "set_default_value"):
                 setting.set_default_value(default)
+
+
+class DendrogramPlotConfig(BasePlotConfig):
+    # No per-series controls; rendered with the figure's frame colour. (display_settings
+    # stays None, so no settings group is shown for it.)
+    pass
 
 
 class ContingencyPlotConfig(BasePlotConfig):
@@ -402,7 +415,7 @@ class PlotV2(BaseResultElement):
 
     def __init__(
         self,
-        items: List[Union[Scatter, Line, Band, Bar, Box, Heatmap, ContingencyPlot, Pie]],
+        items: List[Union[Scatter, Line, Band, Bar, Box, Heatmap, Dendrogram, ContingencyPlot, Pie]],
         title="Plot Result Element",
         plot_title="Correlation plot",
         x_axis_title="",
@@ -844,6 +857,18 @@ class PlotV2(BaseResultElement):
                                     fontsize=item.config.font_size.get_current_value(),
                                 )
                             )
+
+            if isinstance(item, Dendrogram):
+                from scipy.cluster.hierarchy import dendrogram as _scipy_dendrogram
+
+                link_color = "#%02x%02x%02x" % tuple(int(c) for c in self.frame_color.get_current_value())
+                _scipy_dendrogram(
+                    item.linkage_matrix,
+                    ax=ax,
+                    no_labels=True,
+                    color_threshold=0,
+                    above_threshold_color=link_color,
+                )
 
             if isinstance(item, ContingencyPlot):
                 contingency_table = item.contingency_table

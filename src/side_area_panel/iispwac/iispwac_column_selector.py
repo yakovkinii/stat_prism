@@ -208,6 +208,13 @@ class IISPWACColumnSelector(ItemInSidePanelWithAutoConfig):
         if selected_columns_list is None:
             selected_columns_list = [[] for _ in self.fields]
         selected_columns_list = selected_columns_list.copy()
+        # Pad/truncate to the current field count, so a project saved with a different number
+        # of fields (e.g. correlation before the partial "Control for" field existed) lines up
+        # with the panels instead of de-syncing popup_closed's index.
+        selected_columns_list = [
+            selected_columns_list[i] if i < len(selected_columns_list) else []
+            for i in range(len(self.fields))
+        ]
 
         columns: List[DataColumn] = DATA_MANAGER.get_data_from_data_label(
             data_label=data_label,

@@ -25,6 +25,7 @@ class Elements(ItemInSidePanelWithAutoConfigHolder):
         ],
     )
     method = IISPWACComboBox(label_text="Method:", items=ClusterMethod.get_values())
+    linkage = IISPWACComboBox(label_text="Linkage (hierarchical):", items=["Ward", "Average", "Complete", "Single"])
     n_clusters = IISPWACSpin(label_text="Number of clusters:", min_value=2, max_value=20, default_value=2)
     standardize = IISPWACCheckBox(label_text="Standardize variables (z-score)", default_state=True)
     plots = IISPWACCheckBox(label_text="Plots", default_state=True)

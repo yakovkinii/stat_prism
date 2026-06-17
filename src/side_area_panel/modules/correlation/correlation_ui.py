@@ -23,6 +23,11 @@ class Elements(ItemInSidePanelWithAutoConfigHolder):
                 reasonable_number_of_columns=10,
                 minimum_columns=2,
             ),
+            Field(
+                name="Control for (partial, optional):",
+                column_type=ColumnType.ORDINAL,
+                reasonable_number_of_columns=5,
+            ),
         ],
     )
     spacer = IISPWACSpacer()

@@ -13,6 +13,7 @@ from src.common.translations import t
 from src.data.data_manager import DATA_MANAGER
 from src.side_area_panel.modules.common.mathematics.correlation.correlation import (
     calculate_correlations,
+    calculate_partial_correlations,
 )
 from src.side_area_panel.modules.common.result.plot_result import (
     Band,
@@ -65,23 +66,35 @@ def recalculate_correlation_study(elements, result: CorrelationResult) -> Correl
     if not selected_columns or len(selected_columns) < 2:
         return _fail(result, t("correlation.error.min_variables"))
 
+    control_columns = cfg.column_selector[1] if len(cfg.column_selector) > 1 else []
+    control_columns = [c for c in (control_columns or []) if c not in selected_columns]
+    is_partial = len(control_columns) > 0
+
+    kind = CORRELATION_TYPE_MAP[cfg.correlation_type]
+    if is_partial and kind not in (CorrelationType.PEARSON, CorrelationType.SPEARMAN):
+        return _fail(result, t("correlation.partial.method_error"))
+
     data = DATA_MANAGER.get_data_from_data_label(
         data_label=cfg.data_source,
         current_result_id=result.unique_id,
     )
-    df = data.get_dataframe(columns=selected_columns, map_ordinal=True)
+    df = data.get_dataframe(columns=list(selected_columns) + list(control_columns), map_ordinal=True)
 
-    columns = list(df.columns)
-    kind = CORRELATION_TYPE_MAP[cfg.correlation_type]
+    columns = list(selected_columns)
 
-    correlation_matrix, p_matrix, df_matrix = calculate_correlations(df, kind)
+    if is_partial:
+        correlation_matrix, p_matrix, df_matrix = calculate_partial_correlations(
+            df, columns, control_columns, kind
+        )
+    else:
+        correlation_matrix, p_matrix, df_matrix = calculate_correlations(df[columns], kind)
 
     if cfg.compact:
         html_table = get_table_compact(columns, correlation_matrix, p_matrix, kind=kind)
     else:
         html_table = get_table_full(columns, correlation_matrix, p_matrix, df_matrix, kind=kind)
 
-    # Verbal report
+    # Verbal report (prefixed with a note when these are partial correlations)
     verbal = get_report(
         columns,
         correlation_matrix,
@@ -90,6 +103,8 @@ def recalculate_correlation_study(elements, result: CorrelationResult) -> Correl
         report_non_significant=not cfg.report_only_significant,
         kind=kind,
     )
+    if is_partial:
+        verbal = t("correlation.partial.note", controls=", ".join(control_columns)) + verbal
     html_table.add_text(verbal)
 
     if any(data[col].column_type == ColumnType.ORDINAL for col in columns) and kind == CorrelationType.PEARSON:
@@ -116,7 +131,9 @@ def recalculate_correlation_study(elements, result: CorrelationResult) -> Correl
         )
         result.update_and_add_element(heatmap_plot, "correlation heatmap")
 
-    if cfg.generate_plots:
+    # Raw pairwise scatter/regression plots would contradict the partialled-out matrix,
+    # so they are only drawn for ordinary (non-partial) correlations.
+    if cfg.generate_plots and not is_partial:
         for i, name1 in enumerate(columns):
             for j, name2 in enumerate(columns):
                 if i >= j:

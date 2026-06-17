@@ -892,6 +892,18 @@ TRANSLATIONS = {
         "ua": "Кластеризацію виконано в оригінальному масштабі змінних. ",
     },
     "cluster.plot.scatter": {"en": "Cluster scatter plot", "ua": "Діаграма розсіювання кластерів"},
+    "cluster.plot.kselect_sil": {
+        "en": "Silhouette by number of clusters",
+        "ua": "Силует за кількістю кластерів",
+    },
+    "cluster.plot.kselect_inertia": {
+        "en": "Inertia by number of clusters (elbow)",
+        "ua": "Інерція за кількістю кластерів (лікоть)",
+    },
+    "cluster.plot.k": {"en": "Number of clusters (k)", "ua": "Кількість кластерів (k)"},
+    "cluster.plot.dendrogram": {"en": "Dendrogram", "ua": "Дендрограма"},
+    "cluster.plot.distance": {"en": "Distance", "ua": "Відстань"},
+    "cluster.plot.observations": {"en": "Observations", "ua": "Спостереження"},
     "cluster.plot.cluster_label": {"en": "Cluster {n}", "ua": "Кластер {n}"},
     "cluster.plot.pc": {"en": "PC{n} ({pct}%)", "ua": "ГК{n} ({pct}%)"},
     # ----- Correlation -----
@@ -967,6 +979,14 @@ TRANSLATIONS = {
     "correlation.report.none_significant": {
         "en": "No significant correlations were found between the selected variables.",
         "ua": "Статистично значущих кореляцій між обраними змінними не виявлено.",
+    },
+    "correlation.partial.note": {
+        "en": "<b>Partial correlations</b>, controlling for {controls}. ",
+        "ua": "<b>Часткові кореляції</b>, з контролем за {controls}. ",
+    },
+    "correlation.partial.method_error": {
+        "en": "Partial correlation supports only Pearson or Spearman; pick one of those as the correlation type.",
+        "ua": "Часткова кореляція підтримує лише Пірсона або Спірмена; оберіть один із цих типів кореляції.",
     },
     "correlation.warning.ordinal_pearson": {
         "en": "Warning: Ordinal data detected. Pearson correlation is not suitable for ordinal data.",

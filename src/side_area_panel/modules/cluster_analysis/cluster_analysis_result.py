@@ -12,6 +12,7 @@ from src.side_area_panel.modules.common.result.registry import BaseResult
 
 class ClusterMethod(Enum):
     KMEANS = "KMeans"
+    HIERARCHICAL = "Hierarchical"
 
     @staticmethod
     def get_values():
@@ -23,6 +24,7 @@ class ClusterAnalysisConfig:
     data_source = attrs.field(default=None)
     column_selector = attrs.field(default=None)
     method = attrs.field(default=None)
+    linkage = attrs.field(default=None)
     n_clusters = attrs.field(default=None)
     standardize = attrs.field(default=None)
     plots = attrs.field(default=None)
@@ -36,9 +38,11 @@ class ClusterAnalysisConfig:
 _ASSUMPTIONS_FINE_PRINT_EN = (
     "<b>Methodology &amp; assumptions</b>"
     "<ul>"
-    "<li><b>Algorithm.</b> K-means (Lloyd's algorithm, 10 random initialisations, fixed seed "
-    "so a re-run reproduces the result). You set the number of clusters k in advance. Rows "
-    "with any missing value are dropped (list-wise) and ordinal items are scored numerically.</li>"
+    "<li><b>Algorithm.</b> <b>K-means</b> (Lloyd's algorithm, 10 random initialisations, fixed "
+    "seed so a re-run reproduces the result) or <b>Hierarchical</b> agglomerative clustering "
+    "(Ward / average / complete / single linkage, cut to k clusters), which also draws a "
+    "dendrogram. You set the number of clusters k in advance. Rows with any missing value are "
+    "dropped (list-wise) and ordinal items are scored numerically.</li>"
     "<li><b>Standardisation.</b> K-means uses Euclidean distance, so variables on larger scales "
     "dominate. &lsquo;Standardise variables&rsquo; z-scores each variable first (recommended "
     "when variables are on different scales); centroids are always reported back in the "
@@ -50,8 +54,9 @@ _ASSUMPTIONS_FINE_PRINT_EN = (
     "<li><b>Plot.</b> The scatter shows the clusters in two dimensions: the two variables "
     "directly when exactly two are selected, otherwise the first two principal components "
     "(with the % of variance each captures).</li>"
-    "<li><b>Choosing k.</b> K-means does not choose k for you; compare the silhouette across a "
-    "few values of k, or use domain knowledge.</li>"
+    "<li><b>Choosing k.</b> The method does not choose k for you. Use the silhouette-by-k plot "
+    "(both methods) and, for K-means, the inertia &lsquo;elbow&rsquo; plot (both sweep k = "
+    "2..10) together with domain knowledge.</li>"
     "<li><b>Caveat.</b> K-means assumes roughly spherical, similarly-sized clusters and is "
     "sensitive to outliers and the starting seed; standardise when variables differ in scale "
     "and treat the partition as exploratory.</li>"

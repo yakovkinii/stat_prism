@@ -3,6 +3,7 @@
 import logging
 
 import numpy as np
+from scipy.cluster.hierarchy import fcluster, linkage as scipy_linkage
 from sklearn.cluster import KMeans
 from sklearn.decomposition import PCA
 from sklearn.metrics import silhouette_score
@@ -16,7 +17,14 @@ from src.side_area_panel.modules.cluster_analysis.cluster_analysis_result import
     ClusterMethod,
 )
 from src.side_area_panel.modules.common.result.html_result import Cell, HTMLTableV2, Row
-from src.side_area_panel.modules.common.result.plot_result import PlotV2, Scatter, ScatterPlotConfig
+from src.side_area_panel.modules.common.result.plot_result import (
+    Dendrogram,
+    Line,
+    LinePlotConfig,
+    PlotV2,
+    Scatter,
+    ScatterPlotConfig,
+)
 from src.side_area_panel.modules.common.utility import format_r_apa, format_statistic_apa, format_value_apa
 
 
@@ -47,8 +55,6 @@ def recalculate_cluster_analysis_study(elements, result: ClusterAnalysisResult) 
     result.result_elements = []
 
     method = ClusterMethod(cfg.method)
-    if method != ClusterMethod.KMEANS:
-        return _fail(result, t("cluster.msg.method_not_implemented"))
 
     selected = cfg.column_selector[0] if cfg.column_selector else None
     if not selected:
@@ -81,8 +87,16 @@ def recalculate_cluster_analysis_study(elements, result: ClusterAnalysisResult) 
     else:
         x = original
 
-    kmeans = KMeans(n_clusters=k, n_init=10, random_state=0)
-    labels = kmeans.fit_predict(x)
+    linkage_method = (cfg.linkage or "Ward").lower()
+    linkage_matrix = None
+    inertia = None
+    if method == ClusterMethod.HIERARCHICAL:
+        linkage_matrix = scipy_linkage(x, method=linkage_method)
+        labels = fcluster(linkage_matrix, t=k, criterion="maxclust") - 1
+    else:
+        kmeans = KMeans(n_clusters=k, n_init=10, random_state=0)
+        labels = kmeans.fit_predict(x)
+        inertia = kmeans.inertia_
     counts = np.bincount(labels, minlength=k)
 
     try:
@@ -144,17 +158,22 @@ def recalculate_cluster_analysis_study(elements, result: ClusterAnalysisResult) 
         )
     quality_table.add_single_row_apa(Row(silhouette_cells))
 
-    inertia_cells = [
-        Cell(t("cluster.metric.inertia"), push_to_left=True),
-        Cell(format_statistic_apa(kmeans.inertia_, 1), center=True),
-    ]
-    if verbal:
-        inertia_cells.append(Cell("—", center=True))
-    quality_table.add_single_row_apa(Row(inertia_cells))
+    if inertia is not None:
+        inertia_cells = [
+            Cell(t("cluster.metric.inertia"), push_to_left=True),
+            Cell(format_statistic_apa(inertia, 1), center=True),
+        ]
+        if verbal:
+            inertia_cells.append(Cell("—", center=True))
+        quality_table.add_single_row_apa(Row(inertia_cells))
     result.update_and_add_element(quality_table, "cluster quality")
 
-    # ----- 2-D cluster scatter (raw two variables, else first two PCs) -----
+    # ----- Plots: k-selection sweep, dendrogram (hierarchical), 2-D scatter -----
     if cfg.plots:
+        for i, plot in enumerate(_k_selection_plots(x, method, linkage_method, linkage_matrix, n_rows)):
+            result.update_and_add_element(plot, f"cluster kselect {i}")
+        if linkage_matrix is not None:
+            result.update_and_add_element(_dendrogram_plot(linkage_matrix), "cluster dendrogram")
         scatter_plot = _build_scatter(x, original, labels, k, columns)
         if scatter_plot is not None:
             result.update_and_add_element(scatter_plot, "cluster scatter")
@@ -216,4 +235,81 @@ def _build_scatter(x: np.ndarray, original: np.ndarray, labels: np.ndarray, k: i
         plot_title=t("cluster.plot.scatter"),
         x_axis_title=x_title,
         y_axis_title=y_title,
+    )
+
+
+def _k_selection_plots(x, method, linkage_method, linkage_matrix, n_rows):
+    """Sweep k = 2..min(10, n-1): mean silhouette for the chosen method (both methods), and
+    the K-means inertia 'elbow' (K-means only), to help choose the number of clusters."""
+    max_k = min(10, n_rows - 1)
+    if max_k < 2:
+        return []
+    ks = list(range(2, max_k + 1))
+    silhouettes = []
+    inertias = []
+    for candidate_k in ks:
+        if method == ClusterMethod.HIERARCHICAL:
+            labels_k = fcluster(linkage_matrix, t=candidate_k, criterion="maxclust") - 1
+        else:
+            model_k = KMeans(n_clusters=candidate_k, n_init=10, random_state=0)
+            labels_k = model_k.fit_predict(x)
+            inertias.append(model_k.inertia_)
+        try:
+            sil = silhouette_score(x, labels_k) if len(np.unique(labels_k)) > 1 else float("nan")
+        except Exception:  # pragma: no cover - defensive
+            sil = float("nan")
+        silhouettes.append(sil)
+
+    colors = Colors()
+    ks_arr = np.array(ks, dtype=float)
+    plots = []
+
+    sil_color = colors.get_color_list()
+    plots.append(
+        PlotV2(
+            items=[
+                Line(
+                    x=ks_arr, y=np.array(silhouettes, dtype=float),
+                    label=t("cluster.metric.silhouette"), legend_string=t("cluster.metric.silhouette"),
+                    config=LinePlotConfig(color=sil_color),
+                ),
+                Scatter(x=ks_arr, y=np.array(silhouettes, dtype=float), label=t("cluster.metric.silhouette")),
+            ],
+            title=t("cluster.plot.kselect_sil"),
+            plot_title=t("cluster.plot.kselect_sil"),
+            x_axis_title=t("cluster.plot.k"),
+            y_axis_title=t("cluster.metric.silhouette"),
+        )
+    )
+
+    if inertias:  # K-means elbow
+        inertia_color = colors.get_color_list()
+        plots.append(
+            PlotV2(
+                items=[
+                    Line(
+                        x=ks_arr, y=np.array(inertias, dtype=float),
+                        label=t("cluster.metric.inertia"), legend_string=t("cluster.metric.inertia"),
+                        config=LinePlotConfig(color=inertia_color),
+                    ),
+                    Scatter(x=ks_arr, y=np.array(inertias, dtype=float), label=t("cluster.metric.inertia")),
+                ],
+                title=t("cluster.plot.kselect_inertia"),
+                plot_title=t("cluster.plot.kselect_inertia"),
+                x_axis_title=t("cluster.plot.k"),
+                y_axis_title=t("cluster.metric.inertia"),
+            )
+        )
+
+    return plots
+
+
+def _dendrogram_plot(linkage_matrix):
+    """Dendrogram of the agglomerative linkage (rendered by the Dendrogram plot item)."""
+    return PlotV2(
+        items=[Dendrogram(linkage_matrix=linkage_matrix, label=t("cluster.plot.dendrogram"))],
+        title=t("cluster.plot.dendrogram"),
+        plot_title=t("cluster.plot.dendrogram"),
+        x_axis_title=t("cluster.plot.observations"),
+        y_axis_title=t("cluster.plot.distance"),
     )

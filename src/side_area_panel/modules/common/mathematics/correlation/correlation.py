@@ -3,6 +3,7 @@
 
 import numpy as np
 import pandas as pd
+import pingouin as pg
 from scipy.optimize import minimize_scalar
 from scipy.stats import kendalltau, pearsonr, spearmanr
 from scipy.stats import norm, multivariate_normal, chi2
@@ -12,6 +13,39 @@ from src.side_area_panel.modules.common.mathematics.correlation.binary_correlati
     tetrachoric_corr_2x2_table,
 )
 from src.side_area_panel.modules.correlation.correlation_result import CorrelationType
+
+
+def calculate_partial_correlations(df, variables, controls, kind: CorrelationType):
+    """Partial correlation matrix among `variables`, controlling for `controls`. Returns
+    (correlation_matrix, p_matrix, df_matrix) with the same lower-triangle layout as
+    calculate_correlations. Only Pearson and Spearman are supported (the caller validates)."""
+    method = "spearman" if kind == CorrelationType.SPEARMAN else "pearson"
+    controls = [c for c in controls if c not in variables]  # a control can't be a target
+
+    correlation_matrix = pd.DataFrame(index=variables, columns=variables)
+    p_matrix = pd.DataFrame(index=variables, columns=variables)
+    df_matrix = pd.DataFrame(index=variables, columns=variables)
+
+    for i1, col1 in enumerate(variables):
+        for i2, col2 in enumerate(variables):
+            if i1 <= i2:
+                continue
+            valid = df[[col1, col2] + controls].dropna()
+            n = len(valid)
+            if n <= len(controls) + 2:
+                corr, p_value, dof = np.nan, np.nan, np.nan
+            else:
+                res = pg.partial_corr(data=valid, x=col1, y=col2, covar=controls, method=method)
+                corr = float(res["r"].iloc[0])
+                p_value = float(res["p-val"].iloc[0])
+                # Match the module's convention: df only reported for Pearson.
+                dof = (n - 2 - len(controls)) if kind == CorrelationType.PEARSON else np.nan
+
+            correlation_matrix.loc[col1, col2] = corr
+            p_matrix.loc[col1, col2] = p_value
+            df_matrix.loc[col1, col2] = dof
+
+    return correlation_matrix, p_matrix, df_matrix
 
 
 def polychoric_corr_with_pvalue(x, y, min_prob=1e-12):
