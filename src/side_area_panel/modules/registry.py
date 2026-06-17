@@ -32,9 +32,9 @@ class ModuleRegistry(Enum):
         module_type=ModuleType.RAW_DATA,
     )
 
-    CALCULATE_SCALE = ModuleRegistryItem(
-        display_name="Calculate Scale",
-        icon_path="mdi6.scale-balance",
+    PREPROCESS = ModuleRegistryItem(
+        display_name="Preprocess",
+        icon_path="mdi6.table-edit",
         module_type=ModuleType.DATA_PROCESSING,
     )
 
@@ -44,15 +44,9 @@ class ModuleRegistry(Enum):
         module_type=ModuleType.DATA_PROCESSING,
     )
 
-    FILTER = ModuleRegistryItem(
-        display_name="Filter",
-        icon_path="mdi6.filter-outline",
-        module_type=ModuleType.DATA_PROCESSING,
-    )
-
-    PREPROCESS = ModuleRegistryItem(
-        display_name="Preprocess",
-        icon_path="mdi6.table-edit",
+    CALCULATE_SCALE = ModuleRegistryItem(
+        display_name="Calculate Scale",
+        icon_path="mdi6.scale-balance",
         module_type=ModuleType.DATA_PROCESSING,
     )
 
@@ -61,6 +55,8 @@ class ModuleRegistry(Enum):
         icon_path="mdi6.format-list-group",
         module_type=ModuleType.DATA_PROCESSING,
     )
+
+
 
     OUTLIERS = ModuleRegistryItem(
         display_name="Outliers",
@@ -80,6 +76,12 @@ class ModuleRegistry(Enum):
         module_type=ModuleType.DATA_PROCESSING,
     )
 
+    FILTER = ModuleRegistryItem(
+        display_name="Filter",
+        icon_path="mdi6.filter-outline",
+        module_type=ModuleType.DATA_PROCESSING,
+    )
+
     DESCRIPTIVE = ModuleRegistryItem(
         display_name="Descriptive Statistics",
         icon_path="ph.note",
@@ -90,11 +92,6 @@ class ModuleRegistry(Enum):
         icon_path="ph.scales",
     )
 
-    CONTINGENCY = ModuleRegistryItem(
-        display_name="Contingency Table",
-        icon_path="msc.table",
-    )
-
     CORRELATION = ModuleRegistryItem(
         display_name="Correlation",
         icon_path="msc.link",
@@ -103,6 +100,11 @@ class ModuleRegistry(Enum):
     RELIABILITY = ModuleRegistryItem(
         display_name="Reliability",
         icon_path="mdi6.check-decagram",
+    )
+
+    CONTINGENCY = ModuleRegistryItem(
+        display_name="Contingency Table",
+        icon_path="msc.table",
     )
 
     REGRESSION = ModuleRegistryItem(
