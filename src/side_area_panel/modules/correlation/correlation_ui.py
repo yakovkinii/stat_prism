@@ -28,6 +28,11 @@ class Elements(ItemInSidePanelWithAutoConfigHolder):
                 column_type=ColumnType.ORDINAL,
                 reasonable_number_of_columns=5,
             ),
+            Field(
+                name="Second variable set (cross, optional):",
+                column_type=ColumnType.ORDINAL,
+                reasonable_number_of_columns=10,
+            ),
         ],
     )
     spacer = IISPWACSpacer()

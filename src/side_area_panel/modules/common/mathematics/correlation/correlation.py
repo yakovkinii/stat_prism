@@ -176,6 +176,44 @@ def polychoric_corr_with_pvalue(x, y, min_prob=1e-12):
 
     return corr, p_value
 
+def _pair_correlation(series1, series2, kind: CorrelationType):
+    """Correlation, p-value and degrees of freedom for one pair of series (pairwise
+    deletion). Shared by the square and cross (two-set) matrices."""
+    valid = pd.concat([series1, series2], axis=1).dropna()
+    a = valid.iloc[:, 0]
+    b = valid.iloc[:, 1]
+
+    if kind == CorrelationType.PEARSON:
+        corr, p_value = pearsonr(a, b)
+        degrees_of_freedom = len(valid) - 2
+    elif kind == CorrelationType.SPEARMAN:
+        corr, p_value = spearmanr(a, b)
+        degrees_of_freedom = np.nan  # Not available
+    elif kind == CorrelationType.KENDALL:
+        corr, p_value = kendalltau(a, b)
+        degrees_of_freedom = np.nan  # Not available
+    elif kind == CorrelationType.KENDALL_C:
+        corr, p_value = kendalltau(a, b, variant="c")
+        degrees_of_freedom = np.nan  # Not available
+    elif kind == CorrelationType.POLYCHORIC:
+        corr, p_value = polychoric_corr_with_pvalue(a, b)
+        degrees_of_freedom = np.nan  # Not available
+    elif kind == CorrelationType.PHI:
+        corr, p_value, degrees_of_freedom = phi_coefficient(a, b)
+    elif kind == CorrelationType.TETRACHORIC:
+        # Tetrachoric is defined for 2x2 tables of the current pair; return blank
+        # otherwise instead of crashing.
+        table = pd.crosstab(a, b).values
+        if table.shape == (2, 2):
+            corr, _, p_value, degrees_of_freedom = tetrachoric_corr_2x2_table(table=table)
+        else:
+            corr, p_value, degrees_of_freedom = np.nan, np.nan, np.nan
+    else:
+        raise ValueError(f"Invalid correlation type: {kind}")
+
+    return corr, p_value, degrees_of_freedom
+
+
 def calculate_correlations(df, kind: CorrelationType):
     correlation_matrix = pd.DataFrame(index=df.columns, columns=df.columns)
     p_matrix = pd.DataFrame(index=df.columns, columns=df.columns)
@@ -186,44 +224,63 @@ def calculate_correlations(df, kind: CorrelationType):
         for i2, col2 in enumerate(df.columns):
             if i1 <= i2:
                 continue
-            # Drop NA values for the pair of columns
-            valid_data = df[[col1, col2]].dropna()
-
-            if kind == CorrelationType.PEARSON:
-                # Compute correlation and p-value
-                corr, p_value = pearsonr(valid_data[col1], valid_data[col2])
-                degrees_of_freedom = len(valid_data) - 2
-            elif kind == CorrelationType.SPEARMAN:
-                corr, p_value = spearmanr(valid_data[col1], valid_data[col2])
-                degrees_of_freedom = np.nan  # Not available
-            elif kind == CorrelationType.KENDALL:
-                corr, p_value = kendalltau(valid_data[col1], valid_data[col2])
-                degrees_of_freedom = np.nan  # Not available
-            elif kind == CorrelationType.KENDALL_C:
-                corr, p_value = kendalltau(valid_data[col1], valid_data[col2], variant='c')
-                degrees_of_freedom = np.nan  # Not available
-            elif kind == CorrelationType.POLYCHORIC:
-                corr, p_value = polychoric_corr_with_pvalue(
-                    valid_data[col1],
-                    valid_data[col2],
-                )
-                degrees_of_freedom = np.nan  # Not available
-            elif kind == CorrelationType.PHI:
-                corr, p_value, degrees_of_freedom = phi_coefficient(valid_data[col1], valid_data[col2])
-            elif kind == CorrelationType.TETRACHORIC:
-                # Tetrachoric is defined for 2x2 tables of the current pair; return blank
-                # otherwise instead of crashing.
-                table = pd.crosstab(valid_data[col1], valid_data[col2]).values
-                if table.shape == (2, 2):
-                    corr, _, p_value, degrees_of_freedom = tetrachoric_corr_2x2_table(table=table)
-                else:
-                    corr, p_value, degrees_of_freedom = np.nan, np.nan, np.nan
-            else:
-                raise ValueError(f"Invalid correlation type: {kind}")
+            corr, p_value, degrees_of_freedom = _pair_correlation(df[col1], df[col2], kind)
 
             # Fill the square matrix
             correlation_matrix.loc[col1, col2] = corr
             p_matrix.loc[col1, col2] = p_value
             df_matrix.loc[col1, col2] = degrees_of_freedom
+
+    return correlation_matrix, p_matrix, df_matrix
+
+
+def calculate_cross_correlations(df, rows, cols, kind: CorrelationType):
+    """Rectangular correlation matrix between two variable sets: every (row, col) pair is
+    computed (full grid), index = `rows`, columns = `cols`."""
+    correlation_matrix = pd.DataFrame(index=rows, columns=cols)
+    p_matrix = pd.DataFrame(index=rows, columns=cols)
+    df_matrix = pd.DataFrame(index=rows, columns=cols)
+
+    for row in rows:
+        for col in cols:
+            corr, p_value, degrees_of_freedom = _pair_correlation(df[row], df[col], kind)
+            correlation_matrix.loc[row, col] = corr
+            p_matrix.loc[row, col] = p_value
+            df_matrix.loc[row, col] = degrees_of_freedom
+
+    return correlation_matrix, p_matrix, df_matrix
+
+
+def calculate_partial_cross_correlations(df, rows, cols, controls, kind: CorrelationType):
+    """Rectangular partial correlation matrix between two variable sets, controlling for
+    `controls`. Pearson and Spearman only (the caller validates). A control that coincides
+    with a row/col is dropped from the covariate set for that pair."""
+    method = "spearman" if kind == CorrelationType.SPEARMAN else "pearson"
+
+    correlation_matrix = pd.DataFrame(index=rows, columns=cols)
+    p_matrix = pd.DataFrame(index=rows, columns=cols)
+    df_matrix = pd.DataFrame(index=rows, columns=cols)
+
+    for row in rows:
+        for col in cols:
+            if row == col:
+                correlation_matrix.loc[row, col] = 1.0
+                p_matrix.loc[row, col] = 0.0
+                df_matrix.loc[row, col] = np.nan
+                continue
+            pair_controls = [c for c in controls if c not in (row, col)]
+            valid = df[[row, col] + pair_controls].dropna()
+            n = len(valid)
+            if n <= len(pair_controls) + 2:
+                corr, p_value, dof = np.nan, np.nan, np.nan
+            else:
+                res = pg.partial_corr(data=valid, x=row, y=col, covar=pair_controls, method=method)
+                corr = float(res["r"].iloc[0])
+                p_value = float(res["p-val"].iloc[0])
+                dof = (n - 2 - len(pair_controls)) if kind == CorrelationType.PEARSON else np.nan
+
+            correlation_matrix.loc[row, col] = corr
+            p_matrix.loc[row, col] = p_value
+            df_matrix.loc[row, col] = dof
 
     return correlation_matrix, p_matrix, df_matrix

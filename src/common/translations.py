@@ -1186,6 +1186,10 @@ TRANSLATIONS = {
         "en": "A {name} was calculated to assess the relationship between the variables {vars}. ",
         "ua": "Розраховано {name} для оцінки зв'язку між змінними {vars}. ",
     },
+    "correlation.report.cross_intro": {
+        "en": "A {name} was calculated between the first variable set ({rows}) and the second set ({cols}). ",
+        "ua": "Розраховано {name} між першим набором змінних ({rows}) та другим набором ({cols}). ",
+    },
     "correlation.report.two_significant": {
         "en": "There was a {strength} {sign} correlation between the two variables, {stats}. ",
         "ua": "Виявлено {strength} {sign} кореляцію між двома змінними, {stats}. ",
@@ -1241,6 +1245,10 @@ TRANSLATIONS = {
         "en": "{name} between {vars}.",
         "ua": "{name} між {vars}.",
     },
+    "correlation.table.cross_caption": {
+        "en": "{name} between {rows} (rows) and {cols} (columns).",
+        "ua": "{name} між {rows} (рядки) та {cols} (стовпці).",
+    },
     "correlation.table.significance_note": {
         "en": "* p &lt; .05; ** p &lt; .01; *** p &lt; .001",
         "ua": "* p &lt; .05; ** p &lt; .01; *** p &lt; .001",
@@ -1265,6 +1273,10 @@ TRANSLATIONS = {
         "en": "Please select at least two variables to correlate.",
         "ua": "Будь ласка, оберіть щонайменше дві змінні для кореляції.",
     },
+    "correlation.error.cross_min": {
+        "en": "For a two-set (cross) correlation, select at least one variable in each set.",
+        "ua": "Для крос-кореляції двох наборів оберіть щонайменше одну змінну в кожному наборі.",
+    },
     "correlation.description": {
         "en": (
             "<h2>Correlation</h2>"
@@ -1281,6 +1293,14 @@ TRANSLATIONS = {
             "<li>Tetrachoric / Polychoric &ndash; association between binary / ordinal "
             "variables assumed to reflect underlying continuous variables.</li>"
             "</ul></div>"
+            "<h3>Inputs</h3>"
+            "<div><b>Variables:</b> the variable set to correlate (a square matrix of every "
+            "pair).</div>"
+            "<div><b>Control for (partial, optional):</b> covariates to partial out (Pearson or "
+            "Spearman only).</div>"
+            "<div><b>Second variable set (cross, optional):</b> when given, a rectangular "
+            "two-set matrix is produced instead &mdash; every variable in the first set against "
+            "every variable in the second set (rows × columns), rather than a square matrix.</div>"
         ),
         "ua": (
             "<h2>Кореляція</h2>"
@@ -1297,6 +1317,13 @@ TRANSLATIONS = {
             "<li>Тетрахоричний / поліхоричний &ndash; зв'язок між бінарними / порядковими "
             "змінними, що відображають приховані неперервні змінні.</li>"
             "</ul></div>"
+            "<h3>Вхідні дані</h3>"
+            "<div><b>Змінні:</b> набір змінних для кореляції (квадратна матриця всіх пар).</div>"
+            "<div><b>Контроль (часткова, необов'язково):</b> коваріати для виключення впливу "
+            "(лише Пірсон або Спірмен).</div>"
+            "<div><b>Другий набір змінних (крос, необов'язково):</b> якщо задано, будується "
+            "прямокутна матриця двох наборів &mdash; кожна змінна першого набору проти кожної "
+            "змінної другого (рядки × стовпці) замість квадратної матриці.</div>"
         ),
     },
     # ----- Descriptive statistics -----

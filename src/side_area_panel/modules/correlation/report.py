@@ -1,6 +1,8 @@
 #  Copyright (c) 2023 StatPrism Team. All rights reserved.
 
 
+import pandas as pd
+
 from src.common.translations import t
 from src.side_area_panel.modules.common.utility import format_apa, smart_comma_join
 from src.side_area_panel.modules.correlation.correlation_result import CorrelationType
@@ -90,4 +92,49 @@ def get_report(columns, correlation_matrix, p_matrix, df_matrix, report_non_sign
                 )
                 if abs(r) < 0.1:
                     text += t("correlation.report.negligible")
+    return text
+
+
+def get_cross_report(rows, cols, correlation_matrix, p_matrix, df_matrix, report_non_significant, kind: CorrelationType):
+    """Verbal summary for a rectangular two-set correlation: every (row, col) pair, skipping
+    a variable paired with itself when it appears in both sets."""
+    if kind not in _NAME_KEY:
+        raise ValueError(f"Unknown correlation type: {kind}")
+    name = t(_NAME_KEY[kind])
+    letter = _LETTER[kind]
+
+    row_vars = smart_comma_join([f"«{var}»" for var in rows])
+    col_vars = smart_comma_join([f"«{var}»" for var in cols])
+    text = t("correlation.report.cross_intro", name=name, rows=row_vars, cols=col_vars)
+
+    reported_any = False
+    for row in rows:
+        for col in cols:
+            if row == col:
+                continue
+            r = correlation_matrix.loc[row, col]
+            p = p_matrix.loc[row, col]
+            df = df_matrix.loc[row, col]
+            if p is None or pd.isna(p):
+                continue
+            if round(p, 3) > 0.05 and not report_non_significant:
+                continue
+            reported_any = True
+            stats = format_apa(r, p, df, letter)
+            if p > 0.05:
+                text += t("correlation.report.multi_nonsignificant", var1=row, var2=col, stats=stats)
+            else:
+                text += t(
+                    "correlation.report.multi_significant",
+                    strength=_strength(r),
+                    sign=_sign(r),
+                    var1=row,
+                    var2=col,
+                    stats=stats,
+                )
+                if abs(r) < 0.1:
+                    text += t("correlation.report.negligible")
+
+    if not reported_any and not report_non_significant:
+        return t("correlation.report.none_significant")
     return text

@@ -30,6 +30,13 @@ def _caption(kind, columns):
     return t("correlation.table.caption", name=name, vars=variables)
 
 
+def _cross_caption(kind, rows, cols):
+    name = t(_TABLE_NAME_KEY[kind])
+    row_vars = smart_comma_join([f"«{var}»" for var in rows])
+    col_vars = smart_comma_join([f"«{var}»" for var in cols])
+    return t("correlation.table.cross_caption", name=name, rows=row_vars, cols=col_vars)
+
+
 def get_correlation_short_name(kind: CorrelationType) -> str:
     if kind == CorrelationType.PEARSON:
         return "r"
@@ -79,6 +86,60 @@ def get_table_compact(columns, correlation_matrix, p_matrix, kind: CorrelationTy
 
     table.table_note = t("correlation.table.significance_note")
 
+    return table
+
+
+def get_table_cross(rows, cols, correlation_matrix, p_matrix, df_matrix, kind: CorrelationType, compact: bool) -> HTMLTableV2:
+    """Rectangular two-set correlation table: `rows` down the side, `cols` across the top,
+    every cell filled (full grid). Compact shows r + stars; full stacks r / p / df."""
+    table = HTMLTableV2(table_caption=_cross_caption(kind, rows, cols))
+    hide_df_matrix = all(df_matrix.isnull().values.flatten())
+
+    if compact:
+        table.add_title_row_apa(Row([Cell()] + [Cell(col, col_span=2, center=True) for col in cols]))
+        for row in rows:
+            table_row = [Cell(row)]
+            for col in cols:
+                table_row.append(
+                    Cell(format_r_apa(correlation_matrix.loc[row, col]), push_to_right=True, is_doubled=True, no_wrap=True)
+                )
+                table_row.append(Cell(get_stars(p_matrix.loc[row, col]), push_to_left=True, is_doubled=True))
+            table.add_single_row_apa(Row(table_row))
+        table.table_note = t("correlation.table.significance_note")
+        return table
+
+    # Full: r / p (/ df) stacked per row.
+    table.add_title_row_apa(Row([Cell(col_span=2)] + [Cell(col, col_span=2, center=True) for col in cols]))
+    for row in rows:
+        table_row_1 = [
+            Cell(row, row_span=3 if not hide_df_matrix else 2),
+            Cell(get_correlation_short_name(kind), no_wrap=True),
+        ]
+        for col in cols:
+            table_row_1.append(
+                Cell(format_r_apa(correlation_matrix.loc[row, col]), push_to_right=True, is_doubled=True, no_wrap=True)
+            )
+            table_row_1.append(Cell(get_stars(p_matrix.loc[row, col]), push_to_left=True, is_doubled=True))
+
+        table_row_2 = [Cell(t("common.p_value"), no_wrap=True)]
+        for col in cols:
+            table_row_2.append(
+                Cell(format_p_apa_exact(p_matrix.loc[row, col]), push_to_right=True, is_doubled=True, no_wrap=True)
+            )
+            table_row_2.append(Cell(push_to_left=True, is_doubled=True))
+
+        if not hide_df_matrix:
+            table_row_3 = [Cell("df", no_wrap=True)]
+            for col in cols:
+                table_row_3.append(
+                    Cell(str(df_matrix.loc[row, col]), push_to_right=True, is_doubled=True, no_wrap=True)
+                )
+                table_row_3.append(Cell(push_to_left=True, is_doubled=True))
+            table.add_multirow_apa([Row(table_row_1), Row(table_row_2), Row(table_row_3)])
+        else:
+            table.add_multirow_apa([Row(table_row_1), Row(table_row_2)])
+
+    table.table_note = t("correlation.table.significance_note")
     return table
 
 
