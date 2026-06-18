@@ -42,7 +42,7 @@ class Elements(ItemInSidePanelWithAutoConfigHolder):
     )
     compact = IISPWACCheckBox(label_text="Compact table", default_state=False)
     report_only_significant = IISPWACCheckBox(
-        label_text="Report only significant correlations",
+        label_text="Report/plot only significant correlations",
         default_state=True,
     )
     generate_heatmap = IISPWACCheckBox(label_text="Heatmap", default_state=False)
