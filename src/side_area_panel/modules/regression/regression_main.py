@@ -31,6 +31,7 @@ from src.side_area_panel.modules.common.utility import (
     smart_comma_join,
 )
 from src.side_area_panel.modules.common.verbal.significance import significance_verbal
+from src.side_area_panel.modules.regression.constant import RegressionModelType
 from src.side_area_panel.modules.regression.regression_result import (
     RegressionResult,
     RegressionStudyConfig,
@@ -98,39 +99,45 @@ def _vif_key(vif: float) -> str:
     return "low"
 
 
+def _add_vif_table(result, x, verbal):
+    """VIF multicollinearity table (needs >=2 predictors; const stays in the design matrix
+    for the formula). Shared by the linear and logistic diagnostics."""
+    predictors = [c for c in x.columns if c != "const"]
+    if len(predictors) < 2:
+        return
+    design = x.values
+    vif_table = HTMLTableV2(table_caption=t("regression.diag.vif_caption"))
+    header = [Cell(), Cell(t("regression.col.vif"), center=True)]
+    if verbal:
+        header.append(Cell(t("regression.diag.concern"), center=True))
+    vif_table.add_title_row_apa(Row(header))
+
+    high = []
+    for i, name in enumerate(x.columns):
+        if name == "const":
+            continue
+        vif = variance_inflation_factor(design, i)
+        if not np.isnan(vif) and vif >= 10:
+            high.append(str(name))
+        cells = [Cell(str(name), push_to_left=True), Cell(format_statistic_apa(vif), center=True)]
+        if verbal:
+            cells.append(Cell(t(f"regression.vif.{_vif_key(vif)}"), center=True))
+        vif_table.add_single_row_apa(Row(cells))
+    vif_table.add_text(
+        t("regression.report.vif_high", items=smart_comma_join(high))
+        if high
+        else t("regression.report.vif_ok")
+    )
+    result.update_and_add_element(vif_table, "regression vif")
+
+
 def _add_diagnostics(result, model, x, verbal):
     """OLS diagnostics: a VIF multicollinearity table (when there are >=2 predictors), a
     residuals-vs-fitted plot, and a normal Q-Q plot of the residuals."""
     fitted = np.asarray(model.fittedvalues, dtype=float)
     resid = np.asarray(model.resid, dtype=float)
 
-    # ----- VIF (needs >=2 predictors; const stays in the design matrix for the formula) -----
-    predictors = [c for c in x.columns if c != "const"]
-    if len(predictors) >= 2:
-        design = x.values
-        vif_table = HTMLTableV2(table_caption=t("regression.diag.vif_caption"))
-        header = [Cell(), Cell(t("regression.col.vif"), center=True)]
-        if verbal:
-            header.append(Cell(t("regression.diag.concern"), center=True))
-        vif_table.add_title_row_apa(Row(header))
-
-        high = []
-        for i, name in enumerate(x.columns):
-            if name == "const":
-                continue
-            vif = variance_inflation_factor(design, i)
-            if not np.isnan(vif) and vif >= 10:
-                high.append(str(name))
-            cells = [Cell(str(name), push_to_left=True), Cell(format_statistic_apa(vif), center=True)]
-            if verbal:
-                cells.append(Cell(t(f"regression.vif.{_vif_key(vif)}"), center=True))
-            vif_table.add_single_row_apa(Row(cells))
-        vif_table.add_text(
-            t("regression.report.vif_high", items=smart_comma_join(high))
-            if high
-            else t("regression.report.vif_ok")
-        )
-        result.update_and_add_element(vif_table, "regression vif")
+    _add_vif_table(result, x, verbal)
 
     # ----- Residuals vs fitted -----
     zero_x = np.array([fitted.min(), fitted.max()])
@@ -204,6 +211,13 @@ def recalculate_regression_study(elements, result: RegressionResult) -> Regressi
     if not independent_columns:
         return _fail(result, t("regression.error.no_independent"))
 
+    # Moderation and mediation are mutually exclusive: this module does not estimate a
+    # moderated-mediation model, and combining them silently produces a misleading hybrid.
+    if moderator_column and mediator_column:
+        elements.column_selector.set_alert(2)
+        elements.column_selector.set_alert(3)
+        return _fail(result, t("regression.error.moderator_and_mediator"))
+
     all_columns = [dependent_column] + independent_columns
     if moderator_column is not None:
         all_columns.append(moderator_column)
@@ -221,6 +235,13 @@ def recalculate_regression_study(elements, result: RegressionResult) -> Regressi
 
     verbal = bool(cfg.verbal_indicators)
     show_std = bool(cfg.standardized)
+
+    model_type = cfg.model_type or RegressionModelType.LINEAR.value
+    if model_type == RegressionModelType.LOGISTIC.value:
+        if mediator_column:
+            elements.column_selector.set_alert(3)
+            return _fail(result, t("regression.error.logit_no_mediation"))
+        return _run_logistic(result, df, dependent_column, independent_columns, moderator_column, cfg, verbal)
 
     independent_cols = independent_columns.copy()
     if moderator_column:
@@ -475,4 +496,196 @@ def _build_plot(df, model, mediator_model, dependent_column, independent_columns
         plot_title=title,
         x_axis_title=predictor,
         y_axis_title=dependent_column,
+    )
+
+
+# ===================================================================================
+#  Logistic regression (binary outcome)
+# ===================================================================================
+
+
+def _run_logistic(result, df, dependent_column, independent_columns, moderator_column, cfg, verbal):
+    """Fit a binary logistic regression (statsmodels Logit) and build the fit, coefficient
+    and (optional) diagnostics/plot. Moderation is supported via interaction terms;
+    mediation is not (filtered out by the caller)."""
+    # ----- Moderation: add the moderator and its product with each predictor -----
+    independent_cols = independent_columns.copy()
+    if moderator_column:
+        original_independent_cols = independent_cols.copy()
+        independent_cols.append(moderator_column)
+        for ind_col in original_independent_cols:
+            interaction_term = f"{ind_col}&nbsp;*&nbsp;{moderator_column}"
+            df[interaction_term] = df[ind_col] * df[moderator_column]
+            independent_cols.append(interaction_term)
+
+    # ----- Binary outcome: map the two distinct values to 0/1 (positive = the larger one) -----
+    distinct = sorted(pd.unique(df[dependent_column]))
+    if len(distinct) != 2:
+        return _fail(result, t("regression.error.not_binary", values=len(distinct)))
+    positive_label = distinct[1]
+    y = df[dependent_column].map({distinct[0]: 0, distinct[1]: 1})
+
+    n = len(df)
+    if n < len(independent_cols) + 2:
+        return _fail(result, t("regression.error.insufficient_data"))
+
+    x = sm.add_constant(df[independent_cols])
+    model = sm.Logit(y, x).fit(disp=0)
+
+    # ----- Model fit table (pseudo-R², likelihood-ratio test) -----
+    fit_table = HTMLTableV2(table_caption=t("regression.caption.fit"))
+    fit_header = [
+        Cell(),
+        Cell(t("regression.col.n"), center=True),
+        Cell(t("regression.col.pseudo_r2"), center=True),
+        Cell("χ²", center=True),
+        Cell("df", center=True),
+        Cell(t("common.p_value"), center=True),
+    ]
+    if verbal:
+        fit_header.append(Cell(t("verbal.col_significant"), center=True))
+    fit_table.add_title_row_apa(Row(fit_header))
+
+    fit_row = [
+        Cell(t("regression.row.model"), push_to_left=True),
+        Cell(str(n), center=True),
+        Cell(format_r_apa(model.prsquared), center=True),
+        Cell(format_statistic_apa(model.llr), center=True),
+        Cell(str(int(model.df_model)), center=True),
+        Cell(format_p_apa_exact(model.llr_pvalue), center=True),
+    ]
+    if verbal:
+        fit_row.append(Cell(significance_verbal(model.llr_pvalue), center=True))
+    fit_table.add_single_row_apa(Row(fit_row))
+
+    report = t(
+        "regression.report.logit_fit",
+        dv=dependent_column,
+        positive=positive_label,
+        pseudo=format_r_apa(model.prsquared),
+        chi2=format_statistic_apa(model.llr),
+        df=int(model.df_model),
+        p=format_p_apa_full(model.llr_pvalue),
+    )
+    report += (
+        t("regression.report.significant") if model.llr_pvalue < 0.05 else t("regression.report.not_significant")
+    )
+    fit_table.add_text(report)
+    result.update_and_add_element(fit_table, "regression fit")
+
+    # ----- Coefficients table (log-odds B, SE, odds ratio, z, p) -----
+    coefficients_table = HTMLTableV2(table_caption=t("regression.caption.coefficients"))
+    header = [
+        Cell(),
+        Cell(t("regression.col.b"), center=True),
+        Cell(t("regression.col.se"), center=True),
+        Cell(t("regression.col.odds_ratio"), center=True),
+        Cell(t("regression.col.z"), center=True),
+        Cell(t("common.p_value"), center=True),
+    ]
+    if verbal:
+        header.append(Cell(t("verbal.col_significant"), center=True))
+    coefficients_table.add_title_row_apa(Row(header))
+
+    for param in model.params.index:
+        p = model.pvalues[param]
+        name = t("regression.row.intercept") if param == "const" else param
+        cells = [
+            Cell(name, push_to_left=True),
+            Cell(format_statistic_apa(model.params[param]), center=True),
+            Cell(format_statistic_apa(model.bse[param]), center=True),
+            Cell(format_statistic_apa(np.exp(model.params[param])), center=True),
+            Cell(format_statistic_apa(model.tvalues[param]), center=True),
+            Cell(format_p_apa_exact(p), center=True),
+        ]
+        if verbal:
+            cells.append(Cell(significance_verbal(p), center=True))
+        coefficients_table.add_single_row_apa(Row(cells))
+
+    coefficients_table.add_text(_logistic_coefficient_prose(model, dependent_column, positive_label))
+    result.update_and_add_element(coefficients_table, "regression coefficients")
+
+    # ----- Diagnostics (VIF only; the OLS residual plots don't transfer to logistic) -----
+    if cfg.diagnostics:
+        _add_vif_table(result, x, verbal)
+
+    # ----- Plot (single predictor: fitted probability curve over the observed 0/1 outcome) -----
+    if cfg.plots:
+        plot_element = _build_logistic_plot(
+            df, model, y, dependent_column, independent_columns, moderator_column, positive_label
+        )
+        if plot_element is not None:
+            result.update_and_add_element(plot_element, "regression plot")
+
+    result.title_context = f"{str(dependent_column)[:16]} ~ " + ", ".join(str(c)[:16] for c in independent_columns)
+    return result
+
+
+def _logistic_coefficient_prose(model, dependent_column, positive_label) -> str:
+    """Name the significant predictors and whether they raise or lower the odds of the
+    positive outcome."""
+    text = t("regression.report.logit_coef_intro", dv=dependent_column, positive=positive_label)
+    significant = []
+    for param in model.params.index:
+        if param == "const" or model.pvalues[param] >= 0.05:
+            continue
+        direction = (
+            t("regression.dir.increase") if model.params[param] >= 0 else t("regression.dir.decrease")
+        )
+        significant.append(f"{param} ({direction})")
+    if significant:
+        text += t("regression.report.logit_coef_sig", positive=positive_label, items=smart_comma_join(significant))
+    else:
+        text += t("regression.report.coef_none", dv=dependent_column)
+    return text
+
+
+def _build_logistic_plot(df, model, y, dependent_column, independent_columns, moderator_column, positive_label):
+    """Logistic plot for a single predictor: the observed 0/1 outcome as points plus the
+    fitted probability curve (simple slopes at ±1 SD of the moderator when present)."""
+    if len(independent_columns) != 1:
+        return None
+
+    predictor = independent_columns[0]
+    items = [Scatter(x=df[predictor], y=y, label=t("regression.plot.data"))]
+
+    x_grid = np.linspace(df[predictor].min(), df[predictor].max(), 100)
+    x_values_original = pd.DataFrame({"const": 1, predictor: x_grid})
+
+    if moderator_column:
+        mean = df[moderator_column].mean()
+        std = df[moderator_column].std()
+        colors = Colors()
+        for number_of_sds in [-1, 0, 1]:
+            x_values = x_values_original.copy()
+            x_values[moderator_column] = mean + number_of_sds * std
+            x_values[f"{predictor}&nbsp;*&nbsp;{moderator_column}"] = (
+                x_values[predictor] * x_values[moderator_column]
+            )
+            label = t("regression.plot.line_sd", sd=number_of_sds)
+            items.append(
+                Line(
+                    x=x_values[predictor],
+                    y=model.predict(x_values),
+                    label=label,
+                    legend_string=label,
+                    config=LinePlotConfig(color=colors.get_color_list()),
+                )
+            )
+    else:
+        items.append(
+            Line(
+                x=x_grid,
+                y=model.predict(x_values_original),
+                label=t("regression.plot.prob_curve"),
+            )
+        )
+
+    title = t("regression.plot.logit_title", dv=dependent_column, iv=predictor, positive=positive_label)
+    return PlotV2(
+        items=items,
+        title=title,
+        plot_title=title,
+        x_axis_title=predictor,
+        y_axis_title=t("regression.plot.prob_axis", positive=positive_label),
     )

@@ -13,6 +13,7 @@ from src.side_area_panel.modules.common.result.registry import BaseResult
 class RegressionStudyConfig:
     data_source = attrs.field(default=None)
     column_selector = attrs.field(default=None)
+    model_type = attrs.field(default=None)
     standardized = attrs.field(default=None)
     verbal_indicators = attrs.field(default=None)
     diagnostics = attrs.field(default=None)
@@ -27,6 +28,13 @@ _ASSUMPTIONS_FINE_PRINT_EN = (
     "<ul>"
     "<li><b>Estimator.</b> Ordinary least squares (statsmodels OLS) with an intercept. Rows "
     "with any missing value in the used columns are dropped (list-wise).</li>"
+    "<li><b>Logistic model.</b> When <b>Model</b> is set to Logistic, a binary logistic "
+    "regression (statsmodels Logit) is fitted instead: the dependent variable must have "
+    "exactly two distinct values (mapped to 0/1, the larger value being the modelled "
+    "&lsquo;positive&rsquo; outcome). The fit table reports McFadden&rsquo;s pseudo R&sup2; "
+    "and the likelihood-ratio &chi;&sup2; test; coefficients are log-odds B with the odds "
+    "ratio OR = exp(B) and a z statistic. Moderation is supported; mediation, the "
+    "standardised &beta; and the residual / Q-Q diagnostics are not (only VIF is shown).</li>"
     "<li><b>Model fit.</b> R&sup2; and adjusted R&sup2;, plus the overall F-test "
     "(F, its two degrees of freedom and p) and the sample size N.</li>"
     "<li><b>Coefficients.</b> Unstandardised B with its standard error (SE), the standardised "
@@ -49,7 +57,18 @@ _ASSUMPTIONS_FINE_PRINT_EN = (
     "shows simple slopes at &minus;1 SD, mean and +1 SD of the moderator.</li>"
     "<li><b>Mediation.</b> Estimates the predictor&rarr;mediator path and the "
     "predictor/mediator&rarr;outcome paths (a separate Path-estimates table); the plot "
-    "contrasts the direct and total effects.</li>"
+    "contrasts the direct and total effects. Mediation is available for the linear model "
+    "only.</li>"
+    "<li><b>Supported moderator / mediator combinations.</b> A moderator and a mediator are "
+    "<b>mutually exclusive</b> &mdash; this module does not estimate a moderated-mediation "
+    "model, so selecting both is rejected with an error. The combinations that run are:"
+    "<ul>"
+    "<li><b>Linear (OLS):</b> plain regression; with a moderator; or with a mediator.</li>"
+    "<li><b>Logistic:</b> plain regression; or with a moderator. A mediator is not supported "
+    "and is rejected with an error.</li>"
+    "</ul>"
+    "In every case the moderator/mediator fields are optional; leaving them empty fits the "
+    "plain model.</li>"
     "<li><b>Verbal indicators.</b> &lsquo;Verbal indicators in tables&rsquo; adds a "
     "Significant? column next to each p-value (&alpha; = .05).</li>"
     "<li><b>Diagnostics.</b> Optional. <b>VIF</b> (variance inflation factor) flags "

@@ -92,6 +92,11 @@ class ModuleRegistry(Enum):
         icon_path="ph.scales",
     )
 
+    PAIRED = ModuleRegistryItem(
+        display_name="Paired T-test/ANOVA",
+        icon_path="ph.scales",
+    )
+
     CORRELATION = ModuleRegistryItem(
         display_name="Correlation",
         icon_path="msc.link",

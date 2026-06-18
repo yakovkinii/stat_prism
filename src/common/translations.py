@@ -465,6 +465,168 @@ TRANSLATIONS = {
             "(наприклад, стать або вікова група респондента).</div>"
         ),
     },
+    # ----- Paired / Repeated Measures -----
+    "paired.error.min_conditions": {
+        "en": "Select at least two conditions (repeated measurements) to compare.",
+        "ua": "Виберіть щонайменше дві умови (повторні вимірювання) для порівняння.",
+    },
+    "paired.error.insufficient": {
+        "en": "Too few complete cases after dropping rows with missing values (found {n}, at least 3 required).",
+        "ua": "Замало повних спостережень після вилучення рядків із пропусками (знайдено {n}, потрібно щонайменше 3).",
+    },
+    "paired.error.auto_no_assumptions": {
+        "en": (
+            "Assumption checks are off and the method is Automatic, so the appropriate test "
+            "cannot be determined. Choose a method or enable assumption checks."
+        ),
+        "ua": (
+            "Перевірку припущень вимкнено, а метод — «Визначити автоматично», тому неможливо "
+            "обрати відповідний тест. Оберіть метод або увімкніть перевірку припущень."
+        ),
+    },
+    "paired.caption.descriptives": {
+        "en": "Descriptive statistics",
+        "ua": "Описова статистика",
+    },
+    "paired.col.condition": {
+        "en": "Condition",
+        "ua": "Умова",
+    },
+    "paired.col.n": {
+        "en": "N",
+        "ua": "N",
+    },
+    "paired.col.normal": {
+        "en": "Normal?",
+        "ua": "Нормальний?",
+    },
+    "paired.caption.normality": {
+        "en": "Assumption checks",
+        "ua": "Перевірка припущень",
+    },
+    "paired.row.differences": {
+        "en": "Differences",
+        "ua": "Різниці",
+    },
+    "paired.row.sphericity": {
+        "en": "Sphericity (Mauchly)",
+        "ua": "Сферичність (Маучлі)",
+    },
+    "paired.caption.paired_t": {
+        "en": "Paired-samples t-test",
+        "ua": "t-критерій для залежних вибірок",
+    },
+    "paired.caption.wilcoxon": {
+        "en": "Wilcoxon signed-rank test",
+        "ua": "Критерій знакових рангів Вілкоксона",
+    },
+    "paired.caption.rm_anova": {
+        "en": "Repeated-measures ANOVA",
+        "ua": "Дисперсійний аналіз з повторними вимірюваннями",
+    },
+    "paired.caption.friedman": {
+        "en": "Friedman test",
+        "ua": "Критерій Фрідмана",
+    },
+    "paired.test.paired_t": {
+        "en": "paired-samples t-test",
+        "ua": "t-критерій для залежних вибірок",
+    },
+    "paired.test.wilcoxon": {
+        "en": "Wilcoxon signed-rank test",
+        "ua": "критерій знакових рангів Вілкоксона",
+    },
+    "paired.test.rm_anova": {
+        "en": "repeated-measures ANOVA",
+        "ua": "дисперсійний аналіз з повторними вимірюваннями",
+    },
+    "paired.test.friedman": {
+        "en": "Friedman test",
+        "ua": "критерій Фрідмана",
+    },
+    "paired.note.gg": {
+        "en": "Greenhouse–Geisser corrected p {p}, ε = {eps}.",
+        "ua": "Поправка Грінхауса–Гайссера: p {p}, ε = {eps}.",
+    },
+    "paired.caption.posthoc_param": {
+        "en": "Pairwise comparisons (paired t, Holm-adjusted)",
+        "ua": "Попарні порівняння (залежний t, поправка Холма)",
+    },
+    "paired.caption.posthoc_nonparam": {
+        "en": "Pairwise comparisons (Nemenyi)",
+        "ua": "Попарні порівняння (Немені)",
+    },
+    "paired.posthoc.pairwise_t": {
+        "en": "pairwise paired t",
+        "ua": "попарний залежний t",
+    },
+    "paired.posthoc.nemenyi": {
+        "en": "Nemenyi",
+        "ua": "Немені",
+    },
+    "paired.posthoc_sentence": {
+        "en": "The {name} post-hoc test revealed a significant difference between the following conditions: {groups}.",
+        "ua": "Апостеріорний тест {name} виявив статистично значущу різницю між такими умовами: {groups}.",
+    },
+    "paired.verbal.result": {
+        "en": "{test} — the difference between conditions is {conclusion} ({stats}).",
+        "ua": "{test} — різниця між умовами {conclusion} ({stats}).",
+    },
+    "paired.plot.value_axis": {
+        "en": "Value",
+        "ua": "Значення",
+    },
+    "paired.plot.condition_axis": {
+        "en": "Condition",
+        "ua": "Умова",
+    },
+    "paired.description": {
+        "en": (
+            "<h2>Paired / Repeated Measures</h2>"
+            "<h3>Description</h3>"
+            "<div>Compare two or more repeated measurements taken on the same respondents "
+            "(e.g. before / after, or several time points or conditions) to determine whether "
+            "they differ significantly.</div>"
+            "<div>With two conditions the paired-samples family is used:"
+            "<ul>"
+            "<li>If the paired differences are normally distributed (Shapiro-Wilk), the "
+            "paired-samples t-test is used.</li>"
+            "<li>Otherwise, the Wilcoxon signed-rank test is used.</li>"
+            "</ul></div>"
+            "<div>With three or more conditions the repeated-measures family is used:"
+            "<ul>"
+            "<li>If every condition is normally distributed (Shapiro-Wilk), repeated-measures "
+            "ANOVA is used (with the Greenhouse-Geisser correction reported).</li>"
+            "<li>Otherwise, the Friedman test is used.</li>"
+            "</ul></div>"
+            "<h3>Inputs</h3>"
+            "<div><b>Conditions:</b><br>Two or more columns holding the repeated measurements "
+            "of the same respondents. Respondents missing any condition are dropped.</div>"
+        ),
+        "ua": (
+            "<h2>Залежні вибірки / повторні вимірювання</h2>"
+            "<h3>Опис</h3>"
+            "<div>Порівняння двох або більше повторних вимірювань на тих самих респондентах "
+            "(наприклад, до / після або кілька моментів часу чи умов) для визначення, чи "
+            "відрізняються вони статистично значущо.</div>"
+            "<div>За двох умов використовується родина для залежних вибірок:"
+            "<ul>"
+            "<li>Якщо різниці пар розподілені нормально (критерій Шапіро–Уілка), "
+            "використовується t-критерій для залежних вибірок.</li>"
+            "<li>Інакше використовується критерій знакових рангів Вілкоксона.</li>"
+            "</ul></div>"
+            "<div>За трьох і більше умов використовується родина повторних вимірювань:"
+            "<ul>"
+            "<li>Якщо кожна умова розподілена нормально (критерій Шапіро–Уілка), "
+            "використовується ANOVA з повторними вимірюваннями (з поправкою "
+            "Грінхауса–Гайссера).</li>"
+            "<li>Інакше використовується критерій Фрідмана.</li>"
+            "</ul></div>"
+            "<h3>Вхідні дані</h3>"
+            "<div><b>Умови:</b><br>Два або більше стовпців із повторними вимірюваннями тих "
+            "самих респондентів. Респонденти, у яких пропущена будь-яка умова, вилучаються.</div>"
+        ),
+    },
     # ----- Reliability -----
     "reliability.caption.cronbach": {
         "en": "Cronbach's α",
@@ -679,6 +841,66 @@ TRANSLATIONS = {
     "regression.diag.theoretical": {"en": "Theoretical quantiles", "ua": "Теоретичні квантилі"},
     "regression.diag.sample": {"en": "Sample quantiles", "ua": "Вибіркові квантилі"},
     "regression.diag.ref": {"en": "Reference", "ua": "Опорна лінія"},
+    # ----- Regression: logistic (binary outcome) -----
+    "regression.error.not_binary": {
+        "en": "Logistic regression needs a binary dependent variable (exactly two distinct values; found {values}).",
+        "ua": "Логістична регресія потребує бінарної залежної змінної (рівно два різні значення; знайдено {values}).",
+    },
+    "regression.error.logit_no_mediation": {
+        "en": "Mediation is not supported for logistic regression. Remove the mediator variable.",
+        "ua": "Медіація не підтримується для логістичної регресії. Вилучіть змінну-медіатор.",
+    },
+    "regression.error.moderator_and_mediator": {
+        "en": (
+            "Choose either a moderator or a mediator, not both — moderated mediation is not "
+            "supported. Remove one of them."
+        ),
+        "ua": (
+            "Оберіть або модератор, або медіатор, але не обидва — модерована медіація не "
+            "підтримується. Вилучіть одну зі змінних."
+        ),
+    },
+    "regression.col.pseudo_r2": {"en": "Pseudo R<sup>2</sup>", "ua": "Псевдо R<sup>2</sup>"},
+    "regression.col.z": {"en": "z", "ua": "z"},
+    "regression.col.odds_ratio": {"en": "OR", "ua": "ВШ"},
+    "regression.dir.increase": {"en": "increases the odds", "ua": "підвищує шанси"},
+    "regression.dir.decrease": {"en": "decreases the odds", "ua": "знижує шанси"},
+    "regression.report.logit_fit": {
+        "en": (
+            "A logistic regression modelled the odds of {dv} = {positive}. The model is a "
+            "{pseudo} (McFadden pseudo R²) improvement over the null, χ²({df}) = {chi2}, "
+            "p {p}, and is "
+        ),
+        "ua": (
+            "Логістична регресія моделювала шанси {dv} = {positive}. Модель покращує нульову "
+            "на {pseudo} (псевдо R² Макфаддена), χ²({df}) = {chi2}, p {p}, і є "
+        ),
+    },
+    "regression.report.logit_coef_intro": {
+        "en": (
+            "The coefficients are on the log-odds scale; the odds ratio (OR) is exp(B) &mdash; "
+            "the multiplicative change in the odds of {dv} = {positive} per one-unit increase in "
+            "the predictor (OR &gt; 1 raises the odds, &lt; 1 lowers them). "
+        ),
+        "ua": (
+            "Коефіцієнти подано в шкалі логарифма шансів; відношення шансів (ВШ) — це exp(B), "
+            "мультиплікативна зміна шансів {dv} = {positive} на одиницю зростання предиктора "
+            "(ВШ &gt; 1 підвищує шанси, &lt; 1 знижує). "
+        ),
+    },
+    "regression.report.logit_coef_sig": {
+        "en": "Significant predictors of {positive}: {items}.",
+        "ua": "Значущі предиктори {positive}: {items}.",
+    },
+    "regression.plot.prob_curve": {"en": "Fitted probability", "ua": "Прогнозована ймовірність"},
+    "regression.plot.prob_axis": {
+        "en": "P({positive})",
+        "ua": "P({positive})",
+    },
+    "regression.plot.logit_title": {
+        "en": "Probability of {dv} = {positive} by {iv}",
+        "ua": "Ймовірність {dv} = {positive} залежно від {iv}",
+    },
     # ----- Exploratory Factor Analysis -----
     "efa.description": {
         "en": (

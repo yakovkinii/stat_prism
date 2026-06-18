@@ -117,6 +117,12 @@ from src.side_area_panel.modules.mean_comparison.mean_comparison_result import (
 from src.side_area_panel.modules.mean_comparison.mean_comparison_ui import (
     MeanComparison,
 )
+from src.side_area_panel.modules.paired.paired_main import recalculate_paired_study
+from src.side_area_panel.modules.paired.paired_result import (
+    PairedResult,
+    PairedStudyConfig,
+)
+from src.side_area_panel.modules.paired.paired_ui import Paired
 from src.side_area_panel.modules.raw_data.raw_data_ui import RawData
 from src.side_area_panel.modules.raw_data.raw_data_result import (
     RawDataResult,
@@ -156,6 +162,11 @@ def inject_classes_to_module_registry():
     ModuleRegistry.MEAN_COMPARISON.value.result_class = MeanComparisonResult
     ModuleRegistry.MEAN_COMPARISON.value.config_class = MeanComparisonStudyConfig
     ModuleRegistry.MEAN_COMPARISON.value.main_function = recalculate_mean_comparison_study
+
+    ModuleRegistry.PAIRED.value.ui_class = Paired
+    ModuleRegistry.PAIRED.value.result_class = PairedResult
+    ModuleRegistry.PAIRED.value.config_class = PairedStudyConfig
+    ModuleRegistry.PAIRED.value.main_function = recalculate_paired_study
 
     ModuleRegistry.RELIABILITY.value.ui_class = Reliability
     ModuleRegistry.RELIABILITY.value.result_class = ReliabilityResult

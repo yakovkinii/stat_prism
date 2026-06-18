@@ -6,9 +6,11 @@ from src.pyside_ext.elements.column_selector import Field
 from src.side_area_panel.blueprint.element import ItemInSidePanelWithAutoConfigHolder
 from src.side_area_panel.iispwac.iispwac_checkbox import IISPWACCheckBox
 from src.side_area_panel.iispwac.iispwac_column_selector import IISPWACColumnSelector
+from src.side_area_panel.iispwac.iispwac_combobox import IISPWACComboBox
 from src.side_area_panel.iispwac.iispwac_data_source import IISPWACDataSource
 from src.side_area_panel.iispwac.iispwac_spacer import IISPWACSpacer
 from src.side_area_panel.modules.base.base import BaseModulePanel
+from src.side_area_panel.modules.regression.constant import RegressionModelType
 
 
 class Elements(ItemInSidePanelWithAutoConfigHolder):
@@ -41,6 +43,7 @@ class Elements(ItemInSidePanelWithAutoConfigHolder):
         ],
     )
     spacer = IISPWACSpacer()
+    model_type = IISPWACComboBox(label_text="Model:", items=RegressionModelType.get_values())
     standardized = IISPWACCheckBox(label_text="Standardized coefficients (β)", default_state=True)
     verbal_indicators = IISPWACCheckBox(label_text="Verbal indicators in tables", default_state=True)
     diagnostics = IISPWACCheckBox(label_text="Diagnostics (VIF, residual plots)", default_state=True)
