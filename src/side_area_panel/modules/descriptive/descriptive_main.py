@@ -157,10 +157,10 @@ def recalculate_descriptive_study(elements, result: DescriptiveResult) -> Descri
                     continue
                 target = col if group_value is None else f"{col} ({group_value})"
                 listed = smart_comma_join(
-                    [
-                        f"{lab} ({format_value_apa(val, 2)})" if id_column is not None else lab
+                    list({
+                        f"#{lab} ({format_value_apa(val, 2)})" if id_column is not None else lab
                         for val, lab in outliers
-                    ]
+                    })
                 )
                 outlier_sentences.append(
                     t("descriptive.outliers.line", target=target, n=len(outliers), items=listed)
