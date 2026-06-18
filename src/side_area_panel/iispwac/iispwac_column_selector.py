@@ -515,11 +515,31 @@ class ColumnSelectorExPopup:
 
         event.ignore()
 
+    @staticmethod
+    def _allowed_types(panel_type):
+        """Column types a field of the given type accepts (numeric fits ordinal/nominal, etc.)."""
+        if panel_type == ColumnType.NOMINAL:
+            return [ColumnType.NOMINAL, ColumnType.ORDINAL, ColumnType.NUMERIC]
+        if panel_type == ColumnType.ORDINAL:
+            return [ColumnType.ORDINAL, ColumnType.NUMERIC]
+        return [ColumnType.NUMERIC]
+
+    def _field_can_accept(self, field_index, column_type):
+        """True if this field accepts the column's type and has room (single-column fields
+        must be empty)."""
+        field = self.fields[field_index]
+        if field.allow_only_single_column and self.panel_list_widgets[field_index].count() > 0:
+            return False
+        return column_type in self._allowed_types(field.column_type)
+
     def handle_double_click(self, item):
         source_list = item.listWidget()
         if source_list == self.main_list:
-            for i, panel_list in enumerate(self.panel_list_widgets):
-                if panel_list.count() == 0 or not self.fields[i].allow_only_single_column:
+            # Place into the first field that accepts this column's type and has room
+            # (field 1, then 2, ...), rather than only the first single-column-or-empty field.
+            column_type = self.columns[self.column_names.index(item.text())].column_type
+            for i in range(len(self.panel_list_widgets)):
+                if self._field_can_accept(i, column_type):
                     self.button_pressed(i, from_double_click=True, remove=False, item=item)
                     break
         else:
@@ -546,17 +566,7 @@ class ColumnSelectorExPopup:
                 selected_main_types = [
                     self.columns[self.column_names.index(item)].column_type for item in selected_main_names
                 ]
-                panel_type = self.fields[button_index].column_type
-                if panel_type == ColumnType.NOMINAL:
-                    allowed_types = [
-                        ColumnType.NOMINAL,
-                        ColumnType.ORDINAL,
-                        ColumnType.NUMERIC,
-                    ]
-                elif panel_type == ColumnType.ORDINAL:
-                    allowed_types = [ColumnType.ORDINAL, ColumnType.NUMERIC]
-                else:
-                    allowed_types = [ColumnType.NUMERIC]
+                allowed_types = self._allowed_types(self.fields[button_index].column_type)
 
                 if not all([selected_main_type in allowed_types for selected_main_type in selected_main_types]):
                     icon = self.panel_list_icons[button_index]

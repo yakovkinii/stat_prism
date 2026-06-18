@@ -73,9 +73,13 @@ class DataManager:
 
     def get_data_from_data_label(self, data_label: str, current_result_id: int)->Data:
         if data_label == "Auto":
-            result_id = self.data_chain[-1]
-            if result_id == current_result_id:
-                result_id = self.data_chain[-2]
+            # "Auto" = the data that feeds this study. For a data-processing step (which is a
+            # chain member) that is the *immediately preceding* step's output
+            if current_result_id in self.data_chain:
+                index = self.data_chain.index(current_result_id)
+                result_id = self.data_chain[index - 1] if index > 0 else current_result_id
+            else:
+                result_id = self.data_chain[-1]
         else:
             result_id = int(data_label.replace("Data", ""))
 
