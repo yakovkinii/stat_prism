@@ -5,8 +5,29 @@ from scipy.optimize import minimize
 from scipy.stats import chi2
 
 
+def _numerical_hessian(func, x, eps=1e-4):
+    """Central finite-difference Hessian of a scalar function at x."""
+    n = len(x)
+    H = np.zeros((n, n))
+    fx = func(x)
+    for i in range(n):
+        x_ip = x.copy(); x_ip[i] += eps
+        x_im = x.copy(); x_im[i] -= eps
+        H[i, i] = (func(x_ip) - 2.0 * fx + func(x_im)) / (eps * eps)
+        for j in range(i + 1, n):
+            x_pp = x.copy(); x_pp[i] += eps; x_pp[j] += eps
+            x_pm = x.copy(); x_pm[i] += eps; x_pm[j] -= eps
+            x_mp = x.copy(); x_mp[i] -= eps; x_mp[j] += eps
+            x_mm = x.copy(); x_mm[i] -= eps; x_mm[j] -= eps
+            H[i, j] = H[j, i] = (func(x_pp) - func(x_pm) - func(x_mp) + func(x_mm)) / (4.0 * eps * eps)
+    return H
+
+
 class CFAResultStruct:
-    def __init__(self, loadings, phi, uniq, fit_indices, converged, message, std_loadings=None, std_resid=None):
+    def __init__(
+        self, loadings, phi, uniq, fit_indices, converged, message,
+        std_loadings=None, std_resid=None, loading_se=None,
+    ):
         self.loadings_ = loadings
         self.phi_ = phi
         self.uniq_ = uniq
@@ -15,6 +36,7 @@ class CFAResultStruct:
         self.message_ = message
         self.std_loadings_ = std_loadings
         self.std_resid_ = std_resid
+        self.loading_se_ = loading_se  # raw-scale asymptotic SE per loading (NaN if not free)
 
 
 class CFAEstimator:
@@ -198,6 +220,25 @@ class CFAEstimator:
         std_loadings = L / np.sqrt(np.diag(Sigma))[:, None]
         # Standardized residuals
         std_resid = resid / np.sqrt(np.outer(np.diag(S), np.diag(Sigma)))
+
+        # Asymptotic (Wald) standard errors for the free loadings: Cov(theta) ~ (2/N) H^-1,
+        # where H is the Hessian of the ML discrepancy at the optimum. Cheap analytic
+        # approximation (no bootstrap); NaN if the Hessian is not usable.
+        loading_se = np.full((n_vars, n_factors), np.nan)
+        try:
+            hessian = _numerical_hessian(nll, res.x)
+            cov = (2.0 / n_obs) * np.linalg.inv(hessian)
+            diag = np.diag(cov)
+            se_vector = np.where(diag > 0, np.sqrt(np.abs(diag)), np.nan)
+            idx = 0
+            for i in range(n_vars):
+                for j in range(n_factors):
+                    if mask[i, j] and (var_names[i], j) not in self.fixed_loadings:
+                        loading_se[i, j] = se_vector[idx]
+                        idx += 1
+        except Exception:
+            pass
+
         fit_indices = {
             "Chi-square": chi2_stat,
             "df": df,
@@ -207,4 +248,6 @@ class CFAEstimator:
             "TLI": tli,
             "SRMR": srmr,
         }
-        return CFAResultStruct(L, phi, uniq, fit_indices, converged, message, std_loadings, std_resid)
+        return CFAResultStruct(
+            L, phi, uniq, fit_indices, converged, message, std_loadings, std_resid, loading_se
+        )

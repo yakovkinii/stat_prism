@@ -5,6 +5,7 @@ import logging
 
 import numpy as np
 import pandas as pd
+from scipy.stats import norm
 
 from src.common.decorators import log_function
 from src.common.translations import t
@@ -16,6 +17,7 @@ from src.side_area_panel.modules.common.utility import (
     format_p_apa_full,
     format_r_apa,
     format_statistic_apa,
+    get_stars,
 )
 from src.side_area_panel.modules.confirmatory_factor_analysis.cfa_numpy import CFAEstimator
 from src.side_area_panel.modules.confirmatory_factor_analysis.confirmatory_factor_analysis_result import (
@@ -154,15 +156,29 @@ def recalculate_cfa_study(elements, result: CFAResult) -> CFAResult:
     fit_table.add_text(_fit_prose(fit, cfa_result.converged_))
     result.update_and_add_element(fit_table, "cfa fit")
 
-    # ----- Standardized factor loadings table -----
+    # ----- Standardized factor loadings table (with significance stars when verbal) -----
+    raw_loadings = cfa_result.loadings_
+    loading_se = cfa_result.loading_se_
     load_table = HTMLTableV2(table_caption=t("cfa.caption.loadings"))
     load_table.add_title_row_apa(
         Row([Cell(t("cfa.col.variable"))] + [Cell(name, center=True) for name in factor_names])
     )
+    any_stars = False
     for idx, var in enumerate(columns):
-        load_table.add_single_row_apa(
-            Row([Cell(var, push_to_left=True)] + [Cell(format_r_apa(loadings[idx, j]), center=True) for j in range(n_factors)])
-        )
+        cells = [Cell(var, push_to_left=True)]
+        for j in range(n_factors):
+            text = format_r_apa(loadings[idx, j])
+            if verbal and loading_se is not None:
+                se = loading_se[idx, j]
+                if not _is_nan(se) and se > 0:
+                    z = raw_loadings[idx, j] / se
+                    stars = get_stars(2.0 * norm.sf(abs(z)))
+                    text += stars
+                    any_stars = any_stars or bool(stars)
+            cells.append(Cell(text, center=True))
+        load_table.add_single_row_apa(Row(cells))
+    if verbal and any_stars:
+        load_table.add_text(t("cfa.loadings_sig_note"))
     result.update_and_add_element(load_table, "cfa loadings")
 
     # ----- Loadings heatmap -----

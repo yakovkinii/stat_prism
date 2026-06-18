@@ -810,6 +810,10 @@ TRANSLATIONS = {
         "en": "Warning: the optimiser did not fully converge, so the solution may be unreliable. ",
         "ua": "Увага: оптимізатор не повністю збігся, тож розв'язок може бути ненадійним. ",
     },
+    "cfa.loadings_sig_note": {
+        "en": "* p &lt; .05, ** p &lt; .01, *** p &lt; .001 (Wald test of each loading).",
+        "ua": "* p &lt; .05, ** p &lt; .01, *** p &lt; .001 (тест Вальда для кожного навантаження).",
+    },
     "cfa.plot.loadings": {"en": "Factor loadings heatmap", "ua": "Теплокарта факторних навантажень"},
     "cfa.plot.factors": {"en": "Factors", "ua": "Фактори"},
     "cfa.plot.variables": {"en": "Variables", "ua": "Змінні"},
