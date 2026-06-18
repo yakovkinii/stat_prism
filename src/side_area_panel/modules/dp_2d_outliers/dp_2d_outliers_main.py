@@ -50,7 +50,7 @@ def dp_2d_outliers_main(elements: Elements, result: TwoDOutliersResult):
     threshold = stats.chi2.ppf(_CONFIDENCE, df=2)
 
     x = new_data.get_series(column=col_x, map_ordinal=True)
-    y = new_data.get_series(columns=col_y, map_ordinal=True)
+    y = new_data.get_series(column=col_y, map_ordinal=True)
 
     outlier = pd.Series(False, index=x.index)
     valid = ~(x.isna() | y.isna())
