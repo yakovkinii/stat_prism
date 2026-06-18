@@ -33,7 +33,7 @@ def dp_outliers_main(elements: Elements, result: OutliersResult):
 
     outlier = None
     for column_name in selected:
-        x = pd.to_numeric(new_data[column_name].data_series, errors="coerce")
+        x = new_data.get_series(column_name, map_ordinal=True)
         if method == "Z-score":
             std = x.std()
             if std == 0 or pd.isna(std):

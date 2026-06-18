@@ -17,7 +17,7 @@ class Elements(ItemInSidePanelWithAutoConfigHolder):
         fields=[
             Field(
                 name="Columns:",
-                column_type=ColumnType.NUMERIC,
+                column_type=ColumnType.ORDINAL,
                 reasonable_number_of_columns=10,
                 allow_only_single_column=False,
                 minimum_columns=1,

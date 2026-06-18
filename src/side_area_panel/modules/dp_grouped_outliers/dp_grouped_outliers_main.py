@@ -55,7 +55,7 @@ def dp_grouped_outliers_main(elements: Elements, result: GroupedOutliersResult):
 
     outlier = None
     for column_name in selected:
-        x = pd.to_numeric(new_data[column_name].data_series, errors="coerce")
+        x = new_data.get_series(column_name, map_ordinal=True)
         # transform keeps the result aligned to x's index, one mask per group
         column_outlier = x.groupby(group_labels, group_keys=False).transform(group_mask).fillna(False).astype(bool)
         outlier = column_outlier if outlier is None else (outlier | column_outlier)
