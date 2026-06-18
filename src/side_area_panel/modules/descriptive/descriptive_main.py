@@ -104,20 +104,18 @@ def recalculate_descriptive_study(elements, result: DescriptiveResult) -> Descri
 
     grouping = cfg.column_selector[1]
     grouping_column = grouping[0] if grouping else None
-    id_selection = cfg.column_selector[2] if len(cfg.column_selector) > 2 else []
-    id_column = id_selection[0] if id_selection else None
 
     data = DATA_MANAGER.get_data_from_data_label(
         data_label=cfg.data_source,
         current_result_id=result.unique_id,
     )
     columns = list(selected_columns)
-    for extra in (grouping_column, id_column):
-        if extra and extra not in columns:
-            columns.append(extra)
+    if grouping_column:
+        columns.append(grouping_column)
+
     # Ordinal columns are mapped to numeric codes so they get quantitative treatment
     # (summary / distribution / box / Q-Q) -- e.g. Likert scales; nominal stay as labels.
-    df = data.get_dataframe(columns=columns, map_ordinal=True)
+    df = data.get_dataframe(columns=columns, map_ordinal=True, include_id_column=True)
 
     numeric_columns = [
         col for col in selected_columns if data[col].column_type in (ColumnType.NUMERIC, ColumnType.ORDINAL)
@@ -152,13 +150,13 @@ def recalculate_descriptive_study(elements, result: DescriptiveResult) -> Descri
             else:
                 groups_iter = [(gv, df.loc[df[grouping_column] == gv]) for gv in groupby_values]
             for group_value, subframe in groups_iter:
-                outliers = _outliers(subframe, col, id_column)
+                outliers = _outliers(subframe, col)
                 if not outliers:
                     continue
                 target = col if group_value is None else f"{col} ({group_value})"
                 listed = smart_comma_join(
                     list({
-                        f"#{lab} ({format_value_apa(val, 2)})" if id_column is not None else lab
+                        f"#{lab} ({format_value_apa(val, 2)})"
                         for val, lab in outliers
                     })
                 )
@@ -168,7 +166,7 @@ def recalculate_descriptive_study(elements, result: DescriptiveResult) -> Descri
                 all_ids.extend(lab for val, lab in outliers)
         if outlier_sentences:
             text = "".join(outlier_sentences)
-            if id_column is not None and all_ids:
+            if all_ids:
                 # The same ID can be an outlier on several variables/groups -- de-duplicate
                 # (order-preserving) so each is listed once.
                 unique_ids = list(dict.fromkeys(all_ids))
@@ -246,7 +244,7 @@ def recalculate_descriptive_study(elements, result: DescriptiveResult) -> Descri
                     result.update_and_add_element(plot, f"descriptive distribution {col}")
             if cfg.show_box:
                 plot = make_box_plot(
-                    df, col, grouping_column, groupby_values, id_column=id_column, mark_outliers=bool(cfg.mark_outliers)
+                    df, col, grouping_column, groupby_values, mark_outliers=bool(cfg.mark_outliers)
                 )
                 if plot is not None:
                     result.update_and_add_element(plot, f"descriptive box {col}")

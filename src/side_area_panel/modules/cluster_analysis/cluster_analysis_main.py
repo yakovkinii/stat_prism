@@ -56,7 +56,7 @@ def recalculate_cluster_analysis_study(elements, result: ClusterAnalysisResult) 
 
     method = ClusterMethod(cfg.method)
 
-    selected = cfg.column_selector[0] if cfg.column_selector else None
+    selected = cfg.column_selector[0]
     if not selected:
         return _fail(result, t("cluster.msg.select_variable"))
 
@@ -64,6 +64,7 @@ def recalculate_cluster_analysis_study(elements, result: ClusterAnalysisResult) 
         data_label=cfg.data_source,
         current_result_id=result.unique_id,
     )
+
     # Ordinal items are scored numerically so Likert scales are usable.
     df = data.get_dataframe(columns=selected, map_ordinal=True)
     df = df.select_dtypes(include=[np.number]).astype(float).dropna(axis=0)
@@ -184,9 +185,9 @@ def recalculate_cluster_analysis_study(elements, result: ClusterAnalysisResult) 
         assign_table.add_title_row_apa(
             Row([Cell(t("cluster.col.observation")), Cell(t("cluster.col.cluster"), center=True)])
         )
-        for i, label in enumerate(labels):
+        for id_label, label in zip(data.get_id_series(), labels):
             assign_table.add_single_row_apa(
-                Row([Cell(str(i + 1), push_to_left=True), Cell(str(label + 1), center=True)])
+                Row([Cell(id_label, push_to_left=True), Cell(str(label + 1), center=True)])
             )
         result.update_and_add_element(assign_table, "cluster assignments")
 

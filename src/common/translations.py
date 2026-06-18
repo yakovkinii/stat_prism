@@ -47,6 +47,10 @@ TRANSLATIONS = {
         "en": "Please configure the analysis using the panel on the right.",
         "ua": "Будь ласка, налаштуйте аналіз на панелі праворуч.",
     },
+    "common.msg.select_id": {
+        "en": "Select the ID column.",
+        "ua": "Оберіть колонку з ідентифікатором.",
+    },
     # ----- Contingency -----
     "contingency.table_caption": {
         "en": "Contingency Table between {col1} and {col2}",

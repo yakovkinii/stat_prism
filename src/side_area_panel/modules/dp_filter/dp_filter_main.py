@@ -38,8 +38,8 @@ def dp_filter_main(elements: Elements, result: FilterDataResult):
     if not cfg.enabled:
         return result
 
-    selected = cfg.column_selector[0] if cfg.column_selector else None
-    if selected in [None, []]:
+    selected = cfg.column_selector[0]
+    if not selected:
         elements.column_selector.set_alert(0)
         return result
     column_name = selected[0]

@@ -16,18 +16,19 @@ class Elements(ItemInSidePanelWithAutoConfigHolder):
         fields=[
             Field(
                 name="Column 1:",
-                column_type=ColumnType.NUMERIC,
+                column_type=ColumnType.ORDINAL,
                 reasonable_number_of_columns=1,
                 allow_only_single_column=True,
                 minimum_columns=1,
             ),
             Field(
                 name="Column 2:",
-                column_type=ColumnType.NUMERIC,
+                column_type=ColumnType.ORDINAL,
                 reasonable_number_of_columns=1,
                 allow_only_single_column=True,
                 minimum_columns=1,
             ),
+
         ],
     )
 

@@ -7,7 +7,7 @@ from typing import Dict, List, Union
 import numpy as np
 import pandas as pd
 
-from src.common.constant import ColumnType
+from src.common.constant import ColumnType, ID_COLUMN_NAME
 from src.common.decorators import log_method
 
 ORDER_COLUMN = "__ORDER__"
@@ -216,7 +216,10 @@ class Data:
     def copy(self):
         return Data([col.copy() for col in self.columns])
 
-    def get_dataframe(self, columns: List[str] = None, map_ordinal: bool = False):
+    def get_dataframe(self, columns: List[str] = None, map_ordinal: bool = False, include_id_column: bool = False):
+        if include_id_column:
+            columns = columns + [ID_COLUMN_NAME]
+
         df = pd.DataFrame({col.column_name: col.data_series for col in self.columns})
 
         if columns is not None:
@@ -240,6 +243,12 @@ class Data:
                     df = df.drop(ORDER_COLUMN, axis=1)
 
         return df
+
+    def get_series(self, column: str, map_ordinal: bool = False) -> pd.Series:
+        return self.get_dataframe(columns=[column], map_ordinal=map_ordinal)[column]
+
+    def get_id_series(self)->pd.Series:
+        return self.get_dataframe(columns=[ID_COLUMN_NAME])[ID_COLUMN_NAME]
 
     def ordered_categories(self, column_name: str, values) -> list:
         """Order category `values` by the column's defined order (its ordinality for

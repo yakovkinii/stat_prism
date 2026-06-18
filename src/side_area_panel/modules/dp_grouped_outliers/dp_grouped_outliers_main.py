@@ -64,9 +64,8 @@ def dp_grouped_outliers_main(elements: Elements, result: GroupedOutliersResult):
         return result
 
     keep = ~outlier
-    if "ID" in new_data.column_names():
-        removed = new_data["ID"].data_series[outlier]
-        result.removed_ids = [v.item() if hasattr(v, "item") else v for v in removed]
+    removed = new_data.get_id_series()[outlier]
+    result.removed_ids = [v.item() if hasattr(v, "item") else v for v in removed]
     for column in new_data.columns:
         column.data_series = column.data_series[keep]
     result.removed_count = int(outlier.sum())

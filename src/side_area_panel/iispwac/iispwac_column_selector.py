@@ -220,6 +220,8 @@ class IISPWACColumnSelector(ItemInSidePanelWithAutoConfig):
             data_label=data_label,
             current_result_id=result_id,
         ).get_all_columns_as_column_types()
+        # The ID column is never user-selectable; keep it out of the available list.
+        columns = [column for column in columns if column.column_type != ColumnType.ID]
 
         self.columns = columns
         self.column_names = [column.column_name for column in columns]
@@ -517,7 +519,10 @@ class ColumnSelectorExPopup:
 
     @staticmethod
     def _allowed_types(panel_type):
-        """Column types a field of the given type accepts (numeric fits ordinal/nominal, etc.)."""
+        """Column types a field of the given type accepts. ID is a closed type: an ID field
+        takes only ID columns, and ID columns are excluded from the analysis-variable fields."""
+        if panel_type == ColumnType.ID:
+            return [ColumnType.ID]
         if panel_type == ColumnType.NOMINAL:
             return [ColumnType.NOMINAL, ColumnType.ORDINAL, ColumnType.NUMERIC]
         if panel_type == ColumnType.ORDINAL:

@@ -8,6 +8,7 @@ import pandas as pd
 from scipy import stats
 from scipy.stats import gaussian_kde
 
+from src.common.constant import ID_COLUMN_NAME
 from src.common.qcolor import Colors
 from src.common.translations import t
 from src.side_area_panel.modules.common.result.plot_result import (
@@ -155,7 +156,7 @@ def make_distribution_plot(
     )
 
 
-def _outliers(subframe, col, id_column):
+def _outliers(subframe, col):
     """Return Tukey outliers as a list of (value, label) where label is the row's ID
     (when an id_column is given) or the formatted value."""
     values = subframe[col].dropna()
@@ -166,7 +167,7 @@ def _outliers(subframe, col, id_column):
     low, high = q1 - 1.5 * iqr, q3 + 1.5 * iqr
     labels = []
     for index, value in values[(values < low) | (values > high)].items():
-        label = str(subframe.loc[index, id_column]) if id_column is not None else format_value_apa(value, 2)
+        label = str(subframe.loc[index, ID_COLUMN_NAME])
         labels.append((value, label))
     return labels
 
@@ -190,7 +191,7 @@ def make_box_plot(df, col, groupby_column, groupby_values, id_column=None, mark_
         position = len(items)  # contiguous positions so boxes align with the tick labels
         box = Box.from_data(values, index=position, label=label, color=colors.get_color_list())
         if mark_outliers:
-            outliers = _outliers(subframe, col, id_column)
+            outliers = _outliers(subframe, col)
             if outliers:
                 box.outlier_labels = outliers
         items.append(box)

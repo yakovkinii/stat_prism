@@ -17,12 +17,18 @@ class ColumnType(Enum):
     NOMINAL = "Nominal"
     NUMERIC = "Numeric"
     ORDINAL = "Ordinal"
+    ID = "ID"
+
+
+# The mandatory identifier column is always named exactly this.
+ID_COLUMN_NAME = "ID"
 
 
 COLUMN_TYPE_ICONS = {
     ColumnType.NUMERIC: qta.icon("mdi.numeric", color="darkblue", opacity=0.7),
     ColumnType.NOMINAL: qta.icon("mdi6.alphabetical-variant", color="darkred", opacity=0.7),
     ColumnType.ORDINAL: qta.icon("ph.chart-bar", color="darkgreen", opacity=0.7),
+    ColumnType.ID: qta.icon("mdi.key", color="#6a1b9a", opacity=0.7),
 }
 
 BASE_STYLES = (

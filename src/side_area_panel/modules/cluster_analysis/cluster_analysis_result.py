@@ -11,8 +11,8 @@ from src.side_area_panel.modules.common.result.registry import BaseResult
 
 
 class ClusterMethod(Enum):
-    KMEANS = "KMeans"
     HIERARCHICAL = "Hierarchical"
+    KMEANS = "KMeans"
 
     @staticmethod
     def get_values():

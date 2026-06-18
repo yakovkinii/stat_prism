@@ -5,6 +5,7 @@ import pandas as pd
 from scipy import stats
 
 from src.common.decorators import log_function
+from src.common.translations import t
 from src.data.data_manager import DATA_MANAGER
 from src.side_area_panel.modules.dp_2d_outliers.dp_2d_outliers_result import TwoDOutliersResult
 from src.side_area_panel.modules.dp_2d_outliers.dp_2d_outliers_ui import Elements
@@ -32,14 +33,15 @@ def dp_2d_outliers_main(elements: Elements, result: TwoDOutliersResult):
     if not cfg.enabled:
         return result  # disabled -> no-op, stays in chain
 
-    cols1 = cfg.column_selector[0] if cfg.column_selector else None
-    cols2 = cfg.column_selector[1] if (cfg.column_selector and len(cfg.column_selector) > 1) else None
+    cols1 = cfg.column_selector[0]
+    cols2 = cfg.column_selector[1]
     if not cols1:
         elements.column_selector.set_alert(0)
         return result
     if not cols2:
         elements.column_selector.set_alert(1)
         return result
+
     col_x, col_y = cols1[0], cols2[0]
     if col_x == col_y:
         elements.column_selector.set_alert(1)
@@ -47,8 +49,8 @@ def dp_2d_outliers_main(elements: Elements, result: TwoDOutliersResult):
 
     threshold = stats.chi2.ppf(_CONFIDENCE, df=2)
 
-    x = pd.to_numeric(new_data[col_x].data_series, errors="coerce")
-    y = pd.to_numeric(new_data[col_y].data_series, errors="coerce")
+    x = new_data.get_series(column=col_x, map_ordinal=True)
+    y = new_data.get_series(columns=col_y, map_ordinal=True)
 
     outlier = pd.Series(False, index=x.index)
     valid = ~(x.isna() | y.isna())
@@ -67,9 +69,10 @@ def dp_2d_outliers_main(elements: Elements, result: TwoDOutliersResult):
         outlier.loc[x[valid].index] = d2 > threshold
 
     keep = ~outlier
-    if "ID" in new_data.column_names():
-        removed = new_data["ID"].data_series[outlier]
-        result.removed_ids = [v.item() if hasattr(v, "item") else v for v in removed]
+
+    removed = new_data.get_id_series()[outlier]
+    result.removed_ids = [v.item() if hasattr(v, "item") else v for v in removed]
+
     for column in new_data.columns:
         column.data_series = column.data_series[keep]
     result.removed_count = int(outlier.sum())
