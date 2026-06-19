@@ -1,11 +1,14 @@
 #  Copyright (c) 2023 StatPrism Team. All rights reserved.
+import colorsys
 import logging
+import xml.etree.ElementTree as ET
 from pathlib import Path
 
+import openpyxl
 import pandas as pd
 from PySide6 import QtWidgets
 
-from src.common.constant import ColumnType, ID_COLUMN_NAME
+from src.common.constant import ColumnType, ID_COLUMN_NAME, argb_to_hex
 from src.common.decorators import log_method, log_method_noarg
 from src.common.messages import MessageType
 from src.common.progress import run_in_separate_thread
@@ -16,6 +19,64 @@ from src.side_area_panel.modules.base.base import BaseModulePanel
 from src.side_area_panel.modules.common.result.registry import RESULTS
 from src.side_area_panel.modules.common.utility import unique_name
 from src.side_area_panel.modules.raw_data.raw_data_result import RawDataStudyConfig
+
+_DRAWING_NS = "{http://schemas.openxmlformats.org/drawingml/2006/main}"
+# The clrScheme XML lists colours as dk1, lt1, dk2, lt2, accent1..6, hlink, folHlink, but the
+# spreadsheet "theme" index swaps the first two pairs (0=lt1, 1=dk1, 2=lt2, 3=dk2, ...).
+_THEME_INDEX_ORDER = [1, 0, 3, 2, 4, 5, 6, 7, 8, 9, 10, 11]
+
+
+def _parse_theme_colors(theme_xml) -> list:
+    """Extract the workbook theme's base palette as a list of '#rrggbb', ordered by the
+    spreadsheet 'theme' index. Empty list if the theme is missing/unparseable."""
+    if not theme_xml:
+        return []
+    try:
+        if isinstance(theme_xml, bytes):
+            theme_xml = theme_xml.decode("utf-8", "ignore")
+        root = ET.fromstring(theme_xml)
+        scheme = root.find(f".//{_DRAWING_NS}clrScheme")
+        if scheme is None:
+            return []
+        scheme_colors = []
+        for child in scheme:
+            srgb = child.find(f"{_DRAWING_NS}srgbClr")
+            sys_clr = child.find(f"{_DRAWING_NS}sysClr")
+            if srgb is not None:
+                scheme_colors.append("#" + srgb.get("val", "000000").lower())
+            elif sys_clr is not None:
+                scheme_colors.append("#" + (sys_clr.get("lastClr") or "000000").lower())
+        if len(scheme_colors) < 12:
+            return []
+        return [scheme_colors[i] for i in _THEME_INDEX_ORDER]
+    except ET.ParseError:
+        return []
+
+
+def _apply_tint(hex_color: str, tint: float) -> str:
+    """Apply an OOXML tint (lighten/darken) to '#rrggbb' via HSL luminance, per ECMA-376."""
+    if not tint:
+        return hex_color
+    r = int(hex_color[1:3], 16) / 255
+    g = int(hex_color[3:5], 16) / 255
+    b = int(hex_color[5:7], 16) / 255
+    h, l, s = colorsys.rgb_to_hls(r, g, b)
+    l = l * (1 + tint) if tint < 0 else l * (1 - tint) + tint
+    r, g, b = colorsys.hls_to_rgb(h, max(0.0, min(1.0, l)), s)
+    return f"#{round(r * 255):02x}{round(g * 255):02x}{round(b * 255):02x}"
+
+
+def _resolve_fill_color(fg_color, theme_colors: list):
+    """Resolve an openpyxl fill fgColor to '#rrggbb': literal RGB directly, theme-palette
+    colours via the parsed theme + tint. Indexed/auto colours return None (skipped)."""
+    color_type = getattr(fg_color, "type", None)
+    if color_type == "theme":
+        index = getattr(fg_color, "theme", None)
+        if isinstance(index, int) and 0 <= index < len(theme_colors):
+            return _apply_tint(theme_colors[index], getattr(fg_color, "tint", 0.0) or 0.0)
+        return None
+    rgb = getattr(fg_color, "rgb", None)
+    return argb_to_hex(rgb) if isinstance(rgb, str) else None
 
 
 class RawData(BaseModulePanel):
@@ -41,6 +102,10 @@ class RawData(BaseModulePanel):
     def _build_data(self, config: RawDataStudyConfig) -> Data:
         data = Data.initialize_from_dataframe(config.dataframe.copy())
         if data.n_columns() > 0:
+            # Apply colour tags read from the source sheet's coloured header cells.
+            for name, color in (config.header_colors or {}).items():
+                if name in data.column_names():
+                    data[name].color = color
             # A mandatory identifier column, always named exactly ID_COLUMN_NAME and typed as ID.
             # If the loaded data already has such a column, rename that existing one out of the way.
             if ID_COLUMN_NAME in data.column_names():
@@ -52,6 +117,32 @@ class RawData(BaseModulePanel):
             id_column.is_numeric = False
             data.add_column_first(id_column)
         return data
+
+    @staticmethod
+    def _read_header_colors(file_path, sheet_name) -> dict:
+        """Read fill colours of the header row (row 1) of an .xlsx sheet, keyed by header text.
+        Handles both literal RGB fills and theme-palette fills (the standard Excel colour grid,
+        resolved to RGB via the workbook theme + tint). Indexed/auto colours are skipped."""
+        if not file_path.endswith(".xlsx"):
+            return {}
+        try:
+            workbook = openpyxl.load_workbook(file_path)
+            worksheet = workbook[sheet_name] if sheet_name not in (0, None) else workbook.worksheets[0]
+            theme_colors = _parse_theme_colors(getattr(workbook, "loaded_theme", None))
+            colors = {}
+            for cell in worksheet[1]:
+                if cell.value is None:
+                    continue
+                fill = cell.fill
+                if fill is None or fill.patternType != "solid":
+                    continue
+                hex_color = _resolve_fill_color(fill.fgColor, theme_colors)
+                if hex_color:
+                    colors[str(cell.value)] = hex_color
+            return colors
+        except Exception as e:
+            logging.warning(f"Could not read header colours from {file_path}: {e}")
+            return {}
 
     @log_method_noarg
     def open_handler(self):
@@ -66,15 +157,35 @@ class RawData(BaseModulePanel):
             return
         self.open_file(file_path)
 
+    def _choose_sheet(self, file_path):
+        """For a multi-sheet .xlsx, ask which sheet to load. Returns the chosen sheet name,
+        0 (first/only sheet, no prompt) for single-sheet or non-Excel files, or False if the
+        user cancelled the picker."""
+        if not file_path.endswith(".xlsx"):
+            return 0
+        sheets = pd.ExcelFile(file_path).sheet_names
+        if len(sheets) <= 1:
+            return 0
+        name, ok = QtWidgets.QInputDialog.getItem(
+            self.widget, "Select sheet", "Worksheet:", sheets, 0, False
+        )
+        return name if ok else False
+
     @log_method
     def open_file(self, file_path):
+        # Sheet selection happens here (on the main thread, before the worker starts) so every
+        # entry point -- "Replace Data", first open, and sample load -- gets the same prompt.
+        sheet_name = self._choose_sheet(file_path)
+        if sheet_name is False:  # multi-sheet workbook but the user cancelled the picker
+            return
+
         def main(update):
             logging.info(f"Opening {file_path}")
             update(10)
             if file_path.endswith(".csv"):
                 dataframe = pd.read_csv(file_path)
             elif file_path.endswith(".xlsx"):
-                dataframe = pd.read_excel(file_path, sheet_name=0)
+                dataframe = pd.read_excel(file_path, sheet_name=sheet_name)
             else:
                 raise ValueError(f"Unsupported file format: {file_path}")
             update(80)
@@ -82,6 +193,7 @@ class RawData(BaseModulePanel):
                 dataframe=dataframe,
                 path=Path(file_path).resolve(),
                 timestamp=pd.Timestamp.now().strftime("%Y-%m-%d %H:%M:%S"),
+                header_colors=self._read_header_colors(file_path, sheet_name),
             )
             return config
 

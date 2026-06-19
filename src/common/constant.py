@@ -41,6 +41,21 @@ PASTEL_PALETTE = [
 ]
 
 
+def hex_to_argb(color):
+    """'#rrggbb' (or 'rrggbb') -> openpyxl 'AARRGGBB' (opaque). None for falsy/untagged."""
+    if not isinstance(color, str) or not color:
+        return None
+    return "FF" + color.lstrip("#").upper()
+
+
+def argb_to_hex(argb):
+    """openpyxl fill colour ('AARRGGBB' or 'RRGGBB') -> '#rrggbb'. None if not a literal RGB."""
+    if not isinstance(argb, str) or len(argb) not in (6, 8):
+        return None
+    rgb = argb[-6:]
+    return "#" + rgb.lower()
+
+
 COLUMN_TYPE_ICONS = {
     ColumnType.NUMERIC: qta.icon("mdi.numeric", color="darkblue", opacity=0.7),
     ColumnType.NOMINAL: qta.icon("mdi6.alphabetical-variant", color="darkred", opacity=0.7),

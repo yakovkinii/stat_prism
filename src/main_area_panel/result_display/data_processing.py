@@ -1,11 +1,14 @@
 #  Copyright (c) 2023 StatPrism Team. All rights reserved.
 import logging
 
+import pandas as pd
+from openpyxl.styles import PatternFill
 from PySide6 import QtCore
 from PySide6.QtCore import QSize, QTimer
 from PySide6.QtGui import Qt
 from PySide6.QtWidgets import QFileDialog, QHBoxLayout, QPushButton, QTextBrowser, QVBoxLayout, QWidget
 
+from src.common.constant import hex_to_argb
 from src.common.decorators import log_method
 from src.common.ui_constructor import create_tool_button_qta, create_simple_tool_button_qta
 from src.main_area_panel.data_viewer.data_viewer import view_data_popup
@@ -328,7 +331,17 @@ class DataProcessingResultDisplay(BaseResultDisplay):
             file_path += ".xlsx"
 
         try:
-            data.get_dataframe().to_excel(file_path, index=False)
+            df = data.get_dataframe()
+            with pd.ExcelWriter(file_path, engine="openpyxl") as writer:
+                df.to_excel(writer, index=False, sheet_name="Sheet1")
+                worksheet = writer.sheets["Sheet1"]
+                # Paint each header cell with its column's colour tag (row 1; openpyxl is 1-based).
+                for col_index, name in enumerate(df.columns, start=1):
+                    argb = hex_to_argb(data[name].color)
+                    if argb:
+                        worksheet.cell(row=1, column=col_index).fill = PatternFill(
+                            fill_type="solid", fgColor=argb
+                        )
         except Exception as e:
             logging.error(f"Failed to export data to Excel: {e}")
 

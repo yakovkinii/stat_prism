@@ -12,11 +12,14 @@ class RawDataStudyConfig:
         path="",
         timestamp="",
         add_id=True,
+        header_colors=None,
     ):
         self.dataframe = dataframe
         self.path = path
         self.timestamp = timestamp
         self.add_id = add_id
+        # {column_name: '#rrggbb'} read from the source sheet's coloured header cells.
+        self.header_colors = header_colors or {}
 
 
 class RawDataResult(BaseResult):
