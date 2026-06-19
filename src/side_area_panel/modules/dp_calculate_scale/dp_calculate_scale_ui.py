@@ -41,7 +41,8 @@ class Elements(ItemInSidePanelWithAutoConfigHolder):
         label_text="Questions:",
         items=["Keep", "Auto-rename", "Delete"],
     )
-    color = IISPWACColorPicker(label_text="Colour:")
+    color = IISPWACColorPicker(label_text="Scale color:")
+    questions_color = IISPWACColorPicker(label_text="Questions color:")
 
 
 class CalculateScale(BaseModulePanel):

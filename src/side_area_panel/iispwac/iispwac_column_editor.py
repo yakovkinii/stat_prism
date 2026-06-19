@@ -67,7 +67,8 @@ class IISPWACColumnEditor(ItemInSidePanelWithAutoConfig):
 
         try:
             data = DATA_MANAGER.get_data_from_data_label(data_label=data_label, current_result_id=result_id)
-            columns = data.get_all_columns_as_column_types()
+            # The ID column is system-managed and must not be modifiable here; hide its card.
+            columns = [col for col in data.get_all_columns_as_column_types() if col.column_type != ColumnType.ID]
         except Exception:
             columns = []
 
@@ -155,7 +156,7 @@ class IISPWACColumnEditor(ItemInSidePanelWithAutoConfig):
             # Compact, horizontally-aligned controls: colour tag, keep (checked = keep), copy↑, reset.
             color_btn = QPushButton(card)
             color_btn.setFixedSize(26, 24)
-            color_btn.setToolTip("Column colour tag (for grouping; e.g. by questionnaire)")
+            color_btn.setToolTip("Column color tag (for grouping; e.g. by questionnaire)")
             color_btn.clicked.connect(lambda _=False, n=name: self._open_color_picker(n))
             header.addWidget(color_btn)
 

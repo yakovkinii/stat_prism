@@ -68,11 +68,15 @@ def dp_calculate_scale_main(elements: Elements, result: CalculateScaleResult):
             data.remove_column(column)
     elif action == "Auto-rename":
         for i, column in enumerate(question_columns, start=1):
+            data[column].color = cfg.questions_color  # tag before rename (column object persists)
             target = f"{scale_name} Q{i}"
             if target != column:
                 target = unique_name(target, set(data.column_names()) - {column})
                 data.rename_column(column, target)
-    elif action != "Keep":
+    elif action == "Keep":
+        for column in question_columns:
+            data[column].color = cfg.questions_color
+    else:
         raise ValueError(f"Unknown questions action: {action}")
 
     result.data = data.copy()

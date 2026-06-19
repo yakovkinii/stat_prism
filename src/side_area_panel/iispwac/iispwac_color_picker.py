@@ -29,7 +29,7 @@ class IISPWACColorPicker(ItemInSidePanelWithAutoConfig):
         self.label, _ = add_widget(widget=QLabel(self.label_text, self.widget), outer_layout=self.layout)
         self.button, _ = add_widget(widget=QPushButton(self.widget), outer_layout=self.layout)
         self.button.setFixedSize(28, 24)
-        self.button.setToolTip("Colour tag for the new column")
+        self.button.setToolTip("Color tag for the new column")
         self.button.clicked.connect(self._open_picker)
         self._apply_button()
 

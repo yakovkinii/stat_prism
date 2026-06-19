@@ -24,6 +24,7 @@ class CalculateScaleStudyConfig:
     scale = attrs.field(default=None)
     questions_action = attrs.field(default=None)
     color = attrs.field(default=None)
+    questions_color = attrs.field(default=None)
 
 
 class CalculateScaleResult(BaseResult):
