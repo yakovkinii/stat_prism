@@ -203,8 +203,8 @@ def recalculate_regression_study(elements, result: RegressionResult, update) -> 
     cs = cfg.column_selector
     dependent_column = cs[0][0] if cs[0] else None
     independent_columns = list(cs[1]) if cs[1] else []
-    moderator_column = cs[2][0] if (len(cs) > 2 and cs[2]) else None
-    mediator_column = cs[3][0] if (len(cs) > 3 and cs[3]) else None
+    moderator_column = cs[2][0] if cs[2] else None
+    mediator_column = cs[3][0] if cs[3] else None
 
     if not dependent_column:
         return _fail(result, t("regression.error.no_dependent"))

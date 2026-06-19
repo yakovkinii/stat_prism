@@ -42,7 +42,7 @@ class TwoDOutliersResult(BaseResult):
     def update_description(self):
         cfg = self.config
         cols1 = cfg.column_selector[0] if cfg.column_selector else []
-        cols2 = cfg.column_selector[1] if (cfg.column_selector and len(cfg.column_selector) > 1) else []
+        cols2 = cfg.column_selector[1] if cfg.column_selector else []
         col_x = cols1[0] if cols1 else "none"
         col_y = cols2[0] if cols2 else "none"
         parts = [

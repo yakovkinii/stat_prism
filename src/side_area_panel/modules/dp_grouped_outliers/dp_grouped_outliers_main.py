@@ -29,7 +29,7 @@ def dp_grouped_outliers_main(elements: Elements, result: GroupedOutliersResult, 
         return result  # disabled -> no-op, stays in chain
 
     selected = cfg.column_selector[0] if cfg.column_selector else None
-    grouping = cfg.column_selector[1] if (cfg.column_selector and len(cfg.column_selector) > 1) else None
+    grouping = cfg.column_selector[1] if cfg.column_selector else None
     if not selected:
         elements.column_selector.set_alert(0)
         return result

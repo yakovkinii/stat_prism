@@ -106,8 +106,8 @@ def recalculate_correlation_study(elements, result: CorrelationResult, update) -
     result.result_elements = []
 
     selected_columns = list(cfg.column_selector[0] or [])
-    control_columns = cfg.column_selector[1] if len(cfg.column_selector) > 1 else []
-    second_set = list(cfg.column_selector[2] or []) if len(cfg.column_selector) > 2 else []
+    control_columns = cfg.column_selector[1] or []
+    second_set = list(cfg.column_selector[2] or [])
     is_cross = len(second_set) > 0
 
     if is_cross:

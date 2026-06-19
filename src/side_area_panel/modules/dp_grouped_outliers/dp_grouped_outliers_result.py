@@ -43,7 +43,7 @@ class GroupedOutliersResult(BaseResult):
     def update_description(self):
         cfg = self.config
         selected = cfg.column_selector[0] if cfg.column_selector else []
-        grouping = cfg.column_selector[1] if (cfg.column_selector and len(cfg.column_selector) > 1) else []
+        grouping = cfg.column_selector[1] if cfg.column_selector else []
         grouping_column = grouping[0] if grouping else "none"
         parts = [
             f"Columns ({len(selected)}): " + (", ".join(selected) if selected else "none"),

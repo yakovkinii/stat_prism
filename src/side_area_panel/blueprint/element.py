@@ -68,19 +68,8 @@ class ItemInSidePanelWithAutoConfigHolder:
         cls = self.__class__
         items = {k: v for k, v in vars(cls).items() if not k.startswith("_") and not callable(v)}
 
-        # Read each config field via getattr-with-default rather than attrs.asdict, so a
-        # project saved before a field was added (its slot is unset on the unpickled,
-        # slotted config) falls back to the field default instead of raising AttributeError.
-        # getattr also returns the raw values (no recursion), matching the previous
-        # asdict(recurse=False) so nested attrs like filters stay as objects.
-        kwargs = {}
-        for field in attrs.fields(type(config)):
-            default = field.default
-            if default is attrs.NOTHING:
-                default = None
-            elif isinstance(default, attrs.Factory):
-                default = default.factory() if not default.takes_self else None
-            kwargs[field.name] = getattr(config, field.name, default)
+        # recurse=False keeps nested attrs (e.g. filter settings) as objects rather than dicts.
+        kwargs = attrs.asdict(config, recurse=False)
         kwargs["result_id"] = result_id
         for name, item in items.items():
             item.configure(**kwargs)
