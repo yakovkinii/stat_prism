@@ -97,6 +97,7 @@ class HomeInitial(BasePanel):
                             ModuleRegistry.FILTER.settings_stacked_widget_index,
                             ModuleRegistry.PREPROCESS.settings_stacked_widget_index,
                             ModuleRegistry.GROUP_VALUES.settings_stacked_widget_index,
+                            ModuleRegistry.SELECT_ID.settings_stacked_widget_index,
                             ModuleRegistry.OUTLIERS.settings_stacked_widget_index,
                             ModuleRegistry.GROUPED_OUTLIERS.settings_stacked_widget_index,
                             ModuleRegistry.TWO_D_OUTLIERS.settings_stacked_widget_index,

@@ -57,6 +57,12 @@ from src.side_area_panel.modules.dp_group.dp_group_result import (
     GroupValuesStudyConfig,
 )
 from src.side_area_panel.modules.dp_group.dp_group_ui import GroupValues
+from src.side_area_panel.modules.dp_select_id.dp_select_id_main import dp_select_id_main
+from src.side_area_panel.modules.dp_select_id.dp_select_id_result import (
+    SelectIDResult,
+    SelectIDStudyConfig,
+)
+from src.side_area_panel.modules.dp_select_id.dp_select_id_ui import SelectID
 from src.side_area_panel.modules.dp_outliers.dp_outliers_main import dp_outliers_main
 from src.side_area_panel.modules.dp_outliers.dp_outliers_result import (
     OutliersResult,
@@ -222,6 +228,11 @@ def inject_classes_to_module_registry():
     ModuleRegistry.GROUP_VALUES.value.result_class = GroupValuesResult
     ModuleRegistry.GROUP_VALUES.value.config_class = GroupValuesStudyConfig
     ModuleRegistry.GROUP_VALUES.value.main_function = dp_group_main
+
+    ModuleRegistry.SELECT_ID.value.ui_class = SelectID
+    ModuleRegistry.SELECT_ID.value.result_class = SelectIDResult
+    ModuleRegistry.SELECT_ID.value.config_class = SelectIDStudyConfig
+    ModuleRegistry.SELECT_ID.value.main_function = dp_select_id_main
 
     ModuleRegistry.OUTLIERS.value.ui_class = Outliers
     ModuleRegistry.OUTLIERS.value.result_class = OutliersResult

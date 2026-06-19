@@ -22,6 +22,9 @@ from src.side_area_panel.modules.dp_preprocess.dp_preprocess_result import (
 from src.side_area_panel.modules.dp_group.dp_group_result import (
     GroupValuesResult,
 )
+from src.side_area_panel.modules.dp_select_id.dp_select_id_result import (
+    SelectIDResult,
+)
 from src.side_area_panel.modules.dp_outliers.dp_outliers_result import (
     OutliersResult,
 )
@@ -54,6 +57,7 @@ RESULTS: Dict[
         FilterDataResult,
         PreprocessResult,
         GroupValuesResult,
+        SelectIDResult,
         OutliersResult,
     ],
 ] = {}

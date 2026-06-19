@@ -56,6 +56,12 @@ class ModuleRegistry(Enum):
         module_type=ModuleType.DATA_PROCESSING,
     )
 
+    SELECT_ID = ModuleRegistryItem(
+        display_name="Select ID Column",
+        icon_path="mdi6.key-variant",
+        module_type=ModuleType.DATA_PROCESSING,
+    )
+
 
 
     OUTLIERS = ModuleRegistryItem(
