@@ -37,6 +37,9 @@ class CustomListWidgetItem(QWidget):
         self.value: Union[int, float, str] = value
         layout = QHBoxLayout(self)
         self.label = QLabel(text)
+        # Tooltip shows the full value so it stays readable when the row is truncated.
+        self.label.setToolTip(text)
+        self.setToolTip(text)
         layout.addWidget(self.label)
 
 

@@ -183,6 +183,8 @@ class IISPWACColumnEditor(ItemInSidePanelWithAutoConfig):
             rename = QLineEdit(body)
             rename.setPlaceholderText(name)
             rename.setText(self.specs[name]["new_name"])
+            # Tooltip shows the full (new) name so it stays readable when the field is narrow.
+            rename.setToolTip(self.specs[name]["new_name"] or name)
             rename.editingFinished.connect(lambda n=name, e=rename: self._on_rename(n, e))
             body_layout.addWidget(rename)
 
@@ -285,6 +287,7 @@ class IISPWACColumnEditor(ItemInSidePanelWithAutoConfig):
 
     def _on_rename(self, name, edit):
         self.specs[name]["new_name"] = edit.text().strip()
+        edit.setToolTip(edit.text().strip() or name)
         self._changed()
 
     def _on_type(self, name, text):
@@ -411,6 +414,8 @@ class IISPWACColumnEditor(ItemInSidePanelWithAutoConfig):
             row = QHBoxLayout()
             left = QLabel(repr(value), inner)
             left.setMinimumWidth(200)
+            # Tooltips keep the full source/target values readable when truncated.
+            left.setToolTip(repr(value))
             set_stylesheet(left, css(font_size=Style.FontSize.smaller))
             row.addWidget(left)
             arrow = QLabel("→", inner)
@@ -418,6 +423,8 @@ class IISPWACColumnEditor(ItemInSidePanelWithAutoConfig):
             row.addWidget(arrow)
             edit = QLineEdit(inner)
             edit.setText(repr(existing[value] if value in existing else value))
+            edit.setToolTip(edit.text())
+            edit.textChanged.connect(edit.setToolTip)
             set_stylesheet(edit, css(font_size=Style.FontSize.smaller))
             row.addWidget(edit, 1)
             layout.addLayout(row)

@@ -40,6 +40,17 @@ from src.side_area_panel.blueprint.element import ItemInSidePanelWithAutoConfig
 ITEM_HEIGHT = 20
 
 
+def _column_item(text, icon=None) -> QListWidgetItem:
+    """A list item for a column name. The full name is set as a tooltip so a name that is
+    truncated/elided in the narrow panel is still readable on hover."""
+    item = QListWidgetItem(text)
+    item.setToolTip(str(text))
+    item.setSizeHint(QtCore.QSize(0, ITEM_HEIGHT))
+    if icon is not None:
+        item.setIcon(icon)
+    return item
+
+
 @attrs.define
 class Field:
     name: str
@@ -183,9 +194,7 @@ class IISPWACColumnSelector(ItemInSidePanelWithAutoConfig):
                 if column not in main_list_names:
                     continue
                 main_list_names.remove(column)
-                item = QListWidgetItem(column)
-                item.setIcon(COLUMN_TYPE_ICONS[self.columns[self.column_names.index(column)].column_type])
-                item.setSizeHint(QtCore.QSize(0, ITEM_HEIGHT))
+                item = _column_item(column, COLUMN_TYPE_ICONS[self.columns[self.column_names.index(column)].column_type])
                 panel_list.addItem(item)
 
     @log_method
@@ -239,9 +248,7 @@ class IISPWACColumnSelector(ItemInSidePanelWithAutoConfig):
                 if column not in main_list_names:
                     continue
                 main_list_names.remove(column)
-                item = QListWidgetItem(column)
-                item.setIcon(COLUMN_TYPE_ICONS[columns[self.column_names.index(column)].column_type])
-                item.setSizeHint(QtCore.QSize(0, ITEM_HEIGHT))
+                item = _column_item(column, COLUMN_TYPE_ICONS[columns[self.column_names.index(column)].column_type])
                 panel_list.addItem(item)
 
     @log_method_noarg
@@ -256,9 +263,7 @@ class IISPWACColumnSelector(ItemInSidePanelWithAutoConfig):
             selected_columns = [popup_panel_list.item(i).text() for i in range(popup_panel_list.count())]
             self.selected_columns_list[i] = selected_columns
             for column in selected_columns:
-                item = QListWidgetItem(column)
-                item.setIcon(COLUMN_TYPE_ICONS[self.columns[self.column_names.index(column)].column_type])
-                item.setSizeHint(QtCore.QSize(0, ITEM_HEIGHT))
+                item = _column_item(column, COLUMN_TYPE_ICONS[self.columns[self.column_names.index(column)].column_type])
                 panel_list.addItem(item)
             # tell layout to recalculate heights
             panel_list.updateGeometry()
@@ -454,15 +459,11 @@ class ColumnSelectorExPopup:
                 if column not in main_list_names:
                     continue
                 main_list_names.remove(column)
-                item = QListWidgetItem(column)
-                item.setIcon(COLUMN_TYPE_ICONS[columns[self.column_names.index(column)].column_type])
-                item.setSizeHint(QtCore.QSize(0, ITEM_HEIGHT))
+                item = _column_item(column, COLUMN_TYPE_ICONS[columns[self.column_names.index(column)].column_type])
                 panel_list.addItem(item)
 
         for column in main_list_names:
-            item = QListWidgetItem(column)
-            item.setIcon(COLUMN_TYPE_ICONS[columns[self.column_names.index(column)].column_type])
-            item.setSizeHint(QtCore.QSize(0, ITEM_HEIGHT))
+            item = _column_item(column, COLUMN_TYPE_ICONS[columns[self.column_names.index(column)].column_type])
             self.main_list.addItem(item)
         self.success = False
 
@@ -581,9 +582,7 @@ class ColumnSelectorExPopup:
                     return
 
                 for item in selected_main:
-                    new_item = QListWidgetItem(item.text())
-                    new_item.setIcon(item.icon())
-                    new_item.setSizeHint(QtCore.QSize(0, ITEM_HEIGHT))
+                    new_item = _column_item(item.text(), item.icon())
                     panel_list.addItem(new_item)
                     self.main_list.takeItem(self.main_list.row(item))
         elif (
@@ -594,9 +593,7 @@ class ColumnSelectorExPopup:
             selected_list = [item] if from_double_click else (panel_list.selectedItems())
             if selected_list:
                 for item in selected_list:
-                    new_item = QListWidgetItem(item.text())
-                    new_item.setIcon(item.icon())
-                    new_item.setSizeHint(QtCore.QSize(0, ITEM_HEIGHT))
+                    new_item = _column_item(item.text(), item.icon())
                     self.main_list.addItem(new_item)
                     panel_list.takeItem(panel_list.row(item))
 
@@ -606,9 +603,7 @@ class ColumnSelectorExPopup:
                 )
                 clean_up_list_widget(self.main_list)
                 for item in sorted_items:
-                    new_item = QListWidgetItem(item)
-                    new_item.setIcon(COLUMN_TYPE_ICONS[self.columns[self.column_names.index(item)].column_type])
-                    new_item.setSizeHint(QtCore.QSize(0, ITEM_HEIGHT))
+                    new_item = _column_item(item, COLUMN_TYPE_ICONS[self.columns[self.column_names.index(item)].column_type])
                     self.main_list.addItem(new_item)
         for panel_list in self.panel_list_widgets:
             panel_list.updateGeometry()

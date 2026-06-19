@@ -128,6 +128,8 @@ class IISPWACColumnFilter(ItemInSidePanelWithAutoConfig):
 
         for value in values:
             checkbox = QCheckBox(str(value), self.container)
+            # Tooltip shows the full category value so it stays readable when truncated.
+            checkbox.setToolTip(str(value))
             checkbox.setChecked(True if kept_set is None else (value in kept_set))
             checkbox.stateChanged.connect(self.on_changed)
             self.container_layout.addWidget(checkbox)
