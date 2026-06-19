@@ -65,6 +65,8 @@ def dp_group_main(elements: Elements, result: GroupValuesResult):
     new_col.column_type = ColumnType.ORDINAL
     new_col.order = {label: i + 1 for i, label in enumerate(labels)}
     new_col.automatically_update_order()
+    # A grouped column is a derivative of its source, so it inherits the source's colour tag.
+    new_col.color = new_data[column_name].color
 
     new_data.add_column_after(column_name, new_col)
     result.data = new_data

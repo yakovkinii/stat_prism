@@ -57,6 +57,7 @@ def dp_calculate_scale_main(elements: Elements, result: CalculateScaleResult):
 
     scale_series.name = scale_name
     new_column = DataColumn.initialize_from_series(scale_series)
+    new_column.color = cfg.color  # user-chosen colour tag for the new scale column
 
     data.add_column_after(question_columns[-1], new_column)
 

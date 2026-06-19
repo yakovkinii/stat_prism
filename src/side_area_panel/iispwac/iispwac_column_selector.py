@@ -5,7 +5,7 @@ from typing import List
 
 import attrs
 import qtawesome as qta
-from PySide6 import QtCore, QtWidgets
+from PySide6 import QtCore, QtGui, QtWidgets
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import (
     QDialog,
@@ -40,14 +40,17 @@ from src.side_area_panel.blueprint.element import ItemInSidePanelWithAutoConfig
 ITEM_HEIGHT = 20
 
 
-def _column_item(text, icon=None) -> QListWidgetItem:
+def _column_item(text, icon=None, color=None) -> QListWidgetItem:
     """A list item for a column name. The full name is set as a tooltip so a name that is
-    truncated/elided in the narrow panel is still readable on hover."""
+    truncated/elided in the narrow panel is still readable on hover. `color` (a pastel hex
+    tag) paints the item background, matching the data-viewer header colour."""
     item = QListWidgetItem(text)
     item.setToolTip(str(text))
     item.setSizeHint(QtCore.QSize(0, ITEM_HEIGHT))
     if icon is not None:
         item.setIcon(icon)
+    if isinstance(color, str) and color:
+        item.setBackground(QtGui.QColor(color))
     return item
 
 
@@ -194,7 +197,11 @@ class IISPWACColumnSelector(ItemInSidePanelWithAutoConfig):
                 if column not in main_list_names:
                     continue
                 main_list_names.remove(column)
-                item = _column_item(column, COLUMN_TYPE_ICONS[self.columns[self.column_names.index(column)].column_type])
+                item = _column_item(
+                    column,
+                    COLUMN_TYPE_ICONS[self.columns[self.column_names.index(column)].column_type],
+                    color=self.columns[self.column_names.index(column)].color,
+                )
                 panel_list.addItem(item)
 
     @log_method
@@ -248,7 +255,11 @@ class IISPWACColumnSelector(ItemInSidePanelWithAutoConfig):
                 if column not in main_list_names:
                     continue
                 main_list_names.remove(column)
-                item = _column_item(column, COLUMN_TYPE_ICONS[columns[self.column_names.index(column)].column_type])
+                item = _column_item(
+                    column,
+                    COLUMN_TYPE_ICONS[columns[self.column_names.index(column)].column_type],
+                    color=columns[self.column_names.index(column)].color,
+                )
                 panel_list.addItem(item)
 
     @log_method_noarg
@@ -263,7 +274,11 @@ class IISPWACColumnSelector(ItemInSidePanelWithAutoConfig):
             selected_columns = [popup_panel_list.item(i).text() for i in range(popup_panel_list.count())]
             self.selected_columns_list[i] = selected_columns
             for column in selected_columns:
-                item = _column_item(column, COLUMN_TYPE_ICONS[self.columns[self.column_names.index(column)].column_type])
+                item = _column_item(
+                    column,
+                    COLUMN_TYPE_ICONS[self.columns[self.column_names.index(column)].column_type],
+                    color=self.columns[self.column_names.index(column)].color,
+                )
                 panel_list.addItem(item)
             # tell layout to recalculate heights
             panel_list.updateGeometry()
@@ -459,11 +474,19 @@ class ColumnSelectorExPopup:
                 if column not in main_list_names:
                     continue
                 main_list_names.remove(column)
-                item = _column_item(column, COLUMN_TYPE_ICONS[columns[self.column_names.index(column)].column_type])
+                item = _column_item(
+                    column,
+                    COLUMN_TYPE_ICONS[columns[self.column_names.index(column)].column_type],
+                    color=columns[self.column_names.index(column)].color,
+                )
                 panel_list.addItem(item)
 
         for column in main_list_names:
-            item = _column_item(column, COLUMN_TYPE_ICONS[columns[self.column_names.index(column)].column_type])
+            item = _column_item(
+                column,
+                COLUMN_TYPE_ICONS[columns[self.column_names.index(column)].column_type],
+                color=columns[self.column_names.index(column)].color,
+            )
             self.main_list.addItem(item)
         self.success = False
 
@@ -582,7 +605,11 @@ class ColumnSelectorExPopup:
                     return
 
                 for item in selected_main:
-                    new_item = _column_item(item.text(), item.icon())
+                    new_item = _column_item(
+                        item.text(),
+                        item.icon(),
+                        color=self.columns[self.column_names.index(item.text())].color,
+                    )
                     panel_list.addItem(new_item)
                     self.main_list.takeItem(self.main_list.row(item))
         elif (
@@ -593,7 +620,11 @@ class ColumnSelectorExPopup:
             selected_list = [item] if from_double_click else (panel_list.selectedItems())
             if selected_list:
                 for item in selected_list:
-                    new_item = _column_item(item.text(), item.icon())
+                    new_item = _column_item(
+                        item.text(),
+                        item.icon(),
+                        color=self.columns[self.column_names.index(item.text())].color,
+                    )
                     self.main_list.addItem(new_item)
                     panel_list.takeItem(panel_list.row(item))
 
@@ -603,7 +634,11 @@ class ColumnSelectorExPopup:
                 )
                 clean_up_list_widget(self.main_list)
                 for item in sorted_items:
-                    new_item = _column_item(item, COLUMN_TYPE_ICONS[self.columns[self.column_names.index(item)].column_type])
+                    new_item = _column_item(
+                        item,
+                        COLUMN_TYPE_ICONS[self.columns[self.column_names.index(item)].column_type],
+                        color=self.columns[self.column_names.index(item)].color,
+                    )
                     self.main_list.addItem(new_item)
         for panel_list in self.panel_list_widgets:
             panel_list.updateGeometry()

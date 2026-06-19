@@ -2,8 +2,9 @@
 
 import qtawesome as qta
 from PySide6.QtCore import Qt
-from PySide6.QtWidgets import QFrame, QGridLayout, QLabel, QWidget
+from PySide6.QtWidgets import QFrame, QGridLayout, QLabel, QPushButton, QWidget
 
+from src.common.constant import PASTEL_PALETTE
 from src.pyside_ext.markup import css
 from src.pyside_ext.styling import Style
 from src.pyside_ext.unique_qss import set_stylesheet
@@ -47,6 +48,39 @@ class OverlayPopup(QWidget):
         if self._on_close is not None:
             self._on_close()
         super().closeEvent(event)
+
+
+def show_color_picker(anchor_widget, on_choose) -> OverlayPopup:
+    """Centered pastel-swatch palette plus a 'None' (reset) button. Calls `on_choose(color)`
+    with a hex string or None, then closes. Shared by the preprocess editor and the
+    IISPWACColorPicker element."""
+    holder = {}
+    content = QFrame()
+    set_stylesheet(content, css(background="white", border="1px solid gray"))
+    grid = QGridLayout(content)
+    grid.setContentsMargins(10, 10, 10, 10)
+    grid.setSpacing(6)
+
+    def choose(color):
+        on_choose(color)
+        popup = holder.get("popup")
+        if popup is not None:
+            popup.close()
+
+    per_row = 5
+    for i, hex_color in enumerate(PASTEL_PALETTE):
+        swatch = QPushButton(content)
+        swatch.setFixedSize(28, 24)
+        set_stylesheet(swatch, css(background=hex_color, border="1px solid gray"))
+        swatch.clicked.connect(lambda _=False, c=hex_color: choose(c))
+        grid.addWidget(swatch, i // per_row, i % per_row)
+
+    none_button = QPushButton("None", content)
+    none_button.clicked.connect(lambda _=False: choose(None))
+    grid.addWidget(none_button, (len(PASTEL_PALETTE) // per_row) + 1, 0, 1, per_row)
+
+    holder["popup"] = OverlayPopup(anchor_widget, content)
+    return holder["popup"]
 
 
 def show_value_mapping_popup(anchor_widget, unique_values, reference_value) -> OverlayPopup:

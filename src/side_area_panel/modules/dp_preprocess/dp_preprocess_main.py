@@ -92,6 +92,9 @@ def dp_preprocess_main(elements: Elements, result: PreprocessResult):
             col.rename(target)
         assigned.add(target)
 
+        # 5. Colour tag (data-viewer header / column-selector background). None clears it.
+        col.color = spec.get("color")
+
     new_data.update_lookups()
     if cast_failed:
         elements.columns.set_alert(cast_failed)

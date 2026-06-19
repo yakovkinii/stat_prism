@@ -21,7 +21,7 @@ from src.data.data_manager import DATA_MANAGER
 from src.pyside_ext.elements.order import CustomListWidget
 from src.pyside_ext.elements.utility.primitive_elements import NoScrollComboBox
 from src.pyside_ext.markup import css
-from src.pyside_ext.overlay_popup import OverlayPopup
+from src.pyside_ext.overlay_popup import OverlayPopup, show_color_picker
 from src.pyside_ext.styling import Style
 from src.pyside_ext.unique_qss import set_stylesheet
 from src.side_area_panel.blueprint.element import ItemInSidePanelWithAutoConfig
@@ -99,6 +99,8 @@ class IISPWACColumnEditor(ItemInSidePanelWithAutoConfig):
         return values
 
     def _spec_from(self, saved, col, uniques):
+        # The column may already carry a colour tag from upstream; keep it unless overridden.
+        default_color = col.color if isinstance(col.color, str) and col.color else None
         if saved is None:
             return {
                 "original": col.column_name,
@@ -107,6 +109,7 @@ class IISPWACColumnEditor(ItemInSidePanelWithAutoConfig):
                 "order": None,
                 "mapping": None,
                 "remove": False,
+                "color": default_color,
             }
         order = [v for v in (saved.get("order") or []) if v in uniques]
         if order:
@@ -119,6 +122,7 @@ class IISPWACColumnEditor(ItemInSidePanelWithAutoConfig):
             "order": order or None,
             "mapping": mapping or None,
             "remove": bool(saved.get("remove", False)),
+            "color": saved.get("color", default_color),
         }
 
     def get_kwargs(self):
@@ -148,7 +152,13 @@ class IISPWACColumnEditor(ItemInSidePanelWithAutoConfig):
             header.addWidget(title)
             header.addStretch()
 
-            # Compact, horizontally-aligned controls: keep (checked = keep), copy↑, reset.
+            # Compact, horizontally-aligned controls: colour tag, keep (checked = keep), copy↑, reset.
+            color_btn = QPushButton(card)
+            color_btn.setFixedSize(26, 24)
+            color_btn.setToolTip("Column colour tag (for grouping; e.g. by questionnaire)")
+            color_btn.clicked.connect(lambda _=False, n=name: self._open_color_picker(n))
+            header.addWidget(color_btn)
+
             keep_checkbox = QCheckBox(card)
             keep_checkbox.setToolTip("Keep this column (uncheck to remove it from the output)")
             keep_checkbox.setChecked(not self.specs[name].get("remove"))
@@ -229,6 +239,7 @@ class IISPWACColumnEditor(ItemInSidePanelWithAutoConfig):
                     "card": card,
                     "rename": rename,
                     "keep_checkbox": keep_checkbox,
+                    "color_button": color_btn,
                     "type_combo": type_combo,
                     "order_row": order_row,
                     "order_summary": order_summary,
@@ -257,6 +268,18 @@ class IISPWACColumnEditor(ItemInSidePanelWithAutoConfig):
                 order_values = spec["order"] or self.unique_values.get(name, [])
                 card["order_summary"].setText(self._format_order(order_values))
             card["map_summary"].setText(self._format_mapping(spec["mapping"]))
+            self._apply_color_button(name)
+
+    def _apply_color_button(self, name):
+        card = self._card(name)
+        if card is None or card.get("color_button") is None:
+            return
+        color = self.specs.get(name, {}).get("color")
+        button = card["color_button"]
+        if isinstance(color, str) and color:
+            set_stylesheet(button, css(background=color, border="1px solid gray"))
+        else:
+            set_stylesheet(button, css(background="white", border="1px dashed gray"))
 
     @staticmethod
     def _format_order(values):
@@ -311,6 +334,7 @@ class IISPWACColumnEditor(ItemInSidePanelWithAutoConfig):
         spec["order"] = None
         spec["mapping"] = None
         spec["remove"] = False
+        spec["color"] = None
 
         card = self._card(name)
         if card is not None:
@@ -335,6 +359,7 @@ class IISPWACColumnEditor(ItemInSidePanelWithAutoConfig):
         spec = self.specs[name]
 
         spec["type"] = previous["type"]
+        spec["color"] = previous.get("color")
         if previous["mapping"]:
             spec["mapping"] = [[f, t] for f, t in previous["mapping"] if f in uniques] or None
         if previous["order"]:
@@ -350,6 +375,15 @@ class IISPWACColumnEditor(ItemInSidePanelWithAutoConfig):
         self._changed()
 
     # ------------------------------------------------------------------ popups
+    def _open_color_picker(self, name):
+        """Pick a pastel colour tag for the column (or None to clear)."""
+        def choose(color):
+            self.specs[name]["color"] = color
+            self._apply_color_button(name)
+            self._changed()
+
+        show_color_picker(self.widget, choose)
+
     def _open_order(self, name):
         values = self.specs[name]["order"] or list(self.unique_values.get(name, []))
 

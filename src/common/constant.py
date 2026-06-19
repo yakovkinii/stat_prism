@@ -24,6 +24,23 @@ class ColumnType(Enum):
 ID_COLUMN_NAME = "ID"
 
 
+# Pastel palette for per-column tagging (data-viewer header backgrounds, column-selector
+# items). A column's color is None/0 when untagged. Kept deliberately soft so text stays
+# readable on top.
+PASTEL_PALETTE = [
+    "#ffd6d6",  # red
+    "#ffe3c2",  # orange
+    "#fff5ba",  # yellow
+    "#e2f5c4",  # lime
+    "#c8f0e0",  # teal
+    "#cfe6ff",  # blue
+    "#d9d6ff",  # indigo
+    "#f0d6ff",  # violet
+    "#ffd6ec",  # pink
+    "#e6e6e6",  # gray
+]
+
+
 COLUMN_TYPE_ICONS = {
     ColumnType.NUMERIC: qta.icon("mdi.numeric", color="darkblue", opacity=0.7),
     ColumnType.NOMINAL: qta.icon("mdi6.alphabetical-variant", color="darkred", opacity=0.7),
