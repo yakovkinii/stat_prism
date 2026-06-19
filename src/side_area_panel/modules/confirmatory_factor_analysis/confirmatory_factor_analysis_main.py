@@ -92,7 +92,7 @@ def _fit_prose(fit: dict, converged: bool) -> str:
 
 
 @log_function
-def recalculate_cfa_study(elements, result: CFAResult) -> CFAResult:
+def recalculate_cfa_study(elements, result: CFAResult, update) -> CFAResult:
     """Validate the user's factor structure, fit the CFA by ML, and report fit indices,
     standardised loadings (+ heatmap) and, for oblique models, factor correlations.
     Unexpected exceptions are handled centrally by the panel's recalculate()."""
@@ -122,11 +122,13 @@ def recalculate_cfa_study(elements, result: CFAResult) -> CFAResult:
     columns = list(df.columns)
     factor_names = [f"F{i + 1}" for i in range(n_factors)]
 
+    update(15)
     estimator = CFAEstimator(structure=structure, allow_factor_correlation=cfg.allow_factor_correlation)
     try:
         cfa_result = estimator.fit(df.values, var_names=columns)
     except Exception as e:  # surfaced as a clean validation message
         return _fail(result, t("cfa.error.fit_failed", error=str(e)))
+    update(75)
 
     loadings = cfa_result.std_loadings_
     phi = cfa_result.phi_
@@ -206,4 +208,5 @@ def recalculate_cfa_study(elements, result: CFAResult) -> CFAResult:
         result.update_and_add_element(phi_table, "cfa phi")
 
     result.title_context = f"{n_factors} factors"
+    update(100)
     return result

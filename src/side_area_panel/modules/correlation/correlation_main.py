@@ -97,7 +97,7 @@ def _ordinal_pearson_warning(result, data, columns, kind, html_table):
 
 
 @log_function
-def recalculate_correlation_study(elements, result: CorrelationResult) -> CorrelationResult:
+def recalculate_correlation_study(elements, result: CorrelationResult, update) -> CorrelationResult:
     """Validate inputs, compute the correlation matrix for the chosen coefficient, and
     build the table + verbal report (+ optional heatmap and pairwise plots). When a Second
     variable set is given, a rectangular two-set (cross) matrix is produced instead.
@@ -130,8 +130,9 @@ def recalculate_correlation_study(elements, result: CorrelationResult) -> Correl
         current_result_id=result.unique_id,
     )
 
+    update(5)
     if is_cross:
-        return _run_cross(result, cfg, data, selected_columns, second_set, control_columns, kind, is_partial)
+        return _run_cross(result, cfg, data, selected_columns, second_set, control_columns, kind, is_partial, update)
 
     df = data.get_dataframe(columns=list(selected_columns) + list(control_columns), map_ordinal=True)
 
@@ -143,6 +144,7 @@ def recalculate_correlation_study(elements, result: CorrelationResult) -> Correl
         )
     else:
         correlation_matrix, p_matrix, df_matrix = calculate_correlations(df[columns], kind)
+    update(45)
 
     if cfg.compact:
         html_table = get_table_compact(columns, correlation_matrix, p_matrix, kind=kind)
@@ -166,6 +168,7 @@ def recalculate_correlation_study(elements, result: CorrelationResult) -> Correl
 
     result.title_context = ", ".join(col[:16] for col in columns)
     result.update_and_add_element(html_table, "correlation table")
+    update(60)
 
     if cfg.generate_heatmap:
         heatmap_plot = PlotV2(
@@ -195,11 +198,13 @@ def recalculate_correlation_study(elements, result: CorrelationResult) -> Correl
                 result.update_and_add_element(
                     _pairwise_plot(df, name1, name2), f"correlation plot {name1} | {name2}"
                 )
+            update(60 + 35 * (i + 1) / len(columns))
 
+    update(100)
     return result
 
 
-def _run_cross(result, cfg, data, rows, cols, control_columns, kind, is_partial):
+def _run_cross(result, cfg, data, rows, cols, control_columns, kind, is_partial, update):
     """Rectangular two-set (cross) correlation: every variable in the first set against every
     variable in the second set, as a full rows×cols matrix."""
     all_columns = list(dict.fromkeys(list(rows) + list(cols) + list(control_columns)))
@@ -211,6 +216,7 @@ def _run_cross(result, cfg, data, rows, cols, control_columns, kind, is_partial)
         )
     else:
         correlation_matrix, p_matrix, df_matrix = calculate_cross_correlations(df, rows, cols, kind)
+    update(45)
 
     html_table = get_table_cross(rows, cols, correlation_matrix, p_matrix, df_matrix, kind, compact=cfg.compact)
 
@@ -231,6 +237,7 @@ def _run_cross(result, cfg, data, rows, cols, control_columns, kind, is_partial)
 
     result.title_context = ", ".join(c[:16] for c in rows) + " × " + ", ".join(c[:16] for c in cols)
     result.update_and_add_element(html_table, "correlation table")
+    update(60)
 
     if cfg.generate_heatmap:
         # Rectangular matrix -> pass directly (no square-completion).
@@ -250,7 +257,7 @@ def _run_cross(result, cfg, data, rows, cols, control_columns, kind, is_partial)
         result.update_and_add_element(heatmap_plot, "correlation heatmap")
 
     if cfg.generate_plots and not is_partial:
-        for name1 in rows:
+        for step, name1 in enumerate(rows):
             for name2 in cols:
                 if name1 == name2:
                     continue
@@ -259,5 +266,7 @@ def _run_cross(result, cfg, data, rows, cols, control_columns, kind, is_partial)
                 result.update_and_add_element(
                     _pairwise_plot(df, name1, name2), f"correlation plot {name1} | {name2}"
                 )
+            update(60 + 35 * (step + 1) / len(rows))
 
+    update(100)
     return result

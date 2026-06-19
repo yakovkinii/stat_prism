@@ -98,7 +98,7 @@ def _alpha_level_key(alpha: float) -> str:
 
 
 @log_function
-def recalculate_reliability_study(elements, result: ReliabilityResult) -> ReliabilityResult:
+def recalculate_reliability_study(elements, result: ReliabilityResult, update) -> ReliabilityResult:
     """Validate the inputs, then estimate Cronbach's alpha for the scale and an
     'if item removed' table. Unexpected exceptions are handled centrally by the panel's
     recalculate()."""
@@ -114,6 +114,7 @@ def recalculate_reliability_study(elements, result: ReliabilityResult) -> Reliab
         current_result_id=result.unique_id,
     )
     df = data.get_dataframe(columns=items, map_ordinal=True)
+    update(15)
 
     correlation_type = CORRELATION_TYPE_MAP[config.correlation_type]
     show_verbal = 1 if config.verbal_indicators else 0
@@ -165,6 +166,7 @@ def recalculate_reliability_study(elements, result: ReliabilityResult) -> Reliab
 
     coef_table.add_text(report)
     result.update_and_add_element(coef_table, "reliability alpha")
+    update(50)
 
     # ----- If item removed table -----
     # All quantities derive from the same item correlation matrix as the (standardised)
@@ -218,4 +220,5 @@ def recalculate_reliability_study(elements, result: ReliabilityResult) -> Reliab
 
     provided_name = (config.scale_name or "").strip()
     result.title_context = provided_name if provided_name else ", ".join(str(i)[:16] for i in items)
+    update(100)
     return result

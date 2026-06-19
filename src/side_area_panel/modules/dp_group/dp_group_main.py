@@ -27,7 +27,7 @@ def _auto_labels(thresholds):
 
 
 @log_function
-def dp_group_main(elements: Elements, result: GroupValuesResult):
+def dp_group_main(elements: Elements, result: GroupValuesResult, update):
     cfg = result.config
     data = DATA_MANAGER.get_data_from_data_label(
         data_label=cfg.data_source,

@@ -52,6 +52,7 @@ from src.side_area_panel.modules.mean_comparison.preprocessing import (
 def recalculate_mean_comparison_t_test(
     data: Data,
     result: MeanComparisonResult,
+    update,
 ) -> MeanComparisonResult:
     cfg = result.config
     selected_columns = cfg.column_selector[0]
@@ -194,7 +195,8 @@ def recalculate_mean_comparison_t_test(
 
     groupby_column = grouping_column
     groupby_values = df[groupby_column].drop_duplicates().values
-    for col in selected_columns:
+    for idx, col in enumerate(selected_columns):
+        update(10 + 80 * (idx + 1) / len(selected_columns))
         is_numeric = col in numeric_columns
         if not is_numeric:
             continue

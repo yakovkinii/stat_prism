@@ -15,7 +15,7 @@ _CONFIDENCE = 0.95
 
 
 @log_function
-def dp_2d_outliers_main(elements: Elements, result: TwoDOutliersResult):
+def dp_2d_outliers_main(elements: Elements, result: TwoDOutliersResult, update):
     """Exclude multivariate (2D) outliers using the Mahalanobis distance: a row is dropped
     when the squared Mahalanobis distance of its (x, y) pair from the joint centre exceeds
     the chi-square cutoff (df = 2) at the chosen confidence. This accounts for the
@@ -77,4 +77,5 @@ def dp_2d_outliers_main(elements: Elements, result: TwoDOutliersResult):
         column.data_series = column.data_series[keep]
     result.removed_count = int(outlier.sum())
     result.data = new_data
+    update(100)
     return result

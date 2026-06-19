@@ -12,7 +12,7 @@ from src.side_area_panel.modules.dp_invert_scale.dp_invert_scale_ui import Eleme
 
 
 @log_function
-def dp_invert_scale_main(elements: Elements, result: InvertScaleResult):
+def dp_invert_scale_main(elements: Elements, result: InvertScaleResult, update):
     cfg = result.config
     data = DATA_MANAGER.get_data_from_data_label(
         data_label=cfg.data_source,

@@ -193,7 +193,7 @@ def _coefficient_prose(model, dependent_column) -> str:
 
 
 @log_function
-def recalculate_regression_study(elements, result: RegressionResult) -> RegressionResult:
+def recalculate_regression_study(elements, result: RegressionResult, update) -> RegressionResult:
     """Validate the inputs, fit an OLS model (with optional moderation / mediation), and
     build the fit, coefficient and (when relevant) path tables plus a plot. Unexpected
     exceptions are handled centrally by the panel's recalculate()."""
@@ -232,6 +232,7 @@ def recalculate_regression_study(elements, result: RegressionResult) -> Regressi
     )
     # Drop rows with any missing value in the used columns (list-wise) so OLS doesn't fail.
     df = data.get_dataframe(columns=all_columns, map_ordinal=True).dropna()
+    update(10)
 
     verbal = bool(cfg.verbal_indicators)
     show_std = bool(cfg.standardized)
@@ -241,7 +242,7 @@ def recalculate_regression_study(elements, result: RegressionResult) -> Regressi
         if mediator_column:
             elements.column_selector.set_alert(3)
             return _fail(result, t("regression.error.logit_no_mediation"))
-        return _run_logistic(result, df, dependent_column, independent_columns, moderator_column, cfg, verbal)
+        return _run_logistic(result, df, dependent_column, independent_columns, moderator_column, cfg, verbal, update)
 
     independent_cols = independent_columns.copy()
     if moderator_column:
@@ -265,6 +266,7 @@ def recalculate_regression_study(elements, result: RegressionResult) -> Regressi
     x = sm.add_constant(df[independent_cols])
     model = sm.OLS(df[dependent_column], x).fit()
     dependent_sd = df[dependent_column].std()
+    update(45)
 
     # ----- Model fit table + verbal report -----
     fit_table = HTMLTableV2(table_caption=t("regression.caption.fit"))
@@ -329,6 +331,7 @@ def recalculate_regression_study(elements, result: RegressionResult) -> Regressi
     )
     coefficients_table.add_text(_coefficient_prose(model, dependent_column))
     result.update_and_add_element(coefficients_table, "regression coefficients")
+    update(65)
 
     # ----- Path estimates table (mediation) -----
     if mediator_column:
@@ -386,6 +389,7 @@ def recalculate_regression_study(elements, result: RegressionResult) -> Regressi
     # ----- Diagnostics (VIF + residual plots) -----
     if cfg.diagnostics:
         _add_diagnostics(result, model, x, verbal)
+    update(85)
 
     # ----- Plot (only for a single independent variable) -----
     if cfg.plots:
@@ -396,6 +400,7 @@ def recalculate_regression_study(elements, result: RegressionResult) -> Regressi
             result.update_and_add_element(plot_result_element, "regression plot")
 
     result.title_context = f"{str(dependent_column)[:16]} ~ " + ", ".join(str(c)[:16] for c in independent_columns)
+    update(100)
     return result
 
 
@@ -504,7 +509,7 @@ def _build_plot(df, model, mediator_model, dependent_column, independent_columns
 # ===================================================================================
 
 
-def _run_logistic(result, df, dependent_column, independent_columns, moderator_column, cfg, verbal):
+def _run_logistic(result, df, dependent_column, independent_columns, moderator_column, cfg, verbal, update):
     """Fit a binary logistic regression (statsmodels Logit) and build the fit, coefficient
     and (optional) diagnostics/plot. Moderation is supported via interaction terms;
     mediation is not (filtered out by the caller)."""
@@ -531,6 +536,7 @@ def _run_logistic(result, df, dependent_column, independent_columns, moderator_c
 
     x = sm.add_constant(df[independent_cols])
     model = sm.Logit(y, x).fit(disp=0)
+    update(45)
 
     # ----- Model fit table (pseudo-R², likelihood-ratio test) -----
     fit_table = HTMLTableV2(table_caption=t("regression.caption.fit"))
@@ -604,6 +610,7 @@ def _run_logistic(result, df, dependent_column, independent_columns, moderator_c
 
     coefficients_table.add_text(_logistic_coefficient_prose(model, dependent_column, positive_label))
     result.update_and_add_element(coefficients_table, "regression coefficients")
+    update(70)
 
     # ----- Diagnostics (VIF only; the OLS residual plots don't transfer to logistic) -----
     if cfg.diagnostics:
@@ -618,6 +625,7 @@ def _run_logistic(result, df, dependent_column, independent_columns, moderator_c
             result.update_and_add_element(plot_element, "regression plot")
 
     result.title_context = f"{str(dependent_column)[:16]} ~ " + ", ".join(str(c)[:16] for c in independent_columns)
+    update(100)
     return result
 
 

@@ -212,8 +212,21 @@ class BaseModulePanel:
         result = RESULTS[self.result_id]
         result.config = result.config_class(**self.elements_.get_kwargs())
         self.elements_.clear_alerts()
+
+        # Computation runs synchronously on the GUI thread; drive the bar with a callback that
+        # forces an immediate repaint of just the bar widget (no event-loop pump, so no reentrancy).
+        progress_bar = self.root_class.settings_panel.progress_bar
+        progress_bar.setRange(0, 100)
+        progress_bar.setValue(0)
+        progress_bar.show()
+        progress_bar.repaint()
+
+        def update(value):
+            progress_bar.setValue(int(value))
+            progress_bar.repaint()
+
         try:
-            result = self.main_function(elements=self.elements_, result=result)
+            result = self.main_function(elements=self.elements_, result=result, update=update)
         except Exception as e:
             logging.exception("Error during recalculation")
             result.set_error(t("common.calc_error", error=str(e)))

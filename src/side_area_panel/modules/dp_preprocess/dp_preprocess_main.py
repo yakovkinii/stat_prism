@@ -11,7 +11,7 @@ from src.side_area_panel.modules.dp_preprocess.dp_preprocess_ui import Elements
 
 
 @log_function
-def dp_preprocess_main(elements: Elements, result: PreprocessResult):
+def dp_preprocess_main(elements: Elements, result: PreprocessResult, update):
     cfg = result.config
     data = DATA_MANAGER.get_data_from_data_label(
         data_label=cfg.data_source,

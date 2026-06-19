@@ -103,7 +103,7 @@ def _kmo_label(kmo: float) -> str:
 
 
 @log_function
-def recalculate_factor_analysis_study(elements, result: FactorAnalysisResult) -> FactorAnalysisResult:
+def recalculate_factor_analysis_study(elements, result: FactorAnalysisResult, update) -> FactorAnalysisResult:
     """Validate inputs, then run EFA: sampling-adequacy diagnostics, eigenvalues + scree
     plot, factor loadings (with communalities/uniquenesses) and a loadings heatmap, plus
     factor correlations and a structure matrix for oblique rotations. Unexpected
@@ -150,6 +150,7 @@ def recalculate_factor_analysis_study(elements, result: FactorAnalysisResult) ->
     diag_text += t(bartlett_key, df=bart_df, chi2=format_statistic_apa(bart_chi2), p=format_p_apa_full(bart_p))
     diag_table.add_text(diag_text)
     result.update_and_add_element(diag_table, "efa diagnostics")
+    update(30)
 
     # ----- Eigenvalues + scree plot -----
     eigenvalues = np.sort(np.linalg.eigh(correlation)[0])[::-1]
@@ -218,6 +219,7 @@ def recalculate_factor_analysis_study(elements, result: FactorAnalysisResult) ->
         n_factors=m, method=method, rotation=rotation, use_smc=True, rotation_kwargs=rotation_kwargs
     )
     fa.fit(x)
+    update(70)
     loadings = fa.loadings_
     is_oblique = rotation in _OBLIQUE_ROTATIONS and getattr(fa, "phi_", None) is not None
     phi = fa.phi_ if is_oblique else np.eye(m)
@@ -278,4 +280,5 @@ def recalculate_factor_analysis_study(elements, result: FactorAnalysisResult) ->
         result.update_and_add_element(struct_table, "efa structure")
 
     result.title_context = f"{m} factors, {cfg.rotation}"
+    update(100)
     return result

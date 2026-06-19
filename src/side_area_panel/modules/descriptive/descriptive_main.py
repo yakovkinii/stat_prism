@@ -92,7 +92,7 @@ def _normality_stats(col, group, series, test) -> dict:
 
 
 @log_function
-def recalculate_descriptive_study(elements, result: DescriptiveResult) -> DescriptiveResult:
+def recalculate_descriptive_study(elements, result: DescriptiveResult, update) -> DescriptiveResult:
     """Validate inputs, then build the requested summary tables and plots. Unexpected
     exceptions are handled centrally by the panel's recalculate()."""
     cfg = result.config
@@ -116,6 +116,7 @@ def recalculate_descriptive_study(elements, result: DescriptiveResult) -> Descri
     # Ordinal columns are mapped to numeric codes so they get quantitative treatment
     # (summary / distribution / box / Q-Q) -- e.g. Likert scales; nominal stay as labels.
     df = data.get_dataframe(columns=columns, map_ordinal=True, include_id_column=True)
+    update(5)
 
     numeric_columns = [
         col for col in selected_columns if data[col].column_type in (ColumnType.NUMERIC, ColumnType.ORDINAL)
@@ -230,11 +231,12 @@ def recalculate_descriptive_study(elements, result: DescriptiveResult) -> Descri
             result.update_and_add_element(freq, f"descriptive freq {col}")
 
     # ----- Plots -----
+    update(30)
     bin_width = _parse_positive_float(cfg.bin_width)
     bin_reference = _parse_float_or_none(cfg.bin_reference)
     kde_smoothing = _parse_positive_float(cfg.kde_smoothing)
 
-    for col in selected_columns:
+    for idx, col in enumerate(selected_columns):
         if col in numeric_columns:
             if cfg.show_distribution:
                 plot = make_distribution_plot(
@@ -262,8 +264,10 @@ def recalculate_descriptive_study(elements, result: DescriptiveResult) -> Descri
                 plot = make_pie_plot(df[col], col, category_order)
                 if plot is not None:
                     result.update_and_add_element(plot, f"descriptive pie {col}")
+        update(30 + 65 * (idx + 1) / len(selected_columns))
 
     result.title_context = ", ".join(col[:16] for col in selected_columns)
     if grouping_column:
         result.title_context += "\n" + grouping_column[:16]
+    update(100)
     return result

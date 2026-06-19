@@ -53,7 +53,7 @@ def _fail(result: PairedResult, message: str) -> PairedResult:
 
 
 @log_function
-def recalculate_paired_study(elements: Elements, result: PairedResult) -> PairedResult:
+def recalculate_paired_study(elements: Elements, result: PairedResult, update) -> PairedResult:
     """Validate the inputs, then route to the paired family (two conditions) or the
     repeated-measures family (three or more conditions), parametric or non-parametric.
     Unexpected exceptions are handled centrally by the panel's recalculate()."""
@@ -77,6 +77,7 @@ def recalculate_paired_study(elements: Elements, result: PairedResult) -> Paired
         return _fail(result, t("paired.error.insufficient", n=len(wide)))
 
     result.title_context = ", ".join(col[:16] for col in conditions)
+    update(10)
 
     two_conditions = len(conditions) == 2
     parametric = _resolve_parametric(cfg, wide, conditions, two_conditions)
@@ -88,6 +89,7 @@ def recalculate_paired_study(elements: Elements, result: PairedResult) -> Paired
             _normality_table(wide, conditions, two_conditions, cfg.verbal_indicators),
             "paired normality",
         )
+    update(40)
 
     if two_conditions:
         if parametric:
@@ -99,10 +101,12 @@ def recalculate_paired_study(elements: Elements, result: PairedResult) -> Paired
             _rm_anova(result, wide, conditions, cfg)
         else:
             _friedman(result, wide, conditions, cfg)
+    update(70)
 
     if cfg.plots:
         _add_plots(result, wide, conditions)
 
+    update(100)
     return result
 
 

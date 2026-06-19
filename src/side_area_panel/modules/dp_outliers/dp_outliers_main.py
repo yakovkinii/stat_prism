@@ -9,7 +9,7 @@ from src.side_area_panel.modules.dp_outliers.dp_outliers_ui import Elements
 
 
 @log_function
-def dp_outliers_main(elements: Elements, result: OutliersResult):
+def dp_outliers_main(elements: Elements, result: OutliersResult, update):
     cfg = result.config
     data = DATA_MANAGER.get_data_from_data_label(
         data_label=cfg.data_source,

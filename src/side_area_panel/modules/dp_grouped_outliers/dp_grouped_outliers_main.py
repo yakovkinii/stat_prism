@@ -11,7 +11,7 @@ from src.side_area_panel.modules.dp_grouped_outliers.dp_grouped_outliers_ui impo
 
 
 @log_function
-def dp_grouped_outliers_main(elements: Elements, result: GroupedOutliersResult):
+def dp_grouped_outliers_main(elements: Elements, result: GroupedOutliersResult, update):
     """Exclude outliers computed *within each subgroup* of the grouping column. A row is
     dropped if it is an outlier (IQR or Z-score) on any selected column, judged against the
     distribution of its own group."""

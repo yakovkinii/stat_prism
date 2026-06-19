@@ -8,7 +8,7 @@ from src.side_area_panel.modules.dp_select_id.dp_select_id_ui import Elements
 
 
 @log_function
-def dp_select_id_main(elements: Elements, result: SelectIDResult):
+def dp_select_id_main(elements: Elements, result: SelectIDResult, update):
     cfg = result.config
     data = DATA_MANAGER.get_data_from_data_label(
         data_label=cfg.data_source,

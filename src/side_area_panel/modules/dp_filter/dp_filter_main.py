@@ -25,7 +25,7 @@ def _parse_numeric_values(text):
 
 
 @log_function
-def dp_filter_main(elements: Elements, result: FilterDataResult):
+def dp_filter_main(elements: Elements, result: FilterDataResult, update):
     cfg = result.config
     data = DATA_MANAGER.get_data_from_data_label(
         data_label=cfg.data_source,

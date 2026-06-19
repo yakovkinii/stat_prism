@@ -46,11 +46,11 @@ def _silhouette_key(score: float) -> str:
 
 
 @log_function
-def recalculate_cluster_analysis_study(elements, result: ClusterAnalysisResult) -> ClusterAnalysisResult:
+def recalculate_cluster_analysis_study(elements, result: ClusterAnalysisResult, update) -> ClusterAnalysisResult:
     """Validate inputs, run K-means (optionally on standardised variables), and report the
     cluster sizes + centroids, a silhouette quality score, a 2-D cluster scatter and the
-    per-observation assignments. Unexpected exceptions are handled centrally by the panel's
-    recalculate()."""
+    per-observation assignments. `update(pct)` drives the progress bar. Unexpected exceptions
+    are handled centrally by the panel's recalculate()."""
     cfg = result.config
     result.result_elements = []
 
@@ -59,6 +59,7 @@ def recalculate_cluster_analysis_study(elements, result: ClusterAnalysisResult) 
     selected = cfg.column_selector[0]
     if not selected:
         return _fail(result, t("cluster.msg.select_variable"))
+    update(5)
 
     data = DATA_MANAGER.get_data_from_data_label(
         data_label=cfg.data_source,
@@ -88,6 +89,7 @@ def recalculate_cluster_analysis_study(elements, result: ClusterAnalysisResult) 
     else:
         x = original
 
+    update(10)
     linkage_method = (cfg.linkage or "Ward").lower()
     linkage_matrix = None
     inertia = None
@@ -99,11 +101,13 @@ def recalculate_cluster_analysis_study(elements, result: ClusterAnalysisResult) 
         labels = kmeans.fit_predict(x)
         inertia = kmeans.inertia_
     counts = np.bincount(labels, minlength=k)
+    update(25)
 
     try:
         silhouette = silhouette_score(x, labels) if len(np.unique(labels)) > 1 else float("nan")
     except Exception:  # pragma: no cover - defensive
         silhouette = float("nan")
+    update(30)
 
     # ----- Centroids (in original units) + sizes + prose -----
     centroid_table = HTMLTableV2(table_caption=t("cluster.caption.centroids"))
@@ -171,13 +175,18 @@ def recalculate_cluster_analysis_study(elements, result: ClusterAnalysisResult) 
 
     # ----- Plots: k-selection sweep, dendrogram (hierarchical), 2-D scatter -----
     if cfg.plots:
-        for i, plot in enumerate(_k_selection_plots(x, method, linkage_method, linkage_matrix, n_rows)):
+        # The k-selection sweep refits the model for k=2..10, so it is the slow part: report
+        # per-k progress across 30 -> 85.
+        for i, plot in enumerate(
+            _k_selection_plots(x, method, linkage_method, linkage_matrix, n_rows, update, 30, 85)
+        ):
             result.update_and_add_element(plot, f"cluster kselect {i}")
         if linkage_matrix is not None:
             result.update_and_add_element(_dendrogram_plot(linkage_matrix), "cluster dendrogram")
         scatter_plot = _build_scatter(x, original, labels, k, columns)
         if scatter_plot is not None:
             result.update_and_add_element(scatter_plot, "cluster scatter")
+    update(90)
 
     # ----- Per-observation assignments (optional; can be large) -----
     if cfg.show_assignments:
@@ -191,6 +200,7 @@ def recalculate_cluster_analysis_study(elements, result: ClusterAnalysisResult) 
             )
         result.update_and_add_element(assign_table, "cluster assignments")
 
+    update(100)
     result.title_context = f"{k} clusters"
     return result
 
@@ -239,16 +249,17 @@ def _build_scatter(x: np.ndarray, original: np.ndarray, labels: np.ndarray, k: i
     )
 
 
-def _k_selection_plots(x, method, linkage_method, linkage_matrix, n_rows):
+def _k_selection_plots(x, method, linkage_method, linkage_matrix, n_rows, update, lo, hi):
     """Sweep k = 2..min(10, n-1): mean silhouette for the chosen method (both methods), and
-    the K-means inertia 'elbow' (K-means only), to help choose the number of clusters."""
+    the K-means inertia 'elbow' (K-means only), to help choose the number of clusters.
+    Reports progress across [lo, hi] as the sweep proceeds."""
     max_k = min(10, n_rows - 1)
     if max_k < 2:
         return []
     ks = list(range(2, max_k + 1))
     silhouettes = []
     inertias = []
-    for candidate_k in ks:
+    for step, candidate_k in enumerate(ks):
         if method == ClusterMethod.HIERARCHICAL:
             labels_k = fcluster(linkage_matrix, t=candidate_k, criterion="maxclust") - 1
         else:
@@ -260,6 +271,7 @@ def _k_selection_plots(x, method, linkage_method, linkage_matrix, n_rows):
         except Exception:  # pragma: no cover - defensive
             sil = float("nan")
         silhouettes.append(sil)
+        update(lo + (hi - lo) * (step + 1) / len(ks))
 
     colors = Colors()
     ks_arr = np.array(ks, dtype=float)

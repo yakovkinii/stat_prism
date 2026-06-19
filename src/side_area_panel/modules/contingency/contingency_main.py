@@ -56,7 +56,7 @@ def _build_counts_table(contingency_table: pd.DataFrame, col1: str, col2: str) -
 
 
 @log_function
-def recalculate_contingency_study(elements, result: ContingencyResult) -> ContingencyResult:
+def recalculate_contingency_study(elements, result: ContingencyResult, update) -> ContingencyResult:
     """Validate the inputs, build the contingency table, run the chi-square test (with an
     effect size and, for small 2x2 tables, Fisher's exact test), and a distribution plot.
     Unexpected exceptions are handled centrally by the panel's recalculate()."""
@@ -90,6 +90,7 @@ def recalculate_contingency_study(elements, result: ContingencyResult) -> Contin
         columns=data.ordered_categories(col2, list(contingency_table.columns)),
     )
 
+    update(40)
     # ----- Counts table -----
     result.update_and_add_element(_build_counts_table(contingency_table, col1, col2), "contingency counts")
 
@@ -182,6 +183,7 @@ def recalculate_contingency_study(elements, result: ContingencyResult) -> Contin
         )
 
     result.update_and_add_element(chi2_table, "contingency chi2")
+    update(70)
 
     # ----- Plot -----
     if cfg.plots:
@@ -194,4 +196,5 @@ def recalculate_contingency_study(elements, result: ContingencyResult) -> Contin
         result.update_and_add_element(plot, "contingency plot")
 
     result.title_context = f"{str(col1)[:16]} × {str(col2)[:16]}"
+    update(100)
     return result

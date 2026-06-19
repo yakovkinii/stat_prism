@@ -13,7 +13,7 @@ from src.side_area_panel.modules.dp_calculate_scale.dp_calculate_scale_ui import
 
 
 @log_function
-def dp_calculate_scale_main(elements: Elements, result: CalculateScaleResult):
+def dp_calculate_scale_main(elements: Elements, result: CalculateScaleResult, update):
     cfg = result.config
     data = DATA_MANAGER.get_data_from_data_label(
         data_label=cfg.data_source,

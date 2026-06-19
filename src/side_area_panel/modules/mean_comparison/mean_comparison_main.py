@@ -36,7 +36,7 @@ def _fail(result: MeanComparisonResult, message: str) -> MeanComparisonResult:
 
 
 @log_function
-def recalculate_mean_comparison_study(elements: Elements, result: MeanComparisonResult) -> MeanComparisonResult:
+def recalculate_mean_comparison_study(elements: Elements, result: MeanComparisonResult, update) -> MeanComparisonResult:
     """Validate the inputs, then route to the t-test family (two groups) or the
     ANOVA family (three or more groups). Unexpected exceptions are handled centrally
     by the panel's recalculate()."""
@@ -72,6 +72,10 @@ def recalculate_mean_comparison_study(elements: Elements, result: MeanComparison
     if grouping_column:
         result.title_context += "\n" + str(grouping_column)[:16]
 
+    update(5)
     if len(groups) == 2:
-        return recalculate_mean_comparison_t_test(data, result)
-    return recalculate_mean_comparison_anova(data, result)
+        result = recalculate_mean_comparison_t_test(data, result, update)
+    else:
+        result = recalculate_mean_comparison_anova(data, result, update)
+    update(100)
+    return result
