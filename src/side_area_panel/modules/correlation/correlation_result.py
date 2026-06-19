@@ -43,45 +43,6 @@ class CorrelationStudyConfig:
     report_only_significant = attrs.field(default=None)
 
 
-# Fine-print on the exact methodology / variants this module uses. English only by
-# design (only reports/tables are localised), rendered in a smaller font under the
-# general description so the chosen conventions are explicit and auditable.
-_ASSUMPTIONS_FINE_PRINT_EN = (
-    "<b>Methodology &amp; assumptions</b>"
-    "<ul>"
-    "<li><b>Coefficients &amp; p-values.</b>"
-    "<ul>"
-    "<li>Pearson&rsquo;s r &mdash; t-distribution p-value, df = n &minus; 2 (reported).</li>"
-    "<li>Spearman&rsquo;s &rho; / Kendall&rsquo;s &tau; (tau-b) / &tau;<sub>c</sub> &mdash; "
-    "p-values from SciPy; no df is reported.</li>"
-    "<li>Phi &phi; &mdash; &radic;(&chi;<sup>2</sup>/N) from the 2&times;2 table; p-value from "
-    "the chi-square test.</li>"
-    "<li>Tetrachoric &mdash; maximum-likelihood estimate for a 2&times;2 table; Wald p-value "
-    "(z = &rho;/SE), df = n &minus; 2. Returned blank when the pair is not 2&times;2.</li>"
-    "<li>Polychoric &mdash; maximum-likelihood estimate; likelihood-ratio p-value (df = 1).</li>"
-    "</ul></li>"
-    "<li><b>Partial correlation.</b> If any &lsquo;Control for&rsquo; variables are given, the "
-    "table shows <i>partial</i> correlations among the selected variables with the linear "
-    "effect of the controls removed from both sides of each pair (Pearson or Spearman only; "
-    "df = n &minus; 2 &minus; number of controls). Pairwise scatter plots are omitted in this "
-    "mode, since the raw scatter would not reflect the partialled relationship.</li>"
-    "<li><b>Two-set (cross) correlation.</b> If a &lsquo;Second variable set&rsquo; is given, "
-    "a rectangular matrix is produced instead of the square one: every variable in the first "
-    "set (rows) against every variable in the second set (columns), with all cells filled. It "
-    "honours the same coefficient choice, the partial-correlation controls, the heatmap and "
-    "the pairwise plots; a variable paired with itself (when it appears in both sets) is "
-    "skipped in the verbal summary.</li>"
-    "<li><b>Missing data.</b> Pairwise deletion &mdash; each pair uses only rows where both "
-    "variables are present.</li>"
-    "<li><b>Ordinal variables.</b> Selected ordinal variables are mapped to numeric codes. "
-    "Using Pearson&rsquo;s r on ordinal data triggers a warning (it assumes interval data).</li>"
-    "<li><b>Reporting.</b> Significance stars: * p &lt; .05, ** p &lt; .01, *** p &lt; .001; "
-    "the verbal summary uses &alpha; = .05. Strength of |r|: &gt; .5 strong, &gt; .3 moderate, "
-    "&gt; .1 weak, otherwise very weak. All tests are two-sided.</li>"
-    "</ul>"
-)
-
-
 class CorrelationResult(BaseResult):
     def __init__(self, unique_id, settings_panel_index, config: CorrelationStudyConfig):
         super().__init__(unique_id)
@@ -104,5 +65,5 @@ class CorrelationResult(BaseResult):
         self.description = (
             t("correlation.description")
             + HTML.hr()
-            + HTML.div(_ASSUMPTIONS_FINE_PRINT_EN, font_size=Style.FontSize.smaller)
+            + HTML.div(t("correlation.fine_print"), font_size=Style.FontSize.smaller)
         )
