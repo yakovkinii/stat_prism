@@ -38,9 +38,9 @@ class Home(BasePanel):
                 icon_path="ri.bar-chart-line",
             ),
             "spacer": Spacer(),
-            "new": LargeButton(
-                label_text="New Project",
-                icon_path="msc.new-file",
+            "open": LargeButton(
+                label_text="Open",
+                icon_path="msc.folder-opened",
             ),
             "save": LargeButton(
                 label_text="Save",
@@ -65,19 +65,21 @@ class Home(BasePanel):
 
     @log_method_noarg
     def save_as_handler(self):
-        self.save_handler(save_as=True)
+        return self.save_handler(save_as=True)
 
     @log_method
-    def save_handler(self, save_as=False):
+    def save_handler(self, save_as=False) -> bool:
+        """Save the project. Returns True if it was written, False if the user backed out
+        of the Save As dialog (so callers can keep the unsaved-changes prompt open)."""
         if self.root_class.current_file_path is None or save_as is True:
             file_path, _ = QtWidgets.QFileDialog.getSaveFileName(
                 self.widget,
-                "Chose",
+                "Save",
                 "",
                 "StatPrism project (*.sp);;",
             )
             if not file_path:
-                return
+                return False
         else:
             file_path = self.root_class.current_file_path
 
@@ -105,6 +107,7 @@ class Home(BasePanel):
 
         self.root_class.set_current_file_path(file_path)
         self.root_class.clear_dirty()
+        return True
 
     @log_method
     def handler(self, message):
@@ -119,26 +122,14 @@ class Home(BasePanel):
                 return self.root_class.action_activate_panel_by_index(
                     PanelRegistry.SELECT_DATA_ANALYSIS.settings_stacked_widget_index
                 )
-            elif message.caller_id == "new":
-                return self.new_handler()
+            elif message.caller_id == "open":
+                return PanelRegistry.HOME_INITIAL.ui_instance.open_handler()
             elif message.caller_id == "save":
                 return self.save_handler()
             elif message.caller_id == "save_as":
                 return self.save_as_handler()
 
         return super().handler(message)
-
-    @log_method_noarg
-    def new_handler(self):
-        """Discard the current session and return to the empty initial screen."""
-        if not self.root_class.confirm_discard_if_dirty():
-            return
-        self.root_class.main_area_panel.clear_all()
-        self.root_class.clear_dirty()
-        self.root_class.set_current_file_path(None)
-        self.root_class.action_activate_panel_by_index(
-            PanelRegistry.HOME_INITIAL.settings_stacked_widget_index
-        )
 
 
 class AboutDialog(QDialog):

@@ -174,18 +174,34 @@ class MainWindowClass(QtWidgets.QMainWindow):
         self.dirty = False
 
     def confirm_discard_if_dirty(self) -> bool:
-        """Return True if it's safe to discard the current session. When there are unsaved
-        changes, ask the user; otherwise proceed silently."""
+        """Return True if it's safe to proceed (the session was saved or the user chose to
+        discard); False to abort. When there are unsaved changes, offer Save / Don't Save /
+        Cancel. Choosing Save writes the project (opening Save As when there is no file yet);
+        if the user backs out of the Save As dialog, the prompt is shown again."""
         if not self.dirty:
             return True
-        answer = QtWidgets.QMessageBox.question(
-            self,
-            "Unsaved changes",
-            "You have unsaved changes. Discard them?",
-            QtWidgets.QMessageBox.StandardButton.Discard | QtWidgets.QMessageBox.StandardButton.Cancel,
-            QtWidgets.QMessageBox.StandardButton.Cancel,
-        )
-        return answer == QtWidgets.QMessageBox.StandardButton.Discard
+
+        while True:
+            box = QtWidgets.QMessageBox(self)
+            box.setIcon(QtWidgets.QMessageBox.Icon.Warning)
+            box.setWindowTitle("Unsaved changes")
+            box.setText("You have unsaved changes. Do you want to save them?")
+            save_button = box.addButton(QtWidgets.QMessageBox.StandardButton.Save)
+            dont_save_button = box.addButton(QtWidgets.QMessageBox.StandardButton.Discard)
+            cancel_button = box.addButton(QtWidgets.QMessageBox.StandardButton.Cancel)
+            dont_save_button.setText("Don't Save")
+            box.setDefaultButton(save_button)
+            box.exec()
+
+            clicked = box.clickedButton()
+            if clicked is cancel_button:
+                return False
+            if clicked is dont_save_button:
+                return True
+            # Save: proceed only if the project was actually written; otherwise (Save As
+            # cancelled) loop back and show the prompt again.
+            if PanelRegistry.HOME.ui_instance.save_handler():
+                return True
 
     def closeEvent(self, event):
         if self.confirm_discard_if_dirty():

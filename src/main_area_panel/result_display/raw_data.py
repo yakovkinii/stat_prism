@@ -125,7 +125,7 @@ class RawDataResultDisplay(BaseResultDisplay):
         self.info.setText(
             f"File: {config.path} \n"
             f"Time: {config.timestamp} \n"
-            f"{result.data.n_rows()} rows, {result.data.n_columns()} columns"
+            f"{result.data.n_rows()} rows × {result.data.n_columns()} columns"
         )
 
     @log_method

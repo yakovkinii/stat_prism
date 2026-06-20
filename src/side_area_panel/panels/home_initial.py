@@ -31,18 +31,18 @@ if TYPE_CHECKING:
 class HomeInitial(BasePanel):
     def setup_ui(self):
         self.elements = {
-            "open_sample": LargeButton(
-                label_text="Open Sample Data",
-                icon_path="msc.folder-opened",
-            ),
             "open": LargeButton(
                 label_text="Open",
                 icon_path="msc.folder-opened",
             ),
-            "spacer": Spacer(),
             "about": LargeButton(
                 label_text="About",
                 icon_path="ri.questionnaire-line",
+            ),
+            "spacer": Spacer(),
+            "open_sample": LargeButton(
+                label_text="Open Sample Data",
+                icon_path="msc.folder-opened",
             ),
         }
 

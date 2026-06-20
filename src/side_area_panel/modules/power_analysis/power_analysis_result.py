@@ -3,8 +3,10 @@
 
 import attrs
 
+from src.common.translations import t
 from src.pyside_ext.markup import HTML
 from src.pyside_ext.styling import Style
+from src.side_area_panel.modules.common.result.html_result import HTMLTableV2
 from src.side_area_panel.modules.common.result.registry import BaseResult
 
 # Test families and what the analysis can solve for. These drive both the UI dropdowns
@@ -63,6 +65,20 @@ class PowerAnalysisResult(BaseResult):
         self.needs_update: bool = False
         self.update_description()
         self.set_placeholder()
+
+    def set_placeholder(self, additional_info_html: str = None):
+        if additional_info_html is None:
+            additional_info_html = t("common.configure_hint_refresh")
+        self.result_elements = [
+            HTMLTableV2(
+                texts=[
+                    (
+                        self.format_additional_info_html(additional_info_html)
+                        + self.format_description_html(self.description)
+                    )
+                ]
+            )
+        ]
 
     def update_description(self):
         self.description = (

@@ -86,12 +86,11 @@ class SettingsPanelClass:
 
         # File actions. Connected after the panels exist (below), via lambdas that resolve
         # the panel ui_instances at trigger time.
-        self.new_action = QAction("New Project", self.widget)
         self.open_action = QAction("Open…", self.widget)
         self.save_action = QAction("Save", self.widget)
         self.save_as_action = QAction("Save As…", self.widget)
         self.copy_all_action = QAction("Copy All Results", self.widget)
-        for action in (self.new_action, self.open_action, self.save_action, self.save_as_action):
+        for action in (self.open_action, self.save_action, self.save_as_action):
             file_menu.addAction(action)
         file_menu.addSeparator()
         file_menu.addAction(self.copy_all_action)
@@ -142,7 +141,6 @@ class SettingsPanelClass:
         self.about_action.triggered.connect(PanelRegistry.HOME.value.ui_instance.about_handler)
 
         # File menu: panels now exist, so resolve their handlers at trigger time via lambdas.
-        self.new_action.triggered.connect(lambda: PanelRegistry.HOME.value.ui_instance.new_handler())
         self.open_action.triggered.connect(lambda: PanelRegistry.HOME_INITIAL.value.ui_instance.open_handler())
         self.save_action.triggered.connect(lambda: PanelRegistry.HOME.value.ui_instance.save_handler())
         self.save_as_action.triggered.connect(lambda: PanelRegistry.HOME.value.ui_instance.save_as_handler())

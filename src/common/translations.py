@@ -55,6 +55,10 @@ TRANSLATIONS = {
         "en": "Please configure the analysis using the panel on the right.",
         "ua": "Будь ласка, налаштуйте аналіз на панелі праворуч.",
     },
+    "common.configure_hint_refresh": {
+        "en": "Please refresh this result or change any setting on a panel on the right.",
+        "ua": "Будь ласка, оновіть цей результат або змініть будь-яке налаштування на панелі праворуч.",
+    },
     "common.msg.select_id": {
         "en": "Select the ID column.",
         "ua": "Оберіть колонку з ідентифікатором.",

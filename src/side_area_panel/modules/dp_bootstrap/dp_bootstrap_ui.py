@@ -22,7 +22,7 @@ class Elements(ItemInSidePanelWithAutoConfigHolder):
             ),
         ],
     )
-    n_rows = IISPWACSpin(label_text="Rows to add:", min_value=0, max_value=100000, default_value=10)
+    n_rows = IISPWACSpin(label_text="Rows to add:", min_value=0, max_value=100000, default_value=0)
     seed = IISPWACSpin(label_text="Random seed:", min_value=0, max_value=1000000, default_value=0)
     spacer = IISPWACSpacer()
     column_configs = IISPWACBootstrapColumnEditor()

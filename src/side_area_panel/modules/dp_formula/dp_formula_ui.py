@@ -12,7 +12,7 @@ class Elements(ItemInSidePanelWithAutoConfigHolder):
     data_source = IISPWACDataSource()
     spacer = IISPWACSpacer()
     new_name = IISPWACLongTextEdit(label_text="New column name:")
-    formula = IISPWACLongTextEdit(label_text="Formula (pandas eval, e.g. a - b):")
+    formula = IISPWACLongTextEdit(label_text="Formula (pandas eval. E.g. colA+colB; `col A`/`col B`):")
 
 
 class Formula(BaseModulePanel):

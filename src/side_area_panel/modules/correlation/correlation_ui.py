@@ -26,12 +26,12 @@ class Elements(ItemInSidePanelWithAutoConfigHolder):
             Field(
                 name="Control for (partial, optional):",
                 column_type=ColumnType.ORDINAL,
-                reasonable_number_of_columns=5,
+                reasonable_number_of_columns=3,
             ),
             Field(
                 name="Second variable set (cross, optional):",
                 column_type=ColumnType.ORDINAL,
-                reasonable_number_of_columns=10,
+                reasonable_number_of_columns=5,
             ),
         ],
     )

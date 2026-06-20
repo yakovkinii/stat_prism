@@ -26,7 +26,7 @@ class Elements(ItemInSidePanelWithAutoConfigHolder):
     )
     spacer = IISPWACSpacer()
     method = IISPWACComboBox(label_text="Method:", items=IMPUTE_METHODS)
-    constant_value = IISPWACLongTextEdit(label_text="Constant value (for 'Constant value'):")
+    constant_value = IISPWACLongTextEdit(label_text="Constant value:")
 
 
 class Impute(BaseModulePanel):

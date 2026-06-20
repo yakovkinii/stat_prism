@@ -5,7 +5,7 @@ from src.data.data import Data
 from src.side_area_panel.modules.common.result.registry import BaseResult
 
 # Imputation methods plus the row-removal option, in dropdown order.
-IMPUTE_METHODS = ["Mean", "Median", "Mode", "Constant value", "Remove rows with missing"]
+IMPUTE_METHODS = ["Mean", "Median", "Mode", "Constant value", "Remove rows"]
 
 _METHODOLOGY = (
     "<b>Impute missing</b><br>"
