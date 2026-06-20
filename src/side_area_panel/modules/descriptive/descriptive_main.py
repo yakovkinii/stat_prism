@@ -285,6 +285,14 @@ def recalculate_descriptive_study(elements, result: DescriptiveResult, update) -
                 plot = make_qq_plot(df[col], col)
                 if plot is not None:
                     result.update_and_add_element(plot, f"descriptive qq {col}")
+            # Ordinal variables also get a pie -- built from the original labels (df holds
+            # numeric codes here) with slices in the column's defined ordinal order.
+            if cfg.show_pie and data[col].column_type == ColumnType.ORDINAL:
+                label_series = data[col].data_series.dropna()
+                category_order = data.ordered_categories(col, list(label_series.unique()))
+                plot = make_pie_plot(label_series, col, category_order)
+                if plot is not None:
+                    result.update_and_add_element(plot, f"descriptive pie {col}")
         else:
             category_order = data.ordered_categories(col, list(df[col].dropna().unique()))
             if cfg.show_frequency_bars:

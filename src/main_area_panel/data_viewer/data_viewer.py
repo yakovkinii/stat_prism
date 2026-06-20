@@ -279,6 +279,9 @@ class TablePopup(QWidget):
 
         self.raise_()
         self.show()
+        # Take keyboard focus so Escape closes the popup (same outcome as clicking outside).
+        self.setFocusPolicy(QtCore.Qt.StrongFocus)
+        self.setFocus()
 
     def _build_options_bar(self) -> QWidget:
         bar = QWidget(self.popup)
@@ -380,3 +383,10 @@ class TablePopup(QWidget):
     def mousePressEvent(self, event):
         if not self.popup.geometry().contains(event.position().toPoint()):
             self.close()
+
+    def keyPressEvent(self, event):
+        if event.key() == QtCore.Qt.Key_Escape:
+            self.close()
+            event.accept()
+            return
+        super().keyPressEvent(event)

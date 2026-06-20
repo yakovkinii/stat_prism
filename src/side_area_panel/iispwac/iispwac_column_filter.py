@@ -118,11 +118,21 @@ class IISPWACColumnFilter(ItemInSidePanelWithAutoConfig):
         value = (spec.get("value") if spec else "") or ""
         self.operation_combo.setCurrentText(operation if operation in self.OPERATIONS else "==")
         self.value_edit.setText(value)
+        self._sync_value_enabled()
 
+        self.operation_combo.currentIndexChanged.connect(self._sync_value_enabled)
         self.operation_combo.currentIndexChanged.connect(self.on_changed)
         # Recalculate only when the user finishes editing (Enter / focus-out), not on
         # every keystroke -- otherwise the panel rebuilds mid-typing and steals focus.
         self.value_edit.editingFinished.connect(self.on_changed)
+
+    def _sync_value_enabled(self, *args):
+        # "is empty" / "is not empty" test for missing cells and ignore the value box.
+        if self.operation_combo is None or self.value_edit is None:
+            return
+        ignores_value = self.operation_combo.currentText() in self.EMPTY_OPERATIONS
+        self.value_edit.setEnabled(not ignores_value)
+        self.value_edit.setPlaceholderText("" if ignores_value else "value")
 
     def _build_categorical(self, column, spec):
         values = list(column.data_series.dropna().unique())

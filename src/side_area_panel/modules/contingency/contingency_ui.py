@@ -45,7 +45,7 @@ class Elements(ItemInSidePanelWithAutoConfigHolder):
         default_state=True,
     )
     mcnemar = IISPWACCheckBox(
-        label_text="Paired data (McNemar test)",
+        label_text="Paired data (symmetry test)",
         default_state=False,
     )
     plots = IISPWACCheckBox(

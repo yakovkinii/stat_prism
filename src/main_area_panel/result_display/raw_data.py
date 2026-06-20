@@ -99,14 +99,25 @@ class RawDataResultDisplay(BaseResultDisplay):
             ],
         )
 
+        # Action buttons, top-right -- matches the data-processing cards' layout.
+        self.actions_widget, self.actions_layout = empty_widget(
+            widget_class=QWidgetClickable,
+            parent=self.body_widget,
+            inner_layout_class=QHBoxLayout,
+            setup=lambda w, l: [
+                l.setContentsMargins(0, 0, 0, 0),
+                l.setSpacing(2),
+            ],
+        )
+        self.body_layout.addWidget(self.actions_widget, alignment=Qt.AlignmentFlag.AlignTop)
+
         self.export_button = widget_in_layout(
             widget=create_simple_tool_button_qta(
-                parent=self.body_widget,
+                parent=self.actions_widget,
                 icon_path="mdi6.microsoft-excel",
                 icon_size=QtCore.QSize(20, 20),
             ),
-            layout=self.body_layout,
-            alignment=Qt.AlignmentFlag.AlignVCenter,
+            layout=self.actions_layout,
             setup=lambda w, l: [
                 w.setToolTip("Export to Excel"),
                 w.clicked.connect(lambda: export_data_to_excel(self.widget, RESULTS[self.result_id].data)),

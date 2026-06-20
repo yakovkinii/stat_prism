@@ -18,11 +18,17 @@ def _parse_floats(text):
     return [float(token) for token in re.split(r"[,;\s]+", (text or "").strip()) if token != ""]
 
 
-def _auto_labels(thresholds):
-    labels = [f"≤ {thresholds[0]:g}"]
+def _auto_labels(thresholds, lower_inclusive):
+    """Auto labels for the bins. `lower_inclusive` True means bins are right-closed (a, b]
+    (a split point falls in the lower group); False means left-closed [a, b) (higher group)."""
+    if lower_inclusive:
+        first, last = f"≤ {thresholds[0]:g}", f"> {thresholds[-1]:g}"
+    else:
+        first, last = f"< {thresholds[0]:g}", f"≥ {thresholds[-1]:g}"
+    labels = [first]
     for low, high in zip(thresholds[:-1], thresholds[1:]):
         labels.append(f"{low:g}–{high:g}")
-    labels.append(f"> {thresholds[-1]:g}")
+    labels.append(last)
     return labels
 
 
@@ -50,13 +56,17 @@ def dp_group_main(elements: Elements, result: GroupValuesResult, update):
     if not thresholds:
         return result  # no split points -> no grouping
 
+    # "Lower group" -> a split point joins the lower bin (right-closed (a, b]); the default
+    # "Higher group" -> it joins the higher bin (left-closed [a, b)).
+    lower_inclusive = cfg.split_side == "Lower group"
+
     expected = len(thresholds) + 1
     names = [n.strip() for n in re.split(r"[,;]", cfg.names) if n.strip()] if (cfg.names or "").strip() else []
-    labels = names if len(names) == expected else _auto_labels(thresholds)
+    labels = names if len(names) == expected else _auto_labels(thresholds, lower_inclusive)
 
     edges = [-math.inf] + thresholds + [math.inf]
     numeric = pd.to_numeric(new_data[column_name].data_series, errors="coerce")
-    binned = pd.cut(numeric, bins=edges, labels=labels, right=True, ordered=False).astype(object)
+    binned = pd.cut(numeric, bins=edges, labels=labels, right=lower_inclusive, ordered=False).astype(object)
 
     base = (cfg.new_name or "").strip() or f"{column_name} (group)"
     binned.name = unique_name(base, set(new_data.column_names()))

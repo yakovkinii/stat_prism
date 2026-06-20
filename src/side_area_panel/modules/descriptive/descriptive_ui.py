@@ -50,9 +50,19 @@ class Elements(ItemInSidePanelWithAutoConfigHolder):
     show_qq = IISPWACCheckBox(label_text="Q-Q plots", default_state=False)
     # --- Distribution-plot controls ---
     show_kde = IISPWACCheckBox(label_text="Show KDE curve", default_state=True)
-    bin_width = IISPWACLongTextEdit(label_text="Bin width (blank: auto):")
-    bin_reference = IISPWACLongTextEdit(label_text="Bin reference (blank: auto):")
-    kde_smoothing = IISPWACLongTextEdit(label_text="KDE smoothing (blank: auto; <1: sharper; >1: smoother):")
+    # Bin / KDE controls only apply while distribution plots (and KDE) are shown.
+    bin_width = IISPWACLongTextEdit(
+        label_text="Bin width (blank: auto):",
+        enabled_when=lambda kwargs: bool(kwargs.get("show_distribution")),
+    )
+    bin_reference = IISPWACLongTextEdit(
+        label_text="Bin reference (blank: auto):",
+        enabled_when=lambda kwargs: bool(kwargs.get("show_distribution")),
+    )
+    kde_smoothing = IISPWACLongTextEdit(
+        label_text="KDE smoothing (blank: auto; <1: sharper; >1: smoother):",
+        enabled_when=lambda kwargs: bool(kwargs.get("show_distribution")) and bool(kwargs.get("show_kde")),
+    )
 
 
 class Descriptive(BaseModulePanel):

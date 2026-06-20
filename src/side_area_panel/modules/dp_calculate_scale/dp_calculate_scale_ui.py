@@ -45,7 +45,7 @@ class Elements(ItemInSidePanelWithAutoConfigHolder):
     # Off (default): any missing item makes the scale value missing for that row.
     # On: missing items are skipped and the scale is aggregated over the present ones.
     exclude_missing = IISPWACCheckBox(
-        label_text="Exclude missing items from aggregation",
+        label_text="Aggregate despite missing values",
         default_state=False,
     )
     color = IISPWACColorPicker(label_text="Scale color:")

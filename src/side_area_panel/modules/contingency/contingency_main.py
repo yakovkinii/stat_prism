@@ -220,7 +220,7 @@ def recalculate_contingency_study(elements, result: ContingencyResult, update) -
 
     result.update_and_add_element(chi2_table, "contingency chi2")
 
-    # ----- McNemar / Bowker test (paired data) -----
+    # ----- Symmetry test for paired data (McNemar 2x2 / Bowker larger) -----
     if cfg.mcnemar:
         _add_mcnemar_table(result, contingency_table, correction)
 

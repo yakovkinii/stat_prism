@@ -39,10 +39,20 @@ class OverlayPopup(QWidget):
 
         self.raise_()
         self.show()
+        # Take keyboard focus so Escape closes the popup (same outcome as clicking outside).
+        self.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
+        self.setFocus()
 
     def mousePressEvent(self, event):
         if not self.content.geometry().contains(event.position().toPoint()):
             self.close()
+
+    def keyPressEvent(self, event):
+        if event.key() == Qt.Key.Key_Escape:
+            self.close()
+            event.accept()
+            return
+        super().keyPressEvent(event)
 
     def closeEvent(self, event):
         if self._on_close is not None:

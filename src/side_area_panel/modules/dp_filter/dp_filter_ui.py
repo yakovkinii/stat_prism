@@ -21,6 +21,7 @@ class Elements(ItemInSidePanelWithAutoConfigHolder):
                 reasonable_number_of_columns=1,
                 allow_only_single_column=True,
                 minimum_columns=1,
+                include_id=True,  # rows may also be filtered by the ID column
             ),
         ],
     )

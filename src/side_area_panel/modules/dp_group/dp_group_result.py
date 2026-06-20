@@ -5,11 +5,18 @@ from src.data.data import Data
 from src.side_area_panel.modules.common.result.registry import BaseResult
 
 
+# Where a value exactly on a split point lands. Default sends it to the higher group, so the
+# bins are left-closed [a, b) -- consistent with the usual histogram convention.
+SPLIT_SIDES = ["Higher group", "Lower group"]
+
 _METHODOLOGY = (
     "<b>Group values</b><br>"
     "Bins a numeric column into ordered groups using the split points you provide (e.g. split "
-    "points 3, 6 give the bins &le;3, 3&ndash;6, &gt;6). Each bin can be given a label; the "
-    "result is added as a new column, leaving the original untouched."
+    "points 3, 6 give three bins). <b>Split point goes to</b> controls which side a value that "
+    "is exactly on a split point lands on: <i>Higher group</i> (default) makes the bins "
+    "left-closed [a, b) &mdash; e.g. &lt;3, 3&ndash;6, &ge;6; <i>Lower group</i> makes them "
+    "right-closed (a, b] &mdash; e.g. &le;3, 3&ndash;6, &gt;6. Each bin can be given a label; "
+    "the result is added as a new column, leaving the original untouched."
 )
 
 
@@ -20,6 +27,7 @@ class GroupValuesStudyConfig:
     thresholds = attrs.field(default=None)
     names = attrs.field(default=None)
     new_name = attrs.field(default=None)
+    split_side = attrs.field(default=None)
 
 
 class GroupValuesResult(BaseResult):
@@ -45,4 +53,5 @@ class GroupValuesResult(BaseResult):
         parts = [f"Column: {column}"]
         if cfg.thresholds:
             parts.append(f"Split points: {cfg.thresholds}")
+            parts.append(f"Split point goes to: {cfg.split_side or SPLIT_SIDES[0]}")
         self.description = "<br>".join(parts)

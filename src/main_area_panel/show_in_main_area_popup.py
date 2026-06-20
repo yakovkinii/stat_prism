@@ -35,6 +35,9 @@ class WidgetPopup(QWidget):
         self.recenter_content()
         self.content.raise_()
         self.show()
+        # Take keyboard focus so Escape closes the popup (same outcome as clicking outside).
+        self.setFocusPolicy(QtCore.Qt.StrongFocus)
+        self.setFocus()
 
     def recenter_content(self):
         """Size the content to its own size hint and center it (re-call when the
@@ -47,9 +50,19 @@ class WidgetPopup(QWidget):
 
     def mousePressEvent(self, event):
         if not self.content.geometry().contains(event.position().toPoint()):
-            self.close()
-            if self.handler_on_close is not None:
-                self.handler_on_close()
+            self._close_with_handler()
             event.accept()
         else:
             event.ignore()
+
+    def keyPressEvent(self, event):
+        if event.key() == QtCore.Qt.Key_Escape:
+            self._close_with_handler()
+            event.accept()
+            return
+        super().keyPressEvent(event)
+
+    def _close_with_handler(self):
+        self.close()
+        if self.handler_on_close is not None:
+            self.handler_on_close()

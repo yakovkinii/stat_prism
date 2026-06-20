@@ -61,6 +61,8 @@ class Field:
     reasonable_number_of_columns: int = 5
     allow_only_single_column: bool = False
     minimum_columns: int = 0
+    # Opt-in: also let the (otherwise hidden) ID column be selected into this field.
+    include_id: bool = False
 
 
 class IISPWACColumnSelector(ItemInSidePanelWithAutoConfig):
@@ -229,8 +231,10 @@ class IISPWACColumnSelector(ItemInSidePanelWithAutoConfig):
             data_label=data_label,
             current_result_id=result_id,
         ).get_all_columns_as_column_types()
-        # The ID column is never user-selectable; keep it out of the available list.
-        columns = [column for column in columns if column.column_type != ColumnType.ID]
+        # The ID column is hidden by default; keep it available only when a field opts in
+        # via include_id (e.g. the Filter module, so rows can be filtered by ID).
+        if not any(getattr(field, "include_id", False) for field in self.fields):
+            columns = [column for column in columns if column.column_type != ColumnType.ID]
 
         self.columns = columns
         self.column_names = [column.column_name for column in columns]
@@ -546,13 +550,20 @@ class ColumnSelectorExPopup:
             return [ColumnType.ORDINAL, ColumnType.NUMERIC]
         return [ColumnType.NUMERIC]
 
+    def _field_allowed_types(self, field):
+        """Types this field accepts, including ID when the field opts in via include_id."""
+        allowed = list(self._allowed_types(field.column_type))
+        if getattr(field, "include_id", False):
+            allowed.append(ColumnType.ID)
+        return allowed
+
     def _field_can_accept(self, field_index, column_type):
         """True if this field accepts the column's type and has room (single-column fields
         must be empty)."""
         field = self.fields[field_index]
         if field.allow_only_single_column and self.panel_list_widgets[field_index].count() > 0:
             return False
-        return column_type in self._allowed_types(field.column_type)
+        return column_type in self._field_allowed_types(field)
 
     def handle_double_click(self, item):
         source_list = item.listWidget()
@@ -588,7 +599,7 @@ class ColumnSelectorExPopup:
                 selected_main_types = [
                     self.columns[self.column_names.index(item)].column_type for item in selected_main_names
                 ]
-                allowed_types = self._allowed_types(self.fields[button_index].column_type)
+                allowed_types = self._field_allowed_types(self.fields[button_index])
 
                 if not all([selected_main_type in allowed_types for selected_main_type in selected_main_types]):
                     icon = self.panel_list_icons[button_index]

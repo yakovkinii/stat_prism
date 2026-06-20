@@ -20,6 +20,17 @@ class Elements(ItemInSidePanelWithAutoConfigHolder):
                 column_type=ColumnType.NOMINAL,
                 reasonable_number_of_columns=10,
             ),
+            Field(
+                name="Drivers (correlate with reference):",
+                column_type=ColumnType.NOMINAL,
+                reasonable_number_of_columns=10,
+            ),
+            Field(
+                name="Reference (anchor):",
+                column_type=ColumnType.NOMINAL,
+                reasonable_number_of_columns=1,
+                allow_only_single_column=True,
+            ),
         ],
     )
     n_rows = IISPWACSpin(label_text="Rows to add:", min_value=0, max_value=100000, default_value=0)

@@ -44,6 +44,8 @@ class Field:
     reasonable_number_of_columns: int = 5
     allow_only_single_column: bool = False
     minimum_columns: int = 0  # not used
+    # Opt-in: also let the (otherwise hidden) ID column be selected into this field.
+    include_id: bool = False
 
 
 class ColumnSelectorEx(BasePanelElement):

@@ -10,8 +10,9 @@ _METHODOLOGY = (
     "Builds a new scale column by aggregating the selected item columns &mdash; <b>Sum</b> or "
     "<b>Mean</b> across the items, per row. Optionally convert the result to <b>Stanine</b> "
     "(1&ndash;9). The source questions can be kept, deleted, or auto-renamed (e.g. "
-    "&lsquo;Scale Q1&rsquo;&hellip;). Rows with missing items follow the aggregation rule "
-    "(Sum needs at least one present value)."
+    "&lsquo;Scale Q1&rsquo;&hellip;). By default a row with <i>any</i> missing item yields a "
+    "missing scale value; enable <b>Aggregate despite missing values</b> to instead aggregate "
+    "over the items that are present (Sum needs at least one present value)."
 )
 
 

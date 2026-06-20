@@ -1,6 +1,7 @@
 #  Copyright (c) 2023 StatPrism Team. All rights reserved.
 
 import logging
+import math
 
 import numpy as np
 import pandas as pd
@@ -155,6 +156,118 @@ def _to_python(value):
     return value.item() if hasattr(value, "item") else value
 
 
+def _parse_coefficient(text):
+    """Desired correlation coefficient, clamped just inside (-1, 1). Blank / unparsable -> 0."""
+    value = _parse_float(text)
+    if value is None:
+        return 0.0
+    return max(-0.999, min(0.999, value))
+
+
+def _sort_key(column):
+    """A sort key that orders a column's values for rank-matching: numerically for numeric
+    columns, by category code for ordinal, and by label for nominal. Missing values sort last."""
+    if column.column_type == ColumnType.NUMERIC or column.is_numeric:
+        def key(v):
+            try:
+                f = float(v)
+            except (TypeError, ValueError):
+                return (1, 0.0)
+            return (1, 0.0) if math.isnan(f) else (0, f)
+        return key
+    if column.column_type == ColumnType.ORDINAL:
+        order = column.order or {}
+
+        def key(v):
+            return (1, 0) if _is_missing(v) else (0, order.get(v, 0))
+        return key
+
+    def key(v):
+        return (1, "") if _is_missing(v) else (0, str(v))
+    return key
+
+
+def _is_missing(v):
+    try:
+        return bool(pd.isna(v))
+    except (TypeError, ValueError):
+        return False
+
+
+def _build_latent(n, target_latent, rho, rng):
+    """A latent standard-normal vector. With a target latent and non-zero rho, it is blended
+    toward the target by rho (Gaussian copula): rho*target + sqrt(1-rho^2)*noise."""
+    noise = rng.standard_normal(n)
+    if target_latent is None or rho == 0.0:
+        return noise
+    return rho * target_latent + math.sqrt(max(0.0, 1.0 - rho * rho)) * noise
+
+
+def _rank_match(values, latent, key):
+    """Reorder `values` (a column's marginal draws) so their ranks follow `latent`'s ranks.
+    Preserves the multiset of values exactly while inducing the copula's rank correlation."""
+    n = len(values)
+    if n == 0:
+        return values
+    latent_ranks = np.argsort(np.argsort(latent))  # 0..n-1 rank for each row
+    sorted_vals = sorted(values, key=key)
+    return [sorted_vals[latent_ranks[i]] for i in range(n)]
+
+
+def _code_new_rows(column, n):
+    """Numeric coding of the last `n` (new) rows, for measuring realized correlation."""
+    values = column.data_series.tolist()[-n:]
+    series = pd.Series(values)
+    if column.column_type == ColumnType.NUMERIC or column.is_numeric:
+        return pd.to_numeric(series, errors="coerce")
+    if column.column_type == ColumnType.ORDINAL and column.order:
+        return pd.to_numeric(series.map(column.order), errors="coerce")
+    codes, _ = pd.factorize(series)
+    coded = pd.Series(codes, dtype=float)
+    return coded.where(coded >= 0)
+
+
+def _safe_spearman(x, y):
+    frame = pd.DataFrame(
+        {"x": pd.to_numeric(x, errors="coerce").reset_index(drop=True),
+         "y": pd.to_numeric(y, errors="coerce").reset_index(drop=True)}
+    ).dropna()
+    if len(frame) < 3 or frame["x"].nunique() < 2 or frame["y"].nunique() < 2:
+        return None
+    from scipy.stats import spearmanr
+
+    r, _ = spearmanr(frame["x"], frame["y"])
+    if r is None or (isinstance(r, float) and math.isnan(r)):
+        return None
+    return float(r)
+
+
+def _realized_correlation_lines(new_data, ordered_selected, targets, n):
+    """Description lines reporting the realized rank correlation on the new rows, plus
+    warnings where the achieved value is far from the requested one."""
+    lines = []
+    warnings = []
+    for name in ordered_selected:
+        target, rho = targets.get(name, (None, 0.0))
+        if target is None or rho == 0.0 or target not in new_data.column_names():
+            continue
+        r = _safe_spearman(_code_new_rows(new_data[name], n), _code_new_rows(new_data[target], n))
+        if r is None:
+            warnings.append(f"{name} ↔ {target}: requested ρ = {rho:g}, but the correlation could not be measured (too few distinct values).")
+            continue
+        lines.append(f"{name} ↔ {target}: requested ρ = {rho:g}, realized ≈ {r:.2f}")
+        if abs(r - rho) > 0.25:
+            warnings.append(f"{name} ↔ {target}: realized ρ ({r:.2f}) is far from the requested {rho:g}; the marginal or category structure may make this hard to achieve.")
+    out = []
+    if lines:
+        out.append("<b>Realized correlations (new rows):</b>")
+        out.extend(lines)
+    if warnings:
+        out.append("<b>⚠ Warnings:</b>")
+        out.extend(warnings)
+    return out
+
+
 def _rebuild_series(column, new_full_values):
     """Replace a column's series with the extended values, keeping a clean index and a
     dtype consistent with the original where possible."""
@@ -188,6 +301,8 @@ def dp_bootstrap_main(elements: Elements, result: BootstrapResult, update):
     new_data = data.copy()
     # Default to a pass-through so downstream stays valid while inputs are incomplete.
     result.data = new_data
+    result.realized_lines = []
+    result.update_description()
 
     n = int(cfg.n_rows or 0)
     if n <= 0:
@@ -196,32 +311,69 @@ def dp_bootstrap_main(elements: Elements, result: BootstrapResult, update):
     seed = int(cfg.seed or 0)
     rng = np.random.default_rng(seed)
 
-    selected = list(cfg.column_selector[0]) if cfg.column_selector else []
-    selected = [c for c in selected if c in new_data.column_names()]
+    selector = cfg.column_selector or []
+    names = set(new_data.column_names())
+    regular = [c for c in (selector[0] if len(selector) > 0 and selector[0] else []) if c in names]
+    drivers = [c for c in (selector[1] if len(selector) > 1 and selector[1] else []) if c in names]
+    reference_list = [c for c in (selector[2] if len(selector) > 2 and selector[2] else []) if c in names]
+    reference = reference_list[0] if reference_list else None
+
+    # Sampling / dependency order: reference first, then drivers, then the regular columns.
+    ordered_selected = ([reference] if reference else []) + drivers + regular
+    selected_set = set(ordered_selected)
+    valid_targets = ([reference] if reference else []) + drivers
+
     specs_by_col = {
         s["column"]: s for s in (cfg.column_configs or []) if isinstance(s, dict) and "column" in s
     }
 
-    introduced = {}  # column_name -> bool
+    # 1. Draw each selected column's marginal sample independently (existing logic).
+    drawn = {}
+    introduced = {}
+    for name in ordered_selected:
+        column = new_data[name]
+        spec = specs_by_col.get(name) or {"column": name}
+        values, introduced[name] = _generate_values(column, spec, n, rng)
+        drawn[name] = values
+
+    # 2. Build a correlated latent normal per column, in dependency order, and record each
+    #    column's resolved (target, rho) for the realized-correlation report.
+    latent = {}
+    targets = {}
+    for name in ordered_selected:
+        spec = specs_by_col.get(name) or {}
+        if name == reference:
+            target, rho = None, 0.0
+        elif name in drivers:
+            target = reference
+            rho = _parse_coefficient(spec.get("coefficient")) if reference else 0.0
+        else:  # regular column
+            target = spec.get("target") if spec.get("target") in valid_targets else None
+            rho = _parse_coefficient(spec.get("coefficient")) if target else 0.0
+        targets[name] = (target, rho)
+        latent[name] = _build_latent(n, latent.get(target), rho, rng)
+
+    # 3. Reorder each column's marginal draws to follow its latent (induce the correlation).
+    for name in ordered_selected:
+        drawn[name] = _rank_match(drawn[name], latent[name], _sort_key(new_data[name]))
+
+    # 4. Append the new rows to every column.
     for column in new_data.columns:
         name = column.column_name
         old_values = column.data_series.tolist()
-
         if column.column_type == ColumnType.ID:
             new_values = _new_id_values(column.data_series, n)
-        elif name in selected:
-            spec = specs_by_col.get(name) or {"column": name}
-            new_values, introduced[name] = _generate_values(column, spec, n, rng)
+        elif name in selected_set:
+            new_values = drawn[name]
         else:
             new_values = [_na_for(column)] * n
-
         _rebuild_series(column, old_values + list(new_values))
 
     new_data.update_lookups()
 
     # Reset an ordinal column's category order only when a custom list introduced new
     # values; otherwise just integrate any unseen categories while preserving the order.
-    for name in selected:
+    for name in ordered_selected:
         column = new_data[name]
         if column.column_type == ColumnType.ORDINAL and introduced.get(name):
             column.order = {}
@@ -230,5 +382,7 @@ def dp_bootstrap_main(elements: Elements, result: BootstrapResult, update):
             column.automatically_update_order()
 
     result.data = new_data
-    logging.info("Bootstrap: added %d rows across %d columns", n, len(selected))
+    result.realized_lines = _realized_correlation_lines(new_data, ordered_selected, targets, n)
+    result.update_description()
+    logging.info("Bootstrap: added %d rows across %d columns", n, len(ordered_selected))
     return result

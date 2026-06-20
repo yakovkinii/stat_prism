@@ -17,6 +17,18 @@ _METHODOLOGY = (
     "gets fresh unique identifiers. Column names, types and colours are never changed; an "
     "ordinal column's category order is rebuilt only when a custom list introduces new values. "
     "Use a fixed random seed to make the generated rows reproducible."
+    "<br><br>"
+    "<b>Correlated bootstrapping.</b> An optional <i>reference</i> (anchor) column is sampled "
+    "first and independently. <i>Drivers</i> are then sampled to correlate with the reference, "
+    "and the remaining <i>columns</i> to correlate with either the reference or a chosen driver "
+    "(each with one target and one coefficient ρ; leave ρ blank or 0, or pick "
+    "&lsquo;(independent)&rsquo;, for no correlation). Correlation is induced by a "
+    "Gaussian-copula / rank-matching scheme: each column's values are drawn from its own "
+    "marginal exactly as above, then reordered to follow a latent normal that is blended toward "
+    "the target's latent by ρ. This preserves each column's marginal distribution while inducing "
+    "an approximate <i>rank</i> (Spearman-like) correlation that works across numeric, ordinal "
+    "and nominal columns. The achieved correlation is therefore approximate, not the exact "
+    "Pearson value &mdash; the realized correlations measured on the new rows are reported below."
 )
 
 
@@ -41,17 +53,27 @@ class BootstrapResult(BaseResult):
         self.needs_update: bool = False
         self.description = ""
         self.methodology = _METHODOLOGY
+        # Lines describing the realized (achieved) correlations and any infeasibility
+        # warnings; populated by the main function after it generates the rows.
+        self.realized_lines = []
         self.update_description()
 
         self.data = Data([])
 
     def update_description(self):
         cfg = self.config
-        selected = list(cfg.column_selector[0]) if cfg.column_selector else []
+        selector = cfg.column_selector or []
+        regular = list(selector[0]) if len(selector) > 0 and selector[0] else []
+        drivers = list(selector[1]) if len(selector) > 1 and selector[1] else []
+        reference_list = list(selector[2]) if len(selector) > 2 and selector[2] else []
+        reference = reference_list[0] if reference_list else None
         n_rows = cfg.n_rows if cfg.n_rows is not None else 0
         lines = [
             f"Rows to add: {n_rows}",
             f"Seed: {cfg.seed if cfg.seed is not None else 0}",
-            f"Bootstrapped columns: {', '.join(selected) if selected else '(none)'}",
+            f"Reference: {reference if reference else '(none)'}",
+            f"Drivers: {', '.join(drivers) if drivers else '(none)'}",
+            f"Columns: {', '.join(regular) if regular else '(none)'}",
         ]
+        lines.extend(getattr(self, "realized_lines", []) or [])
         self.description = "<br>".join(lines)

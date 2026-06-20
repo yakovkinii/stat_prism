@@ -10,9 +10,12 @@ from src.side_area_panel.blueprint.element import ItemInSidePanelWithAutoConfig
 
 
 class IISPWACLongTextEdit(ItemInSidePanelWithAutoConfig):
-    def __init__(self, label_text: str):
+    def __init__(self, label_text: str, enabled_when=None):
         super().__init__()
         self.label_text = label_text
+        # Optional predicate(kwargs) -> bool. When supplied, the edit (and its label) are
+        # enabled only while it returns True; disabled (greyed, read-only) otherwise.
+        self.enabled_when = enabled_when
         self.handler_editing_finished = None
 
     def post_init(self, name, parent_widget):
@@ -41,6 +44,10 @@ class IISPWACLongTextEdit(ItemInSidePanelWithAutoConfig):
     def configure(self, **kwargs):
         text = kwargs[self.name]
         self.edit.setText(text if text is not None else "")
+        if self.enabled_when is not None:
+            enabled = bool(self.enabled_when(kwargs))
+            self.edit.setEnabled(enabled)
+            self.label.setEnabled(enabled)
 
     def set_alert(self):
         set_stylesheet(
