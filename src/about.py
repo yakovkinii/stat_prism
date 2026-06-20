@@ -1,4 +1,4 @@
 #  Copyright (c) 2023 StatPrism Team. All rights reserved.
 
 
-version = "0.9.0"
+version = "0.10.0"
