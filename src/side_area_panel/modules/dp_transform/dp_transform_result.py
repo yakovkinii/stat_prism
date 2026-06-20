@@ -4,16 +4,15 @@ import attrs
 from src.data.data import Data
 from src.side_area_panel.modules.common.result.registry import BaseResult
 
-# Numeric transforms, in dropdown order. Each produces a new column.
-TRANSFORMS = ["Z-score", "Center", "Min-max", "Log", "Rank", "Flip"]
-
 _METHODOLOGY = (
     "<b>Transform column</b><br>"
-    "Creates a new numeric column from one selected column: "
-    "<b>Z-score</b> (x − mean)/SD; <b>Center</b> x − mean; <b>Min-max</b> rescale to 0&ndash;1; "
-    "<b>Log</b> natural log (non-positive values become missing); <b>Rank</b> ascending ranks "
-    "(ties averaged); <b>Flip</b> reverse the scale (max + min − x). The original column is kept; "
-    "the result is added next to it."
+    "Reshapes one selected column <i>in place</i> (the column is replaced, not duplicated). "
+    "In order: <b>value mapping</b> (recode specific values); <b>target type</b> "
+    "(Nominal / Ordinal / Numeric); for Ordinal an explicit <b>category order</b> and an "
+    "optional <b>flip</b> that reverses the scale as (reference − x), with the reference "
+    "defaulting to max + min; for Numeric a <b>normalisation</b> "
+    "(Z-score, Stanine, Center, Min-max, Log, Rank); and a <b>colour tag</b>. The new name "
+    "defaults to the column's current name."
 )
 
 
@@ -21,8 +20,7 @@ _METHODOLOGY = (
 class TransformStudyConfig:
     data_source = attrs.field(default=None)
     column_selector = attrs.field(default=None)
-    transform = attrs.field(default=None)
-    new_name = attrs.field(default=None)
+    transform_spec = attrs.field(default=None)
 
 
 class TransformResult(BaseResult):
@@ -45,5 +43,10 @@ class TransformResult(BaseResult):
         cfg = self.config
         selected = cfg.column_selector[0] if cfg.column_selector else []
         column = selected[0] if selected else "(none)"
-        parts = [f"Column: {column}", f"Transform: {cfg.transform or 'Z-score'}"]
+        spec = cfg.transform_spec if isinstance(cfg.transform_spec, dict) else {}
+        parts = [f"Column: {column}", f"Type: {spec.get('type', '(unchanged)')}"]
+        if spec.get("type") == "Numeric" and spec.get("normalize") not in (None, "None"):
+            parts.append(f"Normalize: {spec.get('normalize')}")
+        if spec.get("type") == "Ordinal" and spec.get("flip"):
+            parts.append("Flipped")
         self.description = "<br>".join(parts)

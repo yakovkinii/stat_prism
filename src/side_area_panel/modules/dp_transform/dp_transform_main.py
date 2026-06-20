@@ -3,31 +3,37 @@
 import numpy as np
 import pandas as pd
 
+from src.common.constant import ColumnType
 from src.common.decorators import log_function
-from src.data.data import DataColumn
 from src.data.data_manager import DATA_MANAGER
-from src.side_area_panel.modules.common.utility import unique_name
+from src.side_area_panel.modules.common.utility import to_stanine, unique_name
 from src.side_area_panel.modules.dp_transform.dp_transform_result import TransformResult
 from src.side_area_panel.modules.dp_transform.dp_transform_ui import Elements
 
 
-def _apply_transform(series: pd.Series, transform: str) -> pd.Series:
-    x = pd.to_numeric(series, errors="coerce")
-    if transform == "Z-score":
+def _parse_float(text):
+    try:
+        return float(text)
+    except (TypeError, ValueError):
+        return None
+
+
+def _apply_normalize(x: pd.Series, method: str) -> pd.Series:
+    if method == "Z-score":
         std = x.std()
         return (x - x.mean()) / std if std else x - x.mean()
-    if transform == "Center":
+    if method == "Center":
         return x - x.mean()
-    if transform == "Min-max":
+    if method == "Min-max":
         span = x.max() - x.min()
         return (x - x.min()) / span if span else x - x.min()
-    if transform == "Log":
+    if method == "Log":
         return np.log(x.where(x > 0))
-    if transform == "Rank":
+    if method == "Rank":
         return x.rank(method="average")
-    if transform == "Flip":
-        return (x.max() + x.min()) - x
-    raise ValueError(f"Unknown transform: {transform}")
+    if method == "Stanine":
+        return to_stanine(x)
+    return x
 
 
 @log_function
@@ -46,17 +52,74 @@ def dp_transform_main(elements: Elements, result: TransformResult, update):
         elements.column_selector.set_alert(0)
         return result
     column_name = selected[0]
+    if column_name not in new_data.column_names():
+        elements.column_selector.set_alert(0)
+        return result
 
-    transform = cfg.transform or "Z-score"
-    transformed = _apply_transform(new_data[column_name].data_series, transform)
+    spec = cfg.transform_spec if isinstance(cfg.transform_spec, dict) else {}
+    col = new_data[column_name]
 
-    base_name = (cfg.new_name or "").strip() or f"{column_name} ({transform.lower()})"
-    new_name = unique_name(base_name, set(new_data.column_names()))
-    transformed = transformed.copy()
-    transformed.name = new_name
+    # 1. Value mapping (keys are original values; unmapped values pass through).
+    mapping = {f: t for f, t in (spec.get("mapping") or [])}
+    if mapping:
+        col.data_series = col.data_series.map(lambda v: mapping[v] if v in mapping else v)
 
-    new_column = DataColumn.initialize_from_series(transformed)
-    new_data.add_column_after(column_name, new_column)
+    # 2. Target type.
+    try:
+        ctype = ColumnType(spec.get("type"))
+    except (ValueError, TypeError):
+        ctype = col.column_type
+    col.column_type = ctype
+    col.is_numeric = ctype == ColumnType.NUMERIC
 
+    # Ordinal flip works on the numeric codes, before any stringification.
+    if ctype == ColumnType.ORDINAL and spec.get("flip"):
+        numeric = pd.to_numeric(col.data_series, errors="coerce")
+        if not numeric.dropna().empty:
+            reference = _parse_float(spec.get("flip_reference"))
+            if reference is None:
+                reference = numeric.max() + numeric.min()
+            col.data_series = reference - numeric
+
+    if ctype == ColumnType.NUMERIC:
+        coerced = pd.to_numeric(col.data_series, errors="coerce")
+        method = spec.get("normalize") or "None"
+        if method != "None":
+            coerced = _apply_normalize(coerced, method)
+        if coerced.notna().all() and bool((coerced == coerced.round()).all()):
+            col.data_series = coerced.astype("int64")
+            col.column_dtype = "int"
+        else:
+            col.data_series = coerced
+            col.column_dtype = "float"
+    else:
+        # nominal / ordinal -> string labels (keep NaN as NaN)
+        col.data_series = col.data_series.apply(lambda v: v if pd.isna(v) else str(v))
+        col.column_dtype = "str"
+
+    # 3. Ordering (ordinal only); explicit order expressed over the mapped values.
+    if ctype == ColumnType.ORDINAL:
+        col.order = {}
+        for raw in (spec.get("order") or []):
+            value = mapping.get(raw, raw)
+            value = value if pd.isna(value) else str(value)
+            if value not in col.order:
+                col.order[value] = len(col.order) + 1
+        col.automatically_update_order()
+    else:
+        col.order = {}
+
+    # 4. Rename (replace in place; keep unique against the other columns).
+    target = (spec.get("new_name") or "").strip() or column_name
+    others = set(new_data.column_names()) - {column_name}
+    if target in others:
+        target = unique_name(target, others)
+    if target != column_name:
+        col.rename(target)
+
+    # 5. Colour tag.
+    col.color = spec.get("color")
+
+    new_data.update_lookups()
     result.data = new_data
     return result
