@@ -96,6 +96,21 @@ class DataProcessingResultDisplay(BaseResultDisplay):
             ],
         )
 
+        # Enable/disable toggle for toggleable results (e.g. the Filter module). It sits to
+        # the left of the small action icons in the top row.
+        self.toggle_button = None
+        if getattr(RESULTS[self.result_id], "toggleable", False):
+            self.toggle_button = widget_in_layout(
+                widget=QPushButton(self.body_widget),
+                layout=self.body_layout,
+                alignment=Qt.AlignmentFlag.AlignVCenter,
+                setup=lambda w, l: [
+                    w.setMinimumHeight(40),
+                    w.setCursor(Qt.CursorShape.PointingHandCursor),
+                    w.clicked.connect(self.toggle_enabled),
+                ],
+            )
+
         # Action buttons, top-right.
         self.actions_widget, self.actions_layout = empty_widget(
             widget_class=QWidgetClickable,
@@ -188,21 +203,6 @@ class DataProcessingResultDisplay(BaseResultDisplay):
         )
         self.deleting = False
         self.deleted = False
-
-        # Enable/disable toggle for toggleable results (e.g. the Filter module),
-        # flush to the right.
-        self.toggle_button = None
-        if getattr(RESULTS[self.result_id], "toggleable", False):
-            self.toggle_button = widget_in_layout(
-                widget=QPushButton(self.body_widget),
-                layout=self.body_layout,
-                alignment=Qt.AlignmentFlag.AlignVCenter,
-                setup=lambda w, l: [
-                    w.setMinimumHeight(40),
-                    w.setCursor(Qt.CursorShape.PointingHandCursor),
-                    w.clicked.connect(self.toggle_enabled),
-                ],
-            )
 
         self.refresh()
         self.remove_focus(None)

@@ -222,9 +222,12 @@ def _code_new_rows(column, n):
         return pd.to_numeric(series, errors="coerce")
     if column.column_type == ColumnType.ORDINAL and column.order:
         return pd.to_numeric(series.map(column.order), errors="coerce")
-    codes, _ = pd.factorize(series)
-    coded = pd.Series(codes, dtype=float)
-    return coded.where(coded >= 0)
+    # Nominal: code by the SAME ordering rank-matching used to induce the correlation
+    # (alphabetical by label, matching _sort_key) -- not pd.factorize's first-appearance
+    # order, which disagrees with it and would flip the measured sign.
+    uniques = sorted(series.dropna().unique(), key=lambda v: str(v))
+    rank_of = {v: float(i) for i, v in enumerate(uniques)}
+    return series.map(rank_of)
 
 
 def _safe_spearman(x, y):

@@ -86,7 +86,9 @@ class IISPWACColumnFilter(ItemInSidePanelWithAutoConfig):
         # Only restore the saved spec if it belongs to the currently-selected column.
         spec = spec if (spec is not None and spec.get("column") == column_name) else None
 
-        if column.column_type == ColumnType.NUMERIC:
+        # The ID column is filtered like a numeric column (==, !=, <, >, comma-separated
+        # lists), since picking IDs from a long checkbox list is impractical.
+        if column.column_type in (ColumnType.NUMERIC, ColumnType.ID):
             self.current_mode = "numeric"
             self._build_numeric(spec)
         else:

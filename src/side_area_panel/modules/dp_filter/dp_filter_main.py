@@ -19,12 +19,6 @@ _NUMERIC_OPS = {
 }
 
 
-def _parse_numeric_values(text):
-    """Split on commas, semicolons and whitespace into a list of floats."""
-    tokens = [token for token in re.split(r"[,;\s]+", text.strip()) if token != ""]
-    return [float(token) for token in tokens]
-
-
 def _empty_mask(series: pd.Series) -> pd.Series:
     """True where the cell is missing or blank -- captures both NaN and empty strings ""."""
     return series.isna() | (series.astype(str).str.strip() == "")
@@ -77,14 +71,16 @@ def dp_filter_main(elements: Elements, result: FilterDataResult, update):
             numeric = pd.to_numeric(series, errors="coerce")
             if operation in ("==", "!="):
                 # Accept multiple values (space/comma/semicolon separated) -> in / not in.
+                # Numeric tokens match numerically; if any token is non-numeric (e.g. a
+                # string ID like "boot_1"), fall back to matching the values as strings.
+                tokens = [tok for tok in re.split(r"[,;\s]+", value_text.strip()) if tok != ""]
+                if not tokens:
+                    return _set_no_filter(result, data)
                 try:
-                    values = _parse_numeric_values(value_text)
+                    values = [float(tok) for tok in tokens]
+                    is_in = numeric.isin(values)
                 except ValueError:
-                    elements.column_filter.set_alert()
-                    return _set_no_filter(result, data)
-                if not values:
-                    return _set_no_filter(result, data)
-                is_in = numeric.isin(values)
+                    is_in = series.astype(str).str.strip().isin(tokens)
                 mask = is_in if operation == "==" else ~is_in
             else:
                 op = _NUMERIC_OPS.get(operation)

@@ -126,6 +126,14 @@ class HomeInitial(BasePanel):
             module.ui_instance.configure(result_id=result_id)
             ModuleRegistry.RAW_DATA.ui_instance.open_file(file_path)
 
+        # Remember the project file so the next Save writes back to it (and the title bar
+        # shows it). A raw data import is not a project, so clear the path -> Save acts as
+        # Save As, prompting for a new .sp.
+        if file_path.endswith(".sp"):
+            self.root_class.set_current_file_path(file_path)
+        else:
+            self.root_class.set_current_file_path(None)
+
         # A freshly loaded project (or freshly imported file) has no unsaved changes yet,
         # even though building its cards marked the session dirty.
         self.root_class.clear_dirty()
