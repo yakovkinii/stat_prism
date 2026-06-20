@@ -24,6 +24,7 @@ from src.side_area_panel.modules.common.result.plot_result import (
     PlotV2,
     Scatter,
 )
+from src.side_area_panel.modules.common.column_numbering import ColumnNumbering
 from src.side_area_panel.modules.common.utility import format_r_apa
 from src.side_area_panel.modules.correlation.report import get_cross_report, get_report
 from src.side_area_panel.modules.correlation.correlation_result import (
@@ -180,11 +181,14 @@ def recalculate_correlation_study(elements, result: CorrelationResult, update) -
     update(45)
 
     ci_matrix = _build_ci_matrix(correlation_matrix, df_matrix, kind) if cfg.confidence_intervals else None
+    numbering = ColumnNumbering(columns, enabled=bool(cfg.number_columns))
 
     if cfg.compact:
-        html_table = get_table_compact(columns, correlation_matrix, p_matrix, kind=kind)
+        html_table = get_table_compact(columns, correlation_matrix, p_matrix, kind=kind, numbering=numbering)
     else:
-        html_table = get_table_full(columns, correlation_matrix, p_matrix, df_matrix, kind=kind, ci_matrix=ci_matrix)
+        html_table = get_table_full(
+            columns, correlation_matrix, p_matrix, df_matrix, kind=kind, ci_matrix=ci_matrix, numbering=numbering
+        )
 
     # Verbal report (prefixed with a note when these are partial correlations)
     verbal = get_report(
@@ -255,9 +259,10 @@ def _run_cross(result, cfg, data, rows, cols, control_columns, kind, is_partial,
     update(45)
 
     ci_matrix = _build_ci_matrix(correlation_matrix, df_matrix, kind) if cfg.confidence_intervals else None
+    numbering = ColumnNumbering(list(rows) + list(cols), enabled=bool(cfg.number_columns))
 
     html_table = get_table_cross(
-        rows, cols, correlation_matrix, p_matrix, df_matrix, kind, compact=cfg.compact, ci_matrix=ci_matrix
+        rows, cols, correlation_matrix, p_matrix, df_matrix, kind, compact=cfg.compact, ci_matrix=ci_matrix, numbering=numbering
     )
 
     verbal = get_cross_report(

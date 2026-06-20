@@ -3,6 +3,7 @@
 
 from src.common.constant import MDASH
 from src.common.translations import t
+from src.side_area_panel.modules.common.column_numbering import ColumnNumbering
 from src.side_area_panel.modules.common.result.html_result import Cell, HTMLTableV2, Row
 from src.side_area_panel.modules.common.utility import (
     format_p_apa_exact,
@@ -22,6 +23,11 @@ _TABLE_NAME_KEY = {
 }
 if hasattr(CorrelationType, "KENDALL_C"):
     _TABLE_NAME_KEY[CorrelationType.KENDALL_C] = "correlation.table.name.kendall_c"
+
+
+def _numbering(numbering):
+    """Use the given numbering, or a disabled pass-through one when None."""
+    return numbering if numbering is not None else ColumnNumbering([], False)
 
 
 def _caption(kind, columns):
@@ -56,15 +62,18 @@ def get_correlation_short_name(kind: CorrelationType) -> str:
         raise ValueError(f"Invalid correlation type: {kind}")
 
 
-def get_table_compact(columns, correlation_matrix, p_matrix, kind: CorrelationType) -> HTMLTableV2:
+def get_table_compact(columns, correlation_matrix, p_matrix, kind: CorrelationType, numbering=None) -> HTMLTableV2:
+    numbering = _numbering(numbering)
     table = HTMLTableV2(table_caption=_caption(kind, columns))
 
     # Add header
-    table.add_title_row_apa(Row([Cell()] + [Cell(column, col_span=2, center=True) for column in columns]))
+    table.add_title_row_apa(
+        Row([Cell()] + [Cell(numbering.label(column), col_span=2, center=True) for column in columns])
+    )
 
     # Add matrix
     for i_row, row in enumerate(columns):
-        table_row = [Cell(row)]
+        table_row = [Cell(numbering.label(row))]
         for i_column, column in enumerate(columns):
             if i_column < i_row:
                 table_row.append(
@@ -84,7 +93,7 @@ def get_table_compact(columns, correlation_matrix, p_matrix, kind: CorrelationTy
                 table_row.append(Cell(push_to_left=True, is_doubled=True))
         table.add_single_row_apa(Row(table_row))
 
-    table.table_note = t("correlation.table.significance_note")
+    table.table_note = numbering.append_to_note(t("correlation.table.significance_note"))
 
     return table
 
@@ -99,33 +108,34 @@ def _ci_cell(ci_value):
 
 
 def get_table_cross(
-    rows, cols, correlation_matrix, p_matrix, df_matrix, kind: CorrelationType, compact: bool, ci_matrix=None
+    rows, cols, correlation_matrix, p_matrix, df_matrix, kind: CorrelationType, compact: bool, ci_matrix=None, numbering=None
 ) -> HTMLTableV2:
     """Rectangular two-set correlation table: `rows` down the side, `cols` across the top,
     every cell filled (full grid). Compact shows r + stars; full stacks r / p / df (/ CI)."""
+    numbering = _numbering(numbering)
     table = HTMLTableV2(table_caption=_cross_caption(kind, rows, cols))
     hide_df_matrix = all(df_matrix.isnull().values.flatten())
     show_ci = ci_matrix is not None
 
     if compact:
-        table.add_title_row_apa(Row([Cell()] + [Cell(col, col_span=2, center=True) for col in cols]))
+        table.add_title_row_apa(Row([Cell()] + [Cell(numbering.label(col), col_span=2, center=True) for col in cols]))
         for row in rows:
-            table_row = [Cell(row)]
+            table_row = [Cell(numbering.label(row))]
             for col in cols:
                 table_row.append(
                     Cell(format_r_apa(correlation_matrix.loc[row, col]), push_to_right=True, is_doubled=True, no_wrap=True)
                 )
                 table_row.append(Cell(get_stars(p_matrix.loc[row, col]), push_to_left=True, is_doubled=True))
             table.add_single_row_apa(Row(table_row))
-        table.table_note = t("correlation.table.significance_note")
+        table.table_note = numbering.append_to_note(t("correlation.table.significance_note"))
         return table
 
     # Full: r / p (/ df) (/ CI) stacked per row.
     n_stack = 2 + (0 if hide_df_matrix else 1) + (1 if show_ci else 0)
-    table.add_title_row_apa(Row([Cell(col_span=2)] + [Cell(col, col_span=2, center=True) for col in cols]))
+    table.add_title_row_apa(Row([Cell(col_span=2)] + [Cell(numbering.label(col), col_span=2, center=True) for col in cols]))
     for row in rows:
         table_row_1 = [
-            Cell(row, row_span=n_stack),
+            Cell(numbering.label(row), row_span=n_stack),
             Cell(get_correlation_short_name(kind), no_wrap=True),
         ]
         for col in cols:
@@ -160,11 +170,12 @@ def get_table_cross(
 
         table.add_multirow_apa(stacked)
 
-    table.table_note = t("correlation.table.significance_note")
+    table.table_note = numbering.append_to_note(t("correlation.table.significance_note"))
     return table
 
 
-def get_table_full(columns, correlation_matrix, p_matrix, df_matrix, kind: CorrelationType, ci_matrix=None) -> HTMLTableV2:
+def get_table_full(columns, correlation_matrix, p_matrix, df_matrix, kind: CorrelationType, ci_matrix=None, numbering=None) -> HTMLTableV2:
+    numbering = _numbering(numbering)
     table = HTMLTableV2(table_caption=_caption(kind, columns))
 
     hide_df_matrix = all(df_matrix.isnull().values.flatten())
@@ -172,12 +183,12 @@ def get_table_full(columns, correlation_matrix, p_matrix, df_matrix, kind: Corre
     n_stack = 2 + (0 if hide_df_matrix else 1) + (1 if show_ci else 0)
 
     # Add header
-    table.add_title_row_apa(Row([Cell(col_span=2)] + [Cell(column, col_span=2, center=True) for column in columns]))
+    table.add_title_row_apa(Row([Cell(col_span=2)] + [Cell(numbering.label(column), col_span=2, center=True) for column in columns]))
 
     # Add matrix
     for i_row, row in enumerate(columns):
         table_row_1 = [
-            Cell(row, row_span=n_stack),
+            Cell(numbering.label(row), row_span=n_stack),
             Cell(get_correlation_short_name(kind), no_wrap=True),
         ]
         for i_column, column in enumerate(columns):
@@ -245,6 +256,6 @@ def get_table_full(columns, correlation_matrix, p_matrix, df_matrix, kind: Corre
 
         table.add_multirow_apa(stacked)
 
-    table.table_note = t("correlation.table.significance_note")
+    table.table_note = numbering.append_to_note(t("correlation.table.significance_note"))
 
     return table

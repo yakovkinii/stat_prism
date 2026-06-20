@@ -8,6 +8,7 @@ from src.common.constant import ColumnType
 from src.common.decorators import log_function
 from src.common.translations import t
 from src.data.data_manager import DATA_MANAGER
+from src.side_area_panel.modules.common.column_numbering import ColumnNumbering
 from src.side_area_panel.modules.common.utility import format_value_apa, smart_comma_join
 from src.side_area_panel.modules.descriptive.descriptive_result import DescriptiveResult
 from src.side_area_panel.modules.descriptive.plot import (
@@ -150,6 +151,7 @@ def recalculate_descriptive_study(elements, result: DescriptiveResult, update) -
     ]
     categorical_columns = [col for col in selected_columns if col not in numeric_columns]
     groupby_values = list(df[grouping_column].dropna().unique()) if grouping_column else None
+    numbering = ColumnNumbering(numeric_columns, enabled=bool(cfg.number_columns))
 
     # ----- Numeric summary table -----
     if numeric_columns:
@@ -165,6 +167,7 @@ def recalculate_descriptive_study(elements, result: DescriptiveResult, update) -
             caption=t("descriptive.table.caption"),
             extended=bool(cfg.extended_stats),
             groupby_column=grouping_column,
+            numbering=numbering,
         )
 
         # Outlier report, placed directly beneath the main summary table. Each sentence
@@ -223,6 +226,7 @@ def recalculate_descriptive_study(elements, result: DescriptiveResult, update) -
             statistic_letter=letter,
             groupby_column=grouping_column,
             show_normal_column=bool(cfg.verbal_indicators),
+            numbering=numbering,
         )
         result.update_and_add_element(normality, "descriptive normality")
 

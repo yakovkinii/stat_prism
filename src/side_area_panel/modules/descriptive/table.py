@@ -7,6 +7,7 @@ import numpy as np
 import pandas as pd
 
 from src.common.translations import t
+from src.side_area_panel.modules.common.column_numbering import ColumnNumbering
 from src.side_area_panel.modules.common.result.html_result import Cell, HTMLTableV2, Row
 from src.side_area_panel.modules.common.utility import (
     format_p_apa_exact,
@@ -26,14 +27,21 @@ _EXTENDED_COLUMNS = [
 ]
 
 
+def _numbering(numbering):
+    """Use the given numbering, or a disabled pass-through one when None."""
+    return numbering if numbering is not None else ColumnNumbering([], False)
+
+
 def get_numeric_summary_table(
     rows: List[dict],
     caption: str,
     extended: bool = False,
     groupby_column: str = None,
+    numbering=None,
 ) -> HTMLTableV2:
     """Numeric summary. `rows` is a flat list of per-variable (or per-variable-per-group)
     stat dicts. With a groupby_column the variable name is shown once per block."""
+    numbering = _numbering(numbering)
     table = HTMLTableV2(table_caption=caption)
     grouped = groupby_column is not None
 
@@ -48,7 +56,8 @@ def get_numeric_summary_table(
 
     prev_variable = None
     for r in rows:
-        cells = [Cell(r["variable"] if r["variable"] != prev_variable else "", push_to_left=True)]
+        label = numbering.label(r["variable"]) if r["variable"] != prev_variable else ""
+        cells = [Cell(label, push_to_left=True)]
         prev_variable = r["variable"]
         if grouped:
             cells.append(Cell(str(r.get("group", "")), center=True))
@@ -66,6 +75,7 @@ def get_numeric_summary_table(
         ]
         table.add_single_row_apa(Row(cells))
 
+    table.table_note = numbering.append_to_note(table.table_note or "")
     return table
 
 
@@ -80,10 +90,12 @@ def get_normality_table(
     statistic_letter: str,
     groupby_column: str = None,
     show_normal_column: bool = True,
+    numbering=None,
 ) -> HTMLTableV2:
     """Normality results: per variable (or per group) the test statistic, p, and (when
     `show_normal_column`) a verbal normal? conclusion, followed by a verbal summary.
     `rows` have keys: variable, group, norm_stat, norm_p."""
+    numbering = _numbering(numbering)
     table = HTMLTableV2(table_caption=caption)
     grouped = groupby_column is not None
 
@@ -106,7 +118,8 @@ def get_normality_table(
             if is_normal
             else (t("descriptive.normality.no") if not _is_nan(r["norm_p"]) else "—")
         )
-        cells = [Cell(r["variable"] if r["variable"] != prev_variable else "", push_to_left=True)]
+        label = numbering.label(r["variable"]) if r["variable"] != prev_variable else ""
+        cells = [Cell(label, push_to_left=True)]
         prev_variable = r["variable"]
         if grouped:
             cells.append(Cell(str(r.get("group", "")), center=True))
@@ -122,6 +135,7 @@ def get_normality_table(
     # If any cell is blank (test could not run), explain why rather than leaving it unexplained.
     if any(_is_nan(r["norm_p"]) for r in rows):
         table.add_text(t("descriptive.normality.note_blank"))
+    table.table_note = numbering.append_to_note(table.table_note or "")
     return table
 
 

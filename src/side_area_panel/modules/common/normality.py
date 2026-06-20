@@ -8,6 +8,7 @@ from scipy import stats
 from scipy.stats._morestats import ShapiroResult
 
 from src.common.translations import t
+from src.side_area_panel.modules.common.column_numbering import ColumnNumbering
 from src.side_area_panel.modules.common.result.html_result import Cell, HTMLTableV2, Row
 from src.side_area_panel.modules.common.utility import (
     format_p_apa,
@@ -25,8 +26,10 @@ def process_normality_check(
     selected_columns,
     grouping_column,
     verbal_indicators=False,
+    numbering=None,
 ):
     show_verbal = 1 if verbal_indicators else 0
+    numbering = numbering if numbering is not None else ColumnNumbering([], False)
     table = HTMLTableV2(table_caption=t("ttest.caption.shapiro"))
     table.add_title_row_apa(
         Row(
@@ -53,7 +56,7 @@ def process_normality_check(
             table.add_single_row_apa(
                 Row(
                     [
-                        Cell(col, push_to_left=True) if i == 0 else Cell(),
+                        Cell(numbering.label(col), push_to_left=True) if i == 0 else Cell(),
                         Cell(str(group_name), center=True),
                         Cell(format_statistic_apa(shapiro_result.statistic), center=True),
                         Cell(format_p_apa(shapiro_result.pvalue), center=True),
@@ -81,5 +84,6 @@ def process_normality_check(
             no_property=t("ttest.prop.not_normal"),
         )
     )
+    table.table_note = numbering.append_to_note(table.table_note or "")
 
     return normal_columns, non_normal_columns, table

@@ -106,6 +106,12 @@ class ModuleRegistry(Enum):
         module_type=ModuleType.DATA_PROCESSING,
     )
 
+    BOOTSTRAP = ModuleRegistryItem(
+        display_name="Bootstrap Sensitivity",
+        icon_path="mdi6.dice-multiple-outline",
+        module_type=ModuleType.DATA_PROCESSING,
+    )
+
     DESCRIPTIVE = ModuleRegistryItem(
         display_name="Descriptive Statistics",
         icon_path="ph.note",

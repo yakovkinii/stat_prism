@@ -16,6 +16,7 @@ class CFAStudyConfig:
     n_factors = attrs.field(default=None)
     allow_factor_correlation = attrs.field(default=None)
     verbal_indicators = attrs.field(default=None)
+    number_columns = attrs.field(default=None)
     plots = attrs.field(default=None)
 
 

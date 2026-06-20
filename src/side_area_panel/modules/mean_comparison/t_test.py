@@ -11,6 +11,7 @@ from src.common.decorators import log_function
 from src.common.qcolor import Colors
 from src.common.translations import t
 from src.data.data import Data
+from src.side_area_panel.modules.common.column_numbering import ColumnNumbering
 from src.side_area_panel.modules.common.homogeneity import process_homogeneity_check
 from src.side_area_panel.modules.common.normality import process_normality_check
 from src.side_area_panel.modules.common.result.html_result import Cell, HTMLTableV2, Row
@@ -65,6 +66,8 @@ def recalculate_mean_comparison_t_test(
     numeric_columns = [col for col in selected_columns if data[col].column_type == ColumnType.NUMERIC]
     non_numeric_columns = [col for col in selected_columns if col not in numeric_columns]
 
+    numbering = ColumnNumbering(list(selected_columns), enabled=bool(getattr(cfg, "number_columns", False)))
+
     normal_columns, non_normal_columns = [], []
 
     if cfg.method in [MeanComparisonMethod.HOMOGENEOUS.value, MeanComparisonMethod.INHOMOGENEOUS.value]:
@@ -75,6 +78,7 @@ def recalculate_mean_comparison_t_test(
                 selected_columns=numeric_columns,
                 grouping_column=grouping_column,
                 verbal_indicators=cfg.verbal_indicators,
+                numbering=numbering,
             )
             if len(numeric_columns) > 0:
                 result.update_and_add_element(
@@ -90,6 +94,7 @@ def recalculate_mean_comparison_t_test(
                 selected_columns=numeric_columns,
                 grouping_column=grouping_column,
                 verbal_indicators=cfg.verbal_indicators,
+                numbering=numbering,
             )
             if len(numeric_columns) > 0:
                 result.update_and_add_element(
@@ -102,6 +107,7 @@ def recalculate_mean_comparison_t_test(
             selected_columns=numeric_columns,
             grouping_column=grouping_column,
             verbal_indicators=cfg.verbal_indicators,
+            numbering=numbering,
         )
         if (len(numeric_columns) > 0) and not (cfg.assumption_checks == AssumptionChecksInGrouping.NEVER.value):
             result.update_and_add_element(
@@ -118,6 +124,7 @@ def recalculate_mean_comparison_t_test(
                 selected_columns=numeric_columns,
                 grouping_column=grouping_column,
                 verbal_indicators=cfg.verbal_indicators,
+                numbering=numbering,
             )
             if len(normal_columns) > 0:
                 result.update_and_add_element(
@@ -132,6 +139,7 @@ def recalculate_mean_comparison_t_test(
                 selected_columns=numeric_columns,
                 grouping_column=grouping_column,
                 verbal_indicators=cfg.verbal_indicators,
+                numbering=numbering,
             )
             if len(normal_columns) > 0:
                 result.update_and_add_element(
@@ -146,6 +154,7 @@ def recalculate_mean_comparison_t_test(
             else numeric_columns,
             grouping_column=grouping_column,
             verbal_indicators=cfg.verbal_indicators,
+            numbering=numbering,
         )
         if (len(normal_columns) > 0) and not (cfg.assumption_checks == AssumptionChecksInGrouping.NEVER.value):
             result.update_and_add_element(
@@ -165,6 +174,7 @@ def recalculate_mean_comparison_t_test(
                 grouping_column=grouping_column,
                 effect_size=cfg.effect_size,
                 verbal_indicators=cfg.verbal_indicators,
+                numbering=numbering,
             ),
             "t_test non_normal_table",
         )
@@ -178,6 +188,7 @@ def recalculate_mean_comparison_t_test(
                 effect_size=cfg.effect_size,
                 verbal_indicators=cfg.verbal_indicators,
                 confidence_intervals=cfg.confidence_intervals,
+                numbering=numbering,
             ),
             "t_test non_homogeneous_table",
         )
@@ -191,6 +202,7 @@ def recalculate_mean_comparison_t_test(
                 effect_size=cfg.effect_size,
                 verbal_indicators=cfg.verbal_indicators,
                 confidence_intervals=cfg.confidence_intervals,
+                numbering=numbering,
             ),
             "t_test homogeneous_table",
         )
@@ -213,12 +225,13 @@ def _cohen_d_ci(cohen_d: float, n1: int, n2: int) -> str:
 
 
 def process_non_normal_t_test(
-    df: pd.DataFrame, non_numeric_columns, non_normal_columns, grouping_column, effect_size, verbal_indicators=False
+    df: pd.DataFrame, non_numeric_columns, non_normal_columns, grouping_column, effect_size, verbal_indicators=False, numbering=None
 ) -> HTMLTableV2:
     # The verbal magnitude column only makes sense alongside the numeric effect size; the
     # significance verbal follows the p-value whenever verbal indicators are on.
     show_verbal = 1 if (effect_size and verbal_indicators) else 0
     show_sig = 1 if verbal_indicators else 0
+    numbering = numbering if numbering is not None else ColumnNumbering([], False)
     table = HTMLTableV2(table_caption=t("ttest.caption.mann_whitney"))
     group1_name = df[grouping_column].unique()[0]
     group2_name = df[grouping_column].unique()[1]
@@ -296,7 +309,7 @@ def process_non_normal_t_test(
         table.add_single_row_apa(
             Row(
                 [
-                    Cell(col, push_to_left=True),
+                    Cell(numbering.label(col), push_to_left=True),
                     Cell(format_statistic_apa(u_stat), center=True),
                     Cell(format_p_apa(p_val), center=True),
                 ]
@@ -327,13 +340,15 @@ def process_non_normal_t_test(
             no_property=t("ttest.prop.not_sig_diff"),
         )
     )
+    table.table_note = numbering.append_to_note(table.table_note or "")
     return table
 
 
-def process_homogeneous_t_test(df: pd.DataFrame, columns, grouping_column, effect_size, verbal_indicators=False, confidence_intervals=False) -> HTMLTableV2:
+def process_homogeneous_t_test(df: pd.DataFrame, columns, grouping_column, effect_size, verbal_indicators=False, confidence_intervals=False, numbering=None) -> HTMLTableV2:
     show_verbal = 1 if (effect_size and verbal_indicators) else 0
     show_sig = 1 if verbal_indicators else 0
     show_ci = 1 if (effect_size and confidence_intervals) else 0
+    numbering = numbering if numbering is not None else ColumnNumbering([], False)
     table = HTMLTableV2(table_caption=t("ttest.caption.ttest_independent"))
 
     group1_name = df[grouping_column].unique()[0]
@@ -406,7 +421,7 @@ def process_homogeneous_t_test(df: pd.DataFrame, columns, grouping_column, effec
         table.add_single_row_apa(
             Row(
                 [
-                    Cell(col, push_to_left=True),
+                    Cell(numbering.label(col), push_to_left=True),
                     Cell(format_statistic_apa(t_stat), center=True),
                     Cell(format_p_apa(p_val), center=True),
                 ]
@@ -441,14 +456,16 @@ def process_homogeneous_t_test(df: pd.DataFrame, columns, grouping_column, effec
     )
     if ci_items:
         table.add_text(t("ttest.ci_sentence", items=smart_comma_join(ci_items)))
+    table.table_note = numbering.append_to_note(table.table_note or "")
     return table
 
 
-def process_non_homogeneous_t_test(df: pd.DataFrame, columns, grouping_column, effect_size, verbal_indicators=False, confidence_intervals=False) -> HTMLTableV2:
+def process_non_homogeneous_t_test(df: pd.DataFrame, columns, grouping_column, effect_size, verbal_indicators=False, confidence_intervals=False, numbering=None) -> HTMLTableV2:
     # inhomogeneous => Welch's t-test
     show_verbal = 1 if (effect_size and verbal_indicators) else 0
     show_sig = 1 if verbal_indicators else 0
     show_ci = 1 if (effect_size and confidence_intervals) else 0
+    numbering = numbering if numbering is not None else ColumnNumbering([], False)
     table = HTMLTableV2(table_caption=t("ttest.caption.welch_ttest"))
 
     group1_name = df[grouping_column].unique()[0]
@@ -523,7 +540,7 @@ def process_non_homogeneous_t_test(df: pd.DataFrame, columns, grouping_column, e
         table.add_single_row_apa(
             Row(
                 [
-                    Cell(col, push_to_left=True),
+                    Cell(numbering.label(col), push_to_left=True),
                     Cell(format_statistic_apa(t_stat), center=True),
                     Cell(format_p_apa(p_val), center=True),
                 ]
@@ -555,4 +572,5 @@ def process_non_homogeneous_t_test(df: pd.DataFrame, columns, grouping_column, e
     )
     if ci_items:
         table.add_text(t("ttest.ci_sentence", items=smart_comma_join(ci_items)))
+    table.table_note = numbering.append_to_note(table.table_note or "")
     return table

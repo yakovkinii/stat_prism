@@ -31,6 +31,7 @@ class Elements(ItemInSidePanelWithAutoConfigHolder):
     rotation = IISPWACComboBox(label_text="Rotation:", items=RotationType.get_values())
     n_factors = IISPWACSpin(label_text="Number of factors:", min_value=1, max_value=100, default_value=2)
     kaiser_normalization = IISPWACCheckBox(label_text="Kaiser normalization", default_state=True)
+    number_columns = IISPWACCheckBox(label_text="Number variables in tables", default_state=False)
     plots = IISPWACCheckBox(label_text="Plots", default_state=True)
     spacer = IISPWACSpacer()
 

@@ -8,6 +8,7 @@ from scipy import stats
 from scipy.stats._morestats import LeveneResult
 
 from src.common.translations import t
+from src.side_area_panel.modules.common.column_numbering import ColumnNumbering
 from src.side_area_panel.modules.common.result.html_result import Cell, HTMLTableV2, Row
 from src.side_area_panel.modules.common.utility import (
     format_p_apa,
@@ -25,8 +26,10 @@ def process_homogeneity_check(
     selected_columns,
     grouping_column,
     verbal_indicators=False,
+    numbering=None,
 ):
     show_verbal = 1 if verbal_indicators else 0
+    numbering = numbering if numbering is not None else ColumnNumbering([], False)
     table = HTMLTableV2(table_caption=t("ttest.caption.levene"))
     table.add_title_row_apa(
         Row(
@@ -53,7 +56,7 @@ def process_homogeneity_check(
         table.add_single_row_apa(
             Row(
                 [
-                    Cell(col, push_to_left=True),
+                    Cell(numbering.label(col), push_to_left=True),
                     Cell(format_statistic_apa(levene_result.statistic), center=True),
                     Cell(format_p_apa(levene_result.pvalue), center=True),
                 ]
@@ -91,5 +94,6 @@ def process_homogeneity_check(
             no_property=t("ttest.prop.inhomogeneous"),
         )
     )
+    table.table_note = numbering.append_to_note(table.table_note or "")
 
     return homogeneous_columns, non_homogeneous_columns, table

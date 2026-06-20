@@ -17,6 +17,7 @@ class ReliabilityStudyConfig:
     scale_name = attrs.field(default=None)
     mcdonald_omega = attrs.field(default=None)
     verbal_indicators = attrs.field(default=None)
+    number_columns = attrs.field(default=None)
 
 
 class ReliabilityResult(BaseResult):

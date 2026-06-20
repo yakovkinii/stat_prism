@@ -42,6 +42,7 @@ class CorrelationStudyConfig:
     generate_plots = attrs.field(default=None)
     report_only_significant = attrs.field(default=None)
     confidence_intervals = attrs.field(default=None)
+    number_columns = attrs.field(default=None)
 
 
 class CorrelationResult(BaseResult):

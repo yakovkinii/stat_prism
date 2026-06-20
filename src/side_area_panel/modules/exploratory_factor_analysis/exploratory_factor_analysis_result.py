@@ -45,6 +45,7 @@ class FactorAnalysisStudyConfig:
     n_factors = attrs.field(default=None)
     kaiser_normalization = attrs.field(default=None)
     plots = attrs.field(default=None)
+    number_columns = attrs.field(default=None)
 
 
 class FactorAnalysisResult(BaseResult):

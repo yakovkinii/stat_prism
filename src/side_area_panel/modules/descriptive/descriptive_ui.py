@@ -40,6 +40,7 @@ class Elements(ItemInSidePanelWithAutoConfigHolder):
     show_normality = IISPWACCheckBox(label_text="Normality test", default_state=True)
     normality_test = IISPWACComboBox(label_text="Normality test:", items=NORMALITY_TESTS)
     verbal_indicators = IISPWACCheckBox(label_text="Verbal indicators in tables", default_state=True)
+    number_columns = IISPWACCheckBox(label_text="Number variables in tables", default_state=False)
     # --- Plots (each opt-in) ---
     show_distribution = IISPWACCheckBox(label_text="Distribution plots", default_state=True)
     show_box = IISPWACCheckBox(label_text="Box plots", default_state=False)

@@ -14,6 +14,7 @@ from src.common.decorators import log_function
 from src.common.qcolor import Colors
 from src.common.translations import t
 from src.data.data_manager import DATA_MANAGER
+from src.side_area_panel.modules.common.column_numbering import ColumnNumbering
 from src.side_area_panel.modules.common.result.html_result import Cell, HTMLTableV2, Row
 from src.side_area_panel.modules.common.result.plot_result import (
     Heatmap,
@@ -133,6 +134,7 @@ def recalculate_factor_analysis_study(elements, result: FactorAnalysisResult, up
     x = df.values
     columns = list(df.columns)
     factor_names = [f"F{i + 1}" for i in range(m)]
+    numbering = ColumnNumbering(columns, enabled=bool(cfg.number_columns))
 
     # ----- Sampling adequacy (KMO + Bartlett) -----
     correlation = np.corrcoef(x, rowvar=False)
@@ -141,7 +143,9 @@ def recalculate_factor_analysis_study(elements, result: FactorAnalysisResult, up
     diag_table = HTMLTableV2(table_caption=t("efa.caption.kmo"))
     diag_table.add_title_row_apa(Row([Cell(t("efa.row.kmo")), Cell(format_r_apa(kmo_overall), center=True)]))
     for name, val in zip(columns, msa):
-        diag_table.add_single_row_apa(Row([Cell(t("efa.row.msa", name=name)), Cell(format_r_apa(val), center=True)]))
+        diag_table.add_single_row_apa(
+            Row([Cell(t("efa.row.msa", name=numbering.label(name))), Cell(format_r_apa(val), center=True)])
+        )
     diag_table.add_single_row_apa(Row([Cell(t("efa.row.bartlett")), Cell(format_statistic_apa(bart_chi2), center=True)]))
     diag_table.add_single_row_apa(Row([Cell(t("efa.row.df")), Cell(str(bart_df), center=True)]))
     diag_table.add_single_row_apa(Row([Cell(t("common.p_value")), Cell(format_p_apa_exact(bart_p), center=True)]))
@@ -149,6 +153,7 @@ def recalculate_factor_analysis_study(elements, result: FactorAnalysisResult, up
     bartlett_key = "efa.report.bartlett_sig" if bart_p < 0.05 else "efa.report.bartlett_ns"
     diag_text += t(bartlett_key, df=bart_df, chi2=format_statistic_apa(bart_chi2), p=format_p_apa_full(bart_p))
     diag_table.add_text(diag_text)
+    diag_table.table_note = numbering.append_to_note(diag_table.table_note or "")
     result.update_and_add_element(diag_table, "efa diagnostics")
     update(30)
 
@@ -235,13 +240,14 @@ def recalculate_factor_analysis_study(elements, result: FactorAnalysisResult, up
     )
     load_table.add_title_row_apa(Row(load_header))
     for idx, var in enumerate(columns):
-        row = [Cell(var, push_to_left=True)]
+        row = [Cell(numbering.label(var), push_to_left=True)]
         row += [Cell(format_r_apa(loadings[idx, j]), center=True) for j in range(m)]
         row += [
             Cell(format_r_apa(communalities[idx]), center=True),
             Cell(format_r_apa(uniquenesses[idx]), center=True),
         ]
         load_table.add_single_row_apa(Row(row))
+    load_table.table_note = numbering.append_to_note(load_table.table_note or "")
     result.update_and_add_element(load_table, "efa loadings")
 
     # ----- Loadings heatmap -----
@@ -275,8 +281,9 @@ def recalculate_factor_analysis_study(elements, result: FactorAnalysisResult, up
         )
         for idx, var in enumerate(columns):
             struct_table.add_single_row_apa(
-                Row([Cell(var, push_to_left=True)] + [Cell(format_r_apa(structure[idx, j]), center=True) for j in range(m)])
+                Row([Cell(numbering.label(var), push_to_left=True)] + [Cell(format_r_apa(structure[idx, j]), center=True) for j in range(m)])
             )
+        struct_table.table_note = numbering.append_to_note(struct_table.table_note or "")
         result.update_and_add_element(struct_table, "efa structure")
 
     result.title_context = f"{m} factors, {cfg.rotation}"

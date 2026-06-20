@@ -35,6 +35,10 @@ TRANSLATIONS = {
         "en": "95% CI",
         "ua": "95% ДІ",
     },
+    "common.column_numbering.legend": {
+        "en": "Columns: {items}.",
+        "ua": "Стовпці: {items}.",
+    },
     "common.mean": {
         "en": "Mean",
         "ua": "Середнє",

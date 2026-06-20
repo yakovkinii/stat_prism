@@ -10,6 +10,7 @@ from scipy.stats import norm
 from src.common.decorators import log_function
 from src.common.translations import t
 from src.data.data_manager import DATA_MANAGER
+from src.side_area_panel.modules.common.column_numbering import ColumnNumbering
 from src.side_area_panel.modules.common.result.html_result import Cell, HTMLTableV2, Row
 from src.side_area_panel.modules.common.result.plot_result import Heatmap, PlotV2
 from src.side_area_panel.modules.common.utility import (
@@ -121,6 +122,7 @@ def recalculate_cfa_study(elements, result: CFAResult, update) -> CFAResult:
     verbal = bool(cfg.verbal_indicators)
     columns = list(df.columns)
     factor_names = [f"F{i + 1}" for i in range(n_factors)]
+    numbering = ColumnNumbering(columns, enabled=bool(cfg.number_columns))
 
     update(15)
     estimator = CFAEstimator(structure=structure, allow_factor_correlation=cfg.allow_factor_correlation)
@@ -167,7 +169,7 @@ def recalculate_cfa_study(elements, result: CFAResult, update) -> CFAResult:
     )
     any_stars = False
     for idx, var in enumerate(columns):
-        cells = [Cell(var, push_to_left=True)]
+        cells = [Cell(numbering.label(var), push_to_left=True)]
         for j in range(n_factors):
             text = format_r_apa(loadings[idx, j])
             if verbal and loading_se is not None:
@@ -181,6 +183,7 @@ def recalculate_cfa_study(elements, result: CFAResult, update) -> CFAResult:
         load_table.add_single_row_apa(Row(cells))
     if verbal and any_stars:
         load_table.add_text(t("cfa.loadings_sig_note"))
+    load_table.table_note = numbering.append_to_note(load_table.table_note or "")
     result.update_and_add_element(load_table, "cfa loadings")
 
     # ----- Loadings heatmap -----

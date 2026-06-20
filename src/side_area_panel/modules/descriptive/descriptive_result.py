@@ -19,6 +19,7 @@ class DescriptiveStudyConfig:
     show_normality = attrs.field(default=None)
     normality_test = attrs.field(default=None)
     verbal_indicators = attrs.field(default=None)
+    number_columns = attrs.field(default=None)
     # Plots
     show_distribution = attrs.field(default=None)
     show_box = attrs.field(default=None)

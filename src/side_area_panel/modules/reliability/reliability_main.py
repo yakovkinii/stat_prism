@@ -13,6 +13,7 @@ from src.data.data_manager import DATA_MANAGER
 from src.side_area_panel.modules.common.mathematics.correlation.correlation import (
     calculate_correlations,
 )
+from src.side_area_panel.modules.common.column_numbering import ColumnNumbering
 from src.side_area_panel.modules.common.result.html_result import Cell, HTMLTableV2, Row
 from src.side_area_panel.modules.common.utility import format_r_apa, smart_comma_join
 from src.side_area_panel.modules.correlation.correlation_result import (
@@ -118,6 +119,7 @@ def recalculate_reliability_study(elements, result: ReliabilityResult, update) -
 
     correlation_type = CORRELATION_TYPE_MAP[config.correlation_type]
     show_verbal = 1 if config.verbal_indicators else 0
+    numbering = ColumnNumbering(list(df.columns), enabled=bool(config.number_columns))
 
     if correlation_type in _PANDAS_CORR:
         correlation_matrix = df.corr(method=_PANDAS_CORR[correlation_type])
@@ -204,7 +206,7 @@ def recalculate_reliability_study(elements, result: ReliabilityResult, update) -
         item_table.add_single_row_apa(
             Row(
                 [
-                    Cell(str(item), push_to_left=True),
+                    Cell(numbering.label(str(item)), push_to_left=True),
                     Cell(format_r_apa(item_rest), center=True),
                     Cell(format_r_apa(alpha_deleted), center=True),
                 ]
@@ -216,6 +218,7 @@ def recalculate_reliability_study(elements, result: ReliabilityResult, update) -
         item_table.add_text(t("reliability.report.item_improve", items=smart_comma_join(improves)))
     else:
         item_table.add_text(t("reliability.report.item_none"))
+    item_table.table_note = numbering.append_to_note(item_table.table_note or "")
     result.update_and_add_element(item_table, "reliability item_deleted")
 
     provided_name = (config.scale_name or "").strip()

@@ -34,6 +34,7 @@ class Elements(ItemInSidePanelWithAutoConfigHolder):
     scale_name = IISPWACLongTextEdit(label_text="Scale name (optional):")
     mcdonald_omega = IISPWACCheckBox(label_text="McDonald's ω", default_state=True)
     verbal_indicators = IISPWACCheckBox(label_text="Verbal indicators in tables", default_state=True)
+    number_columns = IISPWACCheckBox(label_text="Number items in tables", default_state=False)
 
 
 class Reliability(BaseModulePanel):

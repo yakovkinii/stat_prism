@@ -12,6 +12,7 @@ from src.common.constant import MDASH
 from src.common.decorators import log_function
 from src.common.translations import t
 from src.data.data_manager import DATA_MANAGER
+from src.side_area_panel.modules.common.column_numbering import ColumnNumbering
 from src.side_area_panel.modules.common.result.html_result import Cell, HTMLTableV2, Row
 from src.side_area_panel.modules.common.utility import (
     format_p_apa,
@@ -81,12 +82,13 @@ def recalculate_paired_study(elements: Elements, result: PairedResult, update) -
 
     two_conditions = len(conditions) == 2
     parametric = _resolve_parametric(cfg, wide, conditions, two_conditions)
+    numbering = ColumnNumbering(list(conditions), enabled=bool(getattr(cfg, "number_columns", False)))
 
-    result.update_and_add_element(_descriptives_table(wide, conditions), "paired descriptives")
+    result.update_and_add_element(_descriptives_table(wide, conditions, numbering), "paired descriptives")
 
     if cfg.assumption_checks != PairedAssumptionChecks.NEVER.value:
         result.update_and_add_element(
-            _normality_table(wide, conditions, two_conditions, cfg.verbal_indicators),
+            _normality_table(wide, conditions, two_conditions, cfg.verbal_indicators, numbering),
             "paired normality",
         )
     update(40)
@@ -133,7 +135,8 @@ def _to_long(wide: pd.DataFrame, conditions) -> pd.DataFrame:
     )
 
 
-def _descriptives_table(wide: pd.DataFrame, conditions) -> HTMLTableV2:
+def _descriptives_table(wide: pd.DataFrame, conditions, numbering=None) -> HTMLTableV2:
+    numbering = numbering if numbering is not None else ColumnNumbering([], False)
     table = HTMLTableV2(table_caption=t("paired.caption.descriptives"))
     table.add_title_row_apa(
         Row(
@@ -153,7 +156,7 @@ def _descriptives_table(wide: pd.DataFrame, conditions) -> HTMLTableV2:
         table.add_single_row_apa(
             Row(
                 [
-                    Cell(col, push_to_left=True),
+                    Cell(numbering.label(col), push_to_left=True),
                     Cell(str(len(series)), center=True),
                     Cell(format_value_apa(series.mean()), center=True),
                     Cell(format_value_apa(series.std()), center=True),
@@ -162,11 +165,13 @@ def _descriptives_table(wide: pd.DataFrame, conditions) -> HTMLTableV2:
                 ]
             )
         )
+    table.table_note = numbering.append_to_note(table.table_note or "")
     return table
 
 
-def _normality_table(wide: pd.DataFrame, conditions, two_conditions, verbal_indicators) -> HTMLTableV2:
+def _normality_table(wide: pd.DataFrame, conditions, two_conditions, verbal_indicators, numbering=None) -> HTMLTableV2:
     show_verbal = 1 if verbal_indicators else 0
+    numbering = numbering if numbering is not None else ColumnNumbering([], False)
     table = HTMLTableV2(table_caption=t("paired.caption.normality"))
     table.add_title_row_apa(
         Row(
@@ -199,7 +204,7 @@ def _normality_table(wide: pd.DataFrame, conditions, two_conditions, verbal_indi
         table.add_single_row_apa(
             Row(
                 [
-                    Cell(col, push_to_left=True),
+                    Cell(numbering.label(col), push_to_left=True),
                     Cell(format_statistic_apa(w_stat), center=True),
                     Cell(format_p_apa(p_val), center=True),
                 ]
@@ -219,6 +224,7 @@ def _normality_table(wide: pd.DataFrame, conditions, two_conditions, verbal_indi
             + [Cell(assumption_met_verbal(spher.pval), center=True)] * show_verbal
         )
     )
+    table.table_note = numbering.append_to_note(table.table_note or "")
     return table
 
 
@@ -339,6 +345,7 @@ def _rm_anova(result, wide, conditions, cfg):
                 lambda i, j: pair_p[frozenset((conditions[i], conditions[j]))],
                 t("paired.caption.posthoc_param"),
                 t("paired.posthoc.pairwise_t"),
+                ColumnNumbering(list(conditions), enabled=bool(getattr(cfg, "number_columns", False))),
             ),
             "paired posthoc",
         )
@@ -377,23 +384,25 @@ def _friedman(result, wide, conditions, cfg):
                 lambda i, j: matrix.iloc[i, j],
                 t("paired.caption.posthoc_nonparam"),
                 t("paired.posthoc.nemenyi"),
+                ColumnNumbering(list(conditions), enabled=bool(getattr(cfg, "number_columns", False))),
             ),
             "paired posthoc",
         )
 
 
-def _posthoc_table(conditions, get_p, caption, test_name) -> HTMLTableV2:
+def _posthoc_table(conditions, get_p, caption, test_name, numbering=None) -> HTMLTableV2:
     """Lower-triangular matrix of pairwise p-values, plus a sentence listing the
     significant pairs (mirrors the t-test/ANOVA post-hoc tables)."""
+    numbering = numbering if numbering is not None else ColumnNumbering([], False)
     table = HTMLTableV2(table_caption=caption)
     table.add_single_row_apa(
         Row([Cell()] + [Cell(t("common.p_value"), col_span=len(conditions), center=True, border_bottom=True)])
     )
-    table.add_title_row_apa(Row([Cell()] + [Cell(name, center=True) for name in conditions]))
+    table.add_title_row_apa(Row([Cell()] + [Cell(numbering.label(name), center=True) for name in conditions]))
 
     significant = []
     for i, name in enumerate(conditions):
-        row = [Cell(name, push_to_left=True)]
+        row = [Cell(numbering.label(name), push_to_left=True)]
         for j in range(i + 1):
             if i == j:
                 row.append(Cell(MDASH, center=True))
@@ -416,6 +425,7 @@ def _posthoc_table(conditions, get_p, caption, test_name) -> HTMLTableV2:
             ),
         )
     )
+    table.table_note = numbering.append_to_note(table.table_note or "")
     return table
 
 

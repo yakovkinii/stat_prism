@@ -63,6 +63,12 @@ from src.side_area_panel.modules.dp_formula.dp_formula_result import (
     FormulaStudyConfig,
 )
 from src.side_area_panel.modules.dp_formula.dp_formula_ui import Formula
+from src.side_area_panel.modules.dp_bootstrap.dp_bootstrap_main import dp_bootstrap_main
+from src.side_area_panel.modules.dp_bootstrap.dp_bootstrap_result import (
+    BootstrapResult,
+    BootstrapStudyConfig,
+)
+from src.side_area_panel.modules.dp_bootstrap.dp_bootstrap_ui import Bootstrap
 from src.side_area_panel.modules.dp_preprocess.dp_preprocess_main import dp_preprocess_main
 from src.side_area_panel.modules.dp_preprocess.dp_preprocess_result import (
     PreprocessResult,
@@ -264,6 +270,11 @@ def inject_classes_to_module_registry():
     ModuleRegistry.FORMULA.value.result_class = FormulaResult
     ModuleRegistry.FORMULA.value.config_class = FormulaStudyConfig
     ModuleRegistry.FORMULA.value.main_function = dp_formula_main
+
+    ModuleRegistry.BOOTSTRAP.value.ui_class = Bootstrap
+    ModuleRegistry.BOOTSTRAP.value.result_class = BootstrapResult
+    ModuleRegistry.BOOTSTRAP.value.config_class = BootstrapStudyConfig
+    ModuleRegistry.BOOTSTRAP.value.main_function = dp_bootstrap_main
 
     ModuleRegistry.PREPROCESS.value.ui_class = Preprocess
     ModuleRegistry.PREPROCESS.value.result_class = PreprocessResult

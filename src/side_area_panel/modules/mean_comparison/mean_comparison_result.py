@@ -19,6 +19,7 @@ class MeanComparisonStudyConfig:
     effect_size = attrs.field(default=None)
     verbal_indicators = attrs.field(default=None)
     confidence_intervals = attrs.field(default=None)
+    number_columns = attrs.field(default=None)
     plots = attrs.field(default=None)
 
 
