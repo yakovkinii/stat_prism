@@ -245,7 +245,12 @@ class DataProcessingResultDisplay(BaseResultDisplay):
     def refresh(self):
         result = RESULTS[self.result_id]
         self.body_widget.show()
-        self.info.setText(result.description)
+        description = result.description
+        data = result.data
+        if data is not None:
+            shape = f"{data.n_rows()} rows &times; {data.n_columns()} columns"
+            description = f"{description}<br>{shape}" if description else shape
+        self.info.setText(description)
         self._update_toggle()
 
     def _update_toggle(self):

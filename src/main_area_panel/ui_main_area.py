@@ -97,6 +97,27 @@ class MainAreaClass:
         self.data_processing_objects = {}
         self.data_analysis_objects = {}
 
+    def clear_all(self):
+        """Tear down every result card and forget all results / chain state. Used when
+        opening a project or starting a new one, so nothing from the previous session
+        lingers in the UI or the registries."""
+        for objects, layout in (
+            (self.data_analysis_objects, self.data_analysis_container_layout),
+            (self.data_processing_objects, self.data_processing_container_layout),
+            (self.raw_data_objects, self.raw_data_container_layout),
+        ):
+            for obj in objects.values():
+                layout.removeWidget(obj.widget)
+                obj.widget.setParent(None)
+                obj.widget.deleteLater()
+            objects.clear()
+
+        self.focused_result_id = None
+        self.focused_result_element_id = None
+
+        RESULTS.clear()
+        DATA_MANAGER.reset()
+
     def _recompute_result(self, result_id):
         panel = self.root_class.settings_panel.panels[RESULTS[result_id].settings_panel_index]
         panel.configure(result_id)
@@ -144,6 +165,7 @@ class MainAreaClass:
         )
         self.raw_data_objects[result_id] = raw_data_object
         self.raw_data_container_layout.addWidget(raw_data_object.widget)
+        self.root_class.mark_dirty()
 
     def add_data_processing(self, result_id):
         data_processing_object = DataProcessingResultDisplay(
@@ -155,6 +177,7 @@ class MainAreaClass:
         )
         self.data_processing_objects[result_id] = data_processing_object
         self.data_processing_container_layout.addWidget(data_processing_object.widget)
+        self.root_class.mark_dirty()
 
     def move_data_processing(self, result_id, delta):
         """Move a data-processing study up/down in the chain, re-order the cards to
@@ -180,6 +203,7 @@ class MainAreaClass:
         )
         self.data_analysis_objects[result_id] = data_analysis_object
         self.data_analysis_container_layout.addWidget(data_analysis_object.widget)
+        self.root_class.mark_dirty()
 
     def get_result_object(self, result_id):
         return (
@@ -235,6 +259,7 @@ class MainAreaClass:
 
     def remove_result(self, result_id):
         # Remove from UI and object dicts
+        self.root_class.mark_dirty()
         obj = self.get_result_object(result_id)
 
         # Remove widget from layout

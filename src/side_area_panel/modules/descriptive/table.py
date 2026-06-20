@@ -119,6 +119,9 @@ def get_normality_table(
         table.add_single_row_apa(Row(cells))
 
     table.add_text(_normality_report(rows, test_name, statistic_letter))
+    # If any cell is blank (test could not run), explain why rather than leaving it unexplained.
+    if any(_is_nan(r["norm_p"]) for r in rows):
+        table.add_text(t("descriptive.normality.note_blank"))
     return table
 
 

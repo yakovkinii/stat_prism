@@ -52,6 +52,9 @@ class MainWindowClass(QtWidgets.QMainWindow):
 
         # Special
         self.current_file_path = None
+        # Dirty = there are changes since the last save / load. Drives the unsaved-changes
+        # prompt on New / Open / window close.
+        self.dirty = False
 
         # Setup
         self.widget = self  # split class and widget for clarity
@@ -103,6 +106,20 @@ class MainWindowClass(QtWidgets.QMainWindow):
         # Misc
         self.setWindowIcon(icon(":/mat/resources/StatPrism_icon_small.ico"))
 
+        self._setup_shortcuts()
+
+    def _setup_shortcuts(self):
+        """Global keyboard shortcuts: Ctrl+S save, Ctrl+Shift+S save-as, Ctrl+O open.
+        These drive the same handlers as the Home / Home-initial buttons."""
+        from PySide6.QtGui import QKeySequence, QShortcut
+
+        home = PanelRegistry.HOME.ui_instance
+        home_initial = PanelRegistry.HOME_INITIAL.ui_instance
+
+        QShortcut(QKeySequence.StandardKey.Save, self, activated=lambda: home.save_handler())
+        QShortcut(QKeySequence.StandardKey.SaveAs, self, activated=lambda: home.save_as_handler())
+        QShortcut(QKeySequence.StandardKey.Open, self, activated=lambda: home_initial.open_handler())
+
     @log_method_noarg
     def activate_main_area_display(self):
         self.stacked_widget.setCurrentIndex(1)
@@ -149,6 +166,32 @@ class MainWindowClass(QtWidgets.QMainWindow):
             PanelRegistry.HOME_INITIAL.ui_instance.load_file(file_path)
             if file_path.endswith(".sp"):
                 self.set_current_file_path(file_path)
+
+    def mark_dirty(self):
+        self.dirty = True
+
+    def clear_dirty(self):
+        self.dirty = False
+
+    def confirm_discard_if_dirty(self) -> bool:
+        """Return True if it's safe to discard the current session. When there are unsaved
+        changes, ask the user; otherwise proceed silently."""
+        if not self.dirty:
+            return True
+        answer = QtWidgets.QMessageBox.question(
+            self,
+            "Unsaved changes",
+            "You have unsaved changes. Discard them?",
+            QtWidgets.QMessageBox.StandardButton.Discard | QtWidgets.QMessageBox.StandardButton.Cancel,
+            QtWidgets.QMessageBox.StandardButton.Cancel,
+        )
+        return answer == QtWidgets.QMessageBox.StandardButton.Discard
+
+    def closeEvent(self, event):
+        if self.confirm_discard_if_dirty():
+            event.accept()
+        else:
+            event.ignore()
 
     def set_current_file_path(self, file_path):
         self.current_file_path = file_path

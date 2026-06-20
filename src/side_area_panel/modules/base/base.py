@@ -235,6 +235,7 @@ class BaseModulePanel:
     @log_method
     def recalculate_on_done(self, result):
         result.update_description()
+        self.root_class.mark_dirty()
         RESULTS[self.result_id] = result
         self.root_class.main_area_panel.refresh_result(result_id=self.result_id)
         # RESULTS[self.result_id].needs_update = False

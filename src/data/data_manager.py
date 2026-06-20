@@ -11,6 +11,11 @@ class DataManager:
         self.raw_data_result_id = None
         self.data_chain = []
 
+    def reset(self):
+        """Forget all chain state (used when opening a project / starting a new one)."""
+        self.raw_data_result_id = None
+        self.data_chain = []
+
     def set_raw_data_result_id(self, result_id: str):
         assert (
             self.raw_data_result_id is None or self.raw_data_result_id == result_id

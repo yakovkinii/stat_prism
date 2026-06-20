@@ -21,7 +21,7 @@ from src.side_area_panel.modules.common.result.registry import (
     RESULTS,
     get_unique_result_id,
 )
-from src.side_area_panel.modules.registry import ModuleRegistry
+from src.side_area_panel.modules.registry import ModuleRegistry, ModuleType
 from src.side_area_panel.panels.base import BasePanel
 
 if TYPE_CHECKING:
@@ -50,6 +50,8 @@ class HomeInitial(BasePanel):
 
     @log_method_noarg
     def open_handler(self):
+        if not self.root_class.confirm_discard_if_dirty():
+            return
         file_path, _ = QtWidgets.QFileDialog.getOpenFileName(
             self.widget,
             "Open File",
@@ -72,6 +74,10 @@ class HomeInitial(BasePanel):
             logging.warning("File to load does not exist: %s", file_path)
             return
 
+        # Tear down any existing session first, so opening never appends to / collides with
+        # the previously loaded project.
+        self.root_class.main_area_panel.clear_all()
+
         if file_path.endswith(".sp"):
             with tempfile.TemporaryDirectory() as temp_dir:
                 with zipfile.ZipFile(file_path, "r") as zipf:
@@ -84,27 +90,24 @@ class HomeInitial(BasePanel):
                     with open(meta_path, encoding="utf-8") as f:
                         self._apply_project_meta(json.load(f))
 
-                RESULTS.clear()
+                # Map each module's settings-panel index to its type, so a saved result is
+                # routed to the right lane by module_type (no hand-maintained index lists).
+                index_to_type = {
+                    module.value.settings_stacked_widget_index: module.value.module_type
+                    for module in ModuleRegistry
+                }
+                add_by_type = {
+                    ModuleType.RAW_DATA: self.root_class.main_area_panel.add_raw_data,
+                    ModuleType.DATA_PROCESSING: self.root_class.main_area_panel.add_data_processing,
+                    ModuleType.DATA_ANALYSIS: self.root_class.main_area_panel.add_data_analysis,
+                }
+
                 with open(f"{temp_dir}/results.pkl", "rb") as f:
                     results = pickle.load(f)
                     for result in results.values():
                         RESULTS[result.unique_id] = result
-                        if result.settings_panel_index in [ModuleRegistry.RAW_DATA.settings_stacked_widget_index]:
-                            self.root_class.main_area_panel.add_raw_data(result.unique_id)
-                        elif result.settings_panel_index in [
-                            ModuleRegistry.CALCULATE_SCALE.settings_stacked_widget_index,
-                            ModuleRegistry.INVERT_SCALE.settings_stacked_widget_index,
-                            ModuleRegistry.FILTER.settings_stacked_widget_index,
-                            ModuleRegistry.PREPROCESS.settings_stacked_widget_index,
-                            ModuleRegistry.GROUP_VALUES.settings_stacked_widget_index,
-                            ModuleRegistry.SELECT_ID.settings_stacked_widget_index,
-                            ModuleRegistry.OUTLIERS.settings_stacked_widget_index,
-                            ModuleRegistry.GROUPED_OUTLIERS.settings_stacked_widget_index,
-                            ModuleRegistry.TWO_D_OUTLIERS.settings_stacked_widget_index,
-                        ]:
-                            self.root_class.main_area_panel.add_data_processing(result.unique_id)
-                        else:
-                            self.root_class.main_area_panel.add_data_analysis(result.unique_id)
+                        module_type = index_to_type.get(result.settings_panel_index, ModuleType.DATA_ANALYSIS)
+                        add_by_type[module_type](result.unique_id)
 
                 with open(f"{temp_dir}/data_manager.pkl", "rb") as f:
                     data_manager = pickle.load(f)
@@ -122,6 +125,10 @@ class HomeInitial(BasePanel):
             self.root_class.main_area_panel.add_raw_data(result_id=result_id)
             module.ui_instance.configure(result_id=result_id)
             ModuleRegistry.RAW_DATA.ui_instance.open_file(file_path)
+
+        # A freshly loaded project (or freshly imported file) has no unsaved changes yet,
+        # even though building its cards marked the session dirty.
+        self.root_class.clear_dirty()
 
         self.root_class.action_activate_panel_by_index(PanelRegistry.HOME.settings_stacked_widget_index)
 
@@ -152,6 +159,7 @@ class HomeInitial(BasePanel):
             if message.caller_id == "open":
                 return self.open_handler()
             elif message.caller_id == "open_sample":
+                self.root_class.main_area_panel.clear_all()
                 module = ModuleRegistry.RAW_DATA.value
 
                 result_id = get_unique_result_id()
@@ -163,6 +171,7 @@ class HomeInitial(BasePanel):
                 self.root_class.main_area_panel.add_raw_data(result_id=result_id)
                 module.ui_instance.configure(result_id=result_id)
                 ModuleRegistry.RAW_DATA.ui_instance.open_file("./data.csv")
+                self.root_class.clear_dirty()
                 self.root_class.action_activate_panel_by_index(PanelRegistry.HOME.settings_stacked_widget_index)
                 return
             elif message.caller_id == "about":

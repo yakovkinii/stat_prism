@@ -1352,6 +1352,10 @@ TRANSLATIONS = {
         "ua": "Перевірка нормальності ({test})",
     },
     "descriptive.normality.col_normal": {"en": "Normal?", "ua": "Нормальний?"},
+    "descriptive.normality.note_blank": {
+        "en": "Blank cells: the test could not run (needs at least 3 non-missing values with variation).",
+        "ua": "Порожні клітинки: критерій не вдалося обчислити (потрібно щонайменше 3 непропущені значення з варіацією).",
+    },
     "descriptive.normality.yes": {"en": "Yes", "ua": "Так"},
     "descriptive.normality.no": {"en": "No", "ua": "Ні"},
     "descriptive.normality.intro": {

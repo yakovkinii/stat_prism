@@ -528,8 +528,6 @@ class PlotV2(BaseResultElement):
             "General": ContainerResultItemSetting(
                 items=[
                     self.plot_title,
-                    self.x_axis_title,
-                    self.y_axis_title,
                     self.axis_layout,
                     self.tilt_x_axis_labels,
                     self.plot_size,
@@ -549,6 +547,8 @@ class PlotV2(BaseResultElement):
             ),
             "Axes": ContainerResultItemSetting(
                 items=[
+                    self.x_axis_title,
+                    self.y_axis_title,
                     self.x_tick_step,
                     self.x_tick_reference,
                     self.y_tick_step,

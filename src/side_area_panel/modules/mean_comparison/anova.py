@@ -26,6 +26,7 @@ from src.side_area_panel.modules.common.result.plot_result import (
 from src.side_area_panel.modules.common.utility import (
     format_p_apa,
     format_p_apa_full,
+    format_r_apa,
     format_statistic_apa,
     format_value_apa,
     smart_comma_join,
@@ -367,6 +368,8 @@ def process_non_normal_anova(
 
 def process_non_homogeneous_anova(df: pd.DataFrame, columns, grouping_column, effect_size, verbal_indicators=False):
     show_sig = 1 if verbal_indicators else 0
+    show_eff = 1 if effect_size else 0
+    show_eff_verbal = 1 if (effect_size and verbal_indicators) else 0
     table = HTMLTableV2(table_caption=t("ttest.caption.welch_anova"))
 
     group_names = df[grouping_column].unique()
@@ -377,6 +380,8 @@ def process_non_homogeneous_anova(df: pd.DataFrame, columns, grouping_column, ef
             + [Cell(), Cell(), Cell(), Cell()]
             + [Cell()] * show_sig
             + [Cell(name, center=True, col_span=2, border_bottom=True) for name in group_names]
+            + [Cell()] * show_eff
+            + [Cell()] * show_eff_verbal
         )
     )
 
@@ -393,6 +398,8 @@ def process_non_homogeneous_anova(df: pd.DataFrame, columns, grouping_column, ef
                 Cell("df2", center=True),
                 *[Cell(t("common.mean"), center=True), Cell("SD", center=True)] * len(group_names),
             ]
+            + [Cell("&eta;&sup2;<sub>p</sub>", center=True)] * show_eff
+            + [Cell(t("effect.col.magnitude"), center=True)] * show_eff_verbal
         )
     )
 
@@ -408,6 +415,8 @@ def process_non_homogeneous_anova(df: pd.DataFrame, columns, grouping_column, ef
         p_val = welch_result["p-unc"].values[0]
         df_between = welch_result["ddof1"].values[0]
         df_within = f"{welch_result['ddof2'].values[0]:.1f}"
+        # pingouin reports partial eta-squared (np2) for the Welch ANOVA.
+        eta_sq = welch_result["np2"].values[0] if "np2" in welch_result.columns else np.nan
 
         if p_val > 0.05:
             accepted_columns.append(
@@ -436,6 +445,8 @@ def process_non_homogeneous_anova(df: pd.DataFrame, columns, grouping_column, ef
                         for mean, std in zip(group_means, group_stds)
                         for _ in (Cell(format_value_apa(mean), center=True), Cell(format_value_apa(std), center=True))
                     ],
+                    *([Cell(format_r_apa(eta_sq), center=True)] * show_eff),
+                    *([Cell(_eta_squared_magnitude(eta_sq), center=True)] * show_eff_verbal),
                 ]
             )
         )
@@ -502,6 +513,8 @@ def process_non_homogeneous_anova(df: pd.DataFrame, columns, grouping_column, ef
 
 def process_homogeneous_anova(df: pd.DataFrame, columns, grouping_column, effect_size, verbal_indicators=False):
     show_sig = 1 if verbal_indicators else 0
+    show_eff = 1 if effect_size else 0
+    show_eff_verbal = 1 if (effect_size and verbal_indicators) else 0
     table = HTMLTableV2(table_caption=t("ttest.caption.one_way_anova"))
 
     group_names = df[grouping_column].unique()
@@ -513,6 +526,8 @@ def process_homogeneous_anova(df: pd.DataFrame, columns, grouping_column, effect
             + [Cell(), Cell(), Cell(), Cell()]
             + [Cell()] * show_sig
             + [Cell(name, center=True, col_span=2, border_bottom=True) for name in group_names]
+            + [Cell()] * show_eff
+            + [Cell()] * show_eff_verbal
         )
     )
 
@@ -529,6 +544,8 @@ def process_homogeneous_anova(df: pd.DataFrame, columns, grouping_column, effect
                 Cell("df2", center=True),
                 *[Cell(t("common.mean"), center=True), Cell("SD", center=True)] * len(group_names),
             ]
+            + [Cell("&eta;&sup2;", center=True)] * show_eff
+            + [Cell(t("effect.col.magnitude"), center=True)] * show_eff_verbal
         )
     )
     accepted_columns = []
@@ -544,6 +561,13 @@ def process_homogeneous_anova(df: pd.DataFrame, columns, grouping_column, effect
         n_total = sum([len(group) for group in group_data])
         df_between = n_groups - 1
         df_within = n_total - n_groups
+
+        # Eta-squared from the F ratio: eta2 = (df_b * F) / (df_b * F + df_w).
+        eta_sq = (
+            (df_between * f_stat) / (df_between * f_stat + df_within)
+            if np.isfinite(f_stat) and (df_between * f_stat + df_within) > 0
+            else np.nan
+        )
 
         if p_val > 0.05:
             accepted_columns.append(
@@ -573,6 +597,8 @@ def process_homogeneous_anova(df: pd.DataFrame, columns, grouping_column, effect
                         for mean, std in zip(group_means, group_stds)
                         for _ in (Cell(format_value_apa(mean), center=True), Cell(format_value_apa(std), center=True))
                     ],
+                    *([Cell(format_r_apa(eta_sq), center=True)] * show_eff),
+                    *([Cell(_eta_squared_magnitude(eta_sq), center=True)] * show_eff_verbal),
                 ]
             )
         )
@@ -634,3 +660,16 @@ def process_homogeneous_anova(df: pd.DataFrame, columns, grouping_column, effect
         post_hoc_items.append(posthoc_table)
 
     return table, *post_hoc_items
+
+
+def _eta_squared_magnitude(eta_sq) -> str:
+    """Eta-squared bands: .01 small, .06 medium, .14 large (Cohen)."""
+    if eta_sq is None or np.isnan(eta_sq):
+        return "—"
+    if eta_sq < 0.01:
+        return t("effect.magnitude.negligible")
+    if eta_sq < 0.06:
+        return t("effect.magnitude.small")
+    if eta_sq < 0.14:
+        return t("effect.magnitude.medium")
+    return t("effect.magnitude.large")

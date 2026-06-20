@@ -38,6 +38,10 @@ class Home(BasePanel):
                 icon_path="ri.bar-chart-line",
             ),
             "spacer": Spacer(),
+            "new": LargeButton(
+                label_text="New Project",
+                icon_path="msc.new-file",
+            ),
             "save": LargeButton(
                 label_text="Save",
                 icon_path="msc.save",
@@ -100,6 +104,7 @@ class Home(BasePanel):
                 zipf.write(f"{temp_dir}/results.pkl", "results.pkl")
 
         self.root_class.set_current_file_path(file_path)
+        self.root_class.clear_dirty()
 
     @log_method
     def handler(self, message):
@@ -114,12 +119,26 @@ class Home(BasePanel):
                 return self.root_class.action_activate_panel_by_index(
                     PanelRegistry.SELECT_DATA_ANALYSIS.settings_stacked_widget_index
                 )
+            elif message.caller_id == "new":
+                return self.new_handler()
             elif message.caller_id == "save":
                 return self.save_handler()
             elif message.caller_id == "save_as":
                 return self.save_as_handler()
 
         return super().handler(message)
+
+    @log_method_noarg
+    def new_handler(self):
+        """Discard the current session and return to the empty initial screen."""
+        if not self.root_class.confirm_discard_if_dirty():
+            return
+        self.root_class.main_area_panel.clear_all()
+        self.root_class.clear_dirty()
+        self.root_class.set_current_file_path(None)
+        self.root_class.action_activate_panel_by_index(
+            PanelRegistry.HOME_INITIAL.settings_stacked_widget_index
+        )
 
 
 class AboutDialog(QDialog):
