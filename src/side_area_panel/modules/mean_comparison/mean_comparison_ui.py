@@ -57,6 +57,10 @@ class Elements(ItemInSidePanelWithAutoConfigHolder):
         label_text="Verbal indicators in tables",
         default_state=True,
     )
+    confidence_intervals = IISPWACCheckBox(
+        label_text="95% CI for Cohen's d",
+        default_state=False,
+    )
     plots = IISPWACCheckBox(
         label_text="Plots",
         default_state=False,

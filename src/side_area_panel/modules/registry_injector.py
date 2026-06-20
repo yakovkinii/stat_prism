@@ -129,6 +129,14 @@ from src.side_area_panel.modules.paired.paired_result import (
     PairedStudyConfig,
 )
 from src.side_area_panel.modules.paired.paired_ui import Paired
+from src.side_area_panel.modules.power_analysis.power_analysis_ui import PowerAnalysis
+from src.side_area_panel.modules.power_analysis.power_analysis_main import (
+    recalculate_power_analysis_study,
+)
+from src.side_area_panel.modules.power_analysis.power_analysis_result import (
+    PowerAnalysisResult,
+    PowerAnalysisStudyConfig,
+)
 from src.side_area_panel.modules.raw_data.raw_data_ui import RawData
 from src.side_area_panel.modules.raw_data.raw_data_result import (
     RawDataResult,
@@ -203,6 +211,11 @@ def inject_classes_to_module_registry():
     ModuleRegistry.CLUSTER_ANALYSIS.value.result_class = ClusterAnalysisResult
     ModuleRegistry.CLUSTER_ANALYSIS.value.config_class = ClusterAnalysisConfig
     ModuleRegistry.CLUSTER_ANALYSIS.value.main_function = recalculate_cluster_analysis_study
+
+    ModuleRegistry.POWER_ANALYSIS.value.ui_class = PowerAnalysis
+    ModuleRegistry.POWER_ANALYSIS.value.result_class = PowerAnalysisResult
+    ModuleRegistry.POWER_ANALYSIS.value.config_class = PowerAnalysisStudyConfig
+    ModuleRegistry.POWER_ANALYSIS.value.main_function = recalculate_power_analysis_study
 
     ModuleRegistry.CALCULATE_SCALE.value.ui_class = CalculateScale
     ModuleRegistry.CALCULATE_SCALE.value.result_class = CalculateScaleResult

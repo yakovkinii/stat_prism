@@ -138,6 +138,11 @@ class ModuleRegistry(Enum):
         icon_path="mdi6.scatter-plot-outline",
     )
 
+    POWER_ANALYSIS = ModuleRegistryItem(
+        display_name="Power Analysis",
+        icon_path="mdi6.calculator-variant-outline",
+    )
+
     @property
     def display_name(self):
         return self.value.display_name

@@ -24,6 +24,7 @@ from src.side_area_panel.modules.common.result.plot_result import (
     PlotV2,
     Scatter,
 )
+from src.side_area_panel.modules.common.utility import format_r_apa
 from src.side_area_panel.modules.correlation.report import get_cross_report, get_report
 from src.side_area_panel.modules.correlation.correlation_result import (
     CORRELATION_TYPE_MAP,
@@ -42,6 +43,38 @@ def _fail(result: CorrelationResult, message: str) -> CorrelationResult:
     logging.warning("Correlation: %s", message)
     result.set_error(message)
     return result
+
+
+# A Fisher-z confidence interval is statistically defensible only for Pearson and (with a
+# small variance inflation) Spearman; other coefficients show no CI.
+_CI_SE_FACTOR = {CorrelationType.PEARSON: 1.0, CorrelationType.SPEARMAN: 1.03}
+
+
+def _ci_string(r, df, kind: CorrelationType):
+    """95% CI for a correlation via the Fisher z transform, as a display string
+    '[lo, hi]'. Returns None when a CI is not defensible (unsupported kind, missing r/df,
+    or too few df). df == n - 2 (already reduced by any control variables), so the
+    Fisher SE 1/sqrt(n - 3) is 1/sqrt(df - 1)."""
+    factor = _CI_SE_FACTOR.get(kind)
+    if factor is None or r is None or pd.isna(r) or df is None or pd.isna(df):
+        return None
+    df = float(df)
+    if df <= 1:
+        return None
+    r_clipped = max(min(float(r), 0.999), -0.999)
+    z = np.arctanh(r_clipped)
+    se = factor / np.sqrt(df - 1)
+    lo, hi = np.tanh(z - 1.96 * se), np.tanh(z + 1.96 * se)
+    return f"[{format_r_apa(lo)}, {format_r_apa(hi)}]"
+
+
+def _build_ci_matrix(correlation_matrix, df_matrix, kind: CorrelationType):
+    """A matrix of CI display strings (or None) aligned to `correlation_matrix`."""
+    ci = correlation_matrix.copy().astype(object)
+    for row in correlation_matrix.index:
+        for col in correlation_matrix.columns:
+            ci.loc[row, col] = _ci_string(correlation_matrix.loc[row, col], df_matrix.loc[row, col], kind)
+    return ci
 
 
 def to_full_matrix(df: pd.DataFrame) -> pd.DataFrame:
@@ -146,10 +179,12 @@ def recalculate_correlation_study(elements, result: CorrelationResult, update) -
         correlation_matrix, p_matrix, df_matrix = calculate_correlations(df[columns], kind)
     update(45)
 
+    ci_matrix = _build_ci_matrix(correlation_matrix, df_matrix, kind) if cfg.confidence_intervals else None
+
     if cfg.compact:
         html_table = get_table_compact(columns, correlation_matrix, p_matrix, kind=kind)
     else:
-        html_table = get_table_full(columns, correlation_matrix, p_matrix, df_matrix, kind=kind)
+        html_table = get_table_full(columns, correlation_matrix, p_matrix, df_matrix, kind=kind, ci_matrix=ci_matrix)
 
     # Verbal report (prefixed with a note when these are partial correlations)
     verbal = get_report(
@@ -159,6 +194,7 @@ def recalculate_correlation_study(elements, result: CorrelationResult, update) -
         df_matrix,
         report_non_significant=not cfg.report_only_significant,
         kind=kind,
+        ci_matrix=ci_matrix,
     )
     if is_partial:
         verbal = t("correlation.partial.note", controls=", ".join(control_columns)) + verbal
@@ -218,7 +254,11 @@ def _run_cross(result, cfg, data, rows, cols, control_columns, kind, is_partial,
         correlation_matrix, p_matrix, df_matrix = calculate_cross_correlations(df, rows, cols, kind)
     update(45)
 
-    html_table = get_table_cross(rows, cols, correlation_matrix, p_matrix, df_matrix, kind, compact=cfg.compact)
+    ci_matrix = _build_ci_matrix(correlation_matrix, df_matrix, kind) if cfg.confidence_intervals else None
+
+    html_table = get_table_cross(
+        rows, cols, correlation_matrix, p_matrix, df_matrix, kind, compact=cfg.compact, ci_matrix=ci_matrix
+    )
 
     verbal = get_cross_report(
         rows,
@@ -228,6 +268,7 @@ def _run_cross(result, cfg, data, rows, cols, control_columns, kind, is_partial,
         df_matrix,
         report_non_significant=not cfg.report_only_significant,
         kind=kind,
+        ci_matrix=ci_matrix,
     )
     if is_partial:
         verbal = t("correlation.partial.note", controls=", ".join(control_columns)) + verbal

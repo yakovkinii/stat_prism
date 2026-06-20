@@ -89,11 +89,23 @@ def get_table_compact(columns, correlation_matrix, p_matrix, kind: CorrelationTy
     return table
 
 
-def get_table_cross(rows, cols, correlation_matrix, p_matrix, df_matrix, kind: CorrelationType, compact: bool) -> HTMLTableV2:
+def _ci_cell(ci_value):
+    """A doubled CI cell pair ('[lo, hi]' across both sub-columns), or blank when no CI."""
+    text = ci_value if isinstance(ci_value, str) else ""
+    return [
+        Cell(text, push_to_right=True, is_doubled=True, no_wrap=True),
+        Cell(push_to_left=True, is_doubled=True),
+    ]
+
+
+def get_table_cross(
+    rows, cols, correlation_matrix, p_matrix, df_matrix, kind: CorrelationType, compact: bool, ci_matrix=None
+) -> HTMLTableV2:
     """Rectangular two-set correlation table: `rows` down the side, `cols` across the top,
-    every cell filled (full grid). Compact shows r + stars; full stacks r / p / df."""
+    every cell filled (full grid). Compact shows r + stars; full stacks r / p / df (/ CI)."""
     table = HTMLTableV2(table_caption=_cross_caption(kind, rows, cols))
     hide_df_matrix = all(df_matrix.isnull().values.flatten())
+    show_ci = ci_matrix is not None
 
     if compact:
         table.add_title_row_apa(Row([Cell()] + [Cell(col, col_span=2, center=True) for col in cols]))
@@ -108,11 +120,12 @@ def get_table_cross(rows, cols, correlation_matrix, p_matrix, df_matrix, kind: C
         table.table_note = t("correlation.table.significance_note")
         return table
 
-    # Full: r / p (/ df) stacked per row.
+    # Full: r / p (/ df) (/ CI) stacked per row.
+    n_stack = 2 + (0 if hide_df_matrix else 1) + (1 if show_ci else 0)
     table.add_title_row_apa(Row([Cell(col_span=2)] + [Cell(col, col_span=2, center=True) for col in cols]))
     for row in rows:
         table_row_1 = [
-            Cell(row, row_span=3 if not hide_df_matrix else 2),
+            Cell(row, row_span=n_stack),
             Cell(get_correlation_short_name(kind), no_wrap=True),
         ]
         for col in cols:
@@ -128,6 +141,8 @@ def get_table_cross(rows, cols, correlation_matrix, p_matrix, df_matrix, kind: C
             )
             table_row_2.append(Cell(push_to_left=True, is_doubled=True))
 
+        stacked = [Row(table_row_1), Row(table_row_2)]
+
         if not hide_df_matrix:
             table_row_3 = [Cell("df", no_wrap=True)]
             for col in cols:
@@ -135,18 +150,26 @@ def get_table_cross(rows, cols, correlation_matrix, p_matrix, df_matrix, kind: C
                     Cell(str(df_matrix.loc[row, col]), push_to_right=True, is_doubled=True, no_wrap=True)
                 )
                 table_row_3.append(Cell(push_to_left=True, is_doubled=True))
-            table.add_multirow_apa([Row(table_row_1), Row(table_row_2), Row(table_row_3)])
-        else:
-            table.add_multirow_apa([Row(table_row_1), Row(table_row_2)])
+            stacked.append(Row(table_row_3))
+
+        if show_ci:
+            table_row_ci = [Cell(t("common.ci_95"), no_wrap=True)]
+            for col in cols:
+                table_row_ci += _ci_cell(ci_matrix.loc[row, col])
+            stacked.append(Row(table_row_ci))
+
+        table.add_multirow_apa(stacked)
 
     table.table_note = t("correlation.table.significance_note")
     return table
 
 
-def get_table_full(columns, correlation_matrix, p_matrix, df_matrix, kind: CorrelationType) -> HTMLTableV2:
+def get_table_full(columns, correlation_matrix, p_matrix, df_matrix, kind: CorrelationType, ci_matrix=None) -> HTMLTableV2:
     table = HTMLTableV2(table_caption=_caption(kind, columns))
 
     hide_df_matrix = all(df_matrix.isnull().values.flatten())
+    show_ci = ci_matrix is not None
+    n_stack = 2 + (0 if hide_df_matrix else 1) + (1 if show_ci else 0)
 
     # Add header
     table.add_title_row_apa(Row([Cell(col_span=2)] + [Cell(column, col_span=2, center=True) for column in columns]))
@@ -154,7 +177,7 @@ def get_table_full(columns, correlation_matrix, p_matrix, df_matrix, kind: Corre
     # Add matrix
     for i_row, row in enumerate(columns):
         table_row_1 = [
-            Cell(row, row_span=3 if not hide_df_matrix else 2),
+            Cell(row, row_span=n_stack),
             Cell(get_correlation_short_name(kind), no_wrap=True),
         ]
         for i_column, column in enumerate(columns):
@@ -189,6 +212,8 @@ def get_table_full(columns, correlation_matrix, p_matrix, df_matrix, kind: Corre
                 table_row_2.append(Cell(push_to_right=True, is_doubled=True))
                 table_row_2.append(Cell(push_to_left=True, is_doubled=True))
 
+        stacked = [Row(table_row_1), Row(table_row_2)]
+
         if not hide_df_matrix:
             table_row_3 = [Cell("df", no_wrap=True)]
             for i_column, column in enumerate(columns):
@@ -203,20 +228,22 @@ def get_table_full(columns, correlation_matrix, p_matrix, df_matrix, kind: Corre
                 else:
                     table_row_3.append(Cell(push_to_right=True, is_doubled=True))
                     table_row_3.append(Cell(push_to_left=True, is_doubled=True))
-            table.add_multirow_apa(
-                [
-                    Row(table_row_1),
-                    Row(table_row_2),
-                    Row(table_row_3),
-                ]
-            )
-        else:
-            table.add_multirow_apa(
-                [
-                    Row(table_row_1),
-                    Row(table_row_2),
-                ]
-            )
+            stacked.append(Row(table_row_3))
+
+        if show_ci:
+            table_row_ci = [Cell(t("common.ci_95"), no_wrap=True)]
+            for i_column, column in enumerate(columns):
+                if i_column < i_row:
+                    table_row_ci += _ci_cell(ci_matrix.loc[row, column])
+                elif i_column == i_row:
+                    table_row_ci.append(Cell(MDASH, push_to_right=True, is_doubled=True))
+                    table_row_ci.append(Cell(push_to_left=True, is_doubled=True))
+                else:
+                    table_row_ci.append(Cell(push_to_right=True, is_doubled=True))
+                    table_row_ci.append(Cell(push_to_left=True, is_doubled=True))
+            stacked.append(Row(table_row_ci))
+
+        table.add_multirow_apa(stacked)
 
     table.table_note = t("correlation.table.significance_note")
 

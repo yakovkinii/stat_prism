@@ -35,6 +35,9 @@ from src.side_area_panel.modules.mean_comparison.mean_comparison_result import (
     MeanComparisonResult,
 )
 from src.side_area_panel.modules.paired.paired_result import PairedResult
+from src.side_area_panel.modules.power_analysis.power_analysis_result import (
+    PowerAnalysisResult,
+)
 from src.side_area_panel.modules.raw_data.raw_data_result import RawDataResult
 from src.side_area_panel.modules.regression.regression_result import RegressionResult
 from src.side_area_panel.modules.reliability.reliability_result import ReliabilityResult
@@ -59,6 +62,7 @@ RESULTS: Dict[
         GroupValuesResult,
         SelectIDResult,
         OutliersResult,
+        PowerAnalysisResult,
     ],
 ] = {}
 

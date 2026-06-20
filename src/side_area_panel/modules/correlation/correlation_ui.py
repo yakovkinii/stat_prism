@@ -41,6 +41,7 @@ class Elements(ItemInSidePanelWithAutoConfigHolder):
         items=list(CORRELATION_TYPE_MAP.keys()),
     )
     compact = IISPWACCheckBox(label_text="Compact table", default_state=False)
+    confidence_intervals = IISPWACCheckBox(label_text="95% confidence intervals", default_state=False)
     report_only_significant = IISPWACCheckBox(
         label_text="Report/plot only significant correlations",
         default_state=True,

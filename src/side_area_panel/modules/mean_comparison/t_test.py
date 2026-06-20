@@ -25,6 +25,7 @@ from src.side_area_panel.modules.common.utility import (
     format_p_apa,
     format_statistic_apa,
     format_value_apa,
+    smart_comma_join,
 )
 from src.side_area_panel.modules.common.verbal.effect_size import (
     cohen_d_magnitude,
@@ -175,6 +176,7 @@ def recalculate_mean_comparison_t_test(
                 grouping_column=grouping_column,
                 effect_size=cfg.effect_size,
                 verbal_indicators=cfg.verbal_indicators,
+                confidence_intervals=cfg.confidence_intervals,
             ),
             "t_test non_homogeneous_table",
         )
@@ -187,6 +189,7 @@ def recalculate_mean_comparison_t_test(
                 grouping_column=grouping_column,
                 effect_size=cfg.effect_size,
                 verbal_indicators=cfg.verbal_indicators,
+                confidence_intervals=cfg.confidence_intervals,
             ),
             "t_test homogeneous_table",
         )
@@ -270,6 +273,17 @@ def recalculate_mean_comparison_t_test(
             f"t_test box_plot_{col}",
         )
     return result
+
+
+def _cohen_d_ci(cohen_d: float, n1: int, n2: int) -> str:
+    """Approximate 95% CI for Cohen's d via its large-sample standard error:
+    SE = sqrt((n1+n2)/(n1*n2) + d^2 / (2*(n1+n2)))."""
+    total = n1 + n2
+    if n1 < 1 or n2 < 1 or total == 0:
+        return "—"
+    se = ((total) / (n1 * n2) + cohen_d**2 / (2 * total)) ** 0.5
+    lo, hi = cohen_d - 1.96 * se, cohen_d + 1.96 * se
+    return f"[{format_statistic_apa(lo)}, {format_statistic_apa(hi)}]"
 
 
 def process_non_normal_t_test(
@@ -390,9 +404,10 @@ def process_non_normal_t_test(
     return table
 
 
-def process_homogeneous_t_test(df: pd.DataFrame, columns, grouping_column, effect_size, verbal_indicators=False) -> HTMLTableV2:
+def process_homogeneous_t_test(df: pd.DataFrame, columns, grouping_column, effect_size, verbal_indicators=False, confidence_intervals=False) -> HTMLTableV2:
     show_verbal = 1 if (effect_size and verbal_indicators) else 0
     show_sig = 1 if verbal_indicators else 0
+    show_ci = 1 if (effect_size and confidence_intervals) else 0
     table = HTMLTableV2(table_caption=t("ttest.caption.ttest_independent"))
 
     group1_name = df[grouping_column].unique()[0]
@@ -406,6 +421,7 @@ def process_homogeneous_t_test(df: pd.DataFrame, columns, grouping_column, effec
             + [Cell(group1_name, center=True, col_span=2, border_bottom=True)]
             + [Cell(group2_name, center=True, col_span=2, border_bottom=True)]
             + [Cell()] * effect_size
+            + [Cell()] * show_ci
             + [Cell()] * show_verbal
         )
     )
@@ -426,12 +442,14 @@ def process_homogeneous_t_test(df: pd.DataFrame, columns, grouping_column, effec
                 Cell("SD", center=True),
             ]
             + [Cell("Cohen's d", center=True)] * effect_size
+            + [Cell(t("common.ci_95"), center=True)] * show_ci
             + [Cell(t("effect.col.magnitude"), center=True)] * show_verbal
         )
     )
 
     accepted_columns = []
     rejected_columns = []
+    ci_items = []
 
     for col in columns:
         group1 = df[df[grouping_column] == df[grouping_column].unique()[0]][col].dropna()
@@ -445,6 +463,9 @@ def process_homogeneous_t_test(df: pd.DataFrame, columns, grouping_column, effec
             (std[0] ** 2 * (len(group1) - 1) + std[1] ** 2 * (len(group2) - 1)) / (len(group1) + len(group2) - 2)
         ) ** 0.5
         cohen_d = (mean[0] - mean[1]) / cohen_s
+        ci_str = _cohen_d_ci(cohen_d, len(group1), len(group2))
+        if show_ci:
+            ci_items.append(f"{col} {ci_str}")
         if effect_size:
             test_result = TestResult(
                 variable=col, letter=["t", "Cohen's d"], statistic=[t_stat, cohen_d], p=p_val, df=f"{deg_free:.1f}"
@@ -477,6 +498,7 @@ def process_homogeneous_t_test(df: pd.DataFrame, columns, grouping_column, effec
                     Cell(format_statistic_apa(cohen_d), center=True),
                 ]
                 * effect_size
+                + [Cell(ci_str, center=True)] * show_ci
                 + [Cell(cohen_d_magnitude(cohen_d), center=True)] * show_verbal
             )
         )
@@ -491,13 +513,16 @@ def process_homogeneous_t_test(df: pd.DataFrame, columns, grouping_column, effec
             no_property=t("ttest.prop.not_sig_diff"),
         )
     )
+    if ci_items:
+        table.add_text(t("ttest.ci_sentence", items=smart_comma_join(ci_items)))
     return table
 
 
-def process_non_homogeneous_t_test(df: pd.DataFrame, columns, grouping_column, effect_size, verbal_indicators=False) -> HTMLTableV2:
+def process_non_homogeneous_t_test(df: pd.DataFrame, columns, grouping_column, effect_size, verbal_indicators=False, confidence_intervals=False) -> HTMLTableV2:
     # inhomogeneous => Welch's t-test
     show_verbal = 1 if (effect_size and verbal_indicators) else 0
     show_sig = 1 if verbal_indicators else 0
+    show_ci = 1 if (effect_size and confidence_intervals) else 0
     table = HTMLTableV2(table_caption=t("ttest.caption.welch_ttest"))
 
     group1_name = df[grouping_column].unique()[0]
@@ -511,6 +536,7 @@ def process_non_homogeneous_t_test(df: pd.DataFrame, columns, grouping_column, e
             + [Cell(group1_name, center=True, col_span=2, border_bottom=True)]
             + [Cell(group2_name, center=True, col_span=2, border_bottom=True)]
             + [Cell()] * effect_size
+            + [Cell()] * show_ci
             + [Cell()] * show_verbal
         )
     )
@@ -531,12 +557,14 @@ def process_non_homogeneous_t_test(df: pd.DataFrame, columns, grouping_column, e
                 Cell("SD", center=True),
             ]
             + [Cell("Cohen's d", center=True)] * effect_size
+            + [Cell(t("common.ci_95"), center=True)] * show_ci
             + [Cell(t("effect.col.magnitude"), center=True)] * show_verbal
         )
     )
 
     accepted_columns = []
     rejected_columns = []
+    ci_items = []
 
     for col in columns:
         group1 = df[df[grouping_column] == df[grouping_column].unique()[0]][col].dropna()
@@ -550,6 +578,9 @@ def process_non_homogeneous_t_test(df: pd.DataFrame, columns, grouping_column, e
         # group variances rather than the pooled SD, which assumes equal variance.
         cohen_s = ((std[0] ** 2 + std[1] ** 2) / 2) ** 0.5
         cohen_d = (mean[0] - mean[1]) / cohen_s
+        ci_str = _cohen_d_ci(cohen_d, len(group1), len(group2))
+        if show_ci:
+            ci_items.append(f"{col} {ci_str}")
 
         if effect_size:
             test_result = TestResult(
@@ -581,6 +612,7 @@ def process_non_homogeneous_t_test(df: pd.DataFrame, columns, grouping_column, e
                     Cell(format_value_apa(std[1]), center=True),
                 ]
                 + [Cell(format_statistic_apa(cohen_d), center=True)] * effect_size
+                + [Cell(ci_str, center=True)] * show_ci
                 + [Cell(cohen_d_magnitude(cohen_d), center=True)] * show_verbal
             )
         )
@@ -595,4 +627,6 @@ def process_non_homogeneous_t_test(df: pd.DataFrame, columns, grouping_column, e
             no_property=t("ttest.prop.not_sig_diff"),
         )
     )
+    if ci_items:
+        table.add_text(t("ttest.ci_sentence", items=smart_comma_join(ci_items)))
     return table

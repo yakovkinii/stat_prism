@@ -31,6 +31,10 @@ TRANSLATIONS = {
         "en": "p-value",
         "ua": "p-значення",
     },
+    "common.ci_95": {
+        "en": "95% CI",
+        "ua": "95% ДІ",
+    },
     "common.mean": {
         "en": "Mean",
         "ua": "Середнє",
@@ -359,6 +363,10 @@ TRANSLATIONS = {
     "ttest.posthoc.tukey": {
         "en": "Tukey's HSD",
         "ua": "Тьюкі (HSD)",
+    },
+    "ttest.ci_sentence": {
+        "en": "95% confidence intervals for Cohen's d: {items}.",
+        "ua": "95% довірчі інтервали для d Коена: {items}.",
     },
     "ttest.posthoc_sentence": {
         "en": (
