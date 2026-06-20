@@ -17,6 +17,13 @@ from src.side_area_panel.modules.dp_impute.dp_impute_result import ImputeResult
 from src.side_area_panel.modules.dp_transform.dp_transform_result import TransformResult
 from src.side_area_panel.modules.dp_formula.dp_formula_result import FormulaResult
 from src.side_area_panel.modules.dp_bootstrap.dp_bootstrap_result import BootstrapResult
+from src.side_area_panel.modules.dp_split_multiselect.dp_split_multiselect_result import (
+    SplitMultiSelectResult,
+)
+from src.side_area_panel.modules.dp_onehot.dp_onehot_result import OneHotResult
+from src.side_area_panel.modules.multiple_response.multiple_response_result import (
+    MultipleResponseResult,
+)
 from src.side_area_panel.modules.dp_invert_scale.dp_invert_scale_result import (
     InvertScaleResult,
 )
@@ -71,6 +78,9 @@ RESULTS: Dict[
         TransformResult,
         FormulaResult,
         BootstrapResult,
+        SplitMultiSelectResult,
+        OneHotResult,
+        MultipleResponseResult,
     ],
 ] = {}
 

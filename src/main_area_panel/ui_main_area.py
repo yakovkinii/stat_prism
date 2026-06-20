@@ -210,12 +210,9 @@ class MainAreaClass:
         self.data_analysis_container_layout.addWidget(data_analysis_object.widget)
         self.root_class.mark_dirty()
 
-    def copy_all_results(self):
-        """Copy every data-analysis result (in display order) to the clipboard as one HTML
-        document -- the concatenation of each study's tables and plots."""
-        from PySide6.QtCore import QMimeData
-        from PySide6.QtGui import QGuiApplication
-
+    def _build_report_html(self) -> str:
+        """One self-contained HTML document: each data-analysis result (in display order)
+        with its tables and plots (plots are inline base64 PNGs, so the file is portable)."""
         from src.side_area_panel.modules.common.result.html_result import HTMLTableV2
         from src.side_area_panel.modules.common.result.plot_result import PlotV2
 
@@ -229,10 +226,35 @@ class MainAreaClass:
                 parts.append("<br><br>")
             parts.append("<hr>")
         parts.append("</body></html>")
+        return "".join(parts)
+
+    def copy_all_results(self):
+        """Copy every data-analysis result (in display order) to the clipboard as one HTML
+        document -- the concatenation of each study's tables and plots."""
+        from PySide6.QtCore import QMimeData
+        from PySide6.QtGui import QGuiApplication
 
         mime_data = QMimeData()
-        mime_data.setHtml("".join(parts))
+        mime_data.setHtml(self._build_report_html())
         QGuiApplication.clipboard().setMimeData(mime_data)
+
+    def export_report_html(self):
+        """Save every data-analysis result as a single self-contained .html file (tables +
+        inline plots), openable directly in Word or a browser."""
+        import logging
+
+        from PySide6.QtWidgets import QFileDialog
+
+        file_path, _ = QFileDialog.getSaveFileName(self.widget, "Export Report (HTML)", "", "HTML files (*.html)")
+        if not file_path:
+            return
+        if not file_path.endswith(".html"):
+            file_path += ".html"
+        try:
+            with open(file_path, "w", encoding="utf-8") as f:
+                f.write(self._build_report_html())
+        except Exception as e:
+            logging.error(f"Failed to export report to HTML: {e}")
 
     def move_data_analysis(self, result_id, delta):
         """Reorder an analysis card up/down. Analyses are leaves (not in the data chain), so

@@ -69,6 +69,28 @@ from src.side_area_panel.modules.dp_bootstrap.dp_bootstrap_result import (
     BootstrapStudyConfig,
 )
 from src.side_area_panel.modules.dp_bootstrap.dp_bootstrap_ui import Bootstrap
+from src.side_area_panel.modules.dp_split_multiselect.dp_split_multiselect_main import (
+    dp_split_multiselect_main,
+)
+from src.side_area_panel.modules.dp_split_multiselect.dp_split_multiselect_result import (
+    SplitMultiSelectResult,
+    SplitMultiSelectStudyConfig,
+)
+from src.side_area_panel.modules.dp_split_multiselect.dp_split_multiselect_ui import SplitMultiSelect
+from src.side_area_panel.modules.dp_onehot.dp_onehot_main import dp_onehot_main
+from src.side_area_panel.modules.dp_onehot.dp_onehot_result import (
+    OneHotResult,
+    OneHotStudyConfig,
+)
+from src.side_area_panel.modules.dp_onehot.dp_onehot_ui import OneHot
+from src.side_area_panel.modules.multiple_response.multiple_response_ui import MultipleResponse
+from src.side_area_panel.modules.multiple_response.multiple_response_main import (
+    recalculate_multiple_response_study,
+)
+from src.side_area_panel.modules.multiple_response.multiple_response_result import (
+    MultipleResponseResult,
+    MultipleResponseStudyConfig,
+)
 from src.side_area_panel.modules.dp_preprocess.dp_preprocess_main import dp_preprocess_main
 from src.side_area_panel.modules.dp_preprocess.dp_preprocess_result import (
     PreprocessResult,
@@ -275,6 +297,21 @@ def inject_classes_to_module_registry():
     ModuleRegistry.BOOTSTRAP.value.result_class = BootstrapResult
     ModuleRegistry.BOOTSTRAP.value.config_class = BootstrapStudyConfig
     ModuleRegistry.BOOTSTRAP.value.main_function = dp_bootstrap_main
+
+    ModuleRegistry.SPLIT_MULTISELECT.value.ui_class = SplitMultiSelect
+    ModuleRegistry.SPLIT_MULTISELECT.value.result_class = SplitMultiSelectResult
+    ModuleRegistry.SPLIT_MULTISELECT.value.config_class = SplitMultiSelectStudyConfig
+    ModuleRegistry.SPLIT_MULTISELECT.value.main_function = dp_split_multiselect_main
+
+    ModuleRegistry.ONE_HOT.value.ui_class = OneHot
+    ModuleRegistry.ONE_HOT.value.result_class = OneHotResult
+    ModuleRegistry.ONE_HOT.value.config_class = OneHotStudyConfig
+    ModuleRegistry.ONE_HOT.value.main_function = dp_onehot_main
+
+    ModuleRegistry.MULTIPLE_RESPONSE.value.ui_class = MultipleResponse
+    ModuleRegistry.MULTIPLE_RESPONSE.value.result_class = MultipleResponseResult
+    ModuleRegistry.MULTIPLE_RESPONSE.value.config_class = MultipleResponseStudyConfig
+    ModuleRegistry.MULTIPLE_RESPONSE.value.main_function = recalculate_multiple_response_study
 
     ModuleRegistry.PREPROCESS.value.ui_class = Preprocess
     ModuleRegistry.PREPROCESS.value.result_class = PreprocessResult

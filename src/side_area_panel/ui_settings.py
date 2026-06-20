@@ -90,10 +90,12 @@ class SettingsPanelClass:
         self.save_action = QAction("Save", self.widget)
         self.save_as_action = QAction("Save As…", self.widget)
         self.copy_all_action = QAction("Copy All Results", self.widget)
+        self.export_report_action = QAction("Export Report (HTML)…", self.widget)
         for action in (self.open_action, self.save_action, self.save_as_action):
             file_menu.addAction(action)
         file_menu.addSeparator()
         file_menu.addAction(self.copy_all_action)
+        file_menu.addAction(self.export_report_action)
 
         # EN and UA checkable actions
         self.en_action = QAction("English", self.widget)
@@ -145,6 +147,7 @@ class SettingsPanelClass:
         self.save_action.triggered.connect(lambda: PanelRegistry.HOME.value.ui_instance.save_handler())
         self.save_as_action.triggered.connect(lambda: PanelRegistry.HOME.value.ui_instance.save_as_handler())
         self.copy_all_action.triggered.connect(lambda: self.root_class.main_area_panel.copy_all_results())
+        self.export_report_action.triggered.connect(lambda: self.root_class.main_area_panel.export_report_html())
 
     def set_language_EN(self):
         LANGUAGE.set_language(Languages.EN)

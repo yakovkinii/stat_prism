@@ -112,6 +112,18 @@ class ModuleRegistry(Enum):
         module_type=ModuleType.DATA_PROCESSING,
     )
 
+    SPLIT_MULTISELECT = ModuleRegistryItem(
+        display_name="Split Multi-Select",
+        icon_path="mdi6.checkbox-multiple-outline",
+        module_type=ModuleType.DATA_PROCESSING,
+    )
+
+    ONE_HOT = ModuleRegistryItem(
+        display_name="One-hot encoding",
+        icon_path="mdi6.matrix",
+        module_type=ModuleType.DATA_PROCESSING,
+    )
+
     DESCRIPTIVE = ModuleRegistryItem(
         display_name="Descriptive Statistics",
         icon_path="ph.note",
@@ -140,6 +152,11 @@ class ModuleRegistry(Enum):
     CONTINGENCY = ModuleRegistryItem(
         display_name="Contingency Table",
         icon_path="msc.table",
+    )
+
+    MULTIPLE_RESPONSE = ModuleRegistryItem(
+        display_name="Multiple Response",
+        icon_path="mdi6.format-list-checks",
     )
 
     REGRESSION = ModuleRegistryItem(
