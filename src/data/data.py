@@ -2,7 +2,7 @@
 
 
 import logging
-from typing import Dict, List, Union
+from typing import Dict, List, Optional, Union
 
 import numpy as np
 import pandas as pd
@@ -23,7 +23,7 @@ class DataColumn:
         column_type: ColumnType,
         is_numeric: bool,
         inverted: bool,
-        color: int,
+        color: Optional[str],
         order: Dict[Union[int, float, str], int],
     ):
         self.column_name: str = column_name
@@ -33,7 +33,8 @@ class DataColumn:
         self.column_type: ColumnType = column_type
         self.is_numeric: bool = is_numeric
         self.inverted: bool = inverted
-        self.color: int = color
+        # Pastel hex tag (e.g. "#ffd9d9") or None for no colour.
+        self.color: Optional[str] = color
         self.order: Dict[Union[int, float, str], int] = order
 
     @classmethod
@@ -59,7 +60,7 @@ class DataColumn:
             column_type=ColumnType.NUMERIC if dtype in ["int", "float"] else ColumnType.NOMINAL,
             is_numeric=dtype in ["int", "float"],
             inverted=False,
-            color=0,
+            color=None,
             order={},
         ).automatically_update_order()
 

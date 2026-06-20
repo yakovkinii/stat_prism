@@ -55,6 +55,42 @@ def _build_counts_table(contingency_table: pd.DataFrame, col1: str, col2: str) -
     return table
 
 
+def _add_mcnemar_table(result, contingency_table, correction):
+    """Paired-data symmetry test on a square table: McNemar for 2x2, its Bowker
+    generalisation for larger square tables. Skips (with a note) when the table is not
+    square, since the two variables must share the same categories (matched conditions)."""
+    from statsmodels.stats.contingency_tables import SquareTable, mcnemar
+
+    table = HTMLTableV2(table_caption=t("contingency.mcnemar.caption"))
+    if contingency_table.shape[0] != contingency_table.shape[1] or list(contingency_table.index) != list(
+        contingency_table.columns
+    ):
+        table.add_text(t("contingency.mcnemar.not_square"))
+        result.update_and_add_element(table, "contingency mcnemar")
+        return
+
+    arr = contingency_table.to_numpy()
+    if contingency_table.shape == (2, 2):
+        n_discordant = int(arr[0, 1] + arr[1, 0])
+        res = mcnemar(arr, exact=(n_discordant < 25), correction=correction)
+        stat, p, dof = float(res.statistic), float(res.pvalue), 1
+        name = t("contingency.mcnemar.name")
+    else:
+        res = SquareTable(arr).symmetry()
+        stat, p, dof = float(res.statistic), float(res.pvalue), int(res.df)
+        name = t("contingency.mcnemar.name_bowker")
+
+    table.add_title_row_apa(
+        Row([Cell("&chi;<sup>2</sup>"), Cell("df"), Cell(t("contingency.col_pvalue"))])
+    )
+    table.add_single_row_apa(
+        Row([Cell(format_statistic_apa(stat)), Cell(str(dof)), Cell(format_p_apa(p))])
+    )
+    key = "contingency.mcnemar.significant" if p < 0.05 else "contingency.mcnemar.not_significant"
+    table.add_text(t(key, name=name, stats=f"χ²({dof}) = {format_statistic_apa(stat)}, {format_p_apa_full(p)}"))
+    result.update_and_add_element(table, "contingency mcnemar")
+
+
 @log_function
 def recalculate_contingency_study(elements, result: ContingencyResult, update) -> ContingencyResult:
     """Validate the inputs, build the contingency table, run the chi-square test (with an
@@ -183,6 +219,11 @@ def recalculate_contingency_study(elements, result: ContingencyResult, update) -
         )
 
     result.update_and_add_element(chi2_table, "contingency chi2")
+
+    # ----- McNemar / Bowker test (paired data) -----
+    if cfg.mcnemar:
+        _add_mcnemar_table(result, contingency_table, correction)
+
     update(70)
 
     # ----- Plot -----

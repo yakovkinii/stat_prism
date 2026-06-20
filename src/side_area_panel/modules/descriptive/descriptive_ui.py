@@ -12,7 +12,7 @@ from src.side_area_panel.iispwac.iispwac_spacer import IISPWACSpacer
 from src.side_area_panel.iispwac.iispwac_text_edit import IISPWACLongTextEdit
 from src.side_area_panel.modules.base.base import BaseModulePanel
 
-NORMALITY_TESTS = ["Shapiro-Wilk", "Kolmogorov-Smirnov"]
+NORMALITY_TESTS = ["Shapiro-Wilk", "Kolmogorov-Smirnov", "Anderson-Darling"]
 
 
 class Elements(ItemInSidePanelWithAutoConfigHolder):

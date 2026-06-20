@@ -8,6 +8,7 @@ import pandas as pd
 import statsmodels.api as sm
 from scipy import stats
 from statsmodels.stats.outliers_influence import variance_inflation_factor
+from statsmodels.stats.stattools import durbin_watson
 
 from src.common.decorators import log_function
 from src.common.qcolor import Colors
@@ -131,13 +132,79 @@ def _add_vif_table(result, x, verbal):
     result.update_and_add_element(vif_table, "regression vif")
 
 
+def _add_influence_table(result, model, verbal):
+    """Influence diagnostics: per-observation Cook's distance, leverage (hat) and internally
+    studentized residuals, listing the observations that exceed the usual flags (Cook's D >
+    4/n, leverage > 2p/n, |std. resid| > 3). Also reports the Durbin-Watson statistic for
+    residual autocorrelation. All computed analytically (statsmodels), no resampling."""
+    influence = model.get_influence()
+    cooks = np.asarray(influence.cooks_distance[0], dtype=float)
+    leverage = np.asarray(influence.hat_matrix_diag, dtype=float)
+    std_resid = np.asarray(influence.resid_studentized_internal, dtype=float)
+
+    n = len(cooks)
+    p = int(model.df_model) + 1  # predictors + intercept
+    cooks_cut = 4.0 / n if n else np.nan
+    leverage_cut = 2.0 * p / n if n else np.nan
+
+    labels = list(model.fittedvalues.index)
+    flagged = [
+        i
+        for i in range(n)
+        if (cooks[i] > cooks_cut) or (leverage[i] > leverage_cut) or (abs(std_resid[i]) > 3)
+    ]
+    # Worst first, capped so the table stays readable.
+    flagged.sort(key=lambda i: cooks[i], reverse=True)
+    flagged = flagged[:20]
+
+    table = HTMLTableV2(table_caption=t("regression.diag.influence_caption"))
+    table.add_title_row_apa(
+        Row(
+            [
+                Cell(t("regression.diag.observation")),
+                Cell(t("regression.diag.cooks"), center=True),
+                Cell(t("regression.diag.leverage"), center=True),
+                Cell(t("regression.diag.std_resid"), center=True),
+            ]
+        )
+    )
+    for i in flagged:
+        table.add_single_row_apa(
+            Row(
+                [
+                    Cell(str(labels[i]), push_to_left=True),
+                    Cell(format_statistic_apa(cooks[i]), center=True),
+                    Cell(format_r_apa(leverage[i]), center=True),
+                    Cell(format_statistic_apa(std_resid[i]), center=True),
+                ]
+            )
+        )
+
+    dw = float(durbin_watson(model.resid))
+    if flagged:
+        table.add_text(
+            t(
+                "regression.report.influence_some",
+                n=len(flagged),
+                cooks=format_statistic_apa(cooks_cut),
+                leverage=format_r_apa(leverage_cut),
+            )
+        )
+    else:
+        table.add_text(t("regression.report.influence_none"))
+    table.add_text(t("regression.report.durbin_watson", dw=format_statistic_apa(dw)))
+    result.update_and_add_element(table, "regression influence")
+
+
 def _add_diagnostics(result, model, x, verbal):
-    """OLS diagnostics: a VIF multicollinearity table (when there are >=2 predictors), a
+    """OLS diagnostics: a VIF multicollinearity table (when there are >=2 predictors), an
+    influence table (Cook's D / leverage / studentized residuals + Durbin-Watson), a
     residuals-vs-fitted plot, and a normal Q-Q plot of the residuals."""
     fitted = np.asarray(model.fittedvalues, dtype=float)
     resid = np.asarray(model.resid, dtype=float)
 
     _add_vif_table(result, x, verbal)
+    _add_influence_table(result, model, verbal)
 
     # ----- Residuals vs fitted -----
     zero_x = np.array([fitted.min(), fitted.max()])

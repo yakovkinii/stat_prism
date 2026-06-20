@@ -44,6 +44,10 @@ class Elements(ItemInSidePanelWithAutoConfigHolder):
         label_text="Verbal indicators in tables",
         default_state=True,
     )
+    mcnemar = IISPWACCheckBox(
+        label_text="Paired data (McNemar test)",
+        default_state=False,
+    )
     plots = IISPWACCheckBox(
         label_text="Plots",
         default_state=True,

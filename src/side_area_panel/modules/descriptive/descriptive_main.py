@@ -26,6 +26,31 @@ from src.side_area_panel.modules.descriptive.table import (
 )
 
 _KS = "Kolmogorov-Smirnov"
+_AD = "Anderson-Darling"
+
+# Statistic symbol shown in the normality table per test.
+_NORMALITY_LETTER = {_KS: "D", _AD: "A<sup>2</sup>", "Shapiro-Wilk": "W"}
+
+
+def _anderson_darling_normal_p(data):
+    """Anderson-Darling test for normality. scipy returns only the A² statistic and fixed
+    critical values, so the p-value uses Stephens' (1986) approximation on the
+    sample-size-adjusted statistic A²* = A²(1 + 0.75/n + 2.25/n²)."""
+    res = stats.anderson(data, dist="norm")
+    a2 = float(res.statistic)
+    n = len(data)
+    a2s = a2 * (1 + 0.75 / n + 2.25 / n**2)
+    if a2s < 0.2:
+        p = 1 - np.exp(-13.436 + 101.14 * a2s - 223.73 * a2s**2)
+    elif a2s < 0.34:
+        p = 1 - np.exp(-8.318 + 42.796 * a2s - 59.938 * a2s**2)
+    elif a2s < 0.6:
+        p = np.exp(0.9177 - 4.279 * a2s - 1.38 * a2s**2)
+    elif a2s < 10:
+        p = np.exp(1.2937 - 5.709 * a2s + 0.0186 * a2s**2)
+    else:
+        p = 0.0
+    return a2, float(min(max(p, 0.0), 1.0))
 
 
 def _fail(result: DescriptiveResult, message: str) -> DescriptiveResult:
@@ -84,6 +109,8 @@ def _normality_stats(col, group, series, test) -> dict:
                 if sigma > 0:
                     result = stats.kstest(data, "norm", args=(data.mean(), sigma))
                     statistic, p_value = result.statistic, result.pvalue
+            elif test == _AD:
+                statistic, p_value = _anderson_darling_normal_p(data)
             else:  # Shapiro-Wilk
                 statistic, p_value = stats.shapiro(data)
         except Exception as e:  # pragma: no cover - defensive
@@ -179,7 +206,7 @@ def recalculate_descriptive_study(elements, result: DescriptiveResult, update) -
     # ----- Normality table + verbal report -----
     if cfg.show_normality and numeric_columns:
         test = cfg.normality_test or "Shapiro-Wilk"
-        letter = "D" if test == _KS else "W"
+        letter = _NORMALITY_LETTER.get(test, "W")
         norm_rows = []
         for col in numeric_columns:
             if grouping_column is None:

@@ -86,6 +86,36 @@ TRANSLATIONS = {
         "en": "p-value",
         "ua": "p-значення",
     },
+    "contingency.mcnemar.caption": {
+        "en": "Paired-data symmetry test",
+        "ua": "Тест симетрії для парних даних",
+    },
+    "contingency.mcnemar.name": {
+        "en": "McNemar test",
+        "ua": "тест Мак-Немара",
+    },
+    "contingency.mcnemar.name_bowker": {
+        "en": "McNemar–Bowker test",
+        "ua": "тест Мак-Немара–Боукера",
+    },
+    "contingency.mcnemar.not_square": {
+        "en": (
+            "The McNemar test needs a square table with matching categories on both axes "
+            "(the same items measured twice). The selected variables do not form one."
+        ),
+        "ua": (
+            "Тест Мак-Немара потребує квадратної таблиці з однаковими категоріями по обох осях "
+            "(ті самі об'єкти, виміряні двічі). Обрані змінні її не утворюють."
+        ),
+    },
+    "contingency.mcnemar.significant": {
+        "en": "The {name} indicates a significant change between the paired measurements ({stats}).",
+        "ua": "{name} вказує на значущу зміну між парними вимірами ({stats}).",
+    },
+    "contingency.mcnemar.not_significant": {
+        "en": "The {name} does not indicate a significant change between the paired measurements ({stats}).",
+        "ua": "{name} не вказує на значущу зміну між парними вимірами ({stats}).",
+    },
     "contingency.col_cramer": {
         "en": "Cramer's V",
         "ua": "V Крамера",
@@ -827,6 +857,37 @@ TRANSLATIONS = {
     "regression.plot.total": {"en": "Total effect", "ua": "Загальний ефект"},
     "regression.plot.band": {"en": "Standard error", "ua": "Стандартна похибка"},
     "regression.diag.vif_caption": {"en": "Multicollinearity (VIF)", "ua": "Мультиколінеарність (VIF)"},
+    "regression.diag.influence_caption": {"en": "Influential observations", "ua": "Впливові спостереження"},
+    "regression.diag.observation": {"en": "Observation", "ua": "Спостереження"},
+    "regression.diag.cooks": {"en": "Cook's D", "ua": "D Кука"},
+    "regression.diag.leverage": {"en": "Leverage", "ua": "Розмах (leverage)"},
+    "regression.diag.std_resid": {"en": "Std. residual", "ua": "Станд. залишок"},
+    "regression.report.influence_some": {
+        "en": (
+            "{n} observation(s) are flagged as potentially influential "
+            "(Cook's D > {cooks}, leverage > {leverage}, or |std. residual| > 3). "
+            "Inspect them before trusting the fit. "
+        ),
+        "ua": (
+            "Позначено {n} потенційно впливових спостережень "
+            "(D Кука > {cooks}, leverage > {leverage} або |станд. залишок| > 3). "
+            "Перевірте їх, перш ніж довіряти моделі. "
+        ),
+    },
+    "regression.report.influence_none": {
+        "en": "No observations exceed the usual influence thresholds. ",
+        "ua": "Жодне спостереження не перевищує звичайних порогів впливовості. ",
+    },
+    "regression.report.durbin_watson": {
+        "en": (
+            "Durbin-Watson = {dw} (≈ 2 suggests independent residuals; "
+            "much below 2 indicates positive autocorrelation, above 2 negative)."
+        ),
+        "ua": (
+            "Дарбін-Уотсон = {dw} (≈ 2 свідчить про незалежність залишків; "
+            "значно менше 2 — додатна автокореляція, більше 2 — від'ємна)."
+        ),
+    },
     "regression.col.vif": {"en": "VIF", "ua": "VIF"},
     "regression.diag.concern": {"en": "Concern", "ua": "Ризик"},
     "regression.vif.low": {"en": "low", "ua": "низький"},
@@ -2147,10 +2208,17 @@ TRANSLATIONS = {
             "<li><b>Numeric summary.</b> N, missing, mean, SD, min and max; optionally (Extended "
             "stats) median, Q1/Q3 (IQR), the standard error of the mean, and skewness &amp; "
             "kurtosis (Fisher / excess, so a normal distribution has 0).</li>"
-            "<li><b>Normality.</b> A selectable test &mdash; Shapiro&ndash;Wilk (W) or "
+            "<li><b>Normality.</b> A selectable test &mdash; Shapiro&ndash;Wilk (W), "
             "Kolmogorov&ndash;Smirnov (D, against a normal with the sample mean &amp; SD; the basic "
-            "KS, not Lilliefors-corrected) &mdash; needs N &ge; 3. Shown as a separate table plus a "
-            "verbal summary.</li>"
+            "KS, not Lilliefors-corrected) or Anderson&ndash;Darling (A&sup2;, p-value via Stephens' "
+            "approximation) &mdash; needs N &ge; 3. Shown as a separate table plus a verbal summary. "
+            "<i>Which to use:</i> Shapiro&ndash;Wilk is the most powerful general choice and is "
+            "recommended for small-to-moderate samples (roughly N &le; 50, valid up to a few thousand); "
+            "Anderson&ndash;Darling is more sensitive to departures in the tails and works well on "
+            "larger samples; the basic Kolmogorov&ndash;Smirnov is the least powerful (it is "
+            "conservative when the mean/SD are estimated) and is offered mainly for comparability with "
+            "older reports. With large N any test flags trivial deviations, so pair it with the Q-Q "
+            "plot and skewness/kurtosis.</li>"
             "<li><b>Categorical summary.</b> A per-variable frequency table with counts and "
             "percentages (of non-missing) is shown for non-numeric variables.</li>"
             "<li><b>Histograms.</b> Densities. Bin width is automatic (Freedman&ndash;Diaconis / "
@@ -2181,10 +2249,17 @@ TRANSLATIONS = {
             "<li><b>Числовий підсумок.</b> N, пропуски, середнє, SD, мінімум і максимум; за бажанням "
             "(Розширена статистика) медіана, Q1/Q3 (IQR), стандартна похибка середнього, а також "
             "асиметрія та ексцес (Фішерів / надлишковий, тож нормальний розподіл має 0).</li>"
-            "<li><b>Нормальність.</b> Тест на вибір &mdash; Шапіро&ndash;Вілк (W) або "
+            "<li><b>Нормальність.</b> Тест на вибір &mdash; Шапіро&ndash;Вілк (W), "
             "Колмогоров&ndash;Смирнов (D, проти нормального з вибірковим середнім та SD; базовий "
-            "KS, без поправки Ліллієфорса) &mdash; потребує N &ge; 3. Показується окремою таблицею "
-            "плюс словесний підсумок.</li>"
+            "KS, без поправки Ліллієфорса) або Андерсон&ndash;Дарлінг (A&sup2;, p-значення за "
+            "наближенням Стівенса) &mdash; потребує N &ge; 3. Показується окремою таблицею плюс "
+            "словесний підсумок. <i>Що обрати:</i> Шапіро&ndash;Вілк &mdash; найпотужніший загальний "
+            "вибір, рекомендований для малих і середніх вибірок (приблизно N &le; 50, дійсний до "
+            "кількох тисяч); Андерсон&ndash;Дарлінг чутливіший до відхилень у хвостах і добре працює "
+            "на більших вибірках; базовий Колмогоров&ndash;Смирнов найменш потужний (консервативний, "
+            "коли середнє/SD оцінено) і пропонується переважно для сумісності зі старішими звітами. "
+            "За великого N будь-який тест відмічає незначні відхилення, тож поєднуйте його з "
+            "Q-Q графіком та асиметрією/ексцесом.</li>"
             "<li><b>Категоріальний підсумок.</b> Для нечислових змінних показується таблиця частот "
             "для кожної змінної з підрахунками та відсотками (від непропущених).</li>"
             "<li><b>Гістограми.</b> Густини. Ширина інтервалу автоматична "

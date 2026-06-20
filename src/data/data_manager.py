@@ -1,6 +1,4 @@
 #  Copyright (c) 2023 StatPrism Team. All rights reserved.
-import logging
-
 from src.common.decorators import log_method
 from src.data.data import Data
 from src.side_area_panel.modules.common.result.registry import RESULTS
@@ -48,20 +46,6 @@ class DataManager:
             return False
         self.data_chain[i], self.data_chain[j] = self.data_chain[j], self.data_chain[i]
         return True
-
-    def get_latest_data(self):
-        logging.error("Deprecated")
-
-        return RESULTS[self.data_chain[-1]].data.copy()
-
-    def get_data_before_result_id(self, result_id: int):
-        logging.error("Deprecated")
-        if result_id not in self.data_chain:
-            raise ValueError(f"Result ID {result_id} not found in data chain.")
-        index = self.data_chain.index(result_id)
-        if index == 0:
-            raise ValueError("No data before the first result ID.")
-        return RESULTS[self.data_chain[index - 1]].data.copy()
 
     def from_unpickled(self, data: "DataManager"):
         self.raw_data_result_id = data.raw_data_result_id

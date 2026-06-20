@@ -42,11 +42,14 @@ def dp_calculate_scale_main(elements: Elements, result: CalculateScaleResult, up
         axis=1,
     )
 
+    # exclude_missing off (default): any missing item -> the scale value is missing for that
+    # row. On: skip missing items and aggregate over the present ones.
+    exclude_missing = bool(cfg.exclude_missing)
     method = cfg.method or "Sum"
     if method == "Sum":
-        scale_series = items.sum(axis=1, min_count=1)
+        scale_series = items.sum(axis=1, min_count=1) if exclude_missing else items.sum(axis=1, skipna=False)
     elif method == "Mean":
-        scale_series = items.mean(axis=1)
+        scale_series = items.mean(axis=1) if exclude_missing else items.mean(axis=1, skipna=False)
     else:
         raise ValueError(f"Unknown aggregation method: {method}")
 

@@ -16,6 +16,7 @@ class ContingencyStudyConfig:
     continuity_correction = attrs.field(default=None)
     effect_size = attrs.field(default=None)
     verbal_indicators = attrs.field(default=None)
+    mcnemar = attrs.field(default=None)
     plots = attrs.field(default=None)
 
 

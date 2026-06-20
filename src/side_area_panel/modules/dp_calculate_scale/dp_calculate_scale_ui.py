@@ -3,6 +3,7 @@
 from src.common.constant import ColumnType
 from src.pyside_ext.elements.column_selector import Field
 from src.side_area_panel.blueprint.element import ItemInSidePanelWithAutoConfigHolder
+from src.side_area_panel.iispwac.iispwac_checkbox import IISPWACCheckBox
 from src.side_area_panel.iispwac.iispwac_color_picker import IISPWACColorPicker
 from src.side_area_panel.iispwac.iispwac_column_selector import IISPWACColumnSelector
 from src.side_area_panel.iispwac.iispwac_combobox import IISPWACComboBox
@@ -40,6 +41,12 @@ class Elements(ItemInSidePanelWithAutoConfigHolder):
     questions_action = IISPWACComboBox(
         label_text="Questions:",
         items=["Keep", "Auto-rename", "Delete"],
+    )
+    # Off (default): any missing item makes the scale value missing for that row.
+    # On: missing items are skipped and the scale is aggregated over the present ones.
+    exclude_missing = IISPWACCheckBox(
+        label_text="Exclude missing items from aggregation",
+        default_state=False,
     )
     color = IISPWACColorPicker(label_text="Scale color:")
     questions_color = IISPWACColorPicker(label_text="Questions color:")

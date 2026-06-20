@@ -191,6 +191,11 @@ class MainAreaClass:
             if obj is not None:
                 layout.removeWidget(obj.widget)
                 layout.addWidget(obj.widget)
+        # Reordering can invalidate explicit "DataN" references (a study could now point at a
+        # step that follows it). Reset every study's source to "Auto" so the chain stays valid.
+        for res in RESULTS.values():
+            if hasattr(res.config, "data_source"):
+                res.config.data_source = "Auto"
         self.recompute_all()
 
     def add_data_analysis(self, result_id):
