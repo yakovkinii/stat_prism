@@ -45,6 +45,24 @@ from src.side_area_panel.modules.dp_filter.dp_filter_result import (
     FilterDataStudyConfig,
 )
 from src.side_area_panel.modules.dp_filter.dp_filter_ui import FilterData
+from src.side_area_panel.modules.dp_impute.dp_impute_main import dp_impute_main
+from src.side_area_panel.modules.dp_impute.dp_impute_result import (
+    ImputeResult,
+    ImputeStudyConfig,
+)
+from src.side_area_panel.modules.dp_impute.dp_impute_ui import Impute
+from src.side_area_panel.modules.dp_transform.dp_transform_main import dp_transform_main
+from src.side_area_panel.modules.dp_transform.dp_transform_result import (
+    TransformResult,
+    TransformStudyConfig,
+)
+from src.side_area_panel.modules.dp_transform.dp_transform_ui import Transform
+from src.side_area_panel.modules.dp_formula.dp_formula_main import dp_formula_main
+from src.side_area_panel.modules.dp_formula.dp_formula_result import (
+    FormulaResult,
+    FormulaStudyConfig,
+)
+from src.side_area_panel.modules.dp_formula.dp_formula_ui import Formula
 from src.side_area_panel.modules.dp_preprocess.dp_preprocess_main import dp_preprocess_main
 from src.side_area_panel.modules.dp_preprocess.dp_preprocess_result import (
     PreprocessResult,
@@ -231,6 +249,21 @@ def inject_classes_to_module_registry():
     ModuleRegistry.FILTER.value.result_class = FilterDataResult
     ModuleRegistry.FILTER.value.config_class = FilterDataStudyConfig
     ModuleRegistry.FILTER.value.main_function = dp_filter_main
+
+    ModuleRegistry.IMPUTE.value.ui_class = Impute
+    ModuleRegistry.IMPUTE.value.result_class = ImputeResult
+    ModuleRegistry.IMPUTE.value.config_class = ImputeStudyConfig
+    ModuleRegistry.IMPUTE.value.main_function = dp_impute_main
+
+    ModuleRegistry.TRANSFORM.value.ui_class = Transform
+    ModuleRegistry.TRANSFORM.value.result_class = TransformResult
+    ModuleRegistry.TRANSFORM.value.config_class = TransformStudyConfig
+    ModuleRegistry.TRANSFORM.value.main_function = dp_transform_main
+
+    ModuleRegistry.FORMULA.value.ui_class = Formula
+    ModuleRegistry.FORMULA.value.result_class = FormulaResult
+    ModuleRegistry.FORMULA.value.config_class = FormulaStudyConfig
+    ModuleRegistry.FORMULA.value.main_function = dp_formula_main
 
     ModuleRegistry.PREPROCESS.value.ui_class = Preprocess
     ModuleRegistry.PREPROCESS.value.result_class = PreprocessResult

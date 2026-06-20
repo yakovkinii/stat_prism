@@ -10,6 +10,10 @@ from src.pyside_ext.styling import Style
 from src.pyside_ext.unique_qss import set_stylesheet
 from src.side_area_panel.blueprint.element import ItemInSidePanelWithAutoConfig
 
+# Sentinel "value" for the categorical "(empty)" checkbox, representing missing / blank
+# cells (both "" and NaN). Kept distinct from any real category label.
+EMPTY_SENTINEL = "__EMPTY__"
+
 
 class IISPWACColumnFilter(ItemInSidePanelWithAutoConfig):
     """Single-column filter that adapts to the column type:
@@ -22,7 +26,9 @@ class IISPWACColumnFilter(ItemInSidePanelWithAutoConfig):
     for, so main() can safely no-op if the column selection has changed.
     """
 
-    OPERATIONS = ["==", "!=", "<", ">", "<=", ">="]
+    OPERATIONS = ["==", "!=", "<", ">", "<=", ">=", "is empty", "is not empty"]
+    # Operations that ignore the value box (they test for missing / blank cells).
+    EMPTY_OPERATIONS = ["is empty", "is not empty"]
 
     def __init__(self):
         super().__init__()
@@ -134,6 +140,18 @@ class IISPWACColumnFilter(ItemInSidePanelWithAutoConfig):
             checkbox.stateChanged.connect(self.on_changed)
             self.container_layout.addWidget(checkbox)
             self.value_pairs.append((value, checkbox))
+
+        # If the column has any missing / blank cells, offer a dedicated "(empty)" checkbox
+        # so empties can be kept or dropped just like a normal category. Captures "" and NaN.
+        series = column.data_series
+        has_empty = bool(series.isna().any() or (series.astype(str).str.strip() == "").any())
+        if has_empty:
+            checkbox = QCheckBox("(empty)", self.container)
+            checkbox.setToolTip("Missing or blank cells")
+            checkbox.setChecked(True if kept_set is None else (EMPTY_SENTINEL in kept_set))
+            checkbox.stateChanged.connect(self.on_changed)
+            self.container_layout.addWidget(checkbox)
+            self.value_pairs.append((EMPTY_SENTINEL, checkbox))
 
     def get_kwargs(self):
         if self.current_mode == "numeric":

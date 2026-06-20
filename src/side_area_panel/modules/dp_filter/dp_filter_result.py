@@ -8,9 +8,12 @@ from src.side_area_panel.modules.common.result.registry import BaseResult
 _METHODOLOGY = (
     "<b>Filter</b><br>"
     "Keeps only the rows that match a condition on one column. For a numeric column, keep rows "
-    "where the value satisfies a comparison (&lt;, &le;, =, &ge;, &gt;, &ne;) against a value; "
-    "for a categorical column, keep only the chosen category values. Rows that don't match are "
-    "removed downstream. Toggle the step off (card button) to keep all rows."
+    "where the value satisfies a comparison (&lt;, &le;, =, &ge;, &gt;, &ne;) against a value, or "
+    "use <i>is empty</i> / <i>is not empty</i> to filter on missing cells; for a categorical "
+    "column, keep only the ticked category values (a <i>(empty)</i> option appears when the column "
+    "has blank cells). Empty matches both NaN and \"\". Rows that don't match are removed "
+    "downstream. Previewing the data shows removed rows in red. Toggle the step off (card button) "
+    "to keep all rows."
 )
 
 
@@ -39,6 +42,10 @@ class FilterDataResult(BaseResult):
         self.update_description()
 
         self.data = Data([])
+        # For the data-preview popup: the unfiltered data plus the row positions that were
+        # removed, so the popup can show every row with the removed ones in red.
+        self.full_data = Data([])
+        self.removed_positions = []
 
     def update_description(self):
         cfg = self.config

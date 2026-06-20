@@ -4,9 +4,10 @@ from PySide6.QtGui import Qt
 from PySide6.QtWidgets import QHBoxLayout, QVBoxLayout
 
 from src.common.decorators import log_method
-from src.common.ui_constructor import create_tool_button_qta
+from src.common.ui_constructor import create_simple_tool_button_qta, create_tool_button_qta
 from src.main_area_panel.data_viewer.data_viewer import view_data_popup
 from src.main_area_panel.result_display.base import BaseResultDisplay
+from src.main_area_panel.result_display.export import export_data_to_excel
 from src.main_area_panel.result_display.elements.result_label import ResultLabel
 from src.pyside_ext.elements.utility.layout_helpers import (
     empty_widget,
@@ -97,6 +98,21 @@ class RawDataResultDisplay(BaseResultDisplay):
                 w.clicked.connect(lambda: self.activate_result(self.result_id, None)),
             ],
         )
+
+        self.export_button = widget_in_layout(
+            widget=create_simple_tool_button_qta(
+                parent=self.body_widget,
+                icon_path="mdi6.microsoft-excel",
+                icon_size=QtCore.QSize(20, 20),
+            ),
+            layout=self.body_layout,
+            alignment=Qt.AlignmentFlag.AlignVCenter,
+            setup=lambda w, l: [
+                w.setToolTip("Export to Excel"),
+                w.clicked.connect(lambda: export_data_to_excel(self.widget, RESULTS[self.result_id].data)),
+            ],
+        )
+
         self.refresh()
         self.remove_focus(None)
 

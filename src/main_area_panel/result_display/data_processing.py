@@ -1,15 +1,11 @@
 #  Copyright (c) 2023 StatPrism Team. All rights reserved.
-import logging
-
-import pandas as pd
-from openpyxl.styles import PatternFill
 from PySide6 import QtCore
 from PySide6.QtCore import QSize, QTimer
 from PySide6.QtGui import Qt
-from PySide6.QtWidgets import QFileDialog, QHBoxLayout, QPushButton, QTextBrowser, QVBoxLayout, QWidget
+from PySide6.QtWidgets import QHBoxLayout, QPushButton, QTextBrowser, QVBoxLayout, QWidget
 
-from src.common.constant import hex_to_argb
 from src.common.decorators import log_method
+from src.main_area_panel.result_display.export import export_data_to_excel
 from src.common.ui_constructor import create_tool_button_qta, create_simple_tool_button_qta
 from src.main_area_panel.data_viewer.data_viewer import view_data_popup
 from src.main_area_panel.show_in_main_area_popup import view_widget_in_popup
@@ -68,12 +64,7 @@ class DataProcessingResultDisplay(BaseResultDisplay):
             alignment=Qt.AlignmentFlag.AlignVCenter,
             setup=lambda w, l: [
                 w.setToolTip("View Data"),
-                w.clicked.connect(
-                    lambda: view_data_popup(
-                        parent=self.root_class.main_area_panel.widget,
-                        data=RESULTS[self.result_id].data,
-                    )
-                ),
+                w.clicked.connect(self._view_data),
             ],
         )
 
@@ -216,6 +207,24 @@ class DataProcessingResultDisplay(BaseResultDisplay):
         self.refresh()
         self.remove_focus(None)
 
+    def _view_data(self):
+        """Open the data preview. For a step that tracks removed rows (Filter), show the full
+        data with the removed rows in red; otherwise show the step's output as-is."""
+        result = RESULTS[self.result_id]
+        full_data = getattr(result, "full_data", None)
+        removed = getattr(result, "removed_positions", None)
+        if full_data is not None and full_data.n_columns() > 0 and removed:
+            view_data_popup(
+                parent=self.root_class.main_area_panel.widget,
+                data=full_data,
+                highlight_rows=removed,
+            )
+        else:
+            view_data_popup(
+                parent=self.root_class.main_area_panel.widget,
+                data=result.data,
+            )
+
     @log_method
     def activate_result(self, result_id, result_element_id):
         self.parent_class.activate_result(result_id, result_element_id)
@@ -319,36 +328,7 @@ class DataProcessingResultDisplay(BaseResultDisplay):
         panel.recalculate()
 
     def export_to_excel(self):
-        data = RESULTS[self.result_id].data
-        if data is None or data.n_columns() == 0:
-            logging.info("No data to export")
-            return
-
-        file_path, _ = QFileDialog.getSaveFileName(
-            self.widget,
-            "Export to Excel",
-            "",
-            "Excel files (*.xlsx)",
-        )
-        if not file_path:
-            return
-        if not file_path.endswith(".xlsx"):
-            file_path += ".xlsx"
-
-        try:
-            df = data.get_dataframe()
-            with pd.ExcelWriter(file_path, engine="openpyxl") as writer:
-                df.to_excel(writer, index=False, sheet_name="Sheet1")
-                worksheet = writer.sheets["Sheet1"]
-                # Paint each header cell with its column's colour tag (row 1; openpyxl is 1-based).
-                for col_index, name in enumerate(df.columns, start=1):
-                    argb = hex_to_argb(data[name].color)
-                    if argb:
-                        worksheet.cell(row=1, column=col_index).fill = PatternFill(
-                            fill_type="solid", fgColor=argb
-                        )
-        except Exception as e:
-            logging.error(f"Failed to export data to Excel: {e}")
+        export_data_to_excel(self.widget, RESULTS[self.result_id].data)
 
     def delete(self):
         if not self.deleting:

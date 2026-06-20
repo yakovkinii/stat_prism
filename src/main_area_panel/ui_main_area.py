@@ -18,7 +18,7 @@ from src.pyside_ext.markup import css
 from src.pyside_ext.styling import Style
 from src.pyside_ext.unique_qss import set_stylesheet
 from src.side_area_panel.blueprint.registry import PanelRegistry
-from src.side_area_panel.modules.common.result.registry import RESULTS
+from src.side_area_panel.modules.common.result.registry import RESULTS, get_unique_result_id
 
 if TYPE_CHECKING:
     from src.ui_main import MainWindowClass
@@ -209,6 +209,66 @@ class MainAreaClass:
         self.data_analysis_objects[result_id] = data_analysis_object
         self.data_analysis_container_layout.addWidget(data_analysis_object.widget)
         self.root_class.mark_dirty()
+
+    def copy_all_results(self):
+        """Copy every data-analysis result (in display order) to the clipboard as one HTML
+        document -- the concatenation of each study's tables and plots."""
+        from PySide6.QtCore import QMimeData
+        from PySide6.QtGui import QGuiApplication
+
+        from src.side_area_panel.modules.common.result.html_result import HTMLTableV2
+        from src.side_area_panel.modules.common.result.plot_result import PlotV2
+
+        parts = ["<html><body>"]
+        for result_id in self.data_analysis_objects:
+            result = RESULTS[result_id]
+            parts.append(f"<h2>{result.title}</h2>")
+            for element in result.result_elements:
+                if isinstance(element, (HTMLTableV2, PlotV2)):
+                    parts.append(element.get_html())
+                parts.append("<br><br>")
+            parts.append("<hr>")
+        parts.append("</body></html>")
+
+        mime_data = QMimeData()
+        mime_data.setHtml("".join(parts))
+        QGuiApplication.clipboard().setMimeData(mime_data)
+
+    def move_data_analysis(self, result_id, delta):
+        """Reorder an analysis card up/down. Analyses are leaves (not in the data chain), so
+        this is purely the visual order in the analysis column."""
+        ids = list(self.data_analysis_objects.keys())
+        if result_id not in ids:
+            return
+        i = ids.index(result_id)
+        j = i + delta
+        if j < 0 or j >= len(ids):
+            return
+        ids[i], ids[j] = ids[j], ids[i]
+        for rid in ids:
+            widget = self.data_analysis_objects[rid].widget
+            self.data_analysis_container_layout.removeWidget(widget)
+            self.data_analysis_container_layout.addWidget(widget)
+        self.data_analysis_objects = {rid: self.data_analysis_objects[rid] for rid in ids}
+        self.root_class.mark_dirty()
+
+    def duplicate_data_analysis(self, result_id):
+        """Create an independent copy of an analysis study (same type + settings), compute it,
+        and focus it."""
+        import copy
+
+        source = RESULTS[result_id]
+        new_id = get_unique_result_id()
+        RESULTS[new_id] = type(source)(
+            unique_id=new_id,
+            settings_panel_index=source.settings_panel_index,
+            config=copy.deepcopy(source.config),
+        )
+        self.add_data_analysis(new_id)
+        panel = self.root_class.settings_panel.panels[source.settings_panel_index]
+        panel.configure(new_id)
+        panel.recalculate()
+        self.update_focus(new_id)
 
     def get_result_object(self, result_id):
         return (

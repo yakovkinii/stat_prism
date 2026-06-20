@@ -58,7 +58,11 @@ def _format_cell(value, sig_figs: int = 5) -> str:
     return str(value)
 
 
-def view_data_popup(parent, data: Data):
+def view_data_popup(parent, data: Data, highlight_rows=None):
+    """Show the data in a popup table. `highlight_rows` is an optional set of row positions
+    to render in red (used by the Filter module to mark rows it removed)."""
+    highlight_rows = set(highlight_rows or [])
+    red = QtGui.QBrush(QtGui.QColor("#c0392b"))
     n_rows, n_cols = data.n_rows(), data.n_columns()
     model = QtGui.QStandardItemModel(n_rows, n_cols)
     for c in range(n_cols):
@@ -66,6 +70,8 @@ def view_data_popup(parent, data: Data):
             text = _format_cell(data[c][r])
             item = QtGui.QStandardItem(text)
             item.setToolTip(text)  # full value on hover (spec: value tooltips)
+            if r in highlight_rows:
+                item.setForeground(red)
             model.setItem(r, c, item)
     model.setHorizontalHeaderLabels(data.column_names())
 

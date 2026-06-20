@@ -88,6 +88,24 @@ class ModuleRegistry(Enum):
         module_type=ModuleType.DATA_PROCESSING,
     )
 
+    IMPUTE = ModuleRegistryItem(
+        display_name="Impute Missing",
+        icon_path="mdi6.bandage",
+        module_type=ModuleType.DATA_PROCESSING,
+    )
+
+    TRANSFORM = ModuleRegistryItem(
+        display_name="Transform Column",
+        icon_path="mdi6.function-variant",
+        module_type=ModuleType.DATA_PROCESSING,
+    )
+
+    FORMULA = ModuleRegistryItem(
+        display_name="Formula Column",
+        icon_path="mdi6.calculator",
+        module_type=ModuleType.DATA_PROCESSING,
+    )
+
     DESCRIPTIVE = ModuleRegistryItem(
         display_name="Descriptive Statistics",
         icon_path="ph.note",

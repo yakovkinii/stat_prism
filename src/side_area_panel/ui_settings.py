@@ -79,9 +79,22 @@ class SettingsPanelClass:
             ),
         )
 
+        file_menu = QMenu("File", self.widget)
         language_menu = QMenu("Language", self.widget)
         theme_menu = QMenu("Theme", self.widget)
         help_menu = QMenu("Help", self.widget)
+
+        # File actions. Connected after the panels exist (below), via lambdas that resolve
+        # the panel ui_instances at trigger time.
+        self.new_action = QAction("New Project", self.widget)
+        self.open_action = QAction("Open…", self.widget)
+        self.save_action = QAction("Save", self.widget)
+        self.save_as_action = QAction("Save As…", self.widget)
+        self.copy_all_action = QAction("Copy All Results", self.widget)
+        for action in (self.new_action, self.open_action, self.save_action, self.save_as_action):
+            file_menu.addAction(action)
+        file_menu.addSeparator()
+        file_menu.addAction(self.copy_all_action)
 
         # EN and UA checkable actions
         self.en_action = QAction("English", self.widget)
@@ -102,6 +115,7 @@ class SettingsPanelClass:
             theme_menu.addAction(theme_action)
             self.theme_actions[theme] = theme_action
 
+        menu_bar.addMenu(file_menu)
         menu_bar.addMenu(language_menu)
         menu_bar.addMenu(theme_menu)
         menu_bar.addMenu(help_menu)
@@ -126,6 +140,13 @@ class SettingsPanelClass:
         self.en_action.triggered.connect(self.set_language_EN)
         self.ua_action.triggered.connect(self.set_language_UA)
         self.about_action.triggered.connect(PanelRegistry.HOME.value.ui_instance.about_handler)
+
+        # File menu: panels now exist, so resolve their handlers at trigger time via lambdas.
+        self.new_action.triggered.connect(lambda: PanelRegistry.HOME.value.ui_instance.new_handler())
+        self.open_action.triggered.connect(lambda: PanelRegistry.HOME_INITIAL.value.ui_instance.open_handler())
+        self.save_action.triggered.connect(lambda: PanelRegistry.HOME.value.ui_instance.save_handler())
+        self.save_as_action.triggered.connect(lambda: PanelRegistry.HOME.value.ui_instance.save_as_handler())
+        self.copy_all_action.triggered.connect(lambda: self.root_class.main_area_panel.copy_all_results())
 
     def set_language_EN(self):
         LANGUAGE.set_language(Languages.EN)

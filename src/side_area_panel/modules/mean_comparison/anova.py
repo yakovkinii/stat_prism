@@ -37,6 +37,7 @@ from src.side_area_panel.modules.common.verbal.test import (
     describe_single_test_multiple_variables,
 )
 from src.side_area_panel.modules.descriptive.plot import create_box_plot
+from src.side_area_panel.modules.mean_comparison.group_plots import add_group_distribution_plots
 from src.side_area_panel.modules.mean_comparison.constant import (
     AssumptionChecksInGrouping,
     MeanComparisonMethod,
@@ -173,77 +174,7 @@ def recalculate_mean_comparison_anova(
     if not cfg.plots:
         return result
 
-    groupby_column = grouping_column
-    groupby_values = df[groupby_column].drop_duplicates().values
-    for idx, col in enumerate(selected_columns):
-        update(10 + 80 * (idx + 1) / len(selected_columns))
-        is_numeric = col in numeric_columns
-
-        if not is_numeric:
-            continue
-
-        plots = []
-        n_items = len(groupby_values)
-
-        # Drop NaNs in the value column explicitly before histogram/KDE
-        col_series = df[col].dropna()
-        if col_series.empty:
-            continue
-        _, x_all = np.histogram(col_series, bins="auto", density=True)
-        x_vals = np.linspace(col_series.min(), col_series.max(), 500)
-
-        # | g 1 g 2 g |
-        width = (x_all[1] - x_all[0]) * 0.9 / n_items if len(x_all) > 1 else 0.9 / max(n_items, 1)
-        gap = ((x_all[1] - x_all[0]) - width * len(groupby_values)) / (len(groupby_values) + 1) if len(x_all) > 1 else 0
-
-        colors = Colors()
-
-        for i, groupby_value in enumerate(groupby_values):
-            df_subset = df.loc[df[groupby_column] == groupby_value]
-            series = df_subset[col].dropna()
-            if series.empty:
-                continue
-            kde = gaussian_kde(series)
-            y_vals = kde(x_vals)
-            color = colors.get_color_list()
-            line_plot_config = LinePlotConfig(color=color)
-            plot_line = Line(
-                x=x_vals,
-                y=y_vals,
-                label=f"{groupby_value}",
-                config=line_plot_config,
-                legend_string=f"{groupby_value}",
-            )
-            plots.append(plot_line)
-
-            y, x = np.histogram(series, bins=x_all, density=True)
-            bar_plot_config = BarPlotConfig(color=color)
-            # bar plot # | g 1 g 2 g |
-            plot_bar = Bar(
-                x=x[:-1] + gap + width / 2 + i * (width + gap) if len(x) > 1 else x,
-                y=y,
-                width=width,
-                label=f"{groupby_value}",
-                config=bar_plot_config,
-            )
-            plots.append(plot_bar)
-
-        plot_result = PlotV2(
-            items=plots,
-            title=t("ttest.plot.distribution_tab", col=col),
-            plot_title=t("ttest.plot.distribution", col=col),
-            x_axis_title=col,
-            y_axis_title=t("ttest.plot.density"),
-        )
-        result.update_and_add_element(plot_result, f"anova distribution_plot_{col}")
-
-        box_plot_result = create_box_plot(
-            groups=[df.loc[df[groupby_column] == groupby_value][col].dropna() for groupby_value in groupby_values],
-            group_names=groupby_values,
-            column=col,
-            grouping_column=groupby_column,
-        )
-        result.update_and_add_element(box_plot_result, f"anova box_plot_{col}")
+    add_group_distribution_plots(result, df, selected_columns, numeric_columns, grouping_column, update, "anova")
     return result
 
 

@@ -13,6 +13,9 @@ from src.side_area_panel.modules.dp_calculate_scale.dp_calculate_scale_result im
 from src.side_area_panel.modules.dp_filter.dp_filter_result import (
     FilterDataResult,
 )
+from src.side_area_panel.modules.dp_impute.dp_impute_result import ImputeResult
+from src.side_area_panel.modules.dp_transform.dp_transform_result import TransformResult
+from src.side_area_panel.modules.dp_formula.dp_formula_result import FormulaResult
 from src.side_area_panel.modules.dp_invert_scale.dp_invert_scale_result import (
     InvertScaleResult,
 )
@@ -63,6 +66,9 @@ RESULTS: Dict[
         SelectIDResult,
         OutliersResult,
         PowerAnalysisResult,
+        ImputeResult,
+        TransformResult,
+        FormulaResult,
     ],
 ] = {}
 
