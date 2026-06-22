@@ -12,3 +12,6 @@ __pycache__/
 .aider*
 /.env/
 /venv_39/
+
+# Snapshot test transient output (benchmarks + history are kept)
+*.received.html
