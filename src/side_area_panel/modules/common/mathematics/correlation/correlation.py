@@ -38,8 +38,9 @@ def calculate_partial_correlations(df, variables, controls, kind: CorrelationTyp
                 res = pg.partial_corr(data=valid, x=col1, y=col2, covar=controls, method=method)
                 corr = float(res["r"].iloc[0])
                 p_value = float(res["p-val"].iloc[0])
-                # Match the module's convention: df only reported for Pearson.
-                dof = (n - 2 - len(controls)) if kind == CorrelationType.PEARSON else np.nan
+                # Pearson and Spearman both carry df = n - 2 - #controls (Spearman needs it
+                # for the Fisher-z CI); other coefficients have no df.
+                dof = (n - 2 - len(controls)) if kind in (CorrelationType.PEARSON, CorrelationType.SPEARMAN) else np.nan
 
             correlation_matrix.loc[col1, col2] = corr
             p_matrix.loc[col1, col2] = p_value
@@ -188,7 +189,9 @@ def _pair_correlation(series1, series2, kind: CorrelationType):
         degrees_of_freedom = len(valid) - 2
     elif kind == CorrelationType.SPEARMAN:
         corr, p_value = spearmanr(a, b)
-        degrees_of_freedom = np.nan  # Not available
+        # df = n - 2 (scipy's Spearman p-value uses the same t-approximation); also the
+        # n carrier the Fisher-z confidence interval needs.
+        degrees_of_freedom = len(valid) - 2
     elif kind == CorrelationType.KENDALL:
         corr, p_value = kendalltau(a, b)
         degrees_of_freedom = np.nan  # Not available
@@ -277,7 +280,7 @@ def calculate_partial_cross_correlations(df, rows, cols, controls, kind: Correla
                 res = pg.partial_corr(data=valid, x=row, y=col, covar=pair_controls, method=method)
                 corr = float(res["r"].iloc[0])
                 p_value = float(res["p-val"].iloc[0])
-                dof = (n - 2 - len(pair_controls)) if kind == CorrelationType.PEARSON else np.nan
+                dof = (n - 2 - len(pair_controls)) if kind in (CorrelationType.PEARSON, CorrelationType.SPEARMAN) else np.nan
 
             correlation_matrix.loc[row, col] = corr
             p_matrix.loc[row, col] = p_value

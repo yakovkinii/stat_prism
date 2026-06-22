@@ -1303,6 +1303,10 @@ TRANSLATIONS = {
         "en": "Warning: Ordinal data detected. Pearson correlation is not suitable for ordinal data.",
         "ua": "Увага: виявлено порядкові дані. Кореляція Пірсона не підходить для порядкових даних.",
     },
+    "correlation.warning.constant_column": {
+        "en": "Note: {columns} has no variance (a single value), so its correlations are undefined and left blank.",
+        "ua": "Нотатка: {columns} не має варіації (одне значення), тому його кореляції невизначені й залишені порожніми.",
+    },
     "correlation.plot.matrix_title": {
         "en": "Correlation Matrix",
         "ua": "Матриця кореляцій",

@@ -25,7 +25,7 @@ from src.side_area_panel.modules.common.result.plot_result import (
     Scatter,
 )
 from src.side_area_panel.modules.common.column_numbering import ColumnNumbering
-from src.side_area_panel.modules.common.utility import format_r_apa
+from src.side_area_panel.modules.common.utility import format_r_apa, smart_comma_join
 from src.side_area_panel.modules.correlation.report import get_cross_report, get_report
 from src.side_area_panel.modules.correlation.correlation_result import (
     CORRELATION_TYPE_MAP,
@@ -130,6 +130,19 @@ def _ordinal_pearson_warning(result, data, columns, kind, html_table):
         html_table.add_text(msg)
 
 
+def _constant_column_warning(df, columns, html_table):
+    """Note any selected column with no variance: its correlations are undefined (r is
+    NaN), so the cells are blank by design -- spell that out so it doesn't read as a bug."""
+    constant = [
+        col for col in columns
+        if pd.to_numeric(df[col], errors="coerce").dropna().nunique() <= 1
+    ]
+    if constant:
+        msg = t("correlation.warning.constant_column", columns=smart_comma_join(constant))
+        logging.warning(msg)
+        html_table.add_text(msg)
+
+
 @log_function
 def recalculate_correlation_study(elements, result: CorrelationResult, update) -> CorrelationResult:
     """Validate inputs, compute the correlation matrix for the chosen coefficient, and
@@ -205,6 +218,7 @@ def recalculate_correlation_study(elements, result: CorrelationResult, update) -
     html_table.add_text(verbal)
 
     _ordinal_pearson_warning(result, data, columns, kind, html_table)
+    _constant_column_warning(df, columns, html_table)
 
     result.title_context = ", ".join(col[:16] for col in columns)
     result.update_and_add_element(html_table, "correlation table")
@@ -280,6 +294,7 @@ def _run_cross(result, cfg, data, rows, cols, control_columns, kind, is_partial,
     html_table.add_text(verbal)
 
     _ordinal_pearson_warning(result, data, list(rows) + list(cols), kind, html_table)
+    _constant_column_warning(df, list(rows) + list(cols), html_table)
 
     result.title_context = ", ".join(c[:16] for c in rows) + " × " + ", ".join(c[:16] for c in cols)
     result.update_and_add_element(html_table, "correlation table")
