@@ -1,0 +1,621 @@
+<h3>Columns</h3><table border='1' cellspacing='0' cellpadding='4'><tr><th>column</th><th>type</th><th>dtype</th><th>color</th></tr><tr><td>ID</td><td>ID</td><td>int</td><td></td></tr><tr><td>Timestamp</td><td>NOMINAL</td><td>str</td><td></td></tr><tr><td>How old are you?</td><td>NUMERIC</td><td>float</td><td></td></tr><tr><td>What is your monthly income? (USD)</td><td>NUMERIC</td><td>float</td><td></td></tr><tr><td>What was your test score?</td><td>NUMERIC</td><td>float</td><td></td></tr><tr><td>How satisfied are you overall? (1-5)</td><td>NUMERIC</td><td>int</td><td></td></tr><tr><td>Did you pass the exam?</td><td>NOMINAL</td><td>str</td><td></td></tr><tr><td>What is your gender?</td><td>NOMINAL</td><td>str</td><td></td></tr><tr><td>Highest education completed</td><td>NOMINAL</td><td>str</td><td></td></tr><tr><td>Which region do you live in?</td><td>NOMINAL</td><td>str</td><td></td></tr><tr><td>Assigned group</td><td>NOMINAL</td><td>str</td><td></td></tr><tr><td>Which features do you use? (select all that apply)</td><td>NOMINAL</td><td>str</td><td></td></tr></table><h3>Data</h3><table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>ID</th>
+      <th>Timestamp</th>
+      <th>How old are you?</th>
+      <th>What is your monthly income? (USD)</th>
+      <th>What was your test score?</th>
+      <th>How satisfied are you overall? (1-5)</th>
+      <th>Did you pass the exam?</th>
+      <th>What is your gender?</th>
+      <th>Highest education completed</th>
+      <th>Which region do you live in?</th>
+      <th>Assigned group</th>
+      <th>Which features do you use? (select all that apply)</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>8</th>
+      <td>9</td>
+      <td>2024-03-06 02:31:00</td>
+      <td>39.0</td>
+      <td>32262.0</td>
+      <td>57.6</td>
+      <td>1</td>
+      <td>No</td>
+      <td>nan</td>
+      <td>High school</td>
+      <td>East</td>
+      <td>A</td>
+      <td>Calendar</td>
+    </tr>
+    <tr>
+      <th>34</th>
+      <td>35</td>
+      <td>2024-03-18 23:13:00</td>
+      <td>47.0</td>
+      <td>50881.0</td>
+      <td>71.9</td>
+      <td>3</td>
+      <td>Yes</td>
+      <td>Male</td>
+      <td>PhD</td>
+      <td>North</td>
+      <td>A</td>
+      <td>Calendar</td>
+    </tr>
+    <tr>
+      <th>24</th>
+      <td>25</td>
+      <td>2024-03-15 01:54:00</td>
+      <td>41.0</td>
+      <td>49270.0</td>
+      <td>74.6</td>
+      <td>1</td>
+      <td>No</td>
+      <td>Female</td>
+      <td>PhD</td>
+      <td>East</td>
+      <td>B</td>
+      <td>Calendar</td>
+    </tr>
+    <tr>
+      <th>28</th>
+      <td>29</td>
+      <td>2024-03-17 07:36:00</td>
+      <td>32.0</td>
+      <td>24546.0</td>
+      <td>75.4</td>
+      <td>5</td>
+      <td>No</td>
+      <td>Male</td>
+      <td>Bachelor</td>
+      <td>East</td>
+      <td>B</td>
+      <td>Calendar, Chat</td>
+    </tr>
+    <tr>
+      <th>16</th>
+      <td>17</td>
+      <td>2024-03-10 19:01:00</td>
+      <td>56.0</td>
+      <td>51292.0</td>
+      <td>55.8</td>
+      <td>5</td>
+      <td>Yes</td>
+      <td>Male</td>
+      <td>Bachelor</td>
+      <td>East</td>
+      <td>C</td>
+      <td>Calendar, Chat</td>
+    </tr>
+    <tr>
+      <th>23</th>
+      <td>24</td>
+      <td>2024-03-14 20:30:00</td>
+      <td>53.0</td>
+      <td>87099.0</td>
+      <td>81.2</td>
+      <td>5</td>
+      <td>Yes</td>
+      <td>Female</td>
+      <td>High school</td>
+      <td>East</td>
+      <td>C</td>
+      <td>Calendar, Chat, Email</td>
+    </tr>
+    <tr>
+      <th>35</th>
+      <td>36</td>
+      <td>2024-03-19 08:34:00</td>
+      <td>21.0</td>
+      <td>85647.0</td>
+      <td>68.6</td>
+      <td>1</td>
+      <td>No</td>
+      <td>Female</td>
+      <td>High school</td>
+      <td>North</td>
+      <td>B</td>
+      <td>Calendar, Chat, Meet</td>
+    </tr>
+    <tr>
+      <th>12</th>
+      <td>13</td>
+      <td>2024-03-10 10:14:00</td>
+      <td>51.0</td>
+      <td>40999.0</td>
+      <td>91.2</td>
+      <td>1</td>
+      <td>Yes</td>
+      <td>Male</td>
+      <td>Bachelor</td>
+      <td>West</td>
+      <td>B</td>
+      <td>Calendar, Chat, Meet</td>
+    </tr>
+    <tr>
+      <th>38</th>
+      <td>39</td>
+      <td>2024-03-20 19:05:00</td>
+      <td>54.0</td>
+      <td>57957.0</td>
+      <td>72.6</td>
+      <td>1</td>
+      <td>No</td>
+      <td>Female</td>
+      <td>Master</td>
+      <td>West</td>
+      <td>C</td>
+      <td>Calendar, Drive</td>
+    </tr>
+    <tr>
+      <th>20</th>
+      <td>21</td>
+      <td>2024-03-12 18:53:00</td>
+      <td>39.0</td>
+      <td>40632.0</td>
+      <td>60.1</td>
+      <td>2</td>
+      <td>No</td>
+      <td>Male</td>
+      <td>PhD</td>
+      <td>West</td>
+      <td>A</td>
+      <td>Calendar, Drive, Email</td>
+    </tr>
+    <tr>
+      <th>25</th>
+      <td>26</td>
+      <td>2024-03-15 23:28:00</td>
+      <td>51.0</td>
+      <td>53761.0</td>
+      <td>68.1</td>
+      <td>1</td>
+      <td>No</td>
+      <td>Male</td>
+      <td>High school</td>
+      <td>West</td>
+      <td>C</td>
+      <td>Calendar, Drive, Email</td>
+    </tr>
+    <tr>
+      <th>32</th>
+      <td>33</td>
+      <td>2024-03-18 14:40:00</td>
+      <td>22.0</td>
+      <td>66978.0</td>
+      <td>72.1</td>
+      <td>3</td>
+      <td>No</td>
+      <td>Male</td>
+      <td>Bachelor</td>
+      <td>West</td>
+      <td>C</td>
+      <td>Calendar, Drive, Email</td>
+    </tr>
+    <tr>
+      <th>15</th>
+      <td>16</td>
+      <td>2024-03-10 18:59:00</td>
+      <td>32.0</td>
+      <td>60674.0</td>
+      <td>64.0</td>
+      <td>5</td>
+      <td>No</td>
+      <td>Female</td>
+      <td>High school</td>
+      <td>East</td>
+      <td>A</td>
+      <td>Calendar, Drive, Meet</td>
+    </tr>
+    <tr>
+      <th>36</th>
+      <td>37</td>
+      <td>2024-03-19 08:44:00</td>
+      <td>53.0</td>
+      <td>31271.0</td>
+      <td>73.4</td>
+      <td>5</td>
+      <td>No</td>
+      <td>Female</td>
+      <td>PhD</td>
+      <td>East</td>
+      <td>C</td>
+      <td>Calendar, Email</td>
+    </tr>
+    <tr>
+      <th>33</th>
+      <td>34</td>
+      <td>2024-03-18 17:07:00</td>
+      <td>48.0</td>
+      <td>54349.0</td>
+      <td>88.9</td>
+      <td>3</td>
+      <td>No</td>
+      <td>nan</td>
+      <td>Bachelor</td>
+      <td>North</td>
+      <td>B</td>
+      <td>Calendar, Email</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>2</td>
+      <td>2024-03-03 03:18:00</td>
+      <td>51.0</td>
+      <td>54579.0</td>
+      <td>60.2</td>
+      <td>2</td>
+      <td>Yes</td>
+      <td>Male</td>
+      <td>Master</td>
+      <td>South</td>
+      <td>A</td>
+      <td>Calendar, Email, Meet</td>
+    </tr>
+    <tr>
+      <th>7</th>
+      <td>8</td>
+      <td>2024-03-05 13:32:00</td>
+      <td>22.0</td>
+      <td>27238.0</td>
+      <td>68.1</td>
+      <td>2</td>
+      <td>No</td>
+      <td>Male</td>
+      <td>Bachelor</td>
+      <td>North</td>
+      <td>A</td>
+      <td>Calendar, Email, Meet</td>
+    </tr>
+    <tr>
+      <th>5</th>
+      <td>6</td>
+      <td>2024-03-04 00:34:00</td>
+      <td>30.0</td>
+      <td>NaN</td>
+      <td>82.8</td>
+      <td>4</td>
+      <td>Yes</td>
+      <td>Female</td>
+      <td>Bachelor</td>
+      <td>North</td>
+      <td>B</td>
+      <td>Calendar, Meet</td>
+    </tr>
+    <tr>
+      <th>6</th>
+      <td>7</td>
+      <td>2024-03-05 04:00:00</td>
+      <td>21.0</td>
+      <td>67439.0</td>
+      <td>71.9</td>
+      <td>2</td>
+      <td>Yes</td>
+      <td>Female</td>
+      <td>PhD</td>
+      <td>East</td>
+      <td>C</td>
+      <td>Chat</td>
+    </tr>
+    <tr>
+      <th>37</th>
+      <td>38</td>
+      <td>2024-03-19 23:29:00</td>
+      <td>37.0</td>
+      <td>60020.0</td>
+      <td>85.7</td>
+      <td>1</td>
+      <td>Yes</td>
+      <td>Female</td>
+      <td>PhD</td>
+      <td>East</td>
+      <td>C</td>
+      <td>Chat, Drive</td>
+    </tr>
+    <tr>
+      <th>19</th>
+      <td>20</td>
+      <td>2024-03-12 09:20:00</td>
+      <td>26.0</td>
+      <td>61364.0</td>
+      <td>95.5</td>
+      <td>1</td>
+      <td>No</td>
+      <td>nan</td>
+      <td>Master</td>
+      <td>South</td>
+      <td>C</td>
+      <td>Chat, Drive</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>3</td>
+      <td>2024-03-03 04:58:00</td>
+      <td>55.0</td>
+      <td>33175.0</td>
+      <td>65.0</td>
+      <td>5</td>
+      <td>Yes</td>
+      <td>Female</td>
+      <td>Bachelor</td>
+      <td>East</td>
+      <td>A</td>
+      <td>Chat, Drive, Email</td>
+    </tr>
+    <tr>
+      <th>31</th>
+      <td>32</td>
+      <td>2024-03-17 20:10:00</td>
+      <td>45.0</td>
+      <td>54066.0</td>
+      <td>54.7</td>
+      <td>5</td>
+      <td>Yes</td>
+      <td>Female</td>
+      <td>PhD</td>
+      <td>North</td>
+      <td>A</td>
+      <td>Chat, Drive, Meet</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>5</td>
+      <td>2024-03-03 07:27:00</td>
+      <td>52.0</td>
+      <td>66241.0</td>
+      <td>68.3</td>
+      <td>4</td>
+      <td>No</td>
+      <td>Male</td>
+      <td>High school</td>
+      <td>South</td>
+      <td>C</td>
+      <td>Chat, Drive, Meet</td>
+    </tr>
+    <tr>
+      <th>11</th>
+      <td>12</td>
+      <td>2024-03-09 18:49:00</td>
+      <td>39.0</td>
+      <td>31941.0</td>
+      <td>NaN</td>
+      <td>2</td>
+      <td>No</td>
+      <td>Male</td>
+      <td>PhD</td>
+      <td>North</td>
+      <td>A</td>
+      <td>Chat, Email</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>4</td>
+      <td>2024-03-03 06:26:00</td>
+      <td>NaN</td>
+      <td>43090.0</td>
+      <td>62.7</td>
+      <td>1</td>
+      <td>No</td>
+      <td>Female</td>
+      <td>Bachelor</td>
+      <td>North</td>
+      <td>B</td>
+      <td>Chat, Email</td>
+    </tr>
+    <tr>
+      <th>21</th>
+      <td>22</td>
+      <td>2024-03-12 23:30:00</td>
+      <td>58.0</td>
+      <td>21596.0</td>
+      <td>80.1</td>
+      <td>3</td>
+      <td>Yes</td>
+      <td>Male</td>
+      <td>PhD</td>
+      <td>South</td>
+      <td>C</td>
+      <td>Chat, Email</td>
+    </tr>
+    <tr>
+      <th>26</th>
+      <td>27</td>
+      <td>2024-03-16 09:36:00</td>
+      <td>49.0</td>
+      <td>52697.0</td>
+      <td>69.5</td>
+      <td>2</td>
+      <td>Yes</td>
+      <td>Female</td>
+      <td>Bachelor</td>
+      <td>West</td>
+      <td>B</td>
+      <td>Chat, Email</td>
+    </tr>
+    <tr>
+      <th>22</th>
+      <td>23</td>
+      <td>2024-03-14 14:21:00</td>
+      <td>18.0</td>
+      <td>NaN</td>
+      <td>59.2</td>
+      <td>4</td>
+      <td>Yes</td>
+      <td>Female</td>
+      <td>PhD</td>
+      <td>West</td>
+      <td>A</td>
+      <td>Chat, Email, Meet</td>
+    </tr>
+    <tr>
+      <th>9</th>
+      <td>10</td>
+      <td>2024-03-07 03:29:00</td>
+      <td>60.0</td>
+      <td>61135.0</td>
+      <td>49.9</td>
+      <td>5</td>
+      <td>No</td>
+      <td>Male</td>
+      <td>Master</td>
+      <td>North</td>
+      <td>C</td>
+      <td>Chat, Meet</td>
+    </tr>
+    <tr>
+      <th>39</th>
+      <td>40</td>
+      <td>2024-03-21 19:42:00</td>
+      <td>19.0</td>
+      <td>53144.0</td>
+      <td>65.1</td>
+      <td>2</td>
+      <td>No</td>
+      <td>Female</td>
+      <td>High school</td>
+      <td>South</td>
+      <td>B</td>
+      <td>Drive</td>
+    </tr>
+    <tr>
+      <th>0</th>
+      <td>1</td>
+      <td>2024-03-02 16:09:00</td>
+      <td>30.0</td>
+      <td>32561.0</td>
+      <td>73.2</td>
+      <td>3</td>
+      <td>Yes</td>
+      <td>Male</td>
+      <td>PhD</td>
+      <td>North</td>
+      <td>A</td>
+      <td>Drive</td>
+    </tr>
+    <tr>
+      <th>13</th>
+      <td>14</td>
+      <td>2024-03-10 13:11:00</td>
+      <td>27.0</td>
+      <td>84758.0</td>
+      <td>71.6</td>
+      <td>1</td>
+      <td>Yes</td>
+      <td>Female</td>
+      <td>Bachelor</td>
+      <td>North</td>
+      <td>C</td>
+      <td>Drive, Email, Meet</td>
+    </tr>
+    <tr>
+      <th>14</th>
+      <td>15</td>
+      <td>2024-03-10 15:28:00</td>
+      <td>51.0</td>
+      <td>89277.0</td>
+      <td>81.8</td>
+      <td>1</td>
+      <td>No</td>
+      <td>Male</td>
+      <td>Master</td>
+      <td>South</td>
+      <td>C</td>
+      <td>Drive, Email, Meet</td>
+    </tr>
+    <tr>
+      <th>27</th>
+      <td>28</td>
+      <td>2024-03-16 18:49:00</td>
+      <td>38.0</td>
+      <td>74791.0</td>
+      <td>62.1</td>
+      <td>2</td>
+      <td>Yes</td>
+      <td>Male</td>
+      <td>Master</td>
+      <td>West</td>
+      <td>B</td>
+      <td>Drive, Meet</td>
+    </tr>
+    <tr>
+      <th>29</th>
+      <td>30</td>
+      <td>2024-03-17 14:04:00</td>
+      <td>NaN</td>
+      <td>25791.0</td>
+      <td>64.5</td>
+      <td>4</td>
+      <td>Yes</td>
+      <td>Female</td>
+      <td>High school</td>
+      <td>North</td>
+      <td>C</td>
+      <td>Email</td>
+    </tr>
+    <tr>
+      <th>18</th>
+      <td>19</td>
+      <td>2024-03-12 02:39:00</td>
+      <td>43.0</td>
+      <td>62871.0</td>
+      <td>61.3</td>
+      <td>4</td>
+      <td>Yes</td>
+      <td>Female</td>
+      <td>PhD</td>
+      <td>West</td>
+      <td>C</td>
+      <td>Email</td>
+    </tr>
+    <tr>
+      <th>17</th>
+      <td>18</td>
+      <td>2024-03-11 20:10:00</td>
+      <td>NaN</td>
+      <td>44280.0</td>
+      <td>58.4</td>
+      <td>1</td>
+      <td>No</td>
+      <td>Female</td>
+      <td>High school</td>
+      <td>East</td>
+      <td>C</td>
+      <td>Email</td>
+    </tr>
+    <tr>
+      <th>30</th>
+      <td>31</td>
+      <td>2024-03-17 17:54:00</td>
+      <td>24.0</td>
+      <td>39309.0</td>
+      <td>55.3</td>
+      <td>2</td>
+      <td>Yes</td>
+      <td>Male</td>
+      <td>High school</td>
+      <td>South</td>
+      <td>C</td>
+      <td>Email, Meet</td>
+    </tr>
+    <tr>
+      <th>10</th>
+      <td>11</td>
+      <td>2024-03-09 02:52:00</td>
+      <td>23.0</td>
+      <td>75543.0</td>
+      <td>64.2</td>
+      <td>5</td>
+      <td>No</td>
+      <td>Female</td>
+      <td>PhD</td>
+      <td>North</td>
+      <td>A</td>
+      <td>Meet</td>
+    </tr>
+  </tbody>
+</table>

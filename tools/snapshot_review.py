@@ -219,22 +219,34 @@ class Case:
     def status(self) -> str:
         history = self.load_history()
         last_action = history[-1]["action"] if history else None
-        actions = {entry["action"] for entry in history}
         has_approved = self.approved.exists()
         has_received = self.received.exists()
 
-        # A disapproved, still-pending output is a failure regardless of benchmark.
-        if has_received and last_action == ACT_DISAPPROVED:
+        # A pending output on disk (unreviewed change, or kept after a disapprove)
+        # overrides history.
+        if has_received:
+            if last_action == ACT_DISAPPROVED:
+                return STATUS_FAILED
+            if not has_approved:
+                return STATUS_NEW
             return STATUS_FAILED
         if not has_approved:
             return STATUS_NEW
-        if has_received:
-            # A differing output awaits a verdict (or was accepted elsewhere).
-            return STATUS_FAILED
-        # Passing (output matches the benchmark).
-        if ACT_CORRECT in actions:
-            return STATUS_CORRECT
-        return STATUS_CONSISTENT
+
+        # No pending output: the status is the running result of the verdict
+        # sequence. "correct" sets correct; "disapprove" sets failed; "unchanged"
+        # keeps whatever came before (and only establishes "consistent" when it is
+        # the first verdict). So only "correct" can clear a "failed".
+        result = None
+        for entry in history:
+            action = entry.get("action")
+            if action == ACT_CORRECT:
+                result = STATUS_CORRECT
+            elif action == ACT_DISAPPROVED:
+                result = STATUS_FAILED
+            elif action == ACT_UNCHANGED and result is None:
+                result = STATUS_CONSISTENT
+        return result if result is not None else STATUS_CONSISTENT
 
     def benchmark_html(self) -> str:
         if self.approved.exists():
@@ -285,7 +297,12 @@ def render_history_html(history: list) -> str:
         action = entry.get("action", "")
         label = ACTION_LABEL.get(action, action)
         color = ACTION_COLOR.get(action, "#000")
-        comment = html.escape(entry.get("comment", "")) or "<i style='color:#888'>(no comment)</i>"
+        raw_comment = entry.get("comment", "")
+        if not raw_comment or raw_comment == DEFAULT_UNCHANGED_COMMENT:
+            text = raw_comment or "(no comment)"
+            comment = f"<i style='color:#888'>{html.escape(text)}</i>"
+        else:
+            comment = html.escape(raw_comment)
         blocks.append(
             "<div style='margin-bottom:10px;'>"
             f"<span style='color:{color}; font-weight:bold;'>{label}</span> "
@@ -536,7 +553,7 @@ class ReviewWindow(QtWidgets.QMainWindow):
 def main():
     app = QtWidgets.QApplication(sys.argv)
     window = ReviewWindow()
-    window.show()
+    window.showMaximized()
     sys.exit(app.exec())
 
 

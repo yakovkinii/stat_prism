@@ -1,7 +1,7 @@
 #  Copyright (c) 2023 StatPrism Team. All rights reserved.
 """Snapshot tests for the Correlation module."""
 
-import pandas as pd
+import pytest
 
 from src.side_area_panel.modules.correlation.correlation_main import (
     recalculate_correlation_study,
@@ -10,22 +10,26 @@ from src.side_area_panel.modules.correlation.correlation_result import (
     CorrelationResult,
     CorrelationStudyConfig,
 )
-from tests.helpers import assert_snapshot, make_data, run_main
-
-DF = pd.DataFrame(
-    {
-        "age": [23, 31, 29, 41, 35, 28, 52, 38, 26, 44],
-        "score": [5.5, 6.1, 5.9, 7.2, 6.8, 5.1, 8.0, 6.5, 5.3, 7.1],
-        "extra": [10, 12, 11, 15, 14, 9, 18, 13, 10, 16],
-    }
+from tests.datasets import (
+    COL_AGE,
+    COL_CONSTANT,
+    COL_INCOME,
+    COL_SATISFACTION,
+    COL_SCORE,
+    COL_VARYING,
+    EDGE_CONSTANT,
+    MAIN,
 )
+from tests.helpers import assert_snapshot, load_dataset, run_main
+
+_THREE = [COL_AGE, COL_INCOME, COL_SCORE]
+_FOUR = [COL_AGE, COL_INCOME, COL_SCORE, COL_SATISFACTION]
 
 
 def _config(**overrides):
     base = dict(
         data_source="Auto",
-        # [primary set, control/partial set, second (cross) set]
-        column_selector=[["age", "score", "extra"], [], []],
+        column_selector=[_THREE, [], []],
         correlation_type="Pearson",
         compact=False,
         generate_heatmap=False,
@@ -38,33 +42,35 @@ def _config(**overrides):
     return CorrelationStudyConfig(**base)
 
 
-def test_correlation_pearson():
+CASES = [
+    ("correlation_pearson", dict()),
+    ("correlation_spearman", dict(correlation_type="Spearman")),
+    ("correlation_kendall", dict(correlation_type="Kendall")),
+    ("correlation_pearson_compact", dict(compact=True)),
+    ("correlation_spearman_compact", dict(correlation_type="Spearman", compact=True)),
+    ("correlation_no_ci", dict(confidence_intervals=False)),
+    ("correlation_four_vars", dict(column_selector=[_FOUR, [], []])),
+    ("correlation_number_columns", dict(column_selector=[_FOUR, [], []], number_columns=True)),
+    ("correlation_only_significant", dict(column_selector=[_FOUR, [], []], report_only_significant=True)),
+    ("correlation_partial_pearson", dict(column_selector=[[COL_AGE, COL_SCORE], [COL_INCOME], []])),
+    ("correlation_partial_spearman", dict(correlation_type="Spearman", column_selector=[[COL_AGE, COL_SCORE], [COL_INCOME], []])),
+    ("correlation_cross", dict(column_selector=[[COL_AGE, COL_SCORE], [], [COL_INCOME, COL_SATISFACTION]])),
+    ("correlation_heatmap", dict(generate_heatmap=True)),
+]
+
+
+@pytest.mark.parametrize("name,overrides", CASES, ids=[c[0] for c in CASES])
+def test_correlation(name, overrides):
+    result = run_main(recalculate_correlation_study, CorrelationResult, _config(**overrides), load_dataset(MAIN))
+    assert_snapshot(result, name)
+
+
+def test_correlation_constant_column():
+    # Edge: a zero-variance column -> correlation undefined for that pair.
     result = run_main(
         recalculate_correlation_study,
         CorrelationResult,
-        _config(),
-        make_data(DF),
+        _config(column_selector=[[COL_CONSTANT, COL_VARYING], [], []]),
+        load_dataset(EDGE_CONSTANT),
     )
-    assert_snapshot(result, "correlation_pearson")
-
-
-def test_correlation_spearman():
-    result = run_main(
-        recalculate_correlation_study,
-        CorrelationResult,
-        _config(correlation_type="Spearman"),
-        make_data(DF),
-    )
-    assert_snapshot(result, "correlation_spearman")
-
-
-def test_correlation_pearson_heatmap():
-    # Exercises a plot path: the heatmap is embedded inline as a base64 PNG, so the
-    # snapshot (and the review tool) carry the rendered image too.
-    result = run_main(
-        recalculate_correlation_study,
-        CorrelationResult,
-        _config(generate_heatmap=True),
-        make_data(DF),
-    )
-    assert_snapshot(result, "correlation_pearson_heatmap")
+    assert_snapshot(result, "correlation_constant_column")
