@@ -15,3 +15,7 @@ __pycache__/
 
 # Snapshot test transient output (benchmarks + history are kept)
 *.received.html
+
+# Docs build output and the docs-only virtualenv
+/docs/_build/
+/venv_docs/
