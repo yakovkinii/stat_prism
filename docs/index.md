@@ -53,6 +53,7 @@ projects-and-settings
 worked-example
 faq
 glossary
+citing
 ```
 
 ---

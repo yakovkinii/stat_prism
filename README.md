@@ -23,9 +23,19 @@ and exporting results to Word.
 StatPrism is free and open-source software, licensed under the **GNU General Public License
 v3.0 or later** — see [LICENSE](LICENSE).
 
+## Credits
+
+Developed by the StatPrism Team (Copyright 2023–2025): A. K. Balashevych (model
+specification), N. V. Petrova (testing & QA), and I. I. Yakovkin (software development &
+project management). Project page: https://www.yakovkinii.com/stat_prism/
+
 ## Citing StatPrism
 
-If you use StatPrism in your research, please cite it — see [CITATION.cff](CITATION.cff).
+If you use StatPrism in your research, please cite it (see [CITATION.cff](CITATION.cff) —
+GitHub's "Cite this repository" button generates APA/BibTeX from it):
+
+> Balashevych, A. K., Petrova, N. V., & Yakovkin, I. I. (2025). *StatPrism* (Version 0.10.0)
+> [Computer software]. https://github.com/yakovkinii/stat_prism
 
 ## Installing the developer edition
 

@@ -19,3 +19,9 @@ __pycache__/
 # Docs build output and the docs-only virtualenv
 /docs/_build/
 /venv_docs/
+
+# Nuitka / packaged binaries — distribute via GitHub Releases, never commit
+*.exe
+*.dist/
+*.build/
+*.onefile-build/

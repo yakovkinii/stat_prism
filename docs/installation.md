@@ -12,6 +12,14 @@ StatPrism is a desktop application for Windows.
 No separate Python installation is required for the packaged build — everything needed is
 included.
 
+```{note}
+**"Windows protected your PC" warning.** StatPrism is open-source software distributed
+without a paid code-signing certificate, so Windows SmartScreen may show an "unknown
+publisher" warning the first time you run it. To proceed, click **More info → Run anyway**.
+If you want to verify your download first, compare its SHA-256 checksum with the one listed
+on the release page.
+```
+
 ```{tip}
 You can optionally associate `.sp` project files with StatPrism so that double-clicking a
 saved project opens it directly.
