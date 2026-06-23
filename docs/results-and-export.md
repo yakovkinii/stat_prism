@@ -1,6 +1,6 @@
 # Results & export
 
-Everything you compute appears as a **result card** on the right. This page covers reading,
+Everything you compute appears as a **result card** in the large area on the left. This page covers reading,
 customising, and getting those results out — especially into Word for a report or article.
 
 ## Result cards and tabs

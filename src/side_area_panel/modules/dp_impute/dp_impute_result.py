@@ -51,7 +51,7 @@ class ImputeResult(BaseResult):
             f"Columns ({len(selected)}): " + (", ".join(selected) if selected else "none"),
             f"Method: {method}",
         ]
-        if method == "Remove rows with missing":
+        if method == "Remove rows":
             parts.append(f"Removed: {self.removed_count} rows")
         else:
             parts.append(f"Filled: {self.filled_count} cells")

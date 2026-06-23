@@ -10,9 +10,8 @@ and ePub versions (see `.readthedocs.yaml` at the repo root).
 
 ## Edit
 
-Content lives in `docs/*.md` and `docs/analyses/*.md`. Screenshots go in `docs/_static/`
-and are referenced from the pages. Add new pages to the relevant `toctree` in `index.md`
-(or `analyses/index.md`).
+Content lives in `docs/*.md` and `docs/analyses/*.md`. This is a **text-only** guide (no
+screenshots). Add new pages to the relevant `toctree` in `index.md` (or `analyses/index.md`).
 
 ## Build locally (optional)
 

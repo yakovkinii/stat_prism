@@ -1,7 +1,8 @@
 # Analysing data
 
-Each analysis is a module you configure on the left; its results appear as a card on the
-right. Every analysis lets you choose a **data source** (default **Auto** = your latest
+Each analysis is a module you configure in the settings panel on the right; its results
+appear as a card in the large area on the left. Every analysis lets you choose a **data
+source** (default **Auto** = your latest
 data) and the **columns** to analyse.
 
 Pick the analysis that matches your question:

@@ -10,8 +10,8 @@ table of how often each option was chosen.
 
 ## Before you start
 
-Run **Split Multi-Select** first (see {doc}`../data-processing`) to turn the raw
-comma-separated answers into one 0/1 indicator column per option. Multiple Response then
+Run **Split Multi-Select** first (see {doc}`../data-processing/split-multiselect`) to turn the
+raw comma-separated answers into one 0/1 indicator column per option. Multiple Response then
 summarises those indicator columns.
 
 ## Inputs

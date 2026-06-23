@@ -3,7 +3,7 @@
 **A column I want isn't offered in a selector.**
 : Selectors only show columns of a compatible type. Check the column's **type** in the data
   viewer — for example, a numeric summary won't list a text column. Use **Transform Column**
-  to change a column's type (see {doc}`data-processing`).
+  to change a column's type (see {doc}`data-processing/transform`).
 
 **My nominal variable won't go into a regression.**
 : Regression accepts only numeric/ordinal predictors. Convert the nominal column with
@@ -41,8 +41,9 @@
   and all analyses. See {doc}`projects-and-settings`.
 
 **Is StatPrism free?**
-: Yes — it is open source. Report issues or suggest features on the project's GitHub
-  repository.
+: Yes — it is open source. Report issues or suggest features on the
+  [project's GitHub repository](https://github.com/yakovkinii/stat_prism).
+
 ```{seealso}
 New here? Start with {doc}`getting-started`, then follow the {doc}`worked-example`.
 ```

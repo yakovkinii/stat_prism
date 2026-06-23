@@ -4,7 +4,7 @@ StatPrism is a desktop application for Windows.
 
 ## Install from a release
 
-1. Go to the project's **Releases** page on GitHub.
+1. Go to the project's [**Releases** page on GitHub](https://github.com/yakovkinii/stat_prism/releases).
 2. Download the latest StatPrism build for Windows.
 3. Unzip it to a folder you can write to (for example, your Desktop or Documents).
 4. Run the StatPrism executable to launch the app.

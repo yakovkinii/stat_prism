@@ -33,7 +33,7 @@ Preview any step to see its effect (removed rows show in red).
 
 ## 4. Run the analyses
 
-Pick modules on the left and choose the relevant columns:
+Pick modules in the settings panel on the right and choose the relevant columns:
 
 - **Descriptive Statistics** on age, income, score (add a histogram and box plot).
 - **Correlation** among age, income, score (Pearson, with confidence intervals).
@@ -41,7 +41,7 @@ Pick modules on the left and choose the relevant columns:
 - **Regression** predicting score from age, income, and the region indicators.
 - **Multiple Response** on the split feature indicators.
 
-Each result appears as a card on the right and updates if you change the cleaning steps.
+Each result appears as a card on the left and updates if you change the cleaning steps.
 
 ## 5. Get it into your document
 

@@ -35,8 +35,8 @@ Moderation and mediation are mutually exclusive.
 
 Regression accepts only **numeric / ordinal** predictors. To include a **nominal** variable
 (e.g. region), first convert it with **Encode Categories (one-hot)** (see
-{doc}`../data-processing`); the resulting 0/1 indicator columns can then be selected as
-predictors.
+{doc}`../data-processing/onehot`); the resulting 0/1 indicator columns can then be selected
+as predictors.
 
 ## Notes
 

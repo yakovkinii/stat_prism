@@ -10,7 +10,7 @@ together — and to see whether dropping an item would help.
 ## Inputs
 
 - **Items** — two or more numeric (or ordinal) columns that make up one scale. Reverse-keyed
-  items should be corrected first with **Invert Scale** (see {doc}`../data-processing`).
+  items should be corrected first with **Invert Scale** (see {doc}`../data-processing/invert-scale`).
 
 ## Options
 

@@ -28,7 +28,7 @@ importing-data
 :maxdepth: 2
 :caption: Preparing data
 
-data-processing
+data-processing/index
 ```
 
 ```{toctree}
@@ -52,11 +52,12 @@ projects-and-settings
 
 worked-example
 faq
+glossary
 ```
 
 ---
 
 ```{note}
 StatPrism is open source. Found a problem or have a suggestion? Open an issue on the
-project's GitHub repository.
+[project's GitHub repository](https://github.com/yakovkinii/stat_prism).
 ```

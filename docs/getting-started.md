@@ -6,10 +6,10 @@ This page gives you a quick tour of the StatPrism window and the overall way of 
 
 StatPrism has two main areas:
 
-- **The panel on the left** is where you *do* things. It lists the available modules —
-  data-processing steps and analyses — and shows the settings for whichever one you are
-  configuring.
-- **The area on the right** shows *results* — the tables and figures produced by your
+- **The panel on the right** is where you *do* things. This narrower settings panel lists the
+  available modules — data-processing steps and analyses — and shows the settings for
+  whichever one you are configuring.
+- **The large area on the left** shows *results* — the tables and figures produced by your
   analyses, each in its own card.
 
 Along the top is the **menu bar** with **File**, **Language**, **Theme**, and **Help**.
@@ -36,9 +36,9 @@ a cleaning step everything downstream updates.
 1. **Import your data.** Use **File ▸ Open…** and pick your survey export. See
    {doc}`importing-data`.
 2. **(Optional) Clean it.** Add data-processing steps such as *Filter* or *Impute Missing*.
-   See {doc}`data-processing`.
+   See {doc}`data-processing/index`.
 3. **Run an analysis.** Pick an analysis module (for example *Descriptive Statistics*),
-   choose the columns to analyse, and read the results on the right. See
+   choose the columns to analyse, and read the results on the left. See
    {doc}`analyses/index`.
 4. **Get the output out.** Use **File ▸ Copy All Results** and paste into Word, or
    **File ▸ Export Report (HTML)…** to save a self-contained report. See

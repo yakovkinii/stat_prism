@@ -32,7 +32,7 @@ Other
 - A **descriptives** table across conditions.
 - A **normality** table (when checks are on).
 - The **test** result with the appropriate statistic, *p*, and effect size (e.g. Cohen's
-  *d{sub}`z`*, η²{sub}`G`, Kendall's *W*, or rank-biserial correlation).
+  *d*z, generalized eta-squared, Kendall's *W*, or rank-biserial correlation).
 - Post-hoc comparisons for three or more conditions.
 
 ## Notes

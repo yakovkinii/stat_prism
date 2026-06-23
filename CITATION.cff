@@ -1,0 +1,26 @@
+# Citation metadata for StatPrism. See https://citation-file-format.github.io/
+# TODO: add co-authors (given-names/family-names, optional orcid), and once a release is
+# archived on Zenodo, add its DOI under `identifiers:` and set `doi:`.
+cff-version: 1.2.0
+message: "If you use this software, please cite it as below."
+title: StatPrism
+abstract: >-
+  StatPrism is a desktop application for analysing survey and questionnaire data
+  and producing publication-ready, APA-formatted tables and figures without
+  writing code.
+type: software
+authors:
+  - given-names: Ivan
+    family-names: Yakovkin
+    email: dexterworld2002@ukr.net
+version: 0.10.0
+license: GPL-3.0-or-later
+repository-code: "https://github.com/yakovkinii/stat_prism"
+url: "https://stat-prism.readthedocs.io/en/latest/"
+keywords:
+  - statistics
+  - survey analysis
+  - questionnaire
+  - psychometrics
+  - APA
+  - data visualization

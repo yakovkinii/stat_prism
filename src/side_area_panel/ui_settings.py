@@ -5,8 +5,11 @@ import logging
 from typing import TYPE_CHECKING
 
 from PySide6 import QtWidgets
-from PySide6.QtGui import QAction
+from PySide6.QtCore import QUrl
+from PySide6.QtGui import QAction, QDesktopServices
 from PySide6.QtWidgets import QMenu, QMenuBar, QProgressBar, QVBoxLayout
+
+USER_GUIDE_URL = "https://stat-prism.readthedocs.io/en/latest/"
 
 from src.common.constant import SettingsPanelSize
 from src.common.languages import LANGUAGE, Languages
@@ -104,6 +107,7 @@ class SettingsPanelClass:
         self.ua_action.setCheckable(True)
         self.en_action.setChecked(True)  # Default to English
         self.about_action = QAction("About", self.widget)
+        self.user_guide_action = QAction("User Guide", self.widget)
 
         # One checkable action per theme (driven by the Themes enum, so adding a
         # theme there automatically adds a menu entry).
@@ -123,6 +127,7 @@ class SettingsPanelClass:
 
         language_menu.addAction(self.en_action)
         language_menu.addAction(self.ua_action)
+        help_menu.addAction(self.user_guide_action)
         help_menu.addAction(self.about_action)
 
         # Add all panels
@@ -141,6 +146,9 @@ class SettingsPanelClass:
         self.en_action.triggered.connect(self.set_language_EN)
         self.ua_action.triggered.connect(self.set_language_UA)
         self.about_action.triggered.connect(PanelRegistry.HOME.value.ui_instance.about_handler)
+        self.user_guide_action.triggered.connect(
+            lambda: QDesktopServices.openUrl(QUrl(USER_GUIDE_URL))
+        )
 
         # File menu: panels now exist, so resolve their handlers at trigger time via lambdas.
         self.open_action.triggered.connect(lambda: PanelRegistry.HOME_INITIAL.value.ui_instance.open_handler())

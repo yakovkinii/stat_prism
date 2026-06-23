@@ -33,7 +33,7 @@ def dp_impute_main(elements: Elements, result: ImputeResult, update):
 
     method = cfg.method or "Mean"
 
-    if method == "Remove rows with missing":
+    if method == "Remove rows":
         # Drop every row missing any selected column.
         keep = pd.Series(True, index=new_data[selected[0]].data_series.index)
         for column_name in selected:

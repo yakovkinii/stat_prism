@@ -37,7 +37,7 @@ are outliers. You don't have to do anything with it.
 If your file already contained a column literally named `ID`, it is kept but renamed out of
 the way so the automatic identifier can take that name. If you would rather use one of your
 own columns as the identifier, use the **Select ID** processing step (see
-{doc}`data-processing`).
+{doc}`data-processing/select-id`).
 
 ## Column types
 
@@ -70,7 +70,7 @@ viewer, and use **Impute Missing** or **Filter** if you need to handle them.
 
 Many questionnaire items are ordered (e.g. *High school < Bachelor < Master < PhD*). To
 have StatPrism respect that order in tables and charts, set the column to **Ordinal** and
-define the category order with the **Transform Column** step (see {doc}`data-processing`).
+define the category order with the **Transform Column** step (see {doc}`data-processing/transform`).
 Ordinal columns are scored numerically where an analysis needs numbers (e.g. correlations),
 and keep their labels and order in frequency tables and pie charts.
 
