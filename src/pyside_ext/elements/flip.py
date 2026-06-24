@@ -56,7 +56,7 @@ class InvertVisualizer(BasePanelElement):
             label_left.setAlignment(Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignVCenter)
 
             label_center = QtWidgets.QLabel(self.v_widget)
-            icon = qta.icon("mdi.arrow-right", color="black")
+            icon = qta.icon("mdi.arrow-right", color=Style.Color.Text.value)
             label_center.setPixmap(icon.pixmap(32, 32))
             label_center.setFixedWidth(32)
 

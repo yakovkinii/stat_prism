@@ -22,6 +22,9 @@ class TextBrowser(QTextBrowser):
             self,
             css(
                 background=Style.Color.Background,
+                # Light text for the dark UI. Set on the widget (not in the HTML), so copying
+                # the table to a word processor keeps the document's own (black) text colour.
+                color=Style.Color.Text,
                 padding=Style.General.content_padding_medium,
                 border=Style.General.border_elevated,
                 border_radius=Style.General.border_radius_small,

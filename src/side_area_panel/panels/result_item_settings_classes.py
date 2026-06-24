@@ -28,6 +28,7 @@ from src.pyside_ext.elements.utility.layout_helpers import (
 )
 from src.pyside_ext.elements.utility.primitive_elements import NoScrollComboBox
 from src.pyside_ext.markup import css
+from src.pyside_ext.styling import Style
 from src.pyside_ext.unique_qss import set_stylesheet
 
 
@@ -124,12 +125,12 @@ class ColorGridItemSetting(BasePanelElement):
 
     def _update_swatch(self):
         r, g, b = self.current_color
-        set_stylesheet(self.color_button, css(background_color=f"rgb({r},{g},{b})", border="1px solid #888888"))
+        set_stylesheet(self.color_button, css(background_color=f"rgb({r},{g},{b})", border=Style.General.border_elevated))
 
     def _open_popup(self):
         popup = QFrame(self.color_button, Qt.WindowType.Popup)
         popup.setAttribute(Qt.WidgetAttribute.WA_DeleteOnClose)
-        set_stylesheet(popup, css(background_color="white", border="1px solid #888888"))
+        set_stylesheet(popup, css(background_color=Style.Color.BackgroundElevated, border=Style.General.border_elevated))
         grid = QGridLayout(popup)
         grid.setSpacing(4)
         grid.setContentsMargins(6, 6, 6, 6)
@@ -139,7 +140,7 @@ class ColorGridItemSetting(BasePanelElement):
                 btn = QPushButton(popup)
                 btn.setFixedSize(22, 22)
                 btn.setCursor(Qt.CursorShape.PointingHandCursor)
-                set_stylesheet(btn, css(background_color=f"rgb({pr},{pg},{pb})", border="1px solid #cccccc"))
+                set_stylesheet(btn, css(background_color=f"rgb({pr},{pg},{pb})", border=Style.General.border_elevated))
                 btn.clicked.connect(lambda _, c=(pr, pg, pb): self._select(c))
                 grid.addWidget(btn, row, col)
 

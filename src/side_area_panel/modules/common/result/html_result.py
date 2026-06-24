@@ -8,6 +8,7 @@ from src.common.constant import TABLE_OR_PLOT_ID_PLACEHOLDER
 from src.common.decorators import log_method_noarg
 from src.common.translations import t
 from src.pyside_ext.elements.base import BasePanelElement
+from src.pyside_ext.styling import Style
 from src.side_area_panel.modules.common.result.base_result import BaseResultElement
 from src.side_area_panel.panels.result_item_settings_classes import (
     ContainerResultItemSetting,
@@ -165,15 +166,15 @@ class HTMLTableV2(BaseResultElement):
 
                     # Top border
                     if r_idx == 0 and self.border_top:
-                        cell_style += " border-top: 2px solid black;"
+                        cell_style += f" border-top: 2px solid {Style.Color.TableRule};"
                     elif cell.border_top:
-                        cell_style += " border-top: 1px solid black;"
+                        cell_style += f" border-top: 1px solid {Style.Color.TableRule};"
                     # Bottom border -- a cell reaches the last row at r_idx + row_span - 1,
                     # so row-spanning labels (e.g. multi-row APA tables) get it too.
                     if (r_idx + cell.row_span - 1) == total_rows - 1 and self.border_bottom:
-                        cell_style += " border-bottom: 2px solid black;"
+                        cell_style += f" border-bottom: 2px solid {Style.Color.TableRule};"
                     elif cell.border_bottom:
-                        cell_style += " border-bottom: 1px solid black;"
+                        cell_style += f" border-bottom: 1px solid {Style.Color.TableRule};"
 
                     # Span
                     attrs = ""

@@ -56,11 +56,13 @@ def argb_to_hex(argb):
     return "#" + rgb.lower()
 
 
+# Type colours come from the central scheme (Style.Color); medium-bright so the icons read on
+# the dark UI as well as on the (light) pastel column tags in the data viewer.
 COLUMN_TYPE_ICONS = {
-    ColumnType.NUMERIC: qta.icon("mdi.numeric", color="darkblue", opacity=0.7),
-    ColumnType.NOMINAL: qta.icon("mdi6.alphabetical-variant", color="darkred", opacity=0.7),
-    ColumnType.ORDINAL: qta.icon("ph.chart-bar", color="darkgreen", opacity=0.7),
-    ColumnType.ID: qta.icon("mdi.key", color="#6a1b9a", opacity=0.7),
+    ColumnType.NUMERIC: qta.icon("mdi.numeric", color=Style.Color.TypeNumeric.value, opacity=0.9),
+    ColumnType.NOMINAL: qta.icon("mdi6.alphabetical-variant", color=Style.Color.TypeNominal.value, opacity=0.9),
+    ColumnType.ORDINAL: qta.icon("ph.chart-bar", color=Style.Color.TypeOrdinal.value, opacity=0.9),
+    ColumnType.ID: qta.icon("mdi.key", color=Style.Color.TypeId.value, opacity=0.9),
 }
 
 BASE_STYLES = (

@@ -23,7 +23,7 @@ class OverlayPopup(QWidget):
 
         self._overlay = QWidget(self)
         self._overlay.setGeometry(self.rect())
-        set_stylesheet(self._overlay, css(background_color="rgba(0,11,22,0.4)"))
+        set_stylesheet(self._overlay, css(background_color=Style.Color.Overlay))
         self._overlay.show()
 
         self.content = content
@@ -66,7 +66,7 @@ def show_color_picker(anchor_widget, on_choose) -> OverlayPopup:
     IISPWACColorPicker element."""
     holder = {}
     content = QFrame()
-    set_stylesheet(content, css(background="white", border="1px solid gray"))
+    set_stylesheet(content, css(background=Style.Color.BackgroundElevated, border=f"1px solid {Style.Color.BorderElevated}"))
     grid = QGridLayout(content)
     grid.setContentsMargins(10, 10, 10, 10)
     grid.setSpacing(6)
@@ -96,7 +96,7 @@ def show_color_picker(anchor_widget, on_choose) -> OverlayPopup:
 def show_value_mapping_popup(anchor_widget, unique_values, reference_value) -> OverlayPopup:
     """Centered preview showing each value mapped to its inverted (reference - value)."""
     content = QFrame()
-    set_stylesheet(content, css(background="white", border="1px solid gray"))
+    set_stylesheet(content, css(background=Style.Color.BackgroundElevated, border=f"1px solid {Style.Color.BorderElevated}"))
     grid = QGridLayout(content)
     grid.setContentsMargins(12, 12, 12, 12)
 
@@ -106,7 +106,7 @@ def show_value_mapping_popup(anchor_widget, unique_values, reference_value) -> O
         label_left.setAlignment(Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignVCenter)
 
         label_center = QLabel(content)
-        label_center.setPixmap(qta.icon("mdi.arrow-right", color="black").pixmap(20, 20))
+        label_center.setPixmap(qta.icon("mdi.arrow-right", color=Style.Color.Text.value).pixmap(20, 20))
         label_center.setFixedWidth(20)
 
         label_right = QLabel(str(reference_value - value), content)

@@ -268,10 +268,10 @@ class DataProcessingResultDisplay(BaseResultDisplay):
         enabled = getattr(RESULTS[self.result_id].config, "enabled", True)
         if enabled:
             self.toggle_button.setText("Enabled")
-            set_stylesheet(self.toggle_button, css(background_color="#cdeacd", font_size=Style.FontSize.regular))
+            set_stylesheet(self.toggle_button, css(background_color=Style.Color.ToggleOn, color=Style.Color.Text, font_size=Style.FontSize.regular))
         else:
             self.toggle_button.setText("Disabled")
-            set_stylesheet(self.toggle_button, css(background_color="#e0e0e0", font_size=Style.FontSize.regular))
+            set_stylesheet(self.toggle_button, css(background_color=Style.Color.ToggleOff, color=Style.Color.Text, font_size=Style.FontSize.regular))
 
     def toggle_enabled(self):
         result = RESULTS[self.result_id]

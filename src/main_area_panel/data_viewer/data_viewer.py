@@ -18,6 +18,7 @@ from PySide6.QtWidgets import (
 from src.common.constant import COLUMN_TYPE_ICONS, ColumnType
 from src.data.data import Data
 from src.pyside_ext.markup import css
+from src.pyside_ext.styling import Style
 from src.pyside_ext.unique_qss import set_stylesheet
 
 # Custom header-data roles carrying per-column metadata to the painted header.
@@ -62,7 +63,7 @@ def view_data_popup(parent, data: Data, highlight_rows=None):
     """Show the data in a popup table. `highlight_rows` is an optional set of row positions
     to render in red (used by the Filter module to mark rows it removed)."""
     highlight_rows = set(highlight_rows or [])
-    red = QtGui.QBrush(QtGui.QColor("#c0392b"))
+    red = QtGui.QBrush(QtGui.QColor(Style.Color.Danger.value))
     n_rows, n_cols = data.n_rows(), data.n_columns()
     model = QtGui.QStandardItemModel(n_rows, n_cols)
     for c in range(n_cols):
@@ -116,10 +117,11 @@ class CustomHeader(QHeaderView):
         painter.save()
 
         color = model.headerData(logicalIndex, self.orientation(), COLOR_ROLE)
-        background = QtGui.QColor(color) if color else QtGui.QColor("white")
+        # Tagged columns keep their (light) pastel; untagged headers use the dark chrome.
+        background = QtGui.QColor(color) if color else QtGui.QColor(Style.Color.BackgroundElevated.value)
         painter.fillRect(rect, background)
 
-        pen = QtGui.QPen(QtGui.QColor("lightgray"))
+        pen = QtGui.QPen(QtGui.QColor(Style.Color.BorderElevated.value))
         pen.setWidth(2)
         painter.setPen(pen)
         painter.drawLine(rect.bottomLeft(), rect.bottomRight())
@@ -139,7 +141,9 @@ class CustomHeader(QHeaderView):
             flags = QtCore.Qt.AlignLeft | QtCore.Qt.AlignTop | QtCore.Qt.TextWordWrap
         else:
             flags = QtCore.Qt.AlignLeft | QtCore.Qt.AlignVCenter
-        painter.setPen(QtGui.QPen(QtGui.QColor("black")))
+        # Dark text on a light pastel tag; light text on the dark header otherwise.
+        text_color = Style.Color.TextOnLight.value if color else Style.Color.Text.value
+        painter.setPen(QtGui.QPen(QtGui.QColor(text_color)))
         painter.drawText(text_rect, flags, text)
 
         painter.restore()
@@ -172,8 +176,8 @@ class DataTableView(QTableView):
     def _apply_style(view):
         set_stylesheet(
             view,
-            css("QTableView", font_size="10pt", color="black", background="white", border="none", outline="none"),
-            css("QTableView::item", border_bottom="1px solid lightgray"),
+            css("QTableView", font_size="10pt", color=Style.Color.Text, background=Style.Color.Background, border="none", outline="none"),
+            css("QTableView::item", border_bottom=f"1px solid {Style.Color.Border}"),
         )
 
     def _init_frozen(self, model):
@@ -191,7 +195,7 @@ class DataTableView(QTableView):
         frozen.setVerticalScrollMode(QAbstractItemView.ScrollPerPixel)
         self._apply_style(frozen)
         # A subtle right edge separates the frozen column from the scrolling area.
-        set_stylesheet(frozen, css("QTableView", border_right="1px solid #bbbbbb", background="white"))
+        set_stylesheet(frozen, css("QTableView", border_right=f"1px solid {Style.Color.BorderElevated}", background=Style.Color.Background))
 
         for c in range(model.columnCount()):
             frozen.setColumnHidden(c, c != self._frozen_column)
@@ -254,14 +258,14 @@ class TablePopup(QWidget):
 
         overlay = QWidget(self)
         overlay.setGeometry(self.rect())
-        set_stylesheet(overlay, css(background_color="rgba(0,11,22,0.4)"))
+        set_stylesheet(overlay, css(background_color=Style.Color.Overlay))
         overlay.show()
 
         self.popup = QFrame(self)
         w, h = int(window.width() * 0.95), int(window.height() * 0.95)
         self.popup.setFixedSize(w, h)
         self.popup.move((window.width() - w) // 2, (window.height() - h) // 2)
-        set_stylesheet(self.popup, css(background="white"))
+        set_stylesheet(self.popup, css(background=Style.Color.Background))
         self.popup.mousePressEvent = lambda e: e.accept()
 
         popup_layout = QVBoxLayout(self.popup)

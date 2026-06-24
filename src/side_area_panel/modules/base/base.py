@@ -190,9 +190,9 @@ class BaseModulePanel:
     @log_method
     def set_recalculate_button_highlight(self, highlight: bool):
         if highlight:
-            self.recalculate_button.setIcon(qta.icon("ph.arrows-clockwise", color="darkred"))
+            self.recalculate_button.setIcon(qta.icon("ph.arrows-clockwise", color=Style.Color.Highlight.value))
         else:
-            self.recalculate_button.setIcon(qta.icon("ph.arrows-clockwise", color="black"))
+            self.recalculate_button.setIcon(qta.icon("ph.arrows-clockwise", color=Style.Color.Text.value))
 
     @log_method
     def configure(self, result_id: int):

@@ -83,6 +83,9 @@ _DEFAULT = PlotTheme(
     marker_shape="Circle",
     band_fill_alpha=50,
     axis_layout="Centered",
+    # Opaque white figure background so plots read as light "article" figures sitting on the
+    # dark UI (and paste onto a white document unchanged).
+    background_alpha=255,
 )
 
 # A stricter, print-friendly look: a saturated "standard" colour progression
@@ -113,6 +116,7 @@ _STRICT = PlotTheme(
     band_fill_alpha=100,
     axis_layout="Centered",
     box_frame=False,
+    background_alpha=255,
 )
 
 # Dark look: dark background, light frame/text, brighter series colours.

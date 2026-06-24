@@ -6,6 +6,7 @@ from src.pyside_ext.elements.utility.layout_helpers import add_widget
 from src.pyside_ext.layout import HBoxLayout
 from src.pyside_ext.markup import css
 from src.pyside_ext.overlay_popup import show_color_picker
+from src.pyside_ext.styling import Style
 from src.pyside_ext.unique_qss import set_stylesheet
 from src.side_area_panel.blueprint.element import ItemInSidePanelWithAutoConfig
 
@@ -45,7 +46,7 @@ class IISPWACColorPicker(ItemInSidePanelWithAutoConfig):
         if isinstance(self.color, str) and self.color:
             set_stylesheet(self.button, css(background=self.color, border="1px solid gray"))
         else:
-            set_stylesheet(self.button, css(background="white", border="1px dashed gray"))
+            set_stylesheet(self.button, css(background=Style.Color.BackgroundEdit, border=f"1px dashed {Style.Color.BorderElevated}"))
 
     def get_kwargs(self):
         return {self.name: self.color}

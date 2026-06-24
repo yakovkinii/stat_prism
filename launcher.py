@@ -53,10 +53,9 @@ if __name__ == "__main__":
     import os
 
     if sys.platform == "win32":
-        # Always use the light theme: tell the Windows platform plugin to ignore the
-        # system dark mode, so auto-inferred (palette) colors stay light on Win11.
+        # Dark mode: let the Windows platform plugin use the dark window chrome (title bar).
         # Must be set before the QApplication is constructed.
-        os.environ.setdefault("QT_QPA_PLATFORM", "windows:darkmode=0")
+        os.environ.setdefault("QT_QPA_PLATFORM", "windows:darkmode=2")
 
     app = QApplication(sys.argv)
     pixmap = QPixmap(":/mat/resources/banner22.png")
@@ -86,12 +85,12 @@ if __name__ == "__main__":
 
     app.setStyle(QStyleFactory.create("Fusion"))
 
-    # Force the light color scheme where the setter exists (Qt 6.8+); for Qt 6.5-6.7
-    # the QT_QPA_PLATFORM darkmode=0 option above already forces light.
+    # Force the dark color scheme where the setter exists (Qt 6.8+); for Qt 6.5-6.7
+    # the QT_QPA_PLATFORM darkmode=2 option above already requests dark.
     try:
         from PySide6.QtCore import Qt as _Qt
 
-        app.styleHints().setColorScheme(_Qt.ColorScheme.Light)
+        app.styleHints().setColorScheme(_Qt.ColorScheme.Dark)
     except (AttributeError, TypeError, ImportError):
         pass
 
@@ -105,10 +104,17 @@ if __name__ == "__main__":
     pal.setColor(QPalette.ColorRole.Button, QColor(Style.Color.BackgroundElevated.value))
     pal.setColor(QPalette.ColorRole.ButtonText, QColor(Style.Color.Text.value))
     pal.setColor(QPalette.ColorRole.Base, QColor(Style.Color.BackgroundEdit.value))
-    pal.setColor(QPalette.ColorRole.AlternateBase, QColor(Style.Color.BackgroundEdit.value))
+    pal.setColor(QPalette.ColorRole.AlternateBase, QColor(Style.Color.BackgroundElevated.value))
     pal.setColor(QPalette.ColorRole.Text, QColor(Style.Color.Text.value))
+    pal.setColor(QPalette.ColorRole.PlaceholderText, QColor(Style.Color.SecondaryText.value))
+    pal.setColor(QPalette.ColorRole.ToolTipBase, QColor(Style.Color.BackgroundElevated.value))
+    pal.setColor(QPalette.ColorRole.ToolTipText, QColor(Style.Color.Text.value))
     pal.setColor(QPalette.ColorRole.Highlight, QColor(Style.Color.Selection.value))
     pal.setColor(QPalette.ColorRole.HighlightedText, QColor(Style.Color.Text.value))
+    # Disabled-state text, so greyed controls remain legible on the dark chrome.
+    pal.setColor(QPalette.ColorGroup.Disabled, QPalette.ColorRole.Text, QColor(Style.Color.SecondaryText.value))
+    pal.setColor(QPalette.ColorGroup.Disabled, QPalette.ColorRole.WindowText, QColor(Style.Color.SecondaryText.value))
+    pal.setColor(QPalette.ColorGroup.Disabled, QPalette.ColorRole.ButtonText, QColor(Style.Color.SecondaryText.value))
     app.setPalette(pal)
     import logging
 

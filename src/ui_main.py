@@ -146,11 +146,41 @@ class MainWindowClass(QtWidgets.QMainWindow):
         self.main_area_display_widget_layout.addWidget(widget)
         self.main_area_display_widget_layout.addStretch()
 
+    def _apply_dark_titlebar(self):
+        """Windows: paint the native title bar (min/max/close buttons) dark to match the UI.
+        Qt's darkmode hint does not reliably do this on Windows 10, so set the DWM attribute
+        on the window's HWND directly (must be called after the window has a native handle)."""
+        import sys
+
+        if sys.platform != "win32":
+            return
+        try:
+            import ctypes
+            from ctypes import wintypes
+
+            hwnd = wintypes.HWND(int(self.winId()))
+            enabled = ctypes.c_int(1)
+            # DWMWA_USE_IMMERSIVE_DARK_MODE: 20 on Win10 build >= 18985 / Win11, 19 on older
+            # builds. Try both; the inapplicable one just returns a non-zero error and is ignored.
+            for attribute in (20, 19):
+                ctypes.windll.dwmapi.DwmSetWindowAttribute(
+                    hwnd, ctypes.c_int(attribute), ctypes.byref(enabled), ctypes.sizeof(enabled)
+                )
+            # Force the non-client area (title bar) to recompute so the dark frame is applied
+            # immediately, rather than only after the first manual resize.
+            # SWP_NOSIZE|NOMOVE|NOZORDER|NOACTIVATE|FRAMECHANGE = 0x0037
+            ctypes.windll.user32.SetWindowPos(hwnd, 0, 0, 0, 0, 0, 0x0037)
+        except Exception:
+            pass
+
     def init_web_view_and_show_maximized(self, file_path=None):
         webview = QWebEngineView(self.central_widget)
         self.central_widget_layout.addWidget(webview)
         webview.setHtml("dummy")
 
+        # Apply the dark title bar *before* the first show so the frame is created dark
+        # (setting it only after show leaves it light until a manual resize).
+        self._apply_dark_titlebar()
         self.showMaximized()
 
         self.central_widget_layout.removeWidget(webview)

@@ -279,7 +279,7 @@ class IISPWACTransformEditor(ItemInSidePanelWithAutoConfig):
         if isinstance(color, str) and color:
             set_stylesheet(self.color_button, css(background=color, border="1px solid gray"))
         else:
-            set_stylesheet(self.color_button, css(background="white", border="1px dashed gray"))
+            set_stylesheet(self.color_button, css(background=Style.Color.BackgroundEdit, border=f"1px dashed {Style.Color.BorderElevated}"))
 
     @staticmethod
     def _format_order(values):
@@ -344,7 +344,7 @@ class IISPWACTransformEditor(ItemInSidePanelWithAutoConfig):
 
         content = QFrame()
         content.setMinimumWidth(600)
-        set_stylesheet(content, css(background="white", border="1px solid gray"))
+        set_stylesheet(content, css(background=Style.Color.BackgroundElevated, border=f"1px solid {Style.Color.BorderElevated}"))
         layout = QHBoxLayout(content)
         layout.setContentsMargins(12, 12, 12, 12)
 
@@ -382,14 +382,14 @@ class IISPWACTransformEditor(ItemInSidePanelWithAutoConfig):
 
         content = QFrame()
         content.setFixedWidth(600)
-        set_stylesheet(content, css(background="white", border="1px solid gray"))
+        set_stylesheet(content, css(background=Style.Color.BackgroundElevated, border=f"1px solid {Style.Color.BorderElevated}"))
         outer = QVBoxLayout(content)
         outer.setContentsMargins(12, 12, 12, 12)
 
         scroll = QScrollArea(content)
         scroll.setWidgetResizable(True)
         scroll.setFixedHeight(min(800, max(120, len(uniques) * 32)))
-        set_stylesheet(scroll, css(border="none", background="white"))
+        set_stylesheet(scroll, css(border="none", background=Style.Color.BackgroundElevated))
         inner = QWidget()
         layout = QVBoxLayout(inner)
         layout.setContentsMargins(0, 0, 0, 0)
@@ -446,7 +446,7 @@ class IISPWACTransformEditor(ItemInSidePanelWithAutoConfig):
 
         content = QFrame()
         content.setMinimumWidth(420)
-        set_stylesheet(content, css(background="white", border="1px solid gray"))
+        set_stylesheet(content, css(background=Style.Color.BackgroundElevated, border=f"1px solid {Style.Color.BorderElevated}"))
         layout = QVBoxLayout(content)
         layout.setContentsMargins(12, 12, 12, 12)
         layout.setSpacing(6)

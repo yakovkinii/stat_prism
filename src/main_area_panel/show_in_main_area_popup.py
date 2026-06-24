@@ -3,6 +3,7 @@ from PySide6 import QtCore
 from PySide6.QtWidgets import QWidget
 
 from src.pyside_ext.markup import css
+from src.pyside_ext.styling import Style
 from src.pyside_ext.unique_qss import set_stylesheet
 
 
@@ -25,7 +26,7 @@ class WidgetPopup(QWidget):
         # propagate up to this popup's mousePressEvent (which closes).
         self._overlay = QWidget(self)
         self._overlay.setGeometry(self.rect())
-        set_stylesheet(self._overlay, css(background_color="rgba(0,11,22,0.4)"))
+        set_stylesheet(self._overlay, css(background_color=Style.Color.Overlay))
         self._overlay.show()
 
         self.content = widget
