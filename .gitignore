@@ -25,3 +25,6 @@ __pycache__/
 *.dist/
 *.build/
 *.onefile-build/
+
+# Per-machine UI config (auto-created on first run; default theme = light)
+/statprism.ini

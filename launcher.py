@@ -52,10 +52,13 @@ if __name__ == "__main__":
 
     import os
 
+    # Qt-free, so it is safe to import before the QApplication exists.
+    from src.common.ui_theme import IS_DARK_THEME
+
     if sys.platform == "win32":
-        # Dark mode: let the Windows platform plugin use the dark window chrome (title bar).
-        # Must be set before the QApplication is constructed.
-        os.environ.setdefault("QT_QPA_PLATFORM", "windows:darkmode=2")
+        # Match the window chrome (title bar) to the active UI theme. Must be set before the
+        # QApplication is constructed.
+        os.environ.setdefault("QT_QPA_PLATFORM", f"windows:darkmode={'2' if IS_DARK_THEME else '0'}")
 
     app = QApplication(sys.argv)
     pixmap = QPixmap(":/mat/resources/banner22.png")
@@ -85,12 +88,12 @@ if __name__ == "__main__":
 
     app.setStyle(QStyleFactory.create("Fusion"))
 
-    # Force the dark color scheme where the setter exists (Qt 6.8+); for Qt 6.5-6.7
-    # the QT_QPA_PLATFORM darkmode=2 option above already requests dark.
+    # Force the color scheme matching the active UI theme where the setter exists (Qt 6.8+);
+    # for Qt 6.5-6.7 the QT_QPA_PLATFORM darkmode option above already requests it.
     try:
         from PySide6.QtCore import Qt as _Qt
 
-        app.styleHints().setColorScheme(_Qt.ColorScheme.Dark)
+        app.styleHints().setColorScheme(_Qt.ColorScheme.Dark if IS_DARK_THEME else _Qt.ColorScheme.Light)
     except (AttributeError, TypeError, ImportError):
         pass
 

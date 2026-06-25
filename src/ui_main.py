@@ -147,7 +147,7 @@ class MainWindowClass(QtWidgets.QMainWindow):
         self.main_area_display_widget_layout.addStretch()
 
     def _apply_dark_titlebar(self):
-        """Windows: paint the native title bar (min/max/close buttons) dark to match the UI.
+        """Windows: match the native title bar (min/max/close buttons) to the active UI theme.
         Qt's darkmode hint does not reliably do this on Windows 10, so set the DWM attribute
         on the window's HWND directly (must be called after the window has a native handle)."""
         import sys
@@ -158,8 +158,10 @@ class MainWindowClass(QtWidgets.QMainWindow):
             import ctypes
             from ctypes import wintypes
 
+            from src.common.ui_theme import IS_DARK_THEME
+
             hwnd = wintypes.HWND(int(self.winId()))
-            enabled = ctypes.c_int(1)
+            enabled = ctypes.c_int(1 if IS_DARK_THEME else 0)
             # DWMWA_USE_IMMERSIVE_DARK_MODE: 20 on Win10 build >= 18985 / Win11, 19 on older
             # builds. Try both; the inapplicable one just returns a non-zero error and is ignored.
             for attribute in (20, 19):

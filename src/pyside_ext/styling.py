@@ -5,6 +5,8 @@ from enum import Enum
 
 from PySide6 import QtGui
 
+from src.common.ui_theme import ACTIVE_THEME as _ACTIVE_THEME
+
 _font_regular = QtGui.QFont("Segoe UI")
 _font_regular.setPointSize(12)
 
@@ -16,49 +18,19 @@ _font_result_element_label.setPointSize(10)
 
 
 class Scheme:
-    """Single source of truth for the UI colour scheme — **change colours here.**
+    """Active UI colour scheme — the single source of truth for widget colours.
 
-    Brand palette (deep navy / pale gold / cream) plus a few derived accents. ``Style.Color``
-    and ``Style.General`` reference these names, and every widget references ``Style.Color`` —
-    so colours are not hardcoded anywhere else. (To add a light theme later, swap these values
-    or make this class selectable at runtime.)
+    Its attributes are populated from the active palette in ``src/common/ui_theme.py``
+    (LIGHT or DARK). ``Style.Color`` / ``Style.General`` reference these names, and every
+    widget references ``Style.Color``, so colours are not hardcoded anywhere else.
+
+    To switch the whole UI light/dark, change ``ACTIVE_THEME`` in ``src/common/ui_theme.py``
+    (takes effect on the next start).
     """
 
-    # Two-tone: the chrome (right settings panel, menus, buttons) is the banner navy blue; the
-    # main area it contrasts against is near-black.
-    surface_panel = "#0d1b2a"          # banner navy — right settings panel
-    surface_main = "#070809"           # near-black — main area + result surfaces (the contrast)
-    surface_edit = "#0a1623"           # input fields (slightly deeper navy than the panel)
-    surface_not_selected = "#12283c"
-    surface_elevated = "#14293e"       # menus, buttons, popups, table headers (lifted navy)
 
-    # Borders (navy, to sit on the navy chrome)
-    border = "#26405c"
-    border_elevated = "#345578"
-
-    # Text / glyphs
-    text = "#e8e6da"                   # primary cream/light
-    text_secondary = "#9a9a93"         # muted helper text (neutral, not blue)
-    text_on_light = "#15233b"          # text drawn on a light pastel column tag
-    tool_glyph = "#a6a6a0"             # simple tool-button icons
-
-    # Accents
-    accent = "#e6c860"                 # brand gold — highlights / selection borders
-    accent_blue = "#3a5a8c"            # legacy data-analysis accent
-    selection = "#3a3320"              # selected-row background — dark warm gold tint, not blue
-    danger = "#ff6b6b"
-
-    # Misc UI bits
-    overlay = "rgba(0,0,0,0.55)"       # dimmed modal background
-    table_rule = "#888888"             # HTML table rules (visible on dark UI AND white export)
-    toggle_on = "#2e6b45"              # enabled (DP step) toggle button
-    toggle_off = "#2b2d31"             # disabled toggle button (neutral dark)
-
-    # Column-type icon colours (also read on the light pastel column tags)
-    type_numeric = "#5b9bd5"
-    type_nominal = "#e57373"
-    type_ordinal = "#81c784"
-    type_id = "#b388d9"
+for _key, _value in _ACTIVE_THEME.items():
+    setattr(Scheme, _key, _value)
 
 
 class Style:

@@ -402,7 +402,7 @@ class IISPWACColumnEditor(ItemInSidePanelWithAutoConfig):
             css(
                 background=Style.Color.Background,
             ),
-            css(selector="QListWidget::item", background=Style.Color.BackgroundPanel, margin="2px"),
+            css(selector="QListWidget::item", background=Style.Color.BackgroundPanel, margin="2px", border_radius="5px"),
         )
         for value in values:
             list_widget.add_custom_item(value, str(value))
