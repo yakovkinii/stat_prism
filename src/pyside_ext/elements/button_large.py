@@ -21,9 +21,6 @@ class LargeButton(BasePanelElement):
         self.label_text = label_text
         self.icon_path = icon_path if icon_path is not None else "msc.blank"
 
-        self._margin = 20
-        self._height = 81
-
     def setup(self):
         self.widget = QtWidgets.QPushButton(self.label_text)
         set_stylesheet(

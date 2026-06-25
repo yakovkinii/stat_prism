@@ -228,19 +228,21 @@ def _normality_table(wide: pd.DataFrame, conditions, two_conditions, verbal_indi
     return table
 
 
-def _result_table(caption, headers, values, test_result: TestResult, test_name, p_val) -> HTMLTableV2:
-    """A single-row omnibus table: a header row, one statistics row, and a verbal summary."""
+def _result_table(caption, headers, values, test_result: TestResult, test_name, p_val, verbal=False) -> HTMLTableV2:
+    """A single-row omnibus table: a header row, one statistics row, and an optional verbal
+    summary (shown only when the 'Verbal indicators' checkbox is on)."""
     table = HTMLTableV2(table_caption=caption)
     table.add_title_row_apa(Row([Cell(label, center=True) for label in headers]))
     table.add_single_row_apa(Row([Cell(value, center=True) for value in values]))
-    table.add_text(
-        t(
-            "paired.verbal.result",
-            test=test_name,
-            conclusion=significance_verbal(p_val),
-            stats=str(test_result),
+    if verbal:
+        table.add_text(
+            t(
+                "paired.verbal.result",
+                test=test_name,
+                conclusion=significance_verbal(p_val),
+                stats=str(test_result),
+            )
         )
-    )
     return table
 
 
@@ -267,7 +269,7 @@ def _paired_t_test(result, wide, conditions, cfg):
         test_result = TestResult(variable="", letter="t", statistic=t_stat, p=p_val, df=df)
 
     result.update_and_add_element(
-        _result_table(t("paired.caption.paired_t"), headers, values, test_result, t("paired.test.paired_t"), p_val),
+        _result_table(t("paired.caption.paired_t"), headers, values, test_result, t("paired.test.paired_t"), p_val, verbal=cfg.verbal_indicators),
         "paired omnibus",
     )
 
@@ -295,7 +297,7 @@ def _wilcoxon_test(result, wide, conditions, cfg):
         test_result = TestResult(variable="", letter="W", statistic=w_stat, p=p_val)
 
     result.update_and_add_element(
-        _result_table(t("paired.caption.wilcoxon"), headers, values, test_result, t("paired.test.wilcoxon"), p_val),
+        _result_table(t("paired.caption.wilcoxon"), headers, values, test_result, t("paired.test.wilcoxon"), p_val, verbal=cfg.verbal_indicators),
         "paired omnibus",
     )
 
@@ -329,7 +331,8 @@ def _rm_anova(result, wide, conditions, cfg):
         test_result = TestResult(variable="", letter="F", statistic=f_stat, p=p_val, df=df1, df2=df2)
 
     table = _result_table(
-        t("paired.caption.rm_anova"), headers, values, test_result, t("paired.test.rm_anova"), p_val
+        t("paired.caption.rm_anova"), headers, values, test_result, t("paired.test.rm_anova"), p_val,
+        verbal=cfg.verbal_indicators,
     )
     table.table_note = t("paired.note.gg", p=format_p_apa_full(p_gg), eps=format_value_apa(eps))
     result.update_and_add_element(table, "paired omnibus")
@@ -372,7 +375,7 @@ def _friedman(result, wide, conditions, cfg):
         test_result = TestResult(variable="", letter="&chi;&sup2;", statistic=chi2, p=p_val, df=df)
 
     result.update_and_add_element(
-        _result_table(t("paired.caption.friedman"), headers, values, test_result, t("paired.test.friedman"), p_val),
+        _result_table(t("paired.caption.friedman"), headers, values, test_result, t("paired.test.friedman"), p_val, verbal=cfg.verbal_indicators),
         "paired omnibus",
     )
 

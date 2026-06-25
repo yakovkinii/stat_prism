@@ -252,7 +252,8 @@ def process_non_normal_anova(
             )
         )
 
-    table.add_text(
+    # Prose report is optional ("Verbal indicators" checkbox); numeric results stay in the table.
+    verbal_indicators and table.add_text(
         describe_single_test_multiple_variables(
             test_name=t("ttest.test.kruskal"),
             test_check=t("ttest.check.diff_groups"),
@@ -397,7 +398,8 @@ def process_non_homogeneous_anova(df: pd.DataFrame, columns, grouping_column, ef
             )
         )
 
-    table.add_text(
+    # Prose report is optional ("Verbal indicators" checkbox); numeric results stay in the table.
+    verbal_indicators and table.add_text(
         describe_single_test_multiple_variables(
             test_name=t("ttest.test.welch_anova"),
             test_check=t("ttest.check.equality_means"),
@@ -551,7 +553,8 @@ def process_homogeneous_anova(df: pd.DataFrame, columns, grouping_column, effect
             )
         )
 
-    table.add_text(
+    # Prose report is optional ("Verbal indicators" checkbox); numeric results stay in the table.
+    verbal_indicators and table.add_text(
         describe_single_test_multiple_variables(
             test_name=t("ttest.test.one_way_anova"),
             test_check=t("ttest.check.equality_means"),

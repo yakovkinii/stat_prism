@@ -51,11 +51,11 @@ class Elements(ItemInSidePanelWithAutoConfigHolder):
     )
     effect_size = IISPWACCheckBox(
         label_text="Effect size/Post-hoc",
-        default_state=True,
+        default_state=False,
     )
     verbal_indicators = IISPWACCheckBox(
         label_text="Verbal indicators in tables",
-        default_state=True,
+        default_state=False,
     )
     confidence_intervals = IISPWACCheckBox(
         label_text="95% CI for Cohen's d",

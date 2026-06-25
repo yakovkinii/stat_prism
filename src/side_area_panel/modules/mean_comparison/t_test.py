@@ -330,7 +330,9 @@ def process_non_normal_t_test(
             )
         )
 
-    table.add_text(
+    # Prose report is optional (controlled by the "Verbal indicators" checkbox); the numeric
+    # results stay in the table above regardless.
+    verbal_indicators and table.add_text(
         describe_single_test_multiple_variables(
             test_name=t("ttest.test.mann_whitney"),
             test_check=t("ttest.check.diff_groups"),
@@ -444,7 +446,9 @@ def process_homogeneous_t_test(df: pd.DataFrame, columns, grouping_column, effec
             )
         )
 
-    table.add_text(
+    # Prose report is optional (controlled by the "Verbal indicators" checkbox); the numeric
+    # results stay in the table above regardless.
+    verbal_indicators and table.add_text(
         describe_single_test_multiple_variables(
             test_name=t("ttest.test.ttest_independent"),
             test_check=t("ttest.check.equality_means"),
@@ -560,7 +564,9 @@ def process_non_homogeneous_t_test(df: pd.DataFrame, columns, grouping_column, e
             )
         )
 
-    table.add_text(
+    # Prose report is optional (controlled by the "Verbal indicators" checkbox); the numeric
+    # results stay in the table above regardless.
+    verbal_indicators and table.add_text(
         describe_single_test_multiple_variables(
             test_name=t("ttest.test.welch_ttest"),
             test_check=t("ttest.check.equality_means"),

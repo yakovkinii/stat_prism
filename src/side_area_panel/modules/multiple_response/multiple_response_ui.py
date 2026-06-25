@@ -21,7 +21,7 @@ class Elements(ItemInSidePanelWithAutoConfigHolder):
             ),
         ],
     )
-    show_chart = IISPWACCheckBox(label_text="Bar chart of counts", default_state=True)
+    show_chart = IISPWACCheckBox(label_text="Bar chart of counts", default_state=False)
 
 
 class MultipleResponse(BaseModulePanel):

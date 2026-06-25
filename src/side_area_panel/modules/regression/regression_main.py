@@ -387,7 +387,8 @@ def recalculate_regression_study(elements, result: RegressionResult, update) -> 
         if significant_predictors
         else t("regression.report.predictors_none")
     )
-    fit_table.add_text(report)
+    if verbal:
+        fit_table.add_text(report)
     result.update_and_add_element(fit_table, "regression fit")
 
     # ----- Coefficients table -----
@@ -643,7 +644,8 @@ def _run_logistic(result, df, dependent_column, independent_columns, moderator_c
     report += (
         t("regression.report.significant") if model.llr_pvalue < 0.05 else t("regression.report.not_significant")
     )
-    fit_table.add_text(report)
+    if verbal:
+        fit_table.add_text(report)
     result.update_and_add_element(fit_table, "regression fit")
 
     # ----- Coefficients table (log-odds B, SE, odds ratio, z, p) -----

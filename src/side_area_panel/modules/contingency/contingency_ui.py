@@ -42,7 +42,7 @@ class Elements(ItemInSidePanelWithAutoConfigHolder):
     )
     verbal_indicators = IISPWACCheckBox(
         label_text="Verbal indicators in tables",
-        default_state=True,
+        default_state=False,
     )
     mcnemar = IISPWACCheckBox(
         label_text="Paired data (symmetry test)",
@@ -50,7 +50,7 @@ class Elements(ItemInSidePanelWithAutoConfigHolder):
     )
     plots = IISPWACCheckBox(
         label_text="Plots",
-        default_state=True,
+        default_state=False,
     )
 
 

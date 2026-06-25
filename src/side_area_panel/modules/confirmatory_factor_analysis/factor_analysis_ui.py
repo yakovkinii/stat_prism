@@ -33,10 +33,10 @@ class Elements(ItemInSidePanelWithAutoConfigHolder):
     )
     verbal_indicators = IISPWACCheckBox(
         label_text="Verbal indicators in tables",
-        default_state=True,
+        default_state=False,
     )
     number_columns = IISPWACCheckBox(label_text="Number variables in tables", default_state=False)
-    plots = IISPWACCheckBox(label_text="Plots", default_state=True)
+    plots = IISPWACCheckBox(label_text="Plots", default_state=False)
     spacer = IISPWACSpacer()
 
 

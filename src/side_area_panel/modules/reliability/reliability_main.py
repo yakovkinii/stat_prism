@@ -166,7 +166,8 @@ def recalculate_reliability_study(elements, result: ReliabilityResult, update) -
         if not np.isnan(omega):
             report += t("reliability.report.omega", omega=format_r_apa(omega), level=omega_level)
 
-    coef_table.add_text(report)
+    if show_verbal:
+        coef_table.add_text(report)
     result.update_and_add_element(coef_table, "reliability alpha")
     update(50)
 

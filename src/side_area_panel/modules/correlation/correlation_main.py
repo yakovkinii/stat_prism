@@ -203,19 +203,20 @@ def recalculate_correlation_study(elements, result: CorrelationResult, update) -
             columns, correlation_matrix, p_matrix, df_matrix, kind=kind, ci_matrix=ci_matrix, numbering=numbering
         )
 
-    # Verbal report (prefixed with a note when these are partial correlations)
-    verbal = get_report(
-        columns,
-        correlation_matrix,
-        p_matrix,
-        df_matrix,
-        report_non_significant=not cfg.report_only_significant,
-        kind=kind,
-        ci_matrix=ci_matrix,
-    )
-    if is_partial:
-        verbal = t("correlation.partial.note", controls=", ".join(control_columns)) + verbal
-    html_table.add_text(verbal)
+    # Verbal report (optional; prefixed with a note when these are partial correlations)
+    if cfg.show_interpretation:
+        verbal = get_report(
+            columns,
+            correlation_matrix,
+            p_matrix,
+            df_matrix,
+            report_non_significant=not cfg.report_only_significant,
+            kind=kind,
+            ci_matrix=ci_matrix,
+        )
+        if is_partial:
+            verbal = t("correlation.partial.note", controls=", ".join(control_columns)) + verbal
+        html_table.add_text(verbal)
 
     _ordinal_pearson_warning(result, data, columns, kind, html_table)
     _constant_column_warning(df, columns, html_table)
@@ -279,19 +280,20 @@ def _run_cross(result, cfg, data, rows, cols, control_columns, kind, is_partial,
         rows, cols, correlation_matrix, p_matrix, df_matrix, kind, compact=cfg.compact, ci_matrix=ci_matrix, numbering=numbering
     )
 
-    verbal = get_cross_report(
-        rows,
-        cols,
-        correlation_matrix,
-        p_matrix,
-        df_matrix,
-        report_non_significant=not cfg.report_only_significant,
-        kind=kind,
-        ci_matrix=ci_matrix,
-    )
-    if is_partial:
-        verbal = t("correlation.partial.note", controls=", ".join(control_columns)) + verbal
-    html_table.add_text(verbal)
+    if cfg.show_interpretation:
+        verbal = get_cross_report(
+            rows,
+            cols,
+            correlation_matrix,
+            p_matrix,
+            df_matrix,
+            report_non_significant=not cfg.report_only_significant,
+            kind=kind,
+            ci_matrix=ci_matrix,
+        )
+        if is_partial:
+            verbal = t("correlation.partial.note", controls=", ".join(control_columns)) + verbal
+        html_table.add_text(verbal)
 
     _ordinal_pearson_warning(result, data, list(rows) + list(cols), kind, html_table)
     _constant_column_warning(df, list(rows) + list(cols), html_table)

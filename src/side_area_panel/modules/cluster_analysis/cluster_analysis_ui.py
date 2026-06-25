@@ -28,9 +28,9 @@ class Elements(ItemInSidePanelWithAutoConfigHolder):
     linkage = IISPWACComboBox(label_text="Linkage (hierarchical):", items=["Ward", "Average", "Complete", "Single"])
     n_clusters = IISPWACSpin(label_text="Number of clusters:", min_value=2, max_value=20, default_value=2)
     standardize = IISPWACCheckBox(label_text="Standardize variables (z-score)", default_state=True)
-    plots = IISPWACCheckBox(label_text="Plots", default_state=True)
+    plots = IISPWACCheckBox(label_text="Plots", default_state=False)
     show_assignments = IISPWACCheckBox(label_text="Show per-observation assignments", default_state=False)
-    verbal_indicators = IISPWACCheckBox(label_text="Verbal indicators in tables", default_state=True)
+    verbal_indicators = IISPWACCheckBox(label_text="Verbal indicators in tables", default_state=False)
     spacer = IISPWACSpacer()
 
 
