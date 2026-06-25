@@ -16,6 +16,7 @@ class ReliabilityStudyConfig:
     correlation_type = attrs.field(default=None)
     scale_name = attrs.field(default=None)
     mcdonald_omega = attrs.field(default=None)
+    item_deleted_table = attrs.field(default=None)
     verbal_indicators = attrs.field(default=None)
     number_columns = attrs.field(default=None)
 

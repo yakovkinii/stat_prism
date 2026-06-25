@@ -147,7 +147,7 @@ class SettingsPanelClass:
         # Refresh button turns an alarm colour) until recalculated.
         self.auto_recalculate_action = QAction("Auto-recalculate", self.widget)
         self.auto_recalculate_action.setCheckable(True)
-        self.auto_recalculate_action.setChecked(True)
+        self.auto_recalculate_action.setChecked(bool(self.root_class.main_area_panel.auto_recalculate))
         self.auto_recalculate_action.toggled.connect(self.set_auto_recalculate)
 
         settings_menu.addMenu(language_menu)
@@ -226,6 +226,7 @@ class SettingsPanelClass:
 
     def set_auto_recalculate(self, enabled: bool):
         self.root_class.main_area_panel.auto_recalculate = enabled
+        write_ui_value("auto_recalculate", "true" if enabled else "false")
 
     def set_theme(self, theme: Themes):
         THEME.set_theme(theme)

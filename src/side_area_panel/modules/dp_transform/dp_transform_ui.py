@@ -14,10 +14,9 @@ class Elements(ItemInSidePanelWithAutoConfigHolder):
     column_selector = IISPWACColumnSelector(
         fields=[
             Field(
-                name="Column:",
+                name="Column(s):",
                 column_type=ColumnType.NOMINAL,
-                reasonable_number_of_columns=1,
-                allow_only_single_column=True,
+                reasonable_number_of_columns=8,
                 minimum_columns=1,
             ),
         ],

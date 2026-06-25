@@ -47,6 +47,7 @@ class IISPWACTransformEditor(ItemInSidePanelWithAutoConfig):
         self.handler_changed = None
         self.spec = None
         self.column_name = None
+        self.columns = []
         self.column_type = None
         self.is_numeric_column = False
         self.unique_values = []
@@ -66,20 +67,20 @@ class IISPWACTransformEditor(ItemInSidePanelWithAutoConfig):
         result_id = kwargs["result_id"]
         selector_value = kwargs.get("column_selector") or []
         selected = list(selector_value[0]) if selector_value else []
-        column_name = selected[0] if selected else None
         saved = kwargs.get(self.name)
 
-        column = None
-        if column_name is not None:
+        columns = []
+        if selected:
             try:
                 data = DATA_MANAGER.get_data_from_data_label(data_label=data_label, current_result_id=result_id)
-                if column_name in data.column_names():
-                    column = data[column_name]
+                names = data.column_names()
+                columns = [data[c] for c in selected if c in names]
             except Exception:
-                column = None
+                columns = []
 
-        if column is None:
+        if not columns:
             self.spec = None
+            self.columns = []
             self.column_name = None
             self.unique_values = []
             if self._built_column is not None or not getattr(self, "cards", None):
@@ -87,17 +88,29 @@ class IISPWACTransformEditor(ItemInSidePanelWithAutoConfig):
                 self._built_column = None
             return
 
-        self.column_name = column_name
-        self.column_type = column.column_type
-        self.is_numeric_column = bool(column.is_numeric)
-        self.unique_values = self._sorted_unique(column)
-        self.spec = self._spec_from(saved, column)
+        # Several columns can be transformed together; they share one spec applied over the
+        # union of their values (each column only takes the entries it actually has).
+        self.columns = [c.column_name for c in columns]
+        self.column_name = self.columns[0]
+        self.column_type = columns[0].column_type
+        self.is_numeric_column = all(bool(c.is_numeric) for c in columns)
+        self.unique_values = self._union_unique(columns)
+        self.spec = self._spec_from(saved, columns)
 
-        if column_name != self._built_column:
+        if self.columns != self._built_column:
             self._rebuild()
-            self._built_column = column_name
+            self._built_column = list(self.columns)
         else:
             self._refresh_visibility()
+
+    def _union_unique(self, columns):
+        """Ordered union of the unique values across the selected columns."""
+        union = []
+        for column in columns:
+            for value in self._sorted_unique(column):
+                if value not in union:
+                    union.append(value)
+        return union
 
     def _sorted_unique(self, column):
         values = [_to_python(v) for v in column.data_series.dropna().unique()]
@@ -110,15 +123,17 @@ class IISPWACTransformEditor(ItemInSidePanelWithAutoConfig):
                 values.sort(key=lambda v: str(v))
         return values
 
-    def _spec_from(self, saved, column):
-        default_color = column.color if isinstance(column.color, str) and column.color else None
-        # Reuse a saved spec only when it belongs to this same column.
-        if not isinstance(saved, dict) or saved.get("column") != column.column_name:
+    def _spec_from(self, saved, columns):
+        first = columns[0]
+        names = [c.column_name for c in columns]
+        default_color = first.color if isinstance(first.color, str) and first.color else None
+        # Reuse a saved spec only when it covers exactly the same set of columns.
+        if not isinstance(saved, dict) or set(saved.get("columns") or []) != set(names):
             return {
-                "column": column.column_name,
-                "new_name": column.column_name,
+                "columns": names,
+                "new_name": first.column_name,
                 "mapping": None,
-                "type": column.column_type.value,
+                "type": first.column_type.value,
                 "order": None,
                 "flip": False,
                 "flip_reference": "",
@@ -130,10 +145,10 @@ class IISPWACTransformEditor(ItemInSidePanelWithAutoConfig):
             order = order + [v for v in self.unique_values if v not in order]
         mapping = [[f, t] for f, t in (saved.get("mapping") or []) if f in self.unique_values]
         return {
-            "column": column.column_name,
-            "new_name": saved.get("new_name") if saved.get("new_name") is not None else column.column_name,
+            "columns": names,
+            "new_name": saved.get("new_name") if saved.get("new_name") is not None else first.column_name,
             "mapping": mapping or None,
-            "type": saved.get("type") if saved.get("type") in _TYPES else column.column_type.value,
+            "type": saved.get("type") if saved.get("type") in _TYPES else first.column_type.value,
             "order": order or None,
             "flip": bool(saved.get("flip", False)),
             "flip_reference": saved.get("flip_reference") or "",
@@ -170,11 +185,17 @@ class IISPWACTransformEditor(ItemInSidePanelWithAutoConfig):
         layout.setSpacing(4)
 
         # --- New name (default text = the current column name) ---
+        # Renaming only applies to a single column; with several selected it is disabled.
+        multiple = len(self.columns) > 1
         layout.addWidget(QLabel("New name:", card))
         self.rename_edit = QLineEdit(card)
-        self.rename_edit.setText(spec["new_name"])
-        self.rename_edit.setToolTip(spec["new_name"] or self.column_name)
         self.rename_edit.editingFinished.connect(self._on_rename)
+        if multiple:
+            self.rename_edit.setEnabled(False)
+            self.rename_edit.setPlaceholderText("(rename disabled for multiple columns)")
+        else:
+            self.rename_edit.setText(spec["new_name"])
+            self.rename_edit.setToolTip(spec["new_name"] or self.column_name)
         layout.addWidget(self.rename_edit)
 
         # --- Map values ---

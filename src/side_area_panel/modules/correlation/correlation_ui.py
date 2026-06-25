@@ -55,4 +55,4 @@ class Elements(ItemInSidePanelWithAutoConfigHolder):
 class Correlation(BaseModulePanel):
     def setup_ui(self):
         self.init_elements(Elements)
-        self.set_label("Correlations")
+        self.set_label("Correlation")

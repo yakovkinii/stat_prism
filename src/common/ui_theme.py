@@ -176,3 +176,8 @@ def read_language(fallback: str = "en") -> str:
 
 def read_plot_theme(fallback: str = "Default") -> str:
     return read_ui_value("plot_theme", fallback)
+
+
+def read_auto_recalculate(default: bool = False) -> bool:
+    value = read_ui_value("auto_recalculate", "true" if default else "false")
+    return value.strip().lower() in ("1", "true", "yes", "on")

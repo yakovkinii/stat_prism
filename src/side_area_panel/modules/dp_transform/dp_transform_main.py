@@ -51,12 +51,24 @@ def dp_transform_main(elements: Elements, result: TransformResult, update):
     if not selected:
         elements.column_selector.set_alert(0)
         return result
-    column_name = selected[0]
-    if column_name not in new_data.column_names():
+
+    valid = [c for c in selected if c in new_data.column_names()]
+    if not valid:
         elements.column_selector.set_alert(0)
         return result
 
     spec = cfg.transform_spec if isinstance(cfg.transform_spec, dict) else {}
+    # The same spec is applied to every selected column; renaming only makes sense for one.
+    single = len(valid) == 1
+    for column_name in valid:
+        _transform_column(new_data, column_name, spec, rename=single)
+
+    new_data.update_lookups()
+    result.data = new_data
+    return result
+
+
+def _transform_column(new_data, column_name, spec, rename):
     col = new_data[column_name]
 
     # 1. Value mapping (keys are original values; unmapped values pass through).
@@ -109,17 +121,14 @@ def dp_transform_main(elements: Elements, result: TransformResult, update):
     else:
         col.order = {}
 
-    # 4. Rename (replace in place; keep unique against the other columns).
-    target = (spec.get("new_name") or "").strip() or column_name
-    others = set(new_data.column_names()) - {column_name}
-    if target in others:
-        target = unique_name(target, others)
-    if target != column_name:
-        col.rename(target)
+    # 4. Rename (single-column only; replace in place, kept unique against other columns).
+    if rename:
+        target = (spec.get("new_name") or "").strip() or column_name
+        others = set(new_data.column_names()) - {column_name}
+        if target in others:
+            target = unique_name(target, others)
+        if target != column_name:
+            col.rename(target)
 
     # 5. Colour tag.
     col.color = spec.get("color")
-
-    new_data.update_lookups()
-    result.data = new_data
-    return result

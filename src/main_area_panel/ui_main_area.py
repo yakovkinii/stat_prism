@@ -92,10 +92,13 @@ class MainAreaClass:
         self.focused_result_id = None
         self.focused_result_element_id = None
         self._cascading = False
-        # When True (default), a data-processing change recomputes every dependent study
-        # immediately. When False, dependents are only flagged stale (Refresh turns an
-        # alarm colour) until the user recalculates. Toggled from Settings ▸ Auto-recalculate.
-        self.auto_recalculate = True
+        # When True, a data-processing change recomputes every dependent study immediately.
+        # When False (default), dependents are only flagged stale (Refresh turns an alarm
+        # colour) until the user recalculates. Persisted in statprism.ini; toggled from
+        # Settings ▸ Auto-recalculate.
+        from src.common.ui_theme import read_auto_recalculate
+
+        self.auto_recalculate = read_auto_recalculate(default=False)
 
         self.raw_data_objects = {}
         self.data_processing_objects = {}

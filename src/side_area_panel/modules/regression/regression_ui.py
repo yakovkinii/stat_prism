@@ -53,4 +53,4 @@ class Elements(ItemInSidePanelWithAutoConfigHolder):
 class Regression(BaseModulePanel):
     def setup_ui(self):
         self.init_elements(Elements)
-        self.set_label("Regression Analysis")
+        self.set_label("Regression")

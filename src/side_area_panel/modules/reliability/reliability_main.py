@@ -221,7 +221,9 @@ def recalculate_reliability_study(elements, result: ReliabilityResult, update) -
         else:
             item_table.add_text(t("reliability.report.item_none"))
     item_table.table_note = numbering.append_to_note(item_table.table_note or "")
-    result.update_and_add_element(item_table, "reliability item_deleted")
+    # The "if item removed" table is optional (off by default).
+    if config.item_deleted_table:
+        result.update_and_add_element(item_table, "reliability item_deleted")
 
     provided_name = (config.scale_name or "").strip()
     result.title_context = provided_name if provided_name else ", ".join(str(i)[:16] for i in items)

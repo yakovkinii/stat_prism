@@ -33,6 +33,7 @@ class Elements(ItemInSidePanelWithAutoConfigHolder):
     )
     scale_name = IISPWACLongTextEdit(label_text="Scale name (optional):")
     mcdonald_omega = IISPWACCheckBox(label_text="McDonald's ω", default_state=True)
+    item_deleted_table = IISPWACCheckBox(label_text="'If item removed' table", default_state=False)
     verbal_indicators = IISPWACCheckBox(label_text="Verbal indicators in tables", default_state=False)
     number_columns = IISPWACCheckBox(label_text="Number items in tables", default_state=False)
 

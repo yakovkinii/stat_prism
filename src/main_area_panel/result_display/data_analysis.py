@@ -209,7 +209,7 @@ class DataAnalysisResultDisplay(BaseResultDisplay):
                 l.setSpacing(5),
                 # Inset the table elements from the right so the strip beside them belongs to
                 # the parent study card (clicking there selects the study, not the table).
-                l.setContentsMargins(0, 0, 40, 0),
+                l.setContentsMargins(0, 0, 20, 0),
                 w.clicked.connect(lambda: self.activate_result(self.result_id, None)),
             ],
         )

@@ -119,6 +119,8 @@ class MainWindowClass(QtWidgets.QMainWindow):
         QShortcut(QKeySequence.StandardKey.Save, self, activated=lambda: home.save_handler())
         QShortcut(QKeySequence.StandardKey.SaveAs, self, activated=lambda: home.save_as_handler())
         QShortcut(QKeySequence.StandardKey.Open, self, activated=lambda: home_initial.open_handler())
+        # Ctrl+R: recalculate every study (same as File ▸ Recalculate All).
+        QShortcut(QKeySequence("Ctrl+R"), self, activated=lambda: self.main_area_panel.recompute_all())
 
     @log_method_noarg
     def activate_main_area_display(self):
