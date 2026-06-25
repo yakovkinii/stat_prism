@@ -113,35 +113,7 @@ def _apply_jamovi_labels(values: list, column_name: str, xdata: dict) -> list:
     return [None if pd.isna(value) else mapping.get(value, mapping.get(str(value), value)) for value in values]
 
 
-def _jamovi_column_type(field: dict):
-    measure_type = field.get("measureType")
-    if measure_type == "ID":
-        return ColumnType.ID
-    if measure_type == "Nominal":
-        return ColumnType.NOMINAL
-    if measure_type == "Ordinal":
-        return ColumnType.ORDINAL
-    if measure_type == "Continuous":
-        return ColumnType.NUMERIC
-    return None
-
-
-def _jamovi_order(column_name: str, xdata: dict) -> dict:
-    mapping = _jamovi_label_map(column_name, xdata)
-    if not mapping:
-        return {}
-    ordered_values = []
-    labels = xdata.get(column_name, {}).get("labels", [])
-    for label in labels:
-        if not isinstance(label, list) or len(label) < 2:
-            continue
-        display_label = label[1]
-        if display_label not in ordered_values:
-            ordered_values.append(display_label)
-    return {value: index for index, value in enumerate(ordered_values, start=1)}
-
-
-def _read_jamovi_omv(file_path: str):
+def _read_jamovi_omv(file_path: str) -> pd.DataFrame:
     """Read the tabular data from a jamovi .omv archive.
 
     jamovi stores the table as column metadata plus binary column vectors. This handles the
@@ -164,7 +136,6 @@ def _read_jamovi_omv(file_path: str):
 
     offset = 0
     columns = {}
-    column_metadata = {}
     for field in fields:
         column_name = field["name"]
         column_type = field.get("type")
@@ -192,16 +163,8 @@ def _read_jamovi_omv(file_path: str):
             raise ValueError(f"Unsupported jamovi column type: {column_type}")
 
         columns[column_name] = _apply_jamovi_labels(values, column_name, xdata)
-        metadata = {}
-        stat_prism_type = _jamovi_column_type(field)
-        if stat_prism_type is not None:
-            metadata["column_type"] = stat_prism_type
-        if stat_prism_type == ColumnType.ORDINAL:
-            metadata["order"] = _jamovi_order(column_name, xdata)
-        if metadata:
-            column_metadata[column_name] = metadata
 
-    return pd.DataFrame(columns), column_metadata
+    return pd.DataFrame(columns)
 
 
 class RawData(BaseModulePanel):
@@ -227,17 +190,6 @@ class RawData(BaseModulePanel):
     def _build_data(self, config: RawDataStudyConfig) -> Data:
         data = Data.initialize_from_dataframe(config.dataframe.copy())
         if data.n_columns() > 0:
-            for column in data.columns:
-                metadata = (config.column_metadata or {}).get(column.column_name, {})
-                column_type = metadata.get("column_type")
-                if column_type is not None:
-                    column.column_type = column_type
-                    column.is_numeric = column_type == ColumnType.NUMERIC
-                if column.column_type == ColumnType.ORDINAL:
-                    column.order = metadata.get("order") or {}
-                    column.automatically_update_order()
-                elif column.column_type not in (ColumnType.NOMINAL, ColumnType.ORDINAL):
-                    column.order = {}
             # Apply colour tags read from the source sheet's coloured header cells.
             for name, color in (config.header_colors or {}).items():
                 if name in data.column_names():
@@ -259,7 +211,7 @@ class RawData(BaseModulePanel):
         """Read fill colours of the header row (row 1) of an .xlsx sheet, keyed by header text.
         Handles both literal RGB fills and theme-palette fills (the standard Excel colour grid,
         resolved to RGB via the workbook theme + tint). Indexed/auto colours are skipped."""
-        if not file_path.lower().endswith(".xlsx"):
+        if not file_path.endswith(".xlsx"):
             return {}
         try:
             workbook = openpyxl.load_workbook(file_path)
@@ -297,7 +249,7 @@ class RawData(BaseModulePanel):
         """For a multi-sheet .xlsx, ask which sheet to load. Returns the chosen sheet name,
         0 (first/only sheet, no prompt) for single-sheet or non-Excel files, or False if the
         user cancelled the picker."""
-        if not file_path.lower().endswith(".xlsx"):
+        if not file_path.endswith(".xlsx"):
             return 0
         sheets = pd.ExcelFile(file_path).sheet_names
         if len(sheets) <= 1:
@@ -318,14 +270,12 @@ class RawData(BaseModulePanel):
         def main(update):
             logging.info(f"Opening {file_path}")
             update(10)
-            column_metadata = {}
-            extension = Path(file_path).suffix.lower()
-            if extension == ".csv":
+            if file_path.endswith(".csv"):
                 dataframe = pd.read_csv(file_path)
-            elif extension == ".xlsx":
+            elif file_path.endswith(".xlsx"):
                 dataframe = pd.read_excel(file_path, sheet_name=sheet_name)
-            elif extension == ".omv":
-                dataframe, column_metadata = _read_jamovi_omv(file_path)
+            elif file_path.endswith(".omv"):
+                dataframe = _read_jamovi_omv(file_path)
             else:
                 raise ValueError(f"Unsupported file format: {file_path}")
             update(80)
@@ -334,7 +284,6 @@ class RawData(BaseModulePanel):
                 path=Path(file_path).resolve(),
                 timestamp=pd.Timestamp.now().strftime("%Y-%m-%d %H:%M:%S"),
                 header_colors=self._read_header_colors(file_path, sheet_name),
-                column_metadata=column_metadata,
             )
             return config
 

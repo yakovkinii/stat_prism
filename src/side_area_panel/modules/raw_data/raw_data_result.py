@@ -13,7 +13,6 @@ class RawDataStudyConfig:
         timestamp="",
         add_id=True,
         header_colors=None,
-        column_metadata=None,
     ):
         self.dataframe = dataframe
         self.path = path
@@ -21,9 +20,6 @@ class RawDataStudyConfig:
         self.add_id = add_id
         # {column_name: '#rrggbb'} read from the source sheet's coloured header cells.
         self.header_colors = header_colors or {}
-        # {column_name: {"column_type": ColumnType, "order": {value: index}}} read from
-        # source formats with richer metadata (currently jamovi .omv).
-        self.column_metadata = column_metadata or {}
 
 
 class RawDataResult(BaseResult):
