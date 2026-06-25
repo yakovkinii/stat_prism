@@ -116,7 +116,7 @@ def _apply_jamovi_labels(values: list, column_name: str, xdata: dict) -> list:
 def _jamovi_column_type(field: dict):
     measure_type = field.get("measureType")
     if measure_type == "ID":
-        return ColumnType.NOMINAL
+        return ColumnType.ID
     if measure_type == "Nominal":
         return ColumnType.NOMINAL
     if measure_type == "Ordinal":
