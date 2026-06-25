@@ -289,7 +289,7 @@ def process_non_normal_anova(
                     if posthoc_results.iloc[i, j] < 0.05:
                         significant.append((i, j))
             post_hoc_table.add_single_row_apa(Row(row))
-        post_hoc_table.add_text(
+        verbal_indicators and post_hoc_table.add_text(
             t(
                 "ttest.posthoc_sentence",
                 name=t("ttest.posthoc.dunn"),
@@ -437,7 +437,7 @@ def process_non_homogeneous_anova(df: pd.DataFrame, columns, grouping_column, ef
                         significant.append((i, j))
             post_hoc_table.add_single_row_apa(Row(row))
 
-        post_hoc_table.add_text(
+        verbal_indicators and post_hoc_table.add_text(
             t(
                 "ttest.posthoc_sentence",
                 name=t("ttest.posthoc.tamhane"),
@@ -591,7 +591,7 @@ def process_homogeneous_anova(df: pd.DataFrame, columns, grouping_column, effect
                     if posthoc_results.iloc[i, j] < 0.05:
                         significant.append((i, j))
             posthoc_table.add_single_row_apa(Row(row))
-        posthoc_table.add_text(
+        verbal_indicators and posthoc_table.add_text(
             t(
                 "ttest.posthoc_sentence",
                 name=t("ttest.posthoc.tukey"),

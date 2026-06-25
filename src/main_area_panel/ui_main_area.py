@@ -92,6 +92,10 @@ class MainAreaClass:
         self.focused_result_id = None
         self.focused_result_element_id = None
         self._cascading = False
+        # When True (default), a data-processing change recomputes every dependent study
+        # immediately. When False, dependents are only flagged stale (Refresh turns an
+        # alarm colour) until the user recalculates. Toggled from Settings ▸ Auto-recalculate.
+        self.auto_recalculate = True
 
         self.raw_data_objects = {}
         self.data_processing_objects = {}
@@ -129,17 +133,33 @@ class MainAreaClass:
         study. Analysis edits do not propagate (they are leaves)."""
         if self._cascading or source_result_id not in DATA_MANAGER.data_chain:
             return
+        if not self.auto_recalculate:
+            # Manual mode: don't recompute, just flag the dependents stale.
+            self._flag_dependents_stale(source_result_id)
+            return
         self._cascading = True
         try:
-            chain = list(DATA_MANAGER.data_chain)
-            start = chain.index(source_result_id) + 1
-            for result_id in chain[start:]:
-                if result_id in self.data_processing_objects:
-                    self._recompute_result(result_id)
-            for result_id in list(self.data_analysis_objects):
+            for result_id in self._dependent_ids(source_result_id):
                 self._recompute_result(result_id)
         finally:
             self._cascading = False
+
+    def _dependent_ids(self, source_result_id):
+        """Downstream data-processing studies (in chain order) + every analysis study."""
+        chain = list(DATA_MANAGER.data_chain)
+        start = chain.index(source_result_id) + 1
+        ids = [rid for rid in chain[start:] if rid in self.data_processing_objects]
+        ids += list(self.data_analysis_objects)
+        return ids
+
+    def _flag_dependents_stale(self, source_result_id):
+        """Mark every dependent study as needing recalculation and turn its Refresh button
+        an alarm colour, without recomputing (manual / auto-recalculate-off mode)."""
+        for result_id in self._dependent_ids(source_result_id):
+            RESULTS[result_id].needs_update = True
+            obj = self.data_processing_objects.get(result_id) or self.data_analysis_objects.get(result_id)
+            if obj is not None and hasattr(obj, "set_stale"):
+                obj.set_stale(True)
 
     def recompute_all(self):
         """Recompute every data-processing study (chain order) and every analysis."""
@@ -154,6 +174,17 @@ class MainAreaClass:
                 self._recompute_result(result_id)
         finally:
             self._cascading = False
+        # Everything is now up to date -- clear any stale (alarm) flags.
+        for obj in list(self.data_processing_objects.values()) + list(self.data_analysis_objects.values()):
+            if hasattr(obj, "set_stale"):
+                obj.set_stale(False)
+
+    def collapse_all(self):
+        """Collapse every study card (raw data, data-processing, analysis) to its header."""
+        for objects in (self.raw_data_objects, self.data_processing_objects, self.data_analysis_objects):
+            for obj in objects.values():
+                if hasattr(obj, "set_collapsed"):
+                    obj.set_collapsed(True)
 
     def add_raw_data(self, result_id):
         raw_data_object = RawDataResultDisplay(

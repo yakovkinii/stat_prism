@@ -84,7 +84,7 @@ def process_homogeneity_check(
                 )
             )
 
-    table.add_text(
+    verbal_indicators and table.add_text(
         describe_single_test_multiple_variables(
             test_name=t("ttest.test.levene"),
             test_check=t("ttest.check.homogeneity"),

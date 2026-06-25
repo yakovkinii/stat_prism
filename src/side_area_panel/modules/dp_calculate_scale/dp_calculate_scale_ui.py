@@ -20,7 +20,7 @@ class Elements(ItemInSidePanelWithAutoConfigHolder):
             Field(
                 name="Questions:",
                 column_type=ColumnType.ORDINAL,
-                reasonable_number_of_columns=10,
+                reasonable_number_of_columns=8,
                 allow_only_single_column=False,
                 minimum_columns=1,
             ),

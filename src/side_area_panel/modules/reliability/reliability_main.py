@@ -215,10 +215,11 @@ def recalculate_reliability_study(elements, result: ReliabilityResult, update) -
             )
         )
 
-    if improves:
-        item_table.add_text(t("reliability.report.item_improve", items=smart_comma_join(improves)))
-    else:
-        item_table.add_text(t("reliability.report.item_none"))
+    if show_verbal:
+        if improves:
+            item_table.add_text(t("reliability.report.item_improve", items=smart_comma_join(improves)))
+        else:
+            item_table.add_text(t("reliability.report.item_none"))
     item_table.table_note = numbering.append_to_note(item_table.table_note or "")
     result.update_and_add_element(item_table, "reliability item_deleted")
 

@@ -1,7 +1,9 @@
 #  Copyright (c) 2023 StatPrism Team. All rights reserved.
+import qtawesome as qta
 from PySide6 import QtCore
+from PySide6.QtCore import QSize
 from PySide6.QtGui import Qt
-from PySide6.QtWidgets import QHBoxLayout, QVBoxLayout
+from PySide6.QtWidgets import QHBoxLayout, QSizePolicy, QVBoxLayout
 
 from src.common.decorators import log_method
 from src.common.ui_constructor import create_simple_tool_button_qta, create_tool_button_qta
@@ -55,7 +57,7 @@ class RawDataResultDisplay(BaseResultDisplay):
         self.popup_button = widget_in_layout(
             widget=create_tool_button_qta(
                 parent=self.body_widget,
-                icon_path="mdi.table-eye",
+                icon_path="mdi6.eye-outline",
                 icon_size=QtCore.QSize(50, 50),
             ),
             layout=self.body_layout,
@@ -87,7 +89,11 @@ class RawDataResultDisplay(BaseResultDisplay):
         self.label = widget_in_layout(
             widget=ResultLabel(parent=self.text_widget, label_text=label_text),
             layout=self.text_layout,
-            setup=lambda w, l: [w.clicked.connect(lambda: self.activate_result(self.result_id, None))],
+            setup=lambda w, l: [
+                w.clicked.connect(lambda: self.activate_result(self.result_id, None)),
+                w.setFont(Style.font_study_title),
+                set_stylesheet(w, css(color=Style.Color.TitleBrand)),
+            ],
         )
 
         self.info = widget_in_layout(
@@ -95,6 +101,19 @@ class RawDataResultDisplay(BaseResultDisplay):
             layout=self.text_layout,
             setup=lambda w, l: [
                 w.setWordWrap(True),
+                set_stylesheet(w, css(font_size=Style.FontSize.smallest)),
+                w.clicked.connect(lambda: self.activate_result(self.result_id, None)),
+            ],
+        )
+
+        # Collapsed view: a one-line fine-print to the right of the title (clipped, no wrap).
+        self.info_inline = widget_in_layout(
+            widget=QLabelClickable(self.body_widget),
+            layout=self.body_layout,
+            setup=lambda w, l: [
+                w.setWordWrap(False),
+                w.setSizePolicy(QSizePolicy.Policy.Ignored, QSizePolicy.Policy.Preferred),
+                set_stylesheet(w, css(color=Style.Color.SecondaryText, font_size=Style.FontSize.smallest)),
                 w.clicked.connect(lambda: self.activate_result(self.result_id, None)),
             ],
         )
@@ -111,6 +130,20 @@ class RawDataResultDisplay(BaseResultDisplay):
         )
         self.body_layout.addWidget(self.actions_widget, alignment=Qt.AlignmentFlag.AlignTop)
 
+        self.collapsed = True
+        self.collapse_button = widget_in_layout(
+            widget=create_simple_tool_button_qta(
+                parent=self.actions_widget,
+                icon_path="mdi6.chevron-down",
+                icon_size=QSize(20, 20),
+            ),
+            layout=self.actions_layout,
+            setup=lambda w, l: [
+                w.setToolTip("Collapse / expand"),
+                w.clicked.connect(self.toggle_collapsed),
+            ],
+        )
+
         self.export_button = widget_in_layout(
             widget=create_simple_tool_button_qta(
                 parent=self.actions_widget,
@@ -125,7 +158,26 @@ class RawDataResultDisplay(BaseResultDisplay):
         )
 
         self.refresh()
+        self.set_collapsed(True)
         self.remove_focus(None)
+
+    def toggle_collapsed(self):
+        self.set_collapsed(not self.collapsed)
+
+    def set_collapsed(self, collapsed: bool):
+        """Collapsed: title + one-line fine-print on a single short band. Expanded: the
+        full (wrapping) fine-print below the title and a larger View-Data button."""
+        self.collapsed = collapsed
+        self.info.setVisible(not collapsed)
+        self.info_inline.setVisible(collapsed)
+        self.body_layout.setStretchFactor(self.text_widget, 0 if collapsed else 1)
+        self.body_layout.setStretchFactor(self.info_inline, 1 if collapsed else 0)
+        # Keep the View-Data button the same width when collapsed, only shorter.
+        self.popup_button.setFixedSize(QSize(56, 30) if collapsed else QSize(56, 56))
+        self.popup_button.setIconSize(QSize(28, 28) if collapsed else QSize(50, 50))
+        self.collapse_button.setIcon(
+            qta.icon("mdi6.chevron-down" if collapsed else "mdi6.chevron-up", color="#888")
+        )
 
     def refresh(self):
         result = RESULTS[self.result_id]
@@ -137,6 +189,10 @@ class RawDataResultDisplay(BaseResultDisplay):
             f"File: {config.path} \n"
             f"Time: {config.timestamp} \n"
             f"{result.data.n_rows()} rows × {result.data.n_columns()} columns"
+        )
+        self.info_inline.setText(
+            f"File: {config.path} | Time: {config.timestamp} | "
+            f"{result.data.n_rows()} × {result.data.n_columns()} columns"
         )
 
     @log_method

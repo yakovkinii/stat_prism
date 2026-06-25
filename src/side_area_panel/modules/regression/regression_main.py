@@ -124,7 +124,7 @@ def _add_vif_table(result, x, verbal):
         if verbal:
             cells.append(Cell(t(f"regression.vif.{_vif_key(vif)}"), center=True))
         vif_table.add_single_row_apa(Row(cells))
-    vif_table.add_text(
+    verbal and vif_table.add_text(
         t("regression.report.vif_high", items=smart_comma_join(high))
         if high
         else t("regression.report.vif_ok")
@@ -181,18 +181,19 @@ def _add_influence_table(result, model, verbal):
         )
 
     dw = float(durbin_watson(model.resid))
-    if flagged:
-        table.add_text(
-            t(
-                "regression.report.influence_some",
-                n=len(flagged),
-                cooks=format_statistic_apa(cooks_cut),
-                leverage=format_r_apa(leverage_cut),
+    if verbal:
+        if flagged:
+            table.add_text(
+                t(
+                    "regression.report.influence_some",
+                    n=len(flagged),
+                    cooks=format_statistic_apa(cooks_cut),
+                    leverage=format_r_apa(leverage_cut),
+                )
             )
-        )
-    else:
-        table.add_text(t("regression.report.influence_none"))
-    table.add_text(t("regression.report.durbin_watson", dw=format_statistic_apa(dw)))
+        else:
+            table.add_text(t("regression.report.influence_none"))
+        table.add_text(t("regression.report.durbin_watson", dw=format_statistic_apa(dw)))
     result.update_and_add_element(table, "regression influence")
 
 
@@ -397,7 +398,7 @@ def recalculate_regression_study(elements, result: RegressionResult, update) -> 
         caption=t("regression.caption.coefficients"),
         intercept_label=t("regression.row.intercept"),
     )
-    coefficients_table.add_text(_coefficient_prose(model, dependent_column))
+    verbal and coefficients_table.add_text(_coefficient_prose(model, dependent_column))
     result.update_and_add_element(coefficients_table, "regression coefficients")
     update(65)
 
@@ -451,7 +452,7 @@ def recalculate_regression_study(elements, result: RegressionResult, update) -> 
         )
         if indirect_items:
             med_text += t("regression.report.med_indirect", items=smart_comma_join(indirect_items))
-        path_table.add_text(med_text)
+        verbal and path_table.add_text(med_text)
         result.update_and_add_element(path_table, "regression paths")
 
     # ----- Diagnostics (VIF + residual plots) -----
@@ -677,7 +678,7 @@ def _run_logistic(result, df, dependent_column, independent_columns, moderator_c
             cells.append(Cell(significance_verbal(p), center=True))
         coefficients_table.add_single_row_apa(Row(cells))
 
-    coefficients_table.add_text(_logistic_coefficient_prose(model, dependent_column, positive_label))
+    verbal and coefficients_table.add_text(_logistic_coefficient_prose(model, dependent_column, positive_label))
     result.update_and_add_element(coefficients_table, "regression coefficients")
     update(70)
 

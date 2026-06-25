@@ -3,6 +3,7 @@
 
 from typing import TYPE_CHECKING
 
+import qtawesome as qta
 from PySide6 import QtCore
 
 from src.common.constant import SettingsPanelSize
@@ -25,6 +26,11 @@ class ResultItemSettingsV2(BasePanel):
         }
         self.setup(stretch=False, label="Settings")
 
+        # The Back button here goes *up* to the parent study (not home), so give it an
+        # "up to parent" icon rather than the generic back/close arrow.
+        self._cancel_button.setIcon(qta.icon("mdi6.arrow-up-left"))
+        self._cancel_button.setToolTip("Back to study")
+
         # "Reset to defaults" lives in the navigation bar; only shown for elements that
         # support it (plots). Inserted before the stretch so it sits next to back/ok.
         self._reset_button = create_tool_button_qta(
@@ -45,6 +51,12 @@ class ResultItemSettingsV2(BasePanel):
         self.result_element: HTMLTableV2 = RESULTS[result_id].result_elements[element_id]
         self._reset_button.setVisible(hasattr(self.result_element, "reset_to_defaults"))
 
+        # Breadcrumb title: a short study name + the element kind, e.g. "Correlation ▸ Plot".
+        study_title = str(RESULTS[result_id].title or "")
+        short_title = study_title if len(study_title) <= 15 else study_title[:15] + "…"
+        kind = "Table" if isinstance(self.result_element, HTMLTableV2) else "Plot"
+        self._label.setText(f"{short_title} ▸ {kind}")
+
         self.elements["tab"].clear_elements_soft()
 
         self.settings = self.result_element.display_settings
@@ -64,6 +76,11 @@ class ResultItemSettingsV2(BasePanel):
         # Re-render the plot, then rebuild the settings widgets so they show defaults.
         self.root_class.main_area_panel.refresh_result(self.result_id, self.element_id)
         self.configure(self.result_id, self.element_id)
+
+    @log_method
+    def back_button_pressed(self):
+        # Go up to the parent study (focus it and show its settings panel) rather than home.
+        self.root_class.main_area_panel.activate_result(self.result_id, None)
 
     @log_method
     def handler(self, message: Message):

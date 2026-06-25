@@ -166,4 +166,14 @@ class ThemeManager:
         self._theme = theme
 
 
-THEME = ThemeManager()
+def _initial_plot_theme() -> Themes:
+    """Start with the plot theme saved in statprism.ini (falls back to Default)."""
+    from src.common.ui_theme import read_plot_theme
+
+    try:
+        return Themes(read_plot_theme())
+    except Exception:
+        return Themes.DEFAULT
+
+
+THEME = ThemeManager(_initial_plot_theme())

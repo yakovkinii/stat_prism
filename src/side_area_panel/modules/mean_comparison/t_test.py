@@ -458,7 +458,7 @@ def process_homogeneous_t_test(df: pd.DataFrame, columns, grouping_column, effec
             no_property=t("ttest.prop.not_sig_diff"),
         )
     )
-    if ci_items:
+    if ci_items and verbal_indicators:
         table.add_text(t("ttest.ci_sentence", items=smart_comma_join(ci_items)))
     table.table_note = numbering.append_to_note(table.table_note or "")
     return table
@@ -576,7 +576,7 @@ def process_non_homogeneous_t_test(df: pd.DataFrame, columns, grouping_column, e
             no_property=t("ttest.prop.not_sig_diff"),
         )
     )
-    if ci_items:
+    if ci_items and verbal_indicators:
         table.add_text(t("ttest.ci_sentence", items=smart_comma_join(ci_items)))
     table.table_note = numbering.append_to_note(table.table_note or "")
     return table

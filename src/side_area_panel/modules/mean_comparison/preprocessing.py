@@ -57,4 +57,16 @@ def prepare_df_for_mean_comparison(
     else:
         raise ValueError(f"Unknown MissingValuesInGrouping option: {cfg.grouping_missing}")
 
+    # Group labels are only ever used as text (table headers, plot legends, prose). A numeric
+    # grouping column otherwise yields numpy floats that crash on `str + value` concatenation
+    # downstream. Render them as clean strings here (1.0 -> "1", 1.5 -> "1.5").
+    df[grouping_column] = df[grouping_column].map(_group_label)
+
     return df
+
+
+def _group_label(value) -> str:
+    """Stable text label for a group value: integers without a trailing ``.0``."""
+    if isinstance(value, float) and value.is_integer():
+        return str(int(value))
+    return str(value)

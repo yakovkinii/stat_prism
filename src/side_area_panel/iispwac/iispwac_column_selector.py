@@ -51,6 +51,9 @@ def _column_item(text, icon=None, color=None) -> QListWidgetItem:
         item.setIcon(icon)
     if isinstance(color, str) and color:
         item.setBackground(QtGui.QColor(color))
+        # The colour tags are light pastels, so the (dark-UI) light default text is
+        # unreadable on them -- use dark text, matching the data-viewer header.
+        item.setForeground(QtGui.QColor(Style.Color.TextOnLight.value))
     return item
 
 

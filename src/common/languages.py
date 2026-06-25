@@ -23,4 +23,14 @@ class Language:
         return self.language == Languages.UA
 
 
-LANGUAGE = Language()
+def _initial_language() -> Languages:
+    """Start in the language saved in statprism.ini (falls back to English)."""
+    from src.common.ui_theme import read_language
+
+    try:
+        return Languages(read_language())
+    except Exception:
+        return Languages.EN
+
+
+LANGUAGE = Language(_initial_language())

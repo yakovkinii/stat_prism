@@ -8,8 +8,8 @@ from src.side_area_panel.modules.common.result.html_result import Cell, HTMLTabl
 from src.side_area_panel.modules.common.utility import (
     format_p_apa_exact,
     format_r_apa,
-    get_stars,
     smart_comma_join,
+    value_with_stars,
 )
 from src.side_area_panel.modules.correlation.correlation_result import CorrelationType
 
@@ -62,35 +62,33 @@ def get_correlation_short_name(kind: CorrelationType) -> str:
         raise ValueError(f"Invalid correlation type: {kind}")
 
 
+def _r_cell(r_value, p_value) -> Cell:
+    """Single centered cell: r value with its significance stars appended (no extra column)."""
+    return Cell(value_with_stars(format_r_apa(r_value), p_value), center=True, no_wrap=True)
+
+
+def _slot_cell(text="") -> Cell:
+    """Centered cell for non-r values (p, df, CI, dashes, blanks)."""
+    return Cell(text, center=True, no_wrap=True)
+
+
 def get_table_compact(columns, correlation_matrix, p_matrix, kind: CorrelationType, numbering=None) -> HTMLTableV2:
     numbering = _numbering(numbering)
     table = HTMLTableV2(table_caption=_caption(kind, columns))
 
     # Add header
-    table.add_title_row_apa(
-        Row([Cell()] + [Cell(numbering.label(column), col_span=2, center=True) for column in columns])
-    )
+    table.add_title_row_apa(Row([Cell()] + [Cell(numbering.label(column), center=True) for column in columns]))
 
     # Add matrix
     for i_row, row in enumerate(columns):
         table_row = [Cell(numbering.label(row))]
         for i_column, column in enumerate(columns):
             if i_column < i_row:
-                table_row.append(
-                    Cell(
-                        format_r_apa(correlation_matrix.loc[row, column]),
-                        push_to_right=True,
-                        is_doubled=True,
-                        no_wrap=True,
-                    )
-                )
-                table_row.append(Cell(get_stars(p_matrix.loc[row, column]), push_to_left=True, is_doubled=True))
+                table_row.append(_r_cell(correlation_matrix.loc[row, column], p_matrix.loc[row, column]))
             elif i_column == i_row:
-                table_row.append(Cell(MDASH, push_to_right=True, is_doubled=True))
-                table_row.append(Cell(push_to_left=True, is_doubled=True))
+                table_row.append(_slot_cell(MDASH))
             else:
-                table_row.append(Cell(push_to_right=True, is_doubled=True))
-                table_row.append(Cell(push_to_left=True, is_doubled=True))
+                table_row.append(_slot_cell())
         table.add_single_row_apa(Row(table_row))
 
     table.table_note = numbering.append_to_note(t("correlation.table.significance_note"))
@@ -98,13 +96,9 @@ def get_table_compact(columns, correlation_matrix, p_matrix, kind: CorrelationTy
     return table
 
 
-def _ci_cell(ci_value):
-    """A doubled CI cell pair ('[lo, hi]' across both sub-columns), or blank when no CI."""
-    text = ci_value if isinstance(ci_value, str) else ""
-    return [
-        Cell(text, push_to_right=True, is_doubled=True, no_wrap=True),
-        Cell(push_to_left=True, is_doubled=True),
-    ]
+def _ci_cell(ci_value) -> Cell:
+    """A CI cell ('[lo, hi]'), or blank, carrying the alignment slot."""
+    return _slot_cell(ci_value if isinstance(ci_value, str) else "")
 
 
 def get_table_cross(
@@ -118,54 +112,42 @@ def get_table_cross(
     show_ci = ci_matrix is not None
 
     if compact:
-        table.add_title_row_apa(Row([Cell()] + [Cell(numbering.label(col), col_span=2, center=True) for col in cols]))
+        table.add_title_row_apa(Row([Cell()] + [Cell(numbering.label(col), center=True) for col in cols]))
         for row in rows:
             table_row = [Cell(numbering.label(row))]
             for col in cols:
-                table_row.append(
-                    Cell(format_r_apa(correlation_matrix.loc[row, col]), push_to_right=True, is_doubled=True, no_wrap=True)
-                )
-                table_row.append(Cell(get_stars(p_matrix.loc[row, col]), push_to_left=True, is_doubled=True))
+                table_row.append(_r_cell(correlation_matrix.loc[row, col], p_matrix.loc[row, col]))
             table.add_single_row_apa(Row(table_row))
         table.table_note = numbering.append_to_note(t("correlation.table.significance_note"))
         return table
 
     # Full: r / p (/ df) (/ CI) stacked per row.
     n_stack = 2 + (0 if hide_df_matrix else 1) + (1 if show_ci else 0)
-    table.add_title_row_apa(Row([Cell(col_span=2)] + [Cell(numbering.label(col), col_span=2, center=True) for col in cols]))
+    table.add_title_row_apa(Row([Cell(col_span=2)] + [Cell(numbering.label(col), center=True) for col in cols]))
     for row in rows:
         table_row_1 = [
             Cell(numbering.label(row), row_span=n_stack),
             Cell(get_correlation_short_name(kind), no_wrap=True),
         ]
         for col in cols:
-            table_row_1.append(
-                Cell(format_r_apa(correlation_matrix.loc[row, col]), push_to_right=True, is_doubled=True, no_wrap=True)
-            )
-            table_row_1.append(Cell(get_stars(p_matrix.loc[row, col]), push_to_left=True, is_doubled=True))
+            table_row_1.append(_r_cell(correlation_matrix.loc[row, col], p_matrix.loc[row, col]))
 
         table_row_2 = [Cell(t("common.p_value"), no_wrap=True)]
         for col in cols:
-            table_row_2.append(
-                Cell(format_p_apa_exact(p_matrix.loc[row, col]), push_to_right=True, is_doubled=True, no_wrap=True)
-            )
-            table_row_2.append(Cell(push_to_left=True, is_doubled=True))
+            table_row_2.append(_slot_cell(format_p_apa_exact(p_matrix.loc[row, col])))
 
         stacked = [Row(table_row_1), Row(table_row_2)]
 
         if not hide_df_matrix:
             table_row_3 = [Cell("df", no_wrap=True)]
             for col in cols:
-                table_row_3.append(
-                    Cell(str(df_matrix.loc[row, col]), push_to_right=True, is_doubled=True, no_wrap=True)
-                )
-                table_row_3.append(Cell(push_to_left=True, is_doubled=True))
+                table_row_3.append(_slot_cell(str(df_matrix.loc[row, col])))
             stacked.append(Row(table_row_3))
 
         if show_ci:
             table_row_ci = [Cell(t("common.ci_95"), no_wrap=True)]
             for col in cols:
-                table_row_ci += _ci_cell(ci_matrix.loc[row, col])
+                table_row_ci.append(_ci_cell(ci_matrix.loc[row, col]))
             stacked.append(Row(table_row_ci))
 
         table.add_multirow_apa(stacked)
@@ -183,7 +165,7 @@ def get_table_full(columns, correlation_matrix, p_matrix, df_matrix, kind: Corre
     n_stack = 2 + (0 if hide_df_matrix else 1) + (1 if show_ci else 0)
 
     # Add header
-    table.add_title_row_apa(Row([Cell(col_span=2)] + [Cell(numbering.label(column), col_span=2, center=True) for column in columns]))
+    table.add_title_row_apa(Row([Cell(col_span=2)] + [Cell(numbering.label(column), center=True) for column in columns]))
 
     # Add matrix
     for i_row, row in enumerate(columns):
@@ -193,35 +175,20 @@ def get_table_full(columns, correlation_matrix, p_matrix, df_matrix, kind: Corre
         ]
         for i_column, column in enumerate(columns):
             if i_column < i_row:
-                table_row_1.append(
-                    Cell(
-                        format_r_apa(correlation_matrix.loc[row, column]),
-                        push_to_right=True,
-                        is_doubled=True,
-                        no_wrap=True,
-                    )
-                )
-                table_row_1.append(Cell(get_stars(p_matrix.loc[row, column]), push_to_left=True, is_doubled=True))
+                table_row_1.append(_r_cell(correlation_matrix.loc[row, column], p_matrix.loc[row, column]))
             elif i_column == i_row:
-                table_row_1.append(Cell(MDASH, push_to_right=True, is_doubled=True))
-                table_row_1.append(Cell(push_to_left=True, is_doubled=True))
+                table_row_1.append(_slot_cell(MDASH))
             else:
-                table_row_1.append(Cell(push_to_right=True, is_doubled=True))
-                table_row_1.append(Cell(push_to_left=True, is_doubled=True))
+                table_row_1.append(_slot_cell())
 
         table_row_2 = [Cell(t("common.p_value"), no_wrap=True)]
         for i_column, column in enumerate(columns):
             if i_column < i_row:
-                table_row_2.append(
-                    Cell(format_p_apa_exact(p_matrix.loc[row, column]), push_to_right=True, is_doubled=True, no_wrap=True)
-                )
-                table_row_2.append(Cell(push_to_left=True, is_doubled=True))
+                table_row_2.append(_slot_cell(format_p_apa_exact(p_matrix.loc[row, column])))
             elif i_column == i_row:
-                table_row_2.append(Cell(MDASH, push_to_right=True, is_doubled=True))
-                table_row_2.append(Cell(push_to_left=True, is_doubled=True))
+                table_row_2.append(_slot_cell(MDASH))
             else:
-                table_row_2.append(Cell(push_to_right=True, is_doubled=True))
-                table_row_2.append(Cell(push_to_left=True, is_doubled=True))
+                table_row_2.append(_slot_cell())
 
         stacked = [Row(table_row_1), Row(table_row_2)]
 
@@ -229,29 +196,22 @@ def get_table_full(columns, correlation_matrix, p_matrix, df_matrix, kind: Corre
             table_row_3 = [Cell("df", no_wrap=True)]
             for i_column, column in enumerate(columns):
                 if i_column < i_row:
-                    table_row_3.append(
-                        Cell(str(df_matrix.loc[row, column]), push_to_right=True, is_doubled=True, no_wrap=True)
-                    )
-                    table_row_3.append(Cell(push_to_left=True, is_doubled=True))
+                    table_row_3.append(_slot_cell(str(df_matrix.loc[row, column])))
                 elif i_column == i_row:
-                    table_row_3.append(Cell(MDASH, push_to_right=True, is_doubled=True))
-                    table_row_3.append(Cell(push_to_left=True, is_doubled=True))
+                    table_row_3.append(_slot_cell(MDASH))
                 else:
-                    table_row_3.append(Cell(push_to_right=True, is_doubled=True))
-                    table_row_3.append(Cell(push_to_left=True, is_doubled=True))
+                    table_row_3.append(_slot_cell())
             stacked.append(Row(table_row_3))
 
         if show_ci:
             table_row_ci = [Cell(t("common.ci_95"), no_wrap=True)]
             for i_column, column in enumerate(columns):
                 if i_column < i_row:
-                    table_row_ci += _ci_cell(ci_matrix.loc[row, column])
+                    table_row_ci.append(_ci_cell(ci_matrix.loc[row, column]))
                 elif i_column == i_row:
-                    table_row_ci.append(Cell(MDASH, push_to_right=True, is_doubled=True))
-                    table_row_ci.append(Cell(push_to_left=True, is_doubled=True))
+                    table_row_ci.append(_slot_cell(MDASH))
                 else:
-                    table_row_ci.append(Cell(push_to_right=True, is_doubled=True))
-                    table_row_ci.append(Cell(push_to_left=True, is_doubled=True))
+                    table_row_ci.append(_slot_cell())
             stacked.append(Row(table_row_ci))
 
         table.add_multirow_apa(stacked)

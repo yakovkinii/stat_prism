@@ -74,7 +74,7 @@ def process_normality_check(
             non_normal_columns.append(col)
             non_normal_columns_classes.append(TestResult(variable=col, letter=[], statistic=[]))
 
-    table.add_text(
+    verbal_indicators and table.add_text(
         describe_single_test_multiple_variables(
             test_name=t("ttest.test.shapiro"),
             test_check=t("ttest.check.normality"),

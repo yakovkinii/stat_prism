@@ -143,7 +143,7 @@ def recalculate_cluster_analysis_study(elements, result: ClusterAnalysisResult, 
             sil=format_r_apa(silhouette),
             label=t(f"cluster.sil.{_silhouette_key(silhouette)}"),
         )
-    centroid_table.add_text(report)
+    verbal and centroid_table.add_text(report)
     result.update_and_add_element(centroid_table, "cluster centroids")
 
     # ----- Quality table -----

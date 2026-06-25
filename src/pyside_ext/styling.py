@@ -13,6 +13,11 @@ _font_regular.setPointSize(12)
 _font_result_label = QtGui.QFont("Segoe UI")
 _font_result_label.setPointSize(16)
 
+# Smaller, bold study title shown in the main area (brand-coloured).
+_font_study_title = QtGui.QFont("Segoe UI")
+_font_study_title.setPointSize(12)
+_font_study_title.setBold(True)
+
 _font_result_element_label = QtGui.QFont("Segoe UI")
 _font_result_element_label.setPointSize(10)
 
@@ -37,6 +42,7 @@ class Style:
     font_regular = _font_regular
     font_result_label = _font_result_label
     font_result_element_label = _font_result_element_label
+    font_study_title = _font_study_title
 
     class Color(Enum):
         def __str__(self):
@@ -67,6 +73,7 @@ class Style:
         TypeNominal = Scheme.type_nominal
         TypeOrdinal = Scheme.type_ordinal
         TypeId = Scheme.type_id
+        TitleBrand = Scheme.title_brand
 
     class FontFamily(Enum):
         def __str__(self):

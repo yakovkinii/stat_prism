@@ -56,34 +56,26 @@ class BaseResult:
         return HTML.div(text)
 
     def set_placeholder(self, additional_info_html: str = None):
+        # Only the short hint is shown on the empty screen; the full description &
+        # methodology fine-print live behind the info (i) button so they don't clutter
+        # the default view.
         if additional_info_html is None:
             additional_info_html = t("common.configure_hint")
         self.result_elements = [
             HTMLTableV2(
-                texts=[
-                    (
-                        self.format_additional_info_html(additional_info_html)
-                        + self.format_description_html(self.description)
-                    )
-                ]
+                texts=[HTML.div(HTML.bold(additional_info_html), font_size=Style.FontSize.smaller)]
             )
         ]
 
     def set_error(self, message: str):
-        """Show an error / validation message highlighted distinctly from the
-        description (muted dark red, not bright), followed by an <hr> and the
-        normal help description -- same layout as the configure placeholder."""
-        error_html = (
-            HTML.div(
-                HTML.bold(message),
-                color=Style.Color.Danger.value,
-                font_size=Style.FontSize.smaller,
-            )
-            + HTML.hr()
+        """Show only the error / validation message (muted dark red). The description &
+        methodology stay behind the info (i) button, same as the configure placeholder."""
+        error_html = HTML.div(
+            HTML.bold(message),
+            color=Style.Color.Danger.value,
+            font_size=Style.FontSize.smaller,
         )
-        self.result_elements = [
-            HTMLTableV2(texts=[error_html + self.format_description_html(self.description)])
-        ]
+        self.result_elements = [HTMLTableV2(texts=[error_html])]
 
     def configure(self, *args, **kwargs):
         pass

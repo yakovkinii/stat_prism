@@ -1153,7 +1153,10 @@ class PlotV2(BaseResultElement):
         # 4) title as editable text, then the image below (so it can be edited after
         # pasting into Word etc.)
         title = self.plot_title.get_current_value()
-        title_html = f'<div class="double-spacing font"><b>{title}</b></div><br>\n' if title else ""
+        # Plot titles are temporarily not rendered (the setting is kept, so rendering can be
+        # re-enabled later by restoring the line below).
+        title_html = ""
+        # title_html = f'<div class="double-spacing font"><b>{title}</b></div><br>\n' if title else ""
         html = f"""
         {title_html}<img src="data:image/png;base64,{base64_png}"
              alt="Plot Image"

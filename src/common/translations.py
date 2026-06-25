@@ -65,16 +65,16 @@ TRANSLATIONS = {
     },
     # ----- Contingency -----
     "contingency.table_caption": {
-        "en": "Contingency Table between {col1} and {col2}",
-        "ua": "Таблиця сполученості між {col1} та {col2}",
+        "en": "Contingency Table",
+        "ua": "Таблиця сполученості",
     },
     "contingency.total": {
         "en": "Total",
         "ua": "Загалом",
     },
     "contingency.chi2_caption": {
-        "en": "Chi-square Test between {col1} and {col2}",
-        "ua": "Хі-квадрат тест між {col1} та {col2}",
+        "en": "Chi-square Test",
+        "ua": "Хі-квадрат тест",
     },
     "contingency.chi2_note": {
         "en": (
@@ -153,16 +153,16 @@ TRANSLATIONS = {
         "ua": "{name} = {v}, що свідчить про {interpretation} між {col1} та {col2}.",
     },
     "contingency.plot_title": {
-        "en": "Distribution of {col1} by {col2}",
-        "ua": "Розподіл «{col1}» за «{col2}»",
+        "en": "Distribution",
+        "ua": "Розподіл",
     },
     "contingency.plot_y_axis": {
         "en": "{col} (%)",
         "ua": "{col} (%)",
     },
     "contingency.fisher_caption": {
-        "en": "Fisher's Exact Test between {col1} and {col2}",
-        "ua": "Точний тест Фішера між {col1} та {col2}",
+        "en": "Fisher's Exact Test",
+        "ua": "Точний тест Фішера",
     },
     "contingency.fisher_text": {
         "en": "Fisher's exact test: odds ratio = {odds}, {p}.",
@@ -849,8 +849,8 @@ TRANSLATIONS = {
         "ua": "Оцінені непрямі ефекти (a&times;b): {items}. ",
     },
     "regression.plot.title": {
-        "en": "Regression: {dv} vs {iv}",
-        "ua": "Регресія: «{dv}» від «{iv}»",
+        "en": "Regression",
+        "ua": "Регресія",
     },
     "regression.plot.data": {"en": "Data points", "ua": "Спостереження"},
     "regression.plot.line": {"en": "Regression line", "ua": "Лінія регресії"},
@@ -1316,19 +1316,19 @@ TRANSLATIONS = {
         "ua": "Графік: {a} проти {b}",
     },
     "correlation.plot.scatter_title": {
-        "en": "Correlation between {a} and {b}",
-        "ua": "Кореляція між {a} та {b}",
+        "en": "Correlation",
+        "ua": "Кореляція",
     },
     "correlation.plot.points": {"en": "Data points", "ua": "Спостереження"},
     "correlation.plot.regression_line": {"en": "Linear regression", "ua": "Лінійна регресія"},
     "correlation.plot.band": {"en": "Standard error", "ua": "Стандартна похибка"},
     "correlation.table.caption": {
-        "en": "{name} between {vars}.",
-        "ua": "{name} між {vars}.",
+        "en": "{name}",
+        "ua": "{name}",
     },
     "correlation.table.cross_caption": {
-        "en": "{name} between {rows} (rows) and {cols} (columns).",
-        "ua": "{name} між {rows} (рядки) та {cols} (стовпці).",
+        "en": "{name}",
+        "ua": "{name}",
     },
     "correlation.table.significance_note": {
         "en": "* p &lt; .05; ** p &lt; .01; *** p &lt; .001",

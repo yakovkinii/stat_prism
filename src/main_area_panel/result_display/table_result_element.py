@@ -4,20 +4,14 @@ import logging
 import qtawesome as qta
 from PySide6 import QtCore
 from PySide6.QtCore import Qt
-from PySide6.QtWidgets import QHBoxLayout, QVBoxLayout
+from PySide6.QtWidgets import QGridLayout
 
 from src.common.constant import BASE_STYLES
 from src.common.decorators import log_method
 from src.common.ui_constructor import create_simple_tool_button_qta
 from src.main_area_panel.result_display.base import BaseResultDisplay
-from src.main_area_panel.result_display.elements.result_element_label import (
-    ResultElementLabel,
-)
 from src.main_area_panel.result_display.elements.text_browser import TextBrowser
-from src.pyside_ext.elements.utility.layout_helpers import (
-    empty_widget,
-    widget_in_layout,
-)
+from src.pyside_ext.elements.utility.layout_helpers import empty_widget
 from src.pyside_ext.elements.utility.primitive_elements import QWidgetClickable
 from src.pyside_ext.markup import css
 from src.pyside_ext.styling import Style
@@ -35,64 +29,42 @@ class TableResultElementDisplay(BaseResultDisplay):
         self.widget, self.layout = empty_widget(
             widget_class=QWidgetClickable,
             parent=self.parent_widget,
-            inner_layout_class=QVBoxLayout,
+            inner_layout_class=QGridLayout,
             setup=lambda w, l: [
                 w.clicked.connect(lambda: self.activate_result(self.result_id, self.result_element_id)),
             ],
         )
-        self.layout.setContentsMargins(5, 5, 5, 0)
-        self.layout.setSpacing(5)
+        self.layout.setContentsMargins(5, 2, 5, 2)
+        self.layout.setSpacing(0)
 
-        self.header_widget, self.header_layout = empty_widget(
-            widget_class=QWidgetClickable,
+        self.text_browser = TextBrowser(self.widget)
+        self.text_browser.clicked.connect(lambda: self.activate_result(self.result_id, self.result_element_id))
+        self.text_browser.setMinimumWidth(500)
+        set_stylesheet(self.text_browser, css(border="none"))
+        self.layout.addWidget(self.text_browser, 0, 0)
+
+        # The copy button overlays the table's top-right corner (same grid cell) instead of
+        # sitting in a header row, so it adds no vertical gap above the caption (the title is
+        # rendered inside the table HTML).
+        self.copy_button = create_simple_tool_button_qta(
             parent=self.widget,
-            outer_layout=self.layout,
-            inner_layout_class=QHBoxLayout,
-            setup=lambda w, l: [
-                w.clicked.connect(lambda: self.activate_result(self.result_id, self.result_element_id)),
-                l.setSpacing(5),
-            ],
+            icon_path="fa.copy",
+            icon_size=QtCore.QSize(20, 20),
         )
+        self.copy_button.setToolTip("Copy result element to clipboard")
+        self.copy_button.clicked.connect(self.copy_table)
+        self.layout.addWidget(
+            self.copy_button, 0, 0, Qt.AlignmentFlag.AlignTop | Qt.AlignmentFlag.AlignRight
+        )
+        self.copy_button.raise_()
 
-        self.label = widget_in_layout(
-            widget=ResultElementLabel(parent=self.header_widget, label_text=""),
-            layout=self.header_layout,
-            setup=lambda w, l: [
-                w.clicked.connect(lambda: self.activate_result(self.result_id, self.result_element_id))
-            ],
-        )
-
-        self.copy_button = widget_in_layout(
-            widget=create_simple_tool_button_qta(
-                parent=self.widget,
-                icon_path="fa.copy",
-                icon_size=QtCore.QSize(20, 20),
-            ),
-            layout=self.header_layout,
-            alignment=Qt.AlignmentFlag.AlignTop,
-            setup=lambda w, l: [
-                w.setToolTip("Copy plot to clipboard"),
-                w.clicked.connect(self.copy_table),
-            ],
-        )
-
-        self.text_browser = widget_in_layout(
-            widget=TextBrowser(self.widget),
-            layout=self.layout,
-            setup=lambda w, l: [
-                w.clicked.connect(lambda: self.activate_result(self.result_id, self.result_element_id)),
-                w.setMinimumWidth(500),
-                set_stylesheet(w, css(border="none")),
-            ],
-        )
         self.refresh()
         self.remove_focus(self.result_element_id)
 
     def refresh(self):
         table: HTMLTableV2 = RESULTS[self.result_id].result_elements[self.result_element_id]
         self.text_browser.set_html(BASE_STYLES + table.get_html())
-        # Title is rendered inside the table HTML now, so no separate header label.
-        self.label.setText("")
+        # Title is rendered inside the table HTML now, so there is no separate header label.
 
     @log_method
     def activate_result(self, result_id, result_element_id):

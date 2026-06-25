@@ -38,6 +38,8 @@ LIGHT = {
     "accent_blue": "#aaaaff",
     "selection": "#cfe3ff",
     "danger": "#770000",
+    # Brand colour for study titles (legible dark gold on the light paper)
+    "title_brand": "#8a6d1f",
     # Misc
     "overlay": "rgba(0,11,22,0.4)",
     "table_rule": "black",
@@ -70,6 +72,8 @@ DARK = {
     "accent_blue": "#3a5a8c",
     "selection": "#3a3320",
     "danger": "#ff6b6b",
+    # Brand colour for study titles (banner gold)
+    "title_brand": "#eedd88",
     # Misc
     "overlay": "rgba(255,255,255,0.1)",
     "table_rule": "#888888",
@@ -123,3 +127,52 @@ def _read_theme_name() -> str:
 ACTIVE_THEME = _THEMES.get(_read_theme_name(), LIGHT)
 
 IS_DARK_THEME = ACTIVE_THEME is DARK
+
+
+def _writable_ini_path() -> Path:
+    """The existing config file, or the preferred location to create one."""
+    for path in _ini_candidates():
+        if path.is_file():
+            return path
+    return _ini_candidates()[0]
+
+
+def read_ui_value(key: str, fallback: str) -> str:
+    """Read ``[ui] <key>`` from ``statprism.ini`` (first existing candidate)."""
+    for path in _ini_candidates():
+        try:
+            if path.is_file():
+                parser = configparser.ConfigParser()
+                parser.read(path, encoding="utf-8")
+                return parser.get("ui", key, fallback=fallback).strip()
+        except Exception:
+            continue
+    return fallback
+
+
+def write_ui_value(key: str, value: str) -> None:
+    """Persist ``[ui] <key> = value`` to ``statprism.ini``, preserving the other keys.
+    (configparser does not preserve comments, which is acceptable here.)"""
+    path = _writable_ini_path()
+    parser = configparser.ConfigParser()
+    try:
+        if path.is_file():
+            parser.read(path, encoding="utf-8")
+    except Exception:
+        parser = configparser.ConfigParser()
+    if not parser.has_section("ui"):
+        parser.add_section("ui")
+    parser.set("ui", key, value)
+    try:
+        with path.open("w", encoding="utf-8") as handle:
+            parser.write(handle)
+    except Exception:
+        pass
+
+
+def read_language(fallback: str = "en") -> str:
+    return read_ui_value("language", fallback)
+
+
+def read_plot_theme(fallback: str = "Default") -> str:
+    return read_ui_value("plot_theme", fallback)

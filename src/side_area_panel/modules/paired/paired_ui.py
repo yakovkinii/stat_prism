@@ -23,7 +23,7 @@ class Elements(ItemInSidePanelWithAutoConfigHolder):
             Field(
                 name="Conditions:",
                 column_type=ColumnType.ORDINAL,
-                reasonable_number_of_columns=10,
+                reasonable_number_of_columns=8,
                 minimum_columns=2,
             ),
         ],

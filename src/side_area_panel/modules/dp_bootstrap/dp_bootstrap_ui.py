@@ -18,12 +18,12 @@ class Elements(ItemInSidePanelWithAutoConfigHolder):
             Field(
                 name="Columns to bootstrap:",
                 column_type=ColumnType.NOMINAL,
-                reasonable_number_of_columns=10,
+                reasonable_number_of_columns=8,
             ),
             Field(
                 name="Drivers (correlate with reference):",
                 column_type=ColumnType.NOMINAL,
-                reasonable_number_of_columns=10,
+                reasonable_number_of_columns=8,
             ),
             Field(
                 name="Reference (anchor):",

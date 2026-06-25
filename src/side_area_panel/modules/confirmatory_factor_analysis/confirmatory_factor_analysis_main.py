@@ -157,7 +157,7 @@ def recalculate_cfa_study(elements, result: CFAResult, update) -> CFAResult:
         if verbal:
             cells.append(Cell(t(f"cfa.fit.{interp_key}") if interp_key else "—", center=True))
         fit_table.add_single_row_apa(Row(cells))
-    fit_table.add_text(_fit_prose(fit, cfa_result.converged_))
+    verbal and fit_table.add_text(_fit_prose(fit, cfa_result.converged_))
     result.update_and_add_element(fit_table, "cfa fit")
 
     # ----- Standardized factor loadings table (with significance stars when verbal) -----

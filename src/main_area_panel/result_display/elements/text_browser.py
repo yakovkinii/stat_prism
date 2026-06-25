@@ -18,6 +18,10 @@ class TextBrowser(QTextBrowser):
         self.setFrameStyle(0)
         self.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         self.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        # Drop the document's built-in margin so the table/text sits flush inside the
+        # widget's own CSS padding (otherwise it adds an extra gap above and below the
+        # content that the image-based plot element does not have).
+        self.document().setDocumentMargin(0)
         set_stylesheet(
             self,
             css(
@@ -36,9 +40,11 @@ class TextBrowser(QTextBrowser):
         doc = self.document()
         doc.setTextWidth(self.viewport().width())
 
-        # Get margins and padding
+        # Small buffer so the last line / right edge is never clipped (and no scrollbar
+        # appears). This used to be 24px, which left a noticeable empty band below the
+        # content because this browser carries no CSS padding of its own.
         margins = self.contentsMargins()
-        padding = 24  # Matches our CSS padding
+        padding = 6
 
         # Calculate total required size
         width = doc.idealWidth() + margins.left() + margins.right() + padding

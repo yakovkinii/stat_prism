@@ -349,6 +349,7 @@ def _rm_anova(result, wide, conditions, cfg):
                 t("paired.caption.posthoc_param"),
                 t("paired.posthoc.pairwise_t"),
                 ColumnNumbering(list(conditions), enabled=bool(getattr(cfg, "number_columns", False))),
+                verbal_indicators=cfg.verbal_indicators,
             ),
             "paired posthoc",
         )
@@ -388,12 +389,13 @@ def _friedman(result, wide, conditions, cfg):
                 t("paired.caption.posthoc_nonparam"),
                 t("paired.posthoc.nemenyi"),
                 ColumnNumbering(list(conditions), enabled=bool(getattr(cfg, "number_columns", False))),
+                verbal_indicators=cfg.verbal_indicators,
             ),
             "paired posthoc",
         )
 
 
-def _posthoc_table(conditions, get_p, caption, test_name, numbering=None) -> HTMLTableV2:
+def _posthoc_table(conditions, get_p, caption, test_name, numbering=None, verbal_indicators=False) -> HTMLTableV2:
     """Lower-triangular matrix of pairwise p-values, plus a sentence listing the
     significant pairs (mirrors the t-test/ANOVA post-hoc tables)."""
     numbering = numbering if numbering is not None else ColumnNumbering([], False)
@@ -416,7 +418,7 @@ def _posthoc_table(conditions, get_p, caption, test_name, numbering=None) -> HTM
                     significant.append((i, j))
         table.add_single_row_apa(Row(row))
 
-    table.add_text(
+    verbal_indicators and table.add_text(
         t(
             "paired.posthoc_sentence",
             name=test_name,

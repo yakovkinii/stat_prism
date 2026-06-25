@@ -60,10 +60,30 @@ class DataAnalysisResultDisplay(BaseResultDisplay):
         self.label = widget_in_layout(
             widget=ResultLabel(parent=self.header_widget, label_text=label_text),
             layout=self.header_layout,
-            setup=lambda w, l: [w.clicked.connect(lambda: self.activate_result(self.result_id, None))],
+            setup=lambda w, l: [
+                w.clicked.connect(lambda: self.activate_result(self.result_id, None)),
+                # Study titles: smaller and brand-coloured (gold on dark, dark gold on light).
+                w.setFont(Style.font_study_title),
+                set_stylesheet(w, css(color=Style.Color.TitleBrand)),
+            ],
         )
 
         self.header_layout.addStretch()
+
+        self.collapsed = False
+        self.collapse_button = widget_in_layout(
+            widget=create_simple_tool_button_qta(
+                parent=self.header_widget,
+                icon_path="mdi6.chevron-up",
+                icon_size=QSize(20, 20),
+            ),
+            layout=self.header_layout,
+            alignment=Qt.AlignmentFlag.AlignTop,
+            setup=lambda w, l: [
+                w.setToolTip("Collapse / expand"),
+                w.clicked.connect(self.toggle_collapsed),
+            ],
+        )
 
         self.recalculate_button = widget_in_layout(
             widget=create_simple_tool_button_qta(
@@ -187,6 +207,9 @@ class DataAnalysisResultDisplay(BaseResultDisplay):
             inner_layout_class=QVBoxLayout,
             setup=lambda w, l: [
                 l.setSpacing(5),
+                # Inset the table elements from the right so the strip beside them belongs to
+                # the parent study card (clicking there selects the study, not the table).
+                l.setContentsMargins(0, 0, 40, 0),
                 w.clicked.connect(lambda: self.activate_result(self.result_id, None)),
             ],
         )
@@ -209,6 +232,18 @@ class DataAnalysisResultDisplay(BaseResultDisplay):
         self.refresh()
         self.remove_focus(None)
 
+
+    def toggle_collapsed(self):
+        self.set_collapsed(not self.collapsed)
+
+    def set_collapsed(self, collapsed: bool):
+        """Collapse the study to its header (title + buttons) only, or expand it back."""
+        self.collapsed = collapsed
+        self.html_result_elements_container.setVisible(not collapsed)
+        self.plot_result_elements_container.setVisible(not collapsed)
+        self.collapse_button.setIcon(
+            qta.icon("mdi6.chevron-down" if collapsed else "mdi6.chevron-up", color="#888")
+        )
 
     def copy_all_elements(self):
         self.copy_button.setIcon(qta.icon("fa.check", color="#4CAF50"))
@@ -235,6 +270,15 @@ class DataAnalysisResultDisplay(BaseResultDisplay):
         panel = self.root_class.settings_panel.panels[RESULTS[self.result_id].settings_panel_index]
         panel.configure(self.result_id)
         panel.recalculate()
+        self.set_stale(False)
+
+    def set_stale(self, stale: bool):
+        """Flag this study as out of date (manual-recalculate mode): tint the Refresh button
+        an alarm colour and set the result's needs_update. Reset when it is recalculated."""
+        RESULTS[self.result_id].needs_update = stale
+        self.recalculate_button.setIcon(
+            qta.icon("ph.arrows-clockwise-bold", color="#e0a030" if stale else "#888")
+        )
 
     def recalculate_full(self):
         # Drop the cache of user edits (axis titles, plot colours, table numbers...) so

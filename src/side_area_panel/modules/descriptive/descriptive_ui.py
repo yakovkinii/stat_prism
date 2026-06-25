@@ -22,7 +22,7 @@ class Elements(ItemInSidePanelWithAutoConfigHolder):
             Field(
                 name="Variable(s):",
                 column_type=ColumnType.NOMINAL,
-                reasonable_number_of_columns=10,
+                reasonable_number_of_columns=8,
                 minimum_columns=1,
             ),
             Field(

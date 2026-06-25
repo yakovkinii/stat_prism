@@ -117,6 +117,11 @@ def get_stars(p):
     return ""
 
 
+def value_with_stars(value_html: str, p=None) -> str:
+    """A value with its significance stars appended in the same cell (no extra column)."""
+    return f"{value_html}{get_stars(p) if p is not None else ''}"
+
+
 def format_p_apa_exact(p, decimals=3):
     """p shown exactly (leading zero dropped); only p < .001 is bracketed. Used in
     correlation / descriptive tables where the exact p is wanted."""

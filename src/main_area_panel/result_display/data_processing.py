@@ -2,7 +2,7 @@
 from PySide6 import QtCore
 from PySide6.QtCore import QSize, QTimer
 from PySide6.QtGui import Qt
-from PySide6.QtWidgets import QHBoxLayout, QPushButton, QTextBrowser, QVBoxLayout, QWidget
+from PySide6.QtWidgets import QHBoxLayout, QSizePolicy, QTextBrowser, QVBoxLayout, QWidget
 
 from src.common.decorators import log_method
 from src.main_area_panel.result_display.export import export_data_to_excel
@@ -22,6 +22,7 @@ from src.pyside_ext.elements.utility.primitive_elements import (
 from src.pyside_ext.markup import css
 from src.pyside_ext.styling import Style
 from src.pyside_ext.unique_qss import set_stylesheet
+from src.pyside_ext.elements.toggle_switch import ToggleSwitch
 from src.side_area_panel.modules.common.result.registry import RESULTS
 import qtawesome as qta
 
@@ -57,7 +58,7 @@ class DataProcessingResultDisplay(BaseResultDisplay):
         self.popup_button = widget_in_layout(
             widget=create_tool_button_qta(
                 parent=self.body_widget,
-                icon_path="mdi.table-eye",
+                icon_path="mdi6.eye-outline",
                 icon_size=QtCore.QSize(50, 50),
             ),
             layout=self.body_layout,
@@ -84,7 +85,11 @@ class DataProcessingResultDisplay(BaseResultDisplay):
         self.label = widget_in_layout(
             widget=ResultLabel(parent=self.text_widget, label_text=label_text),
             layout=self.text_layout,
-            setup=lambda w, l: [w.clicked.connect(lambda: self.activate_result(self.result_id, None))],
+            setup=lambda w, l: [
+                w.clicked.connect(lambda: self.activate_result(self.result_id, None)),
+                w.setFont(Style.font_study_title),
+                set_stylesheet(w, css(color=Style.Color.TitleBrand)),
+            ],
         )
 
         self.info = widget_in_layout(
@@ -96,18 +101,31 @@ class DataProcessingResultDisplay(BaseResultDisplay):
             ],
         )
 
+        # Collapsed view: the fine-print sits to the right of the title on one line, never
+        # wrapping -- any overflow is simply clipped (Ignored size policy lets the layout
+        # give it only the leftover width).
+        self.info_inline = widget_in_layout(
+            widget=QLabelClickable(self.body_widget),
+            layout=self.body_layout,
+            setup=lambda w, l: [
+                w.setWordWrap(False),
+                w.setSizePolicy(QSizePolicy.Policy.Ignored, QSizePolicy.Policy.Preferred),
+                set_stylesheet(w, css(color=Style.Color.SecondaryText, font_size=Style.FontSize.smallest)),
+                w.clicked.connect(lambda: self.activate_result(self.result_id, None)),
+            ],
+        )
+
         # Enable/disable toggle for toggleable results (e.g. the Filter module). It sits to
         # the left of the small action icons in the top row.
         self.toggle_button = None
         if getattr(RESULTS[self.result_id], "toggleable", False):
             self.toggle_button = widget_in_layout(
-                widget=QPushButton(self.body_widget),
+                widget=ToggleSwitch(self.body_widget),
                 layout=self.body_layout,
                 alignment=Qt.AlignmentFlag.AlignVCenter,
                 setup=lambda w, l: [
-                    w.setMinimumHeight(40),
-                    w.setCursor(Qt.CursorShape.PointingHandCursor),
-                    w.clicked.connect(self.toggle_enabled),
+                    w.setToolTip("Enable / disable this step"),
+                    w.toggled.connect(self.toggle_enabled),
                 ],
             )
 
@@ -122,6 +140,20 @@ class DataProcessingResultDisplay(BaseResultDisplay):
             ],
         )
         self.body_layout.addWidget(self.actions_widget, alignment=Qt.AlignmentFlag.AlignTop)
+
+        self.collapsed = True
+        self.collapse_button = widget_in_layout(
+            widget=create_simple_tool_button_qta(
+                parent=self.actions_widget,
+                icon_path="mdi6.chevron-down",
+                icon_size=QSize(20, 20),
+            ),
+            layout=self.actions_layout,
+            setup=lambda w, l: [
+                w.setToolTip("Collapse / expand"),
+                w.clicked.connect(self.toggle_collapsed),
+            ],
+        )
 
         self.move_up_button = widget_in_layout(
             widget=create_simple_tool_button_qta(
@@ -205,7 +237,30 @@ class DataProcessingResultDisplay(BaseResultDisplay):
         self.deleted = False
 
         self.refresh()
+        self.set_collapsed(True)
         self.remove_focus(None)
+
+    def toggle_collapsed(self):
+        self.set_collapsed(not self.collapsed)
+
+    def set_collapsed(self, collapsed: bool):
+        """Collapsed: title + one-line fine-print on a single short band. Expanded: the
+        full (wrapping) fine-print below the title and a larger View-Data button."""
+        self.collapsed = collapsed
+        self.info.setVisible(not collapsed)
+        self.info_inline.setVisible(collapsed)
+        # Collapsed -> title hugs its text and the inline fine-print absorbs the leftover
+        # width (clipping overflow). Expanded -> the text column grows so the block fine-
+        # print can wrap.
+        self.body_layout.setStretchFactor(self.text_widget, 0 if collapsed else 1)
+        self.body_layout.setStretchFactor(self.info_inline, 1 if collapsed else 0)
+        # Keep the View-Data button the same width when collapsed, only shorter (a wide,
+        # flat button) rather than shrinking it to a small square.
+        self.popup_button.setFixedSize(QSize(56, 30) if collapsed else QSize(56, 56))
+        self.popup_button.setIconSize(QSize(28, 28) if collapsed else QSize(50, 50))
+        self.collapse_button.setIcon(
+            qta.icon("mdi6.chevron-down" if collapsed else "mdi6.chevron-up", color="#888")
+        )
 
     def _view_data(self):
         """Open the data preview. For a step that tracks removed rows (Filter), show the full
@@ -256,26 +311,29 @@ class DataProcessingResultDisplay(BaseResultDisplay):
         self.body_widget.show()
         description = result.description
         data = result.data
+        inline = ""
         if data is not None:
             shape = f"{data.n_rows()} rows &times; {data.n_columns()} columns"
             description = f"{description}<br>{shape}" if description else shape
+            # One-line version for the collapsed band: full text, line breaks become " | "
+            # and the HTML entity becomes a real "×" (the inline label renders as plain text).
+            inline = description.replace("<br>", " | ").replace("&times;", "×")
         self.info.setText(description)
+        self.info_inline.setText(inline)
         self._update_toggle()
 
     def _update_toggle(self):
         if self.toggle_button is None:
             return
         enabled = getattr(RESULTS[self.result_id].config, "enabled", True)
-        if enabled:
-            self.toggle_button.setText("Enabled")
-            set_stylesheet(self.toggle_button, css(background_color=Style.Color.ToggleOn, color=Style.Color.Text, font_size=Style.FontSize.regular))
-        else:
-            self.toggle_button.setText("Disabled")
-            set_stylesheet(self.toggle_button, css(background_color=Style.Color.ToggleOff, color=Style.Color.Text, font_size=Style.FontSize.regular))
+        # Reflect the state without re-triggering toggle_enabled.
+        self.toggle_button.blockSignals(True)
+        self.toggle_button.setChecked(bool(enabled))
+        self.toggle_button.blockSignals(False)
 
-    def toggle_enabled(self):
+    def toggle_enabled(self, checked: bool):
         result = RESULTS[self.result_id]
-        result.config.enabled = not getattr(result.config, "enabled", True)
+        result.config.enabled = bool(checked)
         # Round-trips enabled through the side panel (configure pushes it into the
         # hidden checkbox, recalculate reads it back) and refreshes this card.
         self.recalculate()
@@ -326,6 +384,15 @@ class DataProcessingResultDisplay(BaseResultDisplay):
         panel = self.root_class.settings_panel.panels[RESULTS[self.result_id].settings_panel_index]
         panel.configure(self.result_id)
         panel.recalculate()
+        self.set_stale(False)
+
+    def set_stale(self, stale: bool):
+        """Flag this study as out of date (manual-recalculate mode): tint the Refresh button
+        an alarm colour and set the result's needs_update. Reset when it is recalculated."""
+        RESULTS[self.result_id].needs_update = stale
+        self.recalculate_button.setIcon(
+            qta.icon("ph.arrows-clockwise-bold", color="#e0a030" if stale else "#888")
+        )
 
     def export_to_excel(self):
         export_data_to_excel(self.widget, RESULTS[self.result_id].data)
