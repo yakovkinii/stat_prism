@@ -3,16 +3,25 @@
 
 import numpy as np
 import pandas as pd
-from scipy.optimize import minimize
+from scipy.optimize import minimize, minimize_scalar
 from scipy.stats import chi2_contingency, multivariate_normal, norm
 
 
 # Calculate Phi Correlation using contingency tables
 def phi_coefficient(var1, var2):
     contingency_table = pd.crosstab(var1, var2)
-    chi2, p_value, dof, _ = chi2_contingency(contingency_table)
+    # No Yates correction so |phi| matches the standard ad-bc definition for 2x2 tables.
+    chi2, p_value, dof, _ = chi2_contingency(contingency_table, correction=False)
     n = contingency_table.sum().sum()
     phi = np.sqrt(chi2 / n)
+    # sqrt() is always non-negative; for a 2x2 table phi has a sign (direction of the
+    # association), given by the sign of the cross-product (ad - bc).
+    if contingency_table.shape == (2, 2):
+        values = contingency_table.values
+        a, b = values[0, 0], values[0, 1]
+        c, d = values[1, 0], values[1, 1]
+        if (a * d - b * c) < 0:
+            phi = -phi
     return phi, p_value, dof
 
 
@@ -54,7 +63,7 @@ def tetrachoric_corr_2x2_table(table):
 
     # Function to compute the negative log likelihood
     def neg_log_likelihood(rho):
-        rho = rho.item()  # Extract scalar from array
+        rho = float(rho)  # minimize_scalar passes a plain float
 
         # Inverse of CDF of the marginal proportions (used as thresholds)
         phi_a = norm.ppf(p1)
@@ -81,11 +90,12 @@ def tetrachoric_corr_2x2_table(table):
         # Log likelihood
         return -(a * np.log(prob_11) + b * np.log(prob_10) + c * np.log(prob_01) + d * np.log(prob_00))
 
-    # Adjust bounds to avoid singularities
-    bounds = [(-1 + epsilon, 1 - epsilon)]
-    result = minimize(neg_log_likelihood, x0=[0.0], bounds=bounds, method="L-BFGS-B")
+    # Bounded scalar search (Brent). A gradient-based optimiser (L-BFGS-B from x0=0) frequently
+    # got stuck at the start: multivariate_normal.cdf is only ~1e-8 accurate, so the
+    # finite-difference gradient near 0 underflowed and the estimate stayed exactly 0.
+    result = minimize_scalar(neg_log_likelihood, bounds=(-1 + epsilon, 1 - epsilon), method="bounded")
 
-    rho_est = result.x[0]  # Estimated correlation
+    rho_est = float(result.x)  # Estimated correlation
 
     # Compute standard error
     se = (1 / np.sqrt(n)) * (1 / (1 - rho_est**2))
