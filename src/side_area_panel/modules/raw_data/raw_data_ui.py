@@ -1,8 +1,11 @@
 #  Copyright (c) 2023 StatPrism Team. All rights reserved.
 import colorsys
+import json
 import logging
+import struct
 import xml.etree.ElementTree as ET
 from pathlib import Path
+import zipfile
 
 import openpyxl
 import pandas as pd
@@ -24,6 +27,7 @@ _DRAWING_NS = "{http://schemas.openxmlformats.org/drawingml/2006/main}"
 # The clrScheme XML lists colours as dk1, lt1, dk2, lt2, accent1..6, hlink, folHlink, but the
 # spreadsheet "theme" index swaps the first two pairs (0=lt1, 1=dk1, 2=lt2, 3=dk2, ...).
 _THEME_INDEX_ORDER = [1, 0, 3, 2, 4, 5, 6, 7, 8, 9, 10, 11]
+_JAMOVI_INT_MISSING = -(2**31)
 
 
 def _parse_theme_colors(theme_xml) -> list:
@@ -77,6 +81,90 @@ def _resolve_fill_color(fg_color, theme_colors: list):
         return None
     rgb = getattr(fg_color, "rgb", None)
     return argb_to_hex(rgb) if isinstance(rgb, str) else None
+
+
+def _read_null_terminated_string(data: bytes, offset: int) -> str:
+    end = data.find(b"\0", offset)
+    if end == -1:
+        end = len(data)
+    return data[offset:end].decode("utf-8", "replace")
+
+
+def _jamovi_label_map(column_name: str, xdata: dict) -> dict:
+    """Return {raw_value: display_label} for a jamovi column, if labels are present."""
+    labels = xdata.get(column_name, {}).get("labels", []) if isinstance(xdata, dict) else []
+    mapping = {}
+    for label in labels:
+        if not isinstance(label, list) or len(label) < 2:
+            continue
+        raw_value, display_label = label[0], label[1]
+        mapping[raw_value] = display_label
+        mapping[str(raw_value)] = display_label
+        if isinstance(raw_value, float) and raw_value.is_integer():
+            mapping[int(raw_value)] = display_label
+            mapping[str(int(raw_value))] = display_label
+    return mapping
+
+
+def _apply_jamovi_labels(values: list, column_name: str, xdata: dict) -> list:
+    mapping = _jamovi_label_map(column_name, xdata)
+    if not mapping:
+        return values
+    return [None if pd.isna(value) else mapping.get(value, mapping.get(str(value), value)) for value in values]
+
+
+def _read_jamovi_omv(file_path: str) -> pd.DataFrame:
+    """Read the tabular data from a jamovi .omv archive.
+
+    jamovi stores the table as column metadata plus binary column vectors. This handles the
+    core saved-data types used by jamovi: integer, number, and string columns. Analysis
+    output and transforms are intentionally ignored; StatPrism imports the saved data table.
+    """
+    with zipfile.ZipFile(file_path, "r") as archive:
+        metadata = json.loads(archive.read("metadata.json").decode("utf-8"))["dataSet"]
+        try:
+            xdata = json.loads(archive.read("xdata.json").decode("utf-8"))
+        except KeyError:
+            xdata = {}
+        data_bytes = archive.read("data.bin")
+        strings_bytes = archive.read("strings.bin") if "strings.bin" in archive.namelist() else b""
+
+    row_count = int(metadata["rowCount"])
+    fields = metadata.get("fields", [])
+    if len(fields) != int(metadata["columnCount"]):
+        raise ValueError("Jamovi metadata column count does not match the field list.")
+
+    offset = 0
+    columns = {}
+    for field in fields:
+        column_name = field["name"]
+        column_type = field.get("type")
+
+        if column_type == "integer":
+            byte_count = 4 * row_count
+            values = list(struct.unpack(f"<{row_count}i", data_bytes[offset : offset + byte_count]))
+            offset += byte_count
+            values = [None if value == _JAMOVI_INT_MISSING else value for value in values]
+        elif column_type == "number":
+            byte_count = 8 * row_count
+            values = list(struct.unpack(f"<{row_count}d", data_bytes[offset : offset + byte_count]))
+            offset += byte_count
+        elif column_type == "string":
+            byte_count = 4 * row_count
+            indexes = struct.unpack(f"<{row_count}i", data_bytes[offset : offset + byte_count])
+            offset += byte_count
+            values = [
+                None
+                if index == _JAMOVI_INT_MISSING
+                else _read_null_terminated_string(strings_bytes, index)
+                for index in indexes
+            ]
+        else:
+            raise ValueError(f"Unsupported jamovi column type: {column_type}")
+
+        columns[column_name] = _apply_jamovi_labels(values, column_name, xdata)
+
+    return pd.DataFrame(columns)
 
 
 class RawData(BaseModulePanel):
@@ -150,7 +238,7 @@ class RawData(BaseModulePanel):
             self.widget,
             "Open File",
             "",
-            "Supported Files (*.sp *.xlsx *.csv);;All Files (*)",
+            "Supported Files (*.sp *.omv *.xlsx *.csv);;All Files (*)",
         )
         if not file_path:
             logging.info("No file selected")
@@ -186,6 +274,8 @@ class RawData(BaseModulePanel):
                 dataframe = pd.read_csv(file_path)
             elif file_path.endswith(".xlsx"):
                 dataframe = pd.read_excel(file_path, sheet_name=sheet_name)
+            elif file_path.endswith(".omv"):
+                dataframe = _read_jamovi_omv(file_path)
             else:
                 raise ValueError(f"Unsupported file format: {file_path}")
             update(80)

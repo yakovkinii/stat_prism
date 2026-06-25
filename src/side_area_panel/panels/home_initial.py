@@ -56,7 +56,7 @@ class HomeInitial(BasePanel):
             self.widget,
             "Open File",
             "",
-            "Supported Files (*.sp *.xlsx *.csv);;All Files (*)",
+            "Supported Files (*.sp *.omv *.xlsx *.csv);;All Files (*)",
         )
 
         if not file_path:
@@ -67,7 +67,7 @@ class HomeInitial(BasePanel):
 
     @log_method
     def load_file(self, file_path):
-        """Load a project (.sp) or raw data file (.xlsx/.csv). Shared by the Open button
+        """Load a project (.sp) or raw data file (.omv/.xlsx/.csv). Shared by the Open button
         and the command-line / file-association startup path (launcher -> ui_main)."""
         file_path = os.path.abspath(file_path)
         if not os.path.exists(file_path):
