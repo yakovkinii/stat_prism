@@ -3,16 +3,22 @@
 
 import numpy as np
 import pandas as pd
-from scipy.optimize import minimize
+from scipy.optimize import minimize_scalar
 from scipy.stats import chi2_contingency, multivariate_normal, norm
 
 
 # Calculate Phi Correlation using contingency tables
 def phi_coefficient(var1, var2):
     contingency_table = pd.crosstab(var1, var2)
-    chi2, p_value, dof, _ = chi2_contingency(contingency_table)
-    n = contingency_table.sum().sum()
-    phi = np.sqrt(chi2 / n)
+    if contingency_table.shape != (2, 2):
+        return np.nan, np.nan, np.nan
+
+    table = contingency_table.to_numpy(dtype=float)
+    a, b = table[0, 0], table[0, 1]
+    c, d = table[1, 0], table[1, 1]
+    denominator = np.sqrt((a + b) * (c + d) * (a + c) * (b + d))
+    phi = ((a * d) - (b * c)) / denominator if denominator > 0 else np.nan
+    _, p_value, dof, _ = chi2_contingency(contingency_table, correction=False)
     return phi, p_value, dof
 
 
@@ -52,22 +58,18 @@ def tetrachoric_corr_2x2_table(table):
     p1 = np.clip(p1, epsilon, 1 - epsilon)
     p2 = np.clip(p2, epsilon, 1 - epsilon)
 
+    # Inverse CDF of the marginal proportions (used as thresholds)
+    phi_a = norm.ppf(p1)
+    phi_b = norm.ppf(p2)
+
     # Function to compute the negative log likelihood
     def neg_log_likelihood(rho):
-        rho = rho.item()  # Extract scalar from array
-
-        # Inverse of CDF of the marginal proportions (used as thresholds)
-        phi_a = norm.ppf(p1)
-        phi_b = norm.ppf(p2)
-
-        # Define the covariance matrix for the bivariate normal distribution
-        cov_matrix = np.array([[1, rho], [rho, 1]])
-
-        # Compute probabilities for each quadrant of the 2x2 table
-        try:
-            prob_11 = multivariate_normal.cdf([phi_a, phi_b], mean=[0, 0], cov=cov_matrix)
-        except np.linalg.LinAlgError:
-            return np.inf  # Return a large value if covariance matrix is not positive definite
+        # Compute probabilities for each quadrant of the 2x2 table.
+        prob_11 = multivariate_normal.cdf(
+            [phi_a, phi_b],
+            mean=[0, 0],
+            cov=[[1, rho], [rho, 1]],
+        )
 
         prob_10 = norm.cdf(phi_a) - prob_11
         prob_01 = norm.cdf(phi_b) - prob_11
@@ -82,10 +84,16 @@ def tetrachoric_corr_2x2_table(table):
         return -(a * np.log(prob_11) + b * np.log(prob_10) + c * np.log(prob_01) + d * np.log(prob_00))
 
     # Adjust bounds to avoid singularities
-    bounds = [(-1 + epsilon, 1 - epsilon)]
-    result = minimize(neg_log_likelihood, x0=[0.0], bounds=bounds, method="L-BFGS-B")
+    result = minimize_scalar(
+        neg_log_likelihood,
+        bounds=(-1 + epsilon, 1 - epsilon),
+        method="bounded",
+        options={"xatol": 1e-6},
+    )
+    if not result.success:
+        return np.nan, np.nan, np.nan, np.nan
 
-    rho_est = result.x[0]  # Estimated correlation
+    rho_est = result.x  # Estimated correlation
 
     # Compute standard error
     se = (1 / np.sqrt(n)) * (1 / (1 - rho_est**2))
