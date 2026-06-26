@@ -195,7 +195,7 @@ def recalculate_descriptive_study(elements, result: DescriptiveResult, update) -
                     t("descriptive.outliers.line", target=target, n=len(outliers), items=listed)
                 )
                 all_ids.extend(lab for val, lab in outliers)
-        if outlier_sentences:
+        if outlier_sentences and cfg.verbal_indicators:
             text = "".join(outlier_sentences)
             if all_ids:
                 # The same ID can be an outlier on several variables/groups -- de-duplicate
@@ -258,6 +258,7 @@ def recalculate_descriptive_study(elements, result: DescriptiveResult, update) -
                     groupby_column=grouping_column,
                     col=col,
                     group_counts=group_counts,
+                    verbal=bool(cfg.verbal_indicators),
                 )
             result.update_and_add_element(freq, f"descriptive freq {col}")
 

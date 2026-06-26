@@ -3,6 +3,7 @@ import logging
 from typing import TYPE_CHECKING
 
 from PySide6 import QtWidgets
+from PySide6.QtCore import QEasingCurve, QPoint, QPropertyAnimation, QTimer
 from PySide6.QtWidgets import QVBoxLayout
 
 from src.common.decorators import log_method
@@ -200,6 +201,7 @@ class MainAreaClass:
         self.raw_data_objects[result_id] = raw_data_object
         self.raw_data_container_layout.addWidget(raw_data_object.widget)
         self.root_class.mark_dirty()
+        self.scroll_to_result(result_id)
 
     def add_data_processing(self, result_id):
         data_processing_object = DataProcessingResultDisplay(
@@ -212,6 +214,7 @@ class MainAreaClass:
         self.data_processing_objects[result_id] = data_processing_object
         self.data_processing_container_layout.addWidget(data_processing_object.widget)
         self.root_class.mark_dirty()
+        self.scroll_to_result(result_id)
 
     def move_data_processing(self, result_id, delta):
         """Move a data-processing study up/down in the chain, re-order the cards to
@@ -243,6 +246,7 @@ class MainAreaClass:
         self.data_analysis_objects[result_id] = data_analysis_object
         self.data_analysis_container_layout.addWidget(data_analysis_object.widget)
         self.root_class.mark_dirty()
+        self.scroll_to_result(result_id)
 
     def _build_report_html(self) -> str:
         """One self-contained HTML document: each data-analysis result (in display order)
@@ -325,6 +329,27 @@ class MainAreaClass:
         panel.configure(new_id)
         panel.recalculate()
         self.update_focus(new_id)
+
+    def scroll_to_result(self, result_id):
+        """Bring a (just-added) study into view, animating the scroll when possible."""
+        obj = self.get_result_object(result_id)
+        if obj is None:
+            return
+        # Defer one tick so the new card has a real geometry to scroll to.
+        QTimer.singleShot(0, lambda: self._animate_scroll_to(obj.widget))
+
+    def _animate_scroll_to(self, target_widget):
+        bar = self.widget.verticalScrollBar()
+        top = target_widget.mapTo(self.widget_in_scroll_area, QPoint(0, 0)).y()
+        target = max(bar.minimum(), min(top, bar.maximum()))
+        animation = QPropertyAnimation(bar, b"value", self.widget)
+        animation.setDuration(300)
+        animation.setStartValue(bar.value())
+        animation.setEndValue(target)
+        animation.setEasingCurve(QEasingCurve.Type.InOutCubic)
+        animation.start()
+        # Keep a reference so the animation is not garbage-collected mid-flight.
+        self._scroll_animation = animation
 
     def get_result_object(self, result_id):
         return (

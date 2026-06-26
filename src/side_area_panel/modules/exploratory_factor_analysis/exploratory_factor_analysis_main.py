@@ -152,7 +152,8 @@ def recalculate_factor_analysis_study(elements, result: FactorAnalysisResult, up
     diag_text = t("efa.report.kmo", label=_kmo_label(kmo_overall), kmo=format_r_apa(kmo_overall))
     bartlett_key = "efa.report.bartlett_sig" if bart_p < 0.05 else "efa.report.bartlett_ns"
     diag_text += t(bartlett_key, df=bart_df, chi2=format_statistic_apa(bart_chi2), p=format_p_apa_full(bart_p))
-    diag_table.add_text(diag_text)
+    if cfg.verbal_indicators:
+        diag_table.add_text(diag_text)
     diag_table.table_note = numbering.append_to_note(diag_table.table_note or "")
     result.update_and_add_element(diag_table, "efa diagnostics")
     update(30)
@@ -185,9 +186,10 @@ def recalculate_factor_analysis_study(elements, result: FactorAnalysisResult, up
                 ]
             )
         )
-    eig_table.add_text(
-        t("efa.report.kaiser", n=n_kaiser) if n_kaiser > 0 else t("efa.report.kaiser_none")
-    )
+    if cfg.verbal_indicators:
+        eig_table.add_text(
+            t("efa.report.kaiser", n=n_kaiser) if n_kaiser > 0 else t("efa.report.kaiser_none")
+        )
     result.update_and_add_element(eig_table, "efa eigenvalues")
 
     if cfg.plots:

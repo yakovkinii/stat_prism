@@ -32,6 +32,7 @@ class MultipleResponseStudyConfig:
     data_source = attrs.field(default=None)
     column_selector = attrs.field(default=None)
     show_chart = attrs.field(default=None)
+    verbal_indicators = attrs.field(default=None)
 
 
 class MultipleResponseResult(BaseResult):

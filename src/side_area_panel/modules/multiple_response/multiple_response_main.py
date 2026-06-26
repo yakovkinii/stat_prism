@@ -75,10 +75,11 @@ def recalculate_multiple_response_study(elements, result: MultipleResponseResult
             Cell(_pct(total_selections, n_cases), center=True),
         ])
     )
-    table.add_text(
-        f"Cases = {n_cases} respondent(s) with at least one selection; total selections = {total_selections}. "
-        "Percentages of cases sum to more than 100% because a respondent can choose several options."
-    )
+    if cfg.verbal_indicators:
+        table.add_text(
+            f"Cases = {n_cases} respondent(s) with at least one selection; total selections = {total_selections}. "
+            "Percentages of cases sum to more than 100% because a respondent can choose several options."
+        )
     result.update_and_add_element(table, "multiple response table")
 
     # ----- Bar chart (counts per option) -----

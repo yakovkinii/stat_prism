@@ -193,7 +193,7 @@ def get_frequency_table(caption: str, value_counts: pd.Series) -> HTMLTableV2:
     return table
 
 
-def get_grouped_frequency_table(caption: str, groupby_column: str, col: str, group_counts) -> HTMLTableV2:
+def get_grouped_frequency_table(caption: str, groupby_column: str, col: str, group_counts, verbal=False) -> HTMLTableV2:
     """Frequency table split by a grouping column. `group_counts` is a list of
     (group_value, value_counts Series). Each block lists that group's category counts and
     within-group percentages; the group label is shown once per block. A verbal summary
@@ -227,7 +227,8 @@ def get_grouped_frequency_table(caption: str, groupby_column: str, col: str, gro
             )
             first = False
 
-    table.add_text(_grouped_frequency_report(col, group_counts))
+    if verbal:
+        table.add_text(_grouped_frequency_report(col, group_counts))
     return table
 
 
