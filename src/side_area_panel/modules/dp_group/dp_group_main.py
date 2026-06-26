@@ -49,12 +49,16 @@ def dp_group_main(elements: Elements, result: GroupValuesResult, update):
     column_name = selected[0]
 
     try:
-        thresholds = sorted(_parse_floats(cfg.thresholds))
+        parsed = _parse_floats(cfg.thresholds)
     except ValueError:
         elements.thresholds.set_alert()
         return result
+    # pd.cut needs strictly increasing edges: keep only finite split points, sorted and
+    # de-duplicated. Duplicates / NaN / inf would otherwise raise mid-computation and
+    # surface as a generic error.
+    thresholds = sorted({t for t in parsed if math.isfinite(t)})
     if not thresholds:
-        return result  # no split points -> no grouping
+        return result  # no usable split points -> no grouping
 
     # "Lower group" -> a split point joins the lower bin (right-closed (a, b]); the default
     # "Higher group" -> it joins the higher bin (left-closed [a, b)).
@@ -66,6 +70,11 @@ def dp_group_main(elements: Elements, result: GroupValuesResult, update):
 
     edges = [-math.inf] + thresholds + [math.inf]
     numeric = pd.to_numeric(new_data[column_name].data_series, errors="coerce")
+    if numeric.notna().sum() == 0:
+        # Nothing numeric to split (e.g. a text-labelled column) -> flag instead of
+        # producing an all-blank column.
+        elements.column_selector.set_alert(0)
+        return result
     binned = pd.cut(numeric, bins=edges, labels=labels, right=lower_inclusive, ordered=False).astype(object)
 
     base = (cfg.new_name or "").strip() or f"{column_name} (group)"

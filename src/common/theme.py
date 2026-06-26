@@ -31,6 +31,9 @@ class PlotTheme:
     # Figure chrome.
     frame_color: Tuple[int, int, int]
     background_color: Tuple[int, int, int]
+    # Text colour for tick labels, axis titles and the legend. Defaults to black; the Dark
+    # theme overrides it to near-white so text is readable on the dark figure background.
+    text_color: Tuple[int, int, int]
     # Per-series appearance.
     line_alpha: int
     line_width: int
@@ -72,6 +75,7 @@ _DEFAULT = PlotTheme(
     ],
     frame_color=(128, 128, 128),
     background_color=(255, 255, 255),
+    text_color=(0, 0, 0),
     line_alpha=200,
     line_width=3,
     line_style="Solid",
@@ -102,6 +106,7 @@ _STRICT = PlotTheme(
     ],
     frame_color=(0, 0, 0),
     background_color=(255, 255, 255),
+    text_color=(0, 0, 0),
     line_alpha=250,
     line_width=2,
     line_style="Solid",
@@ -130,6 +135,7 @@ _DARK = PlotTheme(
     ],
     frame_color=(180, 180, 180),
     background_color=(38, 38, 38),
+    text_color=(235, 235, 235),
     line_alpha=250,
     line_width=3,
     line_style="Solid",

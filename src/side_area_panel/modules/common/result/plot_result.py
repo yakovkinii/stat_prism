@@ -432,6 +432,7 @@ class PlotV2(BaseResultElement):
         frame_thickness=None,
         frame_color: Tuple[int, int, int] = None,
         background_color: Tuple[int, int, int] = None,
+        text_color: Tuple[int, int, int] = None,
         background_alpha=None,
         axis_layout=None,
         margin=None,
@@ -441,6 +442,7 @@ class PlotV2(BaseResultElement):
         x_tick_reference="",
         y_tick_step="",
         y_tick_reference="",
+        numbered_x_labels=False,
     ):
         super().__init__()
         # Defaults come from the active theme unless explicitly provided (e.g. restored
@@ -456,6 +458,7 @@ class PlotV2(BaseResultElement):
         frame_thickness = frame_thickness if frame_thickness is not None else theme.frame_thickness
         frame_color = frame_color if frame_color is not None else theme.frame_color
         background_color = background_color if background_color is not None else theme.background_color
+        text_color = text_color if text_color is not None else theme.text_color
         background_alpha = background_alpha if background_alpha is not None else theme.background_alpha
         axis_layout = axis_layout if axis_layout is not None else theme.axis_layout
         margin = margin if margin is not None else theme.margin
@@ -502,6 +505,7 @@ class PlotV2(BaseResultElement):
             label="Margin", current_value=margin, min_value=0, max_value=2.0, step=0.1
         )
         self.frame_color = ColorGridItemSetting(current_color=frame_color, label="Frame / Tick Color")
+        self.text_color = ColorGridItemSetting(current_color=text_color, label="Text Color")
         self.background_color = ColorGridItemSetting(current_color=background_color, label="Background Color")
         self.background_alpha = SliderResultItemSetting(
             label="Background Alpha", current_value=background_alpha, min_value=0, max_value=255, step=15
@@ -524,6 +528,11 @@ class PlotV2(BaseResultElement):
         self.y_tick_reference = SingleLineTextResultItemSetting(
             label="Y ref. tick", current_value=y_tick_reference
         )
+        # Replace categorical X labels (category / column / group names) with 1, 2, 3 … —
+        # the same enumerate option the correlation heatmap offers. No effect on numeric axes.
+        self.numbered_x_labels = PlainCheckboxResultItemSetting(
+            label="Number X labels", current_value=numbered_x_labels
+        )
         self.display_settings = {
             "General": ContainerResultItemSetting(
                 items=[
@@ -540,6 +549,7 @@ class PlotV2(BaseResultElement):
                     self.box_frame,
                     self.gridlines,
                     self.frame_color,
+                    self.text_color,
                     self.background_color,
                     self.background_alpha,
                 ],
@@ -549,6 +559,7 @@ class PlotV2(BaseResultElement):
                 items=[
                     self.x_axis_title,
                     self.y_axis_title,
+                    self.numbered_x_labels,
                     self.x_tick_step,
                     self.x_tick_reference,
                     self.y_tick_step,
@@ -774,7 +785,7 @@ class PlotV2(BaseResultElement):
                     },
                 )
                 if item.outlier_labels:
-                    annotation_color = rgba_tuple_from_rgb_and_a(self.frame_color.get_current_value(), 255)
+                    annotation_color = rgba_tuple_from_rgb_and_a(self.text_color.get_current_value(), 255)
                     for value, text in item.outlier_labels:
                         ax.annotate(
                             str(text),
@@ -984,12 +995,16 @@ class PlotV2(BaseResultElement):
 
         # frame (spines + ticks): user-configurable color and thickness
         frame_color = rgba_tuple_from_rgb_and_a(self.frame_color.get_current_value(), 255)
+        # Text colour (tick labels, axis titles, legend) -- a separate, themed setting so it
+        # can be white on the Dark plot theme without recolouring the frame/ticks.
+        text_color = rgba_tuple_from_rgb_and_a(self.text_color.get_current_value(), 255)
         frame_thickness = self.frame_thickness.get_current_value()
         ax.tick_params(
             axis="both",
             which="major",
             labelsize=self.tick_label_font_size.get_current_value(),
-            colors=frame_color,
+            color=frame_color,
+            labelcolor=text_color,
             width=frame_thickness,
         )
         for side in ("top", "right", "left", "bottom"):
@@ -1008,7 +1023,10 @@ class PlotV2(BaseResultElement):
 
         if self.x_axis_items is not None:
             ax.set_xticks(range(len(self.x_axis_items)))
-            ax.set_xticklabels(self.x_axis_items)
+            if self.numbered_x_labels.get_current_value():
+                ax.set_xticklabels([str(i + 1) for i in range(len(self.x_axis_items))])
+            else:
+                ax.set_xticklabels(self.x_axis_items)
 
         ax.tick_params(axis="x", rotation=self.tilt_x_axis_labels.current_value)
 
@@ -1028,16 +1046,12 @@ class PlotV2(BaseResultElement):
             ax.set_xlabel(x_title)
             ax.set_ylabel(y_title)
 
-        # Title colour auto-contrasts with the background (black on light, light on
-        # dark) so titles stay readable on the Dark theme / dark backgrounds.
-        bg = self.background_color.get_current_value()
-        luminance = 0.299 * bg[0] + 0.587 * bg[1] + 0.114 * bg[2]
-        title_color = (0, 0, 0) if luminance > 140 else (235, 235, 235)
+        # Axis titles use the configurable text colour (defaults to black; white on Dark).
         font_size = self.axis_title_font_size.get_current_value()
         for axis_label in (ax.xaxis.label, ax.yaxis.label):
             axis_label.set_fontsize(font_size)
             axis_label.set_fontname("Times New Roman")
-            axis_label.set_color(rgba_tuple_from_rgb_and_a(title_color, 255))
+            axis_label.set_color(text_color)
 
         # set axis ranges
         if self.x_range is not None:
@@ -1057,7 +1071,7 @@ class PlotV2(BaseResultElement):
             leg.get_frame().set_facecolor(rgba_tuple_from_rgb_and_a(face_color, max(bg_alpha, 200)))
             leg.get_frame().set_edgecolor(frame_color)
             for text in leg.get_texts():
-                text.set_color(rgba_tuple_from_rgb_and_a(title_color, 255))
+                text.set_color(text_color)
 
         fig.tight_layout()
 

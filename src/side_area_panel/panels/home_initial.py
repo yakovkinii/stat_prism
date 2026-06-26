@@ -126,6 +126,16 @@ class HomeInitial(BasePanel):
             module.ui_instance.configure(result_id=result_id)
             ModuleRegistry.RAW_DATA.ui_instance.open_file(file_path)
 
+        # A loaded project stores each study's saved output. With auto-recalculate on,
+        # recompute everything so it reflects the current code/data; with it off, just flag
+        # every study as needing recalculation (amber Refresh) without recomputing.
+        if file_path.endswith(".sp"):
+            main_area = self.root_class.main_area_panel
+            if main_area.auto_recalculate:
+                main_area.recompute_all()
+            else:
+                main_area.mark_all_stale()
+
         # Remember the project file so the next Save writes back to it (and the title bar
         # shows it). A raw data import is not a project, so clear the path -> Save acts as
         # Save As, prompting for a new .sp.

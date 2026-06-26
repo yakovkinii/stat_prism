@@ -61,7 +61,7 @@ if __name__ == "__main__":
         os.environ.setdefault("QT_QPA_PLATFORM", f"windows:darkmode={'2' if IS_DARK_THEME else '0'}")
 
     app = QApplication(sys.argv)
-    pixmap = QPixmap(":/mat/resources/banner22.png")
+    pixmap = QPixmap(":/mat/resources/banner29.png")
     splash = QSplashScreen(pixmap)
     splash.show()
 

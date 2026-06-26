@@ -15,7 +15,7 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
-from src.common.constant import COLUMN_TYPE_ICONS, ColumnType
+from src.common.constant import COLUMN_TYPE_ICONS, COLUMN_TYPE_ICONS_ON_LIGHT, ColumnType
 from src.data.data import Data
 from src.pyside_ext.markup import css
 from src.pyside_ext.styling import Style
@@ -129,7 +129,10 @@ class CustomHeader(QHeaderView):
         text_rect = rect.adjusted(4, 2, -4, -2)
 
         column_type = model.headerData(logicalIndex, self.orientation(), TYPE_ROLE)
-        icon = COLUMN_TYPE_ICONS.get(column_type)
+        # On a (light pastel) colour tag the normal icon is hard to see -> use the darker
+        # on-light variant; untagged headers keep the regular theme-tinted icon.
+        icon_set = COLUMN_TYPE_ICONS_ON_LIGHT if color else COLUMN_TYPE_ICONS
+        icon = icon_set.get(column_type)
         if icon is not None:
             pixmap = icon.pixmap(_ICON_SIZE, _ICON_SIZE)
             icon_y = rect.top() + (rect.height() - _ICON_SIZE) // 2

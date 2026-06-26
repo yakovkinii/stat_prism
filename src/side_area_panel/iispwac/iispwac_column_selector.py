@@ -17,7 +17,12 @@ from PySide6.QtWidgets import (
     QVBoxLayout,
 )
 
-from src.common.constant import COLUMN_TYPE_ICONS, ColumnType, SettingsPanelSize
+from src.common.constant import (
+    COLUMN_TYPE_ICONS,
+    COLUMN_TYPE_ICONS_ON_LIGHT,
+    ColumnType,
+    SettingsPanelSize,
+)
 from src.common.decorators import log_method, log_method_noarg
 from src.common.ui_constructor import create_tool_button_qta
 from src.data.data import DataColumn
@@ -38,6 +43,13 @@ from src.pyside_ext.unique_qss import set_stylesheet
 from src.side_area_panel.blueprint.element import ItemInSidePanelWithAutoConfig
 
 ITEM_HEIGHT = 20
+
+
+def _type_icon(column_type, color):
+    """The column-type icon, in its darker on-light variant when the chip carries a
+    (light pastel) colour tag so it stays visible against the background."""
+    on_light = isinstance(color, str) and color
+    return (COLUMN_TYPE_ICONS_ON_LIGHT if on_light else COLUMN_TYPE_ICONS)[column_type]
 
 
 def _column_item(text, icon=None, color=None) -> QListWidgetItem:
@@ -204,7 +216,10 @@ class IISPWACColumnSelector(ItemInSidePanelWithAutoConfig):
                 main_list_names.remove(column)
                 item = _column_item(
                     column,
-                    COLUMN_TYPE_ICONS[self.columns[self.column_names.index(column)].column_type],
+                    _type_icon(
+                        self.columns[self.column_names.index(column)].column_type,
+                        self.columns[self.column_names.index(column)].color,
+                    ),
                     color=self.columns[self.column_names.index(column)].color,
                 )
                 panel_list.addItem(item)
@@ -257,7 +272,10 @@ class IISPWACColumnSelector(ItemInSidePanelWithAutoConfig):
                 main_list_names.remove(column)
                 item = _column_item(
                     column,
-                    COLUMN_TYPE_ICONS[columns[self.column_names.index(column)].column_type],
+                    _type_icon(
+                        columns[self.column_names.index(column)].column_type,
+                        columns[self.column_names.index(column)].color,
+                    ),
                     color=columns[self.column_names.index(column)].color,
                 )
                 panel_list.addItem(item)
@@ -276,7 +294,10 @@ class IISPWACColumnSelector(ItemInSidePanelWithAutoConfig):
             for column in selected_columns:
                 item = _column_item(
                     column,
-                    COLUMN_TYPE_ICONS[self.columns[self.column_names.index(column)].column_type],
+                    _type_icon(
+                        self.columns[self.column_names.index(column)].column_type,
+                        self.columns[self.column_names.index(column)].color,
+                    ),
                     color=self.columns[self.column_names.index(column)].color,
                 )
                 panel_list.addItem(item)
@@ -476,7 +497,10 @@ class ColumnSelectorExPopup:
                 main_list_names.remove(column)
                 item = _column_item(
                     column,
-                    COLUMN_TYPE_ICONS[columns[self.column_names.index(column)].column_type],
+                    _type_icon(
+                        columns[self.column_names.index(column)].column_type,
+                        columns[self.column_names.index(column)].color,
+                    ),
                     color=columns[self.column_names.index(column)].color,
                 )
                 panel_list.addItem(item)
@@ -484,7 +508,10 @@ class ColumnSelectorExPopup:
         for column in main_list_names:
             item = _column_item(
                 column,
-                COLUMN_TYPE_ICONS[columns[self.column_names.index(column)].column_type],
+                _type_icon(
+                    columns[self.column_names.index(column)].column_type,
+                    columns[self.column_names.index(column)].color,
+                ),
                 color=columns[self.column_names.index(column)].color,
             )
             self.main_list.addItem(item)
@@ -614,7 +641,10 @@ class ColumnSelectorExPopup:
                 for item in selected_main:
                     new_item = _column_item(
                         item.text(),
-                        item.icon(),
+                        _type_icon(
+                            self.columns[self.column_names.index(item.text())].column_type,
+                            self.columns[self.column_names.index(item.text())].color,
+                        ),
                         color=self.columns[self.column_names.index(item.text())].color,
                     )
                     panel_list.addItem(new_item)
@@ -629,7 +659,10 @@ class ColumnSelectorExPopup:
                 for item in selected_list:
                     new_item = _column_item(
                         item.text(),
-                        item.icon(),
+                        _type_icon(
+                            self.columns[self.column_names.index(item.text())].column_type,
+                            self.columns[self.column_names.index(item.text())].color,
+                        ),
                         color=self.columns[self.column_names.index(item.text())].color,
                     )
                     self.main_list.addItem(new_item)
@@ -643,7 +676,10 @@ class ColumnSelectorExPopup:
                 for item in sorted_items:
                     new_item = _column_item(
                         item,
-                        COLUMN_TYPE_ICONS[self.columns[self.column_names.index(item)].column_type],
+                        _type_icon(
+                            self.columns[self.column_names.index(item)].column_type,
+                            self.columns[self.column_names.index(item)].color,
+                        ),
                         color=self.columns[self.column_names.index(item)].color,
                     )
                     self.main_list.addItem(new_item)

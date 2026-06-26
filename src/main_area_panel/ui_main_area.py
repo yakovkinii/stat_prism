@@ -183,6 +183,14 @@ class MainAreaClass:
             if hasattr(obj, "set_stale"):
                 obj.set_stale(False)
 
+    def mark_all_stale(self):
+        """Flag every recalculable study (data-processing + analysis) as needing
+        recalculation, turning its Refresh button an alarm colour, without recomputing."""
+        for objects in (self.data_processing_objects, self.data_analysis_objects):
+            for obj in objects.values():
+                if hasattr(obj, "set_stale"):
+                    obj.set_stale(True)
+
     def collapse_all(self):
         """Collapse every study card (raw data, data-processing, analysis) to its header."""
         for objects in (self.raw_data_objects, self.data_processing_objects, self.data_analysis_objects):

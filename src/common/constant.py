@@ -58,11 +58,35 @@ def argb_to_hex(argb):
 
 # Type colours come from the central scheme (Style.Color); medium-bright so the icons read on
 # the dark UI as well as on the (light) pastel column tags in the data viewer.
+_TYPE_ICON_GLYPH = {
+    ColumnType.NUMERIC: "mdi.numeric",
+    ColumnType.NOMINAL: "mdi6.alphabetical-variant",
+    ColumnType.ORDINAL: "ph.chart-bar",
+    ColumnType.ID: "mdi.key",
+}
+_TYPE_ICON_COLOR = {
+    ColumnType.NUMERIC: Style.Color.TypeNumeric.value,
+    ColumnType.NOMINAL: Style.Color.TypeNominal.value,
+    ColumnType.ORDINAL: Style.Color.TypeOrdinal.value,
+    ColumnType.ID: Style.Color.TypeId.value,
+}
+# Dark, saturated variants for drawing on a column's (light pastel) colour tag, where the
+# normal theme-tinted icons -- light in the dark UI theme -- would be hard to see.
+_TYPE_ICON_COLOR_ON_LIGHT = {
+    ColumnType.NUMERIC: "darkblue",
+    ColumnType.NOMINAL: "darkred",
+    ColumnType.ORDINAL: "darkgreen",
+    ColumnType.ID: "#6a1b9a",
+}
+
 COLUMN_TYPE_ICONS = {
-    ColumnType.NUMERIC: qta.icon("mdi.numeric", color=Style.Color.TypeNumeric.value, opacity=0.9),
-    ColumnType.NOMINAL: qta.icon("mdi6.alphabetical-variant", color=Style.Color.TypeNominal.value, opacity=0.9),
-    ColumnType.ORDINAL: qta.icon("ph.chart-bar", color=Style.Color.TypeOrdinal.value, opacity=0.9),
-    ColumnType.ID: qta.icon("mdi.key", color=Style.Color.TypeId.value, opacity=0.9),
+    ctype: qta.icon(glyph, color=_TYPE_ICON_COLOR[ctype], opacity=0.9)
+    for ctype, glyph in _TYPE_ICON_GLYPH.items()
+}
+# Use when the icon sits on a column's pastel colour tag (see COLOR_ROLE in the data viewer).
+COLUMN_TYPE_ICONS_ON_LIGHT = {
+    ctype: qta.icon(glyph, color=_TYPE_ICON_COLOR_ON_LIGHT[ctype], opacity=0.95)
+    for ctype, glyph in _TYPE_ICON_GLYPH.items()
 }
 
 BASE_STYLES = (

@@ -68,7 +68,7 @@ DARK = {
     "text_on_light": "#15233b",
     "tool_glyph": "#a6a6a0",
     # Accents
-    "accent": "#88eedd88",
+    "accent": "#aaeedd88",
     "accent_blue": "#3a5a8c",
     "selection": "#3a3320",
     "danger": "#ff6b6b",
