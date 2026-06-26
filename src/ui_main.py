@@ -283,12 +283,3 @@ class MainWindowClass(QtWidgets.QMainWindow):
         self.settings_panel.stacked_widget.setCurrentIndex(PanelRegistry.COLUMNS.settings_stacked_widget_index)
         PanelRegistry.COLUMNS.ui_instance.configure(column_indexes)
 
-    @log_method_noarg
-    def action_activate_results_panel(self):
-        logging.error("action_activate_results_panel is deprecated")
-        # self.tab_widget.setCurrentIndex(1)
-
-    @log_method_noarg
-    def action_activate_data_panel(self):
-        logging.error("action_activate_data_panel is deprecated")
-        # self.tab_widget.setCurrentIndex(0)

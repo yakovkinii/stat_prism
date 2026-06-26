@@ -16,7 +16,8 @@ Pick the analysis that matches your question:
 | Relate two categorical variables | {doc}`contingency` |
 | Predict an outcome from one or more variables | {doc}`regression` |
 | Check the internal consistency of a scale | {doc}`reliability` |
-| Find underlying factors / confirm a structure | {doc}`factor-analysis` |
+| Discover the underlying factors behind a set of items | {doc}`exploratory-factor-analysis` |
+| Test a hypothesised factor structure | {doc}`confirmatory-factor-analysis` |
 | Group respondents into clusters | {doc}`cluster` |
 | Plan a sample size or check statistical power | {doc}`power-analysis` |
 | Summarise a "select all that apply" question | {doc}`multiple-response` |
@@ -26,16 +27,17 @@ Pick the analysis that matches your question:
 :hidden:
 
 descriptive
+multiple-response
+contingency
 correlation
 mean-comparison
 paired
-contingency
 regression
 reliability
-factor-analysis
+exploratory-factor-analysis
+confirmatory-factor-analysis
 cluster
 power-analysis
-multiple-response
 ```
 
 ## Common options

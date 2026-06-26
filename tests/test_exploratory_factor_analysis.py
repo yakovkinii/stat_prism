@@ -48,6 +48,7 @@ CASES = [
     ("efa_minres_one_factor", dict(n_factors=1)),
     ("efa_minres_three_factors", dict(n_factors=3)),
     ("efa_number_columns", dict(number_columns=True)),
+    ("efa_verbal", dict(verbal_indicators=True)),
 ]
 
 

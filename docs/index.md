@@ -4,6 +4,11 @@
 turning it into publication-ready tables and figures. It is built for researchers and
 students who want correct statistics and clean, APA-style output **without writing code**.
 
+```{figure} _static/img/hero.png
+:alt: StatPrism with a finished analysis — tables and a figure
+:width: 100%
+```
+
 A typical session follows one straight path:
 
 1. **Import** a response export (for example, a Google Forms spreadsheet).

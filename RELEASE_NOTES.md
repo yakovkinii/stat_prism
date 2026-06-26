@@ -12,6 +12,43 @@ r{
 
 # StatPrism Release Notes
 
+### StatPrism 0.10.0 (26 Jun 2026)
+
+A large feature and polish release. (Intermediate 0.8/0.9 boundaries were not tagged, so
+the changes since 0.7 are collected here.)
+
+**New data-processing steps**
+
+* Transform Column — change type / mapping / order / normalisation, now over **multiple
+  columns at once** (one shared spec; rename disabled for multi-select)
+* One-hot encoding and Split Multi-Select for "select all that apply" data
+* Group Values, Impute Missing, Select ID, and Bootstrap Sensitivity
+* Outlier detection: grouped and 2-D variants, with ordinal support
+
+**New & extended analyses**
+
+* Confirmatory Factor Analysis (CFA), Cluster Analysis
+* Partial/controlled correlation, paired correlation, logistic regression
+* Power Analysis with confidence intervals and effect sizes
+* Multiple Response summaries; question numbering for wide tables
+
+**Interface**
+
+* Dark mode, with a light/dark UI-theme switch in the menu
+* Collapsible study cards with modern toggle switches and compact titles
+* Settings-panel breadcrumbs and back-to-parent navigation
+* Opt-in verbal (plain-text) interpretation across analyses
+* Optional auto-recalculate, plus Ctrl+R to recalculate everything
+* Restructured menus (File / Settings / Help)
+
+**Under the hood**
+
+* Plot theme and language are remembered between sessions (statprism.ini)
+* Interface translations (i18n) with language switching
+* Modules regrouped in the registry with shared, family-based icons
+* HTML snapshot test suite and an online user guide (Read the Docs)
+* Packaging prepared for Nuitka-built Windows executables
+
 ### StatPrism 0.7 (23 Aug 2025)
 
 * Switch to chained data management

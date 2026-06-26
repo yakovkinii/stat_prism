@@ -10,7 +10,7 @@ of them on or off.
 - **Data source.** Like analyses, each step reads from a source. **Auto** means "the output
   of the previous step", so a chain flows naturally from one step to the next.
 - **Most steps add a new column** and leave the source column in place (for example, *Group
-  Values*, *Encode Categories*). A few replace a column **in place** (*Transform Column*) or
+  Values*, *One-hot encoding*). A few replace a column **in place** (*Transform Column*) or
   remove rows (*Filter*, *Outliers*, *Impute ▸ Remove rows*).
 - **Toggleable steps.** *Filter* and the outlier steps have an enable/disable switch on their
   card, so you can compare results with and without them without deleting the step.
@@ -21,18 +21,19 @@ The pages below describe each step.
 ```{toctree}
 :maxdepth: 1
 
-filter
-outliers
-grouped-outliers
-impute
-group
+preprocess
 transform
-invert-scale
 calculate-scale
+invert-scale
+formula
+group
 onehot
 split-multiselect
+filter
+impute
+outliers
+grouped-outliers
+two-d-outliers
 select-id
-formula
-preprocess
 bootstrap
 ```

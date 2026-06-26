@@ -13,9 +13,11 @@ Two purposes, in one window:
                                   (default comment "No changes found")
         * Disapprove           -> output is wrong; it stays flagged
 
-Each verdict requires a confirmation dialog carrying a comment (like a commit
-message), so it is hard to approve/disapprove by accident. Every verdict is
-appended to a per-test history.
+"Approve as correct" and "Disapprove" each require a confirmation dialog carrying
+a comment (like a commit message), so they are hard to trigger by accident.
+"Approve as unchanged" is the fast path: it skips the popup, records the inline
+comment (or the default), and advances to the next case for quick sequential
+review. Every verdict is appended to a per-test history.
 
 Files live in ``tests/snapshots``:
 
@@ -478,6 +480,18 @@ class ReviewWindow(QtWidgets.QMainWindow):
             f"{len(cases)} case(s), {needing} needing review — {SNAPSHOT_DIR}"
         )
 
+    def _reload_and_advance(self):
+        """Reload the list, then move selection to the next case (clamped at the end).
+
+        Used by the unchanged fast path: the just-approved case keeps its place in the
+        (name-sorted) list, so row+1 is the next one to review.
+        """
+        row = self.case_list.currentRow()
+        self.reload_cases()
+        count = self.case_list.count()
+        if count:
+            self.case_list.setCurrentRow(min(row + 1, count - 1))
+
     def current_case(self):
         item = self.case_list.currentItem()
         if item is None:
@@ -503,6 +517,18 @@ class ReviewWindow(QtWidgets.QMainWindow):
     def do_action(self, action: str):
         case = self.current_case()
         if case is None:
+            return
+
+        # Fast path: "approve as unchanged" skips the confirmation popup, records the
+        # inline comment (or the default), and advances to the next case so a reviewer
+        # can sweep through the consistent ones quickly.
+        if action == ACT_UNCHANGED:
+            comment = self.comment_edit.toPlainText().strip() or DEFAULT_UNCHANGED_COMMENT
+            case.promote_received()  # accept the pending output as benchmark (no-op if none)
+            case.add_history(action, comment)
+            self.comment_edit.clear()
+            self._reload_and_advance()
+            self.status_bar.showMessage(f"{ACTION_LABEL[action]}: {case.name}")
             return
 
         # Confirmation popup carrying the comment, so a verdict can't be a stray click.

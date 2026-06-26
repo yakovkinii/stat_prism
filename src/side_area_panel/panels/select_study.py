@@ -53,7 +53,6 @@ class SelectDataAnalysis(BasePanel):
         # self.root_class.results_panel.display(result_id)
         self.root_class.main_area_panel.add_data_analysis(result_id=result_id)
         self.root_class.main_area_panel.update_focus(result_id=result_id)
-        # self.root_class.action_activate_results_panel()
 
         module.ui_instance.configure(result_id=result_id)
         self.root_class.action_activate_panel_by_index(module.settings_stacked_widget_index)

@@ -1,4 +1,4 @@
-# Encode Categories (one-hot)
+# One-hot encoding
 
 Turns a single-select **nominal** column with *k* categories into **0/1 indicator columns**
 (one per category, named *column = category*). This lets a categorical variable be used as a

@@ -18,18 +18,35 @@ project is open, *Save* (not *Save As*) is the quick way to keep it up to date.
 Project files are independent of the application folder, so they are safe across app
 updates and easy to back up or share.
 
+All preferences live under the **Settings** menu.
+
 ## Language
 
-The **Language** menu switches the whole interface and all results between **English** and
+**Settings ▸ Language** switches the whole interface and all results between **English** and
 **Ukrainian**. Switching re-renders existing results in the new language, so copy/export
 *after* choosing the language you want.
 
-## Theme
+## Plot theme
 
-The **Theme** menu offers several visual themes. Changing the theme rebuilds plots and
-results with the new look. (Changing the theme returns you to the home view, since results
-are regenerated.)
+**Settings ▸ Plot theme** offers several looks for figures (for example *Default*, *Strict*,
+and *Dark*). Changing it rebuilds plots and results with the new look. (Changing the theme
+returns you to the home view, since results are regenerated.) Your choice is remembered
+between sessions.
+
+## UI theme
+
+**Settings ▸ UI theme** switches the application's own appearance between **Light** and
+**Dark**. This affects only the window chrome, not your results; it takes effect the next
+time you start StatPrism.
+
+## Auto-recalculate
+
+**Settings ▸ Auto-recalculate**, when enabled, recomputes results automatically as you change
+data steps. With it off, changed results are marked as needing recalculation and you refresh
+them yourself (or use **File ▸ Recalculate All**, or press **Ctrl+R**). The setting is
+remembered between sessions.
 
 ## Help / About
 
-The **Help** menu includes **About**, with version and project information.
+The **Help** menu includes the **User Guide** (this documentation) and **About**, with
+version and project information.

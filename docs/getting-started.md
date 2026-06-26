@@ -4,6 +4,15 @@ This page gives you a quick tour of the StatPrism window and the overall way of 
 
 ## The window at a glance
 
+```{figure} _static/img/full-window-annotated.png
+:alt: The StatPrism window with its main areas labelled
+:width: 100%
+
+The StatPrism window: the **results area** on the left (one card per result), the
+**settings panel** on the right (modules and their options), and the **menu bar** along
+the top.
+```
+
 StatPrism has two main areas:
 
 - **The panel on the right** is where you *do* things. This narrower settings panel lists the
@@ -12,7 +21,8 @@ StatPrism has two main areas:
 - **The large area on the left** shows *results* — the tables and figures produced by your
   analyses, each in its own card.
 
-Along the top is the **menu bar** with **File**, **Language**, **Theme**, and **Help**.
+Along the top is the **menu bar** with **File**, **Settings**, and **Help**. Language and
+the visual themes live under **Settings**.
 
 ## The core idea: a chain of steps
 
@@ -54,9 +64,10 @@ column you expect is missing from a selector, check its **type** in the data vie
 
 ## Languages and themes
 
-StatPrism is available in **English** and **Ukrainian** (menu **Language**), and offers
-several visual **Themes**. Changing either rebuilds your results in the new language/theme.
-See {doc}`projects-and-settings`.
+StatPrism is available in **English** and **Ukrainian** (**Settings ▸ Language**), offers
+several **plot themes** (**Settings ▸ Plot theme**), and has a light/dark **UI theme**
+(**Settings ▸ UI theme**). Changing the language or plot theme rebuilds your results to
+match. See {doc}`projects-and-settings`.
 
 ## Saving your work
 

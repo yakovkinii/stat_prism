@@ -55,7 +55,8 @@ Reliability (Cronbach's α / McDonald's ω)
 
 Factor / loading
 : In factor analysis, a **factor** is an underlying dimension; a **loading** is how strongly
-  an item reflects a factor. See {doc}`analyses/factor-analysis`.
+  an item reflects a factor. See {doc}`analyses/exploratory-factor-analysis` and
+  {doc}`analyses/confirmatory-factor-analysis`.
 
 Statistical power
 : The chance a study will detect an effect that is really there. Power analysis relates power,
@@ -66,7 +67,7 @@ Standardised coefficient (β)
   scales can be compared.
 
 One-hot / indicator column
-: A 0/1 column marking whether a category applies. Created by **Encode Categories** (from a
+: A 0/1 column marking whether a category applies. Created by **One-hot encoding** (from a
   single-select column) or **Split Multi-Select** (from a checkbox question).
 
 APA style

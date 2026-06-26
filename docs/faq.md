@@ -7,7 +7,7 @@
 
 **My nominal variable won't go into a regression.**
 : Regression accepts only numeric/ordinal predictors. Convert the nominal column with
-  **Encode Categories (one-hot)** first; then select the resulting 0/1 indicator columns. See
+  **One-hot encoding** first; then select the resulting 0/1 indicator columns. See
   {doc}`analyses/regression`.
 
 **A blank answer shows up as `nan`.**
@@ -29,8 +29,13 @@
   grouping column's values (watch for a stray `nan` category from blank answers).
 
 **Tables/figures pasted into Word look wrong.**
-: Use **File ▸ Copy All Results** and paste into a rich-text editor (Word). Set the
-  **Language** and **Theme** before copying, since results render in the current settings.
+: Use **File ▸ Copy All Results**, then paste into Word. A **regular paste** (Ctrl+V) works
+  fine. For more precise formatting, use **Paste Special ▸ HTML Format** instead. Either way,
+  if tables come out misaligned, **remove the paragraph indent** first: Word applies a default
+  first-line/left indent that distorts pasted tables, so set the indent to 0 (Home ▸ Paragraph,
+  or clear formatting) before or right after pasting. Also set the **Language**
+  (**Settings ▸ Language**) and **Plot theme** (**Settings ▸ Plot theme**) before copying,
+  since results render in the current settings.
 
 **How do I share or archive a full report?**
 : **File ▸ Export Report (HTML)…** writes one self-contained file (figures embedded). Open it

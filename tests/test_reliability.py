@@ -40,6 +40,7 @@ CASES = [
     ("reliability_no_omega", dict(mcdonald_omega=False)),
     ("reliability_number_columns", dict(number_columns=True)),
     ("reliability_no_verbal", dict(verbal_indicators=False)),
+    ("reliability_item_deleted", dict(item_deleted_table=True)),
     ("reliability_three_items", dict(column_selector=[[COL_AGE, COL_SCORE, COL_SATISFACTION]])),
 ]
 

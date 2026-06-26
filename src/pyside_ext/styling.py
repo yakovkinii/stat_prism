@@ -106,8 +106,7 @@ class Style:
         border_secondary_text = f"2px solid {Scheme.text_secondary}"  # For secondary UI elements
         border_highlight = f"2px solid {Scheme.accent}"  # For highlighted elements
 
-        # Legacy borders (to be deprecated)
-        border_data_analysis = f"5px solid {Scheme.accent_blue}"  # Todo deprecate
+        # Thick/thin selected-vs-unselected borders (result cards, raw-data rows).
         border_thick_unselected = f"5px solid {Scheme.border}"
         border_thick_selected = f"5px solid {Scheme.accent}"
         border_thin_unselected = f"2px solid {Scheme.border}"

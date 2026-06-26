@@ -31,9 +31,28 @@ The fastest path to a report:
 Tables paste as real, editable tables; plots paste as embedded images. This copies *all*
 result cards at once in the order they appear.
 
+```{figure} _static/img/word-paste.png
+:alt: A StatPrism result and the same result pasted into Word, side by side
+:width: 100%
+
+A StatPrism result (left) and the same tables and figure pasted into Word (right).
+```
+
+### Regular paste vs. Paste Special
+
+- **Regular paste** (Ctrl+V) works well for most reports.
+- For more precise formatting, use **Paste Special ▸ HTML Format**.
+
+```{important}
+**Remove the paragraph indent before pasting tables.** Word applies a default first-line/left
+indent to body text, which distorts pasted tables (columns drift or overflow the page). Set
+the indent to **0** (Home ▸ Paragraph) for the area you paste into — or select the pasted
+tables and clear their indent — and they will line up correctly.
+```
+
 ```{tip}
-Set the language (**Language** menu) and theme **before** copying — results are rendered in
-the current language and theme.
+Set the language (**Settings ▸ Language**) and plot theme (**Settings ▸ Plot theme**)
+**before** copying — results are rendered in the current language and theme.
 ```
 
 ## Export a self-contained report

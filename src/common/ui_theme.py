@@ -35,11 +35,10 @@ LIGHT = {
     "tool_glyph": "#888888",
     # Accents
     "accent": "#0055ff",
-    "accent_blue": "#aaaaff",
     "selection": "#cfe3ff",
     "danger": "#770000",
     # Brand colour for study titles (legible dark gold on the light paper)
-    "title_brand": "#8a6d1f",
+    "title_brand": "#007",
     # Misc
     "overlay": "rgba(0,11,22,0.4)",
     "table_rule": "black",
@@ -69,7 +68,6 @@ DARK = {
     "tool_glyph": "#a6a6a0",
     # Accents
     "accent": "#aaeedd88",
-    "accent_blue": "#3a5a8c",
     "selection": "#3a3320",
     "danger": "#ff6b6b",
     # Brand colour for study titles (banner gold)

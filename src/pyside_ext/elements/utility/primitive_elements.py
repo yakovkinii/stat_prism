@@ -1,7 +1,6 @@
 #  Copyright (c) 2023 StatPrism Team. All rights reserved.
 
 
-import logging
 from typing import Callable, Optional
 
 from PySide6 import QtCore, QtWidgets
@@ -82,7 +81,6 @@ class EditableLabelWordwrap(QTextEdit):
     editingFinished = Signal(bool)
 
     def __init__(self, parent):
-        logging.warning("EditableLabelWordwrap is deprecated.")
         super().__init__(parent)
         self.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
         self.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)

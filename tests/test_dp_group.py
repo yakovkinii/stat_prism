@@ -8,7 +8,7 @@ from src.side_area_panel.modules.dp_group.dp_group_result import (
     GroupValuesResult,
     GroupValuesStudyConfig,
 )
-from tests.datasets import COL_AGE, COL_INCOME, MAIN
+from tests.datasets import COL_AGE, COL_EDUCATION, COL_INCOME, MAIN
 from tests.helpers import assert_data_snapshot, load_dataset, run_main
 
 
@@ -31,6 +31,9 @@ CASES = [
     ("dp_group_age_lower", dict(split_side="Lower group")),
     ("dp_group_age_single_split", dict(thresholds="40")),
     ("dp_group_income_quartiles", dict(column_selector=[[COL_INCOME]], thresholds="35000, 50000, 65000")),
+    # Regression: grouping a non-numeric column used to crash; it now passes the data
+    # through unchanged (and flags the input).
+    ("dp_group_nonnumeric_passthrough", dict(column_selector=[[COL_EDUCATION]])),
 ]
 
 

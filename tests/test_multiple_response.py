@@ -43,11 +43,12 @@ def _split_indicators():
     return split.data, indicators
 
 
-@pytest.mark.parametrize("name,show_chart", [
-    ("multiple_response_features", False),
-    ("multiple_response_features_chart", True),
-], ids=["no_chart", "chart"])
-def test_multiple_response(name, show_chart):
+@pytest.mark.parametrize("name,show_chart,verbal", [
+    ("multiple_response_features", False, False),
+    ("multiple_response_features_chart", True, False),
+    ("multiple_response_features_verbal", False, True),
+], ids=["no_chart", "chart", "verbal"])
+def test_multiple_response(name, show_chart, verbal):
     data, indicators = _split_indicators()
     result = run_main(
         recalculate_multiple_response_study,
@@ -56,6 +57,7 @@ def test_multiple_response(name, show_chart):
             data_source="Auto",
             column_selector=[indicators],
             show_chart=show_chart,
+            verbal_indicators=verbal,
         ),
         data,
     )
