@@ -19,7 +19,7 @@ from unittest.mock import MagicMock
 
 import pandas as pd
 
-from src.common.constant import ColumnType, ID_COLUMN_NAME
+from src.common.constant import ID_COLUMN_NAME, ColumnType
 from src.data import data_manager as data_manager_module
 from src.data.data import Data
 from src.side_area_panel.modules.raw_data.raw_data_result import RawDataStudyConfig
@@ -40,9 +40,7 @@ def load_dataset(name: str, ordinal: dict = None) -> Data:
     """
     path = DATA_DIR / f"{name}.xlsx"
     if not path.exists():
-        raise FileNotFoundError(
-            f"Missing fixture {path}. Run _GEN_TEST_DATA.bat (tests/generate_fixtures.py) first."
-        )
+        raise FileNotFoundError(f"Missing fixture {path}. Run _GEN_TEST_DATA.bat (tests/generate_fixtures.py) first.")
     dataframe = pd.read_excel(path)
     config = RawDataStudyConfig(dataframe=dataframe, path=str(path), timestamp="", header_colors={})
     # _build_data does not use `self`; call it directly to run the real reader logic.
@@ -101,9 +99,7 @@ def data_to_html(data: Data) -> str:
         )
     meta = (
         "<table border='1' cellspacing='0' cellpadding='4'>"
-        "<tr><th>column</th><th>type</th><th>dtype</th><th>color</th></tr>"
-        + "".join(rows)
-        + "</table>"
+        "<tr><th>column</th><th>type</th><th>dtype</th><th>color</th></tr>" + "".join(rows) + "</table>"
     )
     df = data.get_dataframe()
     return f"<h3>Columns</h3>{meta}<h3>Data</h3>{df.to_html()}"
@@ -127,12 +123,9 @@ def _assert_html(html: str, name: str) -> str:
 
     received.write_text(html, encoding="utf-8")
     if not approved.exists():
-        raise AssertionError(
-            f"No benchmark for '{name}'. Review and approve it in tools/snapshot_review.py."
-        )
+        raise AssertionError(f"No benchmark for '{name}'. Review and approve it in tools/snapshot_review.py.")
     raise AssertionError(
-        f"Snapshot '{name}' differs from its benchmark. "
-        f"Review and approve/fix in tools/snapshot_review.py."
+        f"Snapshot '{name}' differs from its benchmark. " f"Review and approve/fix in tools/snapshot_review.py."
     )
 
 

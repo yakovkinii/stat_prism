@@ -66,7 +66,9 @@ def show_color_picker(anchor_widget, on_choose) -> OverlayPopup:
     IISPWACColorPicker element."""
     holder = {}
     content = QFrame()
-    set_stylesheet(content, css(background=Style.Color.BackgroundElevated, border=f"1px solid {Style.Color.BorderElevated}"))
+    set_stylesheet(
+        content, css(background=Style.Color.BackgroundElevated, border=f"1px solid {Style.Color.BorderElevated}")
+    )
     grid = QGridLayout(content)
     grid.setContentsMargins(10, 10, 10, 10)
     grid.setSpacing(6)
@@ -96,7 +98,9 @@ def show_color_picker(anchor_widget, on_choose) -> OverlayPopup:
 def show_value_mapping_popup(anchor_widget, unique_values, reference_value) -> OverlayPopup:
     """Centered preview showing each value mapped to its inverted (reference - value)."""
     content = QFrame()
-    set_stylesheet(content, css(background=Style.Color.BackgroundElevated, border=f"1px solid {Style.Color.BorderElevated}"))
+    set_stylesheet(
+        content, css(background=Style.Color.BackgroundElevated, border=f"1px solid {Style.Color.BorderElevated}")
+    )
     grid = QGridLayout(content)
     grid.setContentsMargins(12, 12, 12, 12)
 

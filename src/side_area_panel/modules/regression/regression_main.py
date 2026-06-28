@@ -33,10 +33,7 @@ from src.side_area_panel.modules.common.utility import (
 )
 from src.side_area_panel.modules.common.verbal.significance import significance_verbal
 from src.side_area_panel.modules.regression.constant import RegressionModelType
-from src.side_area_panel.modules.regression.regression_result import (
-    RegressionResult,
-    RegressionStudyConfig,
-)
+from src.side_area_panel.modules.regression.regression_result import RegressionResult, RegressionStudyConfig
 
 
 def _fail(result: RegressionResult, message: str) -> RegressionResult:
@@ -125,9 +122,7 @@ def _add_vif_table(result, x, verbal):
             cells.append(Cell(t(f"regression.vif.{_vif_key(vif)}"), center=True))
         vif_table.add_single_row_apa(Row(cells))
     verbal and vif_table.add_text(
-        t("regression.report.vif_high", items=smart_comma_join(high))
-        if high
-        else t("regression.report.vif_ok")
+        t("regression.report.vif_high", items=smart_comma_join(high)) if high else t("regression.report.vif_ok")
     )
     result.update_and_add_element(vif_table, "regression vif")
 
@@ -148,11 +143,7 @@ def _add_influence_table(result, model, verbal):
     leverage_cut = 2.0 * p / n if n else np.nan
 
     labels = list(model.fittedvalues.index)
-    flagged = [
-        i
-        for i in range(n)
-        if (cooks[i] > cooks_cut) or (leverage[i] > leverage_cut) or (abs(std_resid[i]) > 3)
-    ]
+    flagged = [i for i in range(n) if (cooks[i] > cooks_cut) or (leverage[i] > leverage_cut) or (abs(std_resid[i]) > 3)]
     # Worst first, capped so the table stays readable.
     flagged.sort(key=lambda i: cooks[i], reverse=True)
     flagged = flagged[:20]
@@ -249,9 +240,7 @@ def _coefficient_prose(model, dependent_column) -> str:
     for param in model.params.index:
         if param == "const" or model.pvalues[param] >= 0.05:
             continue
-        direction = (
-            t("regression.dir.positive") if model.params[param] >= 0 else t("regression.dir.negative")
-        )
+        direction = t("regression.dir.positive") if model.params[param] >= 0 else t("regression.dir.negative")
         significant.append(f"{param} ({direction})")
     if significant:
         text += t("regression.report.coef_sig", dv=dependent_column, items=smart_comma_join(significant))
@@ -375,14 +364,8 @@ def recalculate_regression_study(elements, result: RegressionResult, update) -> 
         f=format_statistic_apa(model.fvalue),
         p=format_p_apa_full(model.f_pvalue),
     )
-    report += (
-        t("regression.report.significant")
-        if model.f_pvalue < 0.05
-        else t("regression.report.not_significant")
-    )
-    significant_predictors = [
-        name for name in model.params.index if name != "const" and model.pvalues[name] < 0.05
-    ]
+    report += t("regression.report.significant") if model.f_pvalue < 0.05 else t("regression.report.not_significant")
+    significant_predictors = [name for name in model.params.index if name != "const" and model.pvalues[name] < 0.05]
     report += (
         t("regression.report.predictors", items=smart_comma_join(significant_predictors))
         if significant_predictors
@@ -394,7 +377,11 @@ def recalculate_regression_study(elements, result: RegressionResult, update) -> 
 
     # ----- Coefficients table -----
     coefficients_table = _coefficient_table(
-        model, dependent_sd, show_std, verbal, x,
+        model,
+        dependent_sd,
+        show_std,
+        verbal,
+        x,
         caption=t("regression.caption.coefficients"),
         intercept_label=t("regression.row.intercept"),
     )
@@ -493,9 +480,7 @@ def _build_plot(df, model, mediator_model, dependent_column, independent_columns
         for number_of_sds in [-1, 0, 1]:
             x_values = x_values_original.copy()
             x_values[moderator_column] = mean + number_of_sds * std
-            x_values[f"{predictor}&nbsp;*&nbsp;{moderator_column}"] = (
-                x_values[predictor] * x_values[moderator_column]
-            )
+            x_values[f"{predictor}&nbsp;*&nbsp;{moderator_column}"] = x_values[predictor] * x_values[moderator_column]
             label = t("regression.plot.line_sd", sd=number_of_sds)
             items.append(
                 Line(
@@ -529,13 +514,21 @@ def _build_plot(df, model, mediator_model, dependent_column, independent_columns
         # Band labels must be unique across the plot (they key the settings panel), so they
         # carry the effect name rather than a shared "Standard error".
         items.append(
-            Band(x=xx, y1=yy - conf_interval, y2=yy + conf_interval,
-                 label=t("regression.plot.direct"), config=BandPlotConfig(color=color))
+            Band(
+                x=xx,
+                y1=yy - conf_interval,
+                y2=yy + conf_interval,
+                label=t("regression.plot.direct"),
+                config=BandPlotConfig(color=color),
+            )
         )
         items.append(
             Line(
-                x=xx, y=yy, label=t("regression.plot.direct"),
-                legend_string=t("regression.plot.direct"), config=LinePlotConfig(color=color),
+                x=xx,
+                y=yy,
+                label=t("regression.plot.direct"),
+                legend_string=t("regression.plot.direct"),
+                config=LinePlotConfig(color=color),
             )
         )
 
@@ -545,13 +538,21 @@ def _build_plot(df, model, mediator_model, dependent_column, independent_columns
         yy = model.predict(sm.add_constant(x_values))
         color = colors.get_color_list()
         items.append(
-            Band(x=xx, y1=yy - conf_interval, y2=yy + conf_interval,
-                 label=t("regression.plot.total"), config=BandPlotConfig(color=color))
+            Band(
+                x=xx,
+                y1=yy - conf_interval,
+                y2=yy + conf_interval,
+                label=t("regression.plot.total"),
+                config=BandPlotConfig(color=color),
+            )
         )
         items.append(
             Line(
-                x=xx, y=yy, label=t("regression.plot.total"),
-                legend_string=t("regression.plot.total"), config=LinePlotConfig(color=color),
+                x=xx,
+                y=yy,
+                label=t("regression.plot.total"),
+                legend_string=t("regression.plot.total"),
+                config=LinePlotConfig(color=color),
             )
         )
     else:
@@ -642,9 +643,7 @@ def _run_logistic(result, df, dependent_column, independent_columns, moderator_c
         df=int(model.df_model),
         p=format_p_apa_full(model.llr_pvalue),
     )
-    report += (
-        t("regression.report.significant") if model.llr_pvalue < 0.05 else t("regression.report.not_significant")
-    )
+    report += t("regression.report.significant") if model.llr_pvalue < 0.05 else t("regression.report.not_significant")
     if verbal:
         fit_table.add_text(report)
     result.update_and_add_element(fit_table, "regression fit")
@@ -707,9 +706,7 @@ def _logistic_coefficient_prose(model, dependent_column, positive_label) -> str:
     for param in model.params.index:
         if param == "const" or model.pvalues[param] >= 0.05:
             continue
-        direction = (
-            t("regression.dir.increase") if model.params[param] >= 0 else t("regression.dir.decrease")
-        )
+        direction = t("regression.dir.increase") if model.params[param] >= 0 else t("regression.dir.decrease")
         significant.append(f"{param} ({direction})")
     if significant:
         text += t("regression.report.logit_coef_sig", positive=positive_label, items=smart_comma_join(significant))
@@ -737,9 +734,7 @@ def _build_logistic_plot(df, model, y, dependent_column, independent_columns, mo
         for number_of_sds in [-1, 0, 1]:
             x_values = x_values_original.copy()
             x_values[moderator_column] = mean + number_of_sds * std
-            x_values[f"{predictor}&nbsp;*&nbsp;{moderator_column}"] = (
-                x_values[predictor] * x_values[moderator_column]
-            )
+            x_values[f"{predictor}&nbsp;*&nbsp;{moderator_column}"] = x_values[predictor] * x_values[moderator_column]
             label = t("regression.plot.line_sd", sd=number_of_sds)
             items.append(
                 Line(

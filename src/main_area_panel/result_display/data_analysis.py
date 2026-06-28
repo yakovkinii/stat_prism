@@ -11,18 +11,10 @@ from src.common.progress import with_progress
 from src.common.ui_constructor import create_simple_tool_button_qta
 from src.main_area_panel.result_display.base import BaseResultDisplay
 from src.main_area_panel.result_display.elements.result_label import ResultLabel
+from src.main_area_panel.result_display.plot_result_element import PlotResultElementDisplay, ZoomedPlotView
+from src.main_area_panel.result_display.table_result_element import TableResultElementDisplay
 from src.main_area_panel.show_in_main_area_popup import view_widget_in_popup
-from src.main_area_panel.result_display.plot_result_element import (
-    PlotResultElementDisplay,
-    ZoomedPlotView,
-)
-from src.main_area_panel.result_display.table_result_element import (
-    TableResultElementDisplay,
-)
-from src.pyside_ext.elements.utility.layout_helpers import (
-    empty_widget,
-    widget_in_layout,
-)
+from src.pyside_ext.elements.utility.layout_helpers import empty_widget, widget_in_layout
 from src.pyside_ext.elements.utility.primitive_elements import QWidgetClickable
 from src.pyside_ext.flow_layout import FlowLayout
 from src.pyside_ext.markup import css
@@ -232,7 +224,6 @@ class DataAnalysisResultDisplay(BaseResultDisplay):
         self.refresh()
         self.remove_focus(None)
 
-
     def toggle_collapsed(self):
         self.set_collapsed(not self.collapsed)
 
@@ -241,9 +232,7 @@ class DataAnalysisResultDisplay(BaseResultDisplay):
         self.collapsed = collapsed
         self.html_result_elements_container.setVisible(not collapsed)
         self.plot_result_elements_container.setVisible(not collapsed)
-        self.collapse_button.setIcon(
-            qta.icon("mdi6.chevron-down" if collapsed else "mdi6.chevron-up", color="#888")
-        )
+        self.collapse_button.setIcon(qta.icon("mdi6.chevron-down" if collapsed else "mdi6.chevron-up", color="#888"))
 
     def copy_all_elements(self):
         self.copy_button.setIcon(qta.icon("fa.check", color="#4CAF50"))
@@ -276,9 +265,7 @@ class DataAnalysisResultDisplay(BaseResultDisplay):
         """Flag this study as out of date (manual-recalculate mode): tint the Refresh button
         an alarm colour and set the result's needs_update. Reset when it is recalculated."""
         RESULTS[self.result_id].needs_update = stale
-        self.recalculate_button.setIcon(
-            qta.icon("ph.arrows-clockwise-bold", color="#e0a030" if stale else "#888")
-        )
+        self.recalculate_button.setIcon(qta.icon("ph.arrows-clockwise-bold", color="#e0a030" if stale else "#888"))
 
     def recalculate_full(self):
         # Drop the cache of user edits (axis titles, plot colours, table numbers...) so
@@ -413,7 +400,6 @@ class DataAnalysisResultDisplay(BaseResultDisplay):
                 self.plot_result_elements_container_layout.addWidget(
                     self.element_display_objects[result_element_id].widget
                 )
-
 
     def adjust_scroll_height(self):
         self.plot_result_elements_container.adjustSize()

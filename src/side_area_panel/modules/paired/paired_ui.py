@@ -10,10 +10,7 @@ from src.side_area_panel.iispwac.iispwac_combobox import IISPWACComboBox
 from src.side_area_panel.iispwac.iispwac_data_source import IISPWACDataSource
 from src.side_area_panel.iispwac.iispwac_spacer import IISPWACSpacer
 from src.side_area_panel.modules.base.base import BaseModulePanel
-from src.side_area_panel.modules.paired.constant import (
-    PairedAssumptionChecks,
-    PairedMethod,
-)
+from src.side_area_panel.modules.paired.constant import PairedAssumptionChecks, PairedMethod
 
 
 class Elements(ItemInSidePanelWithAutoConfigHolder):

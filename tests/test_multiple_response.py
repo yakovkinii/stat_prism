@@ -8,16 +8,12 @@ in as the data source for the second step.
 
 import pytest
 
-from src.side_area_panel.modules.dp_split_multiselect.dp_split_multiselect_main import (
-    dp_split_multiselect_main,
-)
+from src.side_area_panel.modules.dp_split_multiselect.dp_split_multiselect_main import dp_split_multiselect_main
 from src.side_area_panel.modules.dp_split_multiselect.dp_split_multiselect_result import (
     SplitMultiSelectResult,
     SplitMultiSelectStudyConfig,
 )
-from src.side_area_panel.modules.multiple_response.multiple_response_main import (
-    recalculate_multiple_response_study,
-)
+from src.side_area_panel.modules.multiple_response.multiple_response_main import recalculate_multiple_response_study
 from src.side_area_panel.modules.multiple_response.multiple_response_result import (
     MultipleResponseResult,
     MultipleResponseStudyConfig,
@@ -43,11 +39,15 @@ def _split_indicators():
     return split.data, indicators
 
 
-@pytest.mark.parametrize("name,show_chart,verbal", [
-    ("multiple_response_features", False, False),
-    ("multiple_response_features_chart", True, False),
-    ("multiple_response_features_verbal", False, True),
-], ids=["no_chart", "chart", "verbal"])
+@pytest.mark.parametrize(
+    "name,show_chart,verbal",
+    [
+        ("multiple_response_features", False, False),
+        ("multiple_response_features_chart", True, False),
+        ("multiple_response_features_verbal", False, True),
+    ],
+    ids=["no_chart", "chart", "verbal"],
+)
 def test_multiple_response(name, show_chart, verbal):
     data, indicators = _split_indicators()
     result = run_main(

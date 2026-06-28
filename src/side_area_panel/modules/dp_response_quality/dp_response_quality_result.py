@@ -5,7 +5,6 @@ from src.data.data import Data
 from src.side_area_panel.modules.common.cleaning_logic import CHECK_DUPLICATES, CHECKS
 from src.side_area_panel.modules.common.result.registry import BaseResult
 
-
 _METHODOLOGY = (
     "<b>Response quality</b><br>"
     "Screens respondents for careless or low-quality answering on the selected questions and "

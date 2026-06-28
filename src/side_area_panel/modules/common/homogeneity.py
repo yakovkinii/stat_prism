@@ -10,15 +10,9 @@ from scipy.stats._morestats import LeveneResult
 from src.common.translations import t
 from src.side_area_panel.modules.common.column_numbering import ColumnNumbering
 from src.side_area_panel.modules.common.result.html_result import Cell, HTMLTableV2, Row
-from src.side_area_panel.modules.common.utility import (
-    format_p_apa,
-    format_statistic_apa,
-)
+from src.side_area_panel.modules.common.utility import format_p_apa, format_statistic_apa
 from src.side_area_panel.modules.common.verbal.significance import assumption_met_verbal
-from src.side_area_panel.modules.common.verbal.test import (
-    TestResult,
-    describe_single_test_multiple_variables,
-)
+from src.side_area_panel.modules.common.verbal.test import TestResult, describe_single_test_multiple_variables
 
 
 def process_homogeneity_check(

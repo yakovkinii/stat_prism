@@ -1,5 +1,5 @@
 #  Copyright (c) 2023 StatPrism Team. All rights reserved.
-from PySide6.QtWidgets import QLabel, QLineEdit, QCheckBox
+from PySide6.QtWidgets import QCheckBox, QLineEdit
 
 from src.pyside_ext.elements.utility.layout_helpers import add_widget
 from src.pyside_ext.layout import VBoxLayout
@@ -46,8 +46,8 @@ class IISPWACLongTextEditCheckBox(ItemInSidePanelWithAutoConfig):
     def get_kwargs(self):
         return {
             self.name: {
-                "rename":self.checkbox.isChecked(),
-                "new_name":self.edit.text(),
+                "rename": self.checkbox.isChecked(),
+                "new_name": self.edit.text(),
             }
         }
 
@@ -61,11 +61,11 @@ class IISPWACLongTextEditCheckBox(ItemInSidePanelWithAutoConfig):
                 }
             else:
                 config = {
-                    "rename":self.default_state,
-                    "new_name":"",
+                    "rename": self.default_state,
+                    "new_name": "",
                 }
 
-        if config["new_name"]=="":
+        if config["new_name"] == "":
             config["new_name"] = self.get_default_name_from_kwargs(**kwargs)
 
         self.edit.setText(config["new_name"])

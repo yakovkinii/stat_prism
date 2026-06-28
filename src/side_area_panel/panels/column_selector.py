@@ -4,10 +4,7 @@
 from typing import TYPE_CHECKING
 
 from src.common.decorators import log_method, log_method_noarg
-from src.pyside_ext.elements.column_selector import (
-    ColumnSelectorExPopup,
-    ColumnSelectorPopupHolder,
-)
+from src.pyside_ext.elements.column_selector import ColumnSelectorExPopup, ColumnSelectorPopupHolder
 from src.side_area_panel.panels.base import BasePanel
 
 if TYPE_CHECKING:

@@ -7,9 +7,9 @@ import pandas as pd
 
 from src.common.decorators import log_function
 from src.common.qcolor import Colors
+from src.data.data_manager import DATA_MANAGER
 from src.side_area_panel.modules.common.result.html_result import Cell, HTMLTableV2, Row
 from src.side_area_panel.modules.common.result.plot_result import Bar, BarPlotConfig, PlotV2
-from src.data.data_manager import DATA_MANAGER
 from src.side_area_panel.modules.multiple_response.multiple_response_result import MultipleResponseResult
 
 
@@ -56,24 +56,35 @@ def recalculate_multiple_response_study(elements, result: MultipleResponseResult
     # ----- Table -----
     table = HTMLTableV2(table_caption="Multiple-response frequencies")
     table.add_title_row_apa(
-        Row([Cell("Option"), Cell("Selected", center=True), Cell("% of responses", center=True), Cell("% of cases", center=True)])
+        Row(
+            [
+                Cell("Option"),
+                Cell("Selected", center=True),
+                Cell("% of responses", center=True),
+                Cell("% of cases", center=True),
+            ]
+        )
     )
     for c in columns:
         table.add_single_row_apa(
-            Row([
-                Cell(str(c)),
-                Cell(str(counts[c]), center=True),
-                Cell(_pct(counts[c], total_selections), center=True),
-                Cell(_pct(counts[c], n_cases), center=True),
-            ])
+            Row(
+                [
+                    Cell(str(c)),
+                    Cell(str(counts[c]), center=True),
+                    Cell(_pct(counts[c], total_selections), center=True),
+                    Cell(_pct(counts[c], n_cases), center=True),
+                ]
+            )
         )
     table.add_single_row_apa(
-        Row([
-            Cell("Total responses"),
-            Cell(str(total_selections), center=True),
-            Cell("100.0%", center=True),
-            Cell(_pct(total_selections, n_cases), center=True),
-        ])
+        Row(
+            [
+                Cell("Total responses"),
+                Cell(str(total_selections), center=True),
+                Cell("100.0%", center=True),
+                Cell(_pct(total_selections, n_cases), center=True),
+            ]
+        )
     )
     if cfg.verbal_indicators:
         table.add_text(

@@ -4,14 +4,14 @@ import json
 import logging
 import struct
 import xml.etree.ElementTree as ET
-from pathlib import Path
 import zipfile
+from pathlib import Path
 
 import openpyxl
 import pandas as pd
 from PySide6 import QtWidgets
 
-from src.common.constant import ColumnType, ID_COLUMN_NAME, argb_to_hex
+from src.common.constant import ID_COLUMN_NAME, ColumnType, argb_to_hex
 from src.common.decorators import log_method, log_method_noarg
 from src.common.messages import MessageType
 from src.common.progress import run_in_separate_thread
@@ -154,9 +154,7 @@ def _read_jamovi_omv(file_path: str) -> pd.DataFrame:
             indexes = struct.unpack(f"<{row_count}i", data_bytes[offset : offset + byte_count])
             offset += byte_count
             values = [
-                None
-                if index == _JAMOVI_INT_MISSING
-                else _read_null_terminated_string(strings_bytes, index)
+                None if index == _JAMOVI_INT_MISSING else _read_null_terminated_string(strings_bytes, index)
                 for index in indexes
             ]
         else:
@@ -254,9 +252,7 @@ class RawData(BaseModulePanel):
         sheets = pd.ExcelFile(file_path).sheet_names
         if len(sheets) <= 1:
             return 0
-        name, ok = QtWidgets.QInputDialog.getItem(
-            self.widget, "Select sheet", "Worksheet:", sheets, 0, False
-        )
+        name, ok = QtWidgets.QInputDialog.getItem(self.widget, "Select sheet", "Worksheet:", sheets, 0, False)
         return name if ok else False
 
     @log_method

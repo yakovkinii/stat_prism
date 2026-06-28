@@ -7,9 +7,7 @@ indicator column per option. DP module -> snapshot the transformed data.
 
 import pytest
 
-from src.side_area_panel.modules.dp_split_multiselect.dp_split_multiselect_main import (
-    dp_split_multiselect_main,
-)
+from src.side_area_panel.modules.dp_split_multiselect.dp_split_multiselect_main import dp_split_multiselect_main
 from src.side_area_panel.modules.dp_split_multiselect.dp_split_multiselect_result import (
     SplitMultiSelectResult,
     SplitMultiSelectStudyConfig,

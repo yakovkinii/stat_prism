@@ -5,8 +5,7 @@ import numpy as np
 import pandas as pd
 import pingouin as pg
 from scipy.optimize import minimize_scalar
-from scipy.stats import kendalltau, pearsonr, spearmanr
-from scipy.stats import norm, multivariate_normal, chi2
+from scipy.stats import chi2, kendalltau, multivariate_normal, norm, pearsonr, spearmanr
 
 from src.side_area_panel.modules.common.mathematics.correlation.binary_correlations import (
     phi_coefficient,
@@ -102,12 +101,8 @@ def polychoric_corr_with_pvalue(x, y, min_prob=1e-12):
     row_cum = np.clip(row_cum, min_prob, 1 - min_prob)
     col_cum = np.clip(col_cum, min_prob, 1 - min_prob)
 
-    row_thresholds = np.concatenate(
-        [[-np.inf], norm.ppf(row_cum), [np.inf]]
-    )
-    col_thresholds = np.concatenate(
-        [[-np.inf], norm.ppf(col_cum), [np.inf]]
-    )
+    row_thresholds = np.concatenate([[-np.inf], norm.ppf(row_cum), [np.inf]])
+    col_thresholds = np.concatenate([[-np.inf], norm.ppf(col_cum), [np.inf]])
 
     def bvncdf(a, b, rho):
         if np.isneginf(a) or np.isneginf(b):
@@ -134,12 +129,7 @@ def polychoric_corr_with_pvalue(x, y, min_prob=1e-12):
         ly = col_thresholds[j]
         uy = col_thresholds[j + 1]
 
-        p = (
-            bvncdf(ux, uy, rho)
-            - bvncdf(lx, uy, rho)
-            - bvncdf(ux, ly, rho)
-            + bvncdf(lx, ly, rho)
-        )
+        p = bvncdf(ux, uy, rho) - bvncdf(lx, uy, rho) - bvncdf(ux, ly, rho) + bvncdf(lx, ly, rho)
 
         return max(float(p), min_prob)
 
@@ -176,6 +166,7 @@ def polychoric_corr_with_pvalue(x, y, min_prob=1e-12):
     p_value = chi2.sf(lr_stat, df=1)
 
     return corr, p_value
+
 
 def _pair_correlation(series1, series2, kind: CorrelationType):
     """Correlation, p-value and degrees of freedom for one pair of series (pairwise
@@ -280,7 +271,11 @@ def calculate_partial_cross_correlations(df, rows, cols, controls, kind: Correla
                 res = pg.partial_corr(data=valid, x=row, y=col, covar=pair_controls, method=method)
                 corr = float(res["r"].iloc[0])
                 p_value = float(res["p-val"].iloc[0])
-                dof = (n - 2 - len(pair_controls)) if kind in (CorrelationType.PEARSON, CorrelationType.SPEARMAN) else np.nan
+                dof = (
+                    (n - 2 - len(pair_controls))
+                    if kind in (CorrelationType.PEARSON, CorrelationType.SPEARMAN)
+                    else np.nan
+                )
 
             correlation_matrix.loc[row, col] = corr
             p_matrix.loc[row, col] = p_value

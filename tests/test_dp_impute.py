@@ -4,10 +4,7 @@
 import pytest
 
 from src.side_area_panel.modules.dp_impute.dp_impute_main import dp_impute_main
-from src.side_area_panel.modules.dp_impute.dp_impute_result import (
-    ImputeResult,
-    ImputeStudyConfig,
-)
+from src.side_area_panel.modules.dp_impute.dp_impute_result import ImputeResult, ImputeStudyConfig
 from tests.datasets import COL_AGE, COL_INCOME, MAIN
 from tests.helpers import assert_data_snapshot, load_dataset, run_main
 

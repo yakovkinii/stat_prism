@@ -18,8 +18,7 @@ class BasePanelElement:
         self.handler = handler
 
     @abstractmethod
-    def setup(self):
-        ...
+    def setup(self): ...
 
     def configure(self, *args, **kwargs):
         raise NotImplementedError(f"Configure method not implemented for {self.__class__.__name__}.")

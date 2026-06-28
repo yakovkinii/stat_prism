@@ -6,10 +6,7 @@ from PySide6.QtGui import QIcon
 from PySide6.QtWidgets import QLabel, QVBoxLayout
 
 from src.pyside_ext.elements.base import BasePanelElement
-from src.pyside_ext.elements.utility.layout_helpers import (
-    empty_widget,
-    widget_in_layout,
-)
+from src.pyside_ext.elements.utility.layout_helpers import empty_widget, widget_in_layout
 from src.pyside_ext.elements.utility.primitive_elements import QWidgetClickable
 
 

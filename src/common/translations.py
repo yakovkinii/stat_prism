@@ -412,8 +412,7 @@ TRANSLATIONS = {
             "difference between the following groups: {groups}."
         ),
         "ua": (
-            "Апостеріорний тест {name} для «{col}» виявив статистично значущу "
-            "різницю між такими групами: {groups}."
+            "Апостеріорний тест {name} для «{col}» виявив статистично значущу " "різницю між такими групами: {groups}."
         ),
     },
     "ttest.group_pair": {
@@ -1036,20 +1035,26 @@ TRANSLATIONS = {
         "ua": "Адекватність вибірки {label} (KMO = {kmo}). ",
     },
     "efa.report.bartlett_sig": {
-        "en": "Bartlett's test of sphericity is significant (χ²({df}) = {chi2}, {p}), so the variables are sufficiently correlated for factoring. ",
-        "ua": "Тест сферичності Бартлетта значущий (χ²({df}) = {chi2}, {p}), тож змінні достатньо корельовані для факторизації. ",
+        "en": "Bartlett's test of sphericity is significant (χ²({df}) = {chi2}, {p}), "
+        "so the variables are sufficiently correlated for factoring. ",
+        "ua": "Тест сферичності Бартлетта значущий (χ²({df}) = {chi2}, {p}), "
+        "тож змінні достатньо корельовані для факторизації. ",
     },
     "efa.report.bartlett_ns": {
-        "en": "Bartlett's test of sphericity is not significant (χ²({df}) = {chi2}, {p}); the variables may be too weakly correlated for factoring. ",
-        "ua": "Тест сферичності Бартлетта незначущий (χ²({df}) = {chi2}, {p}); змінні можуть бути надто слабко корельовані для факторизації. ",
+        "en": "Bartlett's test of sphericity is not significant (χ²({df}) = {chi2}, {p}); "
+        "the variables may be too weakly correlated for factoring. ",
+        "ua": "Тест сферичності Бартлетта незначущий (χ²({df}) = {chi2}, {p}); "
+        "змінні можуть бути надто слабко корельовані для факторизації. ",
     },
     "efa.report.kaiser": {
         "en": "The Kaiser criterion (eigenvalue > 1) suggests {n} factor(s). ",
         "ua": "Критерій Кайзера (власне значення > 1) пропонує {n} фактор(ів). ",
     },
     "efa.report.kaiser_none": {
-        "en": "No eigenvalue exceeds 1; consider a scree plot or parallel analysis to choose the number of factors. ",
-        "ua": "Жодне власне значення не перевищує 1; для вибору кількості факторів скористайтеся графіком осипу або паралельним аналізом. ",
+        "en": "No eigenvalue exceeds 1; consider a scree plot or parallel analysis to choose "
+        "the number of factors. ",
+        "ua": "Жодне власне значення не перевищує 1; для вибору кількості факторів скористайтеся "
+        "графіком осипу або паралельним аналізом. ",
     },
     "efa.plot.scree": {"en": "Scree plot", "ua": "Графік осипу"},
     "efa.plot.kaiser_line": {
@@ -1099,15 +1104,20 @@ TRANSLATIONS = {
     "cfa.fit.excellent": {"en": "excellent", "ua": "відмінна"},
     "cfa.report.chi2_good": {
         "en": "The exact-fit χ² test is non-significant (χ²({df}) = {chi2}, {p}), consistent with good fit. ",
-        "ua": "Тест точної відповідності χ² незначущий (χ²({df}) = {chi2}, {p}), що узгоджується з доброю відповідністю. ",
+        "ua": "Тест точної відповідності χ² незначущий (χ²({df}) = {chi2}, {p}), "
+        "що узгоджується з доброю відповідністю. ",
     },
     "cfa.report.chi2_poor": {
-        "en": "The exact-fit χ² test is significant (χ²({df}) = {chi2}, {p}), indicating some misfit &mdash; though χ² is sensitive to sample size. ",
-        "ua": "Тест точної відповідності χ² значущий (χ²({df}) = {chi2}, {p}), що вказує на певну невідповідність &mdash; хоча χ² чутливий до обсягу вибірки. ",
+        "en": "The exact-fit χ² test is significant (χ²({df}) = {chi2}, {p}), "
+        "indicating some misfit &mdash; though χ² is sensitive to sample size. ",
+        "ua": "Тест точної відповідності χ² значущий (χ²({df}) = {chi2}, {p}), "
+        "що вказує на певну невідповідність &mdash; хоча χ² чутливий до обсягу вибірки. ",
     },
     "cfa.report.indices": {
-        "en": "RMSEA = {rmsea} ({rmsea_label}); CFI = {cfi} ({cfi_label}); TLI = {tli} ({tli_label}); SRMR = {srmr} ({srmr_label}). ",
-        "ua": "RMSEA = {rmsea} ({rmsea_label}); CFI = {cfi} ({cfi_label}); TLI = {tli} ({tli_label}); SRMR = {srmr} ({srmr_label}). ",
+        "en": "RMSEA = {rmsea} ({rmsea_label}); CFI = {cfi} ({cfi_label}); "
+        "TLI = {tli} ({tli_label}); SRMR = {srmr} ({srmr_label}). ",
+        "ua": "RMSEA = {rmsea} ({rmsea_label}); CFI = {cfi} ({cfi_label}); "
+        "TLI = {tli} ({tli_label}); SRMR = {srmr} ({srmr_label}). ",
     },
     "cfa.report.not_converged": {
         "en": "Warning: the optimiser did not fully converge, so the solution may be unreliable. ",
@@ -1304,8 +1314,9 @@ TRANSLATIONS = {
         "ua": "Увага: виявлено порядкові дані. Кореляція Пірсона не підходить для порядкових даних.",
     },
     "correlation.warning.constant_column": {
-        "en": "Note: {columns} has no variance (a single value), so its correlations are undefined and left blank.",
-        "ua": "Нотатка: {columns} не має варіації (одне значення), тому його кореляції невизначені й залишені порожніми.",
+        "en": "Note: {columns} has no variance (a single value), " "so its correlations are undefined and left blank.",
+        "ua": "Нотатка: {columns} не має варіації (одне значення), "
+        "тому його кореляції невизначені й залишені порожніми.",
     },
     "correlation.plot.matrix_title": {
         "en": "Correlation Matrix",
@@ -1434,8 +1445,9 @@ TRANSLATIONS = {
     },
     "descriptive.normality.col_normal": {"en": "Normal?", "ua": "Нормальний?"},
     "descriptive.normality.note_blank": {
-        "en": "Blank cells: the test could not run (needs at least 3 non-missing values with variation).",
-        "ua": "Порожні клітинки: критерій не вдалося обчислити (потрібно щонайменше 3 непропущені значення з варіацією).",
+        "en": "Blank cells: the test could not run " "(needs at least 3 non-missing values with variation).",
+        "ua": "Порожні клітинки: критерій не вдалося обчислити "
+        "(потрібно щонайменше 3 непропущені значення з варіацією).",
     },
     "descriptive.normality.yes": {"en": "Yes", "ua": "Так"},
     "descriptive.normality.no": {"en": "No", "ua": "Ні"},

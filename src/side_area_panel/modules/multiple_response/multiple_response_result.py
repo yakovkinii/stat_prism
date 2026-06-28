@@ -49,6 +49,4 @@ class MultipleResponseResult(BaseResult):
         self.set_placeholder()
 
     def update_description(self):
-        self.description = (
-            _DESCRIPTION + HTML.hr() + HTML.div(_FINE_PRINT, font_size=Style.FontSize.smaller)
-        )
+        self.description = _DESCRIPTION + HTML.hr() + HTML.div(_FINE_PRINT, font_size=Style.FontSize.smaller)

@@ -3,13 +3,8 @@
 
 import pytest
 
-from src.side_area_panel.modules.contingency.contingency_main import (
-    recalculate_contingency_study,
-)
-from src.side_area_panel.modules.contingency.contingency_result import (
-    ContingencyResult,
-    ContingencyStudyConfig,
-)
+from src.side_area_panel.modules.contingency.contingency_main import recalculate_contingency_study
+from src.side_area_panel.modules.contingency.contingency_result import ContingencyResult, ContingencyStudyConfig
 from tests.datasets import COL_EDUCATION, COL_GENDER, COL_GROUP, COL_PASSED, COL_REGION, MAIN
 from tests.helpers import assert_snapshot, load_dataset, run_main
 

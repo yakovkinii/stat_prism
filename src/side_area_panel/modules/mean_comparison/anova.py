@@ -6,24 +6,15 @@ import pandas as pd
 import pingouin as pg
 from scikit_posthocs import posthoc_dunn, posthoc_tamhane, posthoc_tukey_hsd
 from scipy import stats
-from scipy.stats import gaussian_kde
 
 from src.common.constant import MDASH, ColumnType
 from src.common.decorators import log_function
-from src.common.qcolor import Colors
 from src.common.translations import t
 from src.data.data import Data
 from src.side_area_panel.modules.common.column_numbering import ColumnNumbering
 from src.side_area_panel.modules.common.homogeneity import process_homogeneity_check
 from src.side_area_panel.modules.common.normality import process_normality_check
 from src.side_area_panel.modules.common.result.html_result import Cell, HTMLTableV2, Row
-from src.side_area_panel.modules.common.result.plot_result import (
-    Bar,
-    BarPlotConfig,
-    Line,
-    LinePlotConfig,
-    PlotV2,
-)
 from src.side_area_panel.modules.common.utility import (
     format_p_apa,
     format_p_apa_full,
@@ -33,22 +24,11 @@ from src.side_area_panel.modules.common.utility import (
     smart_comma_join,
 )
 from src.side_area_panel.modules.common.verbal.significance import significance_verbal
-from src.side_area_panel.modules.common.verbal.test import (
-    TestResult,
-    describe_single_test_multiple_variables,
-)
-from src.side_area_panel.modules.descriptive.plot import create_box_plot
+from src.side_area_panel.modules.common.verbal.test import TestResult, describe_single_test_multiple_variables
+from src.side_area_panel.modules.mean_comparison.constant import AssumptionChecksInGrouping, MeanComparisonMethod
 from src.side_area_panel.modules.mean_comparison.group_plots import add_group_distribution_plots
-from src.side_area_panel.modules.mean_comparison.constant import (
-    AssumptionChecksInGrouping,
-    MeanComparisonMethod,
-)
-from src.side_area_panel.modules.mean_comparison.mean_comparison_result import (
-    MeanComparisonResult,
-)
-from src.side_area_panel.modules.mean_comparison.preprocessing import (
-    prepare_df_for_mean_comparison,
-)
+from src.side_area_panel.modules.mean_comparison.mean_comparison_result import MeanComparisonResult
+from src.side_area_panel.modules.mean_comparison.preprocessing import prepare_df_for_mean_comparison
 
 
 @log_function
@@ -132,9 +112,9 @@ def recalculate_mean_comparison_anova(
     elif cfg.method == MeanComparisonMethod.AUTO.value:
         homogeneous_columns, non_homogeneous_columns, homogeneity_table = process_homogeneity_check(
             df=df,
-            selected_columns=normal_columns
-            if cfg.assumption_checks != AssumptionChecksInGrouping.NEVER.value
-            else numeric_columns,
+            selected_columns=(
+                normal_columns if cfg.assumption_checks != AssumptionChecksInGrouping.NEVER.value else numeric_columns
+            ),
             grouping_column=grouping_column,
             verbal_indicators=cfg.verbal_indicators,
             numbering=numbering,
@@ -191,7 +171,13 @@ def recalculate_mean_comparison_anova(
 
 
 def process_non_normal_anova(
-    df: pd.DataFrame, non_numeric_columns, non_normal_columns, grouping_column, effect_size, verbal_indicators=False, numbering=None
+    df: pd.DataFrame,
+    non_numeric_columns,
+    non_normal_columns,
+    grouping_column,
+    effect_size,
+    verbal_indicators=False,
+    numbering=None,
 ):
     show_sig = 1 if verbal_indicators else 0
     numbering = numbering if numbering is not None else ColumnNumbering([], False)
@@ -200,7 +186,10 @@ def process_non_normal_anova(
     group_names = df[grouping_column].unique().tolist()
 
     table.add_single_row_apa(
-        Row([Cell()] * (4 + show_sig) + [Cell(name, center=True, col_span=2, border_bottom=True) for name in group_names])
+        Row(
+            [Cell()] * (4 + show_sig)
+            + [Cell(name, center=True, col_span=2, border_bottom=True) for name in group_names]
+        )
     )
 
     table.add_title_row_apa(
@@ -312,7 +301,9 @@ def process_non_normal_anova(
     return table, *post_hoc_items
 
 
-def process_non_homogeneous_anova(df: pd.DataFrame, columns, grouping_column, effect_size, verbal_indicators=False, numbering=None):
+def process_non_homogeneous_anova(
+    df: pd.DataFrame, columns, grouping_column, effect_size, verbal_indicators=False, numbering=None
+):
     show_sig = 1 if verbal_indicators else 0
     show_eff = 1 if effect_size else 0
     show_eff_verbal = 1 if (effect_size and verbal_indicators) else 0
@@ -460,7 +451,9 @@ def process_non_homogeneous_anova(df: pd.DataFrame, columns, grouping_column, ef
     return table, *post_hoc_items
 
 
-def process_homogeneous_anova(df: pd.DataFrame, columns, grouping_column, effect_size, verbal_indicators=False, numbering=None):
+def process_homogeneous_anova(
+    df: pd.DataFrame, columns, grouping_column, effect_size, verbal_indicators=False, numbering=None
+):
     show_sig = 1 if verbal_indicators else 0
     show_eff = 1 if effect_size else 0
     show_eff_verbal = 1 if (effect_size and verbal_indicators) else 0

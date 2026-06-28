@@ -4,7 +4,6 @@ import attrs
 from src.data.data import Data
 from src.side_area_panel.modules.common.result.registry import BaseResult
 
-
 _METHODOLOGY = (
     "<b>ND outliers</b><br>"
     "Flags multivariate (N-dimensional) outliers across the selected columns using the "

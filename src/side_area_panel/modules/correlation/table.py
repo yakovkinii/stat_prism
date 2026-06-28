@@ -102,7 +102,15 @@ def _ci_cell(ci_value) -> Cell:
 
 
 def get_table_cross(
-    rows, cols, correlation_matrix, p_matrix, df_matrix, kind: CorrelationType, compact: bool, ci_matrix=None, numbering=None
+    rows,
+    cols,
+    correlation_matrix,
+    p_matrix,
+    df_matrix,
+    kind: CorrelationType,
+    compact: bool,
+    ci_matrix=None,
+    numbering=None,
 ) -> HTMLTableV2:
     """Rectangular two-set correlation table: `rows` down the side, `cols` across the top,
     every cell filled (full grid). Compact shows r + stars; full stacks r / p / df (/ CI)."""
@@ -156,7 +164,9 @@ def get_table_cross(
     return table
 
 
-def get_table_full(columns, correlation_matrix, p_matrix, df_matrix, kind: CorrelationType, ci_matrix=None, numbering=None) -> HTMLTableV2:
+def get_table_full(
+    columns, correlation_matrix, p_matrix, df_matrix, kind: CorrelationType, ci_matrix=None, numbering=None
+) -> HTMLTableV2:
     numbering = _numbering(numbering)
     table = HTMLTableV2(table_caption=_caption(kind, columns))
 
@@ -165,7 +175,9 @@ def get_table_full(columns, correlation_matrix, p_matrix, df_matrix, kind: Corre
     n_stack = 2 + (0 if hide_df_matrix else 1) + (1 if show_ci else 0)
 
     # Add header
-    table.add_title_row_apa(Row([Cell(col_span=2)] + [Cell(numbering.label(column), center=True) for column in columns]))
+    table.add_title_row_apa(
+        Row([Cell(col_span=2)] + [Cell(numbering.label(column), center=True) for column in columns])
+    )
 
     # Add matrix
     for i_row, row in enumerate(columns):

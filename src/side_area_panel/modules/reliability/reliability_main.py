@@ -10,20 +10,12 @@ from factor_analyzer import FactorAnalyzer
 from src.common.decorators import log_function
 from src.common.translations import t
 from src.data.data_manager import DATA_MANAGER
-from src.side_area_panel.modules.common.mathematics.correlation.correlation import (
-    calculate_correlations,
-)
 from src.side_area_panel.modules.common.column_numbering import ColumnNumbering
+from src.side_area_panel.modules.common.mathematics.correlation.correlation import calculate_correlations
 from src.side_area_panel.modules.common.result.html_result import Cell, HTMLTableV2, Row
 from src.side_area_panel.modules.common.utility import format_r_apa, smart_comma_join
-from src.side_area_panel.modules.correlation.correlation_result import (
-    CORRELATION_TYPE_MAP,
-    CorrelationType,
-)
-from src.side_area_panel.modules.reliability.reliability_result import (
-    ReliabilityResult,
-    ReliabilityStudyConfig,
-)
+from src.side_area_panel.modules.correlation.correlation_result import CORRELATION_TYPE_MAP, CorrelationType
+from src.side_area_panel.modules.reliability.reliability_result import ReliabilityResult, ReliabilityStudyConfig
 
 # Reliability shares the correlation module's estimators (matching its naming/results).
 _PANDAS_CORR = {
@@ -152,9 +144,7 @@ def recalculate_reliability_study(elements, result: ReliabilityResult, update) -
         alpha_row.append(Cell(level_word.capitalize(), center=True))
     coef_table.add_single_row_apa(Row(alpha_row))
 
-    report = t(
-        "reliability.report.main", scale=scale_name, n=len(items), level=level_word, alpha=format_r_apa(alpha)
-    )
+    report = t("reliability.report.main", scale=scale_name, n=len(items), level=level_word, alpha=format_r_apa(alpha))
 
     if config.mcdonald_omega:
         omega = mcdonald_omega(corr_values)

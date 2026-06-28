@@ -46,7 +46,10 @@ class IISPWACColorPicker(ItemInSidePanelWithAutoConfig):
         if isinstance(self.color, str) and self.color:
             set_stylesheet(self.button, css(background=self.color, border="1px solid gray"))
         else:
-            set_stylesheet(self.button, css(background=Style.Color.BackgroundEdit, border=f"1px dashed {Style.Color.BorderElevated}"))
+            set_stylesheet(
+                self.button,
+                css(background=Style.Color.BackgroundEdit, border=f"1px dashed {Style.Color.BorderElevated}"),
+            )
 
     def get_kwargs(self):
         return {self.name: self.color}

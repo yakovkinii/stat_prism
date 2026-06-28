@@ -21,20 +21,11 @@ from src.side_area_panel.modules.common.utility import (
     format_value_apa,
     smart_comma_join,
 )
-from src.side_area_panel.modules.common.verbal.effect_size import (
-    cohen_d_magnitude,
-    correlation_magnitude,
-)
-from src.side_area_panel.modules.common.verbal.significance import (
-    assumption_met_verbal,
-    significance_verbal,
-)
+from src.side_area_panel.modules.common.verbal.effect_size import cohen_d_magnitude, correlation_magnitude
+from src.side_area_panel.modules.common.verbal.significance import assumption_met_verbal, significance_verbal
 from src.side_area_panel.modules.common.verbal.test import TestResult
 from src.side_area_panel.modules.descriptive.plot import create_box_plot
-from src.side_area_panel.modules.paired.constant import (
-    PairedAssumptionChecks,
-    PairedMethod,
-)
+from src.side_area_panel.modules.paired.constant import PairedAssumptionChecks, PairedMethod
 from src.side_area_panel.modules.paired.paired_result import PairedResult
 from src.side_area_panel.modules.paired.paired_ui import Elements
 
@@ -130,9 +121,7 @@ def _to_long(wide: pd.DataFrame, conditions) -> pd.DataFrame:
     """Tidy long format (subject, condition, value) for the pingouin within-subject tests."""
     frame = wide[conditions].copy()
     frame[_SUBJECT] = frame.index
-    return frame.melt(
-        id_vars=_SUBJECT, value_vars=list(conditions), var_name=_CONDITION, value_name=_VALUE
-    )
+    return frame.melt(id_vars=_SUBJECT, value_vars=list(conditions), var_name=_CONDITION, value_name=_VALUE)
 
 
 def _descriptives_table(wide: pd.DataFrame, conditions, numbering=None) -> HTMLTableV2:
@@ -264,12 +253,22 @@ def _paired_t_test(result, wide, conditions, cfg):
     values += [cohen_d_magnitude(cohen_dz)] * show_verbal
 
     if cfg.effect_size:
-        test_result = TestResult(variable="", letter=["t", "d<sub>z</sub>"], statistic=[t_stat, cohen_dz], p=p_val, df=df)
+        test_result = TestResult(
+            variable="", letter=["t", "d<sub>z</sub>"], statistic=[t_stat, cohen_dz], p=p_val, df=df
+        )
     else:
         test_result = TestResult(variable="", letter="t", statistic=t_stat, p=p_val, df=df)
 
     result.update_and_add_element(
-        _result_table(t("paired.caption.paired_t"), headers, values, test_result, t("paired.test.paired_t"), p_val, verbal=cfg.verbal_indicators),
+        _result_table(
+            t("paired.caption.paired_t"),
+            headers,
+            values,
+            test_result,
+            t("paired.test.paired_t"),
+            p_val,
+            verbal=cfg.verbal_indicators,
+        ),
         "paired omnibus",
     )
 
@@ -297,7 +296,15 @@ def _wilcoxon_test(result, wide, conditions, cfg):
         test_result = TestResult(variable="", letter="W", statistic=w_stat, p=p_val)
 
     result.update_and_add_element(
-        _result_table(t("paired.caption.wilcoxon"), headers, values, test_result, t("paired.test.wilcoxon"), p_val, verbal=cfg.verbal_indicators),
+        _result_table(
+            t("paired.caption.wilcoxon"),
+            headers,
+            values,
+            test_result,
+            t("paired.test.wilcoxon"),
+            p_val,
+            verbal=cfg.verbal_indicators,
+        ),
         "paired omnibus",
     )
 
@@ -331,7 +338,12 @@ def _rm_anova(result, wide, conditions, cfg):
         test_result = TestResult(variable="", letter="F", statistic=f_stat, p=p_val, df=df1, df2=df2)
 
     table = _result_table(
-        t("paired.caption.rm_anova"), headers, values, test_result, t("paired.test.rm_anova"), p_val,
+        t("paired.caption.rm_anova"),
+        headers,
+        values,
+        test_result,
+        t("paired.test.rm_anova"),
+        p_val,
         verbal=cfg.verbal_indicators,
     )
     table.table_note = t("paired.note.gg", p=format_p_apa_full(p_gg), eps=format_value_apa(eps))
@@ -376,7 +388,15 @@ def _friedman(result, wide, conditions, cfg):
         test_result = TestResult(variable="", letter="&chi;&sup2;", statistic=chi2, p=p_val, df=df)
 
     result.update_and_add_element(
-        _result_table(t("paired.caption.friedman"), headers, values, test_result, t("paired.test.friedman"), p_val, verbal=cfg.verbal_indicators),
+        _result_table(
+            t("paired.caption.friedman"),
+            headers,
+            values,
+            test_result,
+            t("paired.test.friedman"),
+            p_val,
+            verbal=cfg.verbal_indicators,
+        ),
         "paired omnibus",
     )
 

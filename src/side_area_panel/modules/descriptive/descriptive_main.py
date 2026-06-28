@@ -185,15 +185,8 @@ def recalculate_descriptive_study(elements, result: DescriptiveResult, update) -
                 if not outliers:
                     continue
                 target = col if group_value is None else f"{col} ({group_value})"
-                listed = smart_comma_join(
-                    list({
-                        f"#{lab} ({format_value_apa(val, 2)})"
-                        for val, lab in outliers
-                    })
-                )
-                outlier_sentences.append(
-                    t("descriptive.outliers.line", target=target, n=len(outliers), items=listed)
-                )
+                listed = smart_comma_join(list({f"#{lab} ({format_value_apa(val, 2)})" for val, lab in outliers}))
+                outlier_sentences.append(t("descriptive.outliers.line", target=target, n=len(outliers), items=listed))
                 all_ids.extend(lab for val, lab in outliers)
         if outlier_sentences and cfg.prose:
             text = "".join(outlier_sentences)
@@ -249,8 +242,7 @@ def recalculate_descriptive_study(elements, result: DescriptiveResult, update) -
                 )
             else:
                 group_counts = [
-                    (gv, _ordered(df.loc[df[grouping_column] == gv, col].value_counts()))
-                    for gv in groupby_values
+                    (gv, _ordered(df.loc[df[grouping_column] == gv, col].value_counts())) for gv in groupby_values
                 ]
                 if all(vc.empty for _, vc in group_counts):
                     continue
@@ -273,14 +265,19 @@ def recalculate_descriptive_study(elements, result: DescriptiveResult, update) -
         if col in numeric_columns:
             if cfg.show_distribution:
                 plot = make_distribution_plot(
-                    df, col, grouping_column, groupby_values, bin_width, bin_reference, kde_smoothing, bool(cfg.show_kde)
+                    df,
+                    col,
+                    grouping_column,
+                    groupby_values,
+                    bin_width,
+                    bin_reference,
+                    kde_smoothing,
+                    bool(cfg.show_kde),
                 )
                 if plot is not None:
                     result.update_and_add_element(plot, f"descriptive distribution {col}")
             if cfg.show_box:
-                plot = make_box_plot(
-                    df, col, grouping_column, groupby_values, mark_outliers=bool(cfg.mark_outliers)
-                )
+                plot = make_box_plot(df, col, grouping_column, groupby_values, mark_outliers=bool(cfg.mark_outliers))
                 if plot is not None:
                     result.update_and_add_element(plot, f"descriptive box {col}")
             if cfg.show_qq:

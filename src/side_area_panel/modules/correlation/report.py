@@ -55,7 +55,9 @@ def _with_ci(stats: str, ci_matrix, row, column) -> str:
     return stats
 
 
-def get_report(columns, correlation_matrix, p_matrix, df_matrix, report_non_significant, kind: CorrelationType, ci_matrix=None):
+def get_report(
+    columns, correlation_matrix, p_matrix, df_matrix, report_non_significant, kind: CorrelationType, ci_matrix=None
+):
     if kind not in _NAME_KEY:
         raise ValueError(f"Unknown correlation type: {kind}")
     name = t(_NAME_KEY[kind])
@@ -105,7 +107,9 @@ def get_report(columns, correlation_matrix, p_matrix, df_matrix, report_non_sign
     return text
 
 
-def get_cross_report(rows, cols, correlation_matrix, p_matrix, df_matrix, report_non_significant, kind: CorrelationType, ci_matrix=None):
+def get_cross_report(
+    rows, cols, correlation_matrix, p_matrix, df_matrix, report_non_significant, kind: CorrelationType, ci_matrix=None
+):
     """Verbal summary for a rectangular two-set correlation: every (row, col) pair, skipping
     a variable paired with itself when it appears in both sets."""
     if kind not in _NAME_KEY:

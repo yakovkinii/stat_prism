@@ -53,9 +53,7 @@ class TableResultElementDisplay(BaseResultDisplay):
         )
         self.copy_button.setToolTip("Copy result element to clipboard")
         self.copy_button.clicked.connect(self.copy_table)
-        self.layout.addWidget(
-            self.copy_button, 0, 0, Qt.AlignmentFlag.AlignTop | Qt.AlignmentFlag.AlignRight
-        )
+        self.layout.addWidget(self.copy_button, 0, 0, Qt.AlignmentFlag.AlignTop | Qt.AlignmentFlag.AlignRight)
         self.copy_button.raise_()
 
         self.refresh()

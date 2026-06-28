@@ -8,13 +8,7 @@ from scipy.stats import gaussian_kde
 
 from src.common.qcolor import Colors
 from src.common.translations import t
-from src.side_area_panel.modules.common.result.plot_result import (
-    Bar,
-    BarPlotConfig,
-    Line,
-    LinePlotConfig,
-    PlotV2,
-)
+from src.side_area_panel.modules.common.result.plot_result import Bar, BarPlotConfig, Line, LinePlotConfig, PlotV2
 from src.side_area_panel.modules.descriptive.plot import create_box_plot
 
 

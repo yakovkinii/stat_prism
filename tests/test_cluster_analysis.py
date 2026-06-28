@@ -7,9 +7,7 @@ deterministic.
 
 import pytest
 
-from src.side_area_panel.modules.cluster_analysis.cluster_analysis_main import (
-    recalculate_cluster_analysis_study,
-)
+from src.side_area_panel.modules.cluster_analysis.cluster_analysis_main import recalculate_cluster_analysis_study
 from src.side_area_panel.modules.cluster_analysis.cluster_analysis_result import (
     ClusterAnalysisConfig,
     ClusterAnalysisResult,
@@ -53,5 +51,7 @@ CASES = [
 
 @pytest.mark.parametrize("name,overrides", CASES, ids=[c[0] for c in CASES])
 def test_cluster(name, overrides):
-    result = run_main(recalculate_cluster_analysis_study, ClusterAnalysisResult, _config(**overrides), load_dataset(MAIN))
+    result = run_main(
+        recalculate_cluster_analysis_study, ClusterAnalysisResult, _config(**overrides), load_dataset(MAIN)
+    )
     assert_snapshot(result, name)

@@ -9,9 +9,7 @@ from PySide6.QtWidgets import QVBoxLayout
 from src.common.decorators import log_method
 from src.data.data_manager import DATA_MANAGER
 from src.main_area_panel.result_display.data_analysis import DataAnalysisResultDisplay
-from src.main_area_panel.result_display.data_processing import (
-    DataProcessingResultDisplay,
-)
+from src.main_area_panel.result_display.data_processing import DataProcessingResultDisplay
 from src.main_area_panel.result_display.raw_data import RawDataResultDisplay
 from src.pyside_ext.elements.utility.layout_helpers import empty_widget
 from src.pyside_ext.elements.utility.primitive_elements import QWidgetClickable

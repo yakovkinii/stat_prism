@@ -80,8 +80,7 @@ _TYPE_ICON_COLOR_ON_LIGHT = {
 }
 
 COLUMN_TYPE_ICONS = {
-    ctype: qta.icon(glyph, color=_TYPE_ICON_COLOR[ctype], opacity=0.9)
-    for ctype, glyph in _TYPE_ICON_GLYPH.items()
+    ctype: qta.icon(glyph, color=_TYPE_ICON_COLOR[ctype], opacity=0.9) for ctype, glyph in _TYPE_ICON_GLYPH.items()
 }
 # Use when the icon sits on a column's pastel colour tag (see COLOR_ROLE in the data viewer).
 COLUMN_TYPE_ICONS_ON_LIGHT = {

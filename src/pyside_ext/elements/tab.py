@@ -3,7 +3,6 @@
 
 from typing import Dict
 
-from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QTabWidget, QWidget
 
 from src.pyside_ext.elements.base import BasePanelElement
@@ -11,7 +10,6 @@ from src.pyside_ext.elements.utility.layout_helpers import add_widget
 from src.pyside_ext.layout import VBoxLayout
 from src.pyside_ext.markup import css
 from src.pyside_ext.styling import Style
-from src.pyside_ext.unique_qss import set_stylesheet
 
 
 class Tab(BasePanelElement):
@@ -28,10 +26,7 @@ class Tab(BasePanelElement):
     def add_element(self, name: str, element: BasePanelElement):
         widget, layout = add_widget(
             inner_layout_class=VBoxLayout,
-            css=css(
-                background_color=Style.Color.BackgroundElevated,
-                border=Style.General.border_elevated
-            )
+            css=css(background_color=Style.Color.BackgroundElevated, border=Style.General.border_elevated),
         )
         layout.addWidget(element.widget)
 

@@ -3,7 +3,7 @@
 
 import numpy as np
 import pandas as pd
-from scipy.optimize import minimize, minimize_scalar
+from scipy.optimize import minimize_scalar
 from scipy.stats import chi2_contingency, multivariate_normal, norm
 
 

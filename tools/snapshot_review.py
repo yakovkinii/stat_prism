@@ -58,10 +58,10 @@ STATUS_CONSISTENT = "CONSISTENT"
 STATUS_CORRECT = "CORRECT"
 
 STATUS_COLOR = {
-    STATUS_NEW: "#f9a825",         # amber
-    STATUS_FAILED: "#c62828",      # red
+    STATUS_NEW: "#f9a825",  # amber
+    STATUS_FAILED: "#c62828",  # red
     STATUS_CONSISTENT: "#1565c0",  # blue
-    STATUS_CORRECT: "#2e7d32",     # green
+    STATUS_CORRECT: "#2e7d32",  # green
 }
 
 # Statuses that still need the developer's attention.
@@ -286,9 +286,7 @@ class Case:
                 "comment": comment,
             }
         )
-        self.history_path.write_text(
-            json.dumps(history, indent=2, ensure_ascii=False), encoding="utf-8"
-        )
+        self.history_path.write_text(json.dumps(history, indent=2, ensure_ascii=False), encoding="utf-8")
 
 
 def render_history_html(history: list) -> str:
@@ -476,9 +474,7 @@ class ReviewWindow(QtWidgets.QMainWindow):
             self._set_buttons_enabled(False)
 
         needing = sum(1 for c in cases if c.status in NEEDS_REVIEW)
-        self.status_bar.showMessage(
-            f"{len(cases)} case(s), {needing} needing review — {SNAPSHOT_DIR}"
-        )
+        self.status_bar.showMessage(f"{len(cases)} case(s), {needing} needing review — {SNAPSHOT_DIR}")
 
     def _reload_and_advance(self):
         """Reload the list, then move selection to the next case (clamped at the end).

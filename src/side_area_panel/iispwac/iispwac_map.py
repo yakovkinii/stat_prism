@@ -1,16 +1,11 @@
 #  Copyright (c) 2023 StatPrism Team. All rights reserved.
-from abc import abstractmethod
-from typing import List
 
-from PySide6.QtWidgets import QCheckBox, QComboBox, QHBoxLayout, QLabel
+from PySide6.QtWidgets import QCheckBox
 
 from src.common.decorators import log_method_noarg
-from src.common.messages import Message, MessageType
-from src.pyside_ext.elements.base import BasePanelElement
-from src.pyside_ext.elements.utility.layout_helpers import add_widget, empty_widget
-from src.pyside_ext.layout import HBoxLayout, VBoxLayout
+from src.pyside_ext.elements.utility.layout_helpers import add_widget
+from src.pyside_ext.layout import VBoxLayout
 from src.pyside_ext.markup import css
-from src.pyside_ext.styling import Style
 from src.pyside_ext.unique_qss import set_stylesheet
 from src.side_area_panel.blueprint.element import ItemInSidePanelWithAutoConfig
 

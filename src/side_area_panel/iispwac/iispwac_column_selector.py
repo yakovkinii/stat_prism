@@ -7,35 +7,15 @@ import attrs
 import qtawesome as qta
 from PySide6 import QtCore, QtGui, QtWidgets
 from PySide6.QtCore import Qt
-from PySide6.QtWidgets import (
-    QDialog,
-    QDialogButtonBox,
-    QFrame,
-    QHBoxLayout,
-    QLabel,
-    QListWidgetItem,
-    QVBoxLayout,
-)
+from PySide6.QtWidgets import QDialog, QLabel, QListWidgetItem
 
-from src.common.constant import (
-    COLUMN_TYPE_ICONS,
-    COLUMN_TYPE_ICONS_ON_LIGHT,
-    ColumnType,
-    SettingsPanelSize,
-)
+from src.common.constant import COLUMN_TYPE_ICONS, COLUMN_TYPE_ICONS_ON_LIGHT, ColumnType, SettingsPanelSize
 from src.common.decorators import log_method, log_method_noarg
 from src.common.ui_constructor import create_tool_button_qta
 from src.data.data import DataColumn
 from src.data.data_manager import DATA_MANAGER
-from src.pyside_ext.elements.utility.layout_helpers import (
-    add_widget,
-    clean_up_list_widget,
-    widget_in_layout,
-)
-from src.pyside_ext.elements.utility.primitive_elements import (
-    QListWidgetClickable,
-    QWidgetClickable,
-)
+from src.pyside_ext.elements.utility.layout_helpers import add_widget, clean_up_list_widget, widget_in_layout
+from src.pyside_ext.elements.utility.primitive_elements import QListWidgetClickable, QWidgetClickable
 from src.pyside_ext.layout import GridLayout, HBoxLayout, VBoxLayout
 from src.pyside_ext.markup import css
 from src.pyside_ext.styling import Style

@@ -3,14 +3,7 @@
 import logging
 from typing import TYPE_CHECKING
 
-from PySide6.QtWidgets import (
-    QDoubleSpinBox,
-    QHBoxLayout,
-    QLabel,
-    QSizePolicy,
-    QVBoxLayout,
-    QWidget,
-)
+from PySide6.QtWidgets import QDoubleSpinBox, QHBoxLayout, QLabel, QSizePolicy, QVBoxLayout, QWidget
 
 from src.common.decorators import log_method, log_method_noarg
 from src.pyside_ext.elements.base import BasePanelElement

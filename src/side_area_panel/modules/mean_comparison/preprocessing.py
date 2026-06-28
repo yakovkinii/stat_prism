@@ -6,9 +6,7 @@ import pandas as pd
 
 from src.data.data import Data
 from src.side_area_panel.modules.mean_comparison.constant import MissingValuesInGrouping
-from src.side_area_panel.modules.mean_comparison.mean_comparison_result import (
-    MeanComparisonStudyConfig,
-)
+from src.side_area_panel.modules.mean_comparison.mean_comparison_result import MeanComparisonStudyConfig
 
 
 def prepare_df_for_mean_comparison(

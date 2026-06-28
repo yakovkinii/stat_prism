@@ -3,7 +3,8 @@
 import logging
 
 import numpy as np
-from scipy.cluster.hierarchy import fcluster, linkage as scipy_linkage
+from scipy.cluster.hierarchy import fcluster
+from scipy.cluster.hierarchy import linkage as scipy_linkage
 from sklearn.cluster import KMeans
 from sklearn.decomposition import PCA
 from sklearn.metrics import silhouette_score
@@ -12,10 +13,7 @@ from src.common.decorators import log_function
 from src.common.qcolor import Colors
 from src.common.translations import t
 from src.data.data_manager import DATA_MANAGER
-from src.side_area_panel.modules.cluster_analysis.cluster_analysis_result import (
-    ClusterAnalysisResult,
-    ClusterMethod,
-)
+from src.side_area_panel.modules.cluster_analysis.cluster_analysis_result import ClusterAnalysisResult, ClusterMethod
 from src.side_area_panel.modules.common.result.html_result import Cell, HTMLTableV2, Row
 from src.side_area_panel.modules.common.result.plot_result import (
     Dendrogram,
@@ -177,9 +175,7 @@ def recalculate_cluster_analysis_study(elements, result: ClusterAnalysisResult, 
     if cfg.plots:
         # The k-selection sweep refits the model for k=2..10, so it is the slow part: report
         # per-k progress across 30 -> 85.
-        for i, plot in enumerate(
-            _k_selection_plots(x, method, linkage_method, linkage_matrix, n_rows, update, 30, 85)
-        ):
+        for i, plot in enumerate(_k_selection_plots(x, method, linkage_method, linkage_matrix, n_rows, update, 30, 85)):
             result.update_and_add_element(plot, f"cluster kselect {i}")
         if linkage_matrix is not None:
             result.update_and_add_element(_dendrogram_plot(linkage_matrix), "cluster dendrogram")
@@ -195,9 +191,7 @@ def recalculate_cluster_analysis_study(elements, result: ClusterAnalysisResult, 
             Row([Cell(t("cluster.col.observation")), Cell(t("cluster.col.cluster"), center=True)])
         )
         for id_label, label in zip(data.get_id_series(), labels):
-            assign_table.add_single_row_apa(
-                Row([Cell(id_label, push_to_left=True), Cell(str(label + 1), center=True)])
-            )
+            assign_table.add_single_row_apa(Row([Cell(id_label, push_to_left=True), Cell(str(label + 1), center=True)]))
         result.update_and_add_element(assign_table, "cluster assignments")
 
     update(100)
@@ -282,8 +276,10 @@ def _k_selection_plots(x, method, linkage_method, linkage_matrix, n_rows, update
         PlotV2(
             items=[
                 Line(
-                    x=ks_arr, y=np.array(silhouettes, dtype=float),
-                    label=t("cluster.metric.silhouette"), legend_string=t("cluster.metric.silhouette"),
+                    x=ks_arr,
+                    y=np.array(silhouettes, dtype=float),
+                    label=t("cluster.metric.silhouette"),
+                    legend_string=t("cluster.metric.silhouette"),
                     config=LinePlotConfig(color=sil_color),
                 ),
                 Scatter(x=ks_arr, y=np.array(silhouettes, dtype=float), label=t("cluster.metric.silhouette")),
@@ -301,8 +297,10 @@ def _k_selection_plots(x, method, linkage_method, linkage_matrix, n_rows, update
             PlotV2(
                 items=[
                     Line(
-                        x=ks_arr, y=np.array(inertias, dtype=float),
-                        label=t("cluster.metric.inertia"), legend_string=t("cluster.metric.inertia"),
+                        x=ks_arr,
+                        y=np.array(inertias, dtype=float),
+                        label=t("cluster.metric.inertia"),
+                        legend_string=t("cluster.metric.inertia"),
                         config=LinePlotConfig(color=inertia_color),
                     ),
                     Scatter(x=ks_arr, y=np.array(inertias, dtype=float), label=t("cluster.metric.inertia")),

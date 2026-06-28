@@ -4,7 +4,6 @@ import attrs
 from src.data.data import Data
 from src.side_area_panel.modules.common.result.registry import BaseResult
 
-
 _METHODOLOGY = (
     "<b>Calculate scale</b><br>"
     "Builds a new scale column by aggregating the selected item columns &mdash; <b>Sum</b> or "

@@ -60,7 +60,7 @@ class DataManager:
 
         return ids
 
-    def get_data_from_data_label(self, data_label: str, current_result_id: int)->Data:
+    def get_data_from_data_label(self, data_label: str, current_result_id: int) -> Data:
         if data_label == "Auto":
             # "Auto" = the data that feeds this study. For a data-processing step (which is a
             # chain member) that is the *immediately preceding* step's output
@@ -83,5 +83,6 @@ class DataManager:
             self.data_chain.remove(result_id)
             if self.raw_data_result_id == result_id:
                 self.raw_data_result_id = None
+
 
 DATA_MANAGER = DataManager()

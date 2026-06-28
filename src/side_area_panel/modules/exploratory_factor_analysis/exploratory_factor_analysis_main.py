@@ -16,13 +16,7 @@ from src.common.translations import t
 from src.data.data_manager import DATA_MANAGER
 from src.side_area_panel.modules.common.column_numbering import ColumnNumbering
 from src.side_area_panel.modules.common.result.html_result import Cell, HTMLTableV2, Row
-from src.side_area_panel.modules.common.result.plot_result import (
-    Heatmap,
-    Line,
-    LinePlotConfig,
-    PlotV2,
-    Scatter,
-)
+from src.side_area_panel.modules.common.result.plot_result import Heatmap, Line, LinePlotConfig, PlotV2, Scatter
 from src.side_area_panel.modules.common.utility import (
     format_p_apa_exact,
     format_p_apa_full,
@@ -146,7 +140,9 @@ def recalculate_factor_analysis_study(elements, result: FactorAnalysisResult, up
         diag_table.add_single_row_apa(
             Row([Cell(t("efa.row.msa", name=numbering.label(name))), Cell(format_r_apa(val), center=True)])
         )
-    diag_table.add_single_row_apa(Row([Cell(t("efa.row.bartlett")), Cell(format_statistic_apa(bart_chi2), center=True)]))
+    diag_table.add_single_row_apa(
+        Row([Cell(t("efa.row.bartlett")), Cell(format_statistic_apa(bart_chi2), center=True)])
+    )
     diag_table.add_single_row_apa(Row([Cell(t("efa.row.df")), Cell(str(bart_df), center=True)]))
     diag_table.add_single_row_apa(Row([Cell(t("common.p_value")), Cell(format_p_apa_exact(bart_p), center=True)]))
     diag_text = t("efa.report.kmo", label=_kmo_label(kmo_overall), kmo=format_r_apa(kmo_overall))
@@ -187,9 +183,7 @@ def recalculate_factor_analysis_study(elements, result: FactorAnalysisResult, up
             )
         )
     if cfg.verbal_indicators:
-        eig_table.add_text(
-            t("efa.report.kaiser", n=n_kaiser) if n_kaiser > 0 else t("efa.report.kaiser_none")
-        )
+        eig_table.add_text(t("efa.report.kaiser", n=n_kaiser) if n_kaiser > 0 else t("efa.report.kaiser_none"))
     result.update_and_add_element(eig_table, "efa eigenvalues")
 
     if cfg.plots:
@@ -198,13 +192,19 @@ def recalculate_factor_analysis_study(elements, result: FactorAnalysisResult, up
         scree_color = colors.get_color_list()
         scree_items = [
             Line(
-                x=component_axis, y=eigenvalues, label=t("efa.col.eigenvalue"),
-                legend_string=t("efa.col.eigenvalue"), config=LinePlotConfig(color=scree_color),
+                x=component_axis,
+                y=eigenvalues,
+                label=t("efa.col.eigenvalue"),
+                legend_string=t("efa.col.eigenvalue"),
+                config=LinePlotConfig(color=scree_color),
             ),
             Scatter(x=component_axis, y=eigenvalues, label=t("efa.col.eigenvalue")),
             Line(
-                x=np.array([1, len(eigenvalues)]), y=np.array([1.0, 1.0]), label=t("efa.plot.kaiser_line"),
-                legend_string=t("efa.plot.kaiser_line"), config=LinePlotConfig(color=colors.get_color_list()),
+                x=np.array([1, len(eigenvalues)]),
+                y=np.array([1.0, 1.0]),
+                label=t("efa.plot.kaiser_line"),
+                legend_string=t("efa.plot.kaiser_line"),
+                config=LinePlotConfig(color=colors.get_color_list()),
             ),
         ]
         result.update_and_add_element(
@@ -222,9 +222,7 @@ def recalculate_factor_analysis_study(elements, result: FactorAnalysisResult, up
     rotation = _ROTATION_MAP.get(RotationType(cfg.rotation), None)
     method = _METHOD_MAP[ExtractionMethod(cfg.method)]
     rotation_kwargs = {"normalize": bool(cfg.kaiser_normalization)}
-    fa = FactorAnalyzer(
-        n_factors=m, method=method, rotation=rotation, use_smc=True, rotation_kwargs=rotation_kwargs
-    )
+    fa = FactorAnalyzer(n_factors=m, method=method, rotation=rotation, use_smc=True, rotation_kwargs=rotation_kwargs)
     fa.fit(x)
     update(70)
     loadings = fa.loadings_
@@ -272,7 +270,10 @@ def recalculate_factor_analysis_study(elements, result: FactorAnalysisResult, up
         phi_table.add_title_row_apa(Row([Cell()] + [Cell(name, center=True) for name in factor_names]))
         for i in range(m):
             phi_table.add_single_row_apa(
-                Row([Cell(factor_names[i], push_to_left=True)] + [Cell(format_r_apa(phi[i, j]), center=True) for j in range(m)])
+                Row(
+                    [Cell(factor_names[i], push_to_left=True)]
+                    + [Cell(format_r_apa(phi[i, j]), center=True) for j in range(m)]
+                )
             )
         result.update_and_add_element(phi_table, "efa phi")
 
@@ -283,7 +284,10 @@ def recalculate_factor_analysis_study(elements, result: FactorAnalysisResult, up
         )
         for idx, var in enumerate(columns):
             struct_table.add_single_row_apa(
-                Row([Cell(numbering.label(var), push_to_left=True)] + [Cell(format_r_apa(structure[idx, j]), center=True) for j in range(m)])
+                Row(
+                    [Cell(numbering.label(var), push_to_left=True)]
+                    + [Cell(format_r_apa(structure[idx, j]), center=True) for j in range(m)]
+                )
             )
         struct_table.table_note = numbering.append_to_note(struct_table.table_note or "")
         result.update_and_add_element(struct_table, "efa structure")

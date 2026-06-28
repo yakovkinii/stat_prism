@@ -9,8 +9,6 @@ from PySide6.QtCore import QUrl
 from PySide6.QtGui import QAction, QDesktopServices
 from PySide6.QtWidgets import QMenu, QMenuBar, QProgressBar, QVBoxLayout
 
-USER_GUIDE_URL = "https://stat-prism.readthedocs.io/en/latest/"
-
 from src.common.constant import SettingsPanelSize
 from src.common.languages import LANGUAGE, Languages
 from src.common.theme import THEME, Themes
@@ -20,13 +18,11 @@ from src.pyside_ext.markup import css
 from src.pyside_ext.styling import Style
 from src.pyside_ext.unique_qss import set_stylesheet
 from src.side_area_panel.blueprint.registry import PanelRegistry, PanelRegistryItem
-from src.side_area_panel.blueprint.registry_injector import (
-    inject_classes_to_panel_registry,
-)
+from src.side_area_panel.blueprint.registry_injector import inject_classes_to_panel_registry
 from src.side_area_panel.modules.registry import ModuleRegistry, ModuleRegistryItem
-from src.side_area_panel.modules.registry_injector import (
-    inject_classes_to_module_registry,
-)
+from src.side_area_panel.modules.registry_injector import inject_classes_to_module_registry
+
+USER_GUIDE_URL = "https://stat-prism.readthedocs.io/en/latest/"
 
 if TYPE_CHECKING:
     from src.ui_main import MainWindowClass
@@ -184,9 +180,7 @@ class SettingsPanelClass:
         self.en_action.triggered.connect(self.set_language_EN)
         self.ua_action.triggered.connect(self.set_language_UA)
         self.about_action.triggered.connect(PanelRegistry.HOME.value.ui_instance.about_handler)
-        self.user_guide_action.triggered.connect(
-            lambda: QDesktopServices.openUrl(QUrl(USER_GUIDE_URL))
-        )
+        self.user_guide_action.triggered.connect(lambda: QDesktopServices.openUrl(QUrl(USER_GUIDE_URL)))
 
         # File menu: panels now exist, so resolve their handlers at trigger time via lambdas.
         self.open_action.triggered.connect(lambda: PanelRegistry.HOME_INITIAL.value.ui_instance.open_handler())

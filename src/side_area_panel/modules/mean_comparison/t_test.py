@@ -1,54 +1,30 @@
 #  Copyright (c) 2023 StatPrism Team. All rights reserved.
 
 
-import numpy as np
 import pandas as pd
 from scipy import stats
-from scipy.stats import gaussian_kde
 
 from src.common.constant import ColumnType
 from src.common.decorators import log_function
-from src.common.qcolor import Colors
 from src.common.translations import t
 from src.data.data import Data
 from src.side_area_panel.modules.common.column_numbering import ColumnNumbering
 from src.side_area_panel.modules.common.homogeneity import process_homogeneity_check
 from src.side_area_panel.modules.common.normality import process_normality_check
 from src.side_area_panel.modules.common.result.html_result import Cell, HTMLTableV2, Row
-from src.side_area_panel.modules.common.result.plot_result import (
-    Bar,
-    BarPlotConfig,
-    Line,
-    LinePlotConfig,
-    PlotV2,
-)
 from src.side_area_panel.modules.common.utility import (
     format_p_apa,
     format_statistic_apa,
     format_value_apa,
     smart_comma_join,
 )
-from src.side_area_panel.modules.common.verbal.effect_size import (
-    cohen_d_magnitude,
-    correlation_magnitude,
-)
+from src.side_area_panel.modules.common.verbal.effect_size import cohen_d_magnitude, correlation_magnitude
 from src.side_area_panel.modules.common.verbal.significance import significance_verbal
-from src.side_area_panel.modules.common.verbal.test import (
-    TestResult,
-    describe_single_test_multiple_variables,
-)
-from src.side_area_panel.modules.descriptive.plot import create_box_plot
+from src.side_area_panel.modules.common.verbal.test import TestResult, describe_single_test_multiple_variables
+from src.side_area_panel.modules.mean_comparison.constant import AssumptionChecksInGrouping, MeanComparisonMethod
 from src.side_area_panel.modules.mean_comparison.group_plots import add_group_distribution_plots
-from src.side_area_panel.modules.mean_comparison.constant import (
-    AssumptionChecksInGrouping,
-    MeanComparisonMethod,
-)
-from src.side_area_panel.modules.mean_comparison.mean_comparison_result import (
-    MeanComparisonResult,
-)
-from src.side_area_panel.modules.mean_comparison.preprocessing import (
-    prepare_df_for_mean_comparison,
-)
+from src.side_area_panel.modules.mean_comparison.mean_comparison_result import MeanComparisonResult
+from src.side_area_panel.modules.mean_comparison.preprocessing import prepare_df_for_mean_comparison
 
 
 @log_function
@@ -149,9 +125,11 @@ def recalculate_mean_comparison_t_test(
     elif cfg.method == MeanComparisonMethod.AUTO.value:
         homogeneous_columns, non_homogeneous_columns, homogeneity_table = process_homogeneity_check(
             df=df,
-            selected_columns=normal_columns
-            if (cfg.assumption_checks != AssumptionChecksInGrouping.ALWAYS.value)
-            else numeric_columns,
+            selected_columns=(
+                normal_columns
+                if (cfg.assumption_checks != AssumptionChecksInGrouping.ALWAYS.value)
+                else numeric_columns
+            ),
             grouping_column=grouping_column,
             verbal_indicators=cfg.verbal_indicators,
             numbering=numbering,
@@ -225,7 +203,13 @@ def _cohen_d_ci(cohen_d: float, n1: int, n2: int) -> str:
 
 
 def process_non_normal_t_test(
-    df: pd.DataFrame, non_numeric_columns, non_normal_columns, grouping_column, effect_size, verbal_indicators=False, numbering=None
+    df: pd.DataFrame,
+    non_numeric_columns,
+    non_normal_columns,
+    grouping_column,
+    effect_size,
+    verbal_indicators=False,
+    numbering=None,
 ) -> HTMLTableV2:
     # The verbal magnitude column only makes sense alongside the numeric effect size; the
     # significance verbal follows the p-value whenever verbal indicators are on.
@@ -346,7 +330,15 @@ def process_non_normal_t_test(
     return table
 
 
-def process_homogeneous_t_test(df: pd.DataFrame, columns, grouping_column, effect_size, verbal_indicators=False, confidence_intervals=False, numbering=None) -> HTMLTableV2:
+def process_homogeneous_t_test(
+    df: pd.DataFrame,
+    columns,
+    grouping_column,
+    effect_size,
+    verbal_indicators=False,
+    confidence_intervals=False,
+    numbering=None,
+) -> HTMLTableV2:
     show_verbal = 1 if (effect_size and verbal_indicators) else 0
     show_sig = 1 if verbal_indicators else 0
     show_ci = 1 if (effect_size and confidence_intervals) else 0
@@ -464,7 +456,15 @@ def process_homogeneous_t_test(df: pd.DataFrame, columns, grouping_column, effec
     return table
 
 
-def process_non_homogeneous_t_test(df: pd.DataFrame, columns, grouping_column, effect_size, verbal_indicators=False, confidence_intervals=False, numbering=None) -> HTMLTableV2:
+def process_non_homogeneous_t_test(
+    df: pd.DataFrame,
+    columns,
+    grouping_column,
+    effect_size,
+    verbal_indicators=False,
+    confidence_intervals=False,
+    numbering=None,
+) -> HTMLTableV2:
     # inhomogeneous => Welch's t-test
     show_verbal = 1 if (effect_size and verbal_indicators) else 0
     show_sig = 1 if verbal_indicators else 0

@@ -4,10 +4,7 @@
 import pytest
 
 from src.side_area_panel.modules.dp_group.dp_group_main import dp_group_main
-from src.side_area_panel.modules.dp_group.dp_group_result import (
-    GroupValuesResult,
-    GroupValuesStudyConfig,
-)
+from src.side_area_panel.modules.dp_group.dp_group_result import GroupValuesResult, GroupValuesStudyConfig
 from tests.datasets import COL_AGE, COL_EDUCATION, COL_INCOME, MAIN
 from tests.helpers import assert_data_snapshot, load_dataset, run_main
 

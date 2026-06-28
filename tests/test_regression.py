@@ -3,13 +3,8 @@
 
 import pytest
 
-from src.side_area_panel.modules.regression.regression_main import (
-    recalculate_regression_study,
-)
-from src.side_area_panel.modules.regression.regression_result import (
-    RegressionResult,
-    RegressionStudyConfig,
-)
+from src.side_area_panel.modules.regression.regression_main import recalculate_regression_study
+from src.side_area_panel.modules.regression.regression_result import RegressionResult, RegressionStudyConfig
 from tests.datasets import COL_AGE, COL_INCOME, COL_SATISFACTION, COL_SCORE, MAIN
 from tests.helpers import assert_snapshot, load_dataset, run_main
 
@@ -32,7 +27,10 @@ def _config(**overrides):
 CASES = [
     ("regression_linear", dict()),
     ("regression_single_predictor", dict(column_selector=[[COL_SCORE], [COL_AGE], [], []])),
-    ("regression_three_predictors", dict(column_selector=[[COL_SCORE], [COL_AGE, COL_INCOME, COL_SATISFACTION], [], []])),
+    (
+        "regression_three_predictors",
+        dict(column_selector=[[COL_SCORE], [COL_AGE, COL_INCOME, COL_SATISFACTION], [], []]),
+    ),
     ("regression_unstandardized", dict(standardized=False)),
     ("regression_no_diagnostics", dict(diagnostics=False)),
     ("regression_no_verbal", dict(verbal_indicators=False)),

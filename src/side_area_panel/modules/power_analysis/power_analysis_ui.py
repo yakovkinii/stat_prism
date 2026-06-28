@@ -6,11 +6,7 @@ from src.side_area_panel.iispwac.iispwac_combobox import IISPWACComboBox
 from src.side_area_panel.iispwac.iispwac_spacer import IISPWACSpacer
 from src.side_area_panel.iispwac.iispwac_text_edit import IISPWACLongTextEdit
 from src.side_area_panel.modules.base.base import BaseModulePanel
-from src.side_area_panel.modules.power_analysis.power_analysis_result import (
-    SOLVE_FOR,
-    TAILS,
-    TEST_TYPES,
-)
+from src.side_area_panel.modules.power_analysis.power_analysis_result import SOLVE_FOR, TAILS, TEST_TYPES
 
 
 class Elements(ItemInSidePanelWithAutoConfigHolder):

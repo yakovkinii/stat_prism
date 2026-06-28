@@ -41,7 +41,5 @@ class PairedResult(BaseResult):
         # General guide is localised; the methodology fine-print is English-only and
         # rendered smaller, separated by a rule.
         self.description = (
-            t("paired.description")
-            + HTML.hr()
-            + HTML.div(t("paired.fine_print"), font_size=Style.FontSize.smaller)
+            t("paired.description") + HTML.hr() + HTML.div(t("paired.fine_print"), font_size=Style.FontSize.smaller)
         )

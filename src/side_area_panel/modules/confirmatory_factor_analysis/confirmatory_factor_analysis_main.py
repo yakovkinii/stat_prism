@@ -206,7 +206,10 @@ def recalculate_cfa_study(elements, result: CFAResult, update) -> CFAResult:
         phi_table.add_title_row_apa(Row([Cell()] + [Cell(name, center=True) for name in factor_names]))
         for i in range(n_factors):
             phi_table.add_single_row_apa(
-                Row([Cell(factor_names[i], push_to_left=True)] + [Cell(format_r_apa(phi[i, j]), center=True) for j in range(n_factors)])
+                Row(
+                    [Cell(factor_names[i], push_to_left=True)]
+                    + [Cell(format_r_apa(phi[i, j]), center=True) for j in range(n_factors)]
+                )
             )
         result.update_and_add_element(phi_table, "cfa phi")
 

@@ -6,23 +6,12 @@ import logging
 from src.common.decorators import log_function
 from src.common.translations import t
 from src.data.data_manager import DATA_MANAGER
-from src.side_area_panel.modules.mean_comparison.anova import (
-    recalculate_mean_comparison_anova,
-)
-from src.side_area_panel.modules.mean_comparison.constant import (
-    AssumptionChecksInGrouping,
-    MeanComparisonMethod,
-)
-from src.side_area_panel.modules.mean_comparison.mean_comparison_result import (
-    MeanComparisonResult,
-)
+from src.side_area_panel.modules.mean_comparison.anova import recalculate_mean_comparison_anova
+from src.side_area_panel.modules.mean_comparison.constant import AssumptionChecksInGrouping, MeanComparisonMethod
+from src.side_area_panel.modules.mean_comparison.mean_comparison_result import MeanComparisonResult
 from src.side_area_panel.modules.mean_comparison.mean_comparison_ui import Elements
-from src.side_area_panel.modules.mean_comparison.preprocessing import (
-    prepare_df_for_mean_comparison,
-)
-from src.side_area_panel.modules.mean_comparison.t_test import (
-    recalculate_mean_comparison_t_test,
-)
+from src.side_area_panel.modules.mean_comparison.preprocessing import prepare_df_for_mean_comparison
+from src.side_area_panel.modules.mean_comparison.t_test import recalculate_mean_comparison_t_test
 
 # Smallest per-group sample size the tests can run on.
 _MIN_GROUP_SIZE = 3

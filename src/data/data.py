@@ -7,7 +7,7 @@ from typing import Dict, List, Optional, Union
 import numpy as np
 import pandas as pd
 
-from src.common.constant import ColumnType, ID_COLUMN_NAME
+from src.common.constant import ID_COLUMN_NAME, ColumnType
 from src.common.decorators import log_method
 
 ORDER_COLUMN = "__ORDER__"
@@ -119,6 +119,7 @@ class DataColumn:
         self.column_name = new_name
         self.data_series.rename(new_name, inplace=True)
 
+
 class Data:
     def __init__(self, columns: List[DataColumn]):
         self.columns: List[DataColumn] = columns
@@ -173,7 +174,7 @@ class Data:
         self.columns.insert(0, column)
         self.update_lookups()
 
-    def add_column_after(self,column_name:str, column:DataColumn):
+    def add_column_after(self, column_name: str, column: DataColumn):
         if column.column_name in self.name_to_index:
             raise ValueError(f"Column name {column.column_name} already exists.")
         column_to_the_left_index = self.name_to_index[column_name]
@@ -252,7 +253,7 @@ class Data:
     def get_series(self, column: str, map_ordinal: bool = False) -> pd.Series:
         return self.get_dataframe(columns=[column], map_ordinal=map_ordinal)[column]
 
-    def get_id_series(self)->pd.Series:
+    def get_id_series(self) -> pd.Series:
         return self.get_dataframe(columns=[ID_COLUMN_NAME])[ID_COLUMN_NAME]
 
     def ordered_categories(self, column_name: str, values) -> list:

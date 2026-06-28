@@ -4,10 +4,7 @@
 import pytest
 
 from src.side_area_panel.modules.dp_outliers.dp_outliers_main import dp_outliers_main
-from src.side_area_panel.modules.dp_outliers.dp_outliers_result import (
-    OutliersResult,
-    OutliersStudyConfig,
-)
+from src.side_area_panel.modules.dp_outliers.dp_outliers_result import OutliersResult, OutliersStudyConfig
 from tests.datasets import COL_INCOME, COL_SCORE, MAIN
 from tests.helpers import assert_data_snapshot, load_dataset, run_main
 

@@ -7,13 +7,8 @@ multi-item scale -- enough to exercise alpha / omega / if-item-removed determini
 
 import pytest
 
-from src.side_area_panel.modules.reliability.reliability_main import (
-    recalculate_reliability_study,
-)
-from src.side_area_panel.modules.reliability.reliability_result import (
-    ReliabilityResult,
-    ReliabilityStudyConfig,
-)
+from src.side_area_panel.modules.reliability.reliability_main import recalculate_reliability_study
+from src.side_area_panel.modules.reliability.reliability_result import ReliabilityResult, ReliabilityStudyConfig
 from tests.datasets import COL_AGE, COL_INCOME, COL_SATISFACTION, COL_SCORE, MAIN
 from tests.helpers import assert_snapshot, load_dataset, run_main
 

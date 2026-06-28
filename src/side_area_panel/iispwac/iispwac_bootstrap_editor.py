@@ -1,13 +1,6 @@
 #  Copyright (c) 2023 StatPrism Team. All rights reserved.
 
-from PySide6.QtWidgets import (
-    QFrame,
-    QHBoxLayout,
-    QLabel,
-    QLineEdit,
-    QVBoxLayout,
-    QWidget,
-)
+from PySide6.QtWidgets import QFrame, QHBoxLayout, QLabel, QLineEdit, QVBoxLayout, QWidget
 
 from src.common.constant import ColumnType
 from src.data.data_manager import DATA_MANAGER

@@ -36,7 +36,7 @@ class Elements(ItemInSidePanelWithAutoConfigHolder):
             ),
         ],
     )
-    spacer1=IISPWACSpacer()
+    spacer1 = IISPWACSpacer()
     method = IISPWACComboBox(
         label_text="Method:",
         items=MeanComparisonMethod.get_values(),

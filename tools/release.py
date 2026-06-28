@@ -84,7 +84,7 @@ def bump(version: str, part: str) -> str:
 
 def set_about(new: str, dry_run: bool) -> None:
     text = _read(ABOUT)
-    new_text, n = _VERSION_RE.subn(rf'\g<1>{new}\g<3>', text, count=1)
+    new_text, n = _VERSION_RE.subn(rf"\g<1>{new}\g<3>", text, count=1)
     if n != 1:
         sys.exit(f"Could not update the version in {ABOUT}")
     _write(ABOUT, new_text, dry_run)
@@ -205,14 +205,6 @@ def main() -> None:
         run_step("Docs build", [venv_python("venv_docs"), "-m", "sphinx", "-b", "html", "docs", "docs/_build/html"])
     if args.build:
         run_step("Nuitka build", [venv_python("venv_39"), "-m", "nuitka", "launcher.py"])
-
-    print("\nNext (manual) steps:")
-    print(f"  1. Review the diffs and fill in RELEASE_NOTES.md for {new}.")
-    if not (args.test and args.docs):
-        print("  2. Run checks if you skipped them: --test / --docs / --build run the heavier steps.")
-    print(f"  3. git add -A && git commit -m \"Release {new}\"")
-    print(f"  4. git tag v{new} && git push && git push --tags")
-    print(f"  5. Create the GitHub release for v{new} and attach the built exe.")
 
 
 if __name__ == "__main__":

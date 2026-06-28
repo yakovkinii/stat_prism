@@ -9,7 +9,6 @@ from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QScrollArea, QVBoxLayout
 
 from src.common.constant import SettingsPanelSize
-from src.common.debt import DEBTS, DebtType
 from src.common.decorators import log_method, log_method_noarg
 from src.common.messages import Message
 from src.common.ui_constructor import create_tool_button_qta

@@ -4,9 +4,7 @@ from src.common.decorators import log_function
 from src.data.data_manager import DATA_MANAGER
 from src.side_area_panel.modules.common.outlier_logic import detect_grouped_outliers
 from src.side_area_panel.modules.common.removal import clear_removal, finalize_removal
-from src.side_area_panel.modules.dp_grouped_outliers.dp_grouped_outliers_result import (
-    GroupedOutliersResult,
-)
+from src.side_area_panel.modules.dp_grouped_outliers.dp_grouped_outliers_result import GroupedOutliersResult
 from src.side_area_panel.modules.dp_grouped_outliers.dp_grouped_outliers_ui import Elements
 
 

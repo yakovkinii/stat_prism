@@ -4,7 +4,6 @@ import attrs
 from src.data.data import Data
 from src.side_area_panel.modules.common.result.registry import BaseResult
 
-
 # Where a value exactly on a split point lands. Default sends it to the higher group, so the
 # bins are left-closed [a, b) -- consistent with the usual histogram convention.
 SPLIT_SIDES = ["Higher group", "Lower group"]

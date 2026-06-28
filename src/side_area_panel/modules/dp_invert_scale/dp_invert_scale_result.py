@@ -4,7 +4,6 @@ import attrs
 from src.data.data import Data
 from src.side_area_panel.modules.common.result.registry import BaseResult
 
-
 _METHODOLOGY = (
     "<b>Invert scale</b><br>"
     "Reverse-scores the selected columns: each value x becomes (reference &minus; x). With no "

@@ -17,10 +17,7 @@ from src.data.data_manager import DATA_MANAGER
 from src.pyside_ext.elements.button_large import LargeButton
 from src.pyside_ext.elements.spacer import Spacer
 from src.side_area_panel.blueprint.registry import PanelRegistry
-from src.side_area_panel.modules.common.result.registry import (
-    RESULTS,
-    get_unique_result_id,
-)
+from src.side_area_panel.modules.common.result.registry import RESULTS, get_unique_result_id
 from src.side_area_panel.modules.registry import ModuleRegistry, ModuleType
 from src.side_area_panel.panels.base import BasePanel
 
@@ -93,8 +90,7 @@ class HomeInitial(BasePanel):
                 # Map each module's settings-panel index to its type, so a saved result is
                 # routed to the right lane by module_type (no hand-maintained index lists).
                 index_to_type = {
-                    module.value.settings_stacked_widget_index: module.value.module_type
-                    for module in ModuleRegistry
+                    module.value.settings_stacked_widget_index: module.value.module_type for module in ModuleRegistry
                 }
                 add_by_type = {
                     ModuleType.RAW_DATA: self.root_class.main_area_panel.add_raw_data,

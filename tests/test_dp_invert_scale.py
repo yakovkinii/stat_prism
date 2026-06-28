@@ -3,13 +3,8 @@
 
 import pytest
 
-from src.side_area_panel.modules.dp_invert_scale.dp_invert_scale_main import (
-    dp_invert_scale_main,
-)
-from src.side_area_panel.modules.dp_invert_scale.dp_invert_scale_result import (
-    InvertScaleResult,
-    InvertScaleStudyConfig,
-)
+from src.side_area_panel.modules.dp_invert_scale.dp_invert_scale_main import dp_invert_scale_main
+from src.side_area_panel.modules.dp_invert_scale.dp_invert_scale_result import InvertScaleResult, InvertScaleStudyConfig
 from tests.datasets import COL_SATISFACTION, COL_SCORE, MAIN
 from tests.helpers import assert_data_snapshot, load_dataset, run_main
 

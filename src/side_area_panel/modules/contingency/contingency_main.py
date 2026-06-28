@@ -10,15 +10,8 @@ from src.common.decorators import log_function
 from src.common.translations import t
 from src.data.data_manager import DATA_MANAGER
 from src.side_area_panel.modules.common.result.html_result import Cell, HTMLTableV2, Row
-from src.side_area_panel.modules.common.result.plot_result import (
-    ContingencyPlot,
-    PlotV2,
-)
-from src.side_area_panel.modules.common.utility import (
-    format_p_apa,
-    format_p_apa_full,
-    format_statistic_apa,
-)
+from src.side_area_panel.modules.common.result.plot_result import ContingencyPlot, PlotV2
+from src.side_area_panel.modules.common.utility import format_p_apa, format_p_apa_full, format_statistic_apa
 from src.side_area_panel.modules.common.verbal.significance import significance_verbal
 from src.side_area_panel.modules.contingency.contingency_result import ContingencyResult
 
@@ -44,9 +37,7 @@ def _build_counts_table(contingency_table: pd.DataFrame, col1: str, col2: str) -
             ]
         )
     )
-    table.add_title_row_apa(
-        Row([Cell(col1)] + [Cell(c) for c in contingency_table.columns] + [Cell(total_str)])
-    )
+    table.add_title_row_apa(Row([Cell(col1)] + [Cell(c) for c in contingency_table.columns] + [Cell(total_str)]))
     for index, row in contingency_table.iterrows():
         table.add_single_row_apa(Row([Cell(str(index))] + [Cell(c) for c in row] + [Cell(row.sum())]))
     table.add_single_row_apa(
@@ -80,12 +71,8 @@ def _add_mcnemar_table(result, contingency_table, correction):
         stat, p, dof = float(res.statistic), float(res.pvalue), int(res.df)
         name = t("contingency.mcnemar.name_bowker")
 
-    table.add_title_row_apa(
-        Row([Cell("&chi;<sup>2</sup>"), Cell("df"), Cell(t("contingency.col_pvalue"))])
-    )
-    table.add_single_row_apa(
-        Row([Cell(format_statistic_apa(stat)), Cell(str(dof)), Cell(format_p_apa(p))])
-    )
+    table.add_title_row_apa(Row([Cell("&chi;<sup>2</sup>"), Cell("df"), Cell(t("contingency.col_pvalue"))]))
+    table.add_single_row_apa(Row([Cell(format_statistic_apa(stat)), Cell(str(dof)), Cell(format_p_apa(p))]))
     key = "contingency.mcnemar.significant" if p < 0.05 else "contingency.mcnemar.not_significant"
     table.add_text(t(key, name=name, stats=f"χ²({dof}) = {format_statistic_apa(stat)}, {format_p_apa_full(p)}"))
     result.update_and_add_element(table, "contingency mcnemar")
@@ -185,9 +172,7 @@ def recalculate_contingency_study(elements, result: ContingencyResult, update) -
     chi2_table.add_title_row_apa(Row(header))
     chi2_table.add_single_row_apa(Row(values))
 
-    stats_str = (
-        f"&chi;<sup>2</sup>({dof}, N = {n}) = {format_statistic_apa(chi2)}, {format_p_apa_full(p)}"
-    )
+    stats_str = f"&chi;<sup>2</sup>({dof}, N = {n}) = {format_statistic_apa(chi2)}, {format_p_apa_full(p)}"
     if p < 0.05:
         chi2_text = t("contingency.significant", col1=col1, col2=col2, stats=stats_str)
     else:

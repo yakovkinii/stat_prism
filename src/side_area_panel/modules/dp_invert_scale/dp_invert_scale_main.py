@@ -5,9 +5,7 @@ import pandas as pd
 from src.common.decorators import log_function
 from src.data.data_manager import DATA_MANAGER
 from src.side_area_panel.modules.common.utility import unique_name
-from src.side_area_panel.modules.dp_invert_scale.dp_invert_scale_result import (
-    InvertScaleResult,
-)
+from src.side_area_panel.modules.dp_invert_scale.dp_invert_scale_result import InvertScaleResult
 from src.side_area_panel.modules.dp_invert_scale.dp_invert_scale_ui import Elements
 
 

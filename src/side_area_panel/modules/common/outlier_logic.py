@@ -59,9 +59,7 @@ def detect_grouped_outliers(data, columns, grouping_column, method) -> list:
     outlier = None
     for column_name in columns:
         x = data.get_series(column_name, map_ordinal=True)
-        column_outlier = (
-            x.groupby(group_labels, group_keys=False).transform(group_mask).fillna(False).astype(bool)
-        )
+        column_outlier = x.groupby(group_labels, group_keys=False).transform(group_mask).fillna(False).astype(bool)
         outlier = column_outlier if outlier is None else (outlier | column_outlier)
     if outlier is None:
         return []
@@ -76,9 +74,7 @@ def detect_nd_outliers(data, columns, confidence=0.95) -> list:
     if len(columns) < 2:
         return []
 
-    frame = pd.concat(
-        [data.get_series(column=c, map_ordinal=True) for c in columns], axis=1
-    )
+    frame = pd.concat([data.get_series(column=c, map_ordinal=True) for c in columns], axis=1)
     outlier = pd.Series(False, index=frame.index)
     valid = ~frame.isna().any(axis=1)
     points = frame[valid].to_numpy()

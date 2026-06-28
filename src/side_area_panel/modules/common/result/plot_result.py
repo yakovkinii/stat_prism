@@ -192,9 +192,7 @@ class DendrogramPlotConfig(BasePlotConfig):
 class ContingencyPlotConfig(BasePlotConfig):
     def __init__(self, numbered_labels: bool = False):
         super().__init__()
-        self.numbered_labels = PlainCheckboxResultItemSetting(
-            label="Numbered labels", current_value=numbered_labels
-        )
+        self.numbered_labels = PlainCheckboxResultItemSetting(label="Numbered labels", current_value=numbered_labels)
         self.display_settings = ContainerResultItemSetting(items=[self.numbered_labels], add_stretch=True)
 
 
@@ -211,9 +209,7 @@ class PiePlotConfig(BasePlotConfig):
         super().__init__()
         self.show_percent = PlainCheckboxResultItemSetting(label="Show %", current_value=show_percent)
         self.show_counts = PlainCheckboxResultItemSetting(label="Show counts", current_value=show_counts)
-        self.numbered_labels = PlainCheckboxResultItemSetting(
-            label="Numbered labels", current_value=numbered_labels
-        )
+        self.numbered_labels = PlainCheckboxResultItemSetting(label="Numbered labels", current_value=numbered_labels)
         self.label_font_size = SliderResultItemSetting(
             label="Label Size", current_value=label_font_size, min_value=6, max_value=24, step=1
         )
@@ -522,24 +518,16 @@ class PlotV2(BaseResultElement):
         self.background_alpha = SliderResultItemSetting(
             label="Background Alpha", current_value=background_alpha, min_value=0, max_value=255, step=15
         )
-        self.axis_layout = DropdownResultItemSetting(
-            label="Axis layout", current_value=axis_layout, items=AXIS_LAYOUTS
-        )
+        self.axis_layout = DropdownResultItemSetting(label="Axis layout", current_value=axis_layout, items=AXIS_LAYOUTS)
         self.box_frame = PlainCheckboxResultItemSetting(label="Full box frame (top/right)", current_value=box_frame)
-        self.gridlines = DropdownResultItemSetting(
-            label="Gridlines", current_value=gridlines, items=GRIDLINES
-        )
+        self.gridlines = DropdownResultItemSetting(label="Gridlines", current_value=gridlines, items=GRIDLINES)
         # Per-axis numeric tick control. Both blank = automatic. "step" sets the spacing
         # between ticks; "ref. tick" anchors one tick on that value (default 0). Ignored
         # for the x-axis when it carries categorical labels (x_axis_items).
         self.x_tick_step = SingleLineTextResultItemSetting(label="X step (blank=auto)", current_value=x_tick_step)
-        self.x_tick_reference = SingleLineTextResultItemSetting(
-            label="X ref. tick", current_value=x_tick_reference
-        )
+        self.x_tick_reference = SingleLineTextResultItemSetting(label="X ref. tick", current_value=x_tick_reference)
         self.y_tick_step = SingleLineTextResultItemSetting(label="Y step (blank=auto)", current_value=y_tick_step)
-        self.y_tick_reference = SingleLineTextResultItemSetting(
-            label="Y ref. tick", current_value=y_tick_reference
-        )
+        self.y_tick_reference = SingleLineTextResultItemSetting(label="Y ref. tick", current_value=y_tick_reference)
         # Replace categorical X labels (category / column / group names) with 1, 2, 3 … —
         # the same enumerate option the correlation heatmap offers. No effect on numeric axes.
         self.numbered_x_labels = PlainCheckboxResultItemSetting(
@@ -962,9 +950,7 @@ class PlotV2(BaseResultElement):
                 cfg = item.config
                 bg = self.background_color.get_current_value()
                 color_manager = Colors()
-                slice_colors = [
-                    rgba_tuple_from_rgb_and_a(color_manager.get_color_list(), 255) for _ in item.values
-                ]
+                slice_colors = [rgba_tuple_from_rgb_and_a(color_manager.get_color_list(), 255) for _ in item.values]
                 label_color = rgba_tuple_from_rgb_and_a(cfg.label_color.get_current_value(), 255)
                 label_size = cfg.label_font_size.get_current_value()
                 show_percent = cfg.show_percent.get_current_value()
@@ -1133,11 +1119,7 @@ class PlotV2(BaseResultElement):
         try:
             fig.canvas.draw()
             inv = ax.transAxes.inverted()
-            left_edges = [
-                inv.transform((t.get_window_extent().x0, 0))[0]
-                for t in ax.get_yticklabels()
-                if t.get_text()
-            ]
+            left_edges = [inv.transform((t.get_window_extent().x0, 0))[0] for t in ax.get_yticklabels() if t.get_text()]
             left_x = min(left_edges) if left_edges else -0.05
         except Exception:
             left_x = -0.05
@@ -1178,7 +1160,7 @@ class PlotV2(BaseResultElement):
 
         # 4) title as editable text, then the image below (so it can be edited after
         # pasting into Word etc.)
-        title = self.plot_title.get_current_value()
+        _ = self.plot_title.get_current_value()
         # Plot titles are temporarily not rendered (the setting is kept, so rendering can be
         # re-enabled later by restoring the line below).
         title_html = ""

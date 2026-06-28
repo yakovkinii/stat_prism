@@ -3,9 +3,7 @@
 
 import pytest
 
-from src.side_area_panel.modules.power_analysis.power_analysis_main import (
-    recalculate_power_analysis_study,
-)
+from src.side_area_panel.modules.power_analysis.power_analysis_main import recalculate_power_analysis_study
 from src.side_area_panel.modules.power_analysis.power_analysis_result import (
     PowerAnalysisResult,
     PowerAnalysisStudyConfig,

@@ -1,12 +1,9 @@
 #  Copyright (c) 2023 StatPrism Team. All rights reserved.
 
 
-from typing import Callable, Optional
-
 from PySide6 import QtCore, QtWidgets
-from PySide6.QtCore import QEvent, QObject, QPoint, QRect, Qt, QTimer, Signal
-from PySide6.QtGui import QCursor, QGuiApplication, QKeyEvent, QMouseEvent
-from PySide6.QtWidgets import QApplication, QComboBox, QDialog, QFrame, QLabel, QTextEdit, QWidget
+from PySide6.QtCore import QEvent, Qt, QTimer, Signal
+from PySide6.QtWidgets import QComboBox, QFrame, QLabel, QTextEdit
 
 from src.common.decorators import log_method
 from src.pyside_ext.markup import css

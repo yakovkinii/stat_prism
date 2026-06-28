@@ -4,7 +4,6 @@ import attrs
 from src.data.data import Data
 from src.side_area_panel.modules.common.result.registry import BaseResult
 
-
 _METHODOLOGY = (
     "<b>Select ID column</b><br>"
     "Promotes the chosen column to be the data set's identifier: it is moved to the first "

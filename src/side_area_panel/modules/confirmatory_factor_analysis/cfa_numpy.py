@@ -11,22 +11,40 @@ def _numerical_hessian(func, x, eps=1e-4):
     H = np.zeros((n, n))
     fx = func(x)
     for i in range(n):
-        x_ip = x.copy(); x_ip[i] += eps
-        x_im = x.copy(); x_im[i] -= eps
+        x_ip = x.copy()
+        x_ip[i] += eps
+        x_im = x.copy()
+        x_im[i] -= eps
         H[i, i] = (func(x_ip) - 2.0 * fx + func(x_im)) / (eps * eps)
         for j in range(i + 1, n):
-            x_pp = x.copy(); x_pp[i] += eps; x_pp[j] += eps
-            x_pm = x.copy(); x_pm[i] += eps; x_pm[j] -= eps
-            x_mp = x.copy(); x_mp[i] -= eps; x_mp[j] += eps
-            x_mm = x.copy(); x_mm[i] -= eps; x_mm[j] -= eps
+            x_pp = x.copy()
+            x_pp[i] += eps
+            x_pp[j] += eps
+            x_pm = x.copy()
+            x_pm[i] += eps
+            x_pm[j] -= eps
+            x_mp = x.copy()
+            x_mp[i] -= eps
+            x_mp[j] += eps
+            x_mm = x.copy()
+            x_mm[i] -= eps
+            x_mm[j] -= eps
             H[i, j] = H[j, i] = (func(x_pp) - func(x_pm) - func(x_mp) + func(x_mm)) / (4.0 * eps * eps)
     return H
 
 
 class CFAResultStruct:
     def __init__(
-        self, loadings, phi, uniq, fit_indices, converged, message,
-        std_loadings=None, std_resid=None, loading_se=None,
+        self,
+        loadings,
+        phi,
+        uniq,
+        fit_indices,
+        converged,
+        message,
+        std_loadings=None,
+        std_resid=None,
+        loading_se=None,
     ):
         self.loadings_ = loadings
         self.phi_ = phi
@@ -248,6 +266,4 @@ class CFAEstimator:
             "TLI": tli,
             "SRMR": srmr,
         }
-        return CFAResultStruct(
-            L, phi, uniq, fit_indices, converged, message, std_loadings, std_resid, loading_se
-        )
+        return CFAResultStruct(L, phi, uniq, fit_indices, converged, message, std_loadings, std_resid, loading_se)

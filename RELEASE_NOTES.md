@@ -12,10 +12,12 @@ r{
 
 # StatPrism Release Notes
 
-### StatPrism 0.10.0 (26 Jun 2026)
+### StatPrism 1.1.0 (28 Jun 2026)
 
-A large feature and polish release. (Intermediate 0.8/0.9 boundaries were not tagged, so
-the changes since 0.7 are collected here.)
+* Set up releases. 
+
+
+### StatPrism 1.0.0 (20 June 2026)
 
 **New data-processing steps**
 
@@ -48,10 +50,3 @@ the changes since 0.7 are collected here.)
 * Modules regrouped in the registry with shared, family-based icons
 * HTML snapshot test suite and an online user guide (Read the Docs)
 * Packaging prepared for Nuitka-built Windows executables
-
-### StatPrism 0.7 (23 Aug 2025)
-
-* Switch to chained data management
-* Switch to popup data viewer
-* Combine result viewer and result selector
-

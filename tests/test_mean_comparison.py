@@ -8,9 +8,7 @@ from src.side_area_panel.modules.mean_comparison.constant import (
     MeanComparisonMethod,
     MissingValuesInGrouping,
 )
-from src.side_area_panel.modules.mean_comparison.mean_comparison_main import (
-    recalculate_mean_comparison_study,
-)
+from src.side_area_panel.modules.mean_comparison.mean_comparison_main import recalculate_mean_comparison_study
 from src.side_area_panel.modules.mean_comparison.mean_comparison_result import (
     MeanComparisonResult,
     MeanComparisonStudyConfig,
@@ -61,7 +59,10 @@ CASES = [
     ("mean_comparison_anova_welch", dict(column_selector=_THREE, method=_WELCH)),
     ("mean_comparison_anova_nonparam", dict(column_selector=_THREE, method=_NONPARAM)),
     ("mean_comparison_anova_auto", dict(column_selector=_THREE, method=_AUTO)),
-    ("mean_comparison_anova_number_columns", dict(column_selector=[[COL_SCORE, COL_AGE], [COL_GROUP]], number_columns=True)),
+    (
+        "mean_comparison_anova_number_columns",
+        dict(column_selector=[[COL_SCORE, COL_AGE], [COL_GROUP]], number_columns=True),
+    ),
 ]
 
 

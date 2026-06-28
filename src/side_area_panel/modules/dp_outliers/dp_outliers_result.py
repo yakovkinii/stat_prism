@@ -4,7 +4,6 @@ import attrs
 from src.data.data import Data
 from src.side_area_panel.modules.common.result.registry import BaseResult
 
-
 _METHODOLOGY = (
     "<b>Outliers</b><br>"
     "Flags rows whose value on <i>any</i> selected column is an outlier. "

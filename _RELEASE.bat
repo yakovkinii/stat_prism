@@ -9,4 +9,3 @@ rem   _RELEASE.bat patch --check        (dry run, writes nothing)
 rem   _RELEASE.bat minor --test --docs  (also run the heavier checks)
 cd /d "%~dp0"
 call "venv_39\Scripts\python.exe" "tools\release.py" %*
-@pause

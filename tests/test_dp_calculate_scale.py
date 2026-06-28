@@ -3,9 +3,7 @@
 
 import pytest
 
-from src.side_area_panel.modules.dp_calculate_scale.dp_calculate_scale_main import (
-    dp_calculate_scale_main,
-)
+from src.side_area_panel.modules.dp_calculate_scale.dp_calculate_scale_main import dp_calculate_scale_main
 from src.side_area_panel.modules.dp_calculate_scale.dp_calculate_scale_result import (
     CalculateScaleResult,
     CalculateScaleStudyConfig,

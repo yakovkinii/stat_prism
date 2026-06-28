@@ -9,10 +9,7 @@ HTML and compared like analysis snapshots.
 import pytest
 
 from src.side_area_panel.modules.dp_onehot.dp_onehot_main import dp_onehot_main
-from src.side_area_panel.modules.dp_onehot.dp_onehot_result import (
-    OneHotResult,
-    OneHotStudyConfig,
-)
+from src.side_area_panel.modules.dp_onehot.dp_onehot_result import OneHotResult, OneHotStudyConfig
 from tests.datasets import COL_EDUCATION, COL_GENDER, COL_REGION, MAIN
 from tests.helpers import assert_data_snapshot, load_dataset, run_main
 

@@ -4,11 +4,7 @@
 from typing import List, Union
 
 from src.common.translations import t
-from src.side_area_panel.modules.common.utility import (
-    format_p_apa,
-    format_statistic_apa,
-    smart_comma_join,
-)
+from src.side_area_panel.modules.common.utility import format_p_apa, format_statistic_apa, smart_comma_join
 
 
 class TestResult:

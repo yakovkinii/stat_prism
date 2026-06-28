@@ -1,30 +1,25 @@
 #  Copyright (c) 2023 StatPrism Team. All rights reserved.
+import qtawesome as qta
 from PySide6 import QtCore
 from PySide6.QtCore import QSize, QTimer
 from PySide6.QtGui import Qt
 from PySide6.QtWidgets import QHBoxLayout, QSizePolicy, QTextBrowser, QVBoxLayout, QWidget
 
 from src.common.decorators import log_method
-from src.main_area_panel.result_display.export import export_data_to_excel
-from src.common.ui_constructor import create_tool_button_qta, create_simple_tool_button_qta
+from src.common.ui_constructor import create_simple_tool_button_qta, create_tool_button_qta
 from src.main_area_panel.data_viewer.data_viewer import view_data_popup
-from src.main_area_panel.show_in_main_area_popup import view_widget_in_popup
 from src.main_area_panel.result_display.base import BaseResultDisplay
 from src.main_area_panel.result_display.elements.result_label import ResultLabel
-from src.pyside_ext.elements.utility.layout_helpers import (
-    empty_widget,
-    widget_in_layout,
-)
-from src.pyside_ext.elements.utility.primitive_elements import (
-    QLabelClickable,
-    QWidgetClickable,
-)
+from src.main_area_panel.result_display.export import export_data_to_excel
+from src.main_area_panel.show_in_main_area_popup import view_widget_in_popup
+from src.pyside_ext.elements.toggle_switch import ToggleSwitch
+from src.pyside_ext.elements.utility.layout_helpers import empty_widget, widget_in_layout
+from src.pyside_ext.elements.utility.primitive_elements import QLabelClickable, QWidgetClickable
 from src.pyside_ext.markup import HTML, css
 from src.pyside_ext.styling import Style
 from src.pyside_ext.unique_qss import set_stylesheet
-from src.pyside_ext.elements.toggle_switch import ToggleSwitch
 from src.side_area_panel.modules.common.result.registry import RESULTS
-import qtawesome as qta
+
 
 class DataProcessingResultDisplay(BaseResultDisplay):
     def __init__(self, parent_widget, parent_class, root_class, label_text: str, result_id):
@@ -258,9 +253,7 @@ class DataProcessingResultDisplay(BaseResultDisplay):
         # flat button) rather than shrinking it to a small square.
         self.popup_button.setFixedSize(QSize(56, 30) if collapsed else QSize(56, 56))
         self.popup_button.setIconSize(QSize(28, 28) if collapsed else QSize(50, 50))
-        self.collapse_button.setIcon(
-            qta.icon("mdi6.chevron-down" if collapsed else "mdi6.chevron-up", color="#888")
-        )
+        self.collapse_button.setIcon(qta.icon("mdi6.chevron-down" if collapsed else "mdi6.chevron-up", color="#888"))
 
     def _view_data(self):
         """Open the data preview. For a step that tracks removed rows (Filter), show the full
@@ -397,9 +390,7 @@ class DataProcessingResultDisplay(BaseResultDisplay):
         """Flag this study as out of date (manual-recalculate mode): tint the Refresh button
         an alarm colour and set the result's needs_update. Reset when it is recalculated."""
         RESULTS[self.result_id].needs_update = stale
-        self.recalculate_button.setIcon(
-            qta.icon("ph.arrows-clockwise-bold", color="#e0a030" if stale else "#888")
-        )
+        self.recalculate_button.setIcon(qta.icon("ph.arrows-clockwise-bold", color="#e0a030" if stale else "#888"))
 
     def export_to_excel(self):
         export_data_to_excel(self.widget, RESULTS[self.result_id].data)

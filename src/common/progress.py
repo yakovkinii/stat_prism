@@ -43,7 +43,7 @@ class Worker(QObject):
 
         try:
             result = self.func(update_progress)
-        except Exception as e:
+        except Exception:
             self.canceled.emit()
             tb = traceback.format_exc()
             try:

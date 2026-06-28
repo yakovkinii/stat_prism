@@ -3,13 +3,8 @@
 
 import pytest
 
-from src.side_area_panel.modules.correlation.correlation_main import (
-    recalculate_correlation_study,
-)
-from src.side_area_panel.modules.correlation.correlation_result import (
-    CorrelationResult,
-    CorrelationStudyConfig,
-)
+from src.side_area_panel.modules.correlation.correlation_main import recalculate_correlation_study
+from src.side_area_panel.modules.correlation.correlation_result import CorrelationResult, CorrelationStudyConfig
 from tests.datasets import (
     COL_AGE,
     COL_CONSTANT,
@@ -53,7 +48,10 @@ CASES = [
     ("correlation_number_columns", dict(column_selector=[_FOUR, [], []], number_columns=True)),
     ("correlation_only_significant", dict(column_selector=[_FOUR, [], []], report_only_significant=True)),
     ("correlation_partial_pearson", dict(column_selector=[[COL_AGE, COL_SCORE], [COL_INCOME], []])),
-    ("correlation_partial_spearman", dict(correlation_type="Spearman", column_selector=[[COL_AGE, COL_SCORE], [COL_INCOME], []])),
+    (
+        "correlation_partial_spearman",
+        dict(correlation_type="Spearman", column_selector=[[COL_AGE, COL_SCORE], [COL_INCOME], []]),
+    ),
     ("correlation_cross", dict(column_selector=[[COL_AGE, COL_SCORE], [], [COL_INCOME, COL_SATISFACTION]])),
     ("correlation_heatmap", dict(generate_heatmap=True)),
 ]

@@ -8,11 +8,11 @@ from PySide6.QtWidgets import (
     QHBoxLayout,
     QLabel,
     QLineEdit,
+    QListWidget,
     QPushButton,
     QScrollArea,
     QVBoxLayout,
     QWidget,
-    QListWidget,
 )
 
 from src.common.constant import ColumnType
@@ -280,7 +280,9 @@ class IISPWACColumnEditor(ItemInSidePanelWithAutoConfig):
         if isinstance(color, str) and color:
             set_stylesheet(button, css(background=color, border="1px solid gray"))
         else:
-            set_stylesheet(button, css(background=Style.Color.BackgroundEdit, border=f"1px dashed {Style.Color.BorderElevated}"))
+            set_stylesheet(
+                button, css(background=Style.Color.BackgroundEdit, border=f"1px dashed {Style.Color.BorderElevated}")
+            )
 
     @staticmethod
     def _format_order(values):
@@ -378,6 +380,7 @@ class IISPWACColumnEditor(ItemInSidePanelWithAutoConfig):
     # ------------------------------------------------------------------ popups
     def _open_color_picker(self, name):
         """Pick a pastel colour tag for the column (or None to clear)."""
+
         def choose(color):
             self.specs[name]["color"] = color
             self._apply_color_button(name)
@@ -390,7 +393,9 @@ class IISPWACColumnEditor(ItemInSidePanelWithAutoConfig):
 
         content = QFrame()
         content.setMinimumWidth(600)
-        set_stylesheet(content, css(background=Style.Color.BackgroundElevated, border=f"1px solid {Style.Color.BorderElevated}"))
+        set_stylesheet(
+            content, css(background=Style.Color.BackgroundElevated, border=f"1px solid {Style.Color.BorderElevated}")
+        )
         layout = QHBoxLayout(content)
         layout.setContentsMargins(12, 12, 12, 12)
 
@@ -402,7 +407,9 @@ class IISPWACColumnEditor(ItemInSidePanelWithAutoConfig):
             css(
                 background=Style.Color.Background,
             ),
-            css(selector="QListWidget::item", background=Style.Color.BackgroundPanel, margin="2px", border_radius="5px"),
+            css(
+                selector="QListWidget::item", background=Style.Color.BackgroundPanel, margin="2px", border_radius="5px"
+            ),
         )
         for value in values:
             list_widget.add_custom_item(value, str(value))
@@ -430,7 +437,9 @@ class IISPWACColumnEditor(ItemInSidePanelWithAutoConfig):
 
         content = QFrame()
         content.setFixedWidth(600)
-        set_stylesheet(content, css(background=Style.Color.BackgroundElevated, border=f"1px solid {Style.Color.BorderElevated}"))
+        set_stylesheet(
+            content, css(background=Style.Color.BackgroundElevated, border=f"1px solid {Style.Color.BorderElevated}")
+        )
         outer = QVBoxLayout(content)
         outer.setContentsMargins(12, 12, 12, 12)
 

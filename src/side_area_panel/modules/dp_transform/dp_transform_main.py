@@ -115,7 +115,7 @@ def _transform_column(new_data, column_name, spec, rename):
     # 3. Ordering (ordinal only); explicit order expressed over the mapped values.
     if ctype == ColumnType.ORDINAL:
         col.order = {}
-        for raw in (spec.get("order") or []):
+        for raw in spec.get("order") or []:
             value = mapping.get(raw, raw)
             value = value if pd.isna(value) else str(value)
             if value not in col.order:

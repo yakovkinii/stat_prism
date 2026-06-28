@@ -6,7 +6,7 @@ import math
 import numpy as np
 import pandas as pd
 
-from src.common.constant import ColumnType, ID_COLUMN_NAME
+from src.common.constant import ColumnType
 from src.common.decorators import log_function
 from src.data.data_manager import DATA_MANAGER
 from src.side_area_panel.modules.dp_bootstrap.dp_bootstrap_result import BootstrapResult
@@ -118,7 +118,11 @@ def _generate_normal(column, spec, pool, existing, n, rng):
     code_to_value = {order[v]: v for v in candidates}
 
     existing_codes = [order[v] for v in existing.tolist() if v in order]
-    mu = mu_override if mu_override is not None else (float(np.mean(existing_codes)) if existing_codes else float(codes.mean()))
+    mu = (
+        mu_override
+        if mu_override is not None
+        else (float(np.mean(existing_codes)) if existing_codes else float(codes.mean()))
+    )
     sigma = _sigma_or_default(sigma_override, float(np.std(existing_codes)) if len(existing_codes) > 1 else None)
 
     draw = rng.normal(mu, sigma, n)
@@ -168,22 +172,26 @@ def _sort_key(column):
     """A sort key that orders a column's values for rank-matching: numerically for numeric
     columns, by category code for ordinal, and by label for nominal. Missing values sort last."""
     if column.column_type == ColumnType.NUMERIC or column.is_numeric:
+
         def key(v):
             try:
                 f = float(v)
             except (TypeError, ValueError):
                 return (1, 0.0)
             return (1, 0.0) if math.isnan(f) else (0, f)
+
         return key
     if column.column_type == ColumnType.ORDINAL:
         order = column.order or {}
 
         def key(v):
             return (1, 0) if _is_missing(v) else (0, order.get(v, 0))
+
         return key
 
     def key(v):
         return (1, "") if _is_missing(v) else (0, str(v))
+
     return key
 
 
@@ -232,8 +240,10 @@ def _code_new_rows(column, n):
 
 def _safe_spearman(x, y):
     frame = pd.DataFrame(
-        {"x": pd.to_numeric(x, errors="coerce").reset_index(drop=True),
-         "y": pd.to_numeric(y, errors="coerce").reset_index(drop=True)}
+        {
+            "x": pd.to_numeric(x, errors="coerce").reset_index(drop=True),
+            "y": pd.to_numeric(y, errors="coerce").reset_index(drop=True),
+        }
     ).dropna()
     if len(frame) < 3 or frame["x"].nunique() < 2 or frame["y"].nunique() < 2:
         return None
@@ -256,11 +266,17 @@ def _realized_correlation_lines(new_data, ordered_selected, targets, n):
             continue
         r = _safe_spearman(_code_new_rows(new_data[name], n), _code_new_rows(new_data[target], n))
         if r is None:
-            warnings.append(f"{name} ↔ {target}: requested ρ = {rho:g}, but the correlation could not be measured (too few distinct values).")
+            warnings.append(
+                f"{name} ↔ {target}: requested ρ = {rho:g}, "
+                f"but the correlation could not be measured (too few distinct values)."
+            )
             continue
         lines.append(f"{name} ↔ {target}: requested ρ = {rho:g}, realized ≈ {r:.2f}")
         if abs(r - rho) > 0.25:
-            warnings.append(f"{name} ↔ {target}: realized ρ ({r:.2f}) is far from the requested {rho:g}; the marginal or category structure may make this hard to achieve.")
+            warnings.append(
+                f"{name} ↔ {target}: realized ρ ({r:.2f}) is far from the requested {rho:g}; "
+                f"the marginal or category structure may make this hard to achieve."
+            )
     out = []
     if lines:
         out.append("<b>Realized correlations (new rows):</b>")
@@ -326,9 +342,7 @@ def dp_bootstrap_main(elements: Elements, result: BootstrapResult, update):
     selected_set = set(ordered_selected)
     valid_targets = ([reference] if reference else []) + drivers
 
-    specs_by_col = {
-        s["column"]: s for s in (cfg.column_configs or []) if isinstance(s, dict) and "column" in s
-    }
+    specs_by_col = {s["column"]: s for s in (cfg.column_configs or []) if isinstance(s, dict) and "column" in s}
 
     # 1. Draw each selected column's marginal sample independently (existing logic).
     drawn = {}

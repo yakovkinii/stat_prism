@@ -11,32 +11,22 @@ from src.common.constant import ColumnType
 from src.common.decorators import log_function
 from src.common.translations import t
 from src.data.data_manager import DATA_MANAGER
+from src.side_area_panel.modules.common.column_numbering import ColumnNumbering
 from src.side_area_panel.modules.common.mathematics.correlation.correlation import (
     calculate_correlations,
     calculate_cross_correlations,
     calculate_partial_correlations,
     calculate_partial_cross_correlations,
 )
-from src.side_area_panel.modules.common.result.plot_result import (
-    Band,
-    Heatmap,
-    Line,
-    PlotV2,
-    Scatter,
-)
-from src.side_area_panel.modules.common.column_numbering import ColumnNumbering
+from src.side_area_panel.modules.common.result.plot_result import Band, Heatmap, Line, PlotV2, Scatter
 from src.side_area_panel.modules.common.utility import format_r_apa, smart_comma_join
-from src.side_area_panel.modules.correlation.report import get_cross_report, get_report
 from src.side_area_panel.modules.correlation.correlation_result import (
     CORRELATION_TYPE_MAP,
     CorrelationResult,
     CorrelationType,
 )
-from src.side_area_panel.modules.correlation.table import (
-    get_table_compact,
-    get_table_cross,
-    get_table_full,
-)
+from src.side_area_panel.modules.correlation.report import get_cross_report, get_report
+from src.side_area_panel.modules.correlation.table import get_table_compact, get_table_cross, get_table_full
 
 
 def _fail(result: CorrelationResult, message: str) -> CorrelationResult:
@@ -133,10 +123,7 @@ def _ordinal_pearson_warning(result, data, columns, kind, html_table):
 def _constant_column_warning(df, columns, html_table):
     """Note any selected column with no variance: its correlations are undefined (r is
     NaN), so the cells are blank by design -- spell that out so it doesn't read as a bug."""
-    constant = [
-        col for col in columns
-        if pd.to_numeric(df[col], errors="coerce").dropna().nunique() <= 1
-    ]
+    constant = [col for col in columns if pd.to_numeric(df[col], errors="coerce").dropna().nunique() <= 1]
     if constant:
         msg = t("correlation.warning.constant_column", columns=smart_comma_join(constant))
         logging.warning(msg)
@@ -163,9 +150,7 @@ def recalculate_correlation_study(elements, result: CorrelationResult, update) -
     elif len(selected_columns) < 2:
         return _fail(result, t("correlation.error.min_variables"))
 
-    control_columns = [
-        c for c in (control_columns or []) if c not in selected_columns and c not in second_set
-    ]
+    control_columns = [c for c in (control_columns or []) if c not in selected_columns and c not in second_set]
     is_partial = len(control_columns) > 0
 
     kind = CORRELATION_TYPE_MAP[cfg.correlation_type]
@@ -186,9 +171,7 @@ def recalculate_correlation_study(elements, result: CorrelationResult, update) -
     columns = list(selected_columns)
 
     if is_partial:
-        correlation_matrix, p_matrix, df_matrix = calculate_partial_correlations(
-            df, columns, control_columns, kind
-        )
+        correlation_matrix, p_matrix, df_matrix = calculate_partial_correlations(df, columns, control_columns, kind)
     else:
         correlation_matrix, p_matrix, df_matrix = calculate_correlations(df[columns], kind)
     update(45)
@@ -250,9 +233,7 @@ def recalculate_correlation_study(elements, result: CorrelationResult, update) -
                     continue
                 if cfg.report_only_significant and p_matrix.loc[name1, name2] > 0.05:
                     continue
-                result.update_and_add_element(
-                    _pairwise_plot(df, name1, name2), f"correlation plot {name1} | {name2}"
-                )
+                result.update_and_add_element(_pairwise_plot(df, name1, name2), f"correlation plot {name1} | {name2}")
             update(60 + 35 * (i + 1) / len(columns))
 
     update(100)
@@ -277,7 +258,15 @@ def _run_cross(result, cfg, data, rows, cols, control_columns, kind, is_partial,
     numbering = ColumnNumbering(list(rows) + list(cols), enabled=bool(cfg.number_columns))
 
     html_table = get_table_cross(
-        rows, cols, correlation_matrix, p_matrix, df_matrix, kind, compact=cfg.compact, ci_matrix=ci_matrix, numbering=numbering
+        rows,
+        cols,
+        correlation_matrix,
+        p_matrix,
+        df_matrix,
+        kind,
+        compact=cfg.compact,
+        ci_matrix=ci_matrix,
+        numbering=numbering,
     )
 
     if cfg.show_interpretation:
@@ -326,9 +315,7 @@ def _run_cross(result, cfg, data, rows, cols, control_columns, kind, is_partial,
                     continue
                 if cfg.report_only_significant and p_matrix.loc[name1, name2] > 0.05:
                     continue
-                result.update_and_add_element(
-                    _pairwise_plot(df, name1, name2), f"correlation plot {name1} | {name2}"
-                )
+                result.update_and_add_element(_pairwise_plot(df, name1, name2), f"correlation plot {name1} | {name2}")
             update(60 + 35 * (step + 1) / len(rows))
 
     update(100)

@@ -3,13 +3,8 @@
 
 import pytest
 
-from src.side_area_panel.modules.descriptive.descriptive_main import (
-    recalculate_descriptive_study,
-)
-from src.side_area_panel.modules.descriptive.descriptive_result import (
-    DescriptiveResult,
-    DescriptiveStudyConfig,
-)
+from src.side_area_panel.modules.descriptive.descriptive_main import recalculate_descriptive_study
+from src.side_area_panel.modules.descriptive.descriptive_result import DescriptiveResult, DescriptiveStudyConfig
 from tests.datasets import (
     COL_AGE,
     COL_EDUCATION,
@@ -69,7 +64,10 @@ CASES = [
     ("descriptive_categorical_freq", dict(column_selector=[[COL_GENDER, COL_REGION], []], frequency_table=True)),
     ("descriptive_categorical_grouped", dict(column_selector=[[COL_REGION], [COL_GROUP]], frequency_table=True)),
     ("descriptive_plot_distribution", dict(column_selector=[[COL_SCORE], []], show_distribution=True, show_kde=True)),
-    ("descriptive_plot_distribution_binwidth", dict(column_selector=[[COL_SCORE], []], show_distribution=True, bin_width="5")),
+    (
+        "descriptive_plot_distribution_binwidth",
+        dict(column_selector=[[COL_SCORE], []], show_distribution=True, bin_width="5"),
+    ),
     ("descriptive_plot_box", dict(column_selector=[[COL_SCORE], []], show_box=True, mark_outliers=True)),
     ("descriptive_plot_box_grouped", dict(column_selector=[[COL_SCORE], [COL_GROUP]], show_box=True)),
     ("descriptive_plot_qq", dict(column_selector=[[COL_SCORE], []], show_qq=True)),
@@ -97,9 +95,7 @@ def test_descriptive_tiny():
 
 def test_descriptive_ordinal_pie():
     # Education promoted to ordinal -> ordinal summary + pie in defined order.
-    data = load_dataset(
-        MAIN, ordinal={COL_EDUCATION: ["High school", "Bachelor", "Master", "PhD"]}
-    )
+    data = load_dataset(MAIN, ordinal={COL_EDUCATION: ["High school", "Bachelor", "Master", "PhD"]})
     result = run_main(
         recalculate_descriptive_study,
         DescriptiveResult,

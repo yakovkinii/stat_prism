@@ -179,7 +179,14 @@ class DataTableView(QTableView):
     def _apply_style(view):
         set_stylesheet(
             view,
-            css("QTableView", font_size="10pt", color=Style.Color.Text, background=Style.Color.Background, border="none", outline="none"),
+            css(
+                "QTableView",
+                font_size="10pt",
+                color=Style.Color.Text,
+                background=Style.Color.Background,
+                border="none",
+                outline="none",
+            ),
             css("QTableView::item", border_bottom=f"1px solid {Style.Color.Border}"),
         )
 
@@ -198,7 +205,12 @@ class DataTableView(QTableView):
         frozen.setVerticalScrollMode(QAbstractItemView.ScrollPerPixel)
         self._apply_style(frozen)
         # A subtle right edge separates the frozen column from the scrolling area.
-        set_stylesheet(frozen, css("QTableView", border_right=f"1px solid {Style.Color.BorderElevated}", background=Style.Color.Background))
+        set_stylesheet(
+            frozen,
+            css(
+                "QTableView", border_right=f"1px solid {Style.Color.BorderElevated}", background=Style.Color.Background
+            ),
+        )
 
         for c in range(model.columnCount()):
             frozen.setColumnHidden(c, c != self._frozen_column)

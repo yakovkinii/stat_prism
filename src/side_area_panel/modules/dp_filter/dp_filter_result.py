@@ -4,14 +4,13 @@ import attrs
 from src.data.data import Data
 from src.side_area_panel.modules.common.result.registry import BaseResult
 
-
 _METHODOLOGY = (
     "<b>Filter</b><br>"
     "Keeps only the rows that match a condition on one column. For a numeric column, keep rows "
     "where the value satisfies a comparison (&lt;, &le;, =, &ge;, &gt;, &ne;) against a value, or "
     "use <i>is empty</i> / <i>is not empty</i> to filter on missing cells; for a categorical "
     "column, keep only the ticked category values (a <i>(empty)</i> option appears when the column "
-    "has blank cells). Empty matches both NaN and \"\". Rows that don't match are removed "
+    'has blank cells). Empty matches both NaN and "". Rows that don\'t match are removed '
     "downstream. Previewing the data shows removed rows in red. Toggle the step off (card button) "
     "to keep all rows."
 )

@@ -1,6 +1,6 @@
 #  Copyright (c) 2023 StatPrism Team. All rights reserved.
 
-from src.common.constant import ColumnType, ID_COLUMN_NAME
+from src.common.constant import ID_COLUMN_NAME, ColumnType
 from src.common.decorators import log_function
 from src.data.data_manager import DATA_MANAGER
 from src.side_area_panel.modules.dp_select_id.dp_select_id_result import SelectIDResult

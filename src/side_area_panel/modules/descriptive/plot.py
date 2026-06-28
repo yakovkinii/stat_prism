@@ -22,7 +22,6 @@ from src.side_area_panel.modules.common.result.plot_result import (
     Scatter,
     ScatterPlotConfig,
 )
-from src.side_area_panel.modules.common.utility import format_value_apa
 
 
 def create_box_plot(
@@ -86,9 +85,7 @@ def _kde_curve(series: pd.Series, edges, kde_smoothing):
         return None, None
 
 
-def make_distribution_plot(
-    df, col, groupby_column, groupby_values, bin_width, bin_reference, kde_smoothing, show_kde
-):
+def make_distribution_plot(df, col, groupby_column, groupby_values, bin_width, bin_reference, kde_smoothing, show_kde):
     """Histogram (density) + optional KDE; overlaid per group when grouping is set."""
     edges = _histogram_edges(df[col], bin_width, bin_reference)
     if edges is None or len(edges) < 2:

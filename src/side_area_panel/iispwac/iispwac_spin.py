@@ -1,5 +1,5 @@
 #  Copyright (c) 2023 StatPrism Team. All rights reserved.
-from PySide6.QtCore import Qt, QSize
+from PySide6.QtCore import QSize, Qt
 from PySide6.QtWidgets import QLabel, QSpinBox
 
 from src.common.decorators import log_method_noarg
@@ -41,9 +41,7 @@ class IISPWACSpin(ItemInSidePanelWithAutoConfig):
         # Larger, easier-to-hit step buttons flanking the field (the native QSpinBox
         # arrows are tiny), with press-and-hold auto-repeat.
         self.minus_button, _ = add_widget(
-            widget=create_simple_tool_button_qta(
-                parent=self.widget, icon_path="mdi6.minus", icon_size=QSize(20, 20)
-            ),
+            widget=create_simple_tool_button_qta(parent=self.widget, icon_path="mdi6.minus", icon_size=QSize(20, 20)),
             outer_layout=self.layout,
         )
         self.minus_button.setFixedSize(QSize(28, 28))
@@ -59,9 +57,7 @@ class IISPWACSpin(ItemInSidePanelWithAutoConfig):
         self.spin_box.valueChanged.connect(self.on_value_changed)
 
         self.plus_button, _ = add_widget(
-            widget=create_simple_tool_button_qta(
-                parent=self.widget, icon_path="mdi6.plus", icon_size=QSize(20, 20)
-            ),
+            widget=create_simple_tool_button_qta(parent=self.widget, icon_path="mdi6.plus", icon_size=QSize(20, 20)),
             outer_layout=self.layout,
         )
         self.plus_button.setFixedSize(QSize(28, 28))

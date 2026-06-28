@@ -9,9 +9,7 @@ from src.side_area_panel.modules.common.cleaning_logic import (
     CHECK_LOWVAR,
     CHECK_MISSING,
 )
-from src.side_area_panel.modules.dp_response_quality.dp_response_quality_main import (
-    dp_response_quality_main,
-)
+from src.side_area_panel.modules.dp_response_quality.dp_response_quality_main import dp_response_quality_main
 from src.side_area_panel.modules.dp_response_quality.dp_response_quality_result import (
     ResponseQualityResult,
     ResponseQualityStudyConfig,

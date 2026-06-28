@@ -1,14 +1,12 @@
 #  Copyright (c) 2023 StatPrism Team. All rights reserved.
 
 
-from typing import List, Dict
+from typing import Dict, List
 
 from src.common.translations import t
 from src.pyside_ext.markup import HTML
 from src.pyside_ext.styling import Style
-from src.side_area_panel.modules.common.result.base_result_element import (
-    BaseResultElement,
-)
+from src.side_area_panel.modules.common.result.base_result_element import BaseResultElement
 from src.side_area_panel.modules.common.result.html_result import HTMLTableV2
 
 
@@ -44,7 +42,7 @@ class BaseResult:
     def add_header_info(self, text):
         self.header += HTML.div(text, font_size=Style.FontSize.smaller)
 
-    def update_and_add_element(self, element:BaseResultElement, name: str):
+    def update_and_add_element(self, element: BaseResultElement, name: str):
         if name in self.old_result_elements:
             element.load_settings_from(self.old_result_elements[name])
         self.result_elements.append(element)
@@ -65,9 +63,7 @@ class BaseResult:
         if additional_info_html is None:
             additional_info_html = t("common.configure_hint")
         self.result_elements = [
-            HTMLTableV2(
-                texts=[HTML.div(HTML.bold(additional_info_html), font_size=Style.FontSize.smaller)]
-            )
+            HTMLTableV2(texts=[HTML.div(HTML.bold(additional_info_html), font_size=Style.FontSize.smaller)])
         ]
 
     def set_error(self, message: str):

@@ -11,12 +11,7 @@ from statsmodels.stats.power import FTestAnovaPower, TTestIndPower, TTestPower
 from src.common.decorators import log_function
 from src.common.qcolor import Colors
 from src.side_area_panel.modules.common.result.html_result import Cell, HTMLTableV2, Row
-from src.side_area_panel.modules.common.result.plot_result import (
-    Line,
-    LinePlotConfig,
-    PlotV2,
-    Scatter,
-)
+from src.side_area_panel.modules.common.result.plot_result import Line, LinePlotConfig, PlotV2, Scatter
 from src.side_area_panel.modules.common.utility import format_value_apa
 from src.side_area_panel.modules.power_analysis.power_analysis_result import (
     EFFECT_SYMBOL,
@@ -122,11 +117,17 @@ def recalculate_power_analysis_study(elements, result: PowerAnalysisResult, upda
             if is_corr:
                 raw = _corr_nobs(effect, alpha, power, two_sided)
             elif is_anova:
-                raw = FTestAnovaPower().solve_power(effect_size=abs(effect), nobs=None, alpha=alpha, power=power, k_groups=k)
+                raw = FTestAnovaPower().solve_power(
+                    effect_size=abs(effect), nobs=None, alpha=alpha, power=power, k_groups=k
+                )
             elif test == "Two-sample t-test":
-                raw = TTestIndPower().solve_power(effect_size=abs(effect), nobs1=None, alpha=alpha, power=power, ratio=1.0, alternative=alt)
+                raw = TTestIndPower().solve_power(
+                    effect_size=abs(effect), nobs1=None, alpha=alpha, power=power, ratio=1.0, alternative=alt
+                )
             else:
-                raw = TTestPower().solve_power(effect_size=abs(effect), nobs=None, alpha=alpha, power=power, alternative=alt)
+                raw = TTestPower().solve_power(
+                    effect_size=abs(effect), nobs=None, alpha=alpha, power=power, alternative=alt
+                )
             if raw is None or not np.isfinite(raw):
                 return _fail(result, "Could not solve for sample size with these inputs.")
             if is_anova:
@@ -148,7 +149,9 @@ def recalculate_power_analysis_study(elements, result: PowerAnalysisResult, upda
             elif is_anova:
                 solved_value = FTestAnovaPower().power(effect_size=abs(effect), nobs=n, alpha=alpha, k_groups=k)
             elif test == "Two-sample t-test":
-                solved_value = TTestIndPower().power(effect_size=abs(effect), nobs1=n, alpha=alpha, ratio=1.0, alternative=alt)
+                solved_value = TTestIndPower().power(
+                    effect_size=abs(effect), nobs1=n, alpha=alpha, ratio=1.0, alternative=alt
+                )
             else:
                 solved_value = TTestPower().power(effect_size=abs(effect), nobs=n, alpha=alpha, alternative=alt)
             solved_label = "Achieved power"
@@ -162,11 +165,17 @@ def recalculate_power_analysis_study(elements, result: PowerAnalysisResult, upda
             if is_corr:
                 solved_value = _corr_effect(n, alpha, power, two_sided)
             elif is_anova:
-                solved_value = FTestAnovaPower().solve_power(effect_size=None, nobs=n, alpha=alpha, power=power, k_groups=k)
+                solved_value = FTestAnovaPower().solve_power(
+                    effect_size=None, nobs=n, alpha=alpha, power=power, k_groups=k
+                )
             elif test == "Two-sample t-test":
-                solved_value = TTestIndPower().solve_power(effect_size=None, nobs1=n, alpha=alpha, power=power, ratio=1.0, alternative=alt)
+                solved_value = TTestIndPower().solve_power(
+                    effect_size=None, nobs1=n, alpha=alpha, power=power, ratio=1.0, alternative=alt
+                )
             else:
-                solved_value = TTestPower().solve_power(effect_size=None, nobs=n, alpha=alpha, power=power, alternative=alt)
+                solved_value = TTestPower().solve_power(
+                    effect_size=None, nobs=n, alpha=alpha, power=power, alternative=alt
+                )
             solved_label = f"Minimum detectable effect size ({symbol})"
             effect = solved_value
     except Exception as e:  # statsmodels raises on impossible parameter combos
@@ -216,10 +225,7 @@ def recalculate_power_analysis_study(elements, result: PowerAnalysisResult, upda
         solved_text = f"{solved_label}: {format_value_apa(solved_value, 3)}"
     else:
         solved_text = f"{solved_label}: {int(solved_value)}"
-    table.add_text(
-        f"<b>{solved_text}.</b> "
-        + _interpretation(test, solve_for, solved_value, symbol)
-    )
+    table.add_text(f"<b>{solved_text}.</b> " + _interpretation(test, solve_for, solved_value, symbol))
     result.update_and_add_element(table, "power table")
     update(75)
 
@@ -240,7 +246,10 @@ def _interpretation(test, solve_for, value, symbol) -> str:
         if value >= 0.8:
             return "The study is adequately powered (≥ .80) to detect this effect."
         return "The study is underpowered (< .80): consider a larger sample or a larger expected effect."
-    return f"Effects smaller than {symbol} = {format_value_apa(value, 3)} are unlikely to be detected at this sample size and power."
+    return (
+        f"Effects smaller than {symbol} = {format_value_apa(value, 3)} are unlikely "
+        f"to be detected at this sample size and power."
+    )
 
 
 def _power_curve(test, effect, alpha, two_sided, k, solved_n, target_power, is_anova, is_corr, alt, symbol):
@@ -274,8 +283,11 @@ def _power_curve(test, effect, alpha, two_sided, k, solved_n, target_power, is_a
     x_axis = "Total N" if is_anova else "n per group"
     items = [
         Line(
-            x=xs.astype(float), y=ys, label="Power",
-            legend_string="Power", config=LinePlotConfig(color=colors.get_color_list()),
+            x=xs.astype(float),
+            y=ys,
+            label="Power",
+            legend_string="Power",
+            config=LinePlotConfig(color=colors.get_color_list()),
         ),
         Scatter(x=xs.astype(float), y=ys, label="Power"),
     ]

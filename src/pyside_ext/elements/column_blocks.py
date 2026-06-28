@@ -3,15 +3,7 @@
 import logging
 
 from PySide6.QtCore import QSize, Qt
-from PySide6.QtWidgets import (
-    QCheckBox,
-    QFrame,
-    QHBoxLayout,
-    QLabel,
-    QSizePolicy,
-    QVBoxLayout,
-    QWidget,
-)
+from PySide6.QtWidgets import QCheckBox, QFrame, QHBoxLayout, QLabel, QSizePolicy, QVBoxLayout, QWidget
 
 from src.common.messages import Message, MessageType
 from src.common.ui_constructor import create_simple_tool_button_qta

@@ -36,6 +36,8 @@
 # pre-import because dynamic import causes crashes on win11
 from PySide6.QtWebEngineWidgets import QWebEngineView
 
+_ = QWebEngineView
+
 if __name__ == "__main__":
     import time
 
@@ -75,7 +77,7 @@ if __name__ == "__main__":
         fraction = value / max(maximum, 1)
         frame = pixmap.copy()
         painter = QPainter(frame)
-        painter.fillRect(40, frame.height() - 24, int((frame.width()-80) * fraction), 2, QColor("#eedd88"))
+        painter.fillRect(40, frame.height() - 24, int((frame.width() - 80) * fraction), 2, QColor("#eedd88"))
         painter.end()
         splash.setPixmap(frame)
         app.processEvents()
@@ -97,7 +99,7 @@ if __name__ == "__main__":
     except (AttributeError, TypeError, ImportError):
         pass
 
-    from PySide6.QtGui import QColor, QPalette
+    from PySide6.QtGui import QPalette
 
     from src.pyside_ext.styling import Style
 

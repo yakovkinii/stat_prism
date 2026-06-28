@@ -4,16 +4,7 @@
 from typing import Tuple
 
 from PySide6.QtCore import QPoint, Qt, QTimer
-from PySide6.QtWidgets import (
-    QCheckBox,
-    QFrame,
-    QGridLayout,
-    QHBoxLayout,
-    QLabel,
-    QPushButton,
-    QSlider,
-    QVBoxLayout,
-)
+from PySide6.QtWidgets import QCheckBox, QFrame, QGridLayout, QHBoxLayout, QLabel, QPushButton, QSlider, QVBoxLayout
 
 from src.common.constant import SettingsPanelSize
 from src.common.decorators import log_method_noarg
@@ -22,10 +13,7 @@ from src.common.qcolor import Colors
 from src.pyside_ext.elements.base import BasePanelElement
 from src.pyside_ext.elements.checkbox import LargeCheckbox
 from src.pyside_ext.elements.edit import LabeledLineEdit
-from src.pyside_ext.elements.utility.layout_helpers import (
-    empty_widget,
-    widget_in_layout,
-)
+from src.pyside_ext.elements.utility.layout_helpers import empty_widget, widget_in_layout
 from src.pyside_ext.elements.utility.primitive_elements import NoScrollComboBox
 from src.pyside_ext.markup import css
 from src.pyside_ext.styling import Style
@@ -125,12 +113,16 @@ class ColorGridItemSetting(BasePanelElement):
 
     def _update_swatch(self):
         r, g, b = self.current_color
-        set_stylesheet(self.color_button, css(background_color=f"rgb({r},{g},{b})", border=Style.General.border_elevated))
+        set_stylesheet(
+            self.color_button, css(background_color=f"rgb({r},{g},{b})", border=Style.General.border_elevated)
+        )
 
     def _open_popup(self):
         popup = QFrame(self.color_button, Qt.WindowType.Popup)
         popup.setAttribute(Qt.WidgetAttribute.WA_DeleteOnClose)
-        set_stylesheet(popup, css(background_color=Style.Color.BackgroundElevated, border=Style.General.border_elevated))
+        set_stylesheet(
+            popup, css(background_color=Style.Color.BackgroundElevated, border=Style.General.border_elevated)
+        )
         grid = QGridLayout(popup)
         grid.setSpacing(4)
         grid.setContentsMargins(6, 6, 6, 6)

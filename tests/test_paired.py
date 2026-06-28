@@ -7,15 +7,9 @@ conditions -- enough to exercise the paired / repeated-measures computation.
 
 import pytest
 
-from src.side_area_panel.modules.paired.constant import (
-    PairedAssumptionChecks,
-    PairedMethod,
-)
+from src.side_area_panel.modules.paired.constant import PairedAssumptionChecks, PairedMethod
 from src.side_area_panel.modules.paired.paired_main import recalculate_paired_study
-from src.side_area_panel.modules.paired.paired_result import (
-    PairedResult,
-    PairedStudyConfig,
-)
+from src.side_area_panel.modules.paired.paired_result import PairedResult, PairedStudyConfig
 from tests.datasets import COL_AGE, COL_INCOME, COL_SCORE, MAIN
 from tests.helpers import assert_snapshot, load_dataset, run_main
 

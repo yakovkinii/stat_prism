@@ -6,9 +6,7 @@ from src.common.decorators import log_function
 from src.data.data import DataColumn
 from src.data.data_manager import DATA_MANAGER
 from src.side_area_panel.modules.common.utility import to_stanine, unique_name
-from src.side_area_panel.modules.dp_calculate_scale.dp_calculate_scale_result import (
-    CalculateScaleResult,
-)
+from src.side_area_panel.modules.dp_calculate_scale.dp_calculate_scale_result import CalculateScaleResult
 from src.side_area_panel.modules.dp_calculate_scale.dp_calculate_scale_ui import Elements
 
 
