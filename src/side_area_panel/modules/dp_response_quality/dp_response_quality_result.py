@@ -2,37 +2,41 @@
 import attrs
 
 from src.data.data import Data
+from src.side_area_panel.modules.common.cleaning_logic import CHECKS
 from src.side_area_panel.modules.common.result.registry import BaseResult
 
 
 _METHODOLOGY = (
-    "<b>ND outliers</b><br>"
-    "Flags multivariate (N-dimensional) outliers across the selected columns using the "
-    "<b>Mahalanobis distance</b> of each row from the joint centre, with a chi-square cutoff "
-    "(df = number of columns) at 95% confidence. This accounts for the correlations between the "
-    "columns, unlike per-column thresholds. Select two or more columns. Flagged rows appear as "
-    "checkboxes under <b>Remove:</b> (all ticked); untick any to keep that respondent. Previewing "
-    "the data shows removed rows in red."
+    "<b>Response quality</b><br>"
+    "Screens respondents for careless or low-quality answering on the selected questions and "
+    "flags them for removal. <b>Duplicate entries</b>: rows that repeat an earlier row. "
+    "<b>Long string</b>: the longest run of identical consecutive answers covers at least "
+    "<i>Flag at % of items</i> of the questions. <b>High missingness</b>: at least that share of "
+    "items is blank. <b>Low variability</b>: the single most-common answer covers at least that "
+    "share of items. Flagged rows appear as checkboxes under <b>Remove:</b> (all ticked); untick "
+    "any to keep that respondent. Previewing the data shows removed rows in red."
 )
 
 
 @attrs.define
-class TwoDOutliersStudyConfig:
+class ResponseQualityStudyConfig:
     data_source = attrs.field(default=None)
     column_selector = attrs.field(default=None)
+    check = attrs.field(default=None)
+    threshold = attrs.field(default=None)
     remove_list = attrs.field(default=None)
     enabled = attrs.field(default=True)
 
 
-class TwoDOutliersResult(BaseResult):
-    def __init__(self, unique_id, settings_panel_index, config: TwoDOutliersStudyConfig):
+class ResponseQualityResult(BaseResult):
+    def __init__(self, unique_id, settings_panel_index, config: ResponseQualityStudyConfig):
         super().__init__(unique_id)
         self.unique_id: int = unique_id
-        self.title = "ND Outliers"
+        self.title = "Response Quality"
         self.title_context = ""
         self.settings_panel_index = settings_panel_index
-        self.config_class = TwoDOutliersStudyConfig
-        self.config: TwoDOutliersStudyConfig = config
+        self.config_class = ResponseQualityStudyConfig
+        self.config: ResponseQualityStudyConfig = config
         self.needs_update: bool = False
         self.toggleable: bool = True
         self.removed_count: int = 0
@@ -49,10 +53,13 @@ class TwoDOutliersResult(BaseResult):
     def update_description(self):
         cfg = self.config
         selected = cfg.column_selector[0] if cfg.column_selector else []
+        check = cfg.check or CHECKS[0]
         parts = [
-            f"Columns ({len(selected)}): " + (", ".join(selected) if selected else "none"),
-            "Criterion: Mahalanobis distance (95%)",
+            f"Questions ({len(selected)}): " + (", ".join(selected) if selected else "none"),
+            f"Check: {check}",
         ]
+        if check != CHECKS[0]:  # the % threshold is irrelevant to "Duplicate entries"
+            parts.append(f"Flag at: {cfg.threshold if cfg.threshold is not None else 50}% of items")
         if cfg.enabled:
             parts.append(f"Removed: {self.removed_count} rows")
             if self.removed_ids:

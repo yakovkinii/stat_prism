@@ -25,10 +25,12 @@ def dp_impute_main(elements: Elements, result: ImputeResult, update):
     result.data = new_data
     result.filled_count = 0
     result.removed_count = 0
+    result.error_message = ""
 
     selected = cfg.column_selector[0] if cfg.column_selector else None
     if not selected:
         elements.column_selector.set_alert(0)
+        result.error_message = "Select at least one column."
         return result
 
     method = cfg.method or "Mean"
@@ -69,6 +71,7 @@ def dp_impute_main(elements: Elements, result: ImputeResult, update):
             constant = cfg.constant_value
             if constant in (None, ""):
                 elements.constant_value.set_alert()
+                result.error_message = "Enter a constant value to fill with."
                 return result
             # Use a numeric constant when the column is numeric and the value parses.
             fill_value = constant

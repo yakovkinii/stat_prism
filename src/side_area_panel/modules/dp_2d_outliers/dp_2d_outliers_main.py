@@ -1,81 +1,33 @@
 #  Copyright (c) 2023 StatPrism Team. All rights reserved.
 
-import numpy as np
-import pandas as pd
-from scipy import stats
-
 from src.common.decorators import log_function
-from src.common.translations import t
 from src.data.data_manager import DATA_MANAGER
+from src.side_area_panel.modules.common.outlier_logic import detect_nd_outliers
+from src.side_area_panel.modules.common.removal import clear_removal, finalize_removal
 from src.side_area_panel.modules.dp_2d_outliers.dp_2d_outliers_result import TwoDOutliersResult
 from src.side_area_panel.modules.dp_2d_outliers.dp_2d_outliers_ui import Elements
-
-# Mahalanobis cutoff: chi-square (df = 2) at 95% confidence.
-_CONFIDENCE = 0.95
 
 
 @log_function
 def dp_2d_outliers_main(elements: Elements, result: TwoDOutliersResult, update):
-    """Exclude multivariate (2D) outliers using the Mahalanobis distance: a row is dropped
-    when the squared Mahalanobis distance of its (x, y) pair from the joint centre exceeds
-    the chi-square cutoff (df = 2) at the chosen confidence. This accounts for the
-    correlation between the two columns, unlike per-column thresholds."""
+    """Flag multivariate (N-dimensional) outliers across the selected columns using the
+    Mahalanobis distance of each row from the joint centre, with a chi-square cutoff
+    (df = number of columns) at 95% confidence. This accounts for the correlations between
+    the columns, unlike per-column thresholds. Needs at least two columns."""
     cfg = result.config
     data = DATA_MANAGER.get_data_from_data_label(
         data_label=cfg.data_source,
         current_result_id=result.unique_id,
     )
-    new_data = data.copy()
-    result.data = new_data
-    result.removed_count = 0
-    result.removed_ids = []
 
     if not cfg.enabled:
-        return result  # disabled -> no-op, stays in chain
+        return clear_removal(result, data)  # disabled -> no-op, stays in chain
 
-    cols1 = cfg.column_selector[0]
-    cols2 = cfg.column_selector[1]
-    if not cols1:
+    selected = cfg.column_selector[0] if cfg.column_selector else None
+    if not selected or len(selected) < 2:
+        # ND outliers are undefined for a single column -> flag the input.
         elements.column_selector.set_alert(0)
-        return result
-    if not cols2:
-        elements.column_selector.set_alert(1)
-        return result
+        return clear_removal(result, data, "Select two or more columns.")
 
-    col_x, col_y = cols1[0], cols2[0]
-    if col_x == col_y:
-        elements.column_selector.set_alert(1)
-        return result
-
-    threshold = stats.chi2.ppf(_CONFIDENCE, df=2)
-
-    x = new_data.get_series(column=col_x, map_ordinal=True)
-    y = new_data.get_series(column=col_y, map_ordinal=True)
-
-    outlier = pd.Series(False, index=x.index)
-    valid = ~(x.isna() | y.isna())
-    points = np.column_stack([x[valid].to_numpy(), y[valid].to_numpy()])
-
-    # Need at least a few points and non-degenerate spread to estimate the covariance.
-    if points.shape[0] >= 3:
-        center = points.mean(axis=0)
-        cov = np.cov(points, rowvar=False)
-        try:
-            inv_cov = np.linalg.inv(cov)
-        except np.linalg.LinAlgError:
-            inv_cov = np.linalg.pinv(cov)
-        diff = points - center
-        d2 = np.einsum("ij,jk,ik->i", diff, inv_cov, diff)
-        outlier.loc[x[valid].index] = d2 > threshold
-
-    keep = ~outlier
-
-    removed = new_data.get_id_series()[outlier]
-    result.removed_ids = [v.item() if hasattr(v, "item") else v for v in removed]
-
-    for column in new_data.columns:
-        column.data_series = column.data_series[keep]
-    result.removed_count = int(outlier.sum())
-    result.data = new_data
-    update(100)
-    return result
+    candidates = detect_nd_outliers(data, selected)
+    return finalize_removal(result, data, candidates, cfg.remove_list)

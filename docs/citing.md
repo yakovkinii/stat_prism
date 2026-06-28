@@ -14,7 +14,7 @@ Project page: <https://www.yakovkinii.com/stat_prism/>
 
 If you use StatPrism in your research, please cite it. A suggested format:
 
-> Balashevych, A. K., Petrova, N. V., & Yakovkin, I. I. (2025). *StatPrism* (Version 0.10.0)
+> Balashevych, A. K., Petrova, N. V., & Yakovkin, I. I. (2025). *StatPrism* (Version {{ release }})
 > [Computer software]. https://github.com/yakovkinii/stat_prism
 
 The repository also includes a machine-readable

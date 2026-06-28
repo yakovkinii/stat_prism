@@ -6,7 +6,16 @@ from src.side_area_panel.blueprint.element import ItemInSidePanelWithAutoConfigH
 from src.side_area_panel.iispwac.iispwac_checkbox import IISPWACCheckBox
 from src.side_area_panel.iispwac.iispwac_column_selector import IISPWACColumnSelector
 from src.side_area_panel.iispwac.iispwac_data_source import IISPWACDataSource
+from src.side_area_panel.iispwac.iispwac_remove_list import IISPWACRemoveList
 from src.side_area_panel.modules.base.base import BaseModulePanel
+from src.side_area_panel.modules.common.outlier_logic import detect_nd_outliers
+
+
+def _detect(data, params):
+    columns = (params.get("column_selector") or [[]])[0] or []
+    if len(columns) < 2:
+        return []
+    return detect_nd_outliers(data, columns)
 
 
 class Elements(ItemInSidePanelWithAutoConfigHolder):
@@ -15,29 +24,23 @@ class Elements(ItemInSidePanelWithAutoConfigHolder):
     column_selector = IISPWACColumnSelector(
         fields=[
             Field(
-                name="Column 1:",
+                name="Columns:",
                 column_type=ColumnType.ORDINAL,
-                reasonable_number_of_columns=1,
-                allow_only_single_column=True,
-                minimum_columns=1,
+                reasonable_number_of_columns=8,
+                allow_only_single_column=False,
+                minimum_columns=2,
             ),
-            Field(
-                name="Column 2:",
-                column_type=ColumnType.ORDINAL,
-                reasonable_number_of_columns=1,
-                allow_only_single_column=True,
-                minimum_columns=1,
-            ),
-
         ],
     )
 
+    remove_list = IISPWACRemoveList(detector=_detect)
     enabled = IISPWACCheckBox(label_text="Enable", default_state=True)
 
 
 class TwoDOutliers(BaseModulePanel):
     def setup_ui(self):
         self.init_elements(Elements)
-        self.set_label("2D Outliers")
+        # Displayed everywhere as "ND" (multidimensional); the internal name stays 2D.
+        self.set_label("ND Outliers")
         # The enable/disable control is the toggle on the result card.
         self.elements_.enabled.widget.setVisible(False)

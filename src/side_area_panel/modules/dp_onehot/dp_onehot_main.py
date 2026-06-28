@@ -21,14 +21,17 @@ def dp_onehot_main(elements: Elements, result: OneHotResult, update):
     new_data = data.copy()
     # Default to a pass-through so downstream stays valid while inputs are incomplete.
     result.data = new_data
+    result.error_message = ""
 
     selected = cfg.column_selector[0] if cfg.column_selector else None
     if not selected:
         elements.column_selector.set_alert(0)
+        result.error_message = "Select a column to encode."
         return result
     column_name = selected[0]
     if column_name not in new_data.column_names():
         elements.column_selector.set_alert(0)
+        result.error_message = "Select a column to encode."
         return result
 
     source = new_data[column_name]

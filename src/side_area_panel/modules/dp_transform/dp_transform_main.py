@@ -46,15 +46,18 @@ def dp_transform_main(elements: Elements, result: TransformResult, update):
     new_data = data.copy()
     # Default to a pass-through so downstream stays valid while inputs are incomplete.
     result.data = new_data
+    result.error_message = ""
 
     selected = cfg.column_selector[0] if cfg.column_selector else None
     if not selected:
         elements.column_selector.set_alert(0)
+        result.error_message = "Select at least one column."
         return result
 
     valid = [c for c in selected if c in new_data.column_names()]
     if not valid:
         elements.column_selector.set_alert(0)
+        result.error_message = "Selected column(s) not available."
         return result
 
     spec = cfg.transform_spec if isinstance(cfg.transform_spec, dict) else {}

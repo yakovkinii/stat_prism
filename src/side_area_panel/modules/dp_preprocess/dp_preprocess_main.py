@@ -18,6 +18,7 @@ def dp_preprocess_main(elements: Elements, result: PreprocessResult, update):
         current_result_id=result.unique_id,
     )
     new_data = data.copy()
+    result.error_message = ""
 
     specs = {s["original"]: s for s in (cfg.columns or []) if isinstance(s, dict) and "original" in s}
 
@@ -98,6 +99,10 @@ def dp_preprocess_main(elements: Elements, result: PreprocessResult, update):
     new_data.update_lookups()
     if cast_failed:
         elements.columns.set_alert(cast_failed)
+        result.error_message = (
+            "Some values could not be converted to Numeric (left blank): "
+            + ", ".join(cast_failed)
+        )
 
     result.data = new_data
     return result

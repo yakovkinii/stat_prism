@@ -28,8 +28,12 @@ Add the processing steps you need (each becomes a card in the chain):
 - **Filter** to drop test rows — for example, keep only rows where age **is not empty**.
 - **Outliers** (IQR) on income, if you want to exclude extreme values. Toggle it off later
   to compare.
+- **Response Quality** to drop careless respondents — for example, those who straightlined the
+  rating grid or skipped most questions.
 
-Preview any step to see its effect (removed rows show in red).
+Preview any step to see its effect (removed rows show in red). Steps that remove rows (Filter,
+the outlier steps, Response Quality) list the flagged IDs as checkboxes — untick any to keep
+that respondent.
 
 ```{figure} _static/img/worked-2-clean.png
 :alt: Data-processing steps stacked as cards in the chain

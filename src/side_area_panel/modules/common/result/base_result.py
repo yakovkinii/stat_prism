@@ -32,6 +32,9 @@ class BaseResult:
         self.old_result_elements: Dict[str, BaseResultElement] = dict()
 
         self.description = ""
+        # Validation / status message for data-processing cards. Shown (red) in the card's
+        # short summary when a step can't compute (e.g. no column selected); "" when fine.
+        self.error_message = ""
 
         self.header = ""
 

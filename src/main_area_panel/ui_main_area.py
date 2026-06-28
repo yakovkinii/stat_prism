@@ -374,10 +374,34 @@ class MainAreaClass:
             result_object.refresh_element(result_element_id)
 
     def delete_result(self, result_id):
+        """Delete a study and refresh the rest of the chain, because removing a step changes
+        what downstream 'Auto' sources resolve to. Downstream data-processing steps and all
+        analyses are recomputed (auto-recalculate on) or marked stale (off). Deleting an
+        analysis cascades to nothing (analyses are leaves, not in the chain)."""
         self.root_class.action_activate_home_panel()
+        # Capture dependents while the node is still in the chain.
+        dependents = self._dependent_ids(result_id) if result_id in DATA_MANAGER.data_chain else []
+
         self.remove_result(result_id)
-        RESULTS.pop(result_id)
+        RESULTS.pop(result_id, None)
         DATA_MANAGER.try_to_remove_result(result_id)
+
+        survivors = [rid for rid in dependents if rid in RESULTS]
+        if not survivors:
+            return
+        if self.auto_recalculate:
+            self._cascading = True
+            try:
+                for rid in survivors:
+                    self._recompute_result(rid)
+            finally:
+                self._cascading = False
+        else:
+            for rid in survivors:
+                RESULTS[rid].needs_update = True
+                obj = self.data_processing_objects.get(rid) or self.data_analysis_objects.get(rid)
+                if obj is not None and hasattr(obj, "set_stale"):
+                    obj.set_stale(True)
 
     def update_focus(self, result_id, result_element_id=None):
         if self.focused_result_id is not None:

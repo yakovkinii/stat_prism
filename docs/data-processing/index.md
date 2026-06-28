@@ -11,9 +11,10 @@ of them on or off.
   of the previous step", so a chain flows naturally from one step to the next.
 - **Most steps add a new column** and leave the source column in place (for example, *Group
   Values*, *One-hot encoding*). A few replace a column **in place** (*Transform Column*) or
-  remove rows (*Filter*, *Outliers*, *Impute ▸ Remove rows*).
-- **Toggleable steps.** *Filter* and the outlier steps have an enable/disable switch on their
-  card, so you can compare results with and without them without deleting the step.
+  remove rows (*Filter*, the outlier steps, *Response Quality*, *Impute ▸ Remove rows*).
+- **Toggleable steps.** *Filter*, the outlier steps, and *Response Quality* have an
+  enable/disable switch on their card, so you can compare results with and without them without
+  deleting the step.
 - **Previewing** a step shows its output; row-removing steps display removed rows in red.
 
 The pages below describe each step.
@@ -33,7 +34,8 @@ filter
 impute
 outliers
 grouped-outliers
-two-d-outliers
+nd-outliers
+response-quality
 select-id
 bootstrap
 ```

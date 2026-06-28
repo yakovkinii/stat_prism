@@ -39,6 +39,7 @@ def dp_filter_main(elements: Elements, result: FilterDataResult, update):
         data_label=cfg.data_source,
         current_result_id=result.unique_id,
     )
+    result.error_message = ""
 
     # Disabled filter is a no-op but still occupies its slot in the data chain.
     if not cfg.enabled:
@@ -47,6 +48,7 @@ def dp_filter_main(elements: Elements, result: FilterDataResult, update):
     selected = cfg.column_selector[0]
     if not selected:
         elements.column_selector.set_alert(0)
+        result.error_message = "Select a column to filter."
         return _set_no_filter(result, data)
     column_name = selected[0]
 
@@ -90,6 +92,7 @@ def dp_filter_main(elements: Elements, result: FilterDataResult, update):
                     value = float(value_text)
                 except (TypeError, ValueError):
                     elements.column_filter.set_alert()
+                    result.error_message = "Enter a numeric value for this comparison."
                     return _set_no_filter(result, data)
                 mask = op(numeric, value).fillna(False)
     elif mode == "categorical":

@@ -41,10 +41,12 @@ def dp_group_main(elements: Elements, result: GroupValuesResult, update):
     )
     new_data = data.copy()
     result.data = new_data
+    result.error_message = ""
 
     selected = cfg.column_selector[0] if cfg.column_selector else None
     if not selected:
         elements.column_selector.set_alert(0)
+        result.error_message = "Select a column to group."
         return result
     column_name = selected[0]
 
@@ -52,12 +54,14 @@ def dp_group_main(elements: Elements, result: GroupValuesResult, update):
         parsed = _parse_floats(cfg.thresholds)
     except ValueError:
         elements.thresholds.set_alert()
+        result.error_message = "Enter valid numeric thresholds."
         return result
     # pd.cut needs strictly increasing edges: keep only finite split points, sorted and
     # de-duplicated. Duplicates / NaN / inf would otherwise raise mid-computation and
     # surface as a generic error.
     thresholds = sorted({t for t in parsed if math.isfinite(t)})
     if not thresholds:
+        result.error_message = "Enter at least one split threshold."
         return result  # no usable split points -> no grouping
 
     # "Lower group" -> a split point joins the lower bin (right-closed (a, b]); the default
@@ -74,6 +78,7 @@ def dp_group_main(elements: Elements, result: GroupValuesResult, update):
         # Nothing numeric to split (e.g. a text-labelled column) -> flag instead of
         # producing an all-blank column.
         elements.column_selector.set_alert(0)
+        result.error_message = "Selected column has no numeric values to split."
         return result
     binned = pd.cut(numeric, bins=edges, labels=labels, right=lower_inclusive, ordered=False).astype(object)
 

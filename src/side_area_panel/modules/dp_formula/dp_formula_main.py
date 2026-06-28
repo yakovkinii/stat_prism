@@ -23,14 +23,17 @@ def dp_formula_main(elements: Elements, result: FormulaResult, update):
     new_data = data.copy()
     # Default to a pass-through so downstream stays valid while inputs are incomplete.
     result.data = new_data
+    result.error_message = ""
 
     formula = (cfg.formula or "").strip()
     new_name_raw = (cfg.new_name or "").strip()
     if not new_name_raw:
         elements.new_name.set_alert()
+        result.error_message = "Enter a name for the new column."
         return result
     if not formula:
         elements.formula.set_alert()
+        result.error_message = "Enter a formula."
         return result
 
     df = new_data.get_dataframe()
@@ -38,7 +41,7 @@ def dp_formula_main(elements: Elements, result: FormulaResult, update):
         evaluated = df.eval(formula)
     except Exception as e:
         elements.formula.set_alert()
-        result.set_error(f"Could not evaluate the formula: {e}")
+        result.error_message = f"Could not evaluate the formula: {e}"
         return result
 
     # eval may return a scalar (e.g. a constant expression); broadcast it to a full column.

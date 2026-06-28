@@ -129,6 +129,14 @@ from src.side_area_panel.modules.dp_2d_outliers.dp_2d_outliers_result import (
     TwoDOutliersStudyConfig,
 )
 from src.side_area_panel.modules.dp_2d_outliers.dp_2d_outliers_ui import TwoDOutliers
+from src.side_area_panel.modules.dp_response_quality.dp_response_quality_main import (
+    dp_response_quality_main,
+)
+from src.side_area_panel.modules.dp_response_quality.dp_response_quality_result import (
+    ResponseQualityResult,
+    ResponseQualityStudyConfig,
+)
+from src.side_area_panel.modules.dp_response_quality.dp_response_quality_ui import ResponseQuality
 from src.side_area_panel.modules.contingency.contingency_ui import Contingency
 from src.side_area_panel.modules.contingency.contingency_main import recalculate_contingency_study
 from src.side_area_panel.modules.contingency.contingency_result import (
@@ -342,3 +350,8 @@ def inject_classes_to_module_registry():
     ModuleRegistry.TWO_D_OUTLIERS.value.result_class = TwoDOutliersResult
     ModuleRegistry.TWO_D_OUTLIERS.value.config_class = TwoDOutliersStudyConfig
     ModuleRegistry.TWO_D_OUTLIERS.value.main_function = dp_2d_outliers_main
+
+    ModuleRegistry.RESPONSE_QUALITY.value.ui_class = ResponseQuality
+    ModuleRegistry.RESPONSE_QUALITY.value.result_class = ResponseQualityResult
+    ModuleRegistry.RESPONSE_QUALITY.value.config_class = ResponseQualityStudyConfig
+    ModuleRegistry.RESPONSE_QUALITY.value.main_function = dp_response_quality_main

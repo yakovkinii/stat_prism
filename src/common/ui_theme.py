@@ -37,6 +37,8 @@ LIGHT = {
     "accent": "#0055ff",
     "selection": "#cfe3ff",
     "danger": "#770000",
+    # Removed-row text in the data preview: vivid red on the light paper.
+    "removed_row": "#ee0000",
     # Brand colour for study titles (legible dark gold on the light paper)
     "title_brand": "#007",
     # Misc
@@ -70,6 +72,8 @@ DARK = {
     "accent": "#aaeedd88",
     "selection": "#3a3320",
     "danger": "#ff6b6b",
+    # Removed-row text in the data preview: lighter red, legible on the dark table.
+    "removed_row": "#ff6b6b",
     # Brand colour for study titles (banner gold)
     "title_brand": "#eedd88",
     # Misc

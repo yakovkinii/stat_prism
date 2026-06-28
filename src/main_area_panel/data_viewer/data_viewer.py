@@ -63,7 +63,7 @@ def view_data_popup(parent, data: Data, highlight_rows=None):
     """Show the data in a popup table. `highlight_rows` is an optional set of row positions
     to render in red (used by the Filter module to mark rows it removed)."""
     highlight_rows = set(highlight_rows or [])
-    red = QtGui.QBrush(QtGui.QColor(Style.Color.Danger.value))
+    red = QtGui.QBrush(QtGui.QColor(Style.Color.RemovedRow.value))
     n_rows, n_cols = data.n_rows(), data.n_columns()
     model = QtGui.QStandardItemModel(n_rows, n_cols)
     for c in range(n_cols):

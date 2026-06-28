@@ -19,7 +19,7 @@ from src.pyside_ext.elements.utility.primitive_elements import (
     QLabelClickable,
     QWidgetClickable,
 )
-from src.pyside_ext.markup import css
+from src.pyside_ext.markup import HTML, css
 from src.pyside_ext.styling import Style
 from src.pyside_ext.unique_qss import set_stylesheet
 from src.pyside_ext.elements.toggle_switch import ToggleSwitch
@@ -318,6 +318,13 @@ class DataProcessingResultDisplay(BaseResultDisplay):
             # One-line version for the collapsed band: full text, line breaks become " | "
             # and the HTML entity becomes a real "×" (the inline label renders as plain text).
             inline = description.replace("<br>", " | ").replace("&times;", "×")
+        # A validation / status message (e.g. "Select a column") leads the summary in red so
+        # the user sees why a step produced no change.
+        error = getattr(result, "error_message", "")
+        if error:
+            error_html = HTML.div(HTML.bold(error), color=Style.Color.Danger.value)
+            description = f"{error_html}<br>{description}" if description else error_html
+            inline = f"⚠ {error} | {inline}" if inline else f"⚠ {error}"
         self.info.setText(description)
         self.info_inline.setText(inline)
         self._update_toggle()

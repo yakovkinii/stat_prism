@@ -9,7 +9,9 @@ _METHODOLOGY = (
     "<b>Grouped outliers</b><br>"
     "Like Outliers, but the threshold is computed <i>within each subgroup</i> of the grouping "
     "column (IQR or Z-score), so every value is judged against its own group's distribution. "
-    "A row is dropped if it is an outlier on any selected column within its group."
+    "A row is flagged if it is an outlier on any selected column within its group. Flagged rows "
+    "appear as checkboxes under <b>Remove:</b> (all ticked); untick any to keep that respondent. "
+    "Previewing the data shows removed rows in red."
 )
 
 
@@ -18,6 +20,7 @@ class GroupedOutliersStudyConfig:
     data_source = attrs.field(default=None)
     column_selector = attrs.field(default=None)
     method = attrs.field(default=None)
+    remove_list = attrs.field(default=None)
     enabled = attrs.field(default=True)
 
 
@@ -39,6 +42,9 @@ class GroupedOutliersResult(BaseResult):
         self.update_description()
 
         self.data = Data([])
+        # Unfiltered data + removed positions for the red-row data preview (as in Filter).
+        self.full_data = Data([])
+        self.removed_positions = []
 
     def update_description(self):
         cfg = self.config

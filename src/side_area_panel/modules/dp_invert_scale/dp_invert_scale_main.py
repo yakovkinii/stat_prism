@@ -20,10 +20,12 @@ def dp_invert_scale_main(elements: Elements, result: InvertScaleResult, update):
     )
     # Default to a pass-through so downstream stays valid while inputs are incomplete.
     result.data = data.copy()
+    result.error_message = ""
 
     columns = cfg.column_selector[0]
     if columns in [None, []]:
         elements.column_selector.set_alert(0)
+        result.error_message = "Select at least one column."
         return result
 
     # All selected columns share one reference. Auto = (max + min) over the pooled

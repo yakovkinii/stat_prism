@@ -7,7 +7,14 @@ from src.side_area_panel.iispwac.iispwac_checkbox import IISPWACCheckBox
 from src.side_area_panel.iispwac.iispwac_column_selector import IISPWACColumnSelector
 from src.side_area_panel.iispwac.iispwac_combobox import IISPWACComboBox
 from src.side_area_panel.iispwac.iispwac_data_source import IISPWACDataSource
+from src.side_area_panel.iispwac.iispwac_remove_list import IISPWACRemoveList
 from src.side_area_panel.modules.base.base import BaseModulePanel
+from src.side_area_panel.modules.common.outlier_logic import detect_univariate_outliers
+
+
+def _detect(data, params):
+    columns = (params.get("column_selector") or [[]])[0] or []
+    return detect_univariate_outliers(data, columns, params.get("method") or "IQR")
 
 
 class Elements(ItemInSidePanelWithAutoConfigHolder):
@@ -26,6 +33,7 @@ class Elements(ItemInSidePanelWithAutoConfigHolder):
     )
 
     method = IISPWACComboBox(label_text="Method:", items=["IQR", "Z-score"])
+    remove_list = IISPWACRemoveList(detector=_detect)
     enabled = IISPWACCheckBox(label_text="Enable", default_state=True)
 
 

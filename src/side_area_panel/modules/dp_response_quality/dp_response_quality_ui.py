@@ -8,16 +8,17 @@ from src.side_area_panel.iispwac.iispwac_column_selector import IISPWACColumnSel
 from src.side_area_panel.iispwac.iispwac_combobox import IISPWACComboBox
 from src.side_area_panel.iispwac.iispwac_data_source import IISPWACDataSource
 from src.side_area_panel.iispwac.iispwac_remove_list import IISPWACRemoveList
+from src.side_area_panel.iispwac.iispwac_spin import IISPWACSpin
 from src.side_area_panel.modules.base.base import BaseModulePanel
-from src.side_area_panel.modules.common.outlier_logic import detect_grouped_outliers
+from src.side_area_panel.modules.common.cleaning_logic import CHECKS, detect_response_quality
 
 
 def _detect(data, params):
-    selector = params.get("column_selector") or []
-    columns = (selector[0] if len(selector) > 0 else []) or []
-    grouping = (selector[1] if len(selector) > 1 else []) or []
-    grouping_column = grouping[0] if grouping else None
-    return detect_grouped_outliers(data, columns, grouping_column, params.get("method") or "IQR")
+    columns = (params.get("column_selector") or [[]])[0] or []
+    check = params.get("check") or CHECKS[0]
+    threshold = params.get("threshold")
+    threshold = 50 if threshold is None else threshold
+    return detect_response_quality(data, check, columns, threshold)
 
 
 class Elements(ItemInSidePanelWithAutoConfigHolder):
@@ -26,30 +27,31 @@ class Elements(ItemInSidePanelWithAutoConfigHolder):
     column_selector = IISPWACColumnSelector(
         fields=[
             Field(
-                name="Columns:",
-                column_type=ColumnType.ORDINAL,
+                name="Questions:",
+                column_type=ColumnType.NOMINAL,  # any column type may be inspected
                 reasonable_number_of_columns=8,
                 allow_only_single_column=False,
-                minimum_columns=1,
-            ),
-            Field(
-                name="Grouping Column:",
-                column_type=ColumnType.NOMINAL,
-                reasonable_number_of_columns=1,
-                allow_only_single_column=True,
                 minimum_columns=1,
             ),
         ],
     )
 
-    method = IISPWACComboBox(label_text="Method:", items=["IQR", "Z-score"])
+    check = IISPWACComboBox(label_text="Check:", items=CHECKS)
+    # Shared knob for the percentage-based checks (ignored by "Duplicate entries"):
+    # the share of items at which a respondent is flagged.
+    threshold = IISPWACSpin(
+        label_text="Flag at % of items:",
+        min_value=0,
+        max_value=100,
+        default_value=50,
+    )
     remove_list = IISPWACRemoveList(detector=_detect)
     enabled = IISPWACCheckBox(label_text="Enable", default_state=True)
 
 
-class GroupedOutliers(BaseModulePanel):
+class ResponseQuality(BaseModulePanel):
     def setup_ui(self):
         self.init_elements(Elements)
-        self.set_label("Grouped Outliers")
+        self.set_label("Response Quality")
         # The enable/disable control is the toggle on the result card.
         self.elements_.enabled.widget.setVisible(False)

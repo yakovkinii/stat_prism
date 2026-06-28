@@ -21,19 +21,23 @@ def dp_calculate_scale_main(elements: Elements, result: CalculateScaleResult, up
     )
     # Default to a pass-through so downstream stays valid while inputs are incomplete.
     result.data = data.copy()
+    result.error_message = ""
 
     question_columns = cfg.column_selector[0]
     if question_columns in [None, []]:
         elements.column_selector.set_alert(0)
+        result.error_message = "Select at least one item column."
         return result
 
     scale_name = (cfg.name or "").strip()
     if scale_name == "":
         elements.name.set_alert()
+        result.error_message = "Enter a name for the scale."
         return result
     if scale_name in data.column_names():
         # A new column cannot reuse an existing name.
         elements.name.set_alert()
+        result.error_message = f"A column named '{scale_name}' already exists."
         return result
 
     # Build an aligned numeric frame of the selected questions (raw series, no row reordering).
@@ -42,16 +46,27 @@ def dp_calculate_scale_main(elements: Elements, result: CalculateScaleResult, up
         axis=1,
     )
 
-    # exclude_missing off (default): any missing item -> the scale value is missing for that
-    # row. On: skip missing items and aggregate over the present ones.
-    exclude_missing = bool(cfg.exclude_missing)
+    # Missing-value policy:
+    #  * "Skip respondent": any missing item -> no scale value for that row.
+    #  * "Allow up to max %": aggregate over the present items for rows whose share
+    #    of missing items is within the threshold; other rows get no scale value.
+    n_items = items.shape[1]
+    missing_fraction = items.isna().sum(axis=1) / n_items
+    missing_mode = cfg.missing_values or "Skip respondent"
+    threshold = cfg.missing_threshold if cfg.missing_threshold is not None else 0
+    if missing_mode == "Skip respondent":
+        allow = missing_fraction == 0
+    else:
+        allow = (missing_fraction * 100) <= threshold
+
     method = cfg.method or "Sum"
     if method == "Sum":
-        scale_series = items.sum(axis=1, min_count=1) if exclude_missing else items.sum(axis=1, skipna=False)
+        aggregated = items.sum(axis=1, min_count=1)  # NaN when no items present
     elif method == "Mean":
-        scale_series = items.mean(axis=1) if exclude_missing else items.mean(axis=1, skipna=False)
+        aggregated = items.mean(axis=1)  # skips missing items
     else:
         raise ValueError(f"Unknown aggregation method: {method}")
+    scale_series = aggregated.where(allow)
 
     if cfg.scale == "Stanine":
         scale_series = to_stanine(scale_series)

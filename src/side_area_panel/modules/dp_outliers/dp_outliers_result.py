@@ -7,10 +7,11 @@ from src.side_area_panel.modules.common.result.registry import BaseResult
 
 _METHODOLOGY = (
     "<b>Outliers</b><br>"
-    "Drops rows whose value on <i>any</i> selected column is an outlier. "
+    "Flags rows whose value on <i>any</i> selected column is an outlier. "
     "<b>IQR</b>: outside Q1 &minus; 1.5&times;IQR .. Q3 + 1.5&times;IQR. "
-    "<b>Z-score</b>: |z| &gt; 3. When an 'ID' column is present, removed IDs are listed. "
-    "Toggle the step off (card button) to keep all rows."
+    "<b>Z-score</b>: |z| &gt; 3. Flagged rows are listed as checkboxes under <b>Remove:</b> "
+    "(all ticked); untick any to keep that respondent. Previewing the data shows the removed "
+    "rows in red. Toggle the step off (card button) to keep all rows."
 )
 
 
@@ -19,6 +20,7 @@ class OutliersStudyConfig:
     data_source = attrs.field(default=None)
     column_selector = attrs.field(default=None)
     method = attrs.field(default=None)
+    remove_list = attrs.field(default=None)
     enabled = attrs.field(default=True)
 
 
@@ -40,6 +42,10 @@ class OutliersResult(BaseResult):
         self.update_description()
 
         self.data = Data([])
+        # For the data-preview popup: the unfiltered data plus the removed row positions,
+        # so removed rows can be shown in red (as in Filter).
+        self.full_data = Data([])
+        self.removed_positions = []
 
     def update_description(self):
         cfg = self.config

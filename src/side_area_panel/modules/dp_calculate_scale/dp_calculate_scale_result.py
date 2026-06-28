@@ -10,9 +10,11 @@ _METHODOLOGY = (
     "Builds a new scale column by aggregating the selected item columns &mdash; <b>Sum</b> or "
     "<b>Mean</b> across the items, per row. Optionally convert the result to <b>Stanine</b> "
     "(1&ndash;9). The source questions can be kept, deleted, or auto-renamed (e.g. "
-    "&lsquo;Scale Q1&rsquo;&hellip;). By default a row with <i>any</i> missing item yields a "
-    "missing scale value; enable <b>Aggregate despite missing values</b> to instead aggregate "
-    "over the items that are present (Sum needs at least one present value)."
+    "&lsquo;Scale Q1&rsquo;&hellip;). <b>Missing values</b> controls respondents with missing "
+    "items: <i>Skip respondent</i> (default) gives no scale value when <i>any</i> item is missing; "
+    "<i>Allow up to max %</i> aggregates over the present items as long as the share "
+    "of missing items is within <b>Max missing %</b> (0% = complete cases only, 100% = aggregate "
+    "over whatever is present)."
 )
 
 
@@ -24,7 +26,8 @@ class CalculateScaleStudyConfig:
     method = attrs.field(default=None)
     scale = attrs.field(default=None)
     questions_action = attrs.field(default=None)
-    exclude_missing = attrs.field(default=None)
+    missing_values = attrs.field(default=None)
+    missing_threshold = attrs.field(default=None)
     color = attrs.field(default=None)
     questions_color = attrs.field(default=None)
 
@@ -55,6 +58,11 @@ class CalculateScaleResult(BaseResult):
         ]
         if cfg.scale and cfg.scale != "None":
             parts.append(f"Normalization: {cfg.scale}")
+        missing_mode = cfg.missing_values or "Skip respondent"
+        if missing_mode == "Skip respondent":
+            parts.append("Missing: skip respondent")
+        else:
+            parts.append(f"Missing: aggregate up to {cfg.missing_threshold or 0}%")
         action = cfg.questions_action or "Keep"
         if action != "Keep":
             parts.append(f"Used questions: {action.lower()}")

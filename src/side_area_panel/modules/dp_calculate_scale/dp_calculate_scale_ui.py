@@ -3,13 +3,17 @@
 from src.common.constant import ColumnType
 from src.pyside_ext.elements.column_selector import Field
 from src.side_area_panel.blueprint.element import ItemInSidePanelWithAutoConfigHolder
-from src.side_area_panel.iispwac.iispwac_checkbox import IISPWACCheckBox
 from src.side_area_panel.iispwac.iispwac_color_picker import IISPWACColorPicker
 from src.side_area_panel.iispwac.iispwac_column_selector import IISPWACColumnSelector
 from src.side_area_panel.iispwac.iispwac_combobox import IISPWACComboBox
 from src.side_area_panel.iispwac.iispwac_data_source import IISPWACDataSource
+from src.side_area_panel.iispwac.iispwac_spin import IISPWACSpin
 from src.side_area_panel.iispwac.iispwac_text_edit import IISPWACLongTextEdit
 from src.side_area_panel.modules.base.base import BaseModulePanel
+
+# Dropdown labels for how to handle respondents with missing items.
+MISSING_SKIP = "Skip respondent"
+MISSING_THRESHOLD = "Allow up to max %"
 
 
 class Elements(ItemInSidePanelWithAutoConfigHolder):
@@ -42,11 +46,20 @@ class Elements(ItemInSidePanelWithAutoConfigHolder):
         label_text="Questions:",
         items=["Keep", "Auto-rename", "Delete"],
     )
-    # Off (default): any missing item makes the scale value missing for that row.
-    # On: missing items are skipped and the scale is aggregated over the present ones.
-    exclude_missing = IISPWACCheckBox(
-        label_text="Aggregate despite missing values",
-        default_state=False,
+    # How to treat respondents with missing items:
+    #  * "Skip respondent" (default): any missing item -> no scale value for that row.
+    #  * "Allow up to max %": aggregate over the present items, as long as the share of missing
+    #    items does not exceed the threshold below (0% = complete cases only, 100% = always
+    #    aggregate over whatever is present).
+    missing_values = IISPWACComboBox(
+        label_text="Missing values:",
+        items=[MISSING_SKIP, MISSING_THRESHOLD],
+    )
+    missing_threshold = IISPWACSpin(
+        label_text="Max missing %:",
+        min_value=0,
+        max_value=100,
+        default_value=0,
     )
     color = IISPWACColorPicker(label_text="Scale color:")
     questions_color = IISPWACColorPicker(label_text="Questions color:")
@@ -61,3 +74,12 @@ class CalculateScale(BaseModulePanel):
             stretch=True,
         )
         self.set_label("Calculate Scale")
+        # "Max missing %" only applies to the threshold mode; grey it out for "Skip respondent".
+        self.elements_.missing_values.set_handler_current_index_changed(self._sync_missing_enabled)
+        self._sync_missing_enabled()
+
+    def _sync_missing_enabled(self):
+        threshold = self.elements_.missing_threshold
+        enabled = self.elements_.missing_values.combo_box.currentText() != MISSING_SKIP
+        for w in (threshold.spin_box, threshold.minus_button, threshold.plus_button):
+            w.setEnabled(enabled)

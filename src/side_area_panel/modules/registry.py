@@ -115,7 +115,14 @@ class ModuleRegistry(Enum):
     )
 
     TWO_D_OUTLIERS = ModuleRegistryItem(
-        display_name="2D Outliers",
+        display_name="ND Outliers",
+        icon_path="mdi6.chart-scatter-plot",
+        module_type=ModuleType.DATA_PROCESSING,
+    )
+
+    # Careless-response cleaning -- shares the outliers icon (also a row-removal step).
+    RESPONSE_QUALITY = ModuleRegistryItem(
+        display_name="Response Quality",
         icon_path="mdi6.chart-scatter-plot",
         module_type=ModuleType.DATA_PROCESSING,
     )

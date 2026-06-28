@@ -66,6 +66,7 @@ class Style:
         # Tokens for things that used to be hardcoded inside individual widgets:
         Overlay = Scheme.overlay
         TableRule = Scheme.table_rule
+        RemovedRow = Scheme.removed_row
         ToggleOn = Scheme.toggle_on
         ToggleOff = Scheme.toggle_off
         TextOnLight = Scheme.text_on_light

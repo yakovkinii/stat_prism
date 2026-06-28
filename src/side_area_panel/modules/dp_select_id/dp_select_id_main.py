@@ -17,10 +17,12 @@ def dp_select_id_main(elements: Elements, result: SelectIDResult, update):
     new_data = data.copy()
     # Default to a pass-through so downstream stays valid while inputs are incomplete/invalid.
     result.data = new_data
+    result.error_message = ""
 
     selected = cfg.column_selector[0] if cfg.column_selector else None
     if not selected:
         elements.column_selector.set_alert(0)
+        result.error_message = "Select an ID column."
         return result
     column_name = selected[0]
 
@@ -28,6 +30,7 @@ def dp_select_id_main(elements: Elements, result: SelectIDResult, update):
     # A valid identifier has no missing values and only unique values.
     if series.isna().any() or series.duplicated().any():
         elements.column_selector.set_alert(0)
+        result.error_message = "ID column must have unique, non-missing values."
         return result
 
     # Drop the previous ID column(s) before promoting the new one (frees the "ID" name).
