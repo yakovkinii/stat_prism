@@ -29,7 +29,9 @@ Table
 
 Plots
 : **Heatmap** of the matrix, and pairwise **scatter plots** with a regression line and its
-  standard-error band.
+  standard-error band. The heatmap's **color scale** is selectable in its plot settings
+  (a diverging map such as `bwr` or `RdBu` by default, plus sequential options like
+  `viridis` and `Blues`).
 
 ## Output
 

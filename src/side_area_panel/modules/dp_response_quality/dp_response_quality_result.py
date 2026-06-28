@@ -2,7 +2,7 @@
 import attrs
 
 from src.data.data import Data
-from src.side_area_panel.modules.common.cleaning_logic import CHECKS
+from src.side_area_panel.modules.common.cleaning_logic import CHECK_DUPLICATES, CHECKS
 from src.side_area_panel.modules.common.result.registry import BaseResult
 
 
@@ -58,7 +58,7 @@ class ResponseQualityResult(BaseResult):
             f"Questions ({len(selected)}): " + (", ".join(selected) if selected else "none"),
             f"Check: {check}",
         ]
-        if check != CHECKS[0]:  # the % threshold is irrelevant to "Duplicate entries"
+        if check != CHECK_DUPLICATES:  # the % threshold is irrelevant to "Duplicate entries"
             parts.append(f"Flag at: {cfg.threshold if cfg.threshold is not None else 50}% of items")
         if cfg.enabled:
             parts.append(f"Removed: {self.removed_count} rows")

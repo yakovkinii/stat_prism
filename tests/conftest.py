@@ -18,6 +18,15 @@ import os
 
 os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
 
+# Snapshot goldens are rendered in one fixed look, so the suite must not depend on the
+# developer's local statprism.ini. Force the light UI theme, English, and the default plot
+# theme via the STATPRISM_* overrides (honoured in src/common/ui_theme.py). These are set
+# before any src.* import so the module-level theme/language/plot-theme singletons pick
+# them up.
+os.environ["STATPRISM_THEME"] = "light"
+os.environ["STATPRISM_LANGUAGE"] = "en"
+os.environ["STATPRISM_PLOT_THEME"] = "Default"
+
 import matplotlib  # noqa: E402
 
 matplotlib.use("Agg")

@@ -20,7 +20,8 @@ CHECK_LONGSTRING = "Long string"
 CHECK_MISSING = "High missingness"
 CHECK_LOWVAR = "Low variability"
 
-CHECKS = [CHECK_DUPLICATES, CHECK_LONGSTRING, CHECK_MISSING, CHECK_LOWVAR]
+# Long string leads the list so it is the default check (the most common careless-response screen).
+CHECKS = [CHECK_LONGSTRING, CHECK_DUPLICATES, CHECK_MISSING, CHECK_LOWVAR]
 
 _SENTINEL = object()
 

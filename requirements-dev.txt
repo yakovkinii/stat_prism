@@ -1,0 +1,5 @@
+# Development-only tools (not needed to run the app). The release helper
+# (tools/release.py) installs these into venv_39 before formatting/linting.
+black==24.8.0
+isort==5.13.2
+flake8==7.1.1

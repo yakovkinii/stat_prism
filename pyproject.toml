@@ -1,0 +1,12 @@
+# Tooling config for StatPrism. The release helper (tools/release.py) runs black + isort
+# (configured here) and flake8 (configured in .flake8, since flake8 does not read
+# pyproject.toml). The project itself is run from source, not installed as a package.
+
+[tool.black]
+line-length = 120
+target-version = ["py39"]
+
+[tool.isort]
+profile = "black"
+line_length = 120
+py_version = 39

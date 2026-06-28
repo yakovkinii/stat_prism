@@ -16,6 +16,7 @@ widgets only ever reference ``Style.Color`` tokens, so colours live in exactly o
 """
 
 import configparser
+import os
 from pathlib import Path
 
 LIGHT = {
@@ -93,6 +94,14 @@ _DEFAULT_THEME = "light"
 _INI_NAME = "statprism.ini"
 
 
+def _env_override(key: str):
+    """An ``STATPRISM_<KEY>`` environment variable overrides the matching ``[ui]`` setting.
+
+    The test suite uses this to force a deterministic look (light theme, English, default
+    plot theme) regardless of the developer's local statprism.ini (see tests/conftest.py)."""
+    return os.environ.get(f"STATPRISM_{key.upper()}")
+
+
 def _ini_candidates() -> list:
     """Where to look for / create the config: next to the running app (current working
     directory) first, then the repository root (for source runs)."""
@@ -114,6 +123,9 @@ def _create_default_ini() -> None:
 def _read_theme_name() -> str:
     """Read ``[ui] theme`` from ``statprism.ini``. If no config exists anywhere, create a
     default one and fall back to the default theme (light)."""
+    override = _env_override("theme")
+    if override is not None:
+        return override.strip().lower()
     for path in _ini_candidates():
         try:
             if path.is_file():
@@ -140,7 +152,12 @@ def _writable_ini_path() -> Path:
 
 
 def read_ui_value(key: str, fallback: str) -> str:
-    """Read ``[ui] <key>`` from ``statprism.ini`` (first existing candidate)."""
+    """Read ``[ui] <key>`` from ``statprism.ini`` (first existing candidate).
+
+    An ``STATPRISM_<KEY>`` environment variable, if set, wins over the file."""
+    override = _env_override(key)
+    if override is not None:
+        return override.strip()
     for path in _ini_candidates():
         try:
             if path.is_file():

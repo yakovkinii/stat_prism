@@ -6,10 +6,10 @@ someone answered rather than at extreme values.
 
 Pick the questions to inspect and a **Check**:
 
+- **Long string** *(default)* — the longest run of identical *consecutive* answers covers at
+  least **Flag at % of items** of the questions (classic straightlining down a grid).
 - **Duplicate entries** — rows that repeat an earlier row across the selected questions (the
   first occurrence is kept). Ignores the threshold below.
-- **Long string** — the longest run of identical *consecutive* answers covers at least
-  **Flag at % of items** of the questions (classic straightlining down a grid).
 - **High missingness** — the respondent left at least that share of the selected items blank.
 - **Low variability** — the respondent's single most-common answer covers at least that share
   of the items (little variation across questions, even if not consecutive).

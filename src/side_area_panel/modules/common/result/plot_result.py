@@ -362,6 +362,11 @@ class BandPlotConfig(BasePlotConfig):
         )
 
 
+# Diverging maps first (the default use case: signed correlations/loadings around zero),
+# then a couple of sequential options for non-negative matrices.
+HEATMAP_COLORMAPS = ["bwr", "RdBu", "coolwarm", "seismic", "PuOr", "viridis", "Blues"]
+
+
 class HeatmapPlotConfig(BasePlotConfig):
     def __init__(
         self,
@@ -370,8 +375,14 @@ class HeatmapPlotConfig(BasePlotConfig):
         alpha: float = 0.5,
         font_size=10,
         numbered_labels: bool = False,
+        colormap: str = HEATMAP_COLORMAPS[0],
     ):
         super().__init__()
+        self.colormap = DropdownResultItemSetting(
+            label="Color Scale",
+            current_value=colormap,
+            items=HEATMAP_COLORMAPS,
+        )
         self.symmetric_color_scale = PlainCheckboxResultItemSetting(
             label="Symmetric Color Scale",
             current_value=symmetric_color_scale,
@@ -400,6 +411,7 @@ class HeatmapPlotConfig(BasePlotConfig):
         )
         self.display_settings = ContainerResultItemSetting(
             items=[
+                self.colormap,
                 self.symmetric_color_scale,
                 self.only_significant,
                 self.numbered_labels,
@@ -825,7 +837,7 @@ class PlotV2(BaseResultElement):
                 self._gc_ignore.append(
                     ax.imshow(
                         item.df,
-                        cmap="bwr",
+                        cmap=item.config.colormap.get_current_value(),
                         vmin=vmin,
                         vmax=vmax,
                         interpolation="nearest",
