@@ -28,14 +28,20 @@ Plots
   width), **Box plot** (optionally marking outliers), **Q–Q plot**, **Frequency bars**, and
   **Pie chart**. Ordinal variables can also get a pie chart in their defined order.
 
+Verbal output
+: Two independent toggles. **Verbal indicators in tables** adds in-table verbal columns (for
+  example a *Normal?* conclusion in the normality table). **Plain-language summary (prose)** adds
+  the written sentences — the outlier report, the normality summary, and the grouped-frequency
+  summary. Enable either, both, or neither.
+
 Other
 : **Number columns** for compact wide tables.
 
 ## Output
 
 - A **numeric summary** table (per group when grouping is on).
-- An **outlier report** beneath the summary, naming each outlier and listing their IDs for
-  easy follow-up.
+- An **outlier report** beneath the summary (when the plain-language summary is on), naming
+  each outlier and listing their IDs for easy follow-up.
 - A **normality** table (if requested).
 - **Frequency** tables and the requested **plots**.
 

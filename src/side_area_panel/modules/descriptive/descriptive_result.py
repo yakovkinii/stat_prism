@@ -18,7 +18,8 @@ class DescriptiveStudyConfig:
     frequency_table = attrs.field(default=None)
     show_normality = attrs.field(default=None)
     normality_test = attrs.field(default=None)
-    verbal_indicators = attrs.field(default=None)
+    verbal_indicators = attrs.field(default=None)  # in-table verbal columns (e.g. "Normal?")
+    prose = attrs.field(default=None)  # plain-language sentences (add_text summaries)
     number_columns = attrs.field(default=None)
     # Plots
     show_distribution = attrs.field(default=None)

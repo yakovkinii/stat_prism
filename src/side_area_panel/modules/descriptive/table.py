@@ -90,11 +90,13 @@ def get_normality_table(
     statistic_letter: str,
     groupby_column: str = None,
     show_normal_column: bool = True,
+    show_report: bool = True,
     numbering=None,
 ) -> HTMLTableV2:
     """Normality results: per variable (or per group) the test statistic, p, and (when
-    `show_normal_column`) a verbal normal? conclusion, followed by a verbal summary.
-    `rows` have keys: variable, group, norm_stat, norm_p."""
+    `show_normal_column`) an in-table verbal normal? conclusion. When `show_report`, a
+    plain-language summary (prose) follows the table. `rows` have keys: variable, group,
+    norm_stat, norm_p."""
     numbering = _numbering(numbering)
     table = HTMLTableV2(table_caption=caption)
     grouped = groupby_column is not None
@@ -131,7 +133,7 @@ def get_normality_table(
             cells.append(Cell(normal_text, center=True))
         table.add_single_row_apa(Row(cells))
 
-    show_normal_column and table.add_text(_normality_report(rows, test_name, statistic_letter))
+    show_report and table.add_text(_normality_report(rows, test_name, statistic_letter))
     # If any cell is blank (test could not run), explain why rather than leaving it unexplained.
     if any(_is_nan(r["norm_p"]) for r in rows):
         table.add_text(t("descriptive.normality.note_blank"))
