@@ -14,12 +14,14 @@ from src.common.decorators import log_function
 from src.common.qcolor import Colors
 from src.common.translations import t
 from src.data.data_manager import DATA_MANAGER
+from src.side_area_panel.modules.common.prose import prose_enabled
 from src.side_area_panel.modules.common.result.html_result import Cell, HTMLTableV2, Row
 from src.side_area_panel.modules.common.result.plot_result import (
     Band,
     BandPlotConfig,
     Line,
     LinePlotConfig,
+    MediationDiagram,
     PlotV2,
     Scatter,
 )
@@ -41,6 +43,19 @@ def _fail(result: RegressionResult, message: str) -> RegressionResult:
     logging.warning("Regression: %s", message)
     result.set_error(message)
     return result
+
+
+def _format_effect(value) -> str:
+    """Like format_statistic_apa, but keeps small effects legible: an indirect effect a·b can be
+    a product of two small coefficients (e.g. .37 × .01 = .0037) that the usual 2-decimal rounding
+    would collapse to .00. For |value| < .01 (but non-zero) fall back to 2 significant figures."""
+    try:
+        v = float(value)
+    except (TypeError, ValueError):
+        return format_statistic_apa(value)
+    if v != 0 and abs(v) < 0.01:
+        return f"{v:.2g}"
+    return format_statistic_apa(v)
 
 
 def _coefficient_table(model, dependent_sd, show_std, verbal, x, caption, intercept_label):
@@ -97,7 +112,7 @@ def _vif_key(vif: float) -> str:
     return "low"
 
 
-def _add_vif_table(result, x, verbal):
+def _add_vif_table(result, x, verbal, prose):
     """VIF multicollinearity table (needs >=2 predictors; const stays in the design matrix
     for the formula). Shared by the linear and logistic diagnostics."""
     predictors = [c for c in x.columns if c != "const"]
@@ -121,21 +136,43 @@ def _add_vif_table(result, x, verbal):
         if verbal:
             cells.append(Cell(t(f"regression.vif.{_vif_key(vif)}"), center=True))
         vif_table.add_single_row_apa(Row(cells))
-    verbal and vif_table.add_text(
+    prose and vif_table.add_text(
         t("regression.report.vif_high", items=smart_comma_join(high)) if high else t("regression.report.vif_ok")
     )
     result.update_and_add_element(vif_table, "regression vif")
 
 
-def _add_influence_table(result, model, verbal):
-    """Influence diagnostics: per-observation Cook's distance, leverage (hat) and internally
-    studentized residuals, listing the observations that exceed the usual flags (Cook's D >
-    4/n, leverage > 2p/n, |std. resid| > 3). Also reports the Durbin-Watson statistic for
-    residual autocorrelation. All computed analytically (statsmodels), no resampling."""
+def _mahalanobis(x: np.ndarray) -> np.ndarray:
+    """Mahalanobis distance of each row from the predictor centroid (uses a pseudo-inverse so
+    it survives collinear predictors)."""
+    x = np.asarray(x, dtype=float)
+    if x.ndim == 1:
+        x = x.reshape(-1, 1)
+    diff = x - x.mean(axis=0)
+    cov = np.atleast_2d(np.cov(x, rowvar=False))
+    inv = np.linalg.pinv(cov)
+    md2 = np.einsum("ij,jk,ik->i", diff, inv, diff)
+    return np.sqrt(np.clip(md2, 0.0, None))
+
+
+def _add_influence_table(result, model, prose):
+    """Influence diagnostics: per-observation Mahalanobis distance (multivariate outlyingness
+    in predictor space), Cook's distance, leverage (hat) and internally studentized residuals,
+    listing the observations that exceed the usual flags (Cook's D > 4/n, leverage > 2p/n,
+    |std. resid| > 3, Mahalanobis D² > chi-square .999). Also reports the Durbin-Watson
+    statistic for residual autocorrelation. All computed analytically, no resampling. This is
+    a *report only* — nothing is excluded from the model."""
     influence = model.get_influence()
     cooks = np.asarray(influence.cooks_distance[0], dtype=float)
     leverage = np.asarray(influence.hat_matrix_diag, dtype=float)
     std_resid = np.asarray(influence.resid_studentized_internal, dtype=float)
+
+    # Mahalanobis distance over the predictors only (drop the intercept column if present).
+    exog = np.asarray(model.model.exog, dtype=float)
+    predictors = exog[:, 1:] if exog.shape[1] > 1 else exog
+    n_pred = predictors.shape[1]
+    mahalanobis = _mahalanobis(predictors)
+    maha_cut2 = float(stats.chi2.ppf(0.999, df=n_pred)) if n_pred else np.inf
 
     n = len(cooks)
     p = int(model.df_model) + 1  # predictors + intercept
@@ -143,7 +180,14 @@ def _add_influence_table(result, model, verbal):
     leverage_cut = 2.0 * p / n if n else np.nan
 
     labels = list(model.fittedvalues.index)
-    flagged = [i for i in range(n) if (cooks[i] > cooks_cut) or (leverage[i] > leverage_cut) or (abs(std_resid[i]) > 3)]
+    flagged = [
+        i
+        for i in range(n)
+        if (cooks[i] > cooks_cut)
+        or (leverage[i] > leverage_cut)
+        or (abs(std_resid[i]) > 3)
+        or (mahalanobis[i] ** 2 > maha_cut2)
+    ]
     # Worst first, capped so the table stays readable.
     flagged.sort(key=lambda i: cooks[i], reverse=True)
     flagged = flagged[:20]
@@ -153,6 +197,7 @@ def _add_influence_table(result, model, verbal):
         Row(
             [
                 Cell(t("regression.diag.observation")),
+                Cell(t("regression.diag.mahalanobis"), center=True),
                 Cell(t("regression.diag.cooks"), center=True),
                 Cell(t("regression.diag.leverage"), center=True),
                 Cell(t("regression.diag.std_resid"), center=True),
@@ -164,6 +209,7 @@ def _add_influence_table(result, model, verbal):
             Row(
                 [
                     Cell(str(labels[i]), push_to_left=True),
+                    Cell(format_statistic_apa(mahalanobis[i]), center=True),
                     Cell(format_statistic_apa(cooks[i]), center=True),
                     Cell(format_r_apa(leverage[i]), center=True),
                     Cell(format_statistic_apa(std_resid[i]), center=True),
@@ -172,7 +218,7 @@ def _add_influence_table(result, model, verbal):
         )
 
     dw = float(durbin_watson(model.resid))
-    if verbal:
+    if prose:
         if flagged:
             table.add_text(
                 t(
@@ -188,15 +234,15 @@ def _add_influence_table(result, model, verbal):
     result.update_and_add_element(table, "regression influence")
 
 
-def _add_diagnostics(result, model, x, verbal):
+def _add_diagnostics(result, model, x, verbal, prose):
     """OLS diagnostics: a VIF multicollinearity table (when there are >=2 predictors), an
     influence table (Cook's D / leverage / studentized residuals + Durbin-Watson), a
     residuals-vs-fitted plot, and a normal Q-Q plot of the residuals."""
     fitted = np.asarray(model.fittedvalues, dtype=float)
     resid = np.asarray(model.resid, dtype=float)
 
-    _add_vif_table(result, x, verbal)
-    _add_influence_table(result, model, verbal)
+    _add_vif_table(result, x, verbal, prose)
+    _add_influence_table(result, model, prose)
 
     # ----- Residuals vs fitted -----
     zero_x = np.array([fitted.min(), fitted.max()])
@@ -292,6 +338,7 @@ def recalculate_regression_study(elements, result: RegressionResult, update) -> 
     update(10)
 
     verbal = bool(cfg.verbal_indicators)
+    prose = prose_enabled(cfg.interpretation)
     show_std = bool(cfg.standardized)
 
     model_type = cfg.model_type or RegressionModelType.LINEAR.value
@@ -299,7 +346,16 @@ def recalculate_regression_study(elements, result: RegressionResult, update) -> 
         if mediator_column:
             elements.column_selector.set_alert(3)
             return _fail(result, t("regression.error.logit_no_mediation"))
-        return _run_logistic(result, df, dependent_column, independent_columns, moderator_column, cfg, verbal, update)
+        return _run_logistic(
+            result, df, dependent_column, independent_columns, moderator_column, cfg, verbal, prose, update
+        )
+    if model_type == RegressionModelType.MULTINOMIAL.value:
+        if mediator_column:
+            elements.column_selector.set_alert(3)
+            return _fail(result, t("regression.error.logit_no_mediation"))
+        return _run_multinomial(
+            result, df, dependent_column, independent_columns, moderator_column, cfg, verbal, prose, update
+        )
 
     independent_cols = independent_columns.copy()
     if moderator_column:
@@ -371,7 +427,7 @@ def recalculate_regression_study(elements, result: RegressionResult, update) -> 
         if significant_predictors
         else t("regression.report.predictors_none")
     )
-    if verbal:
+    if prose:
         fit_table.add_text(report)
     result.update_and_add_element(fit_table, "regression fit")
 
@@ -385,7 +441,7 @@ def recalculate_regression_study(elements, result: RegressionResult, update) -> 
         caption=t("regression.caption.coefficients"),
         intercept_label=t("regression.row.intercept"),
     )
-    verbal and coefficients_table.add_text(_coefficient_prose(model, dependent_column))
+    prose and coefficients_table.add_text(_coefficient_prose(model, dependent_column))
     result.update_and_add_element(coefficients_table, "regression coefficients")
     update(65)
 
@@ -425,7 +481,7 @@ def recalculate_regression_study(elements, result: RegressionResult, update) -> 
         # Prose: the b path (mediator -> outcome) and each predictor's indirect effect a*b.
         b_path = model.params[mediator_column]
         indirect_items = [
-            f"{param}: {format_statistic_apa(mediator_model.params[param] * b_path)}"
+            f"{param}: {_format_effect(mediator_model.params[param] * b_path)}"
             for param in independent_columns
             if param in mediator_model.params.index
         ]
@@ -439,12 +495,37 @@ def recalculate_regression_study(elements, result: RegressionResult, update) -> 
         )
         if indirect_items:
             med_text += t("regression.report.med_indirect", items=smart_comma_join(indirect_items))
-        verbal and path_table.add_text(med_text)
+        prose and path_table.add_text(med_text)
         result.update_and_add_element(path_table, "regression paths")
+
+        # Path diagram for the classic single-predictor X -> M -> Y mediation.
+        if cfg.plots and len(independent_columns) == 1:
+            iv = independent_columns[0]
+            a = mediator_model.params.get(iv)
+            b = model.params.get(mediator_column)
+            c_direct = model.params.get(iv)
+            if a is not None and b is not None and c_direct is not None:
+                diagram = PlotV2(
+                    items=[
+                        MediationDiagram(
+                            x_label=str(iv),
+                            m_label=str(mediator_column),
+                            y_label=str(dependent_column),
+                            a=f"a = {format_statistic_apa(a)}",
+                            b=f"b = {format_statistic_apa(b)}",
+                            c_direct=f"c′ = {format_statistic_apa(c_direct)}",
+                            indirect=f"a·b = {_format_effect(a * b)}",
+                        )
+                    ],
+                    plot_title=t("regression.plot.mediation_title", dv=dependent_column),
+                    x_axis_title="",
+                    y_axis_title="",
+                )
+                result.update_and_add_element(diagram, "regression mediation diagram")
 
     # ----- Diagnostics (VIF + residual plots) -----
     if cfg.diagnostics:
-        _add_diagnostics(result, model, x, verbal)
+        _add_diagnostics(result, model, x, verbal, prose)
     update(85)
 
     # ----- Plot (only for a single independent variable) -----
@@ -460,11 +541,35 @@ def recalculate_regression_study(elements, result: RegressionResult, update) -> 
     return result
 
 
+def _build_observed_vs_predicted(df, model, dependent_column):
+    """Multi-predictor fallback plot: observed outcome vs. the model's fitted values, with a
+    45° reference line. Unlike the scatter+line plot it does not need a single predictor, so it is
+    the meaningful 'plot' for a model with several predictors — points hugging the diagonal mean a
+    good fit."""
+    y = df[dependent_column].astype(float).values
+    y_hat = np.asarray(model.fittedvalues, dtype=float)
+    lo = float(min(y.min(), y_hat.min()))
+    hi = float(max(y.max(), y_hat.max()))
+    items = [
+        Scatter(x=y_hat, y=y, label=t("regression.plot.data")),
+        Line(x=np.array([lo, hi]), y=np.array([lo, hi]), label=t("regression.plot.identity")),
+    ]
+    title = t("regression.plot.obs_pred_title", dv=dependent_column)
+    return PlotV2(
+        items=items,
+        title=title,
+        plot_title=title,
+        x_axis_title=t("regression.plot.predicted"),
+        y_axis_title=t("regression.plot.observed"),
+    )
+
+
 def _build_plot(df, model, mediator_model, dependent_column, independent_columns, moderator_column, mediator_column):
     """Regression plot for a single predictor: scatter + fitted line, plus moderator simple
-    slopes or mediation direct/total effects when those are in play."""
+    slopes or mediation direct/total effects when those are in play. With several predictors there
+    is no 2-D scatter, so an observed-vs-predicted plot is drawn instead."""
     if len(independent_columns) != 1:
-        return None
+        return _build_observed_vs_predicted(df, model, dependent_column)
 
     predictor = independent_columns[0]
     scatter = Scatter(x=df[predictor], y=df[dependent_column], label=t("regression.plot.data"))
@@ -579,7 +684,7 @@ def _build_plot(df, model, mediator_model, dependent_column, independent_columns
 # ===================================================================================
 
 
-def _run_logistic(result, df, dependent_column, independent_columns, moderator_column, cfg, verbal, update):
+def _run_logistic(result, df, dependent_column, independent_columns, moderator_column, cfg, verbal, prose, update):
     """Fit a binary logistic regression (statsmodels Logit) and build the fit, coefficient
     and (optional) diagnostics/plot. Moderation is supported via interaction terms;
     mediation is not (filtered out by the caller)."""
@@ -644,7 +749,7 @@ def _run_logistic(result, df, dependent_column, independent_columns, moderator_c
         p=format_p_apa_full(model.llr_pvalue),
     )
     report += t("regression.report.significant") if model.llr_pvalue < 0.05 else t("regression.report.not_significant")
-    if verbal:
+    if prose:
         fit_table.add_text(report)
     result.update_and_add_element(fit_table, "regression fit")
 
@@ -677,13 +782,13 @@ def _run_logistic(result, df, dependent_column, independent_columns, moderator_c
             cells.append(Cell(significance_verbal(p), center=True))
         coefficients_table.add_single_row_apa(Row(cells))
 
-    verbal and coefficients_table.add_text(_logistic_coefficient_prose(model, dependent_column, positive_label))
+    prose and coefficients_table.add_text(_logistic_coefficient_prose(model, dependent_column, positive_label))
     result.update_and_add_element(coefficients_table, "regression coefficients")
     update(70)
 
     # ----- Diagnostics (VIF only; the OLS residual plots don't transfer to logistic) -----
     if cfg.diagnostics:
-        _add_vif_table(result, x, verbal)
+        _add_vif_table(result, x, verbal, prose)
 
     # ----- Plot (single predictor: fitted probability curve over the observed 0/1 outcome) -----
     if cfg.plots:
@@ -712,6 +817,171 @@ def _logistic_coefficient_prose(model, dependent_column, positive_label) -> str:
         text += t("regression.report.logit_coef_sig", positive=positive_label, items=smart_comma_join(significant))
     else:
         text += t("regression.report.coef_none", dv=dependent_column)
+    return text
+
+
+# ===================================================================================
+#  Multinomial logistic regression (3+ unordered outcome categories)
+# ===================================================================================
+
+
+def _run_multinomial(result, df, dependent_column, independent_columns, moderator_column, cfg, verbal, prose, update):
+    """Fit a multinomial logistic regression (statsmodels MNLogit) for an unordered outcome
+    with 3+ categories. Coefficients are reported as a block per non-reference category (vs the
+    first category as the baseline). Moderation is supported via interaction terms; mediation
+    is not (filtered out by the caller)."""
+    independent_cols = independent_columns.copy()
+    if moderator_column:
+        original_independent_cols = independent_cols.copy()
+        independent_cols.append(moderator_column)
+        for ind_col in original_independent_cols:
+            interaction_term = f"{ind_col}&nbsp;*&nbsp;{moderator_column}"
+            df[interaction_term] = df[ind_col] * df[moderator_column]
+            independent_cols.append(interaction_term)
+
+    # Encode the outcome to 0..K-1; the first category (code 0) is the reference/baseline.
+    codes, categories = pd.factorize(df[dependent_column], sort=True)
+    categories = list(categories)
+    if len(categories) < 3:
+        return _fail(result, t("regression.error.not_multinomial", values=len(categories)))
+
+    n = len(df)
+    if n < len(independent_cols) + 2:
+        return _fail(result, t("regression.error.insufficient_data"))
+
+    x = sm.add_constant(df[independent_cols])
+    model = sm.MNLogit(codes, x).fit(disp=0)
+    base = categories[0]
+    update(45)
+
+    # ----- Model fit table (pseudo-R², likelihood-ratio test) -----
+    fit_table = HTMLTableV2(table_caption=t("regression.caption.fit"))
+    fit_header = [
+        Cell(),
+        Cell(t("regression.col.n"), center=True),
+        Cell(t("regression.col.pseudo_r2"), center=True),
+        Cell("χ²", center=True),
+        Cell("df", center=True),
+        Cell(t("common.p_value"), center=True),
+    ]
+    if verbal:
+        fit_header.append(Cell(t("verbal.col_significant"), center=True))
+    fit_table.add_title_row_apa(Row(fit_header))
+
+    fit_row = [
+        Cell(t("regression.row.model"), push_to_left=True),
+        Cell(str(n), center=True),
+        Cell(format_r_apa(model.prsquared), center=True),
+        Cell(format_statistic_apa(model.llr), center=True),
+        Cell(str(int(model.df_model)), center=True),
+        Cell(format_p_apa_exact(model.llr_pvalue), center=True),
+    ]
+    if verbal:
+        fit_row.append(Cell(significance_verbal(model.llr_pvalue), center=True))
+    fit_table.add_single_row_apa(Row(fit_row))
+
+    report = t(
+        "regression.report.multinom_fit",
+        dv=dependent_column,
+        base=base,
+        pseudo=format_r_apa(model.prsquared),
+        chi2=format_statistic_apa(model.llr),
+        df=int(model.df_model),
+        p=format_p_apa_full(model.llr_pvalue),
+    )
+    report += t("regression.report.significant") if model.llr_pvalue < 0.05 else t("regression.report.not_significant")
+    if prose:
+        fit_table.add_text(report)
+    result.update_and_add_element(fit_table, "regression fit")
+
+    # ----- Coefficients: one block per non-reference category (log-odds B, SE, OR, z, p) -----
+    coefficients_table = HTMLTableV2(table_caption=t("regression.caption.coefficients"))
+    n_cols = 7 if verbal else 6
+    header = [
+        Cell(),
+        Cell(t("regression.col.b"), center=True),
+        Cell(t("regression.col.se"), center=True),
+        Cell(t("regression.col.odds_ratio"), center=True),
+        Cell(t("regression.col.z"), center=True),
+        Cell(t("common.p_value"), center=True),
+    ]
+    if verbal:
+        header.append(Cell(t("verbal.col_significant"), center=True))
+    coefficients_table.add_title_row_apa(Row(header))
+
+    param_index = list(model.params.index)
+    for col in range(model.params.shape[1]):
+        params_col = model.params.iloc[:, col]
+        bse_col = model.bse.iloc[:, col]
+        tv_col = model.tvalues.iloc[:, col]
+        pv_col = model.pvalues.iloc[:, col]
+        coefficients_table.add_single_row_apa(
+            Row(
+                [
+                    Cell(
+                        t("regression.multinom.vs_base", cat=categories[col + 1], base=base),
+                        col_span=n_cols,
+                        is_bold=True,
+                        push_to_left=True,
+                        border_bottom=True,
+                    )
+                ]
+            )
+        )
+        for param in param_index:
+            pv = pv_col.loc[param]
+            name = t("regression.row.intercept") if param == "const" else param
+            cells = [
+                Cell(name, push_to_left=True),
+                Cell(format_statistic_apa(params_col.loc[param]), center=True),
+                Cell(format_statistic_apa(bse_col.loc[param]), center=True),
+                Cell(format_statistic_apa(np.exp(params_col.loc[param])), center=True),
+                Cell(format_statistic_apa(tv_col.loc[param]), center=True),
+                Cell(format_p_apa_exact(pv), center=True),
+            ]
+            if verbal:
+                cells.append(Cell(significance_verbal(pv), center=True))
+            coefficients_table.add_single_row_apa(Row(cells))
+
+    prose and coefficients_table.add_text(_multinomial_coefficient_prose(model, dependent_column, categories))
+    result.update_and_add_element(coefficients_table, "regression coefficients")
+    update(70)
+
+    # ----- Diagnostics (VIF only; the OLS residual plots don't transfer to logistic) -----
+    if cfg.diagnostics:
+        _add_vif_table(result, x, verbal, prose)
+
+    result.title_context = f"{str(dependent_column)[:16]} ~ " + ", ".join(str(c)[:16] for c in independent_columns)
+    update(100)
+    return result
+
+
+def _multinomial_coefficient_prose(model, dependent_column, categories) -> str:
+    """For each non-reference category, name the predictors that significantly shift its odds
+    relative to the baseline."""
+    base = categories[0]
+    text = t("regression.report.multinom_intro", dv=dependent_column, base=base)
+    param_index = list(model.params.index)
+    parts = []
+    for col in range(model.params.shape[1]):
+        params_col = model.params.iloc[:, col]
+        pv_col = model.pvalues.iloc[:, col]
+        significant = []
+        for param in param_index:
+            if param == "const" or pv_col.loc[param] >= 0.05:
+                continue
+            direction = t("regression.dir.increase") if params_col.loc[param] >= 0 else t("regression.dir.decrease")
+            significant.append(f"{param} ({direction})")
+        if significant:
+            parts.append(
+                t(
+                    "regression.report.multinom_cat",
+                    cat=categories[col + 1],
+                    base=base,
+                    items=smart_comma_join(significant),
+                )
+            )
+    text += " " + " ".join(parts) if parts else t("regression.report.coef_none", dv=dependent_column)
     return text
 
 

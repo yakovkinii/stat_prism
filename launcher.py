@@ -25,8 +25,13 @@
 # nuitka-project: --include-package-data=pingouin
 # nuitka-project: --include-package-data=scikit_posthocs
 # nuitka-project: --include-package-data=factor_analyzer
+# nuitka-project: --include-package=semopy
+# nuitka-project: --include-package-data=semopy
+# nuitka-project: --include-package=sympy
+# nuitka-project: --include-package-data=sympy
 # nuitka-project-if: {OS} == "Windows":
 #    nuitka-project: --windows-console-mode=force
+#    nuitka-project: --output-filename=StatPrism.exe
 #    nuitka-project: --windows-icon-from-ico={MAIN_DIRECTORY}/resources/StatPrism_icon_small.ico
 #    nuitka-project: --product-name=StatPrism
 #    nuitka-project: --file-description=StatPrism

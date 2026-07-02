@@ -10,6 +10,10 @@ from src.pyside_ext.markup import HTML
 from src.pyside_ext.styling import Style
 from src.side_area_panel.modules.common.result.registry import BaseResult
 
+# Inter-item correlation used for the analysis. Polychoric (tetrachoric for binary items) suits
+# ordinal Likert data; it is estimated in-house and fed to factor_analyzer as a correlation matrix.
+CORRELATION_METHODS = ["Pearson", "Polychoric"]
+
 
 class RotationType(Enum):
     NONE = "none"
@@ -40,13 +44,16 @@ class ExtractionMethod(Enum):
 class FactorAnalysisStudyConfig:
     data_source = attrs.field(default=None)
     column_selector = attrs.field(default=None)
+    correlation_method = attrs.field(default=None)
     method = attrs.field(default=None)
     rotation = attrs.field(default=None)
     n_factors = attrs.field(default=None)
+    factor_names = attrs.field(default=None)
     kaiser_normalization = attrs.field(default=None)
+    verbal_indicators = attrs.field(default=None)
     plots = attrs.field(default=None)
     number_columns = attrs.field(default=None)
-    verbal_indicators = attrs.field(default=None)
+    interpretation = attrs.field(default=None)
 
 
 class FactorAnalysisResult(BaseResult):

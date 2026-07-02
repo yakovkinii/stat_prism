@@ -139,6 +139,40 @@ class Dendrogram:
         self.config = config if config else DendrogramPlotConfig()
 
 
+class MediationDiagram:
+    """Bespoke X → M → Y path diagram for a single-predictor mediation. Each ``*_label`` names a
+    node; ``a`` (X→M), ``b`` (M→Y), ``c_direct`` (X→Y) and ``indirect`` (a·b) are pre-formatted
+    coefficient strings drawn on the edges."""
+
+    def __init__(self, x_label, m_label, y_label, a, b, c_direct, indirect, label="Mediation", config=None):
+        self.x_label = x_label
+        self.m_label = m_label
+        self.y_label = y_label
+        self.a = a
+        self.b = b
+        self.c_direct = c_direct
+        self.indirect = indirect
+        self.label = label
+        self.config = config if config else PathDiagramConfig()
+
+
+class FactorDiagram:
+    """Bespoke CFA / SEM measurement-model diagram: each factor is a node with arrows to its
+    indicators, labelled with the standardized loading. ``factors`` is a list of (name,
+    [(indicator, loading_str, loading_value), …]) — the numeric value drives the optional
+    proportional arrow width; ``correlations`` is an optional list of (factor_a, factor_b, r_str)
+    drawn as curved undirected links between factor nodes; ``regressions`` is an optional list of
+    (from_factor, to_factor, coef_str) drawn as curved *directed* arrows between factor nodes (the
+    SEM structural paths)."""
+
+    def __init__(self, factors, correlations=None, regressions=None, label="Factor structure", config=None):
+        self.factors = factors
+        self.correlations = correlations or []
+        self.regressions = regressions or []
+        self.label = label
+        self.config = config if config else FactorDiagramConfig()
+
+
 MARKER_SHAPE_TO_MATPLOTLIB = {
     "Circle": "o",
     "Square": "s",
@@ -189,11 +223,96 @@ class DendrogramPlotConfig(BasePlotConfig):
     pass
 
 
+class PathDiagramConfig(BasePlotConfig):
+    """Controls for the mediation (X → M → Y) path diagram: arrow colour, edge-label size, and a
+    horizontal spread that widens the triangle without moving M's height."""
+
+    def __init__(
+        self,
+        arrow_color: Tuple[int, int, int] = (90, 90, 90),
+        label_font_size: int = 11,
+        spread: float = 1.0,
+    ):
+        super().__init__()
+        self.arrow_color = ColorGridItemSetting(current_color=arrow_color, label="Arrow color")
+        self.label_font_size = SliderResultItemSetting(
+            label="Label size", current_value=label_font_size, min_value=5, max_value=24, step=1
+        )
+        self.spread = SliderResultItemSetting(
+            label="Horizontal spread", current_value=spread, min_value=0.5, max_value=2.5, step=0.1
+        )
+        self.display_settings = ContainerResultItemSetting(
+            items=[self.arrow_color, self.label_font_size, self.spread], add_stretch=True
+        )
+
+
+class FactorDiagramConfig(BasePlotConfig):
+    def __init__(
+        self,
+        row_spacing: float = 0.6,
+        column_gap: float = 4.0,
+        proportional_arrows: bool = False,
+        arrow_color: Tuple[int, int, int] = (90, 90, 90),
+        label_font_size: int = 11,
+        curve_strength: float = 0.2,
+    ):
+        super().__init__()
+        # row_spacing = vertical inches allotted per indicator row; column_gap = figure width in
+        # inches (the factor->indicator horizontal distance). Both size the figure directly, so the
+        # boxes keep their (point-based) size and only the separation between them changes.
+        self.row_spacing = SliderResultItemSetting(
+            label="Vertical spacing", current_value=row_spacing, min_value=0.3, max_value=1.6, step=0.1
+        )
+        self.column_gap = SliderResultItemSetting(
+            label="Horizontal distance", current_value=column_gap, min_value=0.5, max_value=10.0, step=0.5
+        )
+        self.arrow_color = ColorGridItemSetting(current_color=arrow_color, label="Arrow color")
+        self.label_font_size = SliderResultItemSetting(
+            label="Arrow label size", current_value=label_font_size, min_value=5, max_value=24, step=1
+        )
+        self.proportional_arrows = PlainCheckboxResultItemSetting(
+            label="Arrow width ∝ loading", current_value=proportional_arrows
+        )
+        # Lateral bulge of the factor-correlation curves (arc3 rad); 0 = straight line.
+        self.curve_strength = SliderResultItemSetting(
+            label="Correlation curve", current_value=curve_strength, min_value=0.0, max_value=1.0, step=0.05
+        )
+        self.display_settings = ContainerResultItemSetting(
+            items=[
+                self.row_spacing,
+                self.column_gap,
+                self.arrow_color,
+                self.label_font_size,
+                self.curve_strength,
+                self.proportional_arrows,
+            ],
+            add_stretch=True,
+        )
+
+
 class ContingencyPlotConfig(BasePlotConfig):
     def __init__(self, numbered_labels: bool = False):
         super().__init__()
         self.numbered_labels = PlainCheckboxResultItemSetting(label="Numbered labels", current_value=numbered_labels)
         self.display_settings = ContainerResultItemSetting(items=[self.numbered_labels], add_stretch=True)
+
+
+# "Auto" keeps the app's own themed categorical palette (Colors()); the rest are matplotlib
+# colormaps sampled across the slices (qualitative maps first, then a couple of sequential ones).
+PIE_COLORMAPS = ["Auto", "tab10", "Set2", "Set3", "Pastel1", "Dark2", "viridis", "plasma"]
+
+
+def _pie_slice_colors(colormap: str, n: int) -> list:
+    """Colours for the n pie slices. "Auto" keeps the app's themed palette (as before); any other
+    choice samples the named matplotlib colormap evenly across the slices."""
+    if n <= 0:
+        return []
+    if colormap == "Auto" or colormap not in PIE_COLORMAPS:
+        palette = Colors()
+        return [rgba_tuple_from_rgb_and_a(palette.get_color_list(), 255) for _ in range(n)]
+    cmap = plt.get_cmap(colormap)
+    positions = [0.5] if n == 1 else np.linspace(0.0, 1.0, n)
+    return [cmap(float(pos)) for pos in positions]
 
 
 class PiePlotConfig(BasePlotConfig):
@@ -205,25 +324,43 @@ class PiePlotConfig(BasePlotConfig):
         donut_hole: float = 0.0,
         label_color: Tuple[int, int, int] = (0, 0, 0),
         numbered_labels: bool = False,
+        pct_distance: float = 0.6,
+        label_distance: float = 1.1,
+        radial_labels: bool = False,
+        colormap: str = PIE_COLORMAPS[0],
     ):
         super().__init__()
+        self.colormap = DropdownResultItemSetting(label="Colors", current_value=colormap, items=PIE_COLORMAPS)
         self.show_percent = PlainCheckboxResultItemSetting(label="Show %", current_value=show_percent)
         self.show_counts = PlainCheckboxResultItemSetting(label="Show counts", current_value=show_counts)
         self.numbered_labels = PlainCheckboxResultItemSetting(label="Numbered labels", current_value=numbered_labels)
+        self.radial_labels = PlainCheckboxResultItemSetting(label="Radial labels", current_value=radial_labels)
         self.label_font_size = SliderResultItemSetting(
             label="Label Size", current_value=label_font_size, min_value=6, max_value=24, step=1
         )
         self.donut_hole = SliderResultItemSetting(
             label="Donut Hole", current_value=donut_hole, min_value=0, max_value=0.8, step=0.1
         )
+        # Radial position of the two label kinds (fraction of the radius). >1 places a label
+        # outside the pie; the % and the group name are controlled independently.
+        self.pct_distance = SliderResultItemSetting(
+            label="% Position", current_value=pct_distance, min_value=0.0, max_value=1.5, step=0.1
+        )
+        self.label_distance = SliderResultItemSetting(
+            label="Name Position", current_value=label_distance, min_value=0.0, max_value=1.6, step=0.1
+        )
         self.label_color = ColorGridItemSetting(current_color=label_color, label="Label Color")
         self.display_settings = ContainerResultItemSetting(
             items=[
+                self.colormap,
                 self.show_percent,
                 self.show_counts,
                 self.numbered_labels,
+                self.radial_labels,
                 self.label_font_size,
                 self.donut_hole,
+                self.pct_distance,
+                self.label_distance,
                 self.label_color,
             ],
             add_stretch=True,
@@ -949,22 +1086,26 @@ class PlotV2(BaseResultElement):
             if isinstance(item, Pie):
                 cfg = item.config
                 bg = self.background_color.get_current_value()
-                color_manager = Colors()
-                slice_colors = [rgba_tuple_from_rgb_and_a(color_manager.get_color_list(), 255) for _ in item.values]
+                slice_colors = _pie_slice_colors(cfg.colormap.get_current_value(), len(item.values))
                 label_color = rgba_tuple_from_rgb_and_a(cfg.label_color.get_current_value(), 255)
                 label_size = cfg.label_font_size.get_current_value()
                 show_percent = cfg.show_percent.get_current_value()
                 show_counts = cfg.show_counts.get_current_value()
+                radial = cfg.radial_labels.get_current_value()
                 hole = cfg.donut_hole.get_current_value()
                 total = float(sum(item.values))
 
                 def _autopct(pct, _total=total, _p=show_percent, _c=show_counts):
-                    parts = []
+                    # Percent and count on separate lines. Parenthesise the count only when it sits
+                    # next to a percent; a bare count (no %) is shown as a plain number.
+                    count = int(round(pct * _total / 100.0))
+                    if _p and _c:
+                        return f"{pct:.1f}%\n({count})"
                     if _p:
-                        parts.append(f"{pct:.1f}%")
+                        return f"{pct:.1f}%"
                     if _c:
-                        parts.append(f"({int(round(pct * _total / 100.0))})")
-                    return "\n".join(parts)
+                        return str(count)
+                    return ""
 
                 if cfg.numbered_labels.get_current_value():
                     pie_labels = [str(i + 1) for i in range(len(item.values))]
@@ -979,6 +1120,8 @@ class PlotV2(BaseResultElement):
                     labels=pie_labels,
                     colors=slice_colors,
                     autopct=_autopct if (show_percent or show_counts) else None,
+                    pctdistance=cfg.pct_distance.get_current_value(),
+                    labeldistance=cfg.label_distance.get_current_value(),
                     startangle=90,
                     counterclock=False,
                     wedgeprops=wedge_props,
@@ -988,8 +1131,29 @@ class PlotV2(BaseResultElement):
                 for text_artist in text_artists:
                     text_artist.set_color(label_color)
                     text_artist.set_fontsize(label_size)
+                    if radial:
+                        # Rotate each label to point along its slice's radius (angle from the
+                        # centre to the label), flipping the left half so text stays upright. Anchor
+                        # by the label's INNER end (nearest the centre) so labels line up along the
+                        # radius rather than by their centre: not flipped -> the text reads outward,
+                        # so its left end is the inner one (ha="left"); flipped -> ha="right".
+                        x, y = text_artist.get_position()
+                        angle = np.degrees(np.arctan2(y, x))
+                        flipped = angle > 90 or angle < -90
+                        if flipped:
+                            angle += -180 if angle > 0 else 180
+                        text_artist.set_rotation(angle)
+                        text_artist.set_rotation_mode("anchor")
+                        text_artist.set_ha("right" if flipped else "left")
+                        text_artist.set_va("center")
                 ax.set_aspect("equal")
                 ax.axis("off")  # a pie needs no axes/frame
+
+            if isinstance(item, MediationDiagram):
+                self._draw_mediation_diagram(ax, item)
+
+            if isinstance(item, FactorDiagram):
+                self._draw_factor_diagram(ax, item)
 
         # frame (spines + ticks): user-configurable color and thickness
         frame_color = rgba_tuple_from_rgb_and_a(self.frame_color.get_current_value(), 255)
@@ -1071,12 +1235,234 @@ class PlotV2(BaseResultElement):
             for text in leg.get_texts():
                 text.set_color(text_color)
 
-        fig.tight_layout()
+        # Path diagrams set their own figure size and draw with the axes off; tight_layout would
+        # re-fit the overflowing node labels non-monotonically (it made the horizontal-distance
+        # slider jump around), so skip it for them and let bbox_inches="tight" crop at save time.
+        is_diagram = any(isinstance(it, (MediationDiagram, FactorDiagram)) for it in self.items)
+        if not is_diagram:
+            fig.tight_layout()
 
         if layout == "Flat Y":
             self._place_flat_ylabel(fig, ax)
 
         return fig, ax
+
+    def _numbering_caption(self) -> str:
+        """Legend text for any active "number the variables" option, e.g. ``1 = Age; 2 = Sex``.
+        Covers the categorical x-axis, pie slices and heatmap rows/columns; returns "" when no
+        numbering is switched on."""
+
+        def _mapping(names) -> str:
+            return "; ".join(f"{i + 1} = {name}" for i, name in enumerate(names))
+
+        parts = []
+        if self.x_axis_items is not None and self.numbered_x_labels.get_current_value():
+            parts.append(_mapping(self.x_axis_items))
+        for item in self.items:
+            numbered = getattr(getattr(item, "config", None), "numbered_labels", None)
+            if numbered is None or not numbered.get_current_value():
+                continue
+            if isinstance(item, Pie):
+                parts.append(_mapping(item.labels))
+            elif isinstance(item, Heatmap):
+                cols = list(item.df.columns)
+                rows = list(item.df.index)
+                parts.append(_mapping(cols))
+                if rows != cols:
+                    parts.append("rows: " + _mapping(rows))
+        return "   |   ".join(parts)
+
+    def display_title(self) -> str:
+        """The plot's title as shown in its header label; when a "number the variables" option is
+        on, the number→name mapping is appended (e.g. ``Factor loadings: 1 = Age; 2 = Sex``)."""
+        title = self.plot_title.get_current_value()
+        mapping = self._numbering_caption()
+        if mapping:
+            return f"{title}: {mapping}" if title else mapping
+        return title
+
+    # ----- Bespoke path diagrams (mediation / factor structure) -----
+    def _diagram_colors(self):
+        edge = rgba_tuple_from_rgb_and_a(self.frame_color.get_current_value(), 255)
+        text = rgba_tuple_from_rgb_and_a(self.text_color.get_current_value(), 255)
+        face = rgba_tuple_from_rgb_and_a(self.background_color.get_current_value(), 255)
+        return edge, text, face
+
+    def _draw_node(self, ax, xy, label, edge, text, face, font_size, ha="center"):
+        ax.text(
+            xy[0],
+            xy[1],
+            label,
+            ha=ha,
+            va="center",
+            color=text,
+            fontsize=font_size,
+            fontname="Times New Roman",
+            bbox=dict(boxstyle="round,pad=0.4", facecolor=face, edgecolor=edge, linewidth=1.2),
+            zorder=3,
+        )
+
+    def _draw_edge(self, ax, start, end, label, edge, text, face, font_size, curve=0.0, directed=True, linewidth=1.6):
+        if curve:
+            # Draw the arc ourselves as a quadratic Bézier in DATA space (control point matches
+            # matplotlib's arc3: C = midpoint + rad·(dy, -dx)). Because it lives in data space, the
+            # label sits exactly on it — B(0.5) = ¼P0 + ½C + ¼P2 — regardless of the axes aspect.
+            dx, dy = end[0] - start[0], end[1] - start[1]
+            mx, my = (start[0] + end[0]) / 2.0, (start[1] + end[1]) / 2.0
+            cx, cy = mx + curve * dy, my - curve * dx
+            t = np.linspace(0.0, 1.0, 40)
+            bx = (1 - t) ** 2 * start[0] + 2 * (1 - t) * t * cx + t**2 * end[0]
+            by = (1 - t) ** 2 * start[1] + 2 * (1 - t) * t * cy + t**2 * end[1]
+            ax.plot(bx, by, color=edge, linewidth=linewidth, zorder=1)
+            label_x = 0.25 * start[0] + 0.5 * cx + 0.25 * end[0]
+            label_y = 0.25 * start[1] + 0.5 * cy + 0.25 * end[1]
+        else:
+            ax.annotate(
+                "",
+                xy=end,
+                xytext=start,
+                arrowprops=dict(
+                    arrowstyle="-|>" if directed else "-",
+                    color=edge,
+                    lw=linewidth,
+                    shrinkA=20,
+                    shrinkB=20,
+                ),
+                zorder=1,
+            )
+            label_x, label_y = (start[0] + end[0]) / 2.0, (start[1] + end[1]) / 2.0
+
+        if label:
+            ax.text(
+                label_x,
+                label_y,
+                label,
+                ha="center",
+                va="center",
+                color=text,
+                fontsize=font_size,
+                fontname="Times New Roman",
+                bbox=dict(boxstyle="round,pad=0.15", facecolor=face, edgecolor="none"),
+                zorder=2,
+            )
+
+    def _draw_mediation_diagram(self, ax, item):
+        edge, text, face = self._diagram_colors()
+        fs = self.tick_label_font_size.get_current_value()  # node labels
+        label_fs = item.config.label_font_size.get_current_value()  # edge (coefficient) labels
+        arrow_color = rgba_tuple_from_rgb_and_a(item.config.arrow_color.get_current_value(), 255)
+        s = item.config.spread.get_current_value()  # widens the triangle horizontally
+        x_node, m_node, y_node = (0.0, 0.0), (s, 0.9), (2.0 * s, 0.0)
+        self._draw_edge(ax, x_node, m_node, item.a, arrow_color, text, face, label_fs)
+        self._draw_edge(ax, m_node, y_node, item.b, arrow_color, text, face, label_fs)
+        self._draw_edge(ax, x_node, y_node, item.c_direct, arrow_color, text, face, label_fs)
+        for xy, lbl in [(x_node, item.x_label), (m_node, item.m_label), (y_node, item.y_label)]:
+            self._draw_node(ax, xy, lbl, edge, text, face, fs)
+        if item.indirect:
+            ax.text(
+                s,
+                1.35,
+                item.indirect,
+                ha="center",
+                va="center",
+                color=text,
+                fontsize=label_fs,
+                fontname="Times New Roman",
+                zorder=3,
+            )
+        ax.set_xlim(-0.6, 2.0 * s + 0.6)
+        ax.set_ylim(-0.4, 1.6)
+        ax.set_aspect("equal")
+        ax.axis("off")
+
+    def _draw_factor_diagram(self, ax, item):
+        edge, text, face = self._diagram_colors()
+        fs = self.tick_label_font_size.get_current_value()
+        row_inch = item.config.row_spacing.get_current_value()  # vertical inches per row
+        h_distance = item.config.column_gap.get_current_value()  # indicator column position (data units)
+        proportional = item.config.proportional_arrows.get_current_value()
+        arrow_color = rgba_tuple_from_rgb_and_a(item.config.arrow_color.get_current_value(), 255)
+        label_fs = item.config.label_font_size.get_current_value()
+        curve_strength = item.config.curve_strength.get_current_value()
+
+        # Metric layout (see figure sizing below): each data unit is a fixed physical size, so the
+        # factor column stays pinned at x=0 and only the indicators move right as the slider grows.
+        rows = [(fname, ind, load, value) for fname, inds in item.factors for (ind, load, value) in inds]
+        n_ind = max(len(rows), 1)
+        y_of = {(fname, ind): (n_ind - 1 - i) for i, (fname, ind, _l, _v) in enumerate(rows)}
+        factor_x, indicator_x = 0.0, max(0.4, h_distance)
+
+        factor_pos = {}
+        for fname, inds in item.factors:
+            ys = [y_of[(fname, ind)] for ind, _l, _v in inds] or [0.0]
+            factor_pos[fname] = (factor_x, sum(ys) / len(ys))
+
+        def _edge_width(value):
+            if not proportional:
+                return 1.6
+            return max(0.5, min(5.0, 4.0 * abs(value)))  # ~ proportional to |loading|
+
+        for fname, inds in item.factors:
+            for ind, load, value in inds:
+                pos = (indicator_x, y_of[(fname, ind)])
+                self._draw_edge(
+                    ax, factor_pos[fname], pos, load, arrow_color, text, face, label_fs, linewidth=_edge_width(value)
+                )
+                self._draw_node(ax, pos, ind, edge, text, face, fs, ha="left")
+        for fname, pos in factor_pos.items():
+            self._draw_node(ax, pos, fname, edge, text, face, fs, ha="right")
+        for a, b, r in item.correlations:
+            if a in factor_pos and b in factor_pos:
+                self._draw_edge(
+                    ax,
+                    factor_pos[a],
+                    factor_pos[b],
+                    r,
+                    arrow_color,
+                    text,
+                    face,
+                    label_fs,
+                    curve=curve_strength,
+                    directed=False,
+                )
+        # SEM structural paths: directed curved arrows between factor nodes. A slightly larger curve
+        # than the correlations so the two do not sit exactly on top of one another.
+        for src, dst, coef in getattr(item, "regressions", []):
+            if src in factor_pos and dst in factor_pos:
+                self._draw_edge(
+                    ax,
+                    factor_pos[src],
+                    factor_pos[dst],
+                    coef,
+                    arrow_color,
+                    text,
+                    face,
+                    label_fs,
+                    curve=curve_strength + 0.15,
+                    directed=True,
+                )
+
+        # Metric figure sizing. The axes fills the whole figure (no fractional margins), and each
+        # data unit maps to a fixed number of inches, so the sliders control *relative* proportions:
+        #   * height = rows × per-row inches  -> real, uniform vertical separation;
+        #   * a fixed inches-per-x-unit means the factor column (x=0) is always the same distance
+        #     from the left edge, while a larger "Horizontal distance" only pushes the indicators
+        #     (x=indicator_x) further right and widens the figure to the right.
+        # The natural size is then scaled uniformly so the figure width honours the "Plot Size"
+        # slider (otherwise the diagram would ignore it and could grow arbitrarily large).
+        k_in_per_x = 1.3
+        x_lo, x_hi = factor_x - 0.9, indicator_x + 0.9
+        natural_w = (x_hi - x_lo) * k_in_per_x
+        natural_h = max(1.5, n_ind * row_inch)
+        dpi = ax.figure.get_dpi()
+        target_w = self.plot_size.get_current_value() / dpi  # "Plot Size" is in pixels
+        scale = target_w / natural_w if natural_w else 1.0
+        ax.figure.set_size_inches(natural_w * scale, natural_h * scale)
+        ax.set_position([0.0, 0.0, 1.0, 1.0])
+        ax.set_xlim(x_lo, x_hi)
+        ax.set_ylim(-0.6, n_ind - 0.4)
+        ax.set_aspect("auto")
+        ax.axis("off")
 
     def _apply_axis_ticks(self, ax, axis):
         """Place evenly-spaced ticks on one axis from the user's step / reference fields.
@@ -1165,11 +1551,15 @@ class PlotV2(BaseResultElement):
         # re-enabled later by restoring the line below).
         title_html = ""
         # title_html = f'<div class="double-spacing font"><b>{title}</b></div><br>\n' if title else ""
+        # The number->name mapping (when variables are numbered) travels with the copied plot so
+        # a pasted numbered figure stays interpretable.
+        mapping = self._numbering_caption()
+        caption_html = f'<div class="font">{mapping}</div>\n' if mapping else ""
         html = f"""
         {title_html}<img src="data:image/png;base64,{base64_png}"
              alt="Plot Image"
              style="width:400px; height:auto;">
-        """
+        {caption_html}"""
         return html
 
     def get_svg_buffer(self):

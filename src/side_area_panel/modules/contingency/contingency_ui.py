@@ -6,9 +6,12 @@ from src.pyside_ext.elements.column_selector import Field
 from src.side_area_panel.blueprint.element import ItemInSidePanelWithAutoConfigHolder
 from src.side_area_panel.iispwac.iispwac_checkbox import IISPWACCheckBox
 from src.side_area_panel.iispwac.iispwac_column_selector import IISPWACColumnSelector
+from src.side_area_panel.iispwac.iispwac_combobox import IISPWACComboBox
 from src.side_area_panel.iispwac.iispwac_data_source import IISPWACDataSource
 from src.side_area_panel.iispwac.iispwac_spacer import IISPWACSpacer
 from src.side_area_panel.modules.base.base import BaseModulePanel
+from src.side_area_panel.modules.common.prose import PROSE_LABEL, PROSE_LEVELS
+from src.side_area_panel.modules.contingency.constant import PCT_MODES
 
 
 class Elements(ItemInSidePanelWithAutoConfigHolder):
@@ -40,10 +43,19 @@ class Elements(ItemInSidePanelWithAutoConfigHolder):
         label_text="Effect size",
         default_state=True,
     )
+    percentages = IISPWACComboBox(
+        label_text="Percentages:",
+        items=PCT_MODES,
+    )
+    post_hoc = IISPWACCheckBox(
+        label_text="Post-hoc residuals",
+        default_state=False,
+    )
     verbal_indicators = IISPWACCheckBox(
         label_text="Verbal indicators in tables",
         default_state=False,
     )
+    interpretation = IISPWACComboBox(label_text=PROSE_LABEL, items=PROSE_LEVELS)
     mcnemar = IISPWACCheckBox(
         label_text="Paired data (symmetry test)",
         default_state=False,

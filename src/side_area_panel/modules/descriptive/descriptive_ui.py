@@ -11,6 +11,7 @@ from src.side_area_panel.iispwac.iispwac_data_source import IISPWACDataSource
 from src.side_area_panel.iispwac.iispwac_spacer import IISPWACSpacer
 from src.side_area_panel.iispwac.iispwac_text_edit import IISPWACLongTextEdit
 from src.side_area_panel.modules.base.base import BaseModulePanel
+from src.side_area_panel.modules.common.prose import PROSE_LABEL, PROSE_LEVELS
 
 NORMALITY_TESTS = ["Shapiro-Wilk", "Kolmogorov-Smirnov", "Anderson-Darling"]
 
@@ -40,7 +41,7 @@ class Elements(ItemInSidePanelWithAutoConfigHolder):
     show_normality = IISPWACCheckBox(label_text="Normality test", default_state=True)
     normality_test = IISPWACComboBox(label_text="Normality test:", items=NORMALITY_TESTS)
     verbal_indicators = IISPWACCheckBox(label_text="Verbal indicators in tables", default_state=False)
-    prose = IISPWACCheckBox(label_text="Plain-language summary (prose)", default_state=False)
+    interpretation = IISPWACComboBox(label_text=PROSE_LABEL, items=PROSE_LEVELS)
     number_columns = IISPWACCheckBox(label_text="Number variables in tables", default_state=False)
     # --- Plots (each opt-in) ---
     show_distribution = IISPWACCheckBox(label_text="Distribution plots", default_state=False)

@@ -34,7 +34,7 @@ project management). Project page: https://www.yakovkinii.com/stat_prism/
 If you use StatPrism in your research, please cite it (see [CITATION.cff](CITATION.cff) —
 GitHub's "Cite this repository" button generates APA/BibTeX from it):
 
-> Balashevych, A. K., Petrova, N. V., & Yakovkin, I. I. (2025). *StatPrism* (Version 1.1.0)
+> Balashevych, A. K., Petrova, N. V., & Yakovkin, I. I. (2025). *StatPrism* (Version 1.2.0)
 > [Computer software]. https://github.com/yakovkinii/stat_prism
 
 ## Installing the developer edition

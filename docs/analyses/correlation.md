@@ -24,14 +24,18 @@ Coefficient
 
 Table
 : **Compact** vs full layout; **Confidence intervals** (95%, via the Fisher-z transform for
-  Pearson and Spearman); **Report only significant** to trim the verbal summary; **Number
-  columns** for wide matrices.
+  Pearson and Spearman); **Number columns** for wide matrices.
+
+Verbal report
+: How much plain-language interpretation to write, as a single dropdown — **None**,
+  **Key findings** (only strong correlations), **Significant only**, or **Full** (every pair).
+  The amount of prose scales with how much there is to say.
 
 Plots
 : **Heatmap** of the matrix, and pairwise **scatter plots** with a regression line and its
-  standard-error band. The heatmap's **color scale** is selectable in its plot settings
-  (a diverging map such as `bwr` or `RdBu` by default, plus sequential options like
-  `viridis` and `Blues`).
+  standard-error band. **Plot only significant correlations** trims the pairwise plots. The
+  heatmap's **color scale** is selectable in its plot settings (a diverging map such as `bwr`
+  or `RdBu` by default, plus sequential options like `viridis` and `Blues`).
 
 ## Output
 

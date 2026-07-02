@@ -12,6 +12,25 @@ r{
 
 # StatPrism Release Notes
 
+### StatPrism 1.2.0 (2 Jul 2026)
+
+**Data Processing**
+
+* Allow immediate question flipping in Calculate Scale.
+
+**Data Analysis**
+
+* Add SEM through semopy
+* Use semopy in CFA
+* Add new diagrams in regression/FA/SEM
+* Improve verbal indicators and prose
+
+**Miscellaneous**
+
+* Prepare for CI nuitka build
+* Overall alignment of modules
+
+
 ### StatPrism 1.1.0 (28 Jun 2026)
 
 * Set up releases. 

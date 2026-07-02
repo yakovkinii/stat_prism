@@ -17,13 +17,17 @@ together — and to see whether dropping an item would help.
 - **Coefficient type** — the inter-item correlation used (e.g. Pearson).
 - **McDonald's omega** — reports ω in addition to Cronbach's α.
 - **Scale name** — a label for the output.
+- **Verbal report** — dropdown for how much plain-language interpretation to add (None / Key
+  findings / Significant only / Full).
 - **Verbal indicators** and **Number columns**.
 
 ## Output
 
 - **Cronbach's α** (and **McDonald's ω** if requested) with an interpretation.
-- An **item statistics** table including item–total correlations and **α/ω if the item is
-  removed**, which flags items that weaken the scale.
+- An **item statistics** table including item–total correlations and **α if the item is
+  removed** (plus **ω if removed** when McDonald's omega is enabled), which flags items that
+  weaken the scale. With **Verbal indicators** on, each coefficient gets a plain-language reading,
+  and the item table shows a separate "Improves α?" / "Improves ω?" verdict per coefficient.
 
 ## Notes
 

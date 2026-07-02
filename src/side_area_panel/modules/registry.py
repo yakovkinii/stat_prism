@@ -196,6 +196,11 @@ class ModuleRegistry(Enum):
         icon_path="mdi6.chart-bubble",
     )
 
+    SEM = ModuleRegistryItem(
+        display_name="Structural Equation Model",
+        icon_path="mdi6.chart-bubble",
+    )
+
     # Segmentation.
     CLUSTER_ANALYSIS = ModuleRegistryItem(
         display_name="Cluster Analysis",

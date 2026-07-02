@@ -168,6 +168,40 @@ TRANSLATIONS = {
         "en": "Fisher's exact test: odds ratio = {odds}, {p}.",
         "ua": "Точний тест Фішера: відношення шансів = {odds}, {p}.",
     },
+    "contingency.pct_caption": {
+        "en": "Percentages ({col1} × {col2})",
+        "ua": "Відсотки ({col1} × {col2})",
+    },
+    "contingency.pct_note_row": {
+        "en": "Row percentages: each cell as a percentage of its row total.",
+        "ua": "Відсотки за рядком: кожна клітинка як відсоток від суми рядка.",
+    },
+    "contingency.pct_note_column": {
+        "en": "Column percentages: each cell as a percentage of its column total.",
+        "ua": "Відсотки за стовпцем: кожна клітинка як відсоток від суми стовпця.",
+    },
+    "contingency.pct_note_total": {
+        "en": "Total percentages: each cell as a percentage of the grand total.",
+        "ua": "Відсотки від загальної суми: кожна клітинка як відсоток від загальної суми.",
+    },
+    "contingency.residuals.caption": {
+        "en": "Post-hoc: adjusted standardized residuals ({col1} × {col2})",
+        "ua": "Пост-хок: скориговані стандартизовані залишки ({col1} × {col2})",
+    },
+    "contingency.residuals.note": {
+        "en": (
+            "Adjusted standardized residuals; |z| &gt; {z} (in bold) marks cells that "
+            "depart from independence at p &lt; .05 (two-tailed)."
+        ),
+        "ua": (
+            "Скориговані стандартизовані залишки; |z| &gt; {z} (жирним) позначає клітинки, "
+            "що відхиляються від незалежності при p &lt; .05 (двобічний)."
+        ),
+    },
+    "contingency.residuals.not_significant": {
+        "en": "Post-hoc residuals were requested but the overall test is not significant, so they are omitted.",
+        "ua": "Пост-хок залишки було запитано, але загальний тест незначущий, тому їх не показано.",
+    },
     "contingency.error.select_two": {
         "en": "Please select two variables (one for each axis).",
         "ua": "Будь ласка, оберіть дві змінні (по одній на кожну вісь).",
@@ -714,8 +748,11 @@ TRANSLATIONS = {
     "reliability.col.item": {"en": "Item", "ua": "Пункт"},
     "reliability.col.item_total": {"en": "Item&ndash;total r", "ua": "Кореляція пункт&ndash;сума"},
     "reliability.col.alpha_deleted": {"en": "&alpha; if removed", "ua": "&alpha; за вилучення"},
+    "reliability.col.omega_deleted": {"en": "&omega; if removed", "ua": "&omega; за вилучення"},
     "reliability.col.interpretation": {"en": "Interpretation", "ua": "Інтерпретація"},
     "reliability.col.improves": {"en": "Improves &alpha;?", "ua": "Покращує &alpha;?"},
+    "reliability.col.alpha_improves": {"en": "Improves &alpha;?", "ua": "Покращує &alpha;?"},
+    "reliability.col.omega_improves": {"en": "Improves &omega;?", "ua": "Покращує &omega;?"},
     "reliability.scale_default": {"en": "The scale", "ua": "Шкала"},
     "reliability.interpret.excellent": {"en": "excellent", "ua": "відмінну"},
     "reliability.interpret.good": {"en": "good", "ua": "добру"},
@@ -853,6 +890,13 @@ TRANSLATIONS = {
     },
     "regression.plot.data": {"en": "Data points", "ua": "Спостереження"},
     "regression.plot.line": {"en": "Regression line", "ua": "Лінія регресії"},
+    "regression.plot.identity": {"en": "Perfect fit", "ua": "Ідеальна відповідність"},
+    "regression.plot.obs_pred_title": {
+        "en": "Observed vs. predicted {dv}",
+        "ua": "Спостережені та передбачені {dv}",
+    },
+    "regression.plot.predicted": {"en": "Predicted", "ua": "Передбачені"},
+    "regression.plot.observed": {"en": "Observed", "ua": "Спостережені"},
     "regression.plot.line_sd": {
         "en": "Regression line ({sd} SD)",
         "ua": "Лінія регресії ({sd} SD)",
@@ -862,10 +906,12 @@ TRANSLATIONS = {
         "ua": "Прямий ефект (з поправкою на медіацію)",
     },
     "regression.plot.total": {"en": "Total effect", "ua": "Загальний ефект"},
+    "regression.plot.mediation_title": {"en": "Mediation paths: {dv}", "ua": "Шляхи медіації: {dv}"},
     "regression.plot.band": {"en": "Standard error", "ua": "Стандартна похибка"},
     "regression.diag.vif_caption": {"en": "Multicollinearity (VIF)", "ua": "Мультиколінеарність (VIF)"},
     "regression.diag.influence_caption": {"en": "Influential observations", "ua": "Впливові спостереження"},
     "regression.diag.observation": {"en": "Observation", "ua": "Спостереження"},
+    "regression.diag.mahalanobis": {"en": "Mahalanobis D", "ua": "D Махаланобіса"},
     "regression.diag.cooks": {"en": "Cook's D", "ua": "D Кука"},
     "regression.diag.leverage": {"en": "Leverage", "ua": "Розмах (leverage)"},
     "regression.diag.std_resid": {"en": "Std. residual", "ua": "Станд. залишок"},
@@ -925,6 +971,34 @@ TRANSLATIONS = {
     "regression.error.logit_no_mediation": {
         "en": "Mediation is not supported for logistic regression. Remove the mediator variable.",
         "ua": "Медіація не підтримується для логістичної регресії. Вилучіть змінну-медіатор.",
+    },
+    "regression.error.not_multinomial": {
+        "en": "Multinomial regression needs a dependent variable with at least three categories (found {values}).",
+        "ua": "Мультиноміальна регресія потребує залежної змінної щонайменше з трьома категоріями (знайдено {values}).",
+    },
+    "regression.multinom.vs_base": {
+        "en": "{cat} vs {base} (reference)",
+        "ua": "{cat} проти {base} (еталон)",
+    },
+    "regression.report.multinom_fit": {
+        "en": (
+            "A multinomial logistic regression modelled {dv} (reference category: {base}). The "
+            "model is a {pseudo} (McFadden pseudo R²) improvement over the null, χ²({df}) = "
+            "{chi2}, p {p}, and is "
+        ),
+        "ua": (
+            "Мультиноміальна логістична регресія моделювала {dv} (еталонна категорія: {base}). "
+            "Модель покращує нульову на {pseudo} (псевдо R² Макфаддена), χ²({df}) = {chi2}, "
+            "p {p}, і є "
+        ),
+    },
+    "regression.report.multinom_intro": {
+        "en": "Coefficients compare each category of {dv} against the reference «{base}» on the log-odds scale. ",
+        "ua": "Коефіцієнти порівнюють кожну категорію {dv} з еталоном «{base}» у шкалі лог-шансів. ",
+    },
+    "regression.report.multinom_cat": {
+        "en": "For {cat} vs {base}: {items}.",
+        "ua": "Для {cat} проти {base}: {items}.",
     },
     "regression.error.moderator_and_mediator": {
         "en": (
@@ -1008,6 +1082,10 @@ TRANSLATIONS = {
         "en": "Number of factors ({m}) cannot exceed the number of variables ({n}).",
         "ua": "Кількість факторів ({m}) не може перевищувати кількість змінних ({n}).",
     },
+    "efa.error.polychoric_failed": {
+        "en": "The polychoric correlation matrix could not be estimated for these items. Try Pearson.",
+        "ua": "Не вдалося оцінити поліхоричну кореляційну матрицю для цих пунктів. Спробуйте Пірсона.",
+    },
     "efa.caption.kmo": {"en": "KMO and Bartlett's test", "ua": "Тест KMO і Бартлетта"},
     "efa.caption.eigen": {"en": "Eigenvalues (correlation matrix)", "ua": "Власні значення (кореляційна матриця)"},
     "efa.caption.loadings": {"en": "Factor loadings ({rotation})", "ua": "Факторні навантаження ({rotation})"},
@@ -1025,10 +1103,10 @@ TRANSLATIONS = {
     "efa.row.bartlett": {"en": "Bartlett's χ²", "ua": "χ² Бартлетта"},
     "efa.row.df": {"en": "df", "ua": "df"},
     "efa.kmo.marvelous": {"en": "marvelous", "ua": "чудовий"},
-    "efa.kmo.meritorious": {"en": "meritorious", "ua": "гідний"},
-    "efa.kmo.middling": {"en": "middling", "ua": "посередній"},
-    "efa.kmo.mediocre": {"en": "mediocre", "ua": "задовільний"},
-    "efa.kmo.miserable": {"en": "miserable", "ua": "низький"},
+    "efa.kmo.meritorious": {"en": "good", "ua": "добрий"},
+    "efa.kmo.middling": {"en": "above average", "ua": "вище середнього"},
+    "efa.kmo.mediocre": {"en": "below average", "ua": "нижче середнього"},
+    "efa.kmo.miserable": {"en": "bad", "ua": "поганий"},
     "efa.kmo.unacceptable": {"en": "unacceptable", "ua": "неприйнятний"},
     "efa.report.kmo": {
         "en": "Sampling adequacy is {label} (KMO = {kmo}). ",
@@ -1093,6 +1171,34 @@ TRANSLATIONS = {
     "cfa.caption.fit": {"en": "Model fit indices", "ua": "Індекси відповідності моделі"},
     "cfa.caption.loadings": {"en": "Factor loadings (standardized)", "ua": "Факторні навантаження (стандартизовані)"},
     "cfa.caption.phi": {"en": "Factor correlation matrix (Φ)", "ua": "Матриця кореляцій факторів (Φ)"},
+    "cfa.caption.mod_hints": {
+        "en": "Modification hints (possible cross-loadings)",
+        "ua": "Підказки щодо модифікації (можливі крос-навантаження)",
+    },
+    "cfa.caption.second_order": {"en": "Second-order factor loadings", "ua": "Навантаження фактора другого порядку"},
+    "cfa.col.first_order": {"en": "First-order factor", "ua": "Фактор першого порядку"},
+    "cfa.col.loading": {"en": "Loading", "ua": "Навантаження"},
+    "cfa.mod_hints_need_factors": {
+        "en": "Cross-loading hints need at least two factors with residual information.",
+        "ua": "Підказки щодо крос-навантажень потребують щонайменше двох факторів із інформацією про залишки.",
+    },
+    "cfa.mod_hints_none": {
+        "en": "No cross-loadings suggested — every residual correlation with another factor is below {threshold}.",
+        "ua": "Крос-навантажень не запропоновано — усі залишкові кореляції з іншими факторами нижчі за {threshold}.",
+    },
+    "cfa.col.suggested_factor": {"en": "Suggested factor", "ua": "Пропонований фактор"},
+    "cfa.col.resid_score": {"en": "Mean |resid.|", "ua": "Сер. |залишок|"},
+    "cfa.mod_hints_note": {
+        "en": (
+            "Residual-based suggestion (mean absolute standardized residual with the factor's "
+            "items), not an exact modification index. High values hint a cross-loading may improve fit."
+        ),
+        "ua": (
+            "Підказка на основі залишків (середній абсолютний стандартизований залишок з пунктами "
+            "фактора), а не точний індекс модифікації. Високі значення натякають, що крос-навантаження "
+            "може покращити відповідність."
+        ),
+    },
     "cfa.col.index": {"en": "Index", "ua": "Індекс"},
     "cfa.col.value": {"en": "Value", "ua": "Значення"},
     "cfa.col.interpretation": {"en": "Interpretation", "ua": "Інтерпретація"},
@@ -1129,6 +1235,7 @@ TRANSLATIONS = {
     },
     "cfa.plot.loadings": {"en": "Factor loadings heatmap", "ua": "Теплокарта факторних навантажень"},
     "cfa.plot.factors": {"en": "Factors", "ua": "Фактори"},
+    "cfa.plot.structure": {"en": "Factor structure", "ua": "Факторна структура"},
     "cfa.plot.variables": {"en": "Variables", "ua": "Змінні"},
     # ----- Cluster analysis -----
     "cluster.caption.assignments": {

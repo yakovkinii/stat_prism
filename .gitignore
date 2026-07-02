@@ -25,6 +25,8 @@ __pycache__/
 *.dist/
 *.build/
 *.onefile-build/
+# Inno Setup installer output + the CI-downloaded VC++ redist
+/packaging/Output/
 
 # Per-machine UI config (auto-created on first run; default theme = light)
 /statprism.ini

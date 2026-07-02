@@ -10,6 +10,7 @@ from src.side_area_panel.iispwac.iispwac_combobox import IISPWACComboBox
 from src.side_area_panel.iispwac.iispwac_data_source import IISPWACDataSource
 from src.side_area_panel.iispwac.iispwac_spacer import IISPWACSpacer
 from src.side_area_panel.modules.base.base import BaseModulePanel
+from src.side_area_panel.modules.common.prose import PROSE_LABEL, PROSE_LEVELS
 from src.side_area_panel.modules.correlation.correlation_result import CORRELATION_TYPE_MAP
 
 
@@ -41,11 +42,11 @@ class Elements(ItemInSidePanelWithAutoConfigHolder):
         items=list(CORRELATION_TYPE_MAP.keys()),
     )
     compact = IISPWACCheckBox(label_text="Compact table", default_state=True)
-    show_interpretation = IISPWACCheckBox(label_text="Verbal report (interpretation)", default_state=False)
+    interpretation = IISPWACComboBox(label_text=PROSE_LABEL, items=PROSE_LEVELS)
     number_columns = IISPWACCheckBox(label_text="Number columns in tables", default_state=False)
     confidence_intervals = IISPWACCheckBox(label_text="95% confidence intervals", default_state=False)
     report_only_significant = IISPWACCheckBox(
-        label_text="Report/plot only significant correlations",
+        label_text="Plot only significant correlations",
         default_state=True,
     )
     generate_heatmap = IISPWACCheckBox(label_text="Heatmap", default_state=False)

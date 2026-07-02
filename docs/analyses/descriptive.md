@@ -29,10 +29,11 @@ Plots
   **Pie chart**. Ordinal variables can also get a pie chart in their defined order.
 
 Verbal output
-: Two independent toggles. **Verbal indicators in tables** adds in-table verbal columns (for
-  example a *Normal?* conclusion in the normality table). **Plain-language summary (prose)** adds
-  the written sentences — the outlier report, the normality summary, and the grouped-frequency
-  summary. Enable either, both, or neither.
+: Two independent controls. **Verbal indicators in tables** adds in-table verbal columns (for
+  example a *Normal?* conclusion in the normality table). **Verbal report** is a dropdown that
+  sets how much written prose is added — the outlier report, normality summary, and
+  grouped-frequency summary: **None**, **Key findings** / **Significant only** (in the normality
+  summary, only the non-normal variables), or **Full** (every variable).
 
 Other
 : **Number columns** for compact wide tables.
@@ -49,4 +50,7 @@ Other
 
 - Ordinal columns are scored numerically for the quantitative summary but keep their labels
   and order in frequency tables and pie charts.
+- Pie-chart settings include a **Colors** palette (Auto plus matplotlib colormaps), **Radial
+  labels** (rotate each label along its slice), and independent **Show %** / **Show counts**
+  toggles — a bare count (no %) is shown as a plain number rather than in parentheses.
 - Bin-width and KDE controls only apply when the distribution plot is shown.

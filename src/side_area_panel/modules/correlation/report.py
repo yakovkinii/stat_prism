@@ -4,8 +4,19 @@
 import pandas as pd
 
 from src.common.translations import t
+from src.side_area_panel.modules.common.prose import prose_includes
 from src.side_area_panel.modules.common.utility import format_apa, smart_comma_join
 from src.side_area_panel.modules.correlation.correlation_result import CorrelationType
+
+
+def _significant(p) -> bool:
+    return round(p, 3) <= 0.05
+
+
+def _notable(r, p) -> bool:
+    """A "key finding": significant and strong (|r| > 0.5, matching ``_strength``)."""
+    return _significant(p) and abs(round(r, 2)) > 0.5
+
 
 _NAME_KEY = {
     CorrelationType.PEARSON: "correlation.name.pearson",
@@ -55,9 +66,7 @@ def _with_ci(stats: str, ci_matrix, row, column) -> str:
     return stats
 
 
-def get_report(
-    columns, correlation_matrix, p_matrix, df_matrix, report_non_significant, kind: CorrelationType, ci_matrix=None
-):
+def get_report(columns, correlation_matrix, p_matrix, df_matrix, detail, kind: CorrelationType, ci_matrix=None):
     if kind not in _NAME_KEY:
         raise ValueError(f"Unknown correlation type: {kind}")
     name = t(_NAME_KEY[kind])
@@ -70,6 +79,8 @@ def get_report(
         r = correlation_matrix.loc[columns[1], columns[0]]
         p = p_matrix.loc[columns[1], columns[0]]
         df = df_matrix.loc[columns[1], columns[0]]
+        if not prose_includes(detail, _significant(p), _notable(r, p)):
+            return t("correlation.report.none_significant")
         stats = _with_ci(format_apa(r, p, df, letter), ci_matrix, columns[1], columns[0])
         if p > 0.05:
             return text + t("correlation.report.two_nonsignificant", stats=stats)
@@ -78,9 +89,7 @@ def get_report(
             text += t("correlation.report.negligible")
         return text
 
-    if p_matrix.min().min() > 0.05 and not report_non_significant:
-        return t("correlation.report.none_significant")
-
+    reported_any = False
     for i_row, row in enumerate(columns):
         for i_column, column in enumerate(columns):
             if i_column >= i_row:
@@ -88,8 +97,9 @@ def get_report(
             r = correlation_matrix.loc[row, column]
             p = p_matrix.loc[row, column]
             df = df_matrix.loc[row, column]
-            if round(p, 3) > 0.05 and not report_non_significant:
+            if not prose_includes(detail, _significant(p), _notable(r, p)):
                 continue
+            reported_any = True
             stats = _with_ci(format_apa(r, p, df, letter), ci_matrix, row, column)
             if p > 0.05:
                 text += t("correlation.report.multi_nonsignificant", var1=row, var2=column, stats=stats)
@@ -104,11 +114,13 @@ def get_report(
                 )
                 if abs(r) < 0.1:
                     text += t("correlation.report.negligible")
+    if not reported_any:
+        return t("correlation.report.none_significant")
     return text
 
 
 def get_cross_report(
-    rows, cols, correlation_matrix, p_matrix, df_matrix, report_non_significant, kind: CorrelationType, ci_matrix=None
+    rows, cols, correlation_matrix, p_matrix, df_matrix, detail, kind: CorrelationType, ci_matrix=None
 ):
     """Verbal summary for a rectangular two-set correlation: every (row, col) pair, skipping
     a variable paired with itself when it appears in both sets."""
@@ -131,7 +143,7 @@ def get_cross_report(
             df = df_matrix.loc[row, col]
             if p is None or pd.isna(p):
                 continue
-            if round(p, 3) > 0.05 and not report_non_significant:
+            if not prose_includes(detail, _significant(p), _notable(r, p)):
                 continue
             reported_any = True
             stats = _with_ci(format_apa(r, p, df, letter), ci_matrix, row, col)
@@ -149,6 +161,6 @@ def get_cross_report(
                 if abs(r) < 0.1:
                     text += t("correlation.report.negligible")
 
-    if not reported_any and not report_non_significant:
+    if not reported_any:
         return t("correlation.report.none_significant")
     return text

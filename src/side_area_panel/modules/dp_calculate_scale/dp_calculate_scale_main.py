@@ -21,8 +21,11 @@ def dp_calculate_scale_main(elements: Elements, result: CalculateScaleResult, up
     result.data = data.copy()
     result.error_message = ""
 
-    question_columns = cfg.column_selector[0]
-    if question_columns in [None, []]:
+    question_columns = cfg.column_selector[0] or []
+    # Optional reverse-keyed items (second selector field); flipped first, then pooled in.
+    flipped_columns = (cfg.column_selector[1] if len(cfg.column_selector) > 1 else None) or []
+    all_item_columns = list(question_columns) + list(flipped_columns)
+    if not all_item_columns:
         elements.column_selector.set_alert(0)
         result.error_message = "Select at least one item column."
         return result
@@ -38,11 +41,24 @@ def dp_calculate_scale_main(elements: Elements, result: CalculateScaleResult, up
         result.error_message = f"A column named '{scale_name}' already exists."
         return result
 
-    # Build an aligned numeric frame of the selected questions (raw series, no row reordering).
-    items = pd.concat(
-        [pd.to_numeric(data[column].data_series, errors="coerce") for column in question_columns],
-        axis=1,
-    )
+    # Reference for reverse-scoring: manual override, else (max + min) over the pooled values
+    # of the reverse-keyed columns (same rule as the Invert Scale module).
+    flip_reference = cfg.flip_reference
+    if flipped_columns and flip_reference is None:
+        pooled = pd.concat(
+            [pd.to_numeric(data[column].data_series, errors="coerce") for column in flipped_columns],
+            ignore_index=True,
+        )
+        if not pooled.dropna().empty:
+            flip_reference = pooled.max() + pooled.min()
+
+    def _flip(series):
+        return flip_reference - series if flip_reference is not None else series
+
+    # Build an aligned numeric frame of all items (raw questions + reverse-scored columns).
+    item_series = [pd.to_numeric(data[column].data_series, errors="coerce") for column in question_columns]
+    item_series += [_flip(pd.to_numeric(data[column].data_series, errors="coerce")) for column in flipped_columns]
+    items = pd.concat(item_series, axis=1)
 
     # Missing-value policy:
     #  * "Skip respondent": any missing item -> no scale value for that row.
@@ -75,15 +91,27 @@ def dp_calculate_scale_main(elements: Elements, result: CalculateScaleResult, up
     new_column = DataColumn.initialize_from_series(scale_series)
     new_column.color = cfg.color  # user-chosen colour tag for the new scale column
 
-    data.add_column_after(question_columns[-1], new_column)
+    data.add_column_after(all_item_columns[-1], new_column)
 
-    # Decide what happens to the question columns the scale was built from.
+    # Reverse-scored source columns: when "Replace" is on (default), write the flipped values
+    # back into those columns in the output so they match what went into the scale. (Skipped
+    # for Delete, where the columns are removed anyway.)
+    replace_flipped = cfg.replace_flipped if cfg.replace_flipped is not None else True
     action = cfg.questions_action or "Keep"
+    if flipped_columns and replace_flipped and flip_reference is not None and action != "Delete":
+        for column in flipped_columns:
+            source = data[column]
+            source.data_series = _flip(pd.to_numeric(source.data_series, errors="coerce"))
+            source.order = {}
+            source.automatically_update_order()
+
+    # Decide what happens to the item columns the scale was built from.
     if action == "Delete":
-        for column in question_columns:
+        for column in all_item_columns:
             data.remove_column(column)
     elif action == "Auto-rename":
-        for i, column in enumerate(question_columns, start=1):
+        # Auto-rename already gives a fresh "<scale> Q{i}" name, so no "(flipped)" suffix.
+        for i, column in enumerate(all_item_columns, start=1):
             data[column].color = cfg.questions_color  # tag before rename (column object persists)
             target = f"{scale_name} Q{i}"
             if target != column:
@@ -92,6 +120,12 @@ def dp_calculate_scale_main(elements: Elements, result: CalculateScaleResult, up
     elif action == "Keep":
         for column in question_columns:
             data[column].color = cfg.questions_color
+        for column in flipped_columns:
+            data[column].color = cfg.questions_color
+            # Mark a replaced reverse-scored column as flipped in its name.
+            if replace_flipped and flip_reference is not None:
+                new_name = unique_name(f"{column} (flipped)", set(data.column_names()) - {column})
+                data.rename_column(column, new_name)
     else:
         raise ValueError(f"Unknown questions action: {action}")
 

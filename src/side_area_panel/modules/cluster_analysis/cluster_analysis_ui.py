@@ -11,6 +11,7 @@ from src.side_area_panel.iispwac.iispwac_spacer import IISPWACSpacer
 from src.side_area_panel.iispwac.iispwac_spin import IISPWACSpin
 from src.side_area_panel.modules.base.base import BaseModulePanel
 from src.side_area_panel.modules.cluster_analysis.cluster_analysis_result import ClusterMethod
+from src.side_area_panel.modules.common.prose import PROSE_LABEL, PROSE_LEVELS
 
 
 class Elements(ItemInSidePanelWithAutoConfigHolder):
@@ -31,6 +32,7 @@ class Elements(ItemInSidePanelWithAutoConfigHolder):
     plots = IISPWACCheckBox(label_text="Plots", default_state=False)
     show_assignments = IISPWACCheckBox(label_text="Show per-observation assignments", default_state=False)
     verbal_indicators = IISPWACCheckBox(label_text="Verbal indicators in tables", default_state=False)
+    interpretation = IISPWACComboBox(label_text=PROSE_LABEL, items=PROSE_LEVELS)
     spacer = IISPWACSpacer()
 
 

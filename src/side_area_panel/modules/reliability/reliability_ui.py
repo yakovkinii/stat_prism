@@ -11,6 +11,7 @@ from src.side_area_panel.iispwac.iispwac_data_source import IISPWACDataSource
 from src.side_area_panel.iispwac.iispwac_spacer import IISPWACSpacer
 from src.side_area_panel.iispwac.iispwac_text_edit import IISPWACLongTextEdit
 from src.side_area_panel.modules.base.base import BaseModulePanel
+from src.side_area_panel.modules.common.prose import PROSE_LABEL, PROSE_LEVELS
 from src.side_area_panel.modules.correlation.correlation_result import CORRELATION_TYPE_MAP
 
 
@@ -35,6 +36,7 @@ class Elements(ItemInSidePanelWithAutoConfigHolder):
     mcdonald_omega = IISPWACCheckBox(label_text="McDonald's ω", default_state=True)
     item_deleted_table = IISPWACCheckBox(label_text="'If item removed' table", default_state=False)
     verbal_indicators = IISPWACCheckBox(label_text="Verbal indicators in tables", default_state=False)
+    interpretation = IISPWACComboBox(label_text=PROSE_LABEL, items=PROSE_LEVELS)
     number_columns = IISPWACCheckBox(label_text="Number items in tables", default_state=False)
 
 

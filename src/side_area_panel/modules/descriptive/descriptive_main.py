@@ -9,6 +9,7 @@ from src.common.decorators import log_function
 from src.common.translations import t
 from src.data.data_manager import DATA_MANAGER
 from src.side_area_panel.modules.common.column_numbering import ColumnNumbering
+from src.side_area_panel.modules.common.prose import prose_enabled
 from src.side_area_panel.modules.common.utility import format_value_apa, smart_comma_join
 from src.side_area_panel.modules.descriptive.descriptive_result import DescriptiveResult
 from src.side_area_panel.modules.descriptive.plot import (
@@ -188,7 +189,7 @@ def recalculate_descriptive_study(elements, result: DescriptiveResult, update) -
                 listed = smart_comma_join(list({f"#{lab} ({format_value_apa(val, 2)})" for val, lab in outliers}))
                 outlier_sentences.append(t("descriptive.outliers.line", target=target, n=len(outliers), items=listed))
                 all_ids.extend(lab for val, lab in outliers)
-        if outlier_sentences and cfg.prose:
+        if outlier_sentences and prose_enabled(cfg.interpretation):
             text = "".join(outlier_sentences)
             if all_ids:
                 # The same ID can be an outlier on several variables/groups -- de-duplicate
@@ -219,7 +220,7 @@ def recalculate_descriptive_study(elements, result: DescriptiveResult, update) -
             statistic_letter=letter,
             groupby_column=grouping_column,
             show_normal_column=bool(cfg.verbal_indicators),
-            show_report=bool(cfg.prose),
+            prose_detail=cfg.interpretation,
             numbering=numbering,
         )
         result.update_and_add_element(normality, "descriptive normality")
@@ -251,7 +252,7 @@ def recalculate_descriptive_study(elements, result: DescriptiveResult, update) -
                     groupby_column=grouping_column,
                     col=col,
                     group_counts=group_counts,
-                    verbal=bool(cfg.prose),
+                    verbal=prose_enabled(cfg.interpretation),
                 )
             result.update_and_add_element(freq, f"descriptive freq {col}")
 
