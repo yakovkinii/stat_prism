@@ -106,7 +106,7 @@ class PlotResultElementDisplay(BaseResultDisplay):
         if pixmap.width() > 0:
             pixmap = pixmap.scaledToWidth(265, Qt.TransformationMode.SmoothTransformation)
         self.image.setPixmap(pixmap)
-        self.label.setText(result_element.plot_title.get_current_value())
+        self.label.setText(result_element.display_title())
 
     @log_method
     def activate_result(self, result_id, result_element_id):

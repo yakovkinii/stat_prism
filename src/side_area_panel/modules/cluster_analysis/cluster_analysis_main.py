@@ -14,6 +14,7 @@ from src.common.qcolor import Colors
 from src.common.translations import t
 from src.data.data_manager import DATA_MANAGER
 from src.side_area_panel.modules.cluster_analysis.cluster_analysis_result import ClusterAnalysisResult, ClusterMethod
+from src.side_area_panel.modules.common.prose import prose_enabled
 from src.side_area_panel.modules.common.result.html_result import Cell, HTMLTableV2, Row
 from src.side_area_panel.modules.common.result.plot_result import (
     Dendrogram,
@@ -141,7 +142,7 @@ def recalculate_cluster_analysis_study(elements, result: ClusterAnalysisResult, 
             sil=format_r_apa(silhouette),
             label=t(f"cluster.sil.{_silhouette_key(silhouette)}"),
         )
-    verbal and centroid_table.add_text(report)
+    prose_enabled(cfg.interpretation) and centroid_table.add_text(report)
     result.update_and_add_element(centroid_table, "cluster centroids")
 
     # ----- Quality table -----

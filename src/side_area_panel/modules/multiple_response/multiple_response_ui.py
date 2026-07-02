@@ -5,8 +5,10 @@ from src.pyside_ext.elements.column_selector import Field
 from src.side_area_panel.blueprint.element import ItemInSidePanelWithAutoConfigHolder
 from src.side_area_panel.iispwac.iispwac_checkbox import IISPWACCheckBox
 from src.side_area_panel.iispwac.iispwac_column_selector import IISPWACColumnSelector
+from src.side_area_panel.iispwac.iispwac_combobox import IISPWACComboBox
 from src.side_area_panel.iispwac.iispwac_data_source import IISPWACDataSource
 from src.side_area_panel.modules.base.base import BaseModulePanel
+from src.side_area_panel.modules.common.prose import PROSE_LABEL, PROSE_LEVELS
 
 
 class Elements(ItemInSidePanelWithAutoConfigHolder):
@@ -22,7 +24,7 @@ class Elements(ItemInSidePanelWithAutoConfigHolder):
         ],
     )
     show_chart = IISPWACCheckBox(label_text="Bar chart of counts", default_state=False)
-    verbal_indicators = IISPWACCheckBox(label_text="Explanatory note", default_state=False)
+    interpretation = IISPWACComboBox(label_text=PROSE_LABEL, items=PROSE_LEVELS)
 
 
 class MultipleResponse(BaseModulePanel):

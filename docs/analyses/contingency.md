@@ -16,7 +16,15 @@ yes/no outcome.
 
 - **Continuity correction** — applies Yates' correction (2×2 tables only).
 - **Effect size** — Cramér's V / phi.
-- **Verbal indicators** — plain-language interpretation.
+- **Percentages** — adds a percentages table normalised by **row**, **column**, or **total**
+  (or *None* to hide it).
+- **Post-hoc residuals** — when the chi-square test is significant, adds a table of
+  **adjusted standardized residuals**; cells with |z| > 1.96 (shown in bold) are the ones
+  driving the association.
+- **Verbal indicators** — in-table verbal columns (a *Significant?* conclusion and effect-size
+  magnitude).
+- **Verbal report** — dropdown for how much written interpretation to add (None / Key
+  findings / Significant only / Full).
 - **Paired data (symmetry test)** — for a square table of the same categories measured twice,
   runs a symmetry test (McNemar / Bowker) instead of the standard independence test.
 - **Plots** — a distribution chart of the cross-tabulation.

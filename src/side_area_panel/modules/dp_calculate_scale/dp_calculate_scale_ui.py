@@ -3,10 +3,12 @@
 from src.common.constant import ColumnType
 from src.pyside_ext.elements.column_selector import Field
 from src.side_area_panel.blueprint.element import ItemInSidePanelWithAutoConfigHolder
+from src.side_area_panel.iispwac.iispwac_checkbox import IISPWACCheckBox
 from src.side_area_panel.iispwac.iispwac_color_picker import IISPWACColorPicker
 from src.side_area_panel.iispwac.iispwac_column_selector import IISPWACColumnSelector
 from src.side_area_panel.iispwac.iispwac_combobox import IISPWACComboBox
 from src.side_area_panel.iispwac.iispwac_data_source import IISPWACDataSource
+from src.side_area_panel.iispwac.iispwac_reference import IISPWACReference
 from src.side_area_panel.iispwac.iispwac_spin import IISPWACSpin
 from src.side_area_panel.iispwac.iispwac_text_edit import IISPWACLongTextEdit
 from src.side_area_panel.modules.base.base import BaseModulePanel
@@ -28,8 +30,22 @@ class Elements(ItemInSidePanelWithAutoConfigHolder):
                 allow_only_single_column=False,
                 minimum_columns=1,
             ),
+            # Reverse-keyed items: flipped first (same reference as Invert Scale), then
+            # aggregated together with the normal questions above.
+            Field(
+                name="Reverse-score first:",
+                column_type=ColumnType.ORDINAL,
+                reasonable_number_of_columns=8,
+                allow_only_single_column=False,
+            ),
         ],
     )
+
+    # Reference used to flip the reverse-scored items: auto = (max + min) over their pooled
+    # values; tick "Manual" (or edit the value) to override. Only relevant when the
+    # "Reverse-score first" field has columns.
+    flip_reference = IISPWACReference(label_text="Manual flip reference", field_index=1)
+    replace_flipped = IISPWACCheckBox(label_text="Replace reverse-scored columns with flipped", default_state=True)
 
     name = IISPWACLongTextEdit(
         label_text="Scale name:",

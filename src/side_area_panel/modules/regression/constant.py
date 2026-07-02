@@ -7,6 +7,7 @@ from enum import Enum
 class RegressionModelType(Enum):
     LINEAR = "Linear (OLS)"
     LOGISTIC = "Logistic (binary)"
+    MULTINOMIAL = "Multinomial (logistic)"
 
     @staticmethod
     def get_values():

@@ -45,6 +45,7 @@ class CFAResultStruct:
         std_loadings=None,
         std_resid=None,
         loading_se=None,
+        second_order_loadings=None,
     ):
         self.loadings_ = loadings
         self.phi_ = phi
@@ -55,6 +56,9 @@ class CFAResultStruct:
         self.std_loadings_ = std_loadings
         self.std_resid_ = std_resid
         self.loading_se_ = loading_se  # raw-scale asymptotic SE per loading (NaN if not free)
+        # Optional 2nd-order model: list of (first_order_factor_name, loading_str) on the general
+        # factor. None when no second-order factor was requested (semopy backend only).
+        self.second_order_loadings_ = second_order_loadings
 
 
 class CFAEstimator:

@@ -30,6 +30,7 @@ class ClusterAnalysisConfig:
     plots = attrs.field(default=None)
     show_assignments = attrs.field(default=None)
     verbal_indicators = attrs.field(default=None)
+    interpretation = attrs.field(default=None)
 
 
 class ClusterAnalysisResult(BaseResult):

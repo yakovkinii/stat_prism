@@ -18,6 +18,7 @@ class ReliabilityStudyConfig:
     mcdonald_omega = attrs.field(default=None)
     item_deleted_table = attrs.field(default=None)
     verbal_indicators = attrs.field(default=None)
+    interpretation = attrs.field(default=None)
     number_columns = attrs.field(default=None)
 
 

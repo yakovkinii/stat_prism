@@ -11,8 +11,9 @@ from src.common.decorators import log_function
 from src.common.translations import t
 from src.data.data_manager import DATA_MANAGER
 from src.side_area_panel.modules.common.column_numbering import ColumnNumbering
+from src.side_area_panel.modules.common.prose import prose_enabled
 from src.side_area_panel.modules.common.result.html_result import Cell, HTMLTableV2, Row
-from src.side_area_panel.modules.common.result.plot_result import Heatmap, PlotV2
+from src.side_area_panel.modules.common.result.plot_result import FactorDiagram, Heatmap, PlotV2
 from src.side_area_panel.modules.common.utility import (
     format_p_apa_exact,
     format_p_apa_full,
@@ -20,11 +21,14 @@ from src.side_area_panel.modules.common.utility import (
     format_statistic_apa,
     get_stars,
 )
-from src.side_area_panel.modules.confirmatory_factor_analysis.cfa_numpy import CFAEstimator
+from src.side_area_panel.modules.confirmatory_factor_analysis.cfa_semopy import OBJECTIVE_ML, CFASemopyEstimator
 from src.side_area_panel.modules.confirmatory_factor_analysis.confirmatory_factor_analysis_result import (
     CFAResult,
     CFAStudyConfig,
 )
+
+# Residual-correlation level at which a cross-loading is hinted (see _add_modification_hints).
+_MOD_HINT_THRESHOLD = 0.10
 
 
 def _fail(result: CFAResult, message: str) -> CFAResult:
@@ -32,6 +36,17 @@ def _fail(result: CFAResult, message: str) -> CFAResult:
     logging.warning("CFA: %s", message)
     result.set_error(message)
     return result
+
+
+def _fit_cfa(cfg, structure, values, columns):
+    """Estimate the CFA with the semopy backend (ML or DWLS, plus the optional second-order factor)."""
+    estimator = CFASemopyEstimator(
+        structure=structure,
+        allow_factor_correlation=cfg.allow_factor_correlation,
+        objective=getattr(cfg, "estimator", None) or OBJECTIVE_ML,
+        second_order=bool(getattr(cfg, "second_order", False)),
+    )
+    return estimator.fit(values, var_names=columns)
 
 
 def _is_nan(value) -> bool:
@@ -106,6 +121,17 @@ def recalculate_cfa_study(elements, result: CFAResult, update) -> CFAResult:
         return _fail(result, t("cfa.error.min_per_factor"))
 
     n_factors = len(structure)
+    # Apply the cross-loadings the user ticked in "Apply cross-loadings": add each item to the
+    # extra factor so it loads on both. Work on a copy so the base structure is untouched.
+    structure = [list(factor_vars) for factor_vars in structure]
+    for pair in cfg.cross_loadings or []:
+        try:
+            item, fi = pair[0], int(pair[1])
+        except (TypeError, ValueError, IndexError):
+            continue
+        if 0 <= fi < n_factors and item not in structure[fi]:
+            structure[fi].append(item)
+
     all_vars = [var for factor_vars in structure for var in factor_vars]
     unique_vars = list(dict.fromkeys(all_vars))  # a variable may cross-load on >1 factor
 
@@ -125,9 +151,8 @@ def recalculate_cfa_study(elements, result: CFAResult, update) -> CFAResult:
     numbering = ColumnNumbering(columns, enabled=bool(cfg.number_columns))
 
     update(15)
-    estimator = CFAEstimator(structure=structure, allow_factor_correlation=cfg.allow_factor_correlation)
     try:
-        cfa_result = estimator.fit(df.values, var_names=columns)
+        cfa_result = _fit_cfa(cfg, structure, df.values, columns)
     except Exception as e:  # surfaced as a clean validation message
         return _fail(result, t("cfa.error.fit_failed", error=str(e)))
     update(75)
@@ -157,7 +182,7 @@ def recalculate_cfa_study(elements, result: CFAResult, update) -> CFAResult:
         if verbal:
             cells.append(Cell(t(f"cfa.fit.{interp_key}") if interp_key else "—", center=True))
         fit_table.add_single_row_apa(Row(cells))
-    verbal and fit_table.add_text(_fit_prose(fit, cfa_result.converged_))
+    prose_enabled(cfg.interpretation) and fit_table.add_text(_fit_prose(fit, cfa_result.converged_))
     result.update_and_add_element(fit_table, "cfa fit")
 
     # ----- Standardized factor loadings table (with significance stars when verbal) -----
@@ -186,7 +211,7 @@ def recalculate_cfa_study(elements, result: CFAResult, update) -> CFAResult:
     load_table.table_note = numbering.append_to_note(load_table.table_note or "")
     result.update_and_add_element(load_table, "cfa loadings")
 
-    # ----- Loadings heatmap -----
+    # ----- Loadings heatmap + factor-structure path diagram -----
     if cfg.plots:
         loadings_df = pd.DataFrame(loadings, index=columns, columns=factor_names)
         result.update_and_add_element(
@@ -198,6 +223,39 @@ def recalculate_cfa_study(elements, result: CFAResult, update) -> CFAResult:
                 y_axis_title=t("cfa.plot.variables"),
             ),
             "cfa loadings heatmap",
+        )
+
+        # Path diagram: each factor node with arrows (standardized loadings) to its indicators,
+        # plus curved links for the factor correlations (oblique models).
+        var_index = {var: i for i, var in enumerate(columns)}
+        diagram_factors = [
+            (
+                factor_names[fi],
+                [
+                    (str(var), format_r_apa(loadings[var_index[var], fi]), float(loadings[var_index[var], fi]))
+                    for var in structure[fi]
+                    if var in var_index
+                ],
+            )
+            for fi in range(n_factors)
+        ]
+        correlations = []
+        if cfg.allow_factor_correlation and n_factors > 1:
+            correlations = [
+                (factor_names[i], factor_names[j], format_r_apa(phi[i, j]))
+                for i in range(n_factors)
+                for j in range(i + 1, n_factors)
+            ]
+        result.update_and_add_element(
+            PlotV2(
+                items=[
+                    FactorDiagram(factors=diagram_factors, correlations=correlations, label=t("cfa.plot.structure"))
+                ],
+                plot_title=t("cfa.plot.structure"),
+                x_axis_title="",
+                y_axis_title="",
+            ),
+            "cfa factor diagram",
         )
 
     # ----- Factor correlations (oblique only) -----
@@ -213,6 +271,94 @@ def recalculate_cfa_study(elements, result: CFAResult, update) -> CFAResult:
             )
         result.update_and_add_element(phi_table, "cfa phi")
 
+    # ----- Second-order factor loadings (semopy backend) -----
+    if getattr(cfg, "second_order", False) and cfa_result.second_order_loadings_:
+        so_table = HTMLTableV2(table_caption=t("cfa.caption.second_order"))
+        so_table.add_title_row_apa(Row([Cell(t("cfa.col.first_order")), Cell(t("cfa.col.loading"), center=True)]))
+        for factor_name, loading in cfa_result.second_order_loadings_:
+            so_table.add_single_row_apa(
+                Row([Cell(factor_name, push_to_left=True), Cell(format_r_apa(loading), center=True)])
+            )
+        result.update_and_add_element(so_table, "cfa second order")
+
+    # Residual-based cross-loading suggestions. Always computed and stored on the result so the
+    # "Apply cross-loadings" control can offer them; also shown as a scored table when the
+    # Modification hints option is on.
+    result.suggested_cross_loadings = _cross_loading_suggestions(
+        cfa_result.std_resid_, structure, columns, _MOD_HINT_THRESHOLD
+    )
+    if cfg.modification_hints:
+        _render_modification_hints(result, result.suggested_cross_loadings, factor_names, numbering, len(structure))
+
     result.title_context = f"{n_factors} factors"
     update(100)
     return result
+
+
+def _cross_loading_suggestions(std_resid, structure, columns, threshold):
+    """For every item, score each factor it does *not* already load on by the mean |standardized
+    residual| with that factor's indicators; a large score hints a cross-loading would improve
+    fit. Returns ``[(item, factor_index, score), …]`` worst-first, excluding factors the item
+    already loads on (so already-applied cross-loadings are not re-suggested).
+
+    Residual-based approximation, not the exact Lagrange-multiplier modification index (the
+    backend does not expose it)."""
+    if std_resid is None or len(structure) < 2:
+        return []
+    resid = np.asarray(std_resid, dtype=float)
+    var_index = {var: i for i, var in enumerate(columns)}
+    factor_items = {fi: [var_index[v] for v in fvars if v in var_index] for fi, fvars in enumerate(structure)}
+    loads_on = {}
+    for fi, fvars in enumerate(structure):
+        for v in fvars:
+            if v in var_index:
+                loads_on.setdefault(var_index[v], set()).add(fi)
+
+    suggestions = []
+    for i, var in enumerate(columns):
+        for fi, items in factor_items.items():
+            if fi in loads_on.get(i, set()):
+                continue  # item already loads on this factor
+            others = [k for k in items if k != i]
+            if not others:
+                continue
+            score = float(np.nanmean([abs(resid[i, k]) for k in others]))
+            if np.isfinite(score) and score >= threshold:
+                suggestions.append((var, fi, score))
+    suggestions.sort(key=lambda s: s[2], reverse=True)
+    return suggestions
+
+
+def _render_modification_hints(result, suggestions, factor_names, numbering, n_factors):
+    """Scored cross-loading table. Always emits an element (with a note when there is nothing to
+    suggest) so the option is never silently inert."""
+    table = HTMLTableV2(table_caption=t("cfa.caption.mod_hints"), table_note=t("cfa.mod_hints_note"))
+    if n_factors < 2:
+        table.add_text(t("cfa.mod_hints_need_factors"))
+        result.update_and_add_element(table, "cfa modification hints")
+        return
+    if not suggestions:
+        table.add_text(t("cfa.mod_hints_none", threshold=f"{_MOD_HINT_THRESHOLD:.2f}"))
+        result.update_and_add_element(table, "cfa modification hints")
+        return
+    table.add_title_row_apa(
+        Row(
+            [
+                Cell(t("cfa.col.variable")),
+                Cell(t("cfa.col.suggested_factor"), center=True),
+                Cell(t("cfa.col.resid_score"), center=True),
+            ]
+        )
+    )
+    for var, fi, score in suggestions[:15]:
+        table.add_single_row_apa(
+            Row(
+                [
+                    Cell(numbering.label(var), push_to_left=True),
+                    Cell(factor_names[fi], center=True),
+                    Cell(format_r_apa(score), center=True),
+                ]
+            )
+        )
+    table.table_note = numbering.append_to_note(table.table_note or "")
+    result.update_and_add_element(table, "cfa modification hints")

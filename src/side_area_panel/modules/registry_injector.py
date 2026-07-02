@@ -90,6 +90,9 @@ from src.side_area_panel.modules.exploratory_factor_analysis.exploratory_factor_
     FactorAnalysisStudyConfig,
 )
 from src.side_area_panel.modules.exploratory_factor_analysis.factor_analysis_ui import FactorAnalysis
+from src.side_area_panel.modules.general_sem.general_sem_main import recalculate_general_sem_study
+from src.side_area_panel.modules.general_sem.general_sem_result import GeneralSEMResult, GeneralSEMStudyConfig
+from src.side_area_panel.modules.general_sem.general_sem_ui import GeneralSEM
 from src.side_area_panel.modules.mean_comparison.mean_comparison_main import recalculate_mean_comparison_study
 from src.side_area_panel.modules.mean_comparison.mean_comparison_result import (
     MeanComparisonResult,
@@ -171,6 +174,11 @@ def inject_classes_to_module_registry():
     ModuleRegistry.CFA.value.result_class = CFAResult
     ModuleRegistry.CFA.value.config_class = CFAStudyConfig
     ModuleRegistry.CFA.value.main_function = recalculate_cfa_study
+
+    ModuleRegistry.SEM.value.ui_class = GeneralSEM
+    ModuleRegistry.SEM.value.result_class = GeneralSEMResult
+    ModuleRegistry.SEM.value.config_class = GeneralSEMStudyConfig
+    ModuleRegistry.SEM.value.main_function = recalculate_general_sem_study
 
     ModuleRegistry.CLUSTER_ANALYSIS.value.ui_class = ClusterAnalysis
     ModuleRegistry.CLUSTER_ANALYSIS.value.result_class = ClusterAnalysisResult

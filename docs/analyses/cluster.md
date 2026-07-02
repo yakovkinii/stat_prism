@@ -19,7 +19,8 @@ scores.
 - **Standardise variables** — z-scores each variable first, so variables on larger scales
   don't dominate the distance.
 - **Show assignments** — adds a per-respondent cluster table.
-- **Verbal indicators** and **Plots**.
+- **Verbal indicators** (in-table columns), **Verbal report** (dropdown for how much written
+  interpretation), and **Plots**.
 
 ## Output
 

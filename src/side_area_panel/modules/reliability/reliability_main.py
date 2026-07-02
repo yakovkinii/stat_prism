@@ -12,6 +12,7 @@ from src.common.translations import t
 from src.data.data_manager import DATA_MANAGER
 from src.side_area_panel.modules.common.column_numbering import ColumnNumbering
 from src.side_area_panel.modules.common.mathematics.correlation.correlation import calculate_correlations
+from src.side_area_panel.modules.common.prose import ProseDetail, prose_detail_from, prose_enabled
 from src.side_area_panel.modules.common.result.html_result import Cell, HTMLTableV2, Row
 from src.side_area_panel.modules.common.utility import format_r_apa, smart_comma_join
 from src.side_area_panel.modules.correlation.correlation_result import CORRELATION_TYPE_MAP, CorrelationType
@@ -72,6 +73,14 @@ def mcdonald_omega(corr_matrix: np.ndarray) -> float:
     except Exception as e:  # pragma: no cover - defensive
         logging.warning("Reliability: omega computation failed: %s", e)
         return float("nan")
+
+
+def _improves_text(deleted: float, full: float) -> str:
+    """Yes/No verdict for whether dropping an item raises a reliability coefficient (— if either
+    value is undefined)."""
+    if np.isnan(deleted) or np.isnan(full):
+        return "—"
+    return t("verbal.yes") if deleted > full else t("verbal.no")
 
 
 def _alpha_level_key(alpha: float) -> str:
@@ -156,7 +165,9 @@ def recalculate_reliability_study(elements, result: ReliabilityResult, update) -
         if not np.isnan(omega):
             report += t("reliability.report.omega", omega=format_r_apa(omega), level=omega_level)
 
-    if show_verbal:
+    # The interpretation column stays on "Verbal indicators"; the written report follows the
+    # "Verbal report" dropdown (any enabled level prints the scale-level summary).
+    if prose_enabled(config.interpretation):
         coef_table.add_text(report)
     result.update_and_add_element(coef_table, "reliability alpha")
     update(50)
@@ -166,17 +177,26 @@ def recalculate_reliability_study(elements, result: ReliabilityResult, update) -
     # alpha, so they stay consistent across every correlation type (incl. polychoric):
     #   item-rest r = (sum of item's off-diagonal correlations) / sqrt(variance of the
     #   rest-sum), with all item variances = 1.
+    # When omega is enabled, also report omega-if-removed alongside alpha-if-removed.
+    show_omega = bool(config.mcdonald_omega)
     item_table = HTMLTableV2(table_caption=t("reliability.caption.item_deleted"))
-    item_table.add_title_row_apa(
-        Row(
-            [
-                Cell(t("reliability.col.item"), push_to_left=True),
-                Cell(t("reliability.col.item_total"), center=True),
-                Cell(t("reliability.col.alpha_deleted"), center=True),
-            ]
-            + [Cell(t("reliability.col.improves"), center=True)] * show_verbal
-        )
-    )
+    header_cells = [
+        Cell(t("reliability.col.item"), push_to_left=True),
+        Cell(t("reliability.col.item_total"), center=True),
+        Cell(t("reliability.col.alpha_deleted"), center=True),
+    ]
+    if show_omega:
+        header_cells.append(Cell(t("reliability.col.omega_deleted"), center=True))
+    if show_verbal:
+        if show_omega:
+            # A separate "would removing this item raise it?" verdict for each coefficient.
+            header_cells.append(Cell(t("reliability.col.alpha_improves"), center=True))
+            header_cells.append(Cell(t("reliability.col.omega_improves"), center=True))
+        else:
+            header_cells.append(Cell(t("reliability.col.improves"), center=True))
+    item_table.add_title_row_apa(Row(header_cells))
+
+    full_omega = mcdonald_omega(corr_values) if show_omega else float("nan")
 
     total_sum = corr_values.sum()
     row_sums = corr_values.sum(axis=1)
@@ -194,21 +214,29 @@ def recalculate_reliability_study(elements, result: ReliabilityResult, update) -
             improves_text = "—"
         else:
             improves_text = t("verbal.yes") if item_improves else t("verbal.no")
-        item_table.add_single_row_apa(
-            Row(
-                [
-                    Cell(numbering.label(str(item)), push_to_left=True),
-                    Cell(format_r_apa(item_rest), center=True),
-                    Cell(format_r_apa(alpha_deleted), center=True),
-                ]
-                + [Cell(improves_text, center=True)] * show_verbal
-            )
-        )
+        row_cells = [
+            Cell(numbering.label(str(item)), push_to_left=True),
+            Cell(format_r_apa(item_rest), center=True),
+            Cell(format_r_apa(alpha_deleted), center=True),
+        ]
+        omega_deleted = mcdonald_omega(sub) if show_omega else float("nan")
+        if show_omega:
+            row_cells.append(Cell(format_r_apa(omega_deleted), center=True))
+        if show_verbal:
+            if show_omega:
+                row_cells.append(Cell(_improves_text(alpha_deleted, alpha), center=True))
+                row_cells.append(Cell(_improves_text(omega_deleted, full_omega), center=True))
+            else:
+                row_cells.append(Cell(improves_text, center=True))
+        item_table.add_single_row_apa(Row(row_cells))
 
-    if show_verbal:
+    # "Which items would improve the scale?" prose. At Full we also state when none would; at
+    # the compact levels (Significant only / Key findings) we mention only items that improve it.
+    item_detail = prose_detail_from(config.interpretation)
+    if prose_enabled(item_detail):
         if improves:
             item_table.add_text(t("reliability.report.item_improve", items=smart_comma_join(improves)))
-        else:
+        elif item_detail == ProseDetail.FULL:
             item_table.add_text(t("reliability.report.item_none"))
     item_table.table_note = numbering.append_to_note(item_table.table_note or "")
     # The "if item removed" table is optional (off by default).

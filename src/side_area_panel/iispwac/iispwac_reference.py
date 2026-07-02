@@ -23,9 +23,12 @@ class IISPWACReference(ItemInSidePanelWithAutoConfig):
     manual.
     """
 
-    def __init__(self, label_text: str = "Manual"):
+    def __init__(self, label_text: str = "Manual", field_index: int = 0):
         super().__init__()
         self.label_text = label_text
+        # Which column_selector field to pool for the auto value / preview (0 by default;
+        # modules with more than one field, e.g. Calculate Scale, point this at the right one).
+        self.field_index = field_index
         self.handler_state_changed = None
         # Pooled numeric values of all selected columns (for the auto value / preview).
         self.column = None
@@ -92,7 +95,8 @@ class IISPWACReference(ItemInSidePanelWithAutoConfig):
                 current_result_id=result_id,
             )
 
-            names = kwargs["column_selector"][0]
+            selector = kwargs["column_selector"]
+            names = selector[self.field_index] if len(selector) > self.field_index else None
             if not names:
                 raise ValueError("No columns selected")
             # Pool all selected columns so they share one min/max reference.

@@ -10,6 +10,7 @@ from src.side_area_panel.iispwac.iispwac_combobox import IISPWACComboBox
 from src.side_area_panel.iispwac.iispwac_data_source import IISPWACDataSource
 from src.side_area_panel.iispwac.iispwac_spacer import IISPWACSpacer
 from src.side_area_panel.modules.base.base import BaseModulePanel
+from src.side_area_panel.modules.common.prose import PROSE_LABEL, PROSE_LEVELS
 from src.side_area_panel.modules.regression.constant import RegressionModelType
 
 
@@ -46,6 +47,7 @@ class Elements(ItemInSidePanelWithAutoConfigHolder):
     model_type = IISPWACComboBox(label_text="Model:", items=RegressionModelType.get_values())
     standardized = IISPWACCheckBox(label_text="Standardized coefficients (β)", default_state=True)
     verbal_indicators = IISPWACCheckBox(label_text="Verbal indicators in tables", default_state=False)
+    interpretation = IISPWACComboBox(label_text=PROSE_LABEL, items=PROSE_LEVELS)
     diagnostics = IISPWACCheckBox(label_text="Diagnostics (VIF, residual plots)", default_state=False)
     plots = IISPWACCheckBox(label_text="Plots", default_state=False)
 

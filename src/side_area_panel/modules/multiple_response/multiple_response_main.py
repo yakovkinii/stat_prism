@@ -8,6 +8,7 @@ import pandas as pd
 from src.common.decorators import log_function
 from src.common.qcolor import Colors
 from src.data.data_manager import DATA_MANAGER
+from src.side_area_panel.modules.common.prose import prose_enabled
 from src.side_area_panel.modules.common.result.html_result import Cell, HTMLTableV2, Row
 from src.side_area_panel.modules.common.result.plot_result import Bar, BarPlotConfig, PlotV2
 from src.side_area_panel.modules.multiple_response.multiple_response_result import MultipleResponseResult
@@ -86,7 +87,7 @@ def recalculate_multiple_response_study(elements, result: MultipleResponseResult
             ]
         )
     )
-    if cfg.verbal_indicators:
+    if prose_enabled(cfg.interpretation):
         table.add_text(
             f"Cases = {n_cases} respondent(s) with at least one selection; total selections = {total_selections}. "
             "Percentages of cases sum to more than 100% because a respondent can choose several options."

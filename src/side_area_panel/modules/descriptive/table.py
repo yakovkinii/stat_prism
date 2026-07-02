@@ -8,6 +8,7 @@ import pandas as pd
 
 from src.common.translations import t
 from src.side_area_panel.modules.common.column_numbering import ColumnNumbering
+from src.side_area_panel.modules.common.prose import ProseDetail, prose_detail_from
 from src.side_area_panel.modules.common.result.html_result import Cell, HTMLTableV2, Row
 from src.side_area_panel.modules.common.utility import (
     format_p_apa_exact,
@@ -90,13 +91,14 @@ def get_normality_table(
     statistic_letter: str,
     groupby_column: str = None,
     show_normal_column: bool = True,
-    show_report: bool = True,
+    prose_detail=ProseDetail.NONE.value,
     numbering=None,
 ) -> HTMLTableV2:
     """Normality results: per variable (or per group) the test statistic, p, and (when
-    `show_normal_column`) an in-table verbal normal? conclusion. When `show_report`, a
-    plain-language summary (prose) follows the table. `rows` have keys: variable, group,
-    norm_stat, norm_p."""
+    `show_normal_column`) an in-table verbal normal? conclusion. The "Verbal report" dropdown
+    (`prose_detail`) controls the plain-language summary that follows the table: *Full*
+    describes every variable, *Significant only* / *Key findings* only the non-normal ones.
+    `rows` have keys: variable, group, norm_stat, norm_p."""
     numbering = _numbering(numbering)
     table = HTMLTableV2(table_caption=caption)
     grouped = groupby_column is not None
@@ -133,7 +135,9 @@ def get_normality_table(
             cells.append(Cell(normal_text, center=True))
         table.add_single_row_apa(Row(cells))
 
-    show_report and table.add_text(_normality_report(rows, test_name, statistic_letter))
+    report = _normality_report(rows, test_name, statistic_letter, prose_detail)
+    if report:
+        table.add_text(report)
     # If any cell is blank (test could not run), explain why rather than leaving it unexplained.
     if any(_is_nan(r["norm_p"]) for r in rows):
         table.add_text(t("descriptive.normality.note_blank"))
@@ -145,11 +149,26 @@ def _is_nan(value):
     return value is None or (isinstance(value, float) and np.isnan(value))
 
 
-def _normality_report(rows, test_name, statistic_letter) -> str:
-    text = t("descriptive.normality.intro", test=test_name)
+def _normality_report(rows, test_name, statistic_letter, prose_detail) -> str:
+    """Plain-language normality summary. Returns "" when there is nothing to say at the chosen
+    detail level. At *Significant only* / *Key findings* only the non-normal variables (the
+    notable ones) are described; at *Full* every variable is."""
+    detail = prose_detail_from(prose_detail)
+    if detail == ProseDetail.NONE:
+        return ""
+    described = []
     for r in rows:
         if _is_nan(r["norm_p"]):
             continue
+        is_normal = r["norm_p"] > 0.05
+        # "Notable" here == departs from normality; only those show at the compact levels.
+        if detail != ProseDetail.FULL and is_normal:
+            continue
+        described.append(r)
+    if not described:
+        return ""
+    text = t("descriptive.normality.intro", test=test_name)
+    for r in described:
         stats_str = f"{statistic_letter} = {format_r_apa(r['norm_stat'], 3)}, {format_p_apa_prose(r['norm_p'])}"
         key = "descriptive.normality.normal" if r["norm_p"] > 0.05 else "descriptive.normality.not_normal"
         text += t(key, var=_variable_label(r["variable"], r.get("group")), stats=stats_str)

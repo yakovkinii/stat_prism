@@ -10,6 +10,7 @@ from src.side_area_panel.iispwac.iispwac_combobox import IISPWACComboBox
 from src.side_area_panel.iispwac.iispwac_data_source import IISPWACDataSource
 from src.side_area_panel.iispwac.iispwac_spacer import IISPWACSpacer
 from src.side_area_panel.modules.base.base import BaseModulePanel
+from src.side_area_panel.modules.common.prose import PROSE_LABEL, PROSE_LEVELS
 from src.side_area_panel.modules.mean_comparison.constant import (
     AssumptionChecksInGrouping,
     MeanComparisonMethod,
@@ -57,6 +58,7 @@ class Elements(ItemInSidePanelWithAutoConfigHolder):
         label_text="Verbal indicators in tables",
         default_state=False,
     )
+    interpretation = IISPWACComboBox(label_text=PROSE_LABEL, items=PROSE_LEVELS)
     confidence_intervals = IISPWACCheckBox(
         label_text="95% CI for Cohen's d",
         default_state=False,

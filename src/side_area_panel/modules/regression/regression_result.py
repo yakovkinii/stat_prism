@@ -16,6 +16,7 @@ class RegressionStudyConfig:
     model_type = attrs.field(default=None)
     standardized = attrs.field(default=None)
     verbal_indicators = attrs.field(default=None)
+    interpretation = attrs.field(default=None)
     diagnostics = attrs.field(default=None)
     plots = attrs.field(default=None)
 

@@ -15,6 +15,8 @@ from src.common.qcolor import Colors
 from src.common.translations import t
 from src.data.data_manager import DATA_MANAGER
 from src.side_area_panel.modules.common.column_numbering import ColumnNumbering
+from src.side_area_panel.modules.common.mathematics.correlation.correlation import calculate_correlations
+from src.side_area_panel.modules.common.prose import prose_enabled
 from src.side_area_panel.modules.common.result.html_result import Cell, HTMLTableV2, Row
 from src.side_area_panel.modules.common.result.plot_result import Heatmap, Line, LinePlotConfig, PlotV2, Scatter
 from src.side_area_panel.modules.common.utility import (
@@ -24,6 +26,7 @@ from src.side_area_panel.modules.common.utility import (
     format_statistic_apa,
     format_value_apa,
 )
+from src.side_area_panel.modules.correlation.correlation_result import CorrelationType
 from src.side_area_panel.modules.exploratory_factor_analysis.exploratory_factor_analysis_result import (
     ExtractionMethod,
     FactorAnalysisResult,
@@ -55,6 +58,29 @@ def _fail(result: FactorAnalysisResult, message: str) -> FactorAnalysisResult:
     logging.warning("EFA: %s", message)
     result.set_error(message)
     return result
+
+
+def _polychoric_matrix(df) -> np.ndarray:
+    """Symmetric polychoric (tetrachoric for binary items) correlation matrix, estimated by the
+    in-house pairwise routine and mirrored into a full matrix with a unit diagonal — the same
+    construction the Reliability module uses, so the two agree."""
+    lower, _, _ = calculate_correlations(df, CorrelationType.POLYCHORIC)
+    arr = lower.to_numpy(dtype=float)
+    arr = np.where(np.isnan(arr), arr.T, arr)  # mirror the filled lower triangle
+    np.fill_diagonal(arr, 1.0)
+    return arr
+
+
+def _resolve_factor_names(raw: str, m: int) -> list:
+    """Factor labels for the tables/heatmap. Uses the user's comma-separated names where
+    given, filling any gap (or a blank entry) with the default ``F1``, ``F2`` … so there is
+    always exactly one label per factor. Extra names beyond ``m`` are ignored."""
+    provided = [part.strip() for part in (raw or "").split(",")]
+    names = []
+    for i in range(m):
+        custom = provided[i] if i < len(provided) else ""
+        names.append(custom if custom else f"F{i + 1}")
+    return names
 
 
 def _kmo_bartlett(R: np.ndarray, n_samples: int) -> Tuple[float, np.ndarray, float, float, int]:
@@ -127,28 +153,51 @@ def recalculate_factor_analysis_study(elements, result: FactorAnalysisResult, up
 
     x = df.values
     columns = list(df.columns)
-    factor_names = [f"F{i + 1}" for i in range(m)]
+    factor_names = _resolve_factor_names(getattr(cfg, "factor_names", None), m)
     numbering = ColumnNumbering(columns, enabled=bool(cfg.number_columns))
 
+    # Inter-item correlation drives KMO/Bartlett, the eigenvalues, and (in polychoric mode) the
+    # extraction itself. Pearson uses the raw data; Polychoric feeds the in-house matrix.
+    is_polychoric = (cfg.correlation_method or "Pearson") == "Polychoric"
+    if is_polychoric:
+        correlation = _polychoric_matrix(df)
+        if not np.all(np.isfinite(correlation)):
+            return _fail(result, t("efa.error.polychoric_failed"))
+    else:
+        correlation = np.corrcoef(x, rowvar=False)
+
     # ----- Sampling adequacy (KMO + Bartlett) -----
-    correlation = np.corrcoef(x, rowvar=False)
     kmo_overall, msa, bart_chi2, bart_p, bart_df = _kmo_bartlett(correlation, n_rows)
 
+    show_verbal = bool(cfg.verbal_indicators)
+
+    def _diag_row(cells, interpretation):
+        # With verbal indicators on, tack a plain-language cell onto the KMO/Bartlett rows.
+        return Row(cells + [Cell(interpretation, center=True)]) if show_verbal else Row(cells)
+
+    bart_word = t("verbal.significant") if bart_p < 0.05 else t("verbal.not_significant")
     diag_table = HTMLTableV2(table_caption=t("efa.caption.kmo"))
-    diag_table.add_title_row_apa(Row([Cell(t("efa.row.kmo")), Cell(format_r_apa(kmo_overall), center=True)]))
+    diag_table.add_title_row_apa(
+        _diag_row([Cell(t("efa.row.kmo")), Cell(format_r_apa(kmo_overall), center=True)], _kmo_label(kmo_overall))
+    )
     for name, val in zip(columns, msa):
         diag_table.add_single_row_apa(
-            Row([Cell(t("efa.row.msa", name=numbering.label(name))), Cell(format_r_apa(val), center=True)])
+            _diag_row(
+                [Cell(t("efa.row.msa", name=numbering.label(name))), Cell(format_r_apa(val), center=True)],
+                _kmo_label(val),
+            )
         )
     diag_table.add_single_row_apa(
-        Row([Cell(t("efa.row.bartlett")), Cell(format_statistic_apa(bart_chi2), center=True)])
+        _diag_row([Cell(t("efa.row.bartlett")), Cell(format_statistic_apa(bart_chi2), center=True)], "—")
     )
-    diag_table.add_single_row_apa(Row([Cell(t("efa.row.df")), Cell(str(bart_df), center=True)]))
-    diag_table.add_single_row_apa(Row([Cell(t("common.p_value")), Cell(format_p_apa_exact(bart_p), center=True)]))
+    diag_table.add_single_row_apa(_diag_row([Cell(t("efa.row.df")), Cell(str(bart_df), center=True)], "—"))
+    diag_table.add_single_row_apa(
+        _diag_row([Cell(t("common.p_value")), Cell(format_p_apa_exact(bart_p), center=True)], bart_word)
+    )
     diag_text = t("efa.report.kmo", label=_kmo_label(kmo_overall), kmo=format_r_apa(kmo_overall))
     bartlett_key = "efa.report.bartlett_sig" if bart_p < 0.05 else "efa.report.bartlett_ns"
     diag_text += t(bartlett_key, df=bart_df, chi2=format_statistic_apa(bart_chi2), p=format_p_apa_full(bart_p))
-    if cfg.verbal_indicators:
+    if prose_enabled(cfg.interpretation):
         diag_table.add_text(diag_text)
     diag_table.table_note = numbering.append_to_note(diag_table.table_note or "")
     result.update_and_add_element(diag_table, "efa diagnostics")
@@ -182,7 +231,7 @@ def recalculate_factor_analysis_study(elements, result: FactorAnalysisResult, up
                 ]
             )
         )
-    if cfg.verbal_indicators:
+    if prose_enabled(cfg.interpretation):
         eig_table.add_text(t("efa.report.kaiser", n=n_kaiser) if n_kaiser > 0 else t("efa.report.kaiser_none"))
     result.update_and_add_element(eig_table, "efa eigenvalues")
 
@@ -222,8 +271,17 @@ def recalculate_factor_analysis_study(elements, result: FactorAnalysisResult, up
     rotation = _ROTATION_MAP.get(RotationType(cfg.rotation), None)
     method = _METHOD_MAP[ExtractionMethod(cfg.method)]
     rotation_kwargs = {"normalize": bool(cfg.kaiser_normalization)}
-    fa = FactorAnalyzer(n_factors=m, method=method, rotation=rotation, use_smc=True, rotation_kwargs=rotation_kwargs)
-    fa.fit(x)
+    # In polychoric mode the extraction runs on the pre-computed correlation matrix (n is not
+    # needed for the loadings); otherwise factor_analyzer works from the raw data.
+    fa = FactorAnalyzer(
+        n_factors=m,
+        method=method,
+        rotation=rotation,
+        use_smc=True,
+        is_corr_matrix=is_polychoric,
+        rotation_kwargs=rotation_kwargs,
+    )
+    fa.fit(correlation if is_polychoric else x)
     update(70)
     loadings = fa.loadings_
     is_oblique = rotation in _OBLIQUE_ROTATIONS and getattr(fa, "phi_", None) is not None

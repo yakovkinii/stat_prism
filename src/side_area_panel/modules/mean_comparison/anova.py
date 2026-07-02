@@ -14,6 +14,7 @@ from src.data.data import Data
 from src.side_area_panel.modules.common.column_numbering import ColumnNumbering
 from src.side_area_panel.modules.common.homogeneity import process_homogeneity_check
 from src.side_area_panel.modules.common.normality import process_normality_check
+from src.side_area_panel.modules.common.prose import ProseDetail, prose_enabled
 from src.side_area_panel.modules.common.result.html_result import Cell, HTMLTableV2, Row
 from src.side_area_panel.modules.common.utility import (
     format_p_apa,
@@ -24,7 +25,7 @@ from src.side_area_panel.modules.common.utility import (
     smart_comma_join,
 )
 from src.side_area_panel.modules.common.verbal.significance import significance_verbal
-from src.side_area_panel.modules.common.verbal.test import TestResult, describe_single_test_multiple_variables
+from src.side_area_panel.modules.common.verbal.test import TestResult, describe_grouped_test
 from src.side_area_panel.modules.mean_comparison.constant import AssumptionChecksInGrouping, MeanComparisonMethod
 from src.side_area_panel.modules.mean_comparison.group_plots import add_group_distribution_plots
 from src.side_area_panel.modules.mean_comparison.mean_comparison_result import MeanComparisonResult
@@ -135,6 +136,7 @@ def recalculate_mean_comparison_anova(
             effect_size=cfg.effect_size,
             verbal_indicators=cfg.verbal_indicators,
             numbering=numbering,
+            prose_detail=cfg.interpretation,
         )
         for i, item in enumerate(items):
             result.update_and_add_element(item, f"anova non_normal_{i}")
@@ -147,6 +149,7 @@ def recalculate_mean_comparison_anova(
             effect_size=cfg.effect_size,
             verbal_indicators=cfg.verbal_indicators,
             numbering=numbering,
+            prose_detail=cfg.interpretation,
         )
         for i, item in enumerate(items):
             result.update_and_add_element(item, f"anova non_homogeneous_{i}")
@@ -159,6 +162,7 @@ def recalculate_mean_comparison_anova(
             effect_size=cfg.effect_size,
             verbal_indicators=cfg.verbal_indicators,
             numbering=numbering,
+            prose_detail=cfg.interpretation,
         )
         for i, item in enumerate(items):
             result.update_and_add_element(item, f"anova homogeneous_{i}")
@@ -178,6 +182,7 @@ def process_non_normal_anova(
     effect_size,
     verbal_indicators=False,
     numbering=None,
+    prose_detail=ProseDetail.NONE.value,
 ):
     show_sig = 1 if verbal_indicators else 0
     numbering = numbering if numbering is not None else ColumnNumbering([], False)
@@ -241,17 +246,18 @@ def process_non_normal_anova(
             )
         )
 
-    # Prose report is optional ("Verbal indicators" checkbox); numeric results stay in the table.
-    verbal_indicators and table.add_text(
-        describe_single_test_multiple_variables(
-            test_name=t("ttest.test.kruskal"),
-            test_check=t("ttest.check.diff_groups"),
-            yes_columns=rejected_columns,
-            no_columns=accepted_columns,
-            yes_property=t("ttest.prop.sig_diff"),
-            no_property=t("ttest.prop.not_sig_diff"),
-        )
+    # Prose report is optional; its detail level is set by the "Verbal report" dropdown.
+    prose = describe_grouped_test(
+        prose_detail,
+        rejected_columns,
+        accepted_columns,
+        test_name=t("ttest.test.kruskal"),
+        test_check=t("ttest.check.diff_groups"),
+        yes_property=t("ttest.prop.sig_diff"),
+        no_property=t("ttest.prop.not_sig_diff"),
     )
+    if prose:
+        table.add_text(prose)
 
     table.table_note = numbering.append_to_note(table.table_note or "")
     if not effect_size:
@@ -278,7 +284,7 @@ def process_non_normal_anova(
                     if posthoc_results.iloc[i, j] < 0.05:
                         significant.append((i, j))
             post_hoc_table.add_single_row_apa(Row(row))
-        verbal_indicators and post_hoc_table.add_text(
+        prose_enabled(prose_detail) and post_hoc_table.add_text(
             t(
                 "ttest.posthoc_sentence",
                 name=t("ttest.posthoc.dunn"),
@@ -302,7 +308,13 @@ def process_non_normal_anova(
 
 
 def process_non_homogeneous_anova(
-    df: pd.DataFrame, columns, grouping_column, effect_size, verbal_indicators=False, numbering=None
+    df: pd.DataFrame,
+    columns,
+    grouping_column,
+    effect_size,
+    verbal_indicators=False,
+    numbering=None,
+    prose_detail=ProseDetail.NONE.value,
 ):
     show_sig = 1 if verbal_indicators else 0
     show_eff = 1 if effect_size else 0
@@ -389,17 +401,18 @@ def process_non_homogeneous_anova(
             )
         )
 
-    # Prose report is optional ("Verbal indicators" checkbox); numeric results stay in the table.
-    verbal_indicators and table.add_text(
-        describe_single_test_multiple_variables(
-            test_name=t("ttest.test.welch_anova"),
-            test_check=t("ttest.check.equality_means"),
-            yes_columns=rejected_columns,
-            no_columns=accepted_columns,
-            yes_property=t("ttest.prop.diff_means"),
-            no_property=t("ttest.prop.equal_means"),
-        )
+    # Prose report is optional; its detail level is set by the "Verbal report" dropdown.
+    prose = describe_grouped_test(
+        prose_detail,
+        rejected_columns,
+        accepted_columns,
+        test_name=t("ttest.test.welch_anova"),
+        test_check=t("ttest.check.equality_means"),
+        yes_property=t("ttest.prop.diff_means"),
+        no_property=t("ttest.prop.equal_means"),
     )
+    if prose:
+        table.add_text(prose)
 
     table.table_note = numbering.append_to_note(table.table_note or "")
     if not effect_size:
@@ -428,7 +441,7 @@ def process_non_homogeneous_anova(
                         significant.append((i, j))
             post_hoc_table.add_single_row_apa(Row(row))
 
-        verbal_indicators and post_hoc_table.add_text(
+        prose_enabled(prose_detail) and post_hoc_table.add_text(
             t(
                 "ttest.posthoc_sentence",
                 name=t("ttest.posthoc.tamhane"),
@@ -452,7 +465,13 @@ def process_non_homogeneous_anova(
 
 
 def process_homogeneous_anova(
-    df: pd.DataFrame, columns, grouping_column, effect_size, verbal_indicators=False, numbering=None
+    df: pd.DataFrame,
+    columns,
+    grouping_column,
+    effect_size,
+    verbal_indicators=False,
+    numbering=None,
+    prose_detail=ProseDetail.NONE.value,
 ):
     show_sig = 1 if verbal_indicators else 0
     show_eff = 1 if effect_size else 0
@@ -546,17 +565,18 @@ def process_homogeneous_anova(
             )
         )
 
-    # Prose report is optional ("Verbal indicators" checkbox); numeric results stay in the table.
-    verbal_indicators and table.add_text(
-        describe_single_test_multiple_variables(
-            test_name=t("ttest.test.one_way_anova"),
-            test_check=t("ttest.check.equality_means"),
-            yes_columns=rejected_columns,
-            no_columns=accepted_columns,
-            yes_property=t("ttest.prop.diff_means"),
-            no_property=t("ttest.prop.equal_means"),
-        )
+    # Prose report is optional; its detail level is set by the "Verbal report" dropdown.
+    prose = describe_grouped_test(
+        prose_detail,
+        rejected_columns,
+        accepted_columns,
+        test_name=t("ttest.test.one_way_anova"),
+        test_check=t("ttest.check.equality_means"),
+        yes_property=t("ttest.prop.diff_means"),
+        no_property=t("ttest.prop.equal_means"),
     )
+    if prose:
+        table.add_text(prose)
 
     table.table_note = numbering.append_to_note(table.table_note or "")
     if not effect_size:
@@ -584,7 +604,7 @@ def process_homogeneous_anova(
                     if posthoc_results.iloc[i, j] < 0.05:
                         significant.append((i, j))
             posthoc_table.add_single_row_apa(Row(row))
-        verbal_indicators and posthoc_table.add_text(
+        prose_enabled(prose_detail) and posthoc_table.add_text(
             t(
                 "ttest.posthoc_sentence",
                 name=t("ttest.posthoc.tukey"),

@@ -11,6 +11,7 @@ from src.data.data import Data
 from src.side_area_panel.modules.common.column_numbering import ColumnNumbering
 from src.side_area_panel.modules.common.homogeneity import process_homogeneity_check
 from src.side_area_panel.modules.common.normality import process_normality_check
+from src.side_area_panel.modules.common.prose import ProseDetail, prose_enabled
 from src.side_area_panel.modules.common.result.html_result import Cell, HTMLTableV2, Row
 from src.side_area_panel.modules.common.utility import (
     format_p_apa,
@@ -20,7 +21,7 @@ from src.side_area_panel.modules.common.utility import (
 )
 from src.side_area_panel.modules.common.verbal.effect_size import cohen_d_magnitude, correlation_magnitude
 from src.side_area_panel.modules.common.verbal.significance import significance_verbal
-from src.side_area_panel.modules.common.verbal.test import TestResult, describe_single_test_multiple_variables
+from src.side_area_panel.modules.common.verbal.test import TestResult, describe_grouped_test
 from src.side_area_panel.modules.mean_comparison.constant import AssumptionChecksInGrouping, MeanComparisonMethod
 from src.side_area_panel.modules.mean_comparison.group_plots import add_group_distribution_plots
 from src.side_area_panel.modules.mean_comparison.mean_comparison_result import MeanComparisonResult
@@ -153,6 +154,7 @@ def recalculate_mean_comparison_t_test(
                 effect_size=cfg.effect_size,
                 verbal_indicators=cfg.verbal_indicators,
                 numbering=numbering,
+                prose_detail=cfg.interpretation,
             ),
             "t_test non_normal_table",
         )
@@ -167,6 +169,7 @@ def recalculate_mean_comparison_t_test(
                 verbal_indicators=cfg.verbal_indicators,
                 confidence_intervals=cfg.confidence_intervals,
                 numbering=numbering,
+                prose_detail=cfg.interpretation,
             ),
             "t_test non_homogeneous_table",
         )
@@ -181,6 +184,7 @@ def recalculate_mean_comparison_t_test(
                 verbal_indicators=cfg.verbal_indicators,
                 confidence_intervals=cfg.confidence_intervals,
                 numbering=numbering,
+                prose_detail=cfg.interpretation,
             ),
             "t_test homogeneous_table",
         )
@@ -210,6 +214,7 @@ def process_non_normal_t_test(
     effect_size,
     verbal_indicators=False,
     numbering=None,
+    prose_detail=ProseDetail.NONE.value,
 ) -> HTMLTableV2:
     # The verbal magnitude column only makes sense alongside the numeric effect size; the
     # significance verbal follows the p-value whenever verbal indicators are on.
@@ -314,18 +319,19 @@ def process_non_normal_t_test(
             )
         )
 
-    # Prose report is optional (controlled by the "Verbal indicators" checkbox); the numeric
-    # results stay in the table above regardless.
-    verbal_indicators and table.add_text(
-        describe_single_test_multiple_variables(
-            test_name=t("ttest.test.mann_whitney"),
-            test_check=t("ttest.check.diff_groups"),
-            yes_columns=rejected_columns,
-            no_columns=accepted_columns,
-            yes_property=t("ttest.prop.sig_diff"),
-            no_property=t("ttest.prop.not_sig_diff"),
-        )
+    # Prose report is optional and its detail level is set by the "Verbal report" dropdown;
+    # the numeric results stay in the table above regardless.
+    prose = describe_grouped_test(
+        prose_detail,
+        rejected_columns,
+        accepted_columns,
+        test_name=t("ttest.test.mann_whitney"),
+        test_check=t("ttest.check.diff_groups"),
+        yes_property=t("ttest.prop.sig_diff"),
+        no_property=t("ttest.prop.not_sig_diff"),
     )
+    if prose:
+        table.add_text(prose)
     table.table_note = numbering.append_to_note(table.table_note or "")
     return table
 
@@ -338,6 +344,7 @@ def process_homogeneous_t_test(
     verbal_indicators=False,
     confidence_intervals=False,
     numbering=None,
+    prose_detail=ProseDetail.NONE.value,
 ) -> HTMLTableV2:
     show_verbal = 1 if (effect_size and verbal_indicators) else 0
     show_sig = 1 if verbal_indicators else 0
@@ -438,19 +445,20 @@ def process_homogeneous_t_test(
             )
         )
 
-    # Prose report is optional (controlled by the "Verbal indicators" checkbox); the numeric
-    # results stay in the table above regardless.
-    verbal_indicators and table.add_text(
-        describe_single_test_multiple_variables(
-            test_name=t("ttest.test.ttest_independent"),
-            test_check=t("ttest.check.equality_means"),
-            yes_columns=rejected_columns,
-            no_columns=accepted_columns,
-            yes_property=t("ttest.prop.sig_diff"),
-            no_property=t("ttest.prop.not_sig_diff"),
-        )
+    # Prose report is optional and its detail level is set by the "Verbal report" dropdown;
+    # the numeric results stay in the table above regardless.
+    prose = describe_grouped_test(
+        prose_detail,
+        rejected_columns,
+        accepted_columns,
+        test_name=t("ttest.test.ttest_independent"),
+        test_check=t("ttest.check.equality_means"),
+        yes_property=t("ttest.prop.sig_diff"),
+        no_property=t("ttest.prop.not_sig_diff"),
     )
-    if ci_items and verbal_indicators:
+    if prose:
+        table.add_text(prose)
+    if ci_items and prose_enabled(prose_detail):
         table.add_text(t("ttest.ci_sentence", items=smart_comma_join(ci_items)))
     table.table_note = numbering.append_to_note(table.table_note or "")
     return table
@@ -464,6 +472,7 @@ def process_non_homogeneous_t_test(
     verbal_indicators=False,
     confidence_intervals=False,
     numbering=None,
+    prose_detail=ProseDetail.NONE.value,
 ) -> HTMLTableV2:
     # inhomogeneous => Welch's t-test
     show_verbal = 1 if (effect_size and verbal_indicators) else 0
@@ -564,19 +573,20 @@ def process_non_homogeneous_t_test(
             )
         )
 
-    # Prose report is optional (controlled by the "Verbal indicators" checkbox); the numeric
-    # results stay in the table above regardless.
-    verbal_indicators and table.add_text(
-        describe_single_test_multiple_variables(
-            test_name=t("ttest.test.welch_ttest"),
-            test_check=t("ttest.check.equality_means"),
-            yes_columns=rejected_columns,
-            no_columns=accepted_columns,
-            yes_property=t("ttest.prop.sig_diff"),
-            no_property=t("ttest.prop.not_sig_diff"),
-        )
+    # Prose report is optional and its detail level is set by the "Verbal report" dropdown;
+    # the numeric results stay in the table above regardless.
+    prose = describe_grouped_test(
+        prose_detail,
+        rejected_columns,
+        accepted_columns,
+        test_name=t("ttest.test.welch_ttest"),
+        test_check=t("ttest.check.equality_means"),
+        yes_property=t("ttest.prop.sig_diff"),
+        no_property=t("ttest.prop.not_sig_diff"),
     )
-    if ci_items and verbal_indicators:
+    if prose:
+        table.add_text(prose)
+    if ci_items and prose_enabled(prose_detail):
         table.add_text(t("ttest.ci_sentence", items=smart_comma_join(ci_items)))
     table.table_note = numbering.append_to_note(table.table_note or "")
     return table

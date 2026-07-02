@@ -18,6 +18,7 @@ from src.side_area_panel.modules.common.mathematics.correlation.correlation impo
     calculate_partial_correlations,
     calculate_partial_cross_correlations,
 )
+from src.side_area_panel.modules.common.prose import prose_enabled
 from src.side_area_panel.modules.common.result.plot_result import Band, Heatmap, Line, PlotV2, Scatter
 from src.side_area_panel.modules.common.utility import format_r_apa, smart_comma_join
 from src.side_area_panel.modules.correlation.correlation_result import (
@@ -187,13 +188,13 @@ def recalculate_correlation_study(elements, result: CorrelationResult, update) -
         )
 
     # Verbal report (optional; prefixed with a note when these are partial correlations)
-    if cfg.show_interpretation:
+    if prose_enabled(cfg.interpretation):
         verbal = get_report(
             columns,
             correlation_matrix,
             p_matrix,
             df_matrix,
-            report_non_significant=not cfg.report_only_significant,
+            detail=cfg.interpretation,
             kind=kind,
             ci_matrix=ci_matrix,
         )
@@ -269,14 +270,14 @@ def _run_cross(result, cfg, data, rows, cols, control_columns, kind, is_partial,
         numbering=numbering,
     )
 
-    if cfg.show_interpretation:
+    if prose_enabled(cfg.interpretation):
         verbal = get_cross_report(
             rows,
             cols,
             correlation_matrix,
             p_matrix,
             df_matrix,
-            report_non_significant=not cfg.report_only_significant,
+            detail=cfg.interpretation,
             kind=kind,
             ci_matrix=ci_matrix,
         )

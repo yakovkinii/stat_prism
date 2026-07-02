@@ -14,8 +14,13 @@ class CFAStudyConfig:
     data_source = attrs.field(default=None)
     column_selector = attrs.field(default=None)
     n_factors = attrs.field(default=None)
+    estimator = attrs.field(default=None)
     allow_factor_correlation = attrs.field(default=None)
+    second_order = attrs.field(default=None)
+    modification_hints = attrs.field(default=None)
+    cross_loadings = attrs.field(default=None)  # applied cross-loadings: [[item, factor_index], ...]
     verbal_indicators = attrs.field(default=None)
+    interpretation = attrs.field(default=None)
     number_columns = attrs.field(default=None)
     plots = attrs.field(default=None)
 
@@ -29,6 +34,9 @@ class CFAResult(BaseResult):
         self.config_class = CFAStudyConfig
         self.config: CFAStudyConfig = config
         self.needs_update: bool = False
+        # Residual-based cross-loading suggestions from the last fit: [(item, factor_index, score)].
+        # The "Apply cross-loadings" element reads this to offer them for application.
+        self.suggested_cross_loadings = []
         self.update_description()
         self.set_placeholder()
 

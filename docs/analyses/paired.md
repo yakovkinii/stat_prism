@@ -25,7 +25,9 @@ Assumption checks
   automatically*, assumption checks must be on.)
 
 Other
-: **Effect size / post-hoc**, **Verbal indicators**, **Number conditions**, and **Plots**.
+: **Effect size / post-hoc**, **Verbal indicators** (in-table columns), **Verbal report**
+  (dropdown for how much written interpretation: None / Key findings / Significant only /
+  Full), **Number conditions**, and **Plots**.
 
 ## Output
 

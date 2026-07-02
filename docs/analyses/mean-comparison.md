@@ -27,7 +27,9 @@ Assumption checks
 
 Other
 : **Effect size** (Cohen's *d* for two groups; η² / partial η² for ANOVA), **Confidence
-  intervals**, handling of **missing grouping values**, **Number columns**, and **Plots**.
+  intervals**, handling of **missing grouping values**, **Verbal indicators** (in-table
+  columns), **Verbal report** (dropdown for how much written interpretation: None / Key
+  findings / Significant only / Full), **Number columns**, and **Plots**.
 
 ## Output
 

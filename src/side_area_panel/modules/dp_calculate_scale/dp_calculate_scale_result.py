@@ -13,7 +13,10 @@ _METHODOLOGY = (
     "items: <i>Skip respondent</i> (default) gives no scale value when <i>any</i> item is missing; "
     "<i>Allow up to max %</i> aggregates over the present items as long as the share "
     "of missing items is within <b>Max missing %</b> (0% = complete cases only, 100% = aggregate "
-    "over whatever is present)."
+    "over whatever is present). Columns placed in <b>Reverse-score first</b> are flipped "
+    "(reverse-keyed, using the same reference as <i>Invert Scale</i>) before being aggregated "
+    "with the rest; with <b>Replace reverse-scored columns</b> on, those columns are written "
+    "back flipped (renamed &lsquo;&hellip; (flipped)&rsquo; unless the questions are auto-renamed)."
 )
 
 
@@ -21,6 +24,8 @@ _METHODOLOGY = (
 class CalculateScaleStudyConfig:
     data_source = attrs.field(default=None)
     column_selector = attrs.field(default=None)
+    flip_reference = attrs.field(default=None)
+    replace_flipped = attrs.field(default=None)
     name = attrs.field(default=None)
     method = attrs.field(default=None)
     scale = attrs.field(default=None)
@@ -49,12 +54,15 @@ class CalculateScaleResult(BaseResult):
 
     def update_description(self):
         cfg = self.config
-        questions = cfg.column_selector[0] if cfg.column_selector else []
+        questions = (cfg.column_selector[0] if cfg.column_selector else []) or []
+        flipped = (cfg.column_selector[1] if cfg.column_selector and len(cfg.column_selector) > 1 else []) or []
         parts = [
             f"Scale: {cfg.name}" if cfg.name else "Scale: (unnamed)",
             f"Method: {cfg.method or 'Sum'}",
             f"Questions ({len(questions)}): " + (", ".join(questions) if questions else "none"),
         ]
+        if flipped:
+            parts.append(f"Reverse-scored ({len(flipped)}): " + ", ".join(flipped))
         if cfg.scale and cfg.scale != "None":
             parts.append(f"Normalization: {cfg.scale}")
         missing_mode = cfg.missing_values or "Skip respondent"

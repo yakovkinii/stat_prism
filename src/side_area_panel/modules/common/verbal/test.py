@@ -4,6 +4,7 @@
 from typing import List, Union
 
 from src.common.translations import t
+from src.side_area_panel.modules.common.prose import ProseDetail, prose_detail_from
 from src.side_area_panel.modules.common.utility import format_p_apa, format_statistic_apa, smart_comma_join
 
 
@@ -87,3 +88,25 @@ def describe_single_test_multiple_variables(
         )
 
     return text
+
+
+def describe_grouped_test(prose_detail, yes_columns, no_columns, *, test_name, test_check, yes_property, no_property):
+    """Detail-aware wrapper over ``describe_single_test_multiple_variables`` for the shared
+    "significant in which variables?" report. ``yes_columns`` are the significant results and
+    ``no_columns`` the non-significant ones. At *Full* both are described; at *Significant only*
+    / *Key findings* only the significant ones are (these tests have no separate notability
+    notion). Returns None when there is nothing to say (so the caller can skip ``add_text``)."""
+    detail = prose_detail_from(prose_detail)
+    if detail == ProseDetail.NONE:
+        return None
+    included_no = no_columns if detail == ProseDetail.FULL else []
+    if not yes_columns and not included_no:
+        return None
+    return describe_single_test_multiple_variables(
+        test_name=test_name,
+        test_check=test_check,
+        yes_columns=yes_columns,
+        no_columns=included_no,
+        yes_property=yes_property,
+        no_property=no_property,
+    )

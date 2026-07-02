@@ -32,7 +32,8 @@ A table with, per option:
 - **% of cases** — its share of respondents who chose at least one option (these sum to more
   than 100%, since a respondent can pick several).
 
-Plus a total row and an explanatory note, and the optional bar chart.
+Plus a total row, an optional explanatory note (via the **Verbal report** dropdown), and the
+optional bar chart.
 
 ## Notes
 

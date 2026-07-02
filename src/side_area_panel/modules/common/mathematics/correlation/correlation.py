@@ -123,33 +123,44 @@ def polychoric_corr_with_pvalue(x, y, min_prob=1e-12):
             cov=[[1.0, rho], [rho, 1.0]],
         )
 
-    def cell_prob(i, j, rho):
-        lx = row_thresholds[i]
-        ux = row_thresholds[i + 1]
-        ly = col_thresholds[j]
-        uy = col_thresholds[j + 1]
-
-        p = bvncdf(ux, uy, rho) - bvncdf(lx, uy, rho) - bvncdf(ux, ly, rho) + bvncdf(lx, ly, rho)
-
-        return max(float(p), min_prob)
-
     def log_likelihood(rho):
+        # Each cell probability is a difference of the bivariate-normal CDF at its four
+        # threshold-grid corners, and adjacent cells share corners. Caching Φ₂ per grid node
+        # (per rho) computes each of the (nr+1)·(nc+1) nodes once instead of ~4× — the dominant
+        # cost here is multivariate_normal.cdf, so this cuts calls roughly four-fold.
+        cache = {}
+
+        def phi2(a, b):
+            key = (a, b)
+            value = cache.get(key)
+            if value is None:
+                value = bvncdf(a, b, rho)
+                cache[key] = value
+            return value
+
         ll = 0.0
-
-        for i in range(table.shape[0]):
-            for j in range(table.shape[1]):
+        nr, nc = table.shape
+        for i in range(nr):
+            for j in range(nc):
                 count = table[i, j]
-
-                if count > 0:
-                    ll += count * np.log(cell_prob(i, j, rho))
-
+                if count <= 0:
+                    continue
+                p = (
+                    phi2(row_thresholds[i + 1], col_thresholds[j + 1])
+                    - phi2(row_thresholds[i], col_thresholds[j + 1])
+                    - phi2(row_thresholds[i + 1], col_thresholds[j])
+                    + phi2(row_thresholds[i], col_thresholds[j])
+                )
+                ll += count * np.log(max(float(p), min_prob))
         return ll
 
     result = minimize_scalar(
         lambda rho: -log_likelihood(rho),
         bounds=(-0.999, 0.999),
         method="bounded",
-        options={"xatol": 1e-6},
+        # 1e-5 on the correlation is far finer than anything reported; the looser tolerance
+        # trims optimiser iterations (each is a full likelihood pass) at no visible cost.
+        options={"xatol": 1e-5},
     )
 
     if not result.success:

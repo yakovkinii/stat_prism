@@ -6,6 +6,14 @@ Builds a new scale column by aggregating the selected item columns per row:
 - Optionally convert the result to **Stanine** (1–9).
 - The source questions can be kept, deleted, or auto-renamed.
 
+**Reverse-keyed items** — put any reverse-scored questions in the **Reverse-score first**
+field. They are flipped (using the same reference as {doc}`invert-scale` — auto-inferred as
+*max + min* over their pooled values, or a **Manual** override you can **Preview**) and then
+aggregated together with the normal questions. With **Replace reverse-scored columns with
+flipped** on (default), those source columns are written back flipped and renamed
+`… (flipped)` — unless the questions are **auto-renamed**, in which case they simply take the
+`<scale> Q1`, `<scale> Q2` … names.
+
 **Missing values** controls respondents who skipped some items:
 
 - **Skip respondent** (default) — a row missing **any** item gets no scale value.
