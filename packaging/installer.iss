@@ -10,6 +10,9 @@
 #define AppPublisher "StatPrism Team"
 #define AppURL "https://github.com/yakovkinii/stat_prism"
 #define AppExeName "StatPrism.exe"
+; Project-file extension associated with StatPrism.
+#define ProjectExt ".sp"
+#define ProjectProgId "StatPrismProjectFile"
 ; Nuitka standalone output folder (script name .dist, per --mode=standalone).
 #define DistDir "..\build\nuitka\launcher.dist"
 
@@ -30,6 +33,10 @@ OutputDir=Output
 OutputBaseFilename=StatPrism-{#AppVersion}-setup
 SetupIconFile=..\resources\StatPrism_icon_small.ico
 UninstallDisplayIcon={app}\{#AppExeName}
+; Show the licence agreement page (standard practice).
+LicenseFile=..\LICENSE
+; We add/remove a .sp file association, so let Explorer refresh its icon/handler cache.
+ChangesAssociations=yes
 Compression=lzma2
 SolidCompression=yes
 WizardStyle=modern
@@ -44,30 +51,24 @@ Name: "english"; MessagesFile: "compiler:Default.isl"
 
 [Tasks]
 Name: "desktopicon"; Description: "Create a &desktop shortcut"; GroupDescription: "Additional icons:"
+Name: "associate"; Description: "Associate {#ProjectExt} project files with {#AppName}"; GroupDescription: "File associations:"
 
 [Files]
 ; The whole Nuitka standalone folder.
 Source: "{#DistDir}\*"; DestDir: "{app}"; Flags: recursesubdirs createallsubdirs ignoreversion
-; Visual C++ runtime, downloaded by CI into packaging\. Installed only if missing (see [Code]).
-Source: "vc_redist.x64.exe"; DestDir: "{tmp}"; Flags: deleteafterinstall; Check: VCRedistNeeded
 
 [Icons]
 Name: "{group}\{#AppName}"; Filename: "{app}\{#AppExeName}"
 Name: "{autodesktop}\{#AppName}"; Filename: "{app}\{#AppExeName}"; Tasks: desktopicon
 
+[Registry]
+; .sp -> StatPrism, only when the "associate" task is ticked. HKA = per-user for a non-admin
+; install, per-machine for an admin one. The exe supplies the file icon (Icon.ico is embedded).
+Root: HKA; Subkey: "Software\Classes\{#ProjectExt}"; ValueType: string; ValueName: ""; ValueData: "{#ProjectProgId}"; Flags: uninsdeletevalue; Tasks: associate
+Root: HKA; Subkey: "Software\Classes\{#ProjectProgId}"; ValueType: string; ValueName: ""; ValueData: "StatPrism Project File"; Flags: uninsdeletekey; Tasks: associate
+Root: HKA; Subkey: "Software\Classes\{#ProjectProgId}\DefaultIcon"; ValueType: string; ValueName: ""; ValueData: "{app}\{#AppExeName},0"; Tasks: associate
+Root: HKA; Subkey: "Software\Classes\{#ProjectProgId}\shell\open\command"; ValueType: string; ValueName: ""; ValueData: """{app}\{#AppExeName}"" ""%1"""; Tasks: associate
+
 [Run]
-Filename: "{tmp}\vc_redist.x64.exe"; Parameters: "/install /quiet /norestart"; \
-  StatusMsg: "Installing the Visual C++ runtime..."; Check: VCRedistNeeded
 Filename: "{app}\{#AppExeName}"; Description: "Launch {#AppName}"; \
   Flags: nowait postinstall skipifsilent
-
-[Code]
-function VCRedistNeeded: Boolean;
-var
-  installed: Cardinal;
-begin
-  { True (needs installing) unless the x64 VC++ 2015-2022 runtime is already registered. }
-  Result := not (
-    RegQueryDWordValue(HKLM, 'SOFTWARE\Microsoft\VisualStudio\14.0\VC\Runtimes\x64', 'Installed', installed)
-    and (installed = 1));
-end;

@@ -159,6 +159,14 @@ class AboutDialog(QDialog):
                 <b>Petrova N. V.</b> {NDASH} Testing &amp; QA;<br>
                 <b>Yakovkin I. I.</b> {NDASH} Software Development &amp; PM.<br><br>
                 <a href="https://www.yakovkinii.com/stat_prism/">www.yakovkinii.com/stat_prism/</a>
+                <br><br>
+                <span style="font-size:small;">
+                StatPrism is free software: you can redistribute it and/or modify it under the
+                terms of the <a href="https://www.gnu.org/licenses/gpl-3.0.html">GNU General Public
+                License v3.0 or later</a> (see the bundled LICENSE file). It is distributed in the
+                hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied
+                warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+                </span>
             </div>
         """
         )

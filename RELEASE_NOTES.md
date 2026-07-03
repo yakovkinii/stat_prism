@@ -12,6 +12,11 @@ r{
 
 # StatPrism Release Notes
 
+### StatPrism 1.2.1 (3 Jul 2026)
+
+* Remove console from installed app run.
+
+
 ### StatPrism 1.2.0 (2 Jul 2026)
 
 **Data Processing**
