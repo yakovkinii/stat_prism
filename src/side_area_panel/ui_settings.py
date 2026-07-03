@@ -2,6 +2,7 @@
 
 
 import logging
+import sys
 from typing import TYPE_CHECKING
 
 from PySide6 import QtWidgets
@@ -146,6 +147,13 @@ class SettingsPanelClass:
         self.auto_recalculate_action.setChecked(bool(self.root_class.main_area_panel.auto_recalculate))
         self.auto_recalculate_action.toggled.connect(self.set_auto_recalculate)
 
+        # Associate .sp project files with this executable (per-user, Windows only). The installer
+        # offers the same thing; this lets a user (re)associate without reinstalling.
+        self.associate_action = None
+        if sys.platform == "win32":
+            self.associate_action = QAction("Associate .sp files with StatPrism", self.widget)
+            self.associate_action.triggered.connect(self.associate_file_types)
+
         settings_menu.addMenu(language_menu)
         settings_menu.addSeparator()
         settings_menu.addMenu(plot_theme_menu)
@@ -153,6 +161,9 @@ class SettingsPanelClass:
         settings_menu.addMenu(ui_theme_menu)
         settings_menu.addSeparator()
         settings_menu.addAction(self.auto_recalculate_action)
+        if self.associate_action is not None:
+            settings_menu.addSeparator()
+            settings_menu.addAction(self.associate_action)
 
         # ----- Help menu -----
         self.about_action = QAction("About", self.widget)
@@ -221,6 +232,37 @@ class SettingsPanelClass:
     def set_auto_recalculate(self, enabled: bool):
         self.root_class.main_area_panel.auto_recalculate = enabled
         write_ui_value("auto_recalculate", "true" if enabled else "false")
+
+    def associate_file_types(self):
+        """Register .sp with this executable for the current user (HKCU, no admin needed). Mirrors
+        what the installer's optional association task does; handy after a portable/manual run."""
+        import winreg
+
+        exe = sys.executable
+        classes = r"Software\Classes"
+        prog_id = "StatPrismProjectFile"
+        try:
+            entries = {
+                rf"{classes}\.sp": prog_id,
+                rf"{classes}\{prog_id}": "StatPrism Project File",
+                rf"{classes}\{prog_id}\DefaultIcon": f"{exe},0",
+                rf"{classes}\{prog_id}\shell\open\command": f'"{exe}" "%1"',
+            }
+            for subkey, value in entries.items():
+                with winreg.CreateKey(winreg.HKEY_CURRENT_USER, subkey) as key:
+                    winreg.SetValueEx(key, "", 0, winreg.REG_SZ, value)
+            try:  # ask Explorer to refresh cached associations/icons
+                import ctypes
+
+                ctypes.windll.shell32.SHChangeNotify(0x08000000, 0x0000, None, None)  # SHCNE_ASSOCCHANGED
+            except Exception:
+                pass
+            QtWidgets.QMessageBox.information(
+                self.widget, "StatPrism", "Associated .sp files with StatPrism for your user account."
+            )
+        except Exception as error:
+            logging.warning("Associate .sp failed: %s", error)
+            QtWidgets.QMessageBox.warning(self.widget, "StatPrism", f"Could not associate .sp files:\n{error}")
 
     def set_theme(self, theme: Themes):
         THEME.set_theme(theme)

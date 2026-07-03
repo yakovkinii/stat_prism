@@ -46,11 +46,6 @@ jobs:
         # The build options live as `# nuitka-project:` directives in launcher.py.
         run: python -m nuitka --assume-yes-for-downloads launcher.py
 
-      - name: Download Visual C++ redistributable (bundled as a safety net)
-        shell: pwsh
-        run: |
-          Invoke-WebRequest -Uri "https://aka.ms/vs/17/release/vc_redist.x64.exe" -OutFile "packaging/vc_redist.x64.exe"
-
       - name: Install Inno Setup
         run: choco install innosetup --no-progress -y
 

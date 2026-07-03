@@ -30,9 +30,9 @@
 # nuitka-project: --include-package=sympy
 # nuitka-project: --include-package-data=sympy
 # nuitka-project-if: {OS} == "Windows":
-#    nuitka-project: --windows-console-mode=force
+#    nuitka-project: --windows-console-mode=disable
 #    nuitka-project: --output-filename=StatPrism.exe
-#    nuitka-project: --windows-icon-from-ico={MAIN_DIRECTORY}/resources/StatPrism_icon_small.ico
+#    nuitka-project: --windows-icon-from-ico={MAIN_DIRECTORY}/resources/Icon.ico
 #    nuitka-project: --product-name=StatPrism
 #    nuitka-project: --file-description=StatPrism
 #    nuitka-project: --file-version={APP_VERSION}
@@ -42,6 +42,49 @@
 from PySide6.QtWebEngineWidgets import QWebEngineView
 
 _ = QWebEngineView
+
+
+def _setup_logging(level=None):
+    """Send logs to a single file that is overwritten on each launch (the packaged app runs with
+    no console, so a file is the only place logs can go). The file sits next to the executable
+    when packaged, falling back to %LOCALAPPDATA%\\StatPrism if that directory is read-only (e.g.
+    an install under Program Files). A coloured console handler is added only when a real stderr
+    exists (source runs / console builds)."""
+    import logging
+    import os
+    import sys
+    from pathlib import Path
+
+    if level is None:
+        level = logging.INFO
+
+    base = Path(sys.executable).resolve().parent if "__compiled__" in globals() else Path.cwd()
+    formatter = logging.Formatter("%(asctime)s %(levelname).4s %(name)s: %(message)s", "%H:%M:%S")
+    root = logging.getLogger()
+    root.setLevel(level)
+
+    local_appdata = os.environ.get("LOCALAPPDATA", str(base))
+    for path in (base / "statprism.log", Path(local_appdata) / "StatPrism" / "statprism.log"):
+        try:
+            path.parent.mkdir(parents=True, exist_ok=True)
+            file_handler = logging.FileHandler(path, mode="w", encoding="utf-8")  # truncate each launch
+            file_handler.setFormatter(formatter)
+            root.addHandler(file_handler)
+            break
+        except Exception:
+            continue
+
+    # Pretty console logging only where there is a console to print to.
+    if sys.stderr is not None:
+        try:
+            from yatools import logging_config
+
+            logging_config.init(level)
+        except Exception:
+            stream_handler = logging.StreamHandler()
+            stream_handler.setFormatter(formatter)
+            root.addHandler(stream_handler)
+
 
 if __name__ == "__main__":
     import time
@@ -128,9 +171,7 @@ if __name__ == "__main__":
     app.setPalette(pal)
     import logging
 
-    from yatools import logging_config
-
-    logging_config.init(logging.INFO)
+    _setup_logging(logging.INFO)
 
     # Back up the reference to the exceptionhook
     sys._excepthook = sys.excepthook
