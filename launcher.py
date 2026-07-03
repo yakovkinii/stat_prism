@@ -29,6 +29,14 @@
 # nuitka-project: --include-package-data=semopy
 # nuitka-project: --include-package=sympy
 # nuitka-project: --include-package-data=sympy
+# Exclude every package's test/benchmark subpackages. sympy's in particular ship huge
+# auto-generated modules (sympy.polys.tests.test_rootoftools, sympy.polys.benchmarks.bench_solvers)
+# whose .c files exhaust the MSVC compiler heap (fatal error C1060/C1002). None are needed at
+# runtime, and skipping them also shrinks the build. --nofollow-import-to overrides the
+# --include-package above for the matched modules.
+# nuitka-project: --nofollow-import-to=*.tests
+# nuitka-project: --nofollow-import-to=*.benchmarks
+# nuitka-project: --nofollow-import-to=sympy.testing
 # nuitka-project-if: {OS} == "Windows":
 #    nuitka-project: --windows-console-mode=disable
 #    nuitka-project: --output-filename=StatPrism.exe

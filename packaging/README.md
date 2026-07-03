@@ -65,5 +65,10 @@ venv_39\Scripts\python.exe -m nuitka launcher.py
   show the results view, that is the first place to look.
 - **Build time.** A cold Nuitka standalone build of a Qt app is slow (~15-40 min on the runner).
   Consider adding Nuitka's caching (`Nuitka/Nuitka-Action`, or cache `~/.cache/Nuitka`) later.
+- **`compiler is out of heap space` (C1060/C1002).** Caused by Nuitka compiling a dependency's
+  giant auto-generated test/benchmark modules (sympy's `tests`/`benchmarks` are the usual
+  culprit). Fixed via `--nofollow-import-to=*.tests / *.benchmarks / sympy.testing` in
+  `launcher.py`. If a new dependency reintroduces it, exclude that package's test module the same
+  way.
 - **Signing.** The installer and exe are unsigned, so SmartScreen will warn users. Add an
   Authenticode signing step (certificate in a secret) when you have a cert.

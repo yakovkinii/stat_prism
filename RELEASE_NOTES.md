@@ -12,6 +12,11 @@ r{
 
 # StatPrism Release Notes
 
+### StatPrism 1.2.2 (3 Jul 2026)
+
+* Remove sympy tests from build.
+
+
 ### StatPrism 1.2.1 (3 Jul 2026)
 
 * Remove console from installed app run.
