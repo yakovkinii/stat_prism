@@ -9,6 +9,14 @@ students who want correct statistics and clean, APA-style output **without writi
 :width: 100%
 ```
 
+:::{admonition} Project links
+:class: seealso
+
+- **Website:** <https://www.yakovkinii.com/stat_prism/>
+- **Source code (GitHub):** <https://github.com/yakovkinii/stat_prism>
+- **Downloads & releases:** <https://github.com/yakovkinii/stat_prism/releases>
+:::
+
 A typical session follows one straight path:
 
 1. **Import** a response export (for example, a Google Forms spreadsheet).

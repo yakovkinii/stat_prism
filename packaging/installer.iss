@@ -31,7 +31,7 @@ DefaultGroupName={#AppName}
 DisableProgramGroupPage=yes
 OutputDir=Output
 OutputBaseFilename=StatPrism-{#AppVersion}-setup
-SetupIconFile=..\resources\StatPrism_icon_small.ico
+SetupIconFile=..\resources\icon.ico
 UninstallDisplayIcon={app}\{#AppExeName}
 ; Show the licence agreement page (standard practice).
 LicenseFile=..\LICENSE
