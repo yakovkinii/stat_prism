@@ -1,4 +1,19 @@
-#  Copyright (c) 2023 StatPrism Team. All rights reserved.
+#  Copyright (C) 2023-2026  StatPrism Team
+#  Balashevych A. K., Petrova N. V., Yakovkin I. I.
+#
+#  This file is part of StatPrism.
+#
+#  StatPrism is free software: you can redistribute it and/or modify it under
+#  the terms of the GNU General Public License as published by the Free Software
+#  Foundation, either version 3 of the License, or (at your option) any later
+#  version.
+#
+#  StatPrism is distributed in the hope that it will be useful, but WITHOUT ANY
+#  WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
+#  A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
+#
+#  You should have received a copy of the GNU General Public License along with
+#  StatPrism.  If not, see <https://www.gnu.org/licenses/>.
 import json
 import logging
 import os
@@ -15,7 +30,6 @@ from src.common.messages import MessageType
 from src.common.theme import THEME, Themes
 from src.data.data_manager import DATA_MANAGER
 from src.pyside_ext.elements.button_large import LargeButton
-from src.pyside_ext.elements.spacer import Spacer
 from src.side_area_panel.blueprint.registry import PanelRegistry
 from src.side_area_panel.modules.common.result.registry import RESULTS, get_unique_result_id
 from src.side_area_panel.modules.registry import ModuleRegistry, ModuleType
@@ -35,11 +49,6 @@ class HomeInitial(BasePanel):
             "about": LargeButton(
                 label_text="About",
                 icon_path="ri.questionnaire-line",
-            ),
-            "spacer": Spacer(),
-            "open_sample": LargeButton(
-                label_text="Open Sample Data",
-                icon_path="msc.folder-opened",
             ),
         }
 
@@ -172,22 +181,6 @@ class HomeInitial(BasePanel):
         if message.message_type == MessageType.CLICKED:
             if message.caller_id == "open":
                 return self.open_handler()
-            elif message.caller_id == "open_sample":
-                self.root_class.main_area_panel.clear_all()
-                module = ModuleRegistry.RAW_DATA.value
-
-                result_id = get_unique_result_id()
-                RESULTS[result_id] = module.result_class(
-                    unique_id=result_id,
-                    settings_panel_index=module.settings_stacked_widget_index,
-                    config=module.config_class(),
-                )
-                self.root_class.main_area_panel.add_raw_data(result_id=result_id)
-                module.ui_instance.configure(result_id=result_id)
-                ModuleRegistry.RAW_DATA.ui_instance.open_file("./data.csv")
-                self.root_class.clear_dirty()
-                self.root_class.action_activate_panel_by_index(PanelRegistry.HOME.settings_stacked_widget_index)
-                return
             elif message.caller_id == "about":
                 PanelRegistry.HOME.ui_instance.about_handler()
                 return

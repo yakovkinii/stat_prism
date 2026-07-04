@@ -1,4 +1,4 @@
-<img src="./resources/StatPrism_banner.png" alt="isolated"/>
+<img src="./resources/banner.png" alt="StatPrism"/>
 
 StatPrism is a statistical software targeting the scientists and students
 of Psychological and Sociological sciences.
@@ -34,7 +34,7 @@ project management). Project page: https://www.yakovkinii.com/stat_prism/
 If you use StatPrism in your research, please cite it (see [CITATION.cff](CITATION.cff) —
 GitHub's "Cite this repository" button generates APA/BibTeX from it):
 
-> Balashevych, A. K., Petrova, N. V., & Yakovkin, I. I. (2025). *StatPrism* (Version 1.2.2)
+> Balashevych, A. K., Petrova, N. V., & Yakovkin, I. I. (2025). *StatPrism* (Version 1.2.3)
 > [Computer software]. https://github.com/yakovkinii/stat_prism
 
 ## Installing the developer edition
@@ -43,6 +43,6 @@ GitHub's "Cite this repository" button generates APA/BibTeX from it):
 2. Install Git from https://git-scm.com/downloads
 3. Clone the repository:
  `git clone https://github.com/yakovkinii/stat_prism.git`
-4. Create environment by running _CREATE_ENV.bat_.
-5. Update the environment by running _UPDATE.bat_.
-6. Run the software by running _RUN.bat_.
+4. Create the virtual environment: `py -3.9 -m venv venv_39`
+5. Install dependencies: `venv_39\Scripts\python.exe -m pip install -r requirements.txt`
+6. Run the software by running `_RUN.bat` (or `venv_39\Scripts\python.exe launcher.py`).

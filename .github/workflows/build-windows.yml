@@ -4,8 +4,8 @@ name: Build Windows installer
 #   * push a tag  v1.2.3   -> builds and attaches the installer to a GitHub Release
 #   * "Run workflow"       -> builds and uploads the installer as a workflow artifact
 #
-# ONE-TIME CONFIGURATION (see packaging/README.md):
-#   Set a permanent AppId GUID in packaging/installer.iss (keep it constant across releases).
+# ONE-TIME CONFIGURATION: set a permanent AppId GUID in packaging/installer.iss and keep it
+# constant across releases (Windows uses it to recognise upgrades).
 
 on:
   workflow_dispatch:

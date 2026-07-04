@@ -12,6 +12,14 @@ r{
 
 # StatPrism Release Notes
 
+### StatPrism 1.2.3 (5 Jul 2026)
+
+* Reformat license file
+* Clean up and update resources
+* Remove dev tools
+* Update copyright notice
+
+
 ### StatPrism 1.2.2 (3 Jul 2026)
 
 * Remove sympy tests from build.

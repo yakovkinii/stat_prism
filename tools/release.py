@@ -1,4 +1,19 @@
-#  Copyright (c) 2023 StatPrism Team. All rights reserved.
+#  Copyright (C) 2023-2026  StatPrism Team
+#  Balashevych A. K., Petrova N. V., Yakovkin I. I.
+#
+#  This file is part of StatPrism.
+#
+#  StatPrism is free software: you can redistribute it and/or modify it under
+#  the terms of the GNU General Public License as published by the Free Software
+#  Foundation, either version 3 of the License, or (at your option) any later
+#  version.
+#
+#  StatPrism is distributed in the hope that it will be useful, but WITHOUT ANY
+#  WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
+#  A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
+#
+#  You should have received a copy of the GNU General Public License along with
+#  StatPrism.  If not, see <https://www.gnu.org/licenses/>.
 """StatPrism release helper.
 
 `src/about.py` is the single source of truth for the version. The docs read it
@@ -9,7 +24,7 @@ bumps about.py and syncs those, so a release needs no manual version edits.
 Every release also runs the formatters/linter (black, isort, flake8) so the released
 commit is clean. black + isort are configured in pyproject.toml; flake8 in .flake8.
 
-Usage (run with the app interpreter, e.g. via _RELEASE.bat):
+Usage (run with the app interpreter in venv_39):
 
     python tools/release.py patch   # 1.0.2 -> 1.0.3
     python tools/release.py minor   # 1.0.2 -> 1.1.0
@@ -21,7 +36,7 @@ Usage (run with the app interpreter, e.g. via _RELEASE.bat):
 Optional pre-release steps (off by default; each runs in the matching venv):
 
     --test    run the test suite (venv_39 python -m pytest -q)
-    --docs    build the user guide (venv_docs, like _BUILD_DOCS.bat)
+    --docs    build the user guide (venv_docs: python -m sphinx -b html docs docs/_build/html)
     --build   build the standalone exe (venv_39 python -m nuitka launcher.py)
 
 After it succeeds it prints the remaining manual git / GitHub-release steps.
@@ -134,7 +149,7 @@ def add_release_note_stub(new: str, dry_run: bool) -> None:
 def venv_python(venv: str) -> Path:
     exe = ROOT / venv / "Scripts" / "python.exe"
     if not exe.exists():
-        sys.exit(f"{exe} not found. Create the environment first (e.g. _CREATE_ENV.bat).")
+        sys.exit(f"{exe} not found. Create the environment first (py -3.9 -m venv {venv}).")
     return exe
 
 

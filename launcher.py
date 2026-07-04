@@ -1,4 +1,19 @@
-#  Copyright (c) 2023 StatPrism Team. All rights reserved.
+#  Copyright (C) 2023-2026  StatPrism Team
+#  Balashevych A. K., Petrova N. V., Yakovkin I. I.
+#
+#  This file is part of StatPrism.
+#
+#  StatPrism is free software: you can redistribute it and/or modify it under
+#  the terms of the GNU General Public License as published by the Free Software
+#  Foundation, either version 3 of the License, or (at your option) any later
+#  version.
+#
+#  StatPrism is distributed in the hope that it will be useful, but WITHOUT ANY
+#  WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
+#  A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
+#
+#  You should have received a copy of the GNU General Public License along with
+#  StatPrism.  If not, see <https://www.gnu.org/licenses/>.
 
 # Nuitka build configuration. Build with:
 #   python -m nuitka launcher.py
@@ -40,7 +55,7 @@
 # nuitka-project-if: {OS} == "Windows":
 #    nuitka-project: --windows-console-mode=disable
 #    nuitka-project: --output-filename=StatPrism.exe
-#    nuitka-project: --windows-icon-from-ico={MAIN_DIRECTORY}/resources/Icon.ico
+#    nuitka-project: --windows-icon-from-ico={MAIN_DIRECTORY}/resources/icon.ico
 #    nuitka-project: --product-name=StatPrism
 #    nuitka-project: --file-description=StatPrism
 #    nuitka-project: --file-version={APP_VERSION}
@@ -119,7 +134,7 @@ if __name__ == "__main__":
         os.environ.setdefault("QT_QPA_PLATFORM", f"windows:darkmode={'2' if IS_DARK_THEME else '0'}")
 
     app = QApplication(sys.argv)
-    pixmap = QPixmap(":/mat/resources/banner29.png")
+    pixmap = QPixmap(":/mat/resources/splash.png")
     splash = QSplashScreen(pixmap)
     splash.show()
 
