@@ -28,7 +28,8 @@ from PySide6.QtWidgets import QMenu, QMenuBar, QProgressBar, QVBoxLayout
 from src.common.constant import SettingsPanelSize
 from src.common.languages import LANGUAGE, Languages
 from src.common.theme import THEME, Themes
-from src.common.ui_theme import IS_DARK_THEME, write_ui_value
+from src.common.config import write_ui_value
+from src.common.ui_theme import IS_DARK_THEME
 from src.pyside_ext.elements.utility.layout_helpers import widget_in_layout
 from src.pyside_ext.markup import css
 from src.pyside_ext.styling import Style

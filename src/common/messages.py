@@ -15,6 +15,7 @@
 #  You should have received a copy of the GNU General Public License along with
 #  StatPrism.  If not, see <https://www.gnu.org/licenses/>.
 
+# VALIDATED
 
 from enum import Enum
 
@@ -32,5 +33,5 @@ class MessageType(Enum):
 @attrs.define
 class Message:
     message_type: MessageType
-    payload: any = None
-    caller_id: any = None
+    payload = None
+    caller_id = None

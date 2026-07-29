@@ -14,16 +14,8 @@
 #
 #  You should have received a copy of the GNU General Public License along with
 #  StatPrism.  If not, see <https://www.gnu.org/licenses/>.
-"""Central string table for user-facing, translatable text.
 
-Usage:
-    from src.common.translations import t
-    t("contingency.table_caption", col1=a, col2=b)
-
-Each entry maps a key to per-language templates. Templates use ``str.format``
-placeholders. Missing languages fall back to English. New translatable strings
-should be added here rather than branched inline on ``LANGUAGE.is_ua()``.
-"""
+# VALIDATED
 
 from src.common.constant import NDASH
 from src.common.languages import LANGUAGE
@@ -184,7 +176,7 @@ TRANSLATIONS = {
         "ua": "Точний тест Фішера: відношення шансів = {odds}, {p}.",
     },
     "contingency.pct_caption": {
-        "en": "Percentages ({col1} × {col2})",
+        "en": "Percentages ({col1} &times; {col2})",
         "ua": "Відсотки ({col1} × {col2})",
     },
     "contingency.pct_note_row": {
@@ -200,7 +192,7 @@ TRANSLATIONS = {
         "ua": "Відсотки від загальної суми: кожна клітинка як відсоток від загальної суми.",
     },
     "contingency.residuals.caption": {
-        "en": "Post-hoc: adjusted standardized residuals ({col1} × {col2})",
+        "en": "Post-hoc: adjusted standardized residuals ({col1} &times; {col2})",
         "ua": "Пост-хок: скориговані стандартизовані залишки ({col1} × {col2})",
     },
     "contingency.residuals.note": {
@@ -723,15 +715,15 @@ TRANSLATIONS = {
     },
     # ----- Reliability -----
     "reliability.caption.cronbach": {
-        "en": "Cronbach's α",
+        "en": "Cronbach's &alpha;",
         "ua": "α Кронбаха",
     },
     "reliability.caption.coefficients": {"en": "Reliability", "ua": "Надійність"},
     "reliability.col.coefficient": {"en": "Coefficient", "ua": "Коефіцієнт"},
     "reliability.col.value": {"en": "Value", "ua": "Значення"},
-    "reliability.row.omega": {"en": "McDonald's ω", "ua": "ω Макдональда"},
+    "reliability.row.omega": {"en": "McDonald's &omega;", "ua": "ω Макдональда"},
     "reliability.report.omega": {
-        "en": "McDonald's ω = {omega} ({level}). ",
+        "en": "McDonald's &omega; = {omega} ({level}). ",
         "ua": "ω Макдональда = {omega} ({level}). ",
     },
     "reliability.msg.binary_required": {
@@ -776,15 +768,15 @@ TRANSLATIONS = {
     "reliability.interpret.poor": {"en": "poor", "ua": "низьку"},
     "reliability.interpret.unacceptable": {"en": "unacceptable", "ua": "неприйнятну"},
     "reliability.report.main": {
-        "en": "{scale} ({n} items) shows {level} internal consistency, Cronbach's α = {alpha}. ",
+        "en": "{scale} ({n} items) shows {level} internal consistency, Cronbach's &alpha; = {alpha}. ",
         "ua": "{scale} ({n} пунктів) має {level} внутрішню узгодженість, альфа Кронбаха = {alpha}. ",
     },
     "reliability.report.item_improve": {
-        "en": "Removing {items} would increase α. ",
+        "en": "Removing {items} would increase &alpha;. ",
         "ua": "Вилучення {items} підвищило б α. ",
     },
     "reliability.report.item_none": {
-        "en": "Removing any single item would not increase α. ",
+        "en": "Removing any single item would not increase &alpha;. ",
         "ua": "Вилучення будь-якого окремого пункту не підвищило б α. ",
     },
     # ----- Regression -----
@@ -832,13 +824,13 @@ TRANSLATIONS = {
     "regression.col.f": {"en": "F", "ua": "F"},
     "regression.col.b": {"en": "B", "ua": "B"},
     "regression.col.se": {"en": "SE", "ua": "SE"},
-    "regression.col.beta": {"en": "β", "ua": "β"},
+    "regression.col.beta": {"en": "&beta;", "ua": "β"},
     "regression.col.ci": {"en": "95% CI", "ua": "95% ДІ"},
     "regression.col.t": {"en": "t", "ua": "t"},
     "regression.report.fit": {
         "en": (
             "The model explains {pct}% of the variance in {dv} "
-            "(R² = {r2}, adjusted R² = {adj}); F({df1}, {df2}) = {f}, {p}. "
+            "(R&sup2; = {r2}, adjusted R&sup2; = {adj}); F({df1}, {df2}) = {f}, {p}. "
         ),
         "ua": (
             "Модель пояснює {pct}% дисперсії «{dv}» "
@@ -948,7 +940,7 @@ TRANSLATIONS = {
     },
     "regression.report.durbin_watson": {
         "en": (
-            "Durbin-Watson = {dw} (≈ 2 suggests independent residuals; "
+            "Durbin-Watson = {dw} (&asymp; 2 suggests independent residuals; "
             "much below 2 indicates positive autocorrelation, above 2 negative)."
         ),
         "ua": (
@@ -966,7 +958,7 @@ TRANSLATIONS = {
         "ua": "Усі VIF нижче 5, що вказує на низьку мультиколінеарність. ",
     },
     "regression.report.vif_high": {
-        "en": "High multicollinearity (VIF ≥ 10): {items}. ",
+        "en": "High multicollinearity (VIF &ge; 10): {items}. ",
         "ua": "Висока мультиколінеарність (VIF ≥ 10): {items}. ",
     },
     "regression.diag.resid_fitted": {"en": "Residuals vs fitted", "ua": "Залишки від прогнозу"},
@@ -997,8 +989,8 @@ TRANSLATIONS = {
     },
     "regression.report.multinom_fit": {
         "en": (
-            "A multinomial logistic regression modelled {dv} (reference category: {base}). The "
-            "model is a {pseudo} (McFadden pseudo R²) improvement over the null, χ²({df}) = "
+            "A multinomial logistic regression modeled {dv} (reference category: {base}). The "
+            "model is a {pseudo} (McFadden pseudo R&sup2;) improvement over the null, &chi;&sup2;({df}) = "
             "{chi2}, p {p}, and is "
         ),
         "ua": (
@@ -1032,8 +1024,8 @@ TRANSLATIONS = {
     "regression.dir.decrease": {"en": "decreases the odds", "ua": "знижує шанси"},
     "regression.report.logit_fit": {
         "en": (
-            "A logistic regression modelled the odds of {dv} = {positive}. The model is a "
-            "{pseudo} (McFadden pseudo R²) improvement over the null, χ²({df}) = {chi2}, "
+            "A logistic regression modeled the odds of {dv} = {positive}. The model is a "
+            "{pseudo} (McFadden pseudo R&sup2;) improvement over the null, &chi;&sup2;({df}) = {chi2}, "
             "p {p}, and is "
         ),
         "ua": (
@@ -1104,7 +1096,7 @@ TRANSLATIONS = {
     "efa.caption.kmo": {"en": "KMO and Bartlett's test", "ua": "Тест KMO і Бартлетта"},
     "efa.caption.eigen": {"en": "Eigenvalues (correlation matrix)", "ua": "Власні значення (кореляційна матриця)"},
     "efa.caption.loadings": {"en": "Factor loadings ({rotation})", "ua": "Факторні навантаження ({rotation})"},
-    "efa.caption.phi": {"en": "Factor correlation matrix (Φ)", "ua": "Матриця кореляцій факторів (Φ)"},
+    "efa.caption.phi": {"en": "Factor correlation matrix (&Phi;)", "ua": "Матриця кореляцій факторів (Φ)"},
     "efa.caption.structure": {"en": "Structure matrix", "ua": "Структурна матриця"},
     "efa.col.component": {"en": "Component", "ua": "Компонента"},
     "efa.col.eigenvalue": {"en": "Eigenvalue", "ua": "Власне значення"},
@@ -1115,7 +1107,7 @@ TRANSLATIONS = {
     "efa.col.uniqueness": {"en": "Uniqueness", "ua": "Унікальність"},
     "efa.row.kmo": {"en": "KMO (overall)", "ua": "KMO (загальний)"},
     "efa.row.msa": {"en": "MSA: {name}", "ua": "MSA: {name}"},
-    "efa.row.bartlett": {"en": "Bartlett's χ²", "ua": "χ² Бартлетта"},
+    "efa.row.bartlett": {"en": "Bartlett's &chi;&sup2;", "ua": "χ² Бартлетта"},
     "efa.row.df": {"en": "df", "ua": "df"},
     "efa.kmo.marvelous": {"en": "marvelous", "ua": "чудовий"},
     "efa.kmo.meritorious": {"en": "good", "ua": "добрий"},
@@ -1128,13 +1120,13 @@ TRANSLATIONS = {
         "ua": "Адекватність вибірки {label} (KMO = {kmo}). ",
     },
     "efa.report.bartlett_sig": {
-        "en": "Bartlett's test of sphericity is significant (χ²({df}) = {chi2}, {p}), "
+        "en": "Bartlett's test of sphericity is significant (&chi;&sup2;({df}) = {chi2}, {p}), "
         "so the variables are sufficiently correlated for factoring. ",
         "ua": "Тест сферичності Бартлетта значущий (χ²({df}) = {chi2}, {p}), "
         "тож змінні достатньо корельовані для факторизації. ",
     },
     "efa.report.bartlett_ns": {
-        "en": "Bartlett's test of sphericity is not significant (χ²({df}) = {chi2}, {p}); "
+        "en": "Bartlett's test of sphericity is not significant (&chi;&sup2;({df}) = {chi2}, {p}); "
         "the variables may be too weakly correlated for factoring. ",
         "ua": "Тест сферичності Бартлетта незначущий (χ²({df}) = {chi2}, {p}); "
         "змінні можуть бути надто слабко корельовані для факторизації. ",
@@ -1163,7 +1155,7 @@ TRANSLATIONS = {
             "Confirmatory factor analysis (CFA) tests a factor structure you specify &mdash; you "
             "assign the observed variables to each latent factor. The model is fitted by maximum "
             "likelihood and reports model-fit indices (&chi;&sup2;, RMSEA, CFI, TLI, SRMR), the "
-            "standardised factor loadings, and (for an oblique model) the factor correlations. "
+            "standardized factor loadings, and (for an oblique model) the factor correlations. "
             "Use the loadings to judge how well each variable measures its assigned factor."
         ),
         "ua": (
@@ -1185,7 +1177,7 @@ TRANSLATIONS = {
     },
     "cfa.caption.fit": {"en": "Model fit indices", "ua": "Індекси відповідності моделі"},
     "cfa.caption.loadings": {"en": "Factor loadings (standardized)", "ua": "Факторні навантаження (стандартизовані)"},
-    "cfa.caption.phi": {"en": "Factor correlation matrix (Φ)", "ua": "Матриця кореляцій факторів (Φ)"},
+    "cfa.caption.phi": {"en": "Factor correlation matrix (&Phi;)", "ua": "Матриця кореляцій факторів (Φ)"},
     "cfa.caption.mod_hints": {
         "en": "Modification hints (possible cross-loadings)",
         "ua": "Підказки щодо модифікації (можливі крос-навантаження)",
@@ -1224,13 +1216,13 @@ TRANSLATIONS = {
     "cfa.fit.good": {"en": "good", "ua": "добра"},
     "cfa.fit.excellent": {"en": "excellent", "ua": "відмінна"},
     "cfa.report.chi2_good": {
-        "en": "The exact-fit χ² test is non-significant (χ²({df}) = {chi2}, {p}), consistent with good fit. ",
+        "en": "The exact-fit &chi;&sup2; test is non-significant (&chi;&sup2;({df}) = {chi2}, {p}), consistent with good fit. ",
         "ua": "Тест точної відповідності χ² незначущий (χ²({df}) = {chi2}, {p}), "
         "що узгоджується з доброю відповідністю. ",
     },
     "cfa.report.chi2_poor": {
-        "en": "The exact-fit χ² test is significant (χ²({df}) = {chi2}, {p}), "
-        "indicating some misfit &mdash; though χ² is sensitive to sample size. ",
+        "en": "The exact-fit &chi;&sup2; test is significant (&chi;&sup2;({df}) = {chi2}, {p}), "
+        "indicating some misfit &mdash; though &chi;&sup2; is sensitive to sample size. ",
         "ua": "Тест точної відповідності χ² значущий (χ²({df}) = {chi2}, {p}), "
         "що вказує на певну невідповідність &mdash; хоча χ² чутливий до обсягу вибірки. ",
     },
@@ -1289,7 +1281,7 @@ TRANSLATIONS = {
         "en": (
             "Cluster analysis groups observations so that those within a cluster are more "
             "similar to each other than to those in other clusters. K-means partitions the data "
-            "into a chosen number of clusters by minimising the within-cluster sum of squares. "
+            "into a chosen number of clusters by minimizing the within-cluster sum of squares. "
             "The module reports the cluster sizes, the cluster centroids (in the original units), "
             "a silhouette quality score, and a 2-D scatter of the clusters."
         ),
@@ -1323,7 +1315,7 @@ TRANSLATIONS = {
         "ua": "Середній силует дорівнює {sil} ({label}). ",
     },
     "cluster.report.standardized": {
-        "en": "Variables were standardised (z-scored) before clustering. ",
+        "en": "Variables were standardized (z-scored) before clustering. ",
         "ua": "Перед кластеризацією змінні стандартизовано (z-оцінки). ",
     },
     "cluster.report.unstandardized": {
@@ -1359,7 +1351,7 @@ TRANSLATIONS = {
         "ua": "коефіцієнт рангової кореляції Кендалла",
     },
     "correlation.name.kendall_c": {
-        "en": "Kendall τ<sub>c</sub> rank correlation coefficient",
+        "en": "Kendall &tau;<sub>c</sub> rank correlation coefficient",
         "ua": "коефіцієнт рангової кореляції Кендалла τ<sub>c</sub>",
     },
     "correlation.name.phi": {
@@ -1469,18 +1461,18 @@ TRANSLATIONS = {
     },
     "correlation.table.name.pearson": {"en": "Pearson's r", "ua": "r Пірсона"},
     "correlation.table.name.spearman": {"en": "Spearman's r", "ua": "r Спірмена"},
-    "correlation.table.name.kendall": {"en": "Kendall's τ", "ua": "τ Кендалла"},
+    "correlation.table.name.kendall": {"en": "Kendall's &tau;", "ua": "τ Кендалла"},
     "correlation.table.name.kendall_c": {
-        "en": "Kendall's τ<sub>c</sub>",
+        "en": "Kendall's &tau;<sub>c</sub>",
         "ua": "τ<sub>c</sub> Кендалла",
     },
-    "correlation.table.name.phi": {"en": "Phi φ", "ua": "φ (фі)"},
+    "correlation.table.name.phi": {"en": "Phi &phi;", "ua": "φ (фі)"},
     "correlation.table.name.tetrachoric": {
-        "en": "Tetrachoric ρ<sub>t</sub>",
+        "en": "Tetrachoric &rho;<sub>t</sub>",
         "ua": "тетрахоричний ρ<sub>t</sub>",
     },
     "correlation.table.name.polychoric": {
-        "en": "Polychoric ρ<sub>pc</sub>",
+        "en": "Polychoric &rho;<sub>pc</sub>",
         "ua": "поліхоричний ρ<sub>pc</sub>",
     },
     "correlation.error.min_variables": {
@@ -1501,9 +1493,9 @@ TRANSLATIONS = {
             "<div>Choose the correlation coefficient that matches your data:"
             "<ul>"
             "<li>Pearson's r &ndash; linear association between continuous variables.</li>"
-            "<li>Spearman's ρ / Kendall's τ &ndash; monotonic (rank) association for ordinal "
+            "<li>Spearman's &rho; / Kendall's &tau; &ndash; monotonic (rank) association for ordinal "
             "data; Kendall is preferred for small samples or many ties.</li>"
-            "<li>Phi φ &ndash; association between two binary variables.</li>"
+            "<li>Phi &phi; &ndash; association between two binary variables.</li>"
             "<li>Tetrachoric / Polychoric &ndash; association between binary / ordinal "
             "variables assumed to reflect underlying continuous variables.</li>"
             "</ul></div>"
@@ -1514,7 +1506,7 @@ TRANSLATIONS = {
             "Spearman only).</div>"
             "<div><b>Second variable set (cross, optional):</b> when given, a rectangular "
             "two-set matrix is produced instead &mdash; every variable in the first set against "
-            "every variable in the second set (rows × columns), rather than a square matrix.</div>"
+            "every variable in the second set (rows &times; columns), rather than a square matrix.</div>"
         ),
         "ua": (
             "<h2>Кореляція</h2>"
@@ -1751,7 +1743,7 @@ TRANSLATIONS = {
             "non-parametric tests.</li>"
             "<li><b>Normality.</b> Shapiro&ndash;Wilk, computed per group. A variable is treated as "
             "normal only when every group passes (p &gt; .05).</li>"
-            "<li><b>Homogeneity of variance.</b> Levene&rsquo;s test centred on the <i>mean</i> "
+            "<li><b>Homogeneity of variance.</b> Levene&rsquo;s test centered on the <i>mean</i> "
             "(not the median / Brown&ndash;Forsythe variant). Equal variances are assumed when "
             "p &gt; .05.</li>"
             "<li><b>Parametric, 2 groups.</b> Equal variances &rarr; Student&rsquo;s independent "
@@ -1764,7 +1756,7 @@ TRANSLATIONS = {
             "<li><b>Effect sizes.</b>"
             "<ul>"
             "<li>Student&rsquo;s t: Cohen&rsquo;s d using the pooled SD.</li>"
-            "<li>Welch&rsquo;s t: Cohen&rsquo;s d standardised by the root-mean of the two group "
+            "<li>Welch&rsquo;s t: Cohen&rsquo;s d standardized by the root-mean of the two group "
             "variances, &radic;((s<sub>1</sub><sup>2</sup>+s<sub>2</sub><sup>2</sup>)/2), rather "
             "than the pooled SD.</li>"
             "<li>Mann&ndash;Whitney: rank-biserial correlation "
@@ -1864,7 +1856,7 @@ TRANSLATIONS = {
             "<b>Methodology &amp; assumptions</b>"
             "<ul>"
             "<li><b>Coefficients.</b> Cronbach&rsquo;s &alpha; from the item correlation matrix "
-            "(standardised &alpha;): &alpha; = k/(k&minus;1) &middot; (1 &minus; tr(R)/&Sigma;R), where k "
+            "(standardized &alpha;): &alpha; = k/(k&minus;1) &middot; (1 &minus; tr(R)/&Sigma;R), where k "
             "is the number of items and R the item correlation matrix. Optionally <b>McDonald&rsquo;s "
             "&omega;</b> (omega-total) from a single common-factor fit: &omega; = (&Sigma;&lambda;)&sup2; "
             "/ [(&Sigma;&lambda;)&sup2; + &Sigma;&psi;], with loadings &lambda; and residual variances "
@@ -1880,7 +1872,7 @@ TRANSLATIONS = {
             "recomputed on the remaining items. The corrected item&ndash;total (item&ndash;rest) "
             "correlation is computed from the same item correlation matrix as &alpha; &mdash; "
             "r<sub>i</sub> = (&Sigma; of the item&rsquo;s off-diagonal correlations) / "
-            "&radic;(variance of the rest-sum) with standardised items &mdash; rather than from the "
+            "&radic;(variance of the rest-sum) with standardized items &mdash; rather than from the "
             "raw scores, so it stays consistent with the chosen correlation type (this is what "
             "psych::alpha reports when given a correlation matrix, and is the correct form for "
             "Phi / Tetrachoric / Polychoric). An item whose removal raises &alpha; may be weakening "
@@ -1955,21 +1947,21 @@ TRANSLATIONS = {
             "with any missing value in the used columns are dropped (list-wise).</li>"
             "<li><b>Logistic model.</b> When <b>Model</b> is set to Logistic, a binary logistic "
             "regression (statsmodels Logit) is fitted instead: the dependent variable must have "
-            "exactly two distinct values (mapped to 0/1, the larger value being the modelled "
+            "exactly two distinct values (mapped to 0/1, the larger value being the modeled "
             "&lsquo;positive&rsquo; outcome). The fit table reports McFadden&rsquo;s pseudo R&sup2; "
             "and the likelihood-ratio &chi;&sup2; test; coefficients are log-odds B with the odds "
             "ratio OR = exp(B) and a z statistic. Moderation is supported; mediation, the "
-            "standardised &beta; and the residual / Q-Q diagnostics are not (only VIF is shown).</li>"
+            "standardized &beta; and the residual / Q-Q diagnostics are not (only VIF is shown).</li>"
             "<li><b>Model fit.</b> R&sup2; and adjusted R&sup2;, plus the overall F-test "
             "(F, its two degrees of freedom and p) and the sample size N.</li>"
-            "<li><b>Coefficients.</b> Unstandardised B with its standard error (SE), the standardised "
+            "<li><b>Coefficients.</b> Unstandardized B with its standard error (SE), the standardized "
             "coefficient &beta;, the t statistic and its p-value.</li>"
             "<li><b>Table symbols.</b> <b>N</b> sample size (complete rows); <b>R&sup2;</b> share of "
             "the outcome's variance explained; <b>adjusted R&sup2;</b> the same, penalised for the "
             "number of predictors; <b>F</b> the overall model test statistic with degrees of freedom "
-            "<b>df</b> = (predictors, residual); <b>B</b> the unstandardised coefficient (expected "
+            "<b>df</b> = (predictors, residual); <b>B</b> the unstandardized coefficient (expected "
             "change in the outcome per one-unit increase in the predictor, holding the others "
-            "constant); <b>SE</b> its standard error; <b>&beta;</b> the standardised coefficient "
+            "constant); <b>SE</b> its standard error; <b>&beta;</b> the standardized coefficient "
             "(B rescaled by SD(predictor)/SD(outcome), so predictors are comparable on a common "
             "scale; blank for the intercept); <b>t</b> = B/SE, the statistic testing the coefficient; "
             "<b>p</b> its two-sided p-value.</li>"
@@ -2100,7 +2092,7 @@ TRANSLATIONS = {
             "(eigenvalue &gt; 1) help choose the number of factors &mdash; a guide, not a rule.</li>"
             "<li><b>Rotation.</b> Orthogonal (Varimax / Quartimax / Equamax / Oblimax) keeps factors "
             "uncorrelated; oblique (Promax / Oblimin / Quartimin) allows correlated factors and adds a "
-            "factor-correlation matrix (&Phi;) and a structure matrix. Kaiser normalisation can be "
+            "factor-correlation matrix (&Phi;) and a structure matrix. Kaiser normalization can be "
             "toggled.</li>"
             "<li><b>Loadings.</b> The loadings (pattern) matrix is the direct factor&rarr;variable "
             "effect &mdash; use it to assign variables to factors. Communality is the variance of a "
@@ -2170,10 +2162,10 @@ TRANSLATIONS = {
             "the sample covariance matrix (rows with any missing value are dropped list-wise; ordinal "
             "items are scored numerically). Each factor's variance is fixed to 1 for identification, so "
             "every factor needs at least two indicators.</li>"
-            "<li><b>Loadings.</b> Reported as the <i>standardised</i> solution, so each loading is the "
+            "<li><b>Loadings.</b> Reported as the <i>standardized</i> solution, so each loading is the "
             "indicator&ndash;factor correlation (roughly in &minus;1..1) and is comparable across "
             "indicators. A negative loading just means an inverse (reverse-keyed) relationship; "
-            "interpret its magnitude. Loadings are sign-normalised so each factor's dominant direction "
+            "interpret its magnitude. Loadings are sign-normalized so each factor's dominant direction "
             "is positive.</li>"
             "<li><b>Fit indices.</b> <b>&chi;&sup2;</b> tests <i>exact</i> fit (non-significant = good, "
             "but it is sensitive to sample size). <b>RMSEA</b>: &lt; .05 good, &lt; .08 acceptable, "
@@ -2260,7 +2252,7 @@ TRANSLATIONS = {
             "(both methods) and, for K-means, the inertia &lsquo;elbow&rsquo; plot (both sweep k = "
             "2..10) together with domain knowledge.</li>"
             "<li><b>Caveat.</b> K-means assumes roughly spherical, similarly-sized clusters and is "
-            "sensitive to outliers and the starting seed; standardise when variables differ in scale "
+            "sensitive to outliers and the starting seed; standardize when variables differ in scale "
             "and treat the partition as exploratory.</li>"
             "</ul>"
         ),
@@ -2455,7 +2447,7 @@ TRANSLATIONS = {
             "percentages (of non-missing) is shown for non-numeric variables.</li>"
             "<li><b>Histograms.</b> Densities. Bin width is automatic (Freedman&ndash;Diaconis / "
             "&lsquo;auto&rsquo;) unless a Bin width is given &mdash; set it to 1 for Likert-type "
-            "scales so each value is its own bar. A Bin reference value, if given, becomes the centre "
+            "scales so each value is its own bar. A Bin reference value, if given, becomes the center "
             "of one bin (the rest follow the width).</li>"
             "<li><b>KDE.</b> Gaussian kernel, Scott&rsquo;s-rule bandwidth multiplied by the KDE "
             "smoothing factor (1 = default; raise it to avoid a spiky curve on discrete/Likert "
@@ -2474,7 +2466,7 @@ TRANSLATIONS = {
             "<li><b>Numbered variables.</b> &lsquo;Number variables in tables&rsquo; replaces the "
             "variable names in the numeric-summary and normality tables with numbers (1, 2, 3&hellip;) "
             "and adds a numbered legend to each table&rsquo;s note.</li>"
-            "<li><b>Missing data.</b> Each variable is summarised/plotted on its own non-missing "
+            "<li><b>Missing data.</b> Each variable is summarized/plotted on its own non-missing "
             "values.</li>"
             "</ul>"
         ),

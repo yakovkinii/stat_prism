@@ -15,6 +15,7 @@
 #  You should have received a copy of the GNU General Public License along with
 #  StatPrism.  If not, see <https://www.gnu.org/licenses/>.
 
+# VALIDATED
 
 from typing import Tuple
 
@@ -33,7 +34,7 @@ def rgba_tuple_from_rgb_and_a(rgb: Tuple[int, int, int], a: int) -> Tuple[float,
 
 class Colors:
     def __init__(self):
-        # Palette comes from the active theme so series colours follow the theme.
+        # Palette comes from the active theme so series colors follow the theme.
         self.colors = list(THEME.current.palette)
         self.index = 0
 

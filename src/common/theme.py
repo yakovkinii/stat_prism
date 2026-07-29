@@ -15,22 +15,13 @@
 #  You should have received a copy of the GNU General Public License along with
 #  StatPrism.  If not, see <https://www.gnu.org/licenses/>.
 
-"""Central place for plot *default* appearance ("themes").
-
-Every default that the per-plot settings controls can later override lives here, so
-the look of all plots can be switched in one place. Themes differ in colours /
-grayscale; sizes and fonts are intentionally kept identical across themes (but still
-listed here so all defaults sit together).
-
-A theme only supplies *defaults*. Once a user tweaks a control on a specific plot,
-that tweak is preserved across recomputes (see PlotV2.load_settings_from); switching
-theme re-applies the new colour defaults to plots while keeping user content (titles)
-and any size tweaks.
-"""
+# VALIDATED
 
 from dataclasses import dataclass
 from enum import Enum
 from typing import Dict, List, Tuple
+
+from src.common.config import read_plot_theme
 
 
 class Themes(Enum):
@@ -39,14 +30,17 @@ class Themes(Enum):
     DARK = "Dark"
 
 
+# A theme supplies only defaults; a user's per-plot tweak is preserved across recomputes (see
+# PlotV2.load_settings_from). Sizes/fonts are identical across themes but kept here so every
+# default sits together.
 @dataclass(frozen=True)
 class PlotTheme:
-    # Series colour cycle (also feeds the colour-picker "base" row).
+    # Series color cycle (also feeds the color-picker "base" row).
     palette: List[Tuple[int, int, int]]
     # Figure chrome.
     frame_color: Tuple[int, int, int]
     background_color: Tuple[int, int, int]
-    # Text colour for tick labels, axis titles and the legend. Defaults to black; the Dark
+    # Text color for tick labels, axis titles and the legend. Defaults to black; the Dark
     # theme overrides it to near-white so text is readable on the dark figure background.
     text_color: Tuple[int, int, int]
     # Per-series appearance.
@@ -60,7 +54,7 @@ class PlotTheme:
     point_size: int
     marker_shape: str
     band_fill_alpha: int
-    # Axis-title layout preset (theme-controlled, like colours).
+    # Axis-title layout preset (theme-controlled, like colors).
     axis_layout: str = "Centered"
     # Background opacity (0-255) and frame/grid options (theme-controlled).
     background_alpha: int = 255
@@ -77,7 +71,7 @@ class PlotTheme:
     margin: float = 0.1  # whitespace (inches) around the plot, i.e. savefig pad_inches
 
 
-# The original StatPrism look: pastel colour cycle, grey frame.
+# The original StatPrism look: pastel color cycle, gray frame.
 _DEFAULT = PlotTheme(
     palette=[
         (100, 100, 255),
@@ -105,10 +99,10 @@ _DEFAULT = PlotTheme(
     background_alpha=255,  # opaque white figure background
 )
 
-# A stricter, print-friendly look: a saturated "standard" colour progression
+# A stricter, print-friendly look: a saturated "standard" color progression
 # (black, red, blue, dark green, ...), black frame, more solid fills. The picker
 # derives lighter/darker shades and a grayscale (neutrals) row from these, so the
-# base row stays the full-strength colours (#000, #F00, #00F, ...).
+# base row stays the full-strength colors (#000, #F00, #00F, ...).
 _STRICT = PlotTheme(
     palette=[
         (0, 0, 0),
@@ -137,7 +131,7 @@ _STRICT = PlotTheme(
     background_alpha=255,
 )
 
-# Dark look: dark background, light frame/text, brighter series colours.
+# Dark look: dark background, light frame/text, brighter series colors.
 _DARK = PlotTheme(
     palette=[
         (120, 160, 255),
@@ -180,7 +174,7 @@ class ThemeManager:
         return _THEMES[self._theme]
 
     def name(self) -> str:
-        """Identifier of the active theme (used to detect theme switches)."""
+        # Used to detect theme switches (compared against a plot's stored theme name).
         return self._theme.value
 
     def set_theme(self, theme: Themes):
@@ -188,12 +182,9 @@ class ThemeManager:
 
 
 def _initial_plot_theme() -> Themes:
-    """Start with the plot theme saved in statprism.ini (falls back to Default)."""
-    from src.common.ui_theme import read_plot_theme
-
-    try:
+    try:  # an unrecognized saved plot theme falls back to Default
         return Themes(read_plot_theme())
-    except Exception:
+    except ValueError:
         return Themes.DEFAULT
 
 

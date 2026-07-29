@@ -14,25 +14,15 @@
 #
 #  You should have received a copy of the GNU General Public License along with
 #  StatPrism.  If not, see <https://www.gnu.org/licenses/>.
-"""UI colour themes.
 
-Kept deliberately **Qt-free** so it can be imported before the ``QApplication`` exists (the
-launcher reads ``IS_DARK_THEME`` to pick the window colour scheme / title-bar mode).
+# VALIDATED
 
-Two palettes with identical keys:
-  * ``LIGHT`` — the original StatPrism look.
-  * ``DARK``  — the current dark look.
+# Qt-free so it can be imported before the QApplication exists (the launcher reads IS_DARK_THEME
+# to pick the window color scheme before creating the app). Every key here is consumed by
+# src/pyside_ext/styling.py (Scheme / Style.Color); the active theme is applied at import time, so
+# a change takes effect on the next start.
 
-The active theme is chosen in ``statprism.ini`` (``[ui] theme = light|dark``); the change
-takes effect on the next start (``Style.Color`` captures the values at import time).
-
-Every key here is consumed by ``src/pyside_ext/styling.py`` (``Scheme`` / ``Style.Color``);
-widgets only ever reference ``Style.Color`` tokens, so colours live in exactly one place.
-"""
-
-import configparser
-import os
-from pathlib import Path
+from src.common.config import read_theme_name
 
 LIGHT = {
     # Surfaces
@@ -55,14 +45,14 @@ LIGHT = {
     "danger": "#770000",
     # Removed-row text in the data preview: vivid red on the light paper.
     "removed_row": "#ee0000",
-    # Brand colour for study titles (legible dark gold on the light paper)
+    # Brand color for study titles (legible dark gold on the light paper)
     "title_brand": "#007",
     # Misc
     "overlay": "rgba(0,11,22,0.4)",
     "table_rule": "black",
     "toggle_on": "#cdeacd",
     "toggle_off": "#e0e0e0",
-    # Column-type icon colours
+    # Column-type icon colors
     "type_numeric": "darkblue",
     "type_nominal": "darkred",
     "type_ordinal": "darkgreen",
@@ -90,14 +80,14 @@ DARK = {
     "danger": "#ff6b6b",
     # Removed-row text in the data preview: lighter red, legible on the dark table.
     "removed_row": "#ff6b6b",
-    # Brand colour for study titles (banner gold)
+    # Brand color for study titles (banner gold)
     "title_brand": "#eedd88",
     # Misc
     "overlay": "rgba(255,255,255,0.1)",
     "table_rule": "#888888",
     "toggle_on": "#2e6b45",
     "toggle_off": "#2b2d31",
-    # Column-type icon colours
+    # Column-type icon colors
     "type_numeric": "#5b9bd5",
     "type_nominal": "#e57373",
     "type_ordinal": "#81c784",
@@ -105,113 +95,7 @@ DARK = {
 }
 
 _THEMES = {"light": LIGHT, "dark": DARK}
-_DEFAULT_THEME = "light"
-_INI_NAME = "statprism.ini"
 
-
-def _env_override(key: str):
-    """An ``STATPRISM_<KEY>`` environment variable overrides the matching ``[ui]`` setting.
-
-    The test suite uses this to force a deterministic look (light theme, English, default
-    plot theme) regardless of the developer's local statprism.ini (see tests/conftest.py)."""
-    return os.environ.get(f"STATPRISM_{key.upper()}")
-
-
-def _ini_candidates() -> list:
-    """Where to look for / create the config: next to the running app (current working
-    directory) first, then the repository root (for source runs)."""
-    return [Path.cwd() / _INI_NAME, Path(__file__).resolve().parents[2] / _INI_NAME]
-
-
-def _create_default_ini() -> None:
-    """Write a default config (next to the running app) when none exists, so the user has a
-    file to edit. The .ini is gitignored, so this is per-machine."""
-    try:
-        _ini_candidates()[0].write_text(
-            f"[ui]\n# UI colour theme: light or dark\ntheme = {_DEFAULT_THEME}\n",
-            encoding="utf-8",
-        )
-    except Exception:
-        pass
-
-
-def _read_theme_name() -> str:
-    """Read ``[ui] theme`` from ``statprism.ini``. If no config exists anywhere, create a
-    default one and fall back to the default theme (light)."""
-    override = _env_override("theme")
-    if override is not None:
-        return override.strip().lower()
-    for path in _ini_candidates():
-        try:
-            if path.is_file():
-                parser = configparser.ConfigParser()
-                parser.read(path, encoding="utf-8")
-                return parser.get("ui", "theme", fallback=_DEFAULT_THEME).strip().lower()
-        except Exception:
-            continue
-    _create_default_ini()
-    return _DEFAULT_THEME
-
-
-ACTIVE_THEME = _THEMES.get(_read_theme_name(), LIGHT)
-
+# .get fallback: an unrecognized theme name (e.g. from a hand-edited ini) defaults to light.
+ACTIVE_THEME = _THEMES.get(read_theme_name(), LIGHT)
 IS_DARK_THEME = ACTIVE_THEME is DARK
-
-
-def _writable_ini_path() -> Path:
-    """The existing config file, or the preferred location to create one."""
-    for path in _ini_candidates():
-        if path.is_file():
-            return path
-    return _ini_candidates()[0]
-
-
-def read_ui_value(key: str, fallback: str) -> str:
-    """Read ``[ui] <key>`` from ``statprism.ini`` (first existing candidate).
-
-    An ``STATPRISM_<KEY>`` environment variable, if set, wins over the file."""
-    override = _env_override(key)
-    if override is not None:
-        return override.strip()
-    for path in _ini_candidates():
-        try:
-            if path.is_file():
-                parser = configparser.ConfigParser()
-                parser.read(path, encoding="utf-8")
-                return parser.get("ui", key, fallback=fallback).strip()
-        except Exception:
-            continue
-    return fallback
-
-
-def write_ui_value(key: str, value: str) -> None:
-    """Persist ``[ui] <key> = value`` to ``statprism.ini``, preserving the other keys.
-    (configparser does not preserve comments, which is acceptable here.)"""
-    path = _writable_ini_path()
-    parser = configparser.ConfigParser()
-    try:
-        if path.is_file():
-            parser.read(path, encoding="utf-8")
-    except Exception:
-        parser = configparser.ConfigParser()
-    if not parser.has_section("ui"):
-        parser.add_section("ui")
-    parser.set("ui", key, value)
-    try:
-        with path.open("w", encoding="utf-8") as handle:
-            parser.write(handle)
-    except Exception:
-        pass
-
-
-def read_language(fallback: str = "en") -> str:
-    return read_ui_value("language", fallback)
-
-
-def read_plot_theme(fallback: str = "Default") -> str:
-    return read_ui_value("plot_theme", fallback)
-
-
-def read_auto_recalculate(default: bool = False) -> bool:
-    value = read_ui_value("auto_recalculate", "true" if default else "false")
-    return value.strip().lower() in ("1", "true", "yes", "on")

@@ -169,7 +169,7 @@ class AboutDialog(QDialog):
                 </h2>
                 This version of StatPrism is intended for internal testing only.<br>
                 This software is in development and is provided as is, without any guarantees.<br><br>
-                Copyright 2023 {NDASH} 2025 StatPrism Team:<br>
+                Copyright 2023 {NDASH} 2026 StatPrism Team:<br>
                 <b>Balashevych A. K.</b> {NDASH} Model Specification;<br>
                 <b>Petrova N. V.</b> {NDASH} Testing &amp; QA;<br>
                 <b>Yakovkin I. I.</b> {NDASH} Software Development &amp; PM.<br><br>

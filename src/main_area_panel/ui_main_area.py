@@ -110,7 +110,7 @@ class MainAreaClass:
         # When False (default), dependents are only flagged stale (Refresh turns an alarm
         # colour) until the user recalculates. Persisted in statprism.ini; toggled from
         # Settings ▸ Auto-recalculate.
-        from src.common.ui_theme import read_auto_recalculate
+        from src.common.config import read_auto_recalculate
 
         self.auto_recalculate = read_auto_recalculate(default=False)
 

@@ -15,6 +15,7 @@
 #  You should have received a copy of the GNU General Public License along with
 #  StatPrism.  If not, see <https://www.gnu.org/licenses/>.
 
+# VALIDATED
 
 import qtawesome as qta
 from PySide6 import QtCore, QtGui, QtWidgets
@@ -70,7 +71,7 @@ def create_label(parent, label_geometry, font_size, alignment):
     label = QtWidgets.QLabel(parent)
     if label_geometry is not None:
         label.setGeometry(label_geometry)
-    font = QtGui.QFont("Segoe UI")
+    font = QtGui.QFont(str(Style.FontFamily.SegoeUI))
     font.setPointSize(font_size)
     label.setFont(font)
     label.setAlignment(alignment)

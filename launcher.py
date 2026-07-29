@@ -97,16 +97,11 @@ def _setup_logging(level=None):
         except Exception:
             continue
 
-    # Pretty console logging only where there is a console to print to.
+    # Console logging only where there is a console to print to.
     if sys.stderr is not None:
-        try:
-            from yatools import logging_config
-
-            logging_config.init(level)
-        except Exception:
-            stream_handler = logging.StreamHandler()
-            stream_handler.setFormatter(formatter)
-            root.addHandler(stream_handler)
+        stream_handler = logging.StreamHandler()
+        stream_handler.setFormatter(formatter)
+        root.addHandler(stream_handler)
 
 
 if __name__ == "__main__":

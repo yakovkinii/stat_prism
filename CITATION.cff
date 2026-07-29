@@ -19,7 +19,7 @@ version: 1.2.3
 date-released: 2026-07-05
 license: GPL-3.0-or-later
 repository-code: "https://github.com/yakovkinii/stat_prism"
-url: "https://stat-prism.readthedocs.io/en/latest/"
+url: "https://www.yakovkinii.com/stat_prism/"
 keywords:
   - statistics
   - survey analysis
@@ -27,3 +27,18 @@ keywords:
   - psychometrics
   - APA
   - data visualization
+# Preferred citation: StatPrism was first released in 2023, so the citation year is fixed to the
+# original release year rather than the current version's date-released.
+preferred-citation:
+  type: software
+  title: StatPrism
+  authors:
+    - family-names: Balashevych
+      given-names: A. K.
+    - family-names: Petrova
+      given-names: N. V.
+    - family-names: Yakovkin
+      given-names: I. I.
+  year: 2023
+  version: 1.2.3
+  url: "https://www.yakovkinii.com/stat_prism/"
