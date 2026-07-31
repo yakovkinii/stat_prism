@@ -15,6 +15,7 @@
 #  You should have received a copy of the GNU General Public License along with
 #  StatPrism.  If not, see <https://www.gnu.org/licenses/>.
 
+# VALIDATED
 
 from typing import Union, cast
 
@@ -62,27 +63,20 @@ class CustomListWidget(QListWidget):
     def __init__(self, parent):
         super().__init__(parent)
 
-        # Enable drag and drop
         self.setDragDropMode(QListWidget.DragDropMode.InternalMove)
-
-        # Set selection mode to single
         self.setSelectionMode(QListWidget.SelectionMode.SingleSelection)
 
     def add_custom_item(self, value, text):
-        # Create QListWidgetItem
         item = QListWidgetItem(self)
 
-        # Create custom widget for the list item
         custom_widget = CustomListWidgetItem(value, text)
         item.setSizeHint(custom_widget.sizeHint())
 
-        # Add the custom widget into the list
         self.setItemWidget(item, custom_widget)
 
     def move_up(self, item):
         current_row = self.row(item)
         if current_row > 0:
-            # Remove and reinsert at one row above
             self.takeItem(current_row)
             self.insertItem(current_row - 1, item)
             self.setCurrentRow(current_row - 1)
@@ -90,7 +84,6 @@ class CustomListWidget(QListWidget):
     def move_down(self, item):
         current_row = self.row(item)
         if current_row < self.count() - 1:
-            # Remove and reinsert at one row below
             self.takeItem(current_row)
             self.insertItem(current_row + 1, item)
             self.setCurrentRow(current_row + 1)

@@ -15,10 +15,12 @@
 #  You should have received a copy of the GNU General Public License along with
 #  StatPrism.  If not, see <https://www.gnu.org/licenses/>.
 
+# VALIDATED
 
 from PySide6 import QtCore, QtGui, QtWidgets
 
 from src.pyside_ext.elements.base import BasePanelElement
+from src.pyside_ext.styling import Style
 
 
 class Label(BasePanelElement):
@@ -30,7 +32,7 @@ class Label(BasePanelElement):
         self.widget = QtWidgets.QLabel(self.parent_widget)
         self.widget.setWordWrap(True)
         self.widget.setTextInteractionFlags(QtCore.Qt.TextInteractionFlag.TextSelectableByMouse)
-        font = QtGui.QFont("Segoe UI")
+        font = QtGui.QFont(str(Style.FontFamily.SegoeUI))
         font.setPointSize(8)
         self.widget.setFont(font)
         self.widget.setText(self.label_text)

@@ -33,5 +33,5 @@ class MessageType(Enum):
 @attrs.define
 class Message:
     message_type: MessageType
-    payload = None
-    caller_id = None
+    payload: any = None
+    caller_id: any = None

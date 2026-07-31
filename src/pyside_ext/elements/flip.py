@@ -15,6 +15,7 @@
 #  You should have received a copy of the GNU General Public License along with
 #  StatPrism.  If not, see <https://www.gnu.org/licenses/>.
 
+# VALIDATED
 
 import qtawesome as qta
 from PySide6 import QtWidgets
@@ -59,7 +60,6 @@ class InvertVisualizer(BasePanelElement):
     def configure(self, unique_values, max_plus_min):
         self.max_plus_min = max_plus_min
         self.unique_values = unique_values
-        # clear layout_for_values
         for i in reversed(range(self.layout_for_values.count())):
             self.layout_for_values.itemAt(i).widget().deleteLater()
 

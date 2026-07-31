@@ -15,6 +15,7 @@
 #  You should have received a copy of the GNU General Public License along with
 #  StatPrism.  If not, see <https://www.gnu.org/licenses/>.
 
+# VALIDATED
 
 from PySide6 import QtCore, QtWidgets
 from PySide6.QtCore import QEvent, Qt, QTimer, Signal
@@ -27,9 +28,6 @@ from src.pyside_ext.unique_qss import set_stylesheet
 
 
 class NoScrollComboBox(QComboBox):
-    """A combo box that ignores wheel events so scrolling over it scrolls the
-    enclosing scroll area instead of changing the selected value."""
-
     def wheelEvent(self, event):
         event.ignore()
 
@@ -42,7 +40,6 @@ class QWidgetClickable(QFrame):
 
     def mousePressEvent(self, event):
         self.clicked.emit()
-        # super().mousePressEvent(event)
 
 
 class QListWidgetClickable(QtWidgets.QListWidget):
@@ -57,7 +54,6 @@ class QListWidgetClickable(QtWidgets.QListWidget):
     @log_method
     def mousePressEvent(self, event):
         super().mousePressEvent(event)
-        # self.parent().mousePressEvent(event)
         self.clicked.emit()
 
     def sizeHint(self):
@@ -82,11 +78,9 @@ class QLabelClickable(QLabel):
 
     def mousePressEvent(self, event):
         self.clicked.emit()
-        # super().mousePressEvent(event)
 
     def mouseDoubleClickEvent(self, event):
         self.doubleClicked.emit()
-        # super().mouseDoubleClickEvent(event)
 
 
 class EditableLabelWordwrap(QTextEdit):

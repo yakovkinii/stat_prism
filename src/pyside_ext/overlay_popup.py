@@ -15,6 +15,8 @@
 #  You should have received a copy of the GNU General Public License along with
 #  StatPrism.  If not, see <https://www.gnu.org/licenses/>.
 
+# VALIDATED
+
 import qtawesome as qta
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QFrame, QGridLayout, QLabel, QPushButton, QWidget
@@ -25,10 +27,9 @@ from src.pyside_ext.styling import Style
 from src.pyside_ext.unique_qss import set_stylesheet
 
 
+# Full-window dimmed overlay with a centered content panel that closes when the user clicks
+# anywhere outside the panel (same UX as the data-table popup).
 class OverlayPopup(QWidget):
-    """Full-window dimmed overlay with a centered content panel that closes when
-    the user clicks anywhere outside the panel (same UX as the data-table popup)."""
-
     def __init__(self, anchor_widget, content: QWidget, on_close=None):
         window = anchor_widget.window()
         super().__init__(window, Qt.WindowType.FramelessWindowHint)

@@ -14,6 +14,9 @@
 #
 #  You should have received a copy of the GNU General Public License along with
 #  StatPrism.  If not, see <https://www.gnu.org/licenses/>.
+
+# VALIDATED
+
 from PySide6 import QtWidgets
 from PySide6.QtWidgets import QHBoxLayout, QLabel
 
@@ -43,7 +46,6 @@ class Spin(BasePanelElement):
         self.layout.addWidget(self.label)
 
         self.spin_box = QtWidgets.QSpinBox(self.parent_widget)
-        # self.spin_box.setMaximumWidth(20)
         self.spin_box.setRange(self.min_value, self.max_value)
         self.spin_box.valueChanged.connect(self.on_value_changed)
         self.layout.addWidget(self.spin_box)

@@ -15,10 +15,12 @@
 #  You should have received a copy of the GNU General Public License along with
 #  StatPrism.  If not, see <https://www.gnu.org/licenses/>.
 
+# VALIDATED
 
-from PySide6 import QtCore, QtGui, QtWidgets
+from PySide6 import QtCore, QtWidgets
 
 from src.pyside_ext.elements.base import BasePanelElement
+from src.pyside_ext.styling import Style
 
 
 class Title(BasePanelElement):
@@ -28,8 +30,6 @@ class Title(BasePanelElement):
 
     def setup(self):
         self.widget = QtWidgets.QLabel(self.parent_widget)
-        font = QtGui.QFont("Segoe UI")
-        font.setPointSize(12)
-        self.widget.setFont(font)
+        self.widget.setFont(Style.font_regular)
         self.widget.setAlignment(QtCore.Qt.AlignmentFlag.AlignHCenter | QtCore.Qt.AlignmentFlag.AlignVCenter)
         self.widget.setText(self.label_text)

@@ -14,6 +14,9 @@
 #
 #  You should have received a copy of the GNU General Public License along with
 #  StatPrism.  If not, see <https://www.gnu.org/licenses/>.
+
+# VALIDATED
+
 from src.common.decorators import log_method
 from src.data.data import Data
 from src.side_area_panel.modules.common.result.registry import RESULTS
@@ -51,7 +54,7 @@ class DataManager:
             self.data_chain.remove(result_id)
 
     def move_in_chain(self, result_id: int, delta: int) -> bool:
-        """Swap a data-processing result with its neighbour in the chain. Index 0
+        """Swap a data-processing result with its neighbor in the chain. Index 0
         (raw data) always stays first. Returns True if a move happened."""
         if result_id not in self.data_chain:
             return False
