@@ -38,6 +38,8 @@ from src.pyside_ext.markup import css
 from src.pyside_ext.styling import Style
 from src.pyside_ext.unique_qss import set_stylesheet
 from src.side_area_panel.blueprint.registry import PanelRegistry
+from src.side_area_panel.modules.common.result.html_result import HTMLTableV2
+from src.side_area_panel.modules.common.result.plot_result import PlotV2
 from src.side_area_panel.modules.common.result.registry import RESULTS, get_unique_result_id
 
 if TYPE_CHECKING:
@@ -272,8 +274,6 @@ class MainAreaClass:
     def _build_report_html(self) -> str:
         """One self-contained HTML document: each data-analysis result (in display order)
         with its tables and plots (plots are inline base64 PNGs, so the file is portable)."""
-        from src.side_area_panel.modules.common.result.html_result import HTMLTableV2
-        from src.side_area_panel.modules.common.result.plot_result import PlotV2
 
         parts = ["<html><body>"]
         for result_id in self.data_analysis_objects:
