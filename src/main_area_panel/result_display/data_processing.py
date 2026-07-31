@@ -14,12 +14,16 @@
 #
 #  You should have received a copy of the GNU General Public License along with
 #  StatPrism.  If not, see <https://www.gnu.org/licenses/>.
+
+# VALIDATED
+
 import qtawesome as qta
 from PySide6 import QtCore
 from PySide6.QtCore import QSize, QTimer
 from PySide6.QtGui import Qt
 from PySide6.QtWidgets import QHBoxLayout, QSizePolicy, QTextBrowser, QVBoxLayout, QWidget
 
+from src.common.constant import TIMES, WARNING
 from src.common.decorators import log_method
 from src.common.ui_constructor import create_simple_tool_button_qta, create_tool_button_qta
 from src.main_area_panel.data_viewer.data_viewer import view_data_popup
@@ -324,15 +328,16 @@ class DataProcessingResultDisplay(BaseResultDisplay):
             shape = f"{data.n_rows()} rows &times; {data.n_columns()} columns"
             description = f"{description}<br>{shape}" if description else shape
             # One-line version for the collapsed band: full text, line breaks become " | "
-            # and the HTML entity becomes a real "×" (the inline label renders as plain text).
-            inline = description.replace("<br>", " | ").replace("&times;", "×")
+            # and the HTML entity becomes a real multiplication sign (the inline label renders
+            # as plain text).
+            inline = description.replace("<br>", " | ").replace("&times;", TIMES)
         # A validation / status message (e.g. "Select a column") leads the summary in red so
         # the user sees why a step produced no change.
         error = getattr(result, "error_message", "")
         if error:
             error_html = HTML.div(HTML.bold(error), color=Style.Color.Danger.value)
             description = f"{error_html}<br>{description}" if description else error_html
-            inline = f"⚠ {error} | {inline}" if inline else f"⚠ {error}"
+            inline = f"{WARNING} {error} | {inline}" if inline else f"{WARNING} {error}"
         self.info.setText(description)
         self.info_inline.setText(inline)
         self._update_toggle()
@@ -403,7 +408,7 @@ class DataProcessingResultDisplay(BaseResultDisplay):
 
     def set_stale(self, stale: bool):
         """Flag this study as out of date (manual-recalculate mode): tint the Refresh button
-        an alarm colour and set the result's needs_update. Reset when it is recalculated."""
+        an alarm color and set the result's needs_update. Reset when it is recalculated."""
         RESULTS[self.result_id].needs_update = stale
         self.recalculate_button.setIcon(qta.icon("ph.arrows-clockwise-bold", color="#e0a030" if stale else "#888"))
 

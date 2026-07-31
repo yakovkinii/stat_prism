@@ -1,3 +1,22 @@
+#  Copyright (C) 2023-2026  StatPrism Team
+#  Balashevych A. K., Petrova N. V., Yakovkin I. I.
+#
+#  This file is part of StatPrism.
+#
+#  StatPrism is free software: you can redistribute it and/or modify it under
+#  the terms of the GNU General Public License as published by the Free Software
+#  Foundation, either version 3 of the License, or (at your option) any later
+#  version.
+#
+#  StatPrism is distributed in the hope that it will be useful, but WITHOUT ANY
+#  WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
+#  A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
+#
+#  You should have received a copy of the GNU General Public License along with
+#  StatPrism.  If not, see <https://www.gnu.org/licenses/>.
+
+# VALIDATED
+
 import math
 
 import numpy as np
@@ -76,7 +95,7 @@ def view_data_popup(parent, data: Data, highlight_rows=None):
             model.setItem(r, c, item)
     model.setHorizontalHeaderLabels(data.column_names())
 
-    # Per-column header metadata: full-name tooltip, type (for the icon), colour tag.
+    # Per-column header metadata: full-name tooltip, type (for the icon), color tag.
     for c in range(n_cols):
         column = data.columns[c]
         model.setHeaderData(c, QtCore.Qt.Horizontal, column.column_name, QtCore.Qt.ToolTipRole)
@@ -95,10 +114,6 @@ def view_data_popup(parent, data: Data, highlight_rows=None):
 
 
 class CustomHeader(QHeaderView):
-    """Header that paints the column-type icon + name on the column's colour tag, optionally
-    word-wraps the name, and shows the full name as a tooltip (via the model's ToolTipRole,
-    handled by QHeaderView itself)."""
-
     def __init__(self, orientation, parent):
         super().__init__(orientation, parent)
         self.setSectionsClickable(False)
@@ -129,7 +144,7 @@ class CustomHeader(QHeaderView):
         text_rect = rect.adjusted(4, 2, -4, -2)
 
         column_type = model.headerData(logicalIndex, self.orientation(), TYPE_ROLE)
-        # On a (light pastel) colour tag the normal icon is hard to see -> use the darker
+        # On a (light pastel) color tag the normal icon is hard to see -> use the darker
         # on-light variant; untagged headers keep the regular theme-tinted icon.
         icon_set = COLUMN_TYPE_ICONS_ON_LIGHT if color else COLUMN_TYPE_ICONS
         icon = icon_set.get(column_type)
@@ -153,10 +168,6 @@ class CustomHeader(QHeaderView):
 
 
 class DataTableView(QTableView):
-    """Read-only data grid with a frozen left (ID) column. The frozen column is a second
-    table view stacked over the left edge, sharing the model and synced for vertical
-    scrolling, column width and row heights."""
-
     def __init__(self, model, frozen_column: int = 0):
         super().__init__()
         self._frozen_column = frozen_column

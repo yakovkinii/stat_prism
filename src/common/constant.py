@@ -25,6 +25,8 @@ from src.pyside_ext.styling import Style
 
 MDASH = "—"
 NDASH = "–"
+TIMES = "×"
+WARNING = "⚠"
 
 TABLE_OR_PLOT_ID_PLACEHOLDER = "<table_or_plot_id>"
 

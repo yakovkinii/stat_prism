@@ -14,12 +14,16 @@
 #
 #  You should have received a copy of the GNU General Public License along with
 #  StatPrism.  If not, see <https://www.gnu.org/licenses/>.
+
+# VALIDATED
+
 import qtawesome as qta
 from PySide6 import QtCore
 from PySide6.QtCore import QSize
 from PySide6.QtGui import Qt
 from PySide6.QtWidgets import QHBoxLayout, QSizePolicy, QVBoxLayout
 
+from src.common.constant import TIMES
 from src.common.decorators import log_method
 from src.common.ui_constructor import create_simple_tool_button_qta, create_tool_button_qta
 from src.main_area_panel.data_viewer.data_viewer import view_data_popup
@@ -195,11 +199,11 @@ class RawDataResultDisplay(BaseResultDisplay):
         self.info.setText(
             f"File: {config.path} \n"
             f"Time: {config.timestamp} \n"
-            f"{result.data.n_rows()} rows × {result.data.n_columns()} columns"
+            f"{result.data.n_rows()} rows {TIMES} {result.data.n_columns()} columns"
         )
         self.info_inline.setText(
             f"File: {config.path} | Time: {config.timestamp} | "
-            f"{result.data.n_rows()} × {result.data.n_columns()} columns"
+            f"{result.data.n_rows()} {TIMES} {result.data.n_columns()} columns"
         )
 
     @log_method

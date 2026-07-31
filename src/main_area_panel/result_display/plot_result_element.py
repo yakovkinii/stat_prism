@@ -14,6 +14,9 @@
 #
 #  You should have received a copy of the GNU General Public License along with
 #  StatPrism.  If not, see <https://www.gnu.org/licenses/>.
+
+# VALIDATED
+
 import logging
 
 import qtawesome as qta
@@ -161,10 +164,9 @@ class PlotResultElementDisplay(BaseResultDisplay):
         )
 
 
+# Minimal enlarged plot for the zoom popup: the figure at its native size with a small margin --
+# no title, buttons, or selectable border. Sizes to the plot.
 class ZoomedPlotView(QFrame):
-    """Minimal enlarged plot for the zoom popup: the figure at its native size with a
-    small margin -- no title, buttons, or selectable border. Sizes to the plot."""
-
     def __init__(self, result_id, result_element_id, parent=None):
         super().__init__(parent)
         self.result_id = result_id
