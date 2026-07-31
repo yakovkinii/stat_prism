@@ -14,13 +14,15 @@
 #
 #  You should have received a copy of the GNU General Public License along with
 #  StatPrism.  If not, see <https://www.gnu.org/licenses/>.
+
+# VALIDATED
+
 import json
 import logging
 import os
 import pickle
 import tempfile
 import zipfile
-from typing import TYPE_CHECKING
 
 from PySide6 import QtWidgets
 
@@ -34,9 +36,6 @@ from src.side_area_panel.blueprint.registry import PanelRegistry
 from src.side_area_panel.modules.common.result.registry import RESULTS, get_unique_result_id
 from src.side_area_panel.modules.registry import ModuleRegistry, ModuleType
 from src.side_area_panel.panels.base import BasePanel
-
-if TYPE_CHECKING:
-    pass
 
 
 class HomeInitial(BasePanel):

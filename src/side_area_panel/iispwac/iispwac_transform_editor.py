@@ -15,8 +15,11 @@
 #  You should have received a copy of the GNU General Public License along with
 #  StatPrism.  If not, see <https://www.gnu.org/licenses/>.
 
+# VALIDATED
+
 import ast
 
+import pandas as pd
 from PySide6.QtWidgets import (
     QCheckBox,
     QFrame,
@@ -30,7 +33,7 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
-from src.common.constant import ColumnType
+from src.common.constant import DARROW, MINUS, NDASH, RARROW, ColumnType
 from src.data.data_manager import DATA_MANAGER
 from src.pyside_ext.elements.order import CustomListWidget
 from src.pyside_ext.elements.utility.primitive_elements import NoScrollComboBox
@@ -41,7 +44,7 @@ from src.pyside_ext.unique_qss import set_stylesheet
 from src.side_area_panel.blueprint.element import ItemInSidePanelWithAutoConfig
 
 _TYPES = [ColumnType.NOMINAL.value, ColumnType.ORDINAL.value, ColumnType.NUMERIC.value]
-# Numeric normalisations offered for a Numeric target. "None" leaves the values as-is.
+# Numeric normalizations offered for a Numeric target. "None" leaves the values as-is.
 NORMALIZE_METHODS = ["None", "Z-score", "Stanine", "Center", "Min-max", "Log", "Rank"]
 _MAX_SUMMARY_ITEMS = 8
 
@@ -51,12 +54,6 @@ def _to_python(value):
 
 
 class IISPWACTransformEditor(ItemInSidePanelWithAutoConfig):
-    """Single-column transform editor (a one-column sibling of the Preprocess editor).
-    Reads the column chosen in the sibling column selector and configures, in order:
-    new name, value mapping (popup), target type, ordinal ordering (popup), an optional
-    ordinal flip (reference + explanation popup), a numeric normalisation, and a colour
-    tag. The selected column is replaced in place; nothing is duplicated."""
-
     def __init__(self):
         super().__init__()
         self.handler_changed = None
@@ -69,7 +66,6 @@ class IISPWACTransformEditor(ItemInSidePanelWithAutoConfig):
         self._built_column = None
         self._suppress = False
 
-    # ------------------------------------------------------------------ layout
     def post_init(self, name, parent_widget):
         self.name = name
         self.widget = QWidget(parent_widget)
@@ -174,7 +170,6 @@ class IISPWACTransformEditor(ItemInSidePanelWithAutoConfig):
     def get_kwargs(self):
         return {self.name: self.spec}
 
-    # ------------------------------------------------------------------ build
     def _clear(self):
         while self.layout.count():
             item = self.layout.takeAt(0)
@@ -215,7 +210,7 @@ class IISPWACTransformEditor(ItemInSidePanelWithAutoConfig):
 
         # --- Map values ---
         map_row = QHBoxLayout()
-        map_button = QPushButton("Map values…", card)
+        map_button = QPushButton("Map values...", card)
         map_button.clicked.connect(self._open_mapping)
         self.map_summary = QLabel(card)
         self.map_summary.setWordWrap(True)
@@ -239,7 +234,7 @@ class IISPWACTransformEditor(ItemInSidePanelWithAutoConfig):
         self.order_row = QWidget(card)
         order_layout = QHBoxLayout(self.order_row)
         order_layout.setContentsMargins(0, 0, 0, 0)
-        order_button = QPushButton("Order…", self.order_row)
+        order_button = QPushButton("Order...", self.order_row)
         order_button.clicked.connect(self._open_order)
         self.order_summary = QLabel(self.order_row)
         self.order_summary.setWordWrap(True)
@@ -281,7 +276,7 @@ class IISPWACTransformEditor(ItemInSidePanelWithAutoConfig):
         norm_layout.addStretch()
         layout.addWidget(self.normalize_row)
 
-        # --- Colour ---
+        # --- Color ---
         color_row = QHBoxLayout()
         color_row.addWidget(QLabel("Color:", card))
         self.color_button = QPushButton(card)
@@ -295,7 +290,6 @@ class IISPWACTransformEditor(ItemInSidePanelWithAutoConfig):
         self.layout.addWidget(card)
         self._refresh_visibility()
 
-    # ------------------------------------------------------------------ refresh
     def _refresh_visibility(self):
         if self.spec is None:
             return
@@ -324,22 +318,21 @@ class IISPWACTransformEditor(ItemInSidePanelWithAutoConfig):
     def _format_order(values):
         shown = [str(v) for v in values[:_MAX_SUMMARY_ITEMS]]
         if len(values) > _MAX_SUMMARY_ITEMS:
-            shown.append("…")
+            shown.append("...")
         return " < ".join(shown)
 
     @staticmethod
     def _format_mapping(mapping):
         if not mapping:
             return ""
-        parts = [f"{f!r} → {t!r}" for f, t in mapping if f != t]
+        parts = [f"{f!r} {RARROW} {t!r}" for f, t in mapping if f != t]
         if not parts:
             return ""
         text = ", ".join(parts[:_MAX_SUMMARY_ITEMS])
         if len(parts) > _MAX_SUMMARY_ITEMS:
-            text += ", …"
+            text += ", ..."
         return text
 
-    # ------------------------------------------------------------------ events
     def _changed(self):
         if self._suppress:
             return
@@ -369,7 +362,6 @@ class IISPWACTransformEditor(ItemInSidePanelWithAutoConfig):
         self.spec["normalize"] = text
         self._changed()
 
-    # ------------------------------------------------------------------ popups
     def _open_color_picker(self):
         def choose(color):
             self.spec["color"] = color
@@ -401,7 +393,7 @@ class IISPWACTransformEditor(ItemInSidePanelWithAutoConfig):
             list_widget.add_custom_item(value, str(value))
         layout.addWidget(list_widget)
 
-        hint = QLabel("SMALL\n↓↓↓↓↓↓\nLARGE", content)
+        hint = QLabel(f"SMALL\n{DARROW * 6}\nLARGE", content)
         set_stylesheet(hint, css(font_size=Style.FontSize.regular, color=Style.Color.SecondaryText))
         layout.addWidget(hint)
 
@@ -446,7 +438,7 @@ class IISPWACTransformEditor(ItemInSidePanelWithAutoConfig):
             left.setToolTip(repr(value))
             set_stylesheet(left, css(font_size=Style.FontSize.smaller))
             row.addWidget(left)
-            arrow = QLabel("→", inner)
+            arrow = QLabel(RARROW, inner)
             set_stylesheet(arrow, css(font_size=Style.FontSize.smaller))
             row.addWidget(arrow)
             edit = QLineEdit(inner)
@@ -478,8 +470,6 @@ class IISPWACTransformEditor(ItemInSidePanelWithAutoConfig):
 
     def _open_flip_explanation(self):
         """Explain the flip and preview each value -> (reference - value)."""
-        import pandas as pd
-
         numeric = pd.to_numeric(pd.Series(self.unique_values), errors="coerce").dropna()
         ref_text = (self.spec.get("flip_reference") or "").strip()
         try:
@@ -497,10 +487,10 @@ class IISPWACTransformEditor(ItemInSidePanelWithAutoConfig):
         layout.setSpacing(6)
 
         explanation = QLabel(
-            "Flip reverses the scale: every value x becomes (reference − x), so the highest "
+            f"Flip reverses the scale: every value x becomes (reference {MINUS} x), so the highest "
             "value swaps with the lowest. The reference defaults to (max + min) of the observed "
             "values; set it manually when some possible values do not appear in the data "
-            "(e.g. a 1–5 Likert where nobody picked 5 → set reference to 6).",
+            f"(e.g. a 1{NDASH}5 Likert where nobody picked 5 {RARROW} set reference to 6).",
             content,
         )
         explanation.setWordWrap(True)
@@ -511,11 +501,10 @@ class IISPWACTransformEditor(ItemInSidePanelWithAutoConfig):
         layout.addWidget(ref_label)
 
         for value in sorted(numeric.unique()):
-            layout.addWidget(QLabel(f"{value:g}  →  {reference - value:g}", content))
+            layout.addWidget(QLabel(f"{value:g}  {RARROW}  {reference - value:g}", content))
 
         OverlayPopup(self.widget, content)
 
-    # ------------------------------------------------------------------ misc
     def set_handler_changed(self, handler):
         self.handler_changed = handler
 

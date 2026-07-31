@@ -14,19 +14,8 @@
 #
 #  You should have received a copy of the GNU General Public License along with
 #  StatPrism.  If not, see <https://www.gnu.org/licenses/>.
-"""A dynamic "Remove:" list of per-ID checkboxes for row-removal steps.
 
-A ``detector`` callback (passed in by each module) turns the current settings + data into
-an ordered list of candidate row IDs proposed for removal. This element shows one checkbox
-per candidate, all ticked by default; the user can untick any to *keep* that respondent.
-
-The saved value is the list of *unchecked* (kept) IDs, so newly detected outliers always
-default to "remove". main() reruns the same detector and drops every candidate except the
-kept ones (see ``modules/common/removal.finalize_removal``).
-
-It rebuilds itself in ``configure``, which the panel reruns after every recalculation, so
-the candidate list always reflects the latest column / method selection.
-"""
+# VALIDATED
 
 from PySide6.QtWidgets import QCheckBox, QHBoxLayout, QLabel, QPushButton, QVBoxLayout, QWidget
 

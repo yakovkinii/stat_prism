@@ -15,11 +15,13 @@
 #  You should have received a copy of the GNU General Public License along with
 #  StatPrism.  If not, see <https://www.gnu.org/licenses/>.
 
+# VALIDATED
+
 import logging
-from typing import TYPE_CHECKING
 
 from PySide6.QtWidgets import QDoubleSpinBox, QHBoxLayout, QLabel, QSizePolicy, QVBoxLayout, QWidget
 
+from src.common.constant import RARROW
 from src.common.decorators import log_method, log_method_noarg
 from src.pyside_ext.elements.base import BasePanelElement
 from src.pyside_ext.elements.title import Title
@@ -27,9 +29,6 @@ from src.pyside_ext.markup import css
 from src.pyside_ext.styling import Style
 from src.pyside_ext.unique_qss import set_stylesheet
 from src.side_area_panel.panels.base import BasePanel
-
-if TYPE_CHECKING:
-    pass
 
 
 class InversionConfig(BasePanel):
@@ -61,7 +60,6 @@ class InversionConfig(BasePanel):
             logging.warning("Unexpected absence of caller_index")
             self.back_button.setEnabled(False)
 
-        # Default reference is max + min
         default_reference = max_value + min_value if current_reference is None else current_reference
 
         self.elements["inversion_visualizer"].configure(
@@ -86,14 +84,12 @@ class InversionVisualizer(BasePanelElement):
         self.layout = QVBoxLayout(self.widget)
 
     def configure(self, min_value, max_value, current_reference, unique_values=None):
-        # Clear previous widgets
         for i in reversed(range(self.layout.count())):
             widget = self.layout.itemAt(i).widget()
             if widget is not None:
                 widget.hide()
                 widget.deleteLater()
 
-        # Explanation text
         explanation = QLabel(f"Column range: {min_value} to {max_value}")
         explanation.setWordWrap(True)
         self.layout.addWidget(explanation)
@@ -102,7 +98,6 @@ class InversionVisualizer(BasePanelElement):
         explanation2.setWordWrap(True)
         self.layout.addWidget(explanation2)
 
-        # Reference value input
         ref_widget = QWidget()
         ref_layout = QHBoxLayout(ref_widget)
         ref_layout.setContentsMargins(2, 0, 2, 0)
@@ -113,8 +108,8 @@ class InversionVisualizer(BasePanelElement):
 
         self.reference_spinbox = QDoubleSpinBox()
         self.reference_spinbox.setRange(-999999.0, 999999.0)
-        self.reference_spinbox.setDecimals(3)  # Changed from 2 to 3 for 0.001 precision
-        self.reference_spinbox.setSingleStep(0.001)  # Changed from 1.0 to 0.001
+        self.reference_spinbox.setDecimals(3)
+        self.reference_spinbox.setSingleStep(0.001)
         self.reference_spinbox.setValue(current_reference)
         self.reference_spinbox.setFixedWidth(Style.General.spinbox_width.value)
 
@@ -128,24 +123,19 @@ class InversionVisualizer(BasePanelElement):
 
         self.layout.addWidget(ref_widget)
 
-        # Preview
         preview_label = QLabel("Preview:")
         self.layout.addWidget(preview_label)
 
         preview_widget = QWidget()
         preview_layout = QVBoxLayout(preview_widget)
 
-        # Store preview labels for updating
         self.preview_labels = []
 
-        # Show all unique values if available, otherwise show min/max
         if unique_values is not None and len(unique_values) > 0:
-            # Sort unique values for better display
             sorted_values = sorted(unique_values)
 
-            # Limit display to reasonable number to avoid UI clutter
+            # Limit the preview to first 5 + last 5 so a long list does not clutter the panel.
             if len(sorted_values) > 10:
-                # Show first 5, last 5, and indicate there are more
                 display_values = sorted_values[:5] + ["..."] + sorted_values[-5:]
             else:
                 display_values = sorted_values
@@ -155,15 +145,14 @@ class InversionVisualizer(BasePanelElement):
                     ellipsis_label = QLabel("... (more values) ...")
                     set_stylesheet(ellipsis_label, css("QLabel", font_style="italic"))
                     preview_layout.addWidget(ellipsis_label)
-                    self.preview_labels.append(None)  # Placeholder for ellipsis
+                    self.preview_labels.append(None)
                 else:
-                    preview_label = QLabel(f"{value} → {current_reference - value}")
+                    preview_label = QLabel(f"{value} {RARROW} {current_reference - value}")
                     preview_layout.addWidget(preview_label)
                     self.preview_labels.append((preview_label, value))
         else:
-            # Fallback to min/max if no unique values provided
-            min_preview = QLabel(f"{min_value} → {current_reference - min_value}")
-            max_preview = QLabel(f"{max_value} → {current_reference - max_value}")
+            min_preview = QLabel(f"{min_value} {RARROW} {current_reference - min_value}")
+            max_preview = QLabel(f"{max_value} {RARROW} {current_reference - max_value}")
 
             preview_layout.addWidget(min_preview)
             preview_layout.addWidget(max_preview)
@@ -171,13 +160,12 @@ class InversionVisualizer(BasePanelElement):
 
         self.layout.addWidget(preview_widget)
 
-        # Update preview when reference changes
         def update_preview():
             ref_val = self.reference_spinbox.value()
             for item in self.preview_labels:
-                if item is not None:  # Skip ellipsis placeholders
+                if item is not None:  # None marks an ellipsis row, which has no value
                     label, value = item
-                    label.setText(f"{value} → {ref_val - value}")
+                    label.setText(f"{value} {RARROW} {ref_val - value}")
 
         self.reference_spinbox.valueChanged.connect(update_preview)
 

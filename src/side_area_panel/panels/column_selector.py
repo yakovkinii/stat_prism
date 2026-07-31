@@ -15,15 +15,11 @@
 #  You should have received a copy of the GNU General Public License along with
 #  StatPrism.  If not, see <https://www.gnu.org/licenses/>.
 
-
-from typing import TYPE_CHECKING
+# VALIDATED
 
 from src.common.decorators import log_method, log_method_noarg
 from src.pyside_ext.elements.column_selector import ColumnSelectorExPopup, ColumnSelectorPopupHolder
 from src.side_area_panel.panels.base import BasePanel
-
-if TYPE_CHECKING:
-    pass
 
 
 class ColumnSelector(BasePanel):
@@ -35,11 +31,9 @@ class ColumnSelector(BasePanel):
 
     @log_method
     def configure(self, popup: ColumnSelectorExPopup, caller_index, finished_handler):
-        # self._ok_button.setEnabled(False)
         self.caller_index = caller_index
         self.finished_handler = finished_handler
         self.popup = popup
-        # self._back_button.setEnabled(True)
 
         self.elements["popup_holder"].configure(
             popup=popup,

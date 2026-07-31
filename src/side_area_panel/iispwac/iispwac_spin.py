@@ -14,6 +14,9 @@
 #
 #  You should have received a copy of the GNU General Public License along with
 #  StatPrism.  If not, see <https://www.gnu.org/licenses/>.
+
+# VALIDATED
+
 from PySide6.QtCore import QSize, Qt
 from PySide6.QtWidgets import QLabel, QSpinBox
 

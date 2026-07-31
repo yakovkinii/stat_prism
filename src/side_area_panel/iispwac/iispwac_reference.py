@@ -15,6 +15,8 @@
 #  You should have received a copy of the GNU General Public License along with
 #  StatPrism.  If not, see <https://www.gnu.org/licenses/>.
 
+# VALIDATED
+
 import pandas as pd
 from PySide6.QtWidgets import QCheckBox, QDoubleSpinBox, QPushButton
 
@@ -29,15 +31,6 @@ from src.side_area_panel.blueprint.element import ItemInSidePanelWithAutoConfig
 
 
 class IISPWACReference(ItemInSidePanelWithAutoConfig):
-    """A reference value, auto-inferred as (max + min) over the pooled selected
-    columns. The "Manual" checkbox (off by default) switches to a manual override;
-    editing the value engages manual mode automatically.
-
-    get_kwargs returns None while auto (the module's main() then computes the
-    reference from live data, avoiding any stale-value lag) or the number while
-    manual.
-    """
-
     def __init__(self, label_text: str = "Manual", field_index: int = 0):
         super().__init__()
         self.label_text = label_text

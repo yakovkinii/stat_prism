@@ -15,6 +15,7 @@
 #  You should have received a copy of the GNU General Public License along with
 #  StatPrism.  If not, see <https://www.gnu.org/licenses/>.
 
+# VALIDATED
 
 import logging
 from typing import TYPE_CHECKING, Dict, Union
@@ -47,7 +48,6 @@ class BasePanel:
         root_class,
         stacked_widget_index,
     ):
-        # Setup
         self.study_index = None
         self.result_id: Union[int, None] = None
         self.caller_index = None
@@ -108,27 +108,7 @@ class BasePanel:
             ),
         )
 
-        # create_simple_tool_button_qta
-
-        # self.back_button = create_tool_button_qta(
-        #     parent=self.widget,
-        #     button_geometry=QtCore.QRect(10, 10, 145, 60),
-        #     icon_path="fa5s.arrow-left",
-        #     icon_size=QtCore.QSize(40, 40),
-        # )
-        # self.back_button.clicked.connect(self.back_button_pressed)
-        #
-        # self.ok_button = create_tool_button_qta(
-        #     parent=self.widget,
-        #     button_geometry= QtCore.QRect((SettingsPanelSize.width - 145 - 10), 10, 145, 60),
-        #
-        #     icon_path="fa.check",
-        #     icon_size=QtCore.QSize(40, 40),
-        # )
-
-        # Definition
         self.widget_for_elements = QtWidgets.QWidget()
-        # self.widget_for_elements.setFixedWidth(SettingsPanelSize.width)
 
         self.widget_for_elements_layout = QVBoxLayout(self.widget)
         self.widget_for_elements.setLayout(self.widget_for_elements_layout)
@@ -141,7 +121,6 @@ class BasePanel:
         self.scroll_area.setFixedWidth(SettingsPanelSize.width)
 
         self.widget_layout.addWidget(self.scroll_area)
-        # set_stylesheet(self.widget, "#id>QScrollBar{width: 15px;}")
         self.scroll_area.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAsNeeded)
         self.scroll_area.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
         self.elements: Dict[str, BasePanelElement] = {}

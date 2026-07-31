@@ -14,23 +14,12 @@
 #
 #  You should have received a copy of the GNU General Public License along with
 #  StatPrism.  If not, see <https://www.gnu.org/licenses/>.
-"""Dynamic "Apply cross-loadings" checkbox list for CFA.
 
-After each fit the CFA stores its residual-based cross-loading *suggestions* on the result
-(``suggested_cross_loadings`` = list of ``(item, factor_index, score)``). This element shows one
-checkbox per suggestion — plus any the user has already applied, so they persist once ticked.
-Ticking a box adds that cross-loading to the model; ``main`` re-fits with it (the applied
-cross-loading then no longer shows up as a fresh suggestion).
-
-Saved value / ``get_kwargs``: the list of applied ``[item, factor_index]`` pairs (the *checked*
-ones), so — unlike the removal list — suggestions default to *unchecked* (not auto-applied).
-
-Rebuilds in ``configure`` (rerun after every recalculation), so the candidate list always
-reflects the latest fit.
-"""
+# VALIDATED
 
 from PySide6.QtWidgets import QCheckBox, QLabel, QVBoxLayout, QWidget
 
+from src.common.constant import RARROW
 from src.common.decorators import log_method_noarg
 from src.pyside_ext.markup import css
 from src.pyside_ext.styling import Style
@@ -86,7 +75,7 @@ class IISPWACCrossLoadingList(ItemInSidePanelWithAutoConfig):
         self.pairs = []
         self.label.setText(f"{self.label_text} ({len(candidates)})")
         for item, fi, score in candidates:
-            text = f"{item} → F{fi + 1}" + (f"  (r={score:.2f})" if score is not None else "")
+            text = f"{item} {RARROW} F{fi + 1}" + (f"  (r={score:.2f})" if score is not None else "")
             checkbox = QCheckBox(text, self.container)
             checkbox.setToolTip(text)
             checkbox.setChecked((item, fi) in approved_keys)

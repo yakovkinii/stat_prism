@@ -14,6 +14,9 @@
 #
 #  You should have received a copy of the GNU General Public License along with
 #  StatPrism.  If not, see <https://www.gnu.org/licenses/>.
+
+# VALIDATED
+
 from PySide6.QtWidgets import QCheckBox, QLineEdit
 
 from src.pyside_ext.elements.utility.layout_helpers import add_widget
