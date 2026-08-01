@@ -15,21 +15,12 @@
 #  You should have received a copy of the GNU General Public License along with
 #  StatPrism.  If not, see <https://www.gnu.org/licenses/>.
 
+# VALIDATED
 
 from src.common.translations import t
 
 
 class ColumnNumbering:
-    """Optional per-study numbering of variable/column names in result tables.
-
-    When enabled, dataset column names are rendered as 1, 2, 3, ... and the
-    name <-> number legend is appended to the table Note. When disabled, every
-    method is a pass-through, so call sites can use it unconditionally.
-
-    Build it from the ordered list of names that appear in the table headers /
-    row labels (for cross tables, pass the de-duplicated union of both sets so a
-    variable that appears on both axes gets a single number)."""
-
     def __init__(self, names, enabled: bool):
         self.enabled = bool(enabled)
         self._map = {}
@@ -47,10 +38,10 @@ class ColumnNumbering:
         return self._map.get(name, name)
 
     def legend(self) -> str:
-        """The 'number = «name»' legend sentence, or '' when disabled/empty."""
+        """The 'number = name' legend sentence, or '' when disabled/empty."""
         if not self.enabled or not self._map:
             return ""
-        items = "; ".join(f"{num} = «{name}»" for name, num in self._map.items())
+        items = "; ".join(f"{num} = &laquo;{name}&raquo;" for name, num in self._map.items())
         return t("common.column_numbering.legend", items=items)
 
     def append_to_note(self, note: str) -> str:

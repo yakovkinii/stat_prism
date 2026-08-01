@@ -14,10 +14,8 @@
 #
 #  You should have received a copy of the GNU General Public License along with
 #  StatPrism.  If not, see <https://www.gnu.org/licenses/>.
-"""Verbal (plain-language) interpretation of effect-size magnitudes, shared by the
-modules that show a 'verbal indicators' effect-size column. Thresholds follow the usual
-conventions; the returned strings are localised."""
 
+# VALIDATED
 
 from src.common.translations import t
 

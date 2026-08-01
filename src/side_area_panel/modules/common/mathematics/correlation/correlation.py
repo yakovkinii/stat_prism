@@ -15,6 +15,7 @@
 #  You should have received a copy of the GNU General Public License along with
 #  StatPrism.  If not, see <https://www.gnu.org/licenses/>.
 
+# VALIDATED
 
 import numpy as np
 import pandas as pd
@@ -140,8 +141,8 @@ def polychoric_corr_with_pvalue(x, y, min_prob=1e-12):
 
     def log_likelihood(rho):
         # Each cell probability is a difference of the bivariate-normal CDF at its four
-        # threshold-grid corners, and adjacent cells share corners. Caching Φ₂ per grid node
-        # (per rho) computes each of the (nr+1)·(nc+1) nodes once instead of ~4× — the dominant
+        # threshold-grid corners, and adjacent cells share corners. Caching the CDF per grid node
+        # (per rho) computes each of the (nr+1)*(nc+1) nodes once instead of ~4x -- the dominant
         # cost here is multivariate_normal.cdf, so this cuts calls roughly four-fold.
         cache = {}
 
@@ -239,14 +240,12 @@ def calculate_correlations(df, kind: CorrelationType):
     p_matrix = pd.DataFrame(index=df.columns, columns=df.columns)
     df_matrix = pd.DataFrame(index=df.columns, columns=df.columns)
 
-    # Calculate correlation, p-values, and degrees of freedom for each pair of columns
     for i1, col1 in enumerate(df.columns):
         for i2, col2 in enumerate(df.columns):
             if i1 <= i2:
                 continue
             corr, p_value, degrees_of_freedom = _pair_correlation(df[col1], df[col2], kind)
 
-            # Fill the square matrix
             correlation_matrix.loc[col1, col2] = corr
             p_matrix.loc[col1, col2] = p_value
             df_matrix.loc[col1, col2] = degrees_of_freedom

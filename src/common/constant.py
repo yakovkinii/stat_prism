@@ -38,6 +38,7 @@ MU = "μ"
 SIGMA = "σ"
 RHO = "ρ"
 MINUS = "−"
+PROPORTIONAL = "∝"
 
 TABLE_OR_PLOT_ID_PLACEHOLDER = "<table_or_plot_id>"
 

@@ -15,6 +15,8 @@
 #  You should have received a copy of the GNU General Public License along with
 #  StatPrism.  If not, see <https://www.gnu.org/licenses/>.
 
+# VALIDATED
+
 from enum import Enum
 
 import attrs
@@ -61,8 +63,6 @@ class ClusterAnalysisResult(BaseResult):
         self.set_placeholder()
 
     def update_description(self):
-        # General guide is localised; the methodology fine-print is English-only and
-        # rendered smaller, separated by a rule.
         self.description = (
             t("cluster.description")
             + HTML.hr()

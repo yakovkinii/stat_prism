@@ -14,16 +14,14 @@
 #
 #  You should have received a copy of the GNU General Public License along with
 #  StatPrism.  If not, see <https://www.gnu.org/licenses/>.
-"""Plain-language verbal indicators placed next to p-values when 'verbal indicators in
-tables' is on. Significance for difference/association tests; a yes/no conclusion for
-assumption checks (where p > .05 means the assumption holds)."""
 
+# VALIDATED
 
 from src.common.translations import t
 
 
 def significance_verbal(p) -> str:
-    """Significant / not significant at α = .05 (difference & association tests)."""
+    """Significant / not significant at alpha = .05 (difference & association tests)."""
     return t("verbal.significant") if (p is not None and p < 0.05) else t("verbal.not_significant")
 
 

@@ -84,7 +84,7 @@ class FactorAnalysisResult(BaseResult):
         self.set_placeholder()
 
     def update_description(self):
-        # General guide is localised; the methodology fine-print is English-only and
+        # General guide is localized; the methodology fine-print is English-only and
         # rendered smaller, separated by a rule.
         self.description = (
             t("efa.description")

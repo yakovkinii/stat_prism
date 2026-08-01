@@ -15,6 +15,7 @@
 #  You should have received a copy of the GNU General Public License along with
 #  StatPrism.  If not, see <https://www.gnu.org/licenses/>.
 
+# VALIDATED
 
 import logging
 from typing import TYPE_CHECKING, Union
@@ -55,7 +56,6 @@ class BaseModulePanel:
         stacked_widget_index,
         stretch=True,
     ):
-        # Setup
         self.study_index = None
         self.result_id: Union[int, None] = None
         self.configuring = True
@@ -129,7 +129,6 @@ class BaseModulePanel:
             ),
         )
 
-        # Definition
         self.widget_for_elements = QtWidgets.QWidget()
         self.widget_for_elements.setFixedWidth(SettingsPanelSize.width)
 
@@ -170,11 +169,6 @@ class BaseModulePanel:
     @log_method_noarg
     def is_auto_recalculate_enabled(self):
         return True
-        # if self.auto_checkbox is None:
-        #     return False
-        # if self.auto_checkbox.isChecked():
-        #     return True
-        # return False
 
     @log_method
     def setup(self, stretch=False, label="BaseModulePanel"):
@@ -216,7 +210,6 @@ class BaseModulePanel:
             config=RESULTS[result_id].config,
             result_id=result_id,
         )
-        # self.set_recalculate_button_highlight(RESULTS[result_id].needs_update)
         self.configuring = False
 
     @log_method_noarg
@@ -252,7 +245,6 @@ class BaseModulePanel:
         self.root_class.mark_dirty()
         RESULTS[self.result_id] = result
         self.root_class.main_area_panel.refresh_result(result_id=self.result_id)
-        # RESULTS[self.result_id].needs_update = False
         self.configure(result_id=self.result_id)
         # Propagate to downstream data-processing studies and all analyses.
         self.root_class.main_area_panel.cascade_update(self.result_id)

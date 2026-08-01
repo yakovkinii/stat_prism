@@ -15,6 +15,7 @@
 #  You should have received a copy of the GNU General Public License along with
 #  StatPrism.  If not, see <https://www.gnu.org/licenses/>.
 
+# VALIDATED
 
 import pandas as pd
 
@@ -43,17 +44,17 @@ _NAME_KEY = {
 }
 _LETTER = {
     CorrelationType.PEARSON: "r",
-    CorrelationType.SPEARMAN: "ρ",
-    CorrelationType.KENDALL: "τ",
-    CorrelationType.PHI: "φ",
-    CorrelationType.TETRACHORIC: "ρ<sub>t</sub>",
-    CorrelationType.POLYCHORIC: "ρ<sub>pc</sub>",
+    CorrelationType.SPEARMAN: "&rho;",
+    CorrelationType.KENDALL: "&tau;",
+    CorrelationType.PHI: "&phi;",
+    CorrelationType.TETRACHORIC: "&rho;<sub>t</sub>",
+    CorrelationType.POLYCHORIC: "&rho;<sub>pc</sub>",
 }
 
 # Kendall's tau-c is an optional variant that may not exist in every build.
 if hasattr(CorrelationType, "KENDALL_C"):
     _NAME_KEY[CorrelationType.KENDALL_C] = "correlation.name.kendall_c"
-    _LETTER[CorrelationType.KENDALL_C] = "τ<sub>c</sub>"
+    _LETTER[CorrelationType.KENDALL_C] = "&tau;<sub>c</sub>"
 
 
 def _strength(r):
@@ -87,7 +88,7 @@ def get_report(columns, correlation_matrix, p_matrix, df_matrix, detail, kind: C
     name = t(_NAME_KEY[kind])
     letter = _LETTER[kind]
 
-    variables = smart_comma_join([f"«{var}»" for var in columns])
+    variables = smart_comma_join([f"&laquo;{var}&raquo;" for var in columns])
     text = t("correlation.report.intro", name=name, vars=variables)
 
     if len(columns) == 2:
@@ -144,8 +145,8 @@ def get_cross_report(
     name = t(_NAME_KEY[kind])
     letter = _LETTER[kind]
 
-    row_vars = smart_comma_join([f"«{var}»" for var in rows])
-    col_vars = smart_comma_join([f"«{var}»" for var in cols])
+    row_vars = smart_comma_join([f"&laquo;{var}&raquo;" for var in rows])
+    col_vars = smart_comma_join([f"&laquo;{var}&raquo;" for var in cols])
     text = t("correlation.report.cross_intro", name=name, rows=row_vars, cols=col_vars)
 
     reported_any = False

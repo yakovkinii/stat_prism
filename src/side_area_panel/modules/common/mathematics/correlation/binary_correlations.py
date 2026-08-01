@@ -15,6 +15,7 @@
 #  You should have received a copy of the GNU General Public License along with
 #  StatPrism.  If not, see <https://www.gnu.org/licenses/>.
 
+# VALIDATED
 
 import numpy as np
 import pandas as pd
@@ -22,7 +23,6 @@ from scipy.optimize import minimize_scalar
 from scipy.stats import chi2_contingency, multivariate_normal, norm
 
 
-# Calculate Phi Correlation using contingency tables
 def phi_coefficient(var1, var2):
     contingency_table = pd.crosstab(var1, var2)
     # No Yates correction so |phi| matches the standard ad-bc definition for 2x2 tables.
@@ -40,7 +40,6 @@ def phi_coefficient(var1, var2):
     return phi, p_value, dof
 
 
-# Calculate Phi Correlation Table
 def phi_correlation_table(df):
     cols = df.columns
     corr_matrix = pd.DataFrame(np.zeros((len(cols), len(cols))), index=cols, columns=cols)
@@ -105,7 +104,7 @@ def tetrachoric_corr_2x2_table(table):
         # Log likelihood
         return -(a * np.log(prob_11) + b * np.log(prob_10) + c * np.log(prob_01) + d * np.log(prob_00))
 
-    # Bounded scalar search (Brent). A gradient-based optimiser (L-BFGS-B from x0=0) frequently
+    # Bounded scalar search (Brent). A gradient-based optimizer (L-BFGS-B from x0=0) frequently
     # got stuck at the start: multivariate_normal.cdf is only ~1e-8 accurate, so the
     # finite-difference gradient near 0 underflowed and the estimate stayed exactly 0.
     result = minimize_scalar(neg_log_likelihood, bounds=(-1 + epsilon, 1 - epsilon), method="bounded")

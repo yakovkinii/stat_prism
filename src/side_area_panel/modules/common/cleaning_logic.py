@@ -14,15 +14,9 @@
 #
 #  You should have received a copy of the GNU General Public License along with
 #  StatPrism.  If not, see <https://www.gnu.org/licenses/>.
-"""Detection logic for the Response Quality cleaning step.
 
-Each check takes a ``Data`` plus the selected question columns and returns an *ordered list
-of candidate respondent IDs* proposed for removal -- the same contract the outlier detectors
-use, so the shared Remove-list element and ``finalize_removal`` apply unchanged.
+# VALIDATED
 
-The percentage-based checks share one ``min_pct`` knob ("flag at this share of the items"),
-so a single threshold control in the panel drives them all consistently.
-"""
 
 import math
 

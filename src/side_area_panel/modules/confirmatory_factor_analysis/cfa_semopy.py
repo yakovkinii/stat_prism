@@ -14,26 +14,8 @@
 #
 #  You should have received a copy of the GNU General Public License along with
 #  StatPrism.  If not, see <https://www.gnu.org/licenses/>.
-"""semopy-backed CFA estimator.
 
-This is a drop-in replacement for :class:`cfa_numpy.CFAEstimator`: same constructor shape and
-``fit(X, var_names)`` contract, same :class:`cfa_numpy.CFAResultStruct` return type — so the CFA
-module can switch backends with no other changes.
-
-Design choice: semopy is used **only to estimate the parameters** (it brings the robust solvers
-and the DWLS objective we want). Everything reported — the model-implied covariance, χ²/df/p,
-RMSEA, CFI, TLI, SRMR and the standardized loadings/residuals — is then recomputed here from the
-parsed loadings / factor correlations / uniquenesses with the *same formulas* the hand-rolled
-estimator uses. That keeps one source of truth for the fit maths and means a backend switch does
-not change how a given solution is summarised.
-
-semopy is a hard dependency: it is imported at module top level, so a missing package fails fast
-at import time rather than being silently worked around.
-
-    !! Not yet validated end-to-end (the environment this was written in cannot run Python). The
-       semopy ``inspect()`` column names (``lval``/``op``/``rval``/``Estimate``/``Std. Err``) and
-       the ``obj`` argument follow semopy 2.3.x; verify against the installed version.
-"""
+# VALIDATED
 
 import numpy as np
 import pandas as pd
