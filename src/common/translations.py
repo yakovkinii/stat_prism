@@ -1216,7 +1216,8 @@ TRANSLATIONS = {
     "cfa.fit.good": {"en": "good", "ua": "добра"},
     "cfa.fit.excellent": {"en": "excellent", "ua": "відмінна"},
     "cfa.report.chi2_good": {
-        "en": "The exact-fit &chi;&sup2; test is non-significant (&chi;&sup2;({df}) = {chi2}, {p}), consistent with good fit. ",
+        "en": "The exact-fit &chi;&sup2; test is non-significant (&chi;&sup2;({df}) = {chi2}, {p}), "
+        "consistent with good fit. ",
         "ua": "Тест точної відповідності χ² незначущий (χ²({df}) = {chi2}, {p}), "
         "що узгоджується з доброю відповідністю. ",
     },

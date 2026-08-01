@@ -17,6 +17,7 @@
 
 # VALIDATED
 
+
 class BaseResultElement:
     def get_html(self):
         return ...

@@ -12,6 +12,12 @@ r{
 
 # StatPrism Release Notes
 
+### StatPrism 1.2.4 (1 Aug 2026)
+
+* Internal clean-up
+* Fix spelling
+
+
 ### StatPrism 1.2.3 (5 Jul 2026)
 
 * Reformat license file

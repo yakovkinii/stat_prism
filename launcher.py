@@ -130,6 +130,19 @@ if __name__ == "__main__":
 
     app = QApplication(sys.argv)
     pixmap = QPixmap(":/mat/resources/splash.png")
+
+    from PySide6.QtGui import QColor, QFont, QPainter
+
+    from src.about import version
+
+    version_painter = QPainter(pixmap)
+    version_painter.setPen(QColor("#eedd88"))
+    version_font = QFont()
+    version_font.setPointSize(20)
+    version_painter.setFont(version_font)
+    version_painter.drawText(90, 257, f"v{version}")
+    version_painter.end()
+
     splash = QSplashScreen(pixmap)
     splash.show()
 
