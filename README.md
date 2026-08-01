@@ -18,7 +18,7 @@ The full user guide is at **https://stat-prism.readthedocs.io/en/latest/** (web,
 and ePub downloads). It covers importing data, every data-processing step, all analyses,
 and exporting results to Word.
 
-Video guides are on YouTube: **https://www.youtube.com/@statprism**.
+Video guide is available on YouTube: **https://www.youtube.com/@statprism**.
 
 ## License
 
@@ -38,13 +38,3 @@ GitHub's "Cite this repository" button generates APA/BibTeX from it):
 
 > Balashevych, A. K., Petrova, N. V., & Yakovkin, I. I. (2023). *StatPrism* (Version 1.2.4)
 > [Computer software]. https://www.yakovkinii.com/stat_prism/
-
-## Installing the developer edition
-
-1. Install Python 3.9.13 from https://www.python.org/downloads/release/python-3913/
-2. Install Git from https://git-scm.com/downloads
-3. Clone the repository:
- `git clone https://github.com/yakovkinii/stat_prism.git`
-4. Create the virtual environment: `py -3.9 -m venv venv_39`
-5. Install dependencies: `venv_39\Scripts\python.exe -m pip install -r requirements.txt`
-6. Run the software by running `_RUN.bat` (or `venv_39\Scripts\python.exe launcher.py`).

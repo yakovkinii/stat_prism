@@ -16,4 +16,4 @@
 #  StatPrism.  If not, see <https://www.gnu.org/licenses/>.
 
 
-version = "1.2.4"
+version = "1.2.4a"
