@@ -15,6 +15,7 @@
 #  You should have received a copy of the GNU General Public License along with
 #  StatPrism.  If not, see <https://www.gnu.org/licenses/>.
 
+# VALIDATED
 
 from typing import Dict, List
 
@@ -37,9 +38,7 @@ class BaseResult:
         self.title_context: str = ...
         # Settings panel index for activating the result
         self.settings_panel_index: int = ...
-        # Result config
         self.config = ...
-        # Flag for updating the result
         self.needs_update: bool = False
         # For keeping the user settings
         self.old_result_elements: Dict[str, BaseResultElement] = dict()

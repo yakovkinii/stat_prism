@@ -14,6 +14,9 @@
 #
 #  You should have received a copy of the GNU General Public License along with
 #  StatPrism.  If not, see <https://www.gnu.org/licenses/>.
+
+# VALIDATED
+
 from PySide6 import QtCore
 from PySide6.QtWidgets import QWidget
 
@@ -27,10 +30,6 @@ def view_widget_in_popup(parent, widget, handler_on_close):
 
 
 class WidgetPopup(QWidget):
-    """Dimmed overlay covering only `parent` (so e.g. the settings panel stays usable).
-    The content widget is shown at its own size, centered. Clicking the dim area (i.e.
-    outside the content) closes the popup; clicking the content does not."""
-
     def __init__(self, parent, widget, handler_on_close):
         super().__init__(parent, QtCore.Qt.FramelessWindowHint)
         self.handler_on_close = handler_on_close

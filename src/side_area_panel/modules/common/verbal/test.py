@@ -15,6 +15,8 @@
 #  You should have received a copy of the GNU General Public License along with
 #  StatPrism.  If not, see <https://www.gnu.org/licenses/>.
 
+# VALIDATED
+
 
 from typing import List, Union
 
@@ -106,11 +108,6 @@ def describe_single_test_multiple_variables(
 
 
 def describe_grouped_test(prose_detail, yes_columns, no_columns, *, test_name, test_check, yes_property, no_property):
-    """Detail-aware wrapper over ``describe_single_test_multiple_variables`` for the shared
-    "significant in which variables?" report. ``yes_columns`` are the significant results and
-    ``no_columns`` the non-significant ones. At *Full* both are described; at *Significant only*
-    / *Key findings* only the significant ones are (these tests have no separate notability
-    notion). Returns None when there is nothing to say (so the caller can skip ``add_text``)."""
     detail = prose_detail_from(prose_detail)
     if detail == ProseDetail.NONE:
         return None

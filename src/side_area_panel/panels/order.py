@@ -15,15 +15,11 @@
 #  You should have received a copy of the GNU General Public License along with
 #  StatPrism.  If not, see <https://www.gnu.org/licenses/>.
 
-
-from typing import TYPE_CHECKING
+# VALIDATED
 
 from src.common.decorators import log_method, log_method_noarg
 from src.pyside_ext.elements.order import OrderVisualizer
 from src.side_area_panel.panels.base import BasePanel
-
-if TYPE_CHECKING:
-    pass
 
 
 class Order(BasePanel):

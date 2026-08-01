@@ -14,6 +14,9 @@
 #
 #  You should have received a copy of the GNU General Public License along with
 #  StatPrism.  If not, see <https://www.gnu.org/licenses/>.
+
+# VALIDATED
+
 import logging
 from dataclasses import dataclass
 
@@ -73,12 +76,10 @@ class Inverter(BasePanelElement):
             row_layout.setContentsMargins(2, 0, 2, 0)
             row_layout.setSpacing(4)
 
-            # Column label
             label = QLabel(col, parent=self.container_widget)
             label.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
             row_layout.addWidget(label)
 
-            # Invert checkbox
             cb = QCheckBox("Invert", parent=self.container_widget)
             is_inverted = col in self._invert_settings
             cb.setChecked(is_inverted)
@@ -86,13 +87,12 @@ class Inverter(BasePanelElement):
             self.checkboxes.append(cb)
             row_layout.addWidget(cb)
 
-            # Reference spinbox
             spinbox = QDoubleSpinBox(parent=self.container_widget)
             spinbox.setRange(-999999.0, 999999.0)
             spinbox.setDecimals(2)
             spinbox.setSingleStep(0.1)
             spinbox.setFixedWidth(80)
-            if is_inverted and col in self._invert_settings:
+            if is_inverted:
                 spinbox.setValue(self._invert_settings[col].reference)
             else:
                 spinbox.setValue(0.0)

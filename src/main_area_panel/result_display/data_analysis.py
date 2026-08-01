@@ -14,6 +14,9 @@
 #
 #  You should have received a copy of the GNU General Public License along with
 #  StatPrism.  If not, see <https://www.gnu.org/licenses/>.
+
+# VALIDATED
+
 import logging
 
 import qtawesome as qta
@@ -69,7 +72,7 @@ class DataAnalysisResultDisplay(BaseResultDisplay):
             layout=self.header_layout,
             setup=lambda w, l: [
                 w.clicked.connect(lambda: self.activate_result(self.result_id, None)),
-                # Study titles: smaller and brand-coloured (gold on dark, dark gold on light).
+                # Study titles: smaller and brand-colored (gold on dark, dark gold on light).
                 w.setFont(Style.font_study_title),
                 set_stylesheet(w, css(color=Style.Color.TitleBrand)),
             ],
@@ -278,12 +281,12 @@ class DataAnalysisResultDisplay(BaseResultDisplay):
 
     def set_stale(self, stale: bool):
         """Flag this study as out of date (manual-recalculate mode): tint the Refresh button
-        an alarm colour and set the result's needs_update. Reset when it is recalculated."""
+        an alarm color and set the result's needs_update. Reset when it is recalculated."""
         RESULTS[self.result_id].needs_update = stale
         self.recalculate_button.setIcon(qta.icon("ph.arrows-clockwise-bold", color="#e0a030" if stale else "#888"))
 
     def recalculate_full(self):
-        # Drop the cache of user edits (axis titles, plot colours, table numbers...) so
+        # Drop the cache of user edits (axis titles, plot colors, table numbers...) so
         # every element rebuilds from its module defaults, then recalculate normally.
         RESULTS[self.result_id].old_result_elements = {}
         self.recalculate()

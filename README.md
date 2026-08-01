@@ -18,6 +18,8 @@ The full user guide is at **https://stat-prism.readthedocs.io/en/latest/** (web,
 and ePub downloads). It covers importing data, every data-processing step, all analyses,
 and exporting results to Word.
 
+Video guides are on YouTube: **https://www.youtube.com/@statprism**.
+
 ## License
 
 StatPrism is free and open-source software, licensed under the **GNU General Public License
@@ -25,7 +27,7 @@ v3.0 or later** — see [LICENSE](LICENSE).
 
 ## Credits
 
-Developed by the StatPrism Team (Copyright 2023–2025): A. K. Balashevych (model
+Developed by the StatPrism Team (Copyright 2023–2026): A. K. Balashevych (model
 specification), N. V. Petrova (testing & QA), and I. I. Yakovkin (software development &
 project management). Project page: https://www.yakovkinii.com/stat_prism/
 
@@ -34,8 +36,8 @@ project management). Project page: https://www.yakovkinii.com/stat_prism/
 If you use StatPrism in your research, please cite it (see [CITATION.cff](CITATION.cff) —
 GitHub's "Cite this repository" button generates APA/BibTeX from it):
 
-> Balashevych, A. K., Petrova, N. V., & Yakovkin, I. I. (2025). *StatPrism* (Version 1.2.3)
-> [Computer software]. https://github.com/yakovkinii/stat_prism
+> Balashevych, A. K., Petrova, N. V., & Yakovkin, I. I. (2023). *StatPrism* (Version 1.2.4)
+> [Computer software]. https://www.yakovkinii.com/stat_prism/
 
 ## Installing the developer edition
 

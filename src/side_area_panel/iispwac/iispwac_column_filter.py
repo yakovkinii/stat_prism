@@ -15,6 +15,8 @@
 #  You should have received a copy of the GNU General Public License along with
 #  StatPrism.  If not, see <https://www.gnu.org/licenses/>.
 
+# VALIDATED
+
 from PySide6.QtWidgets import QCheckBox, QComboBox, QHBoxLayout, QLabel, QLineEdit, QVBoxLayout, QWidget
 
 from src.common.constant import ColumnType
@@ -31,16 +33,6 @@ EMPTY_SENTINEL = "__EMPTY__"
 
 
 class IISPWACColumnFilter(ItemInSidePanelWithAutoConfig):
-    """Single-column filter that adapts to the column type:
-
-    * numeric column -> an operation (==, !=, <, >, <=, >=) and a value;
-    * ordinal / nominal column -> a checkbox per value (sorted by order for
-      ordinal), where ticked values are kept.
-
-    get_kwargs() returns a spec dict (or None) tagged with the column it was built
-    for, so main() can safely no-op if the column selection has changed.
-    """
-
     OPERATIONS = ["==", "!=", "<", ">", "<=", ">=", "is empty", "is not empty"]
     # Operations that ignore the value box (they test for missing / blank cells).
     EMPTY_OPERATIONS = ["is empty", "is not empty"]

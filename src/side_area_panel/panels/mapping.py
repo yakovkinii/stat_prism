@@ -15,18 +15,18 @@
 #  You should have received a copy of the GNU General Public License along with
 #  StatPrism.  If not, see <https://www.gnu.org/licenses/>.
 
+# VALIDATED
+
 import logging
-from typing import TYPE_CHECKING, Any, Dict
+from typing import Any, Dict
 
 from PySide6.QtWidgets import QDoubleSpinBox, QHBoxLayout, QLabel, QSizePolicy, QVBoxLayout, QWidget
 
+from src.common.constant import RARROW
 from src.common.decorators import log_method, log_method_noarg
 from src.pyside_ext.elements.base import BasePanelElement
 from src.pyside_ext.styling import Style
 from src.side_area_panel.panels.base import BasePanel
-
-if TYPE_CHECKING:
-    pass
 
 
 class Mapping(BasePanel):
@@ -75,7 +75,6 @@ class MappingVisualizer(BasePanelElement):
         self.unique_values = unique_values
         self.spinboxes = []
 
-        # Clear previous widgets
         for i in reversed(range(self.layout.count())):
             widget = self.layout.itemAt(i).widget()
             if widget is not None:
@@ -88,31 +87,27 @@ class MappingVisualizer(BasePanelElement):
             row_layout.setContentsMargins(2, 0, 2, 0)
             row_layout.setSpacing(4)
 
-            # Value label
             label = QLabel(str(value))
             label.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
             row_layout.addWidget(label)
 
-            # Arrow
-            arrow_label = QLabel("→")
+            arrow_label = QLabel(RARROW)
             row_layout.addWidget(arrow_label)
 
-            # Spinbox for mapping
             spinbox = QDoubleSpinBox()
             spinbox.setRange(-999999.0, 999999.0)
-            spinbox.setDecimals(3)  # Changed from 2 to 3 for 0.001 precision
-            spinbox.setSingleStep(0.001)  # Changed from 1.0 to 0.001
+            spinbox.setDecimals(3)
+            spinbox.setSingleStep(0.001)
             spinbox.setFixedWidth(Style.General.spinbox_width.value)
 
             # Prevent text selection when spin buttons are pressed
             spinbox.setButtonSymbols(QDoubleSpinBox.ButtonSymbols.UpDownArrows)
             spinbox.setKeyboardTracking(False)
 
-            # Set default or current value
             if value in current_mapping:
                 spinbox.setValue(current_mapping[value])
             else:
-                # Try to parse as number, otherwise use index
+                # not a number -> fall back to its 1-based position
                 try:
                     spinbox.setValue(float(value))
                 except (ValueError, TypeError):

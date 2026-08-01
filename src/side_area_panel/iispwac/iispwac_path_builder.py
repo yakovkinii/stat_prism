@@ -14,20 +14,12 @@
 #
 #  You should have received a copy of the GNU General Public License along with
 #  StatPrism.  If not, see <https://www.gnu.org/licenses/>.
-"""Click-based structural-path builder for the SEM module.
 
-Each row defines exactly one relationship — no multi-select: a **From** node, a relationship
-**Type**, and a **To** node, each chosen from a single dropdown. The available nodes are the
-latent factors defined in the panel plus only the observed columns assigned as indicators; they
-are recomputed in ``configure`` from the sibling elements (``n_factors`` / ``factor_names`` /
-``column_selector``).
-
-``get_kwargs`` returns the spec: ``[{"from": node, "to": node, "type": "~" | "~~"}, …]`` — the
-SEM main() turns that (with the measurement model) into the semopy model description.
-"""
+# VALIDATED
 
 from PySide6.QtWidgets import QFrame, QHBoxLayout, QLabel, QPushButton, QVBoxLayout, QWidget
 
+from src.common.constant import CROSS, LRARROW, RARROW
 from src.pyside_ext.elements.utility.primitive_elements import NoScrollComboBox
 from src.pyside_ext.markup import css
 from src.pyside_ext.styling import Style
@@ -37,12 +29,12 @@ from src.side_area_panel.blueprint.element import ItemInSidePanelWithAutoConfig
 # Relationship types offered per row. Label -> semopy operator.
 RELATION_REGRESSION = "~"
 RELATION_COVARIANCE = "~~"
-RELATION_LABELS = {"predicts (→)": RELATION_REGRESSION, "covaries (↔)": RELATION_COVARIANCE}
+RELATION_LABELS = {f"predicts ({RARROW})": RELATION_REGRESSION, f"covaries ({LRARROW})": RELATION_COVARIANCE}
 _SYMBOL_TO_LABEL = {v: k for k, v in RELATION_LABELS.items()}
 
 
 def resolve_factor_labels(raw, m) -> list:
-    """Latent-factor labels from the comma-separated names field, filled with F1/F2/… — the same
+    """Latent-factor labels from the comma-separated names field, filled with F1/F2/... -- the same
     rule the SEM main() uses, so the two agree on node names."""
     provided = [part.strip() for part in (raw or "").split(",")]
     labels = []
@@ -53,7 +45,7 @@ def resolve_factor_labels(raw, m) -> list:
 
 
 class IISPWACPathBuilder(ItemInSidePanelWithAutoConfig):
-    def __init__(self, label_text: str = "Paths (from → to):"):
+    def __init__(self, label_text: str = f"Paths (from {RARROW} to):"):
         super().__init__()
         self.label_text = label_text
         self.handler_changed = None
@@ -87,7 +79,6 @@ class IISPWACPathBuilder(ItemInSidePanelWithAutoConfig):
     def get_kwargs(self):
         return {self.name: self.spec}
 
-    # ------------------------------------------------------------------ build
     def _clear(self):
         while self.layout.count():
             item = self.layout.takeAt(0)
@@ -136,7 +127,7 @@ class IISPWACPathBuilder(ItemInSidePanelWithAutoConfig):
         to_combo.currentTextChanged.connect(lambda text, i=index: self._set(i, "to", text))
         row.addWidget(to_combo, 1)
 
-        remove_button = QPushButton("✕", row_widget)
+        remove_button = QPushButton(CROSS, row_widget)
         remove_button.setFixedSize(24, 24)
         remove_button.clicked.connect(lambda _, i=index: self._remove_path(i))
         row.addWidget(remove_button)
@@ -150,7 +141,6 @@ class IISPWACPathBuilder(ItemInSidePanelWithAutoConfig):
         path[key] = current
         return combo
 
-    # ------------------------------------------------------------------ events
     def _changed(self):
         if self.handler_changed:
             self.handler_changed()
@@ -172,7 +162,6 @@ class IISPWACPathBuilder(ItemInSidePanelWithAutoConfig):
             self.spec[index][key] = value
             self._changed()
 
-    # ------------------------------------------------------------------ misc
     def set_handler_changed(self, handler):
         self.handler_changed = handler
 

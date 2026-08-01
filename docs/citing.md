@@ -2,7 +2,7 @@
 
 ## The team
 
-StatPrism is developed by the **StatPrism Team** (Copyright 2023–2025):
+StatPrism is developed by the **StatPrism Team** (Copyright 2023–2026):
 
 - **A. K. Balashevych** — Model specification
 - **N. V. Petrova** — Testing & QA
@@ -14,14 +14,14 @@ Project page: <https://www.yakovkinii.com/stat_prism/>
 
 If you use StatPrism in your research, please cite it. A suggested format:
 
-> Balashevych, A. K., Petrova, N. V., & Yakovkin, I. I. (2025). *StatPrism* (Version {{ release }})
-> [Computer software]. https://github.com/yakovkinii/stat_prism
+> Balashevych, A. K., Petrova, N. V., & Yakovkin, I. I. (2023). *StatPrism* (Version {{ release }})
+> [Computer software]. https://www.yakovkinii.com/stat_prism/
 
 The repository also includes a machine-readable
 [`CITATION.cff`](https://github.com/yakovkinii/stat_prism/blob/master/CITATION.cff) — GitHub
 shows a **"Cite this repository"** button that generates APA/BibTeX from it.
 
 ```{note}
-Update the version and year to match the release you used. Once a versioned release is
-archived (e.g. on Zenodo), cite its DOI instead of the repository URL.
+Update the version to match the release you used (the year stays 2023, StatPrism's first
+release). Once a versioned release is archived (e.g. on Zenodo), cite its DOI instead of the URL.
 ```

@@ -15,6 +15,8 @@
 #  You should have received a copy of the GNU General Public License along with
 #  StatPrism.  If not, see <https://www.gnu.org/licenses/>.
 
+# VALIDATED
+
 
 from src.common.constant import MDASH
 from src.common.translations import t
@@ -47,14 +49,14 @@ def _numbering(numbering):
 
 def _caption(kind, columns):
     name = t(_TABLE_NAME_KEY[kind])
-    variables = smart_comma_join([f"«{var}»" for var in columns])
+    variables = smart_comma_join([f"&laquo;{var}&raquo;" for var in columns])
     return t("correlation.table.caption", name=name, vars=variables)
 
 
 def _cross_caption(kind, rows, cols):
     name = t(_TABLE_NAME_KEY[kind])
-    row_vars = smart_comma_join([f"«{var}»" for var in rows])
-    col_vars = smart_comma_join([f"«{var}»" for var in cols])
+    row_vars = smart_comma_join([f"&laquo;{var}&raquo;" for var in rows])
+    col_vars = smart_comma_join([f"&laquo;{var}&raquo;" for var in cols])
     return t("correlation.table.cross_caption", name=name, rows=row_vars, cols=col_vars)
 
 
@@ -64,15 +66,15 @@ def get_correlation_short_name(kind: CorrelationType) -> str:
     elif kind == CorrelationType.SPEARMAN:
         return "rs"
     elif kind == CorrelationType.KENDALL:
-        return "τ"
+        return "&tau;"
     elif kind == CorrelationType.KENDALL_C:
-        return "τ<sub>c</sub>"
+        return "&tau;<sub>c</sub>"
     elif kind == CorrelationType.PHI:
-        return "φ"
+        return "&phi;"
     elif kind == CorrelationType.TETRACHORIC:
-        return "ρt"
+        return "&rho;t"
     elif kind == CorrelationType.POLYCHORIC:
-        return "ρpc"
+        return "&rho;pc"
     else:
         raise ValueError(f"Invalid correlation type: {kind}")
 
@@ -91,10 +93,8 @@ def get_table_compact(columns, correlation_matrix, p_matrix, kind: CorrelationTy
     numbering = _numbering(numbering)
     table = HTMLTableV2(table_caption=_caption(kind, columns))
 
-    # Add header
     table.add_title_row_apa(Row([Cell()] + [Cell(numbering.label(column), center=True) for column in columns]))
 
-    # Add matrix
     for i_row, row in enumerate(columns):
         table_row = [Cell(numbering.label(row))]
         for i_column, column in enumerate(columns):
@@ -189,12 +189,10 @@ def get_table_full(
     show_ci = ci_matrix is not None
     n_stack = 2 + (0 if hide_df_matrix else 1) + (1 if show_ci else 0)
 
-    # Add header
     table.add_title_row_apa(
         Row([Cell(col_span=2)] + [Cell(numbering.label(column), center=True) for column in columns])
     )
 
-    # Add matrix
     for i_row, row in enumerate(columns):
         table_row_1 = [
             Cell(numbering.label(row), row_span=n_stack),

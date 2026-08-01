@@ -15,6 +15,8 @@
 #  You should have received a copy of the GNU General Public License along with
 #  StatPrism.  If not, see <https://www.gnu.org/licenses/>.
 
+# VALIDATED
+
 from PySide6.QtCore import QSize, Qt, Signal
 from PySide6.QtWidgets import QHBoxLayout, QLineEdit, QSizePolicy, QVBoxLayout, QWidget
 
@@ -26,7 +28,7 @@ from src.pyside_ext.styling import Style
 
 
 class Renamer(BasePanelElement):
-    renamed = Signal(dict)  # Signal to emit renamed columns dict
+    renamed = Signal(dict)
 
     def __init__(self):
         super().__init__()
@@ -44,7 +46,6 @@ class Renamer(BasePanelElement):
         self._handler = handler
 
     def setup(self):
-        # Create the main widget and layout
         self.widget, self.layout = self._empty_widget_with_layout(QVBoxLayout)
         self.container_widget, self.container_layout = self._empty_widget_with_layout(QVBoxLayout, parent=self.widget)
         self.layout.addWidget(self.container_widget)
@@ -56,24 +57,21 @@ class Renamer(BasePanelElement):
 
         self._original_names = original_names
         self._current_renamed = current_renamed
-        # Clear previous widgets
         for i in reversed(range(self.container_layout.count())):
             widget = self.container_layout.itemAt(i).widget()
             if widget is not None:
                 widget.hide()
                 widget.deleteLater()
 
-        # Add editable QLineEdit for each column (no labels)
         for idx, name in enumerate(self._original_names):
             row_widget = QWidget(self.container_widget)
             row_layout = QHBoxLayout(row_widget)
-            row_layout.setContentsMargins(2, 0, 2, 0)  # smaller left/right margins
-            row_layout.setSpacing(2)  # smaller spacing between columns
-            # QLineEdit for renaming
+            row_layout.setContentsMargins(2, 0, 2, 0)
+            row_layout.setSpacing(2)
             edit = QLineEdit(self._current_renamed.get(name, name), parent=self.container_widget)
             edit.setMinimumWidth(200)
             edit.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
-            edit.setCursorPosition(0)  # Always show the beginning of the text
+            edit.setCursorPosition(0)  # always show the start of a long name, not its tail
             edit.editingFinished.connect(self._make_edit_finished_handler(idx))
             self.line_edits.append(edit)
             row_layout.addWidget(edit)
@@ -122,7 +120,6 @@ class Renamer(BasePanelElement):
             changed = True
         edit.setCursorPosition(0)
         edit.clearFocus()
-        # Enable/disable reset button
         if hasattr(self, "_reset_buttons") and idx < len(self._reset_buttons):
             is_modified = old_name in self._current_renamed and self._current_renamed[old_name] != old_name
             self._reset_buttons[idx].setEnabled(is_modified)

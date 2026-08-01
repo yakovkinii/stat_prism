@@ -14,14 +14,8 @@
 #
 #  You should have received a copy of the GNU General Public License along with
 #  StatPrism.  If not, see <https://www.gnu.org/licenses/>.
-"""Shared helpers for "row-removal" data-processing steps (outliers, data cleaning).
 
-These steps all follow the same pattern: a detector proposes a list of candidate row
-IDs to remove, the user can keep some of them (via the Remove-list checkboxes), and the
-step then drops the remaining ones while recording everything the data-preview popup
-needs to show the removed rows in red (``full_data`` + ``removed_positions``), exactly
-like the Filter step.
-"""
+# VALIDATED
 
 from src.data.data import Data
 

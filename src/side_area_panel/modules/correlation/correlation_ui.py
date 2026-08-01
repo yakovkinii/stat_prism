@@ -16,6 +16,8 @@
 #  StatPrism.  If not, see <https://www.gnu.org/licenses/>.
 
 
+# VALIDATED
+
 from src.common.constant import ColumnType
 from src.pyside_ext.elements.column_selector import Field
 from src.side_area_panel.blueprint.element import ItemInSidePanelWithAutoConfigHolder

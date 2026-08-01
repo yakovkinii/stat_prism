@@ -1,6 +1,6 @@
 # StatPrism User Guide
 
-**StatPrism** is a desktop application for analysing survey and questionnaire data and
+**StatPrism** is a desktop application for analyzing survey and questionnaire data and
 turning it into publication-ready tables and figures. It is built for researchers and
 students who want correct statistics and clean, APA-style output **without writing code**.
 
@@ -13,6 +13,7 @@ students who want correct statistics and clean, APA-style output **without writi
 :class: seealso
 
 - **Website:** <https://www.yakovkinii.com/stat_prism/>
+- **Video guides (YouTube):** <https://www.youtube.com/@statprism>
 - **Source code (GitHub):** <https://github.com/yakovkinii/stat_prism>
 - **Downloads & releases:** <https://github.com/yakovkinii/stat_prism/releases>
 :::
@@ -21,7 +22,7 @@ A typical session follows one straight path:
 
 1. **Import** a response export (for example, a Google Forms spreadsheet).
 2. **Clean and reshape** the data with point-and-click processing steps.
-3. **Analyse** it — descriptives, correlations, group comparisons, regression, reliability,
+3. **Analyze** it — descriptives, correlations, group comparisons, regression, reliability,
    factor analysis, and more.
 4. **Copy or export** the results straight into a Word document or a report file.
 
@@ -46,7 +47,7 @@ data-processing/index
 
 ```{toctree}
 :maxdepth: 2
-:caption: Analysing data
+:caption: Analyzing data
 
 analyses/index
 ```

@@ -15,6 +15,7 @@
 #  You should have received a copy of the GNU General Public License along with
 #  StatPrism.  If not, see <https://www.gnu.org/licenses/>.
 
+# VALIDATED
 
 from typing import List
 
@@ -77,7 +78,6 @@ class ColumnSelectorEx(BasePanelElement):
             self.fields_panel_layout.deleteLater()
             self.fields_panel_layout = None
         if self.popup is not None:
-            # self.popup.widget.deleteLater()
             self.popup = None
 
         self.setup(full=False)

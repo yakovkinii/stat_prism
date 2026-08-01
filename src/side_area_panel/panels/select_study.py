@@ -15,8 +15,7 @@
 #  You should have received a copy of the GNU General Public License along with
 #  StatPrism.  If not, see <https://www.gnu.org/licenses/>.
 
-
-from typing import TYPE_CHECKING
+# VALIDATED
 
 from src.common.decorators import log_method
 from src.common.messages import Message, MessageType
@@ -25,9 +24,6 @@ from src.side_area_panel.blueprint.registry import PanelRegistry
 from src.side_area_panel.modules.common.result.registry import RESULTS, get_unique_result_id
 from src.side_area_panel.modules.registry import ModuleRegistry, ModuleRegistryItem, ModuleType
 from src.side_area_panel.panels.base import BasePanel
-
-if TYPE_CHECKING:
-    pass
 
 
 class SelectDataAnalysis(BasePanel):
@@ -57,8 +53,6 @@ class SelectDataAnalysis(BasePanel):
             config=module.config_class(),
         )
 
-        # self.root_class.result_selector_panel.add_result(result_id)
-        # self.root_class.results_panel.display(result_id)
         self.root_class.main_area_panel.add_data_analysis(result_id=result_id)
         self.root_class.main_area_panel.update_focus(result_id=result_id)
 

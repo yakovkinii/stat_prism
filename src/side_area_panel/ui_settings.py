@@ -15,9 +15,9 @@
 #  You should have received a copy of the GNU General Public License along with
 #  StatPrism.  If not, see <https://www.gnu.org/licenses/>.
 
+# VALIDATED
 
 import logging
-import sys
 from typing import TYPE_CHECKING
 
 from PySide6 import QtWidgets
@@ -25,10 +25,11 @@ from PySide6.QtCore import QUrl
 from PySide6.QtGui import QAction, QDesktopServices
 from PySide6.QtWidgets import QMenu, QMenuBar, QProgressBar, QVBoxLayout
 
+from src.common.config import write_ui_value
 from src.common.constant import SettingsPanelSize
 from src.common.languages import LANGUAGE, Languages
 from src.common.theme import THEME, Themes
-from src.common.ui_theme import IS_DARK_THEME, write_ui_value
+from src.common.ui_theme import IS_DARK_THEME
 from src.pyside_ext.elements.utility.layout_helpers import widget_in_layout
 from src.pyside_ext.markup import css
 from src.pyside_ext.styling import Style
@@ -46,7 +47,6 @@ if TYPE_CHECKING:
 
 class SettingsPanelClass:
     def __init__(self, parent_widget, parent_class, root_class):
-        # Setup
         self.root_class: MainWindowClass = root_class
         self.parent_class: MainWindowClass = parent_class
         self.widget = QtWidgets.QWidget(parent_widget)
@@ -64,7 +64,6 @@ class SettingsPanelClass:
         self.widget.setSizePolicy(sizePolicy)
         self.widget.setFixedWidth(SettingsPanelSize.width)
 
-        # Definition
         self.stacked_widget = QtWidgets.QStackedWidget(self.widget)
 
         self.max_used_panel_index = None
@@ -78,12 +77,10 @@ class SettingsPanelClass:
             layout=self.widget_layout,
             setup=lambda w, l: [
                 w.setTextVisible(False),
-                # w.setFixedHeight(10),
                 w.hide(),
             ],
         )
 
-        # Create a file menu and add actions
         menu_bar = QMenuBar(self.widget)
         self.widget_layout.setMenuBar(menu_bar)
         set_stylesheet(
@@ -103,11 +100,11 @@ class SettingsPanelClass:
         help_menu = QMenu("Help", self.widget)
 
         # ----- File menu: documents | recalculate | exit ----- (handlers wired below)
-        self.open_action = QAction("Open…", self.widget)
+        self.open_action = QAction("Open...", self.widget)
         self.save_action = QAction("Save", self.widget)
-        self.save_as_action = QAction("Save As…", self.widget)
+        self.save_as_action = QAction("Save As...", self.widget)
         self.copy_all_action = QAction("Copy All Results", self.widget)
-        self.export_report_action = QAction("Export Report (HTML)…", self.widget)
+        self.export_report_action = QAction("Export Report (HTML)...", self.widget)
         self.collapse_all_action = QAction("Collapse All", self.widget)
         self.recalculate_all_action = QAction("Recalculate All", self.widget)
         self.exit_action = QAction("Exit", self.widget)
@@ -156,18 +153,11 @@ class SettingsPanelClass:
 
         # Auto-recalculate: when on (default), changing a data-processing study recomputes
         # every dependent study immediately. When off, dependents are only flagged (their
-        # Refresh button turns an alarm colour) until recalculated.
+        # Refresh button turns an alarm color) until recalculated.
         self.auto_recalculate_action = QAction("Auto-recalculate", self.widget)
         self.auto_recalculate_action.setCheckable(True)
         self.auto_recalculate_action.setChecked(bool(self.root_class.main_area_panel.auto_recalculate))
         self.auto_recalculate_action.toggled.connect(self.set_auto_recalculate)
-
-        # Associate .sp project files with this executable (per-user, Windows only). The installer
-        # offers the same thing; this lets a user (re)associate without reinstalling.
-        self.associate_action = None
-        if sys.platform == "win32":
-            self.associate_action = QAction("Associate .sp files with StatPrism", self.widget)
-            self.associate_action.triggered.connect(self.associate_file_types)
 
         settings_menu.addMenu(language_menu)
         settings_menu.addSeparator()
@@ -176,9 +166,6 @@ class SettingsPanelClass:
         settings_menu.addMenu(ui_theme_menu)
         settings_menu.addSeparator()
         settings_menu.addAction(self.auto_recalculate_action)
-        if self.associate_action is not None:
-            settings_menu.addSeparator()
-            settings_menu.addAction(self.associate_action)
 
         # ----- Help menu -----
         self.about_action = QAction("About", self.widget)
@@ -190,17 +177,14 @@ class SettingsPanelClass:
         menu_bar.addMenu(settings_menu)
         menu_bar.addMenu(help_menu)
 
-        # Add all panels
         inject_classes_to_panel_registry()
         for panel in PanelRegistry:
             self.add_panel(panel.value)
 
-        # Add all modules
         inject_classes_to_module_registry()
         for module in ModuleRegistry:
             self.add_module(module.value)
 
-        # post-init
         self.stacked_widget.setCurrentIndex(PanelRegistry.HOME_INITIAL.value.settings_stacked_widget_index)
 
         self.en_action.triggered.connect(self.set_language_EN)
@@ -247,37 +231,6 @@ class SettingsPanelClass:
     def set_auto_recalculate(self, enabled: bool):
         self.root_class.main_area_panel.auto_recalculate = enabled
         write_ui_value("auto_recalculate", "true" if enabled else "false")
-
-    def associate_file_types(self):
-        """Register .sp with this executable for the current user (HKCU, no admin needed). Mirrors
-        what the installer's optional association task does; handy after a portable/manual run."""
-        import winreg
-
-        exe = sys.executable
-        classes = r"Software\Classes"
-        prog_id = "StatPrismProjectFile"
-        try:
-            entries = {
-                rf"{classes}\.sp": prog_id,
-                rf"{classes}\{prog_id}": "StatPrism Project File",
-                rf"{classes}\{prog_id}\DefaultIcon": f"{exe},0",
-                rf"{classes}\{prog_id}\shell\open\command": f'"{exe}" "%1"',
-            }
-            for subkey, value in entries.items():
-                with winreg.CreateKey(winreg.HKEY_CURRENT_USER, subkey) as key:
-                    winreg.SetValueEx(key, "", 0, winreg.REG_SZ, value)
-            try:  # ask Explorer to refresh cached associations/icons
-                import ctypes
-
-                ctypes.windll.shell32.SHChangeNotify(0x08000000, 0x0000, None, None)  # SHCNE_ASSOCCHANGED
-            except Exception:
-                pass
-            QtWidgets.QMessageBox.information(
-                self.widget, "StatPrism", "Associated .sp files with StatPrism for your user account."
-            )
-        except Exception as error:
-            logging.warning("Associate .sp failed: %s", error)
-            QtWidgets.QMessageBox.warning(self.widget, "StatPrism", f"Could not associate .sp files:\n{error}")
 
     def set_theme(self, theme: Themes):
         THEME.set_theme(theme)

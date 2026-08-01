@@ -15,6 +15,8 @@
 #  You should have received a copy of the GNU General Public License along with
 #  StatPrism.  If not, see <https://www.gnu.org/licenses/>.
 
+# VALIDATED
+
 import ast
 
 from PySide6.QtWidgets import (
@@ -30,7 +32,7 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
-from src.common.constant import ColumnType
+from src.common.constant import DARROW, RARROW, RESET_ARROW, UARROW, ColumnType
 from src.common.decorators import log_method_noarg
 from src.data.data_manager import DATA_MANAGER
 from src.pyside_ext.elements.order import CustomListWidget
@@ -50,11 +52,6 @@ def _to_python(value):
 
 
 class IISPWACColumnEditor(ItemInSidePanelWithAutoConfig):
-    """Per-column editor for the Preprocess module. Renders one card per column of
-    the chosen data source, each allowing rename, target type, ordinal ordering and
-    value mapping. Adapts to the data in configure() and only rebuilds the cards when
-    the column set changes (so typing in a rename field does not lose focus)."""
-
     def __init__(self):
         super().__init__()
         self.handler_changed = None
@@ -66,7 +63,6 @@ class IISPWACColumnEditor(ItemInSidePanelWithAutoConfig):
         self._built_columns = None
         self._suppress = False
 
-    # ------------------------------------------------------------------ layout
     def post_init(self, name, parent_widget):
         self.name = name
         self.widget = QWidget(parent_widget)
@@ -115,7 +111,7 @@ class IISPWACColumnEditor(ItemInSidePanelWithAutoConfig):
         return values
 
     def _spec_from(self, saved, col, uniques):
-        # The column may already carry a colour tag from upstream; keep it unless overridden.
+        # The column may already carry a color tag from upstream; keep it unless overridden.
         default_color = col.color if isinstance(col.color, str) and col.color else None
         if saved is None:
             return {
@@ -144,7 +140,6 @@ class IISPWACColumnEditor(ItemInSidePanelWithAutoConfig):
     def get_kwargs(self):
         return {self.name: [self.specs[name] for name in self.order if name in self.specs]}
 
-    # ------------------------------------------------------------------ cards
     def _rebuild(self, columns):
         while self.layout.count():
             item = self.layout.takeAt(0)
@@ -168,7 +163,7 @@ class IISPWACColumnEditor(ItemInSidePanelWithAutoConfig):
             header.addWidget(title)
             header.addStretch()
 
-            # Compact, horizontally-aligned controls: colour tag, keep (checked = keep), copy↑, reset.
+            # Compact, horizontally-aligned controls: color tag, keep (checked = keep), copy-up, reset.
             color_btn = QPushButton(card)
             color_btn.setFixedSize(26, 24)
             color_btn.setToolTip("Column color tag (for grouping; e.g. by questionnaire)")
@@ -181,7 +176,7 @@ class IISPWACColumnEditor(ItemInSidePanelWithAutoConfig):
             keep_checkbox.toggled.connect(lambda checked, n=name: self._on_keep(n, checked))
             header.addWidget(keep_checkbox)
 
-            copy_btn = QPushButton("↑", card)
+            copy_btn = QPushButton(UARROW, card)
             copy_btn.setFixedSize(26, 24)
             if index > 0:
                 copy_btn.setToolTip("Copy settings from the column above")
@@ -191,7 +186,7 @@ class IISPWACColumnEditor(ItemInSidePanelWithAutoConfig):
                 copy_btn.setToolTip("No column above to copy from")
             header.addWidget(copy_btn)
 
-            reset_btn = QPushButton("⟲", card)
+            reset_btn = QPushButton(RESET_ARROW, card)
             reset_btn.setFixedSize(26, 24)
             reset_btn.setToolTip("Reset this column: original type, no order, no mapping")
             reset_btn.clicked.connect(lambda _=False, n=name: self._reset(n))
@@ -215,7 +210,7 @@ class IISPWACColumnEditor(ItemInSidePanelWithAutoConfig):
             body_layout.addWidget(rename)
 
             map_row = QHBoxLayout()
-            map_button = QPushButton("Map values…", body)
+            map_button = QPushButton("Map values...", body)
             map_button.clicked.connect(lambda _=False, n=name: self._open_mapping(n))
             map_summary = QLabel(body)
             map_summary.setWordWrap(True)
@@ -237,7 +232,7 @@ class IISPWACColumnEditor(ItemInSidePanelWithAutoConfig):
             order_row = QWidget(body)
             order_layout = QHBoxLayout(order_row)
             order_layout.setContentsMargins(0, 0, 0, 0)
-            order_button = QPushButton("Order…", order_row)
+            order_button = QPushButton("Order...", order_row)
             order_button.clicked.connect(lambda _=False, n=name: self._open_order(n))
             order_summary = QLabel(order_row)
             order_summary.setWordWrap(True)
@@ -303,22 +298,21 @@ class IISPWACColumnEditor(ItemInSidePanelWithAutoConfig):
     def _format_order(values):
         shown = [str(v) for v in values[:_MAX_SUMMARY_ITEMS]]
         if len(values) > _MAX_SUMMARY_ITEMS:
-            shown.append("…")
+            shown.append("...")
         return " < ".join(shown)
 
     @staticmethod
     def _format_mapping(mapping):
         if not mapping:
             return ""
-        parts = [f"{f!r} → {t!r}" for f, t in mapping if f != t]
+        parts = [f"{f!r} {RARROW} {t!r}" for f, t in mapping if f != t]
         if not parts:
             return ""
         text = ", ".join(parts[:_MAX_SUMMARY_ITEMS])
         if len(parts) > _MAX_SUMMARY_ITEMS:
-            text += ", …"
+            text += ", ..."
         return text
 
-    # ------------------------------------------------------------------ events
     def _changed(self):
         if self._suppress:
             return
@@ -337,7 +331,7 @@ class IISPWACColumnEditor(ItemInSidePanelWithAutoConfig):
         self._changed()
 
     def _on_keep(self, name, checked):
-        # Checked = keep the column; unchecked = remove it (and grey out its body).
+        # Checked = keep the column; unchecked = remove it (and gray out its body).
         self.specs[name]["remove"] = not checked
         card = self._card(name)
         if card is not None and card.get("body") is not None:
@@ -392,9 +386,8 @@ class IISPWACColumnEditor(ItemInSidePanelWithAutoConfig):
         self._refresh_all_summaries()
         self._changed()
 
-    # ------------------------------------------------------------------ popups
     def _open_color_picker(self, name):
-        """Pick a pastel colour tag for the column (or None to clear)."""
+        """Pick a pastel color tag for the column (or None to clear)."""
 
         def choose(color):
             self.specs[name]["color"] = color
@@ -430,7 +423,7 @@ class IISPWACColumnEditor(ItemInSidePanelWithAutoConfig):
             list_widget.add_custom_item(value, str(value))
         layout.addWidget(list_widget)
 
-        hint = QLabel("SMALL\n↓↓↓↓↓↓\nLARGE", content)
+        hint = QLabel(f"SMALL\n{DARROW * 6}\nLARGE", content)
         set_stylesheet(hint, css(font_size=Style.FontSize.regular, color=Style.Color.SecondaryText))
         layout.addWidget(hint)
 
@@ -477,7 +470,7 @@ class IISPWACColumnEditor(ItemInSidePanelWithAutoConfig):
             left.setToolTip(repr(value))
             set_stylesheet(left, css(font_size=Style.FontSize.smaller))
             row.addWidget(left)
-            arrow = QLabel("→", inner)
+            arrow = QLabel(RARROW, inner)
             set_stylesheet(arrow, css(font_size=Style.FontSize.smaller))
             row.addWidget(arrow)
             edit = QLineEdit(inner)
@@ -507,7 +500,6 @@ class IISPWACColumnEditor(ItemInSidePanelWithAutoConfig):
 
         OverlayPopup(self.widget, content, on_close=on_close)
 
-    # ------------------------------------------------------------------ misc
     def set_handler_changed(self, handler):
         self.handler_changed = handler
 

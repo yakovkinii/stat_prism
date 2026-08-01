@@ -1,7 +1,7 @@
 # Confirmatory factor analysis
 
 **Confirmatory Factor Analysis (CFA)** tests how well a **pre-specified** factor structure
-fits the data, reporting standard fit indices. Use CFA when you already have a hypothesised
+fits the data, reporting standard fit indices. Use CFA when you already have a hypothesized
 measurement model — for example, from prior theory or an {doc}`exploratory-factor-analysis`.
 
 ## When to use it
@@ -11,7 +11,7 @@ that model fits.
 
 ## Inputs
 
-- **Variables** — the numeric/ordinal items that make up your hypothesised factors.
+- **Variables** — the numeric/ordinal items that make up your hypothesized factors.
 - **Model** — which items load on which factor.
 
 ## Options
@@ -38,7 +38,7 @@ that model fits.
   without changing their size), an **Arrow color** picker, an **Arrow label size** slider (the
   loading numbers), a **Correlation curve** slider (0 = straight, up to a full bulge for the
   factor-correlation links), and an **Arrow width ∝ loading** toggle (uniform arrows otherwise).
-  The overall figure honours the shared **Plot Size** slider.
+  The overall figure honors the shared **Plot Size** slider.
 
 ## Notes
 

@@ -15,13 +15,12 @@
 #  You should have received a copy of the GNU General Public License along with
 #  StatPrism.  If not, see <https://www.gnu.org/licenses/>.
 
-
-from typing import TYPE_CHECKING
+# VALIDATED
 
 import qtawesome as qta
 from PySide6 import QtCore
 
-from src.common.constant import SettingsPanelSize
+from src.common.constant import RTRIANGLE, SettingsPanelSize
 from src.common.decorators import log_method
 from src.common.messages import Message, MessageType
 from src.common.ui_constructor import create_tool_button_qta
@@ -29,9 +28,6 @@ from src.pyside_ext.elements.tab import Tab
 from src.side_area_panel.modules.common.result.html_result import HTMLTableV2
 from src.side_area_panel.modules.common.result.registry import RESULTS
 from src.side_area_panel.panels.base import BasePanel
-
-if TYPE_CHECKING:
-    pass
 
 
 class ResultItemSettingsV2(BasePanel):
@@ -66,11 +62,11 @@ class ResultItemSettingsV2(BasePanel):
         self.result_element: HTMLTableV2 = RESULTS[result_id].result_elements[element_id]
         self._reset_button.setVisible(hasattr(self.result_element, "reset_to_defaults"))
 
-        # Breadcrumb title: a short study name + the element kind, e.g. "Correlation ▸ Plot".
+        # Breadcrumb title: a short study name + the element kind, e.g. "Correlation > Plot".
         study_title = str(RESULTS[result_id].title or "")
-        short_title = study_title if len(study_title) <= 15 else study_title[:15] + "…"
+        short_title = study_title if len(study_title) <= 15 else study_title[:15] + "..."
         kind = "Table" if isinstance(self.result_element, HTMLTableV2) else "Plot"
-        self._label.setText(f"{short_title} ▸ {kind}")
+        self._label.setText(f"{short_title} {RTRIANGLE} {kind}")
 
         self.elements["tab"].clear_elements_soft()
 

@@ -23,7 +23,7 @@ Moderation and mediation are mutually exclusive.
 ## Options
 
 - **Model** — Linear (OLS), Logistic (binary), or Multinomial (logistic).
-- **Standardised coefficients** — reports standardised (β) alongside unstandardised
+- **Standardized coefficients** — reports standardized (β) alongside unstandardized
   estimates (linear model).
 - **Diagnostics** — an influence table (**Mahalanobis distance**, **Cook's distance**,
   **leverage**, **studentized residuals**, flagging the observations that exceed the usual
@@ -36,11 +36,11 @@ Moderation and mediation are mutually exclusive.
 
 - A **model fit** table (R², adjusted R², F, *p* for OLS; pseudo-R² and a likelihood-ratio
   χ² for the logistic models).
-- A **coefficients** table (estimates, standard errors, *t*/*z*, *p*, CIs; standardised if
+- A **coefficients** table (estimates, standard errors, *t*/*z*, *p*, CIs; standardized if
   requested; odds ratios for logistic). The multinomial model reports one coefficient block
   per non-reference category, each compared against the first category as the baseline.
 - **Path tables** for mediation (plus an **X → M → Y path diagram** for a single-predictor
-  mediation when plots are on — with arrow-colour, label-size and spread controls), **diagnostics**
+  mediation when plots are on — with arrow-color, label-size and spread controls), **diagnostics**
   when enabled, and a plot.
 - **Plots.** With a single predictor the plot is a scatter with the fitted line (plus simple slopes
   / mediation paths where relevant). With **several predictors** there is no 2-D scatter, so an

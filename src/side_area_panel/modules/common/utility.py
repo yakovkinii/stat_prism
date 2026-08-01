@@ -15,6 +15,7 @@
 #  You should have received a copy of the GNU General Public License along with
 #  StatPrism.  If not, see <https://www.gnu.org/licenses/>.
 
+# VALIDATED
 
 import numpy as np
 import pandas as pd

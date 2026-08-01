@@ -14,11 +14,13 @@
 #
 #  You should have received a copy of the GNU General Public License along with
 #  StatPrism.  If not, see <https://www.gnu.org/licenses/>.
+
+# VALIDATED
+
 import json
 import pickle
 import tempfile
 import zipfile
-from typing import TYPE_CHECKING
 
 from PySide6 import QtWidgets
 from PySide6.QtGui import QIcon, QPixmap, Qt
@@ -36,9 +38,6 @@ from src.pyside_ext.elements.spacer import Spacer
 from src.side_area_panel.blueprint.registry import PanelRegistry
 from src.side_area_panel.modules.common.result.registry import RESULTS
 from src.side_area_panel.panels.base import BasePanel
-
-if TYPE_CHECKING:
-    pass
 
 
 class Home(BasePanel):
@@ -114,7 +113,6 @@ class Home(BasePanel):
                 pickle.dump(DATA_MANAGER, file)
             with open(f"{temp_dir}/results.pkl", "wb") as file:
                 pickle.dump(RESULTS, file)
-            # Zip all files
             with zipfile.ZipFile(file_path, "w") as zipf:
                 zipf.write(f"{temp_dir}/meta.json", "meta.json")
                 zipf.write(f"{temp_dir}/data_manager.pkl", "data_manager.pkl")
@@ -153,14 +151,12 @@ class AboutDialog(QDialog):
         self.setWindowTitle("About StatPrism")
         self.setWindowIcon(QIcon(":/mat/resources/icon_small.ico"))
         layout = QVBoxLayout(self)
-        # Banner
         banner = QLabel()
         pixmap = QPixmap(":/mat/resources/banner.png")
         if not pixmap.isNull():
             banner.setPixmap(pixmap)
             banner.setAlignment(Qt.AlignCenter)
         layout.addWidget(banner)
-        # Text
         text = QLabel(
             f"""
             <div style="margin-left:32px; text-align:left;">
@@ -169,7 +165,7 @@ class AboutDialog(QDialog):
                 </h2>
                 This version of StatPrism is intended for internal testing only.<br>
                 This software is in development and is provided as is, without any guarantees.<br><br>
-                Copyright 2023 {NDASH} 2025 StatPrism Team:<br>
+                Copyright 2023 {NDASH} 2026 StatPrism Team:<br>
                 <b>Balashevych A. K.</b> {NDASH} Model Specification;<br>
                 <b>Petrova N. V.</b> {NDASH} Testing &amp; QA;<br>
                 <b>Yakovkin I. I.</b> {NDASH} Software Development &amp; PM.<br><br>
@@ -190,7 +186,6 @@ class AboutDialog(QDialog):
         text.setTextInteractionFlags(Qt.TextSelectableByMouse | Qt.LinksAccessibleByMouse)
         text.setAlignment(Qt.AlignLeft)
         layout.addWidget(text)
-        # OK button
         btn_layout = QHBoxLayout()
         btn_layout.addStretch(1)
         ok_btn = QPushButton("OK")

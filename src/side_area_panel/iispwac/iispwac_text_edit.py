@@ -14,6 +14,9 @@
 #
 #  You should have received a copy of the GNU General Public License along with
 #  StatPrism.  If not, see <https://www.gnu.org/licenses/>.
+
+# VALIDATED
+
 from PySide6.QtWidgets import QLabel, QLineEdit
 
 from src.pyside_ext.elements.utility.layout_helpers import add_widget
@@ -29,7 +32,7 @@ class IISPWACLongTextEdit(ItemInSidePanelWithAutoConfig):
         super().__init__()
         self.label_text = label_text
         # Optional predicate(kwargs) -> bool. When supplied, the edit (and its label) are
-        # enabled only while it returns True; disabled (greyed, read-only) otherwise.
+        # enabled only while it returns True; disabled (grayed, read-only) otherwise.
         self.enabled_when = enabled_when
         self.handler_editing_finished = None
 

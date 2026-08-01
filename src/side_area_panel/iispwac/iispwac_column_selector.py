@@ -15,6 +15,7 @@
 #  You should have received a copy of the GNU General Public License along with
 #  StatPrism.  If not, see <https://www.gnu.org/licenses/>.
 
+# VALIDATED
 
 from typing import List
 
@@ -42,7 +43,7 @@ ITEM_HEIGHT = 20
 
 def _type_icon(column_type, color):
     """The column-type icon, in its darker on-light variant when the chip carries a
-    (light pastel) colour tag so it stays visible against the background."""
+    (light pastel) color tag so it stays visible against the background."""
     on_light = isinstance(color, str) and color
     return (COLUMN_TYPE_ICONS_ON_LIGHT if on_light else COLUMN_TYPE_ICONS)[column_type]
 
@@ -50,7 +51,7 @@ def _type_icon(column_type, color):
 def _column_item(text, icon=None, color=None) -> QListWidgetItem:
     """A list item for a column name. The full name is set as a tooltip so a name that is
     truncated/elided in the narrow panel is still readable on hover. `color` (a pastel hex
-    tag) paints the item background, matching the data-viewer header colour."""
+    tag) paints the item background, matching the data-viewer header color."""
     item = QListWidgetItem(text)
     item.setToolTip(str(text))
     item.setSizeHint(QtCore.QSize(0, ITEM_HEIGHT))
@@ -58,7 +59,7 @@ def _column_item(text, icon=None, color=None) -> QListWidgetItem:
         item.setIcon(icon)
     if isinstance(color, str) and color:
         item.setBackground(QtGui.QColor(color))
-        # The colour tags are light pastels, so the (dark-UI) light default text is
+        # The color tags are light pastels, so the (dark-UI) light default text is
         # unreadable on them -- use dark text, matching the data-viewer header.
         item.setForeground(QtGui.QColor(Style.Color.TextOnLight.value))
     return item
@@ -114,7 +115,6 @@ class IISPWACColumnSelector(ItemInSidePanelWithAutoConfig):
                 parent=self.fields_panel,
                 inner_layout_class=VBoxLayout,
                 outer_layout=self.fields_panel_layout,
-                css=css(border="solid 1px blue"),
             )
 
             title, title_layout = add_widget(
@@ -126,9 +126,6 @@ class IISPWACColumnSelector(ItemInSidePanelWithAutoConfig):
             field_label, _ = add_widget(
                 widget=QLabel(title),
                 outer_layout=title_layout,
-                # css=css(
-                #     font_size=Style.FontSize.regular,
-                # ),
             )
             field_label.setText(field.name)
 
@@ -329,7 +326,6 @@ class ColumnSelectorExPopup:
         self.layout.setContentsMargins(10, 10, 10, 10)
         self.layout.setSpacing(10)
         self.widget.closeEvent = lambda event: self.handler_close()
-        # self.widget.dismissed.connect(self.handler_close)
 
         self.main_list, _ = add_widget(
             parent=self.widget,
@@ -380,9 +376,6 @@ class ColumnSelectorExPopup:
             field_label, _ = add_widget(
                 widget=QLabel(title),
                 outer_layout=title_layout,
-                # css=css(
-                #     font_size=Style.FontSize.regular,
-                # ),
             )
             field_label.setText(field.name)
 
@@ -452,7 +445,6 @@ class ColumnSelectorExPopup:
             panel_list.setAcceptDrops(True),
             panel_list.setDropIndicatorShown(True),
             panel_list.setDefaultDropAction(QtCore.Qt.DropAction.MoveAction),
-            # panel_list_layout.setContentsMargins(0, 0, 0, 0),
             panel_list.reasonable_number_of_columns = field.reasonable_number_of_columns
             list_stretch_layout.addStretch()
 

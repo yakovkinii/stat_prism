@@ -15,6 +15,7 @@
 #  You should have received a copy of the GNU General Public License along with
 #  StatPrism.  If not, see <https://www.gnu.org/licenses/>.
 
+# VALIDATED
 
 from typing import Tuple
 
@@ -35,10 +36,9 @@ from src.pyside_ext.styling import Style
 from src.pyside_ext.unique_qss import set_stylesheet
 
 
+# Default-value tracking for settings that hold a single current_value. Subclasses must set
+# self.default_value in __init__ (to the initial value).
 class _ValueDefaultsMixin:
-    """Default-value tracking for settings that hold a single ``current_value``.
-    Subclasses must set ``self.default_value`` in __init__ (to the initial value)."""
-
     def get_default_value(self):
         return self.default_value
 
@@ -84,8 +84,8 @@ class ColorGridItemSetting(BasePanelElement):
     @staticmethod
     def build_palette_rows():
         """Palette shown in the picker: tasteful lighter/base/darker variants of the
-        StatPrism default colours, plus a neutrals row (white -> black) so backgrounds,
-        frames, etc. can use white/grey/black. The "base" row is the set returned by
+        StatPrism default colors, plus a neutrals row (white -> black) so backgrounds,
+        frames, etc. can use white/gray/black. The "base" row is the set returned by
         Colors().get_color_list(), i.e. the defaults actually assigned to series."""
         base_colors = Colors().colors
 
@@ -108,7 +108,7 @@ class ColorGridItemSetting(BasePanelElement):
         return [lighter, list(base_colors), darker, neutrals]
 
     def setup(self):
-        # Compact row: "label:" + a button showing the current colour. Clicking the
+        # Compact row: "label:" + a button showing the current color. Clicking the
         # button drops a palette popup next to it (no dimmed overlay); picking a tile
         # updates the swatch and closes the popup.
         self.widget, self.layout = empty_widget(
@@ -242,7 +242,7 @@ class SliderResultItemSetting(_ValueDefaultsMixin, BasePanelElement):
         self.step = step
         assert add_stretch is False, "Stretch is not supported for SliderResultItemSetting"
         self.add_stretch = add_stretch
-        # When False, the control is rendered greyed-out / non-interactive (used to mark a
+        # When False, the control is rendered grayed-out / non-interactive (used to mark a
         # setting that doesn't apply to the current plot, e.g. legend size with no legend).
         self.enabled = True
         # ---
@@ -311,7 +311,7 @@ class CheckboxResultItemSetting(_ValueDefaultsMixin, BasePanelElement):
         self.default_value = current_value
         assert add_stretch is False, "Stretch is not supported for CheckboxResultItemSetting"
         self.add_stretch = add_stretch
-        self.enabled = True  # greyed-out / non-interactive when False
+        self.enabled = True  # grayed-out / non-interactive when False
         # ---
         self.slider = None
 
@@ -380,10 +380,9 @@ class DropdownResultItemSetting(_ValueDefaultsMixin, BasePanelElement):
         self.handler(Message(MessageType.EDITING_FINISHED, payload=None, caller_id=self.element_id))
 
 
+# A standard QCheckBox whose label uses the regular font, unlike the larger, heavily-styled
+# CheckboxResultItemSetting.
 class PlainCheckboxResultItemSetting(_ValueDefaultsMixin, BasePanelElement):
-    """A standard QCheckBox whose label uses the regular font, unlike the larger,
-    heavily-styled CheckboxResultItemSetting."""
-
     def __init__(self, label, current_value, add_stretch=False):
         super().__init__()
         self.label = label
@@ -391,7 +390,7 @@ class PlainCheckboxResultItemSetting(_ValueDefaultsMixin, BasePanelElement):
         self.default_value = current_value
         assert add_stretch is False, "Stretch is not supported for PlainCheckboxResultItemSetting"
         self.add_stretch = add_stretch
-        self.enabled = True  # greyed-out / non-interactive when False
+        self.enabled = True  # grayed-out / non-interactive when False
         # ---
         self.checkbox = None
 

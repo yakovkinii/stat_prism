@@ -14,13 +14,19 @@
 #
 #  You should have received a copy of the GNU General Public License along with
 #  StatPrism.  If not, see <https://www.gnu.org/licenses/>.
+
+# VALIDATED
+
+import copy
 import logging
 from typing import TYPE_CHECKING
 
 from PySide6 import QtWidgets
-from PySide6.QtCore import QEasingCurve, QPoint, QPropertyAnimation, QTimer
-from PySide6.QtWidgets import QVBoxLayout
+from PySide6.QtCore import QEasingCurve, QMimeData, QPoint, QPropertyAnimation, QTimer
+from PySide6.QtGui import QGuiApplication
+from PySide6.QtWidgets import QFileDialog, QVBoxLayout
 
+from src.common.config import read_auto_recalculate
 from src.common.decorators import log_method
 from src.data.data_manager import DATA_MANAGER
 from src.main_area_panel.result_display.data_analysis import DataAnalysisResultDisplay
@@ -32,6 +38,8 @@ from src.pyside_ext.markup import css
 from src.pyside_ext.styling import Style
 from src.pyside_ext.unique_qss import set_stylesheet
 from src.side_area_panel.blueprint.registry import PanelRegistry
+from src.side_area_panel.modules.common.result.html_result import HTMLTableV2
+from src.side_area_panel.modules.common.result.plot_result import PlotV2
 from src.side_area_panel.modules.common.result.registry import RESULTS, get_unique_result_id
 
 if TYPE_CHECKING:
@@ -40,7 +48,6 @@ if TYPE_CHECKING:
 
 class MainAreaClass:
     def __init__(self, parent_widget, parent_class, root_class):
-        # Setup
         self.root_class: MainWindowClass = root_class
         self.parent_class: MainWindowClass = parent_class
         self.parent_widget = parent_widget
@@ -62,7 +69,6 @@ class MainAreaClass:
 
         set_stylesheet(self.widget_in_scroll_area, css(background_color=Style.Color.Background))
 
-        # Raw Data
         self.raw_data_widget_container, self.raw_data_container_layout = empty_widget(
             widget_class=QWidgetClickable,
             parent=self.widget_in_scroll_area,
@@ -75,7 +81,6 @@ class MainAreaClass:
             ],
         )
 
-        # Data Processing
         self.data_processing_widget_container, self.data_processing_container_layout = empty_widget(
             widget_class=QWidgetClickable,
             parent=self.widget_in_scroll_area,
@@ -88,7 +93,6 @@ class MainAreaClass:
             ],
         )
 
-        # Data Analysis
         self.data_analysis_widget_container, self.data_analysis_container_layout = empty_widget(
             widget_class=QWidgetClickable,
             parent=self.widget_in_scroll_area,
@@ -108,10 +112,8 @@ class MainAreaClass:
         self._cascading = False
         # When True, a data-processing change recomputes every dependent study immediately.
         # When False (default), dependents are only flagged stale (Refresh turns an alarm
-        # colour) until the user recalculates. Persisted in statprism.ini; toggled from
-        # Settings ▸ Auto-recalculate.
-        from src.common.ui_theme import read_auto_recalculate
-
+        # color) until the user recalculates. Persisted in statprism.ini; toggled from
+        # Settings > Auto-recalculate.
         self.auto_recalculate = read_auto_recalculate(default=False)
 
         self.raw_data_objects = {}
@@ -171,7 +173,7 @@ class MainAreaClass:
 
     def _flag_dependents_stale(self, source_result_id):
         """Mark every dependent study as needing recalculation and turn its Refresh button
-        an alarm colour, without recomputing (manual / auto-recalculate-off mode)."""
+        an alarm color, without recomputing (manual / auto-recalculate-off mode)."""
         for result_id in self._dependent_ids(source_result_id):
             RESULTS[result_id].needs_update = True
             obj = self.data_processing_objects.get(result_id) or self.data_analysis_objects.get(result_id)
@@ -198,7 +200,7 @@ class MainAreaClass:
 
     def mark_all_stale(self):
         """Flag every recalculable study (data-processing + analysis) as needing
-        recalculation, turning its Refresh button an alarm colour, without recomputing."""
+        recalculation, turning its Refresh button an alarm color, without recomputing."""
         for objects in (self.data_processing_objects, self.data_analysis_objects):
             for obj in objects.values():
                 if hasattr(obj, "set_stale"):
@@ -272,8 +274,6 @@ class MainAreaClass:
     def _build_report_html(self) -> str:
         """One self-contained HTML document: each data-analysis result (in display order)
         with its tables and plots (plots are inline base64 PNGs, so the file is portable)."""
-        from src.side_area_panel.modules.common.result.html_result import HTMLTableV2
-        from src.side_area_panel.modules.common.result.plot_result import PlotV2
 
         parts = ["<html><body>"]
         for result_id in self.data_analysis_objects:
@@ -290,9 +290,6 @@ class MainAreaClass:
     def copy_all_results(self):
         """Copy every data-analysis result (in display order) to the clipboard as one HTML
         document -- the concatenation of each study's tables and plots."""
-        from PySide6.QtCore import QMimeData
-        from PySide6.QtGui import QGuiApplication
-
         mime_data = QMimeData()
         mime_data.setHtml(self._build_report_html())
         QGuiApplication.clipboard().setMimeData(mime_data)
@@ -300,10 +297,6 @@ class MainAreaClass:
     def export_report_html(self):
         """Save every data-analysis result as a single self-contained .html file (tables +
         inline plots), openable directly in Word or a browser."""
-        import logging
-
-        from PySide6.QtWidgets import QFileDialog
-
         file_path, _ = QFileDialog.getSaveFileName(self.widget, "Export Report (HTML)", "", "HTML files (*.html)")
         if not file_path:
             return
@@ -336,8 +329,6 @@ class MainAreaClass:
     def duplicate_data_analysis(self, result_id):
         """Create an independent copy of an analysis study (same type + settings), compute it,
         and focus it."""
-        import copy
-
         source = RESULTS[result_id]
         new_id = get_unique_result_id()
         RESULTS[new_id] = type(source)(
@@ -449,11 +440,9 @@ class MainAreaClass:
         self.update_focus(result_id, result_element_id)
 
     def remove_result(self, result_id):
-        # Remove from UI and object dicts
         self.root_class.mark_dirty()
         obj = self.get_result_object(result_id)
 
-        # Remove widget from layout
         if result_id in self.data_analysis_objects:
             layout = self.data_analysis_container_layout
             del self.data_analysis_objects[result_id]
@@ -469,7 +458,6 @@ class MainAreaClass:
         obj.widget.setParent(None)
         obj.widget.deleteLater()
 
-        # Update focus if needed
         if self.focused_result_id == result_id:
             self.focused_result_id = None
             self.focused_result_element_id = None

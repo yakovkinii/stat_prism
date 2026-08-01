@@ -15,9 +15,11 @@
 #  You should have received a copy of the GNU General Public License along with
 #  StatPrism.  If not, see <https://www.gnu.org/licenses/>.
 
+# VALIDATED
+
 from PySide6.QtWidgets import QFrame, QHBoxLayout, QLabel, QLineEdit, QVBoxLayout, QWidget
 
-from src.common.constant import ColumnType
+from src.common.constant import MDASH, MU, RHO, SIGMA, ColumnType
 from src.data.data_manager import DATA_MANAGER
 from src.pyside_ext.elements.utility.primitive_elements import NoScrollComboBox
 from src.pyside_ext.markup import css
@@ -29,7 +31,7 @@ from src.side_area_panel.blueprint.element import ItemInSidePanelWithAutoConfig
 VALUE_SOURCES = [("existing", "From existing rows"), ("custom", "Custom list (comma-sep)")]
 DISTRIBUTIONS = [("empirical", "Empirical (match existing)"), ("uniform", "Uniform")]
 # Normal is only offered for ordinal / numeric columns.
-DISTRIBUTION_NORMAL = ("normal", "Normal (μ, σ)")
+DISTRIBUTION_NORMAL = ("normal", f"Normal ({MU}, {SIGMA})")
 
 _SOURCE_LABEL = {key: label for key, label in VALUE_SOURCES}
 _SOURCE_KEY = {label: key for key, label in VALUE_SOURCES}
@@ -55,14 +57,6 @@ def _default_spec(column_name, role):
 
 
 class IISPWACBootstrapColumnEditor(ItemInSidePanelWithAutoConfig):
-    """Per-column fill configuration for the Bootstrap Sensitivity module. Renders one card
-    per selected column, grouped by role (reference, then drivers, then columns). Each card
-    chooses how the synthetic rows are filled: the pool of possible values (existing rows vs.
-    a user list) and the distribution used to draw from it (empirical, uniform, or normal for
-    ordinal/numeric). Drivers and columns also get a correlation row (target + coefficient):
-    a driver correlates with the reference; a column correlates with the reference or a
-    driver. Rebuilt only when the set of selected columns or their roles changes."""
-
     def __init__(self):
         super().__init__()
         self.handler_changed = None
@@ -192,7 +186,7 @@ class IISPWACBootstrapColumnEditor(ItemInSidePanelWithAutoConfig):
             card_layout.setContentsMargins(6, 6, 6, 6)
             card_layout.setSpacing(3)
 
-            role_tag = {"reference": " — reference", "driver": " — driver", "column": ""}[role]
+            role_tag = {"reference": f" {MDASH} reference", "driver": f" {MDASH} driver", "column": ""}[role]
             title = QLabel(name + role_tag, card)
             title.setToolTip(f"{name} ({self.col_types.get(name, '')})")
             set_stylesheet(title, css(font_size=Style.FontSize.regular))
@@ -230,13 +224,13 @@ class IISPWACBootstrapColumnEditor(ItemInSidePanelWithAutoConfig):
             normal_row = QWidget(card)
             normal_layout = QHBoxLayout(normal_row)
             normal_layout.setContentsMargins(0, 0, 0, 0)
-            normal_layout.addWidget(QLabel("μ:", normal_row))
+            normal_layout.addWidget(QLabel(f"{MU}:", normal_row))
             mu_edit = QLineEdit(normal_row)
             mu_edit.setPlaceholderText("auto")
             mu_edit.setText(spec["mu"])
             mu_edit.editingFinished.connect(lambda n=name, e=mu_edit: self._on_mu(n, e))
             normal_layout.addWidget(mu_edit, 1)
-            normal_layout.addWidget(QLabel("σ:", normal_row))
+            normal_layout.addWidget(QLabel(f"{SIGMA}:", normal_row))
             sigma_edit = QLineEdit(normal_row)
             sigma_edit.setPlaceholderText("auto")
             sigma_edit.setText(spec["sigma"])
@@ -266,7 +260,7 @@ class IISPWACBootstrapColumnEditor(ItemInSidePanelWithAutoConfig):
                     target_combo.currentTextChanged.connect(lambda text, n=name: self._on_target(n, text))
                     corr_layout.addWidget(target_combo, 1)
 
-                corr_layout.addWidget(QLabel("ρ:", corr_row))
+                corr_layout.addWidget(QLabel(f"{RHO}:", corr_row))
                 coef_edit = QLineEdit(corr_row)
                 coef_edit.setPlaceholderText("0")
                 coef_edit.setText(spec["coefficient"])

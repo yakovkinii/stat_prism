@@ -15,6 +15,8 @@
 #  You should have received a copy of the GNU General Public License along with
 #  StatPrism.  If not, see <https://www.gnu.org/licenses/>.
 
+# VALIDATED
+
 
 import attrs
 
@@ -56,7 +58,7 @@ class CFAResult(BaseResult):
         self.set_placeholder()
 
     def update_description(self):
-        # General guide is localised; the methodology fine-print is English-only and
+        # General guide is localized; the methodology fine-print is English-only and
         # rendered smaller, separated by a rule.
         self.description = (
             t("cfa.description")

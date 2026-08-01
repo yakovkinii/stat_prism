@@ -15,6 +15,7 @@
 #  You should have received a copy of the GNU General Public License along with
 #  StatPrism.  If not, see <https://www.gnu.org/licenses/>.
 
+# VALIDATED
 
 from enum import Enum
 
@@ -24,6 +25,20 @@ from src.pyside_ext.styling import Style
 
 MDASH = "—"
 NDASH = "–"
+TIMES = "×"
+WARNING = "⚠"
+RARROW = "→"
+LRARROW = "↔"
+UARROW = "↑"
+DARROW = "↓"
+CROSS = "✕"
+RTRIANGLE = "▸"
+RESET_ARROW = "⟲"
+MU = "μ"
+SIGMA = "σ"
+RHO = "ρ"
+MINUS = "−"
+PROPORTIONAL = "∝"
 
 TABLE_OR_PLOT_ID_PLACEHOLDER = "<table_or_plot_id>"
 
@@ -64,14 +79,14 @@ def hex_to_argb(color):
 
 
 def argb_to_hex(argb):
-    """openpyxl fill colour ('AARRGGBB' or 'RRGGBB') -> '#rrggbb'. None if not a literal RGB."""
+    """openpyxl fill color ('AARRGGBB' or 'RRGGBB') -> '#rrggbb'. None if not a literal RGB."""
     if not isinstance(argb, str) or len(argb) not in (6, 8):
         return None
     rgb = argb[-6:]
     return "#" + rgb.lower()
 
 
-# Type colours come from the central scheme (Style.Color); medium-bright so the icons read on
+# Type colors come from the central scheme (Style.Color); medium-bright so the icons read on
 # the dark UI as well as on the (light) pastel column tags in the data viewer.
 _TYPE_ICON_GLYPH = {
     ColumnType.NUMERIC: "mdi.numeric",
@@ -85,7 +100,8 @@ _TYPE_ICON_COLOR = {
     ColumnType.ORDINAL: Style.Color.TypeOrdinal.value,
     ColumnType.ID: Style.Color.TypeId.value,
 }
-# Dark, saturated variants for drawing on a column's (light pastel) colour tag, where the
+
+# Dark, saturated variants for drawing on a column's (light pastel) color tag, where the
 # normal theme-tinted icons -- light in the dark UI theme -- would be hard to see.
 _TYPE_ICON_COLOR_ON_LIGHT = {
     ColumnType.NUMERIC: "darkblue",
@@ -97,7 +113,8 @@ _TYPE_ICON_COLOR_ON_LIGHT = {
 COLUMN_TYPE_ICONS = {
     ctype: qta.icon(glyph, color=_TYPE_ICON_COLOR[ctype], opacity=0.9) for ctype, glyph in _TYPE_ICON_GLYPH.items()
 }
-# Use when the icon sits on a column's pastel colour tag (see COLOR_ROLE in the data viewer).
+
+# Use when the icon sits on a column's pastel color tag (see COLOR_ROLE in the data viewer).
 COLUMN_TYPE_ICONS_ON_LIGHT = {
     ctype: qta.icon(glyph, color=_TYPE_ICON_COLOR_ON_LIGHT[ctype], opacity=0.95)
     for ctype, glyph in _TYPE_ICON_GLYPH.items()

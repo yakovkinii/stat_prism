@@ -15,6 +15,7 @@
 #  You should have received a copy of the GNU General Public License along with
 #  StatPrism.  If not, see <https://www.gnu.org/licenses/>.
 
+# VALIDATED
 
 import logging
 
@@ -22,7 +23,7 @@ import numpy as np
 import pandas as pd
 from scipy.stats import linregress
 
-from src.common.constant import ColumnType
+from src.common.constant import TIMES, ColumnType
 from src.common.decorators import log_function
 from src.common.translations import t
 from src.data.data_manager import DATA_MANAGER
@@ -303,7 +304,7 @@ def _run_cross(result, cfg, data, rows, cols, control_columns, kind, is_partial,
     _ordinal_pearson_warning(result, data, list(rows) + list(cols), kind, html_table)
     _constant_column_warning(df, list(rows) + list(cols), html_table)
 
-    result.title_context = ", ".join(c[:16] for c in rows) + " × " + ", ".join(c[:16] for c in cols)
+    result.title_context = ", ".join(c[:16] for c in rows) + f" {TIMES} " + ", ".join(c[:16] for c in cols)
     result.update_and_add_element(html_table, "correlation table")
     update(60)
 

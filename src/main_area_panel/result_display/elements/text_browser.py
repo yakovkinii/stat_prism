@@ -14,6 +14,9 @@
 #
 #  You should have received a copy of the GNU General Public License along with
 #  StatPrism.  If not, see <https://www.gnu.org/licenses/>.
+
+# VALIDATED
+
 from PySide6 import QtCore
 from PySide6.QtCore import QMimeData, QSize, Qt
 from PySide6.QtGui import QGuiApplication
@@ -42,7 +45,7 @@ class TextBrowser(QTextBrowser):
             css(
                 background=Style.Color.Background,
                 # Light text for the dark UI. Set on the widget (not in the HTML), so copying
-                # the table to a word processor keeps the document's own (black) text colour.
+                # the table to a word processor keeps the document's own (black) text color.
                 color=Style.Color.Text,
                 padding=Style.General.content_padding_medium,
                 border=Style.General.border_elevated,
@@ -51,7 +54,6 @@ class TextBrowser(QTextBrowser):
         )
 
     def sizeHint(self) -> QSize:
-        # Calculate the document size
         doc = self.document()
         doc.setTextWidth(self.viewport().width())
 
@@ -61,7 +63,6 @@ class TextBrowser(QTextBrowser):
         margins = self.contentsMargins()
         padding = 6
 
-        # Calculate total required size
         width = doc.idealWidth() + margins.left() + margins.right() + padding
         height = doc.size().height() + margins.top() + margins.bottom() + padding
 

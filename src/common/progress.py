@@ -1,3 +1,22 @@
+#  Copyright (C) 2023-2026  StatPrism Team
+#  Balashevych A. K., Petrova N. V., Yakovkin I. I.
+#
+#  This file is part of StatPrism.
+#
+#  StatPrism is free software: you can redistribute it and/or modify it under
+#  the terms of the GNU General Public License as published by the Free Software
+#  Foundation, either version 3 of the License, or (at your option) any later
+#  version.
+#
+#  StatPrism is distributed in the hope that it will be useful, but WITHOUT ANY
+#  WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
+#  A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
+#
+#  You should have received a copy of the GNU General Public License along with
+#  StatPrism.  If not, see <https://www.gnu.org/licenses/>.
+
+# VALIDATED
+
 import logging
 import traceback
 from typing import List
@@ -41,12 +60,12 @@ class Worker(QObject):
             if not self._running:
                 raise Exception("Cancelled")
 
-        try:
+        try:  # the worker runs arbitrary user analysis; any failure is reported, not raised
             result = self.func(update_progress)
         except Exception:
             self.canceled.emit()
             tb = traceback.format_exc()
-            try:
+            try:  # emitting can fail if the receiver's thread is already gone; log as a last resort
                 self.error.emit(tb)
             except Exception:
                 logging.error(tb)
@@ -83,6 +102,7 @@ def run_in_separate_thread(func, progress_bar: QProgressBar, steps=100, on_done=
             cancel_button.setEnabled(False)
             cancel_button.clicked.disconnect(worker.stop)
 
+        # cleanup can run from both finished and canceled paths; the attrs may already be gone.
         if hasattr(progress_bar, "_thread"):
             delattr(progress_bar, "_thread")
         if hasattr(progress_bar, "_worker"):

@@ -15,6 +15,7 @@
 #  You should have received a copy of the GNU General Public License along with
 #  StatPrism.  If not, see <https://www.gnu.org/licenses/>.
 
+# VALIDATED
 
 import base64
 import io
@@ -28,6 +29,7 @@ from mpl_toolkits.axes_grid1 import make_axes_locatable
 from PySide6.QtGui import QImage
 from PySide6.QtWidgets import QApplication
 
+from src.common.constant import PROPORTIONAL
 from src.common.qcolor import Colors, rgba_tuple_from_rgb_and_a
 from src.common.theme import THEME
 from src.pyside_ext.elements.base import BasePanelElement
@@ -154,11 +156,10 @@ class Dendrogram:
         self.config = config if config else DendrogramPlotConfig()
 
 
+# Bespoke X -> M -> Y path diagram for a single-predictor mediation. Each *_label names a node;
+# a (X->M), b (M->Y), c_direct (X->Y) and indirect (a*b) are pre-formatted coefficient strings
+# drawn on the edges.
 class MediationDiagram:
-    """Bespoke X → M → Y path diagram for a single-predictor mediation. Each ``*_label`` names a
-    node; ``a`` (X→M), ``b`` (M→Y), ``c_direct`` (X→Y) and ``indirect`` (a·b) are pre-formatted
-    coefficient strings drawn on the edges."""
-
     def __init__(self, x_label, m_label, y_label, a, b, c_direct, indirect, label="Mediation", config=None):
         self.x_label = x_label
         self.m_label = m_label
@@ -171,15 +172,13 @@ class MediationDiagram:
         self.config = config if config else PathDiagramConfig()
 
 
+# Bespoke CFA / SEM measurement-model diagram: each factor is a node with arrows to its
+# indicators, labeled with the standardized loading. factors is a list of (name, [(indicator,
+# loading_str, loading_value), ...]) -- the numeric value drives the optional proportional arrow
+# width; correlations is an optional list of (factor_a, factor_b, r_str) drawn as curved undirected
+# links between factor nodes; regressions is an optional list of (from_factor, to_factor, coef_str)
+# drawn as curved directed arrows between factor nodes (the SEM structural paths).
 class FactorDiagram:
-    """Bespoke CFA / SEM measurement-model diagram: each factor is a node with arrows to its
-    indicators, labelled with the standardized loading. ``factors`` is a list of (name,
-    [(indicator, loading_str, loading_value), …]) — the numeric value drives the optional
-    proportional arrow width; ``correlations`` is an optional list of (factor_a, factor_b, r_str)
-    drawn as curved undirected links between factor nodes; ``regressions`` is an optional list of
-    (from_factor, to_factor, coef_str) drawn as curved *directed* arrows between factor nodes (the
-    SEM structural paths)."""
-
     def __init__(self, factors, correlations=None, regressions=None, label="Factor structure", config=None):
         self.factors = factors
         self.correlations = correlations or []
@@ -233,15 +232,14 @@ class BasePlotConfig:
 
 
 class DendrogramPlotConfig(BasePlotConfig):
-    # No per-series controls; rendered with the figure's frame colour. (display_settings
+    # No per-series controls; rendered with the figure's frame color. (display_settings
     # stays None, so no settings group is shown for it.)
     pass
 
 
+# Controls for the mediation (X -> M -> Y) path diagram: arrow color, edge-label size, and a
+# horizontal spread that widens the triangle without moving M's height.
 class PathDiagramConfig(BasePlotConfig):
-    """Controls for the mediation (X → M → Y) path diagram: arrow colour, edge-label size, and a
-    horizontal spread that widens the triangle without moving M's height."""
-
     def __init__(
         self,
         arrow_color: Tuple[int, int, int] = (90, 90, 90),
@@ -286,7 +284,7 @@ class FactorDiagramConfig(BasePlotConfig):
             label="Arrow label size", current_value=label_font_size, min_value=5, max_value=24, step=1
         )
         self.proportional_arrows = PlainCheckboxResultItemSetting(
-            label="Arrow width ∝ loading", current_value=proportional_arrows
+            label=f"Arrow width {PROPORTIONAL} loading", current_value=proportional_arrows
         )
         # Lateral bulge of the factor-correlation curves (arc3 rad); 0 = straight line.
         self.curve_strength = SliderResultItemSetting(
@@ -608,7 +606,7 @@ class PlotV2(BaseResultElement):
         # Defaults come from the active theme unless explicitly provided (e.g. restored
         # from a saved state). Each setting records the value it is created with as its
         # own default (see _ValueDefaultsMixin), which drives reset and the
-        # carry-over-only-if-modified behaviour in load_settings_from.
+        # carry-over-only-if-modified behavior in load_settings_from.
         theme = THEME.current
         plot_size = plot_size if plot_size is not None else theme.plot_size
         plot_aspect = plot_aspect if plot_aspect is not None else theme.plot_aspect
@@ -680,7 +678,7 @@ class PlotV2(BaseResultElement):
         self.x_tick_reference = SingleLineTextResultItemSetting(label="X ref. tick", current_value=x_tick_reference)
         self.y_tick_step = SingleLineTextResultItemSetting(label="Y step (blank=auto)", current_value=y_tick_step)
         self.y_tick_reference = SingleLineTextResultItemSetting(label="Y ref. tick", current_value=y_tick_reference)
-        # Replace categorical X labels (category / column / group names) with 1, 2, 3 … —
+        # Replace categorical X labels (category / column / group names) with 1, 2, 3 ... --
         # the same enumerate option the correlation heatmap offers. No effect on numeric axes.
         self.numbered_x_labels = PlainCheckboxResultItemSetting(
             label="Number X labels", current_value=numbered_x_labels
@@ -722,7 +720,6 @@ class PlotV2(BaseResultElement):
         }
 
         for item in self.items:
-            # if item has display_settings, add it
             if item.config.display_settings is not None:
                 class_name = item.__class__.__name__
                 label = class_name + ": " + item.label
@@ -730,7 +727,7 @@ class PlotV2(BaseResultElement):
                     raise ValueError(f"duplicated label found: {label}")
                 self.display_settings[label] = item.config.display_settings
 
-        # Grey out controls that can't affect this plot's actual contents: the legend size
+        # Gray out controls that can't affect this plot's actual contents: the legend size
         # when nothing carries a legend entry, and a heatmap's "Significant Only" when no
         # p-value matrix was supplied (e.g. factor-loading heatmaps, where it is meaningless).
         legend_used = any(getattr(item, "legend_string", "") for item in self.items)
@@ -739,7 +736,6 @@ class PlotV2(BaseResultElement):
             if isinstance(item, Heatmap):
                 item.config.only_significant.enabled = item.p is not None
 
-        # ===
         self._gc_ignore = []
 
     def _value_settings(self):
@@ -801,10 +797,7 @@ class PlotV2(BaseResultElement):
     def create_figure(self):
         plt.close("all")
         fig, ax = plt.subplots()
-        # self._gc_ignore.append(fig)
-        # self._gc_ignore.append(ax)
 
-        # set background color
         face_color = self.background_color.get_current_value()
         bg_alpha = self.background_alpha.get_current_value()
         fig.patch.set_facecolor(rgba_tuple_from_rgb_and_a(face_color, bg_alpha))
@@ -963,7 +956,7 @@ class PlotV2(BaseResultElement):
                 )
 
             if isinstance(item, Heatmap):
-                # cell + colorbar text follow the tick/frame colour
+                # cell + colorbar text follow the tick/frame color
                 tick_color = rgba_tuple_from_rgb_and_a(self.frame_color.get_current_value(), 255)
                 is_symmetric = item.config.symmetric_color_scale.get_current_value()
                 alpha = item.config.alpha.get_current_value()
@@ -1094,7 +1087,7 @@ class PlotV2(BaseResultElement):
                 # y ticks on the right
                 ax2.yaxis.tick_right()
                 ax2.spines["left"].set_visible(False)
-                ax2.spines["right"].set_color("grey")
+                ax2.spines["right"].set_color("gray")
                 ax2.spines["top"].set_visible(False)
                 ax2.spines["bottom"].set_visible(False)
 
@@ -1148,9 +1141,9 @@ class PlotV2(BaseResultElement):
                     text_artist.set_fontsize(label_size)
                     if radial:
                         # Rotate each label to point along its slice's radius (angle from the
-                        # centre to the label), flipping the left half so text stays upright. Anchor
-                        # by the label's INNER end (nearest the centre) so labels line up along the
-                        # radius rather than by their centre: not flipped -> the text reads outward,
+                        # center to the label), flipping the left half so text stays upright. Anchor
+                        # by the label's INNER end (nearest the center) so labels line up along the
+                        # radius rather than by their center: not flipped -> the text reads outward,
                         # so its left end is the inner one (ha="left"); flipped -> ha="right".
                         x, y = text_artist.get_position()
                         angle = np.degrees(np.arctan2(y, x))
@@ -1172,8 +1165,8 @@ class PlotV2(BaseResultElement):
 
         # frame (spines + ticks): user-configurable color and thickness
         frame_color = rgba_tuple_from_rgb_and_a(self.frame_color.get_current_value(), 255)
-        # Text colour (tick labels, axis titles, legend) -- a separate, themed setting so it
-        # can be white on the Dark plot theme without recolouring the frame/ticks.
+        # Text color (tick labels, axis titles, legend) -- a separate, themed setting so it
+        # can be white on the Dark plot theme without recoloring the frame/ticks.
         text_color = rgba_tuple_from_rgb_and_a(self.text_color.get_current_value(), 255)
         frame_thickness = self.frame_thickness.get_current_value()
         ax.tick_params(
@@ -1223,7 +1216,7 @@ class PlotV2(BaseResultElement):
             ax.set_xlabel(x_title)
             ax.set_ylabel(y_title)
 
-        # Axis titles use the configurable text colour (defaults to black; white on Dark).
+        # Axis titles use the configurable text color (defaults to black; white on Dark).
         font_size = self.axis_title_font_size.get_current_value()
         for axis_label in (ax.xaxis.label, ax.yaxis.label):
             axis_label.set_fontsize(font_size)
@@ -1289,7 +1282,7 @@ class PlotV2(BaseResultElement):
 
     def display_title(self) -> str:
         """The plot's title as shown in its header label; when a "number the variables" option is
-        on, the number→name mapping is appended (e.g. ``Factor loadings: 1 = Age; 2 = Sex``)."""
+        on, the number->name mapping is appended (e.g. ``Factor loadings: 1 = Age; 2 = Sex``)."""
         title = self.plot_title.get_current_value()
         mapping = self._numbering_caption()
         if mapping:
@@ -1319,9 +1312,9 @@ class PlotV2(BaseResultElement):
 
     def _draw_edge(self, ax, start, end, label, edge, text, face, font_size, curve=0.0, directed=True, linewidth=1.6):
         if curve:
-            # Draw the arc ourselves as a quadratic Bézier in DATA space (control point matches
-            # matplotlib's arc3: C = midpoint + rad·(dy, -dx)). Because it lives in data space, the
-            # label sits exactly on it — B(0.5) = ¼P0 + ½C + ¼P2 — regardless of the axes aspect.
+            # Draw the arc ourselves as a quadratic Bezier in DATA space (control point matches
+            # matplotlib's arc3: C = midpoint + rad*(dy, -dx)). Because it lives in data space, the
+            # label sits exactly on it -- B(0.5) = 1/4 P0 + 1/2 C + 1/4 P2 -- regardless of the axes aspect.
             dx, dy = end[0] - start[0], end[1] - start[1]
             mx, my = (start[0] + end[0]) / 2.0, (start[1] + end[1]) / 2.0
             cx, cy = mx + curve * dy, my - curve * dx
@@ -1459,7 +1452,7 @@ class PlotV2(BaseResultElement):
 
         # Metric figure sizing. The axes fills the whole figure (no fractional margins), and each
         # data unit maps to a fixed number of inches, so the sliders control *relative* proportions:
-        #   * height = rows × per-row inches  -> real, uniform vertical separation;
+        #   * height = rows x per-row inches  -> real, uniform vertical separation;
         #   * a fixed inches-per-x-unit means the factor column (x=0) is always the same distance
         #     from the left edge, while a larger "Horizontal distance" only pushes the indicators
         #     (x=indicator_x) further right and widens the figure to the right.
@@ -1526,41 +1519,18 @@ class PlotV2(BaseResultElement):
             left_x = -0.05
         ax.yaxis.set_label_coords(left_x, 1.05)
 
-    # def get_html(self):
-    #     fig, _ = self.create_figure()
-    #     temp_svg_file_name = "./~tmp.svg"
-    #     fig.savefig(temp_svg_file_name, format="svg", bbox_inches="tight")
-    #     plt.close(fig)
-    #     with open(temp_svg_file_name, "r", encoding="utf-8") as f:
-    #         svg_data = f.read()
-    #         base64_encoded_svg = (
-    #             f"data:image/svg+xml;base64,{base64.b64encode(svg_data.encode('utf-8')).decode('utf-8')}"
-    #         )
-    #     os.remove(temp_svg_file_name)
-    #     result = f"""
-    #         <div><b> Figure {self.number_caption.get_number()} </b> </div>
-    #         <div class="double-spacing font"><i>{self.number_caption.get_caption()}</i></div><br>
-    #         <img src="{base64_encoded_svg}" alt="Plot Image" style="width: 400px; height: auto;">
-    #     """
-    #     return result
-
     def get_html(self):
-        # 1) create your figure as before
         fig, _ = self.create_figure()
 
-        # 2) dump it into an in-memory bytes buffer as PNG
         buf = io.BytesIO()
         fig.savefig(buf, format="png", bbox_inches="tight", pad_inches=self.margin.get_current_value(), dpi=150)
         plt.close(fig)
         buf.seek(0)
 
-        # 3) base64-encode the PNG bytes
         png_bytes = buf.getvalue()
         base64_png = base64.b64encode(png_bytes).decode("ascii")
         buf.close()
 
-        # 4) title as editable text, then the image below (so it can be edited after
-        # pasting into Word etc.)
         _ = self.plot_title.get_current_value()
         # Plot titles are temporarily not rendered (the setting is kept, so rendering can be
         # re-enabled later by restoring the line below).

@@ -5,7 +5,7 @@ This page gives you a quick tour of the StatPrism window and the overall way of 
 ## The window at a glance
 
 ```{figure} _static/img/full-window-annotated.png
-:alt: The StatPrism window with its main areas labelled
+:alt: The StatPrism window with its main areas labeled
 :width: 100%
 
 The StatPrism window: the **results area** on the left (one card per result), the
@@ -48,7 +48,7 @@ a cleaning step everything downstream updates.
 2. **(Optional) Clean it.** Add data-processing steps such as *Filter* or *Impute Missing*.
    See {doc}`data-processing/index`.
 3. **Run an analysis.** Pick an analysis module (for example *Descriptive Statistics*),
-   choose the columns to analyse, and read the results on the left. See
+   choose the columns to analyze, and read the results on the left. See
    {doc}`analyses/index`.
 4. **Get the output out.** Use **File ▸ Copy All Results** and paste into Word, or
    **File ▸ Export Report (HTML)…** to save a self-contained report. See

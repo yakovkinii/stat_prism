@@ -15,6 +15,7 @@
 #  You should have received a copy of the GNU General Public License along with
 #  StatPrism.  If not, see <https://www.gnu.org/licenses/>.
 
+# VALIDATED
 
 import logging
 from typing import List
@@ -155,7 +156,6 @@ class HTMLTableV2(BaseResultElement):
             for r_idx, row in enumerate(self.rows):
                 html += "<tr>"
                 for cell in row.cells:
-                    # Base cell style with increased line-height
                     cell_style = "padding: 5px;"
                     if cell.is_bold:
                         cell_style += " font-weight: bold;"
@@ -179,7 +179,6 @@ class HTMLTableV2(BaseResultElement):
                         elif cell.push_to_left:
                             cell_style += " padding-left: 0;"
 
-                    # Top border
                     if r_idx == 0 and self.border_top:
                         cell_style += f" border-top: 2px solid {Style.Color.TableRule};"
                     elif cell.border_top:
@@ -191,7 +190,6 @@ class HTMLTableV2(BaseResultElement):
                     elif cell.border_bottom:
                         cell_style += f" border-bottom: 1px solid {Style.Color.TableRule};"
 
-                    # Span
                     attrs = ""
                     if cell.col_span > 1:
                         attrs += f' colspan="{cell.col_span}"'
@@ -202,7 +200,6 @@ class HTMLTableV2(BaseResultElement):
                 html += "</tr>"
             html += "</table>\n"
 
-            # Note
             if self.table_note:
                 html += f'<div class="font"><i>{note_str}.</i> {self.table_note}</div>\n'
 

@@ -14,21 +14,8 @@
 #
 #  You should have received a copy of the GNU General Public License along with
 #  StatPrism.  If not, see <https://www.gnu.org/licenses/>.
-"""Shared "how much prose" control for the analysis modules.
 
-Every module that writes a plain-language interpretation offers the *same* dropdown instead
-of an on/off checkbox, so the amount of prose scales with how much there is to say:
-
-    None            -- no prose at all (tables/plots only)
-    Key findings    -- only the notable results (e.g. strong correlations, large effects)
-    Significant     -- only the statistically significant results
-    Full            -- every result, significant or not
-
-Modules decide, per result, whether it is *significant* and (optionally) *notable*; the
-``prose_includes`` helper then applies the chosen level uniformly. ``PROSE_LEVELS`` feeds the
-``IISPWACComboBox`` in each settings panel and the value is stored verbatim in the config
-(like the other combobox settings), so no translation table is needed for the labels.
-"""
+# VALIDATED
 
 from enum import Enum
 

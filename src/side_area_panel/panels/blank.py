@@ -15,6 +15,7 @@
 #  You should have received a copy of the GNU General Public License along with
 #  StatPrism.  If not, see <https://www.gnu.org/licenses/>.
 
+# VALIDATED
 
 from src.pyside_ext.elements.logo import Logo
 from src.side_area_panel.blueprint.registry import PanelRegistry

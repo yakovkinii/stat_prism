@@ -15,9 +15,7 @@
 #  You should have received a copy of the GNU General Public License along with
 #  StatPrism.  If not, see <https://www.gnu.org/licenses/>.
 
-"""A small Android-style on/off slider switch (rounded track + knob that slides
-left↔right), painted entirely in code so it needs no image assets. Colours come from
-the active UI theme via Style.Color."""
+# VALIDATED
 
 from PySide6.QtCore import QRectF, QSize, Qt
 from PySide6.QtGui import QColor, QPainter

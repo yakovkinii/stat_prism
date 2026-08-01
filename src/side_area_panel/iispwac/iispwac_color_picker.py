@@ -15,6 +15,8 @@
 #  You should have received a copy of the GNU General Public License along with
 #  StatPrism.  If not, see <https://www.gnu.org/licenses/>.
 
+# VALIDATED
+
 from PySide6.QtWidgets import QLabel, QPushButton
 
 from src.pyside_ext.elements.utility.layout_helpers import add_widget
@@ -27,10 +29,6 @@ from src.side_area_panel.blueprint.element import ItemInSidePanelWithAutoConfig
 
 
 class IISPWACColorPicker(ItemInSidePanelWithAutoConfig):
-    """A pastel colour-tag picker: a swatch button that opens the shared palette popup and
-    stores a hex colour string (or None). Used by modules that create a new column so the
-    new column can be tagged the same way preprocess tags existing ones."""
-
     def __init__(self, label_text: str):
         super().__init__()
         self.label_text = label_text

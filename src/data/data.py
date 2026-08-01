@@ -15,6 +15,7 @@
 #  You should have received a copy of the GNU General Public License along with
 #  StatPrism.  If not, see <https://www.gnu.org/licenses/>.
 
+# VALIDATED
 
 import logging
 from typing import Dict, List, Optional, Union
@@ -48,7 +49,7 @@ class DataColumn:
         self.column_type: ColumnType = column_type
         self.is_numeric: bool = is_numeric
         self.inverted: bool = inverted
-        # Pastel hex tag (e.g. "#ffd9d9") or None for no colour.
+        # Hex color code or None for no color.
         self.color: Optional[str] = color
         self.order: Dict[Union[int, float, str], int] = order
 
@@ -216,12 +217,10 @@ class Data:
         self.update_lookups()
 
     def insert_column_after_index(self, column: "DataColumn", after_index: int):
-        """Insert a column after the specified index position"""
         self.columns.insert(after_index + 1, column)
         self.update_lookups()
 
     def find_last_column_index(self, column_names: List[str]) -> int:
-        """Find the index of the last occurrence of any column in the given list"""
         last_index = -1
         for col_name in column_names:
             if col_name in self.name_to_index:

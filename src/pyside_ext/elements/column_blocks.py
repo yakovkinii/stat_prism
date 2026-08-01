@@ -15,6 +15,8 @@
 #  You should have received a copy of the GNU General Public License along with
 #  StatPrism.  If not, see <https://www.gnu.org/licenses/>.
 
+# VALIDATED
+
 import logging
 
 from PySide6.QtCore import QSize, Qt
@@ -41,14 +43,12 @@ class ColumnBlocksVisualizer(BasePanelElement):
         self.layout = QVBoxLayout(self.widget)
 
     def configure(self, columns, mapping_settings=None, invert_settings=None):
-        """Configure the visualizer with columns and their settings"""
         logging.info(f"Configuring ColumnBlocksVisualizer with columns: {columns}")
 
         self.columns = columns
         self.mapping_settings = mapping_settings or {}
         self.invert_settings = invert_settings or {}
 
-        # Clear previous widgets
         for i in reversed(range(self.layout.count())):
             widget = self.layout.itemAt(i).widget()
             if widget is not None:
@@ -57,18 +57,15 @@ class ColumnBlocksVisualizer(BasePanelElement):
 
         self.column_widgets = {}
 
-        # Add global settings section if there are columns
         if self.columns:
             self._create_global_settings()
 
-        # Create widgets for each column
         for col_name in self.columns:
             col_widget = self._create_column_widget(col_name)
             self.column_widgets[col_name] = col_widget
             self.layout.addWidget(col_widget)
 
     def _create_global_settings(self):
-        """Create global settings section for batch operations"""
         global_frame = QFrame()
         global_frame.setFrameStyle(QFrame.Shape.StyledPanel)
         set_stylesheet(
@@ -87,11 +84,9 @@ class ColumnBlocksVisualizer(BasePanelElement):
         layout.setContentsMargins(8, 6, 8, 6)
         layout.setSpacing(4)
 
-        # Title
         title_label = QLabel("<b>Global Settings</b>")
         layout.addWidget(title_label)
 
-        # Global mapping button
         mapping_row = QWidget()
         mapping_layout = QHBoxLayout(mapping_row)
         mapping_layout.setContentsMargins(0, 0, 0, 0)
@@ -110,7 +105,6 @@ class ColumnBlocksVisualizer(BasePanelElement):
 
         layout.addWidget(mapping_row)
 
-        # Global inversion button
         invert_row = QWidget()
         invert_layout = QHBoxLayout(invert_row)
         invert_layout.setContentsMargins(0, 0, 0, 0)
@@ -132,7 +126,6 @@ class ColumnBlocksVisualizer(BasePanelElement):
         self.layout.addWidget(global_frame)
 
     def _create_column_widget(self, col_name):
-        """Create a widget block for a single column"""
         frame = QFrame()
         frame.setFrameStyle(QFrame.Shape.StyledPanel)
         set_stylesheet(
@@ -150,19 +143,16 @@ class ColumnBlocksVisualizer(BasePanelElement):
         layout.setContentsMargins(8, 6, 8, 6)
         layout.setSpacing(4)
 
-        # Column name label
         name_label = QLabel(f"<b>{col_name}</b>")
         name_label.setWordWrap(True)
         layout.addWidget(name_label)
 
-        # Mapping summary for this column
         mapping_summary = QLabel()
         mapping_summary.setWordWrap(True)
         set_stylesheet(mapping_summary, css("QLabel", color=Style.Color.SecondaryText, font_size=Style.FontSize.small))
         mapping_summary.setVisible(False)
         layout.addWidget(mapping_summary)
 
-        # Mapping row
         mapping_row = QWidget()
         mapping_layout = QHBoxLayout(mapping_row)
         mapping_layout.setContentsMargins(0, 0, 0, 0)
@@ -181,7 +171,6 @@ class ColumnBlocksVisualizer(BasePanelElement):
 
         layout.addWidget(mapping_row)
 
-        # Inversion row
         invert_row = QWidget()
         invert_layout = QHBoxLayout(invert_row)
         invert_layout.setContentsMargins(0, 0, 0, 0)
@@ -201,7 +190,6 @@ class ColumnBlocksVisualizer(BasePanelElement):
         invert_config_btn.clicked.connect(self._make_invert_config_handler(col_name))
         invert_layout.addWidget(invert_config_btn)
 
-        # Reference value display
         ref_value = self.invert_settings.get(col_name, {}).get("reference", 0.0)
         ref_label = QLabel(f"(ref: {ref_value})")
         ref_label.setVisible(is_inverted)
@@ -210,14 +198,12 @@ class ColumnBlocksVisualizer(BasePanelElement):
         invert_layout.addStretch()
         layout.addWidget(invert_row)
 
-        # Store references to update later
         frame.invert_checkbox = invert_checkbox
         frame.invert_config_btn = invert_config_btn
         frame.ref_label = ref_label
         frame.mapping_btn = mapping_btn
         frame.mapping_summary = mapping_summary
 
-        # Update mapping summary for this column
         self._update_column_mapping_summary(frame, col_name)
 
         return frame
@@ -238,12 +224,10 @@ class ColumnBlocksVisualizer(BasePanelElement):
         def handler(state):
             is_checked = Qt.CheckState(state) == Qt.CheckState.Checked
 
-            # Update settings
             if col_name not in self.invert_settings:
                 self.invert_settings[col_name] = {}
             self.invert_settings[col_name]["enabled"] = is_checked
 
-            # Update UI
             if col_name in self.column_widgets:
                 widget = self.column_widgets[col_name]
                 widget.invert_config_btn.setEnabled(is_checked)
@@ -272,7 +256,6 @@ class ColumnBlocksVisualizer(BasePanelElement):
         return handler
 
     def _global_mapping_handler(self):
-        """Handle global mapping configuration"""
         if self.handler:
             msg = Message(
                 message_type=MessageType.CLICKED,
@@ -282,7 +265,6 @@ class ColumnBlocksVisualizer(BasePanelElement):
             self.handler(msg)
 
     def _global_inversion_handler(self):
-        """Handle global inversion configuration"""
         if self.handler:
             msg = Message(
                 message_type=MessageType.CLICKED,
@@ -292,10 +274,8 @@ class ColumnBlocksVisualizer(BasePanelElement):
             self.handler(msg)
 
     def update_mapping_settings(self, col_name, mapping):
-        """Update mapping settings for a column"""
         self.mapping_settings[col_name] = mapping
 
-        # Update the mapping summary for this column
         if col_name in self.column_widgets:
             self._update_column_mapping_summary(self.column_widgets[col_name], col_name)
 
@@ -308,12 +288,10 @@ class ColumnBlocksVisualizer(BasePanelElement):
             self.handler(msg)
 
     def update_invert_reference(self, col_name, reference):
-        """Update inversion reference for a column"""
         if col_name not in self.invert_settings:
             self.invert_settings[col_name] = {}
         self.invert_settings[col_name]["reference"] = reference
 
-        # Update UI
         if col_name in self.column_widgets:
             widget = self.column_widgets[col_name]
             widget.ref_label.setText(f"(ref: {reference})")
@@ -333,7 +311,6 @@ class ColumnBlocksVisualizer(BasePanelElement):
         return dict(self.invert_settings)
 
     def _update_column_mapping_summary(self, frame, col_name):
-        """Update the mapping summary for a specific column"""
         mapping = self.mapping_settings.get(col_name, {})
 
         if not mapping:
@@ -356,11 +333,10 @@ class ColumnBlocksVisualizer(BasePanelElement):
             frame.mapping_summary.setVisible(False)
             return
 
-        # Build summary text for non-identity mappings
         mapping_strs = []
         for original, mapped in sorted(mapping.items()):
-            if str(original) != str(mapped):  # Only show non-identity mappings
-                mapping_strs.append(f"'{original}' → {mapped}")
+            if str(original) != str(mapped):  # only show non-identity mappings
+                mapping_strs.append(f"'{original}' &rarr; {mapped}")
 
         if mapping_strs:
             summary_text = f"<i>Mappings: {', '.join(mapping_strs)}</i>"

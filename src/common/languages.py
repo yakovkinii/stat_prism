@@ -15,8 +15,11 @@
 #  You should have received a copy of the GNU General Public License along with
 #  StatPrism.  If not, see <https://www.gnu.org/licenses/>.
 
+# VALIDATED
 
 from enum import Enum
+
+from src.common.config import read_language
 
 
 class Languages(Enum):
@@ -39,12 +42,9 @@ class Language:
 
 
 def _initial_language() -> Languages:
-    """Start in the language saved in statprism.ini (falls back to English)."""
-    from src.common.ui_theme import read_language
-
-    try:
+    try:  # an unrecognized saved language falls back to English
         return Languages(read_language())
-    except Exception:
+    except ValueError:
         return Languages.EN
 
 

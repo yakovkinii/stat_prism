@@ -14,16 +14,8 @@
 #
 #  You should have received a copy of the GNU General Public License along with
 #  StatPrism.  If not, see <https://www.gnu.org/licenses/>.
-"""Pure detection logic for the outlier steps.
 
-Each detector takes a ``Data`` plus its parameters and returns an *ordered list of
-candidate row IDs* proposed for removal. The same functions feed both the settings-panel
-Remove-list (which turns the IDs into checkboxes) and the step's main() (which actually
-drops them), so detection lives in one place and the two never drift apart.
-
-Kept import-light and free of any Qt / UI dependency so the UI layer can import it
-without a cycle.
-"""
+# VALIDATED
 
 import numpy as np
 import pandas as pd
@@ -83,7 +75,7 @@ def detect_grouped_outliers(data, columns, grouping_column, method) -> list:
 
 def detect_nd_outliers(data, columns, confidence=0.95) -> list:
     """Multivariate (N-dimensional) outliers via the Mahalanobis distance of each point
-    from the joint centre, with a chi-square cutoff (df = number of columns). Needs at
+    from the joint center, with a chi-square cutoff (df = number of columns). Needs at
     least two columns; returns [] otherwise."""
     columns = [c for c in (columns or []) if c in data.column_names()]
     if len(columns) < 2:
