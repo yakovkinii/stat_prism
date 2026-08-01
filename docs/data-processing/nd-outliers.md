@@ -6,7 +6,7 @@ yet be an outlier for the set because it breaks their typical relationship.)
 
 - Select **two or more** columns in the single **Columns** field. With only one column selected
   the step flags an error.
-- A row is flagged when its point lies too far from the joint centre, measured by the
+- A row is flagged when its point lies too far from the joint center, measured by the
   **Mahalanobis distance** (which accounts for the correlations between the columns). The cutoff
   is the chi-square value at 95% confidence, with degrees of freedom equal to the number of
   columns.

@@ -16,7 +16,7 @@ scores.
 - **Method** — **K-means** or **Hierarchical**.
 - **Linkage** (hierarchical) — Ward, Complete, Average, etc.
 - **Number of clusters**.
-- **Standardise variables** — z-scores each variable first, so variables on larger scales
+- **Standardize variables** — z-scores each variable first, so variables on larger scales
   don't dominate the distance.
 - **Show assignments** — adds a per-respondent cluster table.
 - **Verbal indicators** (in-table columns), **Verbal report** (dropdown for how much written
@@ -33,4 +33,4 @@ scores.
 ## Notes
 
 - Results are reproducible — the clustering and 2-D projection use a fixed random seed.
-- Standardising is usually advisable when variables are on different scales.
+- Standardizing is usually advisable when variables are on different scales.

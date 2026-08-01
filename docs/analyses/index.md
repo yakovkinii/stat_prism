@@ -1,15 +1,15 @@
-# Analysing data
+# Analyzing data
 
 Each analysis is a module you configure in the settings panel on the right; its results
 appear as a card in the large area on the left. Every analysis lets you choose a **data
 source** (default **Auto** = your latest
-data) and the **columns** to analyse.
+data) and the **columns** to analyze.
 
 Pick the analysis that matches your question:
 
 | You want to… | Use |
 | --- | --- |
-| Summarise variables (means, spread, distributions) | {doc}`descriptive` |
+| Summarize variables (means, spread, distributions) | {doc}`descriptive` |
 | Measure how two+ variables move together | {doc}`correlation` |
 | Compare a measure across independent groups | {doc}`mean-comparison` |
 | Compare conditions measured on the same people | {doc}`paired` |
@@ -17,11 +17,11 @@ Pick the analysis that matches your question:
 | Predict an outcome from one or more variables | {doc}`regression` |
 | Check the internal consistency of a scale | {doc}`reliability` |
 | Discover the underlying factors behind a set of items | {doc}`exploratory-factor-analysis` |
-| Test a hypothesised factor structure | {doc}`confirmatory-factor-analysis` |
+| Test a hypothesized factor structure | {doc}`confirmatory-factor-analysis` |
 | Fit a custom structural equation model | {doc}`sem` |
 | Group respondents into clusters | {doc}`cluster` |
 | Plan a sample size or check statistical power | {doc}`power-analysis` |
-| Summarise a "select all that apply" question | {doc}`multiple-response` |
+| Summarize a "select all that apply" question | {doc}`multiple-response` |
 
 ```{toctree}
 :maxdepth: 1

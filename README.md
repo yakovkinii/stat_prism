@@ -18,6 +18,8 @@ The full user guide is at **https://stat-prism.readthedocs.io/en/latest/** (web,
 and ePub downloads). It covers importing data, every data-processing step, all analyses,
 and exporting results to Word.
 
+Video guides are on YouTube: **https://www.youtube.com/@statprism**.
+
 ## License
 
 StatPrism is free and open-source software, licensed under the **GNU General Public License

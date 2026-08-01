@@ -1,4 +1,4 @@
-# Structural equation modelling
+# Structural equation modeling
 
 Fits a **custom structural equation model (SEM)** that you specify yourself, using the
 `semopy` backend. Use it when your model goes beyond a single confirmatory factor structure —
@@ -28,7 +28,7 @@ The model is built entirely by clicking — no syntax to type.
 (e.g. RMSEA → *good* / *acceptable* / *poor*, CFI/TLI → *excellent* / *acceptable* / *poor*), and
 each path's estimate is tagged with significance stars (`*** p<.001, ** p<.01, * p<.05`).
 
-**Verbal report** — an optional written interpretation below each table summarising the model
+**Verbal report** — an optional written interpretation below each table summarizing the model
 fit, which paths are significant and the strongest effect.
 
 ## Output
@@ -36,7 +36,7 @@ fit, which paths are significant and the strongest effect.
 - A **model fit** table (the fit indices semopy reports — χ², degrees of freedom, CFI, TLI,
   RMSEA, and so on).
 - A **parameter estimates** table: every directed and covariance path with its estimate, standard
-  error, *p*-value and standardized value, labelled with your factor and column names. Directed
+  error, *p*-value and standardized value, labeled with your factor and column names. Directed
   effects are shown with an arrow (`predictor → outcome`) and covariances with a double arrow
   (`a ↔ b`).
 - A separate **variances** table for the estimated variances (residual/error variances of items and
@@ -47,8 +47,8 @@ fit, which paths are significant and the strongest effect.
 - With **Path diagram** on, a schematic of the fitted model: each factor node with arrows to its
   indicators (standardized loadings), plus the structural paths between factors — a **double arrow**
   (`↔`) for a factor covariance and a **single arrow** (`→`) for a directed regression, each
-  labelled with its standardized coefficient. It reuses the CFA diagram's plot settings (spacing,
-  arrow colour/label size, correlation-curve and plot-size sliders). Paths involving observed
+  labeled with its standardized coefficient. It reuses the CFA diagram's plot settings (spacing,
+  arrow color/label size, correlation-curve and plot-size sliders). Paths involving observed
   variables that are not a factor's own indicator are omitted from the picture but still listed in
   the estimates table.
 

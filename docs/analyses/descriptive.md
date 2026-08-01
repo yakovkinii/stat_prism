@@ -1,6 +1,6 @@
 # Descriptive statistics
 
-Summarises one or more variables — central tendency, spread, distribution shape — and
+Summarizes one or more variables — central tendency, spread, distribution shape — and
 optionally produces frequency tables, normality tests, and a range of plots.
 
 ## When to use it
@@ -11,7 +11,7 @@ variable's distribution.
 
 ## Inputs
 
-- **Variables** — the columns to summarise. Numeric and ordinal columns get a quantitative
+- **Variables** — the columns to summarize. Numeric and ordinal columns get a quantitative
   summary; nominal columns get frequency tables and category charts.
 - **Grouping (optional)** — a categorical column to split every summary by group.
 

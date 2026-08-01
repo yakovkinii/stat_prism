@@ -62,7 +62,7 @@ Statistical power
 : The chance a study will detect an effect that is really there. Power analysis relates power,
   sample size, effect size, and significance level. See {doc}`analyses/power-analysis`.
 
-Standardised coefficient (β)
+Standardized coefficient (β)
 : A regression coefficient expressed in standard-deviation units, so predictors on different
   scales can be compared.
 

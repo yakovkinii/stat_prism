@@ -16,7 +16,7 @@ yes/no outcome.
 
 - **Continuity correction** — applies Yates' correction (2×2 tables only).
 - **Effect size** — Cramér's V / phi.
-- **Percentages** — adds a percentages table normalised by **row**, **column**, or **total**
+- **Percentages** — adds a percentages table normalized by **row**, **column**, or **total**
   (or *None* to hide it).
 - **Post-hoc residuals** — when the chi-square test is significant, adds a table of
   **adjusted standardized residuals**; cells with |z| > 1.96 (shown in bold) are the ones

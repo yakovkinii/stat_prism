@@ -2,7 +2,7 @@
 
 **Exploratory Factor Analysis (EFA)** uncovers the latent factors behind a set of items —
 how many underlying factors a battery reflects, and which items load on which factor. Use it
-when you do *not* yet have a hypothesised structure; to test a structure you already have,
+when you do *not* yet have a hypothesized structure; to test a structure you already have,
 see {doc}`confirmatory-factor-analysis`.
 
 ## When to use it
@@ -27,7 +27,7 @@ which factor.
 - **Factor names** — optional comma-separated labels for the factors (e.g. `Anxiety, Mood`).
   They replace the default `F1`, `F2` … in every table and the loadings heatmap; blank or
   missing entries keep the default for that factor.
-- **Kaiser normalisation**, **Verbal indicators in tables** (adds a plain-language column to the
+- **Kaiser normalization**, **Verbal indicators in tables** (adds a plain-language column to the
   sampling-adequacy table — a KMO/MSA adequacy word per row and a significance verdict for
   Bartlett), **Number columns**, **Verbal report** (dropdown for how much written interpretation),
   and **Plots**.

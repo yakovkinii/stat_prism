@@ -62,7 +62,7 @@ On import, StatPrism infers a type from the data: numbers become **Numeric**, te
 ```{important}
 A blank answer in a **text** column is read as the literal value `nan` rather than a true
 "missing". A blank answer in a **numeric** column stays genuinely missing. If you plan to
-analyse a question that has skipped answers, check how its blanks were read in the data
+analyze a question that has skipped answers, check how its blanks were read in the data
 viewer, and use **Impute Missing** or **Filter** if you need to handle them.
 ```
 
@@ -74,11 +74,11 @@ define the category order with the **Transform Column** step (see {doc}`data-pro
 Ordinal columns are scored numerically where an analysis needs numbers (e.g. correlations),
 and keep their labels and order in frequency tables and pie charts.
 
-## Colour tags
+## Color tags
 
-Columns can carry a soft **colour tag** that follows them through the app and into exported
-Excel headers, which helps when you have many variables. Colours from a source sheet's
-coloured header cells are picked up automatically on import.
+Columns can carry a soft **color tag** that follows them through the app and into exported
+Excel headers, which helps when you have many variables. Colors from a source sheet's
+colored header cells are picked up automatically on import.
 
 ## Viewing and checking the data
 

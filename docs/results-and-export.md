@@ -1,7 +1,7 @@
 # Results & export
 
 Everything you compute appears as a **result card** in the large area on the left. This page covers reading,
-customising, and getting those results out — especially into Word for a report or article.
+customizing, and getting those results out — especially into Word for a report or article.
 
 ## Result cards and tabs
 
@@ -10,15 +10,15 @@ customising, and getting those results out — especially into Word for a report
   between.
 - Results update automatically when you change a setting or an upstream data step.
 
-## Customising plots
+## Customizing plots
 
-Plots have their own controls — typically colours, axis titles, gridlines, the title/axis
+Plots have their own controls — typically colors, axis titles, gridlines, the title/axis
 layout, and the figure size. Adjust these before exporting so the figure looks right in your
 document.
 
 ## APA-style tables
 
-Tables are formatted in **APA** style (clean rules, italicised statistics where
+Tables are formatted in **APA** style (clean rules, italicized statistics where
 appropriate), so they drop into a manuscript with minimal reformatting.
 
 ## Copy everything into Word
@@ -65,7 +65,7 @@ manuscript.
 ## Export data to Excel
 
 You can export the current data table to `.xlsx`, with each column header painted in its
-colour tag — handy for sharing a cleaned dataset or for independent checking in another tool.
+color tag — handy for sharing a cleaned dataset or for independent checking in another tool.
 
 ## Resolution note
 

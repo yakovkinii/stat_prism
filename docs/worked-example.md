@@ -86,5 +86,5 @@ analyses — later.
 
 ---
 
-That's the whole loop: **import → clean → derive → analyse → export**. Once it's set up,
+That's the whole loop: **import → clean → derive → analyze → export**. Once it's set up,
 re-running with new responses is just re-importing and letting the chain recompute.
