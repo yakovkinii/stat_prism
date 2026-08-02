@@ -203,6 +203,8 @@ if __name__ == "__main__":
     import logging
 
     _setup_logging(logging.INFO)
+    from src.about import version
+    logging.info(f"Version: {version}")
 
     # Back up the reference to the exceptionhook
     sys._excepthook = sys.excepthook

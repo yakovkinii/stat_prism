@@ -4,8 +4,6 @@ __pycache__/
 /build/
 /.idea/
 /scratches/
-/Database_Media.xlsx
-/Дослідження_впливу_тривожності_на_самооцінку_Ответы.xlsx
 *.log
 /resources/old/
 /resources/High-res/
@@ -30,3 +28,4 @@ __pycache__/
 
 # Per-machine UI config (auto-created on first run; default theme = light)
 /statprism.ini
+/update_rc.bat

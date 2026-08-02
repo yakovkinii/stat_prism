@@ -18,7 +18,6 @@
 # VALIDATED
 
 import functools
-import inspect
 import logging
 import threading
 import time
@@ -74,10 +73,11 @@ def _log_call_end(message: str, level: int, source_file: str, line_number: int) 
 
 
 def log_method(method):
-    # Resolve the source location once at decoration time: inspect.getsourcelines re-tokenizes the
-    # whole source file, which is far too expensive to do on every call.
-    source_file = inspect.getsourcefile(method)
-    line_number = inspect.getsourcelines(method)[1]
+    # Resolve the source location once at decoration time from the function's code object. This
+    # reads no source file, so it is cheap and also works in a compiled/frozen build (inspect's
+    # getsourcelines raises OSError there, and re-tokenizes the whole file besides).
+    source_file = method.__code__.co_filename
+    line_number = method.__code__.co_firstlineno
 
     @functools.wraps(method)
     def decorator(self, *args, **kwargs):
@@ -103,8 +103,8 @@ def log_method(method):
 def log_method_noarg(method):
     # A no-argument method decorator: the wrapper takes only self, so Qt signals that pass a varying
     # number of arguments depending on the connected signature call through cleanly.
-    source_file = inspect.getsourcefile(method)
-    line_number = inspect.getsourcelines(method)[1]
+    source_file = method.__code__.co_filename
+    line_number = method.__code__.co_firstlineno
 
     @functools.wraps(method)
     def decorator(self):
@@ -128,8 +128,8 @@ def log_method_noarg(method):
 
 
 def log_method_experimental(method):  # pragma: no cover
-    source_file = inspect.getsourcefile(method)
-    line_number = inspect.getsourcelines(method)[1]
+    source_file = method.__code__.co_filename
+    line_number = method.__code__.co_firstlineno
 
     @functools.wraps(method)
     def decorator(self, *args, **kwargs):
@@ -158,8 +158,8 @@ def log_method_experimental(method):  # pragma: no cover
 
 def log_function(function):
     # Resolve the source location once at decoration time (see log_method).
-    source_file = inspect.getsourcefile(function)
-    line_number = inspect.getsourcelines(function)[1]
+    source_file = function.__code__.co_filename
+    line_number = function.__code__.co_firstlineno
 
     @functools.wraps(function)
     def decorator(*args, **kwargs):
@@ -187,8 +187,8 @@ def log_function(function):
 
 
 def log_function_experimental(function):  # pragma: no cover
-    source_file = inspect.getsourcefile(function)
-    line_number = inspect.getsourcelines(function)[1]
+    source_file = function.__code__.co_filename
+    line_number = function.__code__.co_firstlineno
 
     @functools.wraps(function)
     def decorator(*args, **kwargs):

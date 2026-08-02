@@ -71,4 +71,4 @@ Root: HKA; Subkey: "Software\Classes\{#ProjectProgId}\shell\open\command"; Value
 
 [Run]
 Filename: "{app}\{#AppExeName}"; Description: "Launch {#AppName}"; \
-  Flags: nowait postinstall skipifsilent
+  Flags: nowait postinstall skipifsilent unchecked
