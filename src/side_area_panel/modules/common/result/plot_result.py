@@ -1047,8 +1047,13 @@ class PlotV2(BaseResultElement):
                 else:
                     col_labels = item.df.columns
                     row_labels = item.df.index
-                plt.xticks(range(len(item.df.columns)), col_labels)
-                plt.yticks(range(len(item.df.index)), row_labels)
+                # Set ticks/labels on the heatmap axes directly: fig.colorbar above made the
+                # colorbar the current axes, so plt.xticks/plt.text would target that instead,
+                # leaving the main axes on imshow's thinned default ticks (not one per category).
+                ax.set_xticks(range(len(item.df.columns)))
+                ax.set_xticklabels(col_labels)
+                ax.set_yticks(range(len(item.df.index)))
+                ax.set_yticklabels(row_labels)
 
                 data = item.df
                 # Adding annotations
@@ -1062,7 +1067,7 @@ class PlotV2(BaseResultElement):
                             text = format_r_apa(data.iloc[i, j])  # + get_stars(item.p.iloc[i, j])
 
                             self._gc_ignore.append(
-                                plt.text(
+                                ax.text(
                                     j,
                                     i,
                                     text,
@@ -1294,11 +1299,15 @@ class PlotV2(BaseResultElement):
             self._apply_axis_limits(ax, "x")
         self._apply_axis_limits(ax, "y")
 
-        # custom numeric ticks (step + reference). Applied after limits are known; skipped
-        # on the x-axis when it carries categorical labels.
-        if self.x_axis_items is None:
-            self._apply_axis_ticks(ax, "x")
-        self._apply_axis_ticks(ax, "y")
+        # Custom numeric ticks (step + reference). Applied after limits are known. Heatmaps and
+        # contingency plots label both axes with categories (one tick per label = step 1) and set
+        # those ticks themselves, so the numeric default must not run on them; likewise a
+        # categorical x carrying labels.
+        categorical_axes = any(isinstance(it, (Heatmap, ContingencyPlot)) for it in self.items)
+        if not categorical_axes:
+            if self.x_axis_items is None:
+                self._apply_axis_ticks(ax, "x")
+            self._apply_axis_ticks(ax, "y")
 
         if legend:
             leg = ax.legend(fontsize=self.legend_font_size.get_current_value())
@@ -1561,7 +1570,8 @@ class PlotV2(BaseResultElement):
     def _apply_axis_ticks(self, ax, axis):
         """Place evenly-spaced ticks on one axis from the user's step / reference fields. A
         blank step defaults to (max - min) / 5 rounded to one significant figure; a blank
-        reference defaults to 0 (one tick anchored there)."""
+        reference defaults to 0. Only called for numeric axes (categorical plots -- heatmap /
+        contingency / a labelled x -- are skipped by the caller and keep their own ticks)."""
         if axis == "x":
             step_text = self.x_tick_step.get_current_value()
             ref_text = self.x_tick_reference.get_current_value()
