@@ -15,7 +15,6 @@
 #  You should have received a copy of the GNU General Public License along with
 #  StatPrism.  If not, see <https://www.gnu.org/licenses/>.
 
-# VALIDATED
 
 # Qt-free so it can be imported before the QApplication exists (the launcher reads IS_DARK_THEME
 # to pick the window color scheme before creating the app). Every key here is consumed by

@@ -15,7 +15,6 @@
 #  You should have received a copy of the GNU General Public License along with
 #  StatPrism.  If not, see <https://www.gnu.org/licenses/>.
 
-# VALIDATED
 
 import pandas as pd
 from PySide6.QtWidgets import QCheckBox, QDoubleSpinBox, QPushButton
@@ -81,6 +80,9 @@ class IISPWACReference(ItemInSidePanelWithAutoConfig):
 
     def configure(self, **kwargs):
         self.update_column(**kwargs)
+        # A reference has nothing to reference until its field has columns; hide it until then.
+        selector = kwargs.get("column_selector") or []
+        self.widget.setVisible(len(selector) > self.field_index and bool(selector[self.field_index]))
         state = kwargs[self.name]
         manual = state is not None
         reference = state if manual else self.get_default_reference_value()

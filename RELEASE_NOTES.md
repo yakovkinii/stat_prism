@@ -12,6 +12,12 @@ r{
 
 # StatPrism Release Notes
 
+### StatPrism 1.2.5 (4 Aug 2026)
+
+* Streamline UI
+* Fix html rendering after grouping with non-UNICODE symbols
+
+
 ### StatPrism 1.2.4 (1 Aug 2026)
 
 * Internal clean-up

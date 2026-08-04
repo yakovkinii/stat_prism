@@ -15,7 +15,6 @@
 #  You should have received a copy of the GNU General Public License along with
 #  StatPrism.  If not, see <https://www.gnu.org/licenses/>.
 
-# VALIDATED
 
 from typing import List
 
@@ -32,10 +31,13 @@ from src.side_area_panel.blueprint.element import ItemInSidePanelWithAutoConfig
 
 
 class IISPWACComboBox(ItemInSidePanelWithAutoConfig):
-    def __init__(self, label_text: str, items: List[str]):
+    def __init__(self, label_text: str, items: List[str], visible_when=None):
         super().__init__()
         self.label_text = label_text
         self.items = items
+        # Optional predicate(kwargs) -> bool. When supplied, the combo box (with its label)
+        # is shown only while it returns True and hidden (not grayed) otherwise.
+        self.visible_when = visible_when
         self.handler_current_index_changed = None
 
     def post_init(self, name, parent_widget):
@@ -73,6 +75,9 @@ class IISPWACComboBox(ItemInSidePanelWithAutoConfig):
 
         index = self.combo_box.findText(selected_text)
         self.combo_box.setCurrentIndex(index)
+
+        if self.visible_when is not None:
+            self.widget.setVisible(bool(self.visible_when(kwargs)))
 
     @log_method_noarg
     def set_alert(self):

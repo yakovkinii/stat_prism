@@ -16,8 +16,6 @@
 #  StatPrism.  If not, see <https://www.gnu.org/licenses/>.
 
 
-# VALIDATED
-
 from src.common.constant import ColumnType
 from src.pyside_ext.elements.column_selector import Field
 from src.side_area_panel.blueprint.element import ItemInSidePanelWithAutoConfigHolder
@@ -62,12 +60,13 @@ class Elements(ItemInSidePanelWithAutoConfigHolder):
     interpretation = IISPWACComboBox(label_text=PROSE_LABEL, items=PROSE_LEVELS)
     number_columns = IISPWACCheckBox(label_text="Number columns in tables", default_state=False)
     confidence_intervals = IISPWACCheckBox(label_text="95% confidence intervals", default_state=False)
+    generate_heatmap = IISPWACCheckBox(label_text="Heatmap", default_state=False)
+    generate_plots = IISPWACCheckBox(label_text="Pairwise plots", default_state=False)
     report_only_significant = IISPWACCheckBox(
         label_text="Plot only significant correlations",
         default_state=True,
+        visible_when=lambda kwargs: bool(kwargs.get("generate_plots")),
     )
-    generate_heatmap = IISPWACCheckBox(label_text="Heatmap", default_state=False)
-    generate_plots = IISPWACCheckBox(label_text="Pairwise plots", default_state=False)
 
 
 class Correlation(BaseModulePanel):

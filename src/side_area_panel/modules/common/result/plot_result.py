@@ -15,7 +15,6 @@
 #  You should have received a copy of the GNU General Public License along with
 #  StatPrism.  If not, see <https://www.gnu.org/licenses/>.
 
-# VALIDATED
 
 import base64
 import io
@@ -34,7 +33,7 @@ from src.common.qcolor import Colors, rgba_tuple_from_rgb_and_a
 from src.common.theme import THEME
 from src.pyside_ext.elements.base import BasePanelElement
 from src.side_area_panel.modules.common.result.base_result import BaseResultElement
-from src.side_area_panel.modules.common.utility import format_r_apa
+from src.side_area_panel.modules.common.utility import format_r_apa, round_to_one_sig_fig
 from src.side_area_panel.panels.result_item_settings_classes import (
     ColorGridItemSetting,
     ContainerResultItemSetting,
@@ -449,7 +448,13 @@ class BarPlotConfig(BasePlotConfig):
 
 
 class BoxPlotConfig(BasePlotConfig):
-    def __init__(self, color: Tuple[int, int, int] = None, fill_alpha: int = None):
+    def __init__(
+        self,
+        color: Tuple[int, int, int] = None,
+        fill_alpha: int = None,
+        jitter_x: float = 0,
+        jitter_y: float = 0,
+    ):
         super().__init__()
         theme = THEME.current
         color = color if color is not None else Colors().get_color_list()
@@ -458,8 +463,15 @@ class BoxPlotConfig(BasePlotConfig):
         self.fill_alpha: SliderResultItemSetting = SliderResultItemSetting(
             label="Fill Alpha", current_value=fill_alpha, min_value=0, max_value=250, step=50
         )
+        # Jitter spreads overlapping outlier points apart (x within the box, y in data units).
+        self.jitter_x: SliderResultItemSetting = SliderResultItemSetting(
+            label="Outlier Jitter X", current_value=jitter_x, min_value=0, max_value=2, step=0.2
+        )
+        self.jitter_y: SliderResultItemSetting = SliderResultItemSetting(
+            label="Outlier Jitter Y", current_value=jitter_y, min_value=0, max_value=2, step=0.2
+        )
         self.display_settings = ContainerResultItemSetting(
-            items=[self.color, self.fill_alpha],
+            items=[self.color, self.fill_alpha, self.jitter_x, self.jitter_y],
             add_stretch=True,
         )
 
@@ -600,6 +612,10 @@ class PlotV2(BaseResultElement):
         x_tick_reference="",
         y_tick_step="",
         y_tick_reference="",
+        x_min="",
+        x_max="",
+        y_min="",
+        y_max="",
         numbered_x_labels=False,
     ):
         super().__init__()
@@ -675,9 +691,19 @@ class PlotV2(BaseResultElement):
         # between ticks; "ref. tick" anchors one tick on that value (default 0). Ignored
         # for the x-axis when it carries categorical labels (x_axis_items).
         self.x_tick_step = SingleLineTextResultItemSetting(label="X step (blank=auto)", current_value=x_tick_step)
-        self.x_tick_reference = SingleLineTextResultItemSetting(label="X ref. tick", current_value=x_tick_reference)
+        self.x_tick_reference = SingleLineTextResultItemSetting(
+            label="X ref. tick (blank=0)", current_value=x_tick_reference
+        )
         self.y_tick_step = SingleLineTextResultItemSetting(label="Y step (blank=auto)", current_value=y_tick_step)
-        self.y_tick_reference = SingleLineTextResultItemSetting(label="Y ref. tick", current_value=y_tick_reference)
+        self.y_tick_reference = SingleLineTextResultItemSetting(
+            label="Y ref. tick (blank=0)", current_value=y_tick_reference
+        )
+        # Per-axis limits. Each bound is independent and blank = automatic. Like the tick
+        # fields, x limits are ignored when the x-axis carries categorical labels.
+        self.x_min = SingleLineTextResultItemSetting(label="X min (blank=auto)", current_value=x_min)
+        self.x_max = SingleLineTextResultItemSetting(label="X max (blank=auto)", current_value=x_max)
+        self.y_min = SingleLineTextResultItemSetting(label="Y min (blank=auto)", current_value=y_min)
+        self.y_max = SingleLineTextResultItemSetting(label="Y max (blank=auto)", current_value=y_max)
         # Replace categorical X labels (category / column / group names) with 1, 2, 3 ... --
         # the same enumerate option the correlation heatmap offers. No effect on numeric axes.
         self.numbered_x_labels = PlainCheckboxResultItemSetting(
@@ -710,6 +736,10 @@ class PlotV2(BaseResultElement):
                     self.x_axis_title,
                     self.y_axis_title,
                     self.numbered_x_labels,
+                    self.x_min,
+                    self.x_max,
+                    self.y_min,
+                    self.y_max,
                     self.x_tick_step,
                     self.x_tick_reference,
                     self.y_tick_step,
@@ -896,11 +926,15 @@ class PlotV2(BaseResultElement):
                 fill_color = rgba_tuple_from_rgb_and_a(
                     item.config.color.get_current_value(), item.config.fill_alpha.get_current_value()
                 )
+                jitter_x = item.config.jitter_x.get_current_value()
+                jitter_y = item.config.jitter_y.get_current_value()
+                jitter_on = jitter_x > 0 or jitter_y > 0
                 ax.bxp(
                     item.stats,
                     positions=[item.x_value],
                     widths=0.6,
                     patch_artist=True,
+                    showfliers=not jitter_on,  # jittered fliers are drawn manually below
                     boxprops={
                         "facecolor": fill_color,
                         "edgecolor": line_color,
@@ -929,12 +963,37 @@ class PlotV2(BaseResultElement):
                         "linewidth": 2,
                     },
                 )
+                # When jitter is on, draw the outlier points ourselves so overlapping ones spread
+                # out (x within the box, y in data units); labels follow the jittered positions.
+                flier_positions = {}
+                if jitter_on:
+                    fliers = np.asarray(item.stats[0].get("fliers", []), dtype=float)
+                    if len(fliers):
+                        rng = np.random.RandomState(0)
+                        stat0 = item.stats[0]
+                        y_span = abs(float(stat0.get("whishi", 0.0)) - float(stat0.get("whislo", 0.0))) or 1.0
+                        x_offsets = jitter_x * (rng.rand(len(fliers)) - 0.5) * 0.5
+                        y_offsets = jitter_y * (rng.rand(len(fliers)) - 0.5) * 0.1 * y_span
+                        xs = item.x_value + x_offsets
+                        ys = fliers + y_offsets
+                        ax.scatter(
+                            xs,
+                            ys,
+                            s=36,
+                            marker="o",
+                            facecolors=fill_color,
+                            edgecolors=line_color,
+                            linewidths=1,
+                            zorder=3,
+                        )
+                        flier_positions = {round(float(f), 9): (xs[k], ys[k]) for k, f in enumerate(fliers)}
                 if item.outlier_labels:
                     annotation_color = rgba_tuple_from_rgb_and_a(self.text_color.get_current_value(), 255)
                     for value, text in item.outlier_labels:
+                        px, py = flier_positions.get(round(float(value), 9), (item.x_value, value))
                         ax.annotate(
                             str(text),
-                            (item.x_value, value),
+                            (px, py),
                             textcoords="offset points",
                             xytext=(7, 0),
                             fontsize=self.tick_label_font_size.get_current_value(),
@@ -1229,6 +1288,12 @@ class PlotV2(BaseResultElement):
         if self.y_range is not None:
             ax.set_ylim(*self.y_range)
 
+        # user axis limits override the auto / programmatic range; a blank bound is left as-is.
+        # Skipped on the x-axis when it carries categorical labels, like the tick fields.
+        if self.x_axis_items is None:
+            self._apply_axis_limits(ax, "x")
+        self._apply_axis_limits(ax, "y")
+
         # custom numeric ticks (step + reference). Applied after limits are known; skipped
         # on the x-axis when it carries categorical labels.
         if self.x_axis_items is None:
@@ -1472,9 +1537,31 @@ class PlotV2(BaseResultElement):
         ax.set_aspect("auto")
         ax.axis("off")
 
+    def _apply_axis_limits(self, ax, axis):
+        """Override the auto-scaled limits on one axis from the user's min / max fields. Each
+        bound is independent; a blank or invalid entry leaves that bound untouched."""
+
+        def parse(text):
+            try:
+                return float(text)
+            except (TypeError, ValueError):
+                return None
+
+        if axis == "x":
+            lo, hi = parse(self.x_min.get_current_value()), parse(self.x_max.get_current_value())
+        else:
+            lo, hi = parse(self.y_min.get_current_value()), parse(self.y_max.get_current_value())
+        if lo is None and hi is None:
+            return
+        if axis == "x":
+            ax.set_xlim(left=lo, right=hi)
+        else:
+            ax.set_ylim(bottom=lo, top=hi)
+
     def _apply_axis_ticks(self, ax, axis):
-        """Place evenly-spaced ticks on one axis from the user's step / reference fields.
-        Blank step -> leave matplotlib's automatic ticks untouched."""
+        """Place evenly-spaced ticks on one axis from the user's step / reference fields. A
+        blank step defaults to (max - min) / 5 rounded to one significant figure; a blank
+        reference defaults to 0 (one tick anchored there)."""
         if axis == "x":
             step_text = self.x_tick_step.get_current_value()
             ref_text = self.x_tick_reference.get_current_value()
@@ -1487,7 +1574,10 @@ class PlotV2(BaseResultElement):
         try:
             step = float(step_text)
         except (TypeError, ValueError):
-            return
+            step = 0.0
+        if step <= 0:
+            span = hi - lo
+            step = round_to_one_sig_fig(span / 5.0) if span > 0 else 0.0
         if step <= 0:
             return
         try:

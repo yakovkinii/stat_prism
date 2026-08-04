@@ -15,6 +15,7 @@
 #  You should have received a copy of the GNU General Public License along with
 #  StatPrism.  If not, see <https://www.gnu.org/licenses/>.
 
+
 from src.common.constant import ColumnType
 from src.pyside_ext.elements.column_selector import Field
 from src.side_area_panel.blueprint.element import ItemInSidePanelWithAutoConfigHolder
@@ -43,7 +44,7 @@ class Elements(ItemInSidePanelWithAutoConfigHolder):
     method = IISPWACComboBox(label_text="Method:", items=IMPUTE_METHODS)
     constant_value = IISPWACLongTextEdit(
         label_text="Constant value:",
-        enabled_when=lambda kwargs: kwargs.get("method") == "Constant value",
+        visible_when=lambda kwargs: kwargs.get("method") == "Constant value",
     )
 
 

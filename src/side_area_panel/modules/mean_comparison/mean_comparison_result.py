@@ -37,6 +37,22 @@ class MeanComparisonStudyConfig:
     confidence_intervals = attrs.field(default=None)
     number_columns = attrs.field(default=None)
     plots = attrs.field(default=None)
+    bin_width = attrs.field(default=None)
+    bin_reference = attrs.field(default=None)
+
+    def __getstate__(self):
+        return {field.name: getattr(self, field.name) for field in attrs.fields(type(self))}
+
+    def __setstate__(self, state):
+        # Support save files from v1.2.4 and earlier, which were pickled before bin_width /
+        # bin_reference were added. attrs' generated __setstate__ leaves any field missing
+        # from the old pickle unset, so a later attrs.asdict() raises AttributeError. Seed
+        # every field with its default first, then apply whatever the pickle stored.
+        fields = attrs.fields(type(self))
+        if isinstance(state, tuple):
+            state = dict(zip([field.name for field in fields], state))
+        for field in fields:
+            object.__setattr__(self, field.name, state.get(field.name, field.default))
 
 
 class MeanComparisonResult(BaseResult):
@@ -56,8 +72,6 @@ class MeanComparisonResult(BaseResult):
         self.set_placeholder()
 
     def update_description(self):
-        # General guide is localized; the methodology fine-print is English-only and
-        # rendered smaller, separated by a rule.
         self.description = (
             t("ttest.description")
             + HTML.hr()

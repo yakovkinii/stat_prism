@@ -15,6 +15,7 @@
 #  You should have received a copy of the GNU General Public License along with
 #  StatPrism.  If not, see <https://www.gnu.org/licenses/>.
 
+
 from src.common.decorators import log_function
 from src.data.data_manager import DATA_MANAGER
 from src.side_area_panel.modules.common.outlier_logic import detect_univariate_outliers

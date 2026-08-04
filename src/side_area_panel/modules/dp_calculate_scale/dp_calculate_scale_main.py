@@ -15,7 +15,6 @@
 #  You should have received a copy of the GNU General Public License along with
 #  StatPrism.  If not, see <https://www.gnu.org/licenses/>.
 
-# VALIDATED
 
 import pandas as pd
 
@@ -129,16 +128,16 @@ def dp_calculate_scale_main(elements: Elements, result: CalculateScaleResult, up
     elif action == "Auto-rename":
         # Auto-rename already gives a fresh "<scale> Q{i}" name, so no "(flipped)" suffix.
         for i, column in enumerate(all_item_columns, start=1):
-            data[column].color = cfg.questions_color  # tag before rename (column object persists)
+            data[column].color = cfg.color  # tag before rename (column object persists)
             target = f"{scale_name} Q{i}"
             if target != column:
                 target = unique_name(target, set(data.column_names()) - {column})
                 data.rename_column(column, target)
     elif action == "Keep":
         for column in question_columns:
-            data[column].color = cfg.questions_color
+            data[column].color = cfg.color
         for column in flipped_columns:
-            data[column].color = cfg.questions_color
+            data[column].color = cfg.color
             # Mark a replaced reverse-scored column as flipped in its name.
             if replace_flipped and flip_reference is not None:
                 new_name = unique_name(f"{column} (flipped)", set(data.column_names()) - {column})

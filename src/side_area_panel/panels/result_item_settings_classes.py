@@ -15,7 +15,6 @@
 #  You should have received a copy of the GNU General Public License along with
 #  StatPrism.  If not, see <https://www.gnu.org/licenses/>.
 
-# VALIDATED
 
 from typing import Tuple
 
@@ -242,8 +241,8 @@ class SliderResultItemSetting(_ValueDefaultsMixin, BasePanelElement):
         self.step = step
         assert add_stretch is False, "Stretch is not supported for SliderResultItemSetting"
         self.add_stretch = add_stretch
-        # When False, the control is rendered grayed-out / non-interactive (used to mark a
-        # setting that doesn't apply to the current plot, e.g. legend size with no legend).
+        # When False, the control is hidden from the settings panel (used to mark a setting that
+        # doesn't apply to the current plot, e.g. legend size with no legend).
         self.enabled = True
         # ---
         self.slider = None
@@ -293,7 +292,7 @@ class SliderResultItemSetting(_ValueDefaultsMixin, BasePanelElement):
         self._debounce.setInterval(120)
         self._debounce.timeout.connect(self._emit_change)
 
-        self.widget.setEnabled(self.enabled)
+        self.widget.setVisible(self.enabled)
 
     def slider_value_changed(self, value):
         self.current_value = self.min_value + value * self.step
@@ -311,7 +310,7 @@ class CheckboxResultItemSetting(_ValueDefaultsMixin, BasePanelElement):
         self.default_value = current_value
         assert add_stretch is False, "Stretch is not supported for CheckboxResultItemSetting"
         self.add_stretch = add_stretch
-        self.enabled = True  # grayed-out / non-interactive when False
+        self.enabled = True  # hidden from the settings panel when False
         # ---
         self.slider = None
 
@@ -329,7 +328,7 @@ class CheckboxResultItemSetting(_ValueDefaultsMixin, BasePanelElement):
         self.widget = self.large_checkbox.widget
         self.large_checkbox.widget.setChecked(self.current_value)
         self.large_checkbox.widget.stateChanged.connect(self.on_checkbox_state_changed)
-        self.widget.setEnabled(self.enabled)
+        self.widget.setVisible(self.enabled)
 
     def on_checkbox_state_changed(self, state):
         self.current_value = state == Qt.CheckState.Checked.value
@@ -390,7 +389,7 @@ class PlainCheckboxResultItemSetting(_ValueDefaultsMixin, BasePanelElement):
         self.default_value = current_value
         assert add_stretch is False, "Stretch is not supported for PlainCheckboxResultItemSetting"
         self.add_stretch = add_stretch
-        self.enabled = True  # grayed-out / non-interactive when False
+        self.enabled = True  # hidden from the settings panel when False
         # ---
         self.checkbox = None
 
@@ -411,7 +410,7 @@ class PlainCheckboxResultItemSetting(_ValueDefaultsMixin, BasePanelElement):
         self.checkbox.stateChanged.connect(self.on_changed)
         self.layout.addWidget(self.checkbox)
         self.layout.addStretch()
-        self.widget.setEnabled(self.enabled)
+        self.widget.setVisible(self.enabled)
 
     def on_changed(self, _state):
         self.current_value = self.checkbox.isChecked()

@@ -15,6 +15,7 @@
 #  You should have received a copy of the GNU General Public License along with
 #  StatPrism.  If not, see <https://www.gnu.org/licenses/>.
 
+
 from src.common.constant import ID_COLUMN_NAME, ColumnType
 from src.common.decorators import log_function
 from src.data.data_manager import DATA_MANAGER

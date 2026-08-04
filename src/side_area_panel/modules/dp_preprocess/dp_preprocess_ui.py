@@ -15,6 +15,7 @@
 #  You should have received a copy of the GNU General Public License along with
 #  StatPrism.  If not, see <https://www.gnu.org/licenses/>.
 
+
 from src.side_area_panel.blueprint.element import ItemInSidePanelWithAutoConfigHolder
 from src.side_area_panel.iispwac.iispwac_column_editor import IISPWACColumnEditor
 from src.side_area_panel.iispwac.iispwac_data_source import IISPWACDataSource

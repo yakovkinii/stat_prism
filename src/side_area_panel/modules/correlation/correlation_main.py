@@ -15,7 +15,6 @@
 #  You should have received a copy of the GNU General Public License along with
 #  StatPrism.  If not, see <https://www.gnu.org/licenses/>.
 
-# VALIDATED
 
 import logging
 
@@ -244,11 +243,15 @@ def recalculate_correlation_study(elements, result: CorrelationResult, update) -
     # Raw pairwise scatter/regression plots would contradict the partialled-out matrix,
     # so they are only drawn for ordinary (non-partial) correlations.
     if cfg.generate_plots and not is_partial:
+        # p_matrix only fills the lower triangle; symmetrize it so the upper-triangle (i < j)
+        # lookup below returns the real p-value instead of NaN (NaN > 0.05 is False, which had
+        # silently disabled the "only significant" filter).
+        p_full = to_full_matrix(p_matrix)
         for i, name1 in enumerate(columns):
             for j, name2 in enumerate(columns):
                 if i >= j:
                     continue
-                if cfg.report_only_significant and p_matrix.loc[name1, name2] > 0.05:
+                if cfg.report_only_significant and p_full.loc[name1, name2] > 0.05:
                     continue
                 result.update_and_add_element(_pairwise_plot(df, name1, name2), f"correlation plot {name1} | {name2}")
             update(60 + 35 * (i + 1) / len(columns))

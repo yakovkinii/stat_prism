@@ -15,6 +15,7 @@
 #  You should have received a copy of the GNU General Public License along with
 #  StatPrism.  If not, see <https://www.gnu.org/licenses/>.
 
+
 import math
 import re
 
@@ -35,14 +36,17 @@ def _parse_floats(text):
 
 def _auto_labels(thresholds, lower_inclusive):
     """Auto labels for the bins. `lower_inclusive` True means bins are right-closed (a, b]
-    (a split point falls in the lower group); False means left-closed [a, b) (higher group)."""
+    (a split point falls in the lower group); False means left-closed [a, b) (higher group).
+    Worded rather than symbolic (no <, >, or en-dash) so the labels stay readable in the
+    plain-text data viewer and don't break HTML rendering when the grouped column is later
+    used as a category in a result table. "or less"/"or more" mark the inclusive end."""
     if lower_inclusive:
-        first, last = f"≤ {thresholds[0]:g}", f"> {thresholds[-1]:g}"
+        first, last = f"{thresholds[0]:g} or less", f"over {thresholds[-1]:g}"
     else:
-        first, last = f"< {thresholds[0]:g}", f"≥ {thresholds[-1]:g}"
+        first, last = f"under {thresholds[0]:g}", f"{thresholds[-1]:g} or more"
     labels = [first]
     for low, high in zip(thresholds[:-1], thresholds[1:]):
-        labels.append(f"{low:g}–{high:g}")
+        labels.append(f"{low:g} to {high:g}")
     labels.append(last)
     return labels
 

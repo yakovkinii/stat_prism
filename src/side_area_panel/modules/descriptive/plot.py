@@ -15,8 +15,6 @@
 #  You should have received a copy of the GNU General Public License along with
 #  StatPrism.  If not, see <https://www.gnu.org/licenses/>.
 
-# VALIDATED
-
 
 from typing import List
 
@@ -39,6 +37,7 @@ from src.side_area_panel.modules.common.result.plot_result import (
     Scatter,
     ScatterPlotConfig,
 )
+from src.side_area_panel.modules.common.utility import round_to_one_sig_fig
 
 
 def create_box_plot(
@@ -66,26 +65,26 @@ def create_box_plot(
 
 
 def _histogram_edges(series: pd.Series, bin_width, bin_reference=None):
-    """Histogram bin edges for a series. `bin_width` None/<=0 -> automatic. Otherwise a
-    fixed width; `bin_reference` (if given) is the centre of one bin, so the bars align to
-    it (e.g. reference 0 + width 1 centres a bar on every integer). With no reference the
-    bins are centred on the data minimum (so Likert 1..7 with width 1 gives one bar per
-    value)."""
+    """Histogram bin edges for a series. A blank width defaults to (max - min) / 5 rounded to
+    one significant figure; a blank reference defaults to 0. The reference is the center of one
+    bin, so the bars align to it (e.g. reference 0 + width 1 centers a bar on every integer)."""
     data = series.dropna()
     if data.empty:
         return None
+    lo, hi = float(data.min()), float(data.max())
     if bin_width and bin_width > 0:
         w = bin_width
-        if bin_reference is not None:
-            k_start = int(np.floor((data.min() - bin_reference) / w))
-            k_end = int(np.ceil((data.max() - bin_reference) / w))
-            centers = bin_reference + np.arange(k_start, k_end + 1) * w
-            return np.append(centers - w / 2.0, centers[-1] + w / 2.0)
-        start = data.min() - w / 2.0
-        stop = data.max() + w
-        return np.arange(start, stop, w)
-    _, edges = np.histogram(data, bins="auto")
-    return edges
+    else:
+        span = hi - lo
+        w = round_to_one_sig_fig(span / 5.0) if span > 0 else 0
+        if w <= 0:  # constant column (or degenerate span) -> fall back to automatic bins
+            _, edges = np.histogram(data, bins="auto")
+            return edges
+    reference = bin_reference if bin_reference is not None else 0.0
+    k_start = int(np.floor((lo - reference) / w))
+    k_end = int(np.ceil((hi - reference) / w))
+    centers = reference + np.arange(k_start, k_end + 1) * w
+    return np.append(centers - w / 2.0, centers[-1] + w / 2.0)
 
 
 def _kde_curve(series: pd.Series, edges, kde_smoothing):
@@ -132,6 +131,7 @@ def make_distribution_plot(df, col, groupby_column, groupby_values, bin_width, b
         n_items = len(groupby_values)
         width = bin_w * 0.9 / n_items
         gap = (bin_w - width * n_items) / (n_items + 1)
+        centers = edges[:-1] + bin_w / 2.0
         for i, groupby_value in enumerate(groupby_values):
             subset = df.loc[df[groupby_column] == groupby_value]
             color = colors.get_color_list()
@@ -147,10 +147,14 @@ def make_distribution_plot(df, col, groupby_column, groupby_values, bin_width, b
                             legend_string=str(groupby_value),
                         )
                     )
-            counts, _ = np.histogram(subset[col].dropna(), bins=edges, density=True)
+            # Offset of this group's dodged bar from the bin center. Count the group on bins
+            # shifted by that offset so each bar is centered on the interval it was computed
+            # from, rather than dodged away from the shared bin center.
+            offset = -bin_w / 2.0 + gap + width / 2.0 + i * (width + gap)
+            counts, _ = np.histogram(subset[col].dropna(), bins=edges + offset, density=True)
             items.append(
                 Bar(
-                    x=edges[:-1] + gap + width / 2.0 + i * (width + gap),
+                    x=centers + offset,
                     y=counts,
                     width=width,
                     label=str(groupby_value),

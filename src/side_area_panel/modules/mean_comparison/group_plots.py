@@ -15,6 +15,7 @@
 #  You should have received a copy of the GNU General Public License along with
 #  StatPrism.  If not, see <https://www.gnu.org/licenses/>.
 
+
 """Per-variable distribution + box plots split by group, shared by the t-test and ANOVA
 result builders (which only differed in the element-name prefix)."""
 
@@ -24,12 +25,33 @@ from scipy.stats import gaussian_kde
 from src.common.qcolor import Colors
 from src.common.translations import t
 from src.side_area_panel.modules.common.result.plot_result import Bar, BarPlotConfig, Line, LinePlotConfig, PlotV2
-from src.side_area_panel.modules.descriptive.plot import create_box_plot
+from src.side_area_panel.modules.descriptive.plot import _histogram_edges, create_box_plot
 
 
-def add_group_distribution_plots(result, df, selected_columns, numeric_columns, grouping_column, update, prefix):
+def _parse_positive_float(text):
+    try:
+        value = float(text)
+    except (TypeError, ValueError):
+        return None
+    return value if value > 0 else None
+
+
+def _parse_float_or_none(text):
+    try:
+        return float(text)
+    except (TypeError, ValueError):
+        return None
+
+
+def add_group_distribution_plots(
+    result, df, selected_columns, numeric_columns, grouping_column, update, prefix, bin_width="", bin_reference=""
+):
     """For each numeric variable, add a grouped histogram+KDE distribution plot and a box
-    plot to `result`. `prefix` namespaces the element keys (e.g. 't_test' / 'anova')."""
+    plot to `result`. `prefix` namespaces the element keys (e.g. 't_test' / 'anova'). The bins
+    follow the user's width / reference (blank width defaults to (max - min) / 5 to one
+    significant figure), matching the descriptive module."""
+    width_value = _parse_positive_float(bin_width)
+    reference_value = _parse_float_or_none(bin_reference)
     groupby_column = grouping_column
     groupby_values = df[groupby_column].drop_duplicates().values
     for idx, col in enumerate(selected_columns):
@@ -44,12 +66,16 @@ def add_group_distribution_plots(result, df, selected_columns, numeric_columns, 
         col_series = df[col].dropna()
         if col_series.empty:
             continue
-        _, x_all = np.histogram(col_series, bins="auto", density=True)
+        x_all = _histogram_edges(col_series, width_value, reference_value)
+        if x_all is None or len(x_all) < 2:
+            continue
         x_vals = np.linspace(col_series.min(), col_series.max(), 500)
 
         # | g 1 g 2 g |
-        width = (x_all[1] - x_all[0]) * 0.9 / n_items if len(x_all) > 1 else 0.9 / max(n_items, 1)
-        gap = ((x_all[1] - x_all[0]) - width * len(groupby_values)) / (len(groupby_values) + 1) if len(x_all) > 1 else 0
+        bin_w = x_all[1] - x_all[0]
+        width = bin_w * 0.9 / n_items
+        gap = (bin_w - width * n_items) / (n_items + 1)
+        centers = x_all[:-1] + bin_w / 2.0
 
         colors = Colors()
 
@@ -71,10 +97,14 @@ def add_group_distribution_plots(result, df, selected_columns, numeric_columns, 
                 )
             )
 
-            y, x = np.histogram(series, bins=x_all, density=True)
+            # Offset of this group's dodged bar from the bin center. Count the group on bins
+            # shifted by that offset so each bar is centered on the interval it was computed
+            # from, rather than dodged away from the shared bin center.
+            offset = -bin_w / 2.0 + gap + width / 2.0 + i * (width + gap)
+            y, _ = np.histogram(series, bins=x_all + offset, density=True)
             plots.append(
                 Bar(
-                    x=x[:-1] + gap + width / 2 + i * (width + gap) if len(x) > 1 else x,
+                    x=centers + offset,
                     y=y,
                     width=width,
                     label=f"{groupby_value}",

@@ -15,6 +15,7 @@
 #  You should have received a copy of the GNU General Public License along with
 #  StatPrism.  If not, see <https://www.gnu.org/licenses/>.
 
+
 from src.common.constant import ColumnType
 from src.pyside_ext.elements.column_selector import Field
 from src.side_area_panel.blueprint.element import ItemInSidePanelWithAutoConfigHolder
@@ -41,7 +42,7 @@ class Elements(ItemInSidePanelWithAutoConfigHolder):
     drop_reference = IISPWACCheckBox(label_text="Drop reference category (for regression)", default_state=True)
     reference = IISPWACLongTextEdit(
         label_text="Reference category (blank = first):",
-        enabled_when=lambda kwargs: bool(kwargs.get("drop_reference", True)),
+        visible_when=lambda kwargs: bool(kwargs.get("drop_reference", True)),
     )
 
 

@@ -24,6 +24,7 @@ from src.side_area_panel.iispwac.iispwac_column_selector import IISPWACColumnSel
 from src.side_area_panel.iispwac.iispwac_combobox import IISPWACComboBox
 from src.side_area_panel.iispwac.iispwac_data_source import IISPWACDataSource
 from src.side_area_panel.iispwac.iispwac_spacer import IISPWACSpacer
+from src.side_area_panel.iispwac.iispwac_text_edit import IISPWACLongTextEdit
 from src.side_area_panel.modules.base.base import BaseModulePanel
 from src.side_area_panel.modules.common.prose import PROSE_LABEL, PROSE_LEVELS
 from src.side_area_panel.modules.mean_comparison.constant import (
@@ -85,6 +86,14 @@ class Elements(ItemInSidePanelWithAutoConfigHolder):
     plots = IISPWACCheckBox(
         label_text="Plots",
         default_state=False,
+    )
+    bin_width = IISPWACLongTextEdit(
+        label_text="Bin width (blank: auto):",
+        visible_when=lambda kwargs: bool(kwargs.get("plots")),
+    )
+    bin_reference = IISPWACLongTextEdit(
+        label_text="Bin reference (blank: auto):",
+        visible_when=lambda kwargs: bool(kwargs.get("plots")),
     )
 
 
