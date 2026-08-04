@@ -15,7 +15,6 @@
 #  You should have received a copy of the GNU General Public License along with
 #  StatPrism.  If not, see <https://www.gnu.org/licenses/>.
 
-# VALIDATED
 
 import logging
 from typing import List
@@ -203,11 +202,10 @@ class HTMLTableV2(BaseResultElement):
             if self.table_note:
                 html += f'<div class="font"><i>{note_str}.</i> {self.table_note}</div>\n'
 
-        # Additional texts. Successive paragraphs are separated by a blank line, but the
-        # first one sits directly under the table (no extra gap above it).
-        for i, text in enumerate(self.texts):
-            if i > 0:
-                html += "<br>\n"
+        # Additional texts. Each paragraph is preceded by a blank line, so the prose is set
+        # off from the table (and from the paragraph before it) by a single gap.
+        for text in self.texts:
+            html += "<br>\n"
             html += f'<div class="font">{text.replace(TABLE_OR_PLOT_ID_PLACEHOLDER, id_suffix)}</div>\n'
         return html
 

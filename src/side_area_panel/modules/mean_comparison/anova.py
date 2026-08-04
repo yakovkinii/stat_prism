@@ -185,7 +185,17 @@ def recalculate_mean_comparison_anova(
     if not cfg.plots:
         return result
 
-    add_group_distribution_plots(result, df, selected_columns, numeric_columns, grouping_column, update, "anova")
+    add_group_distribution_plots(
+        result,
+        df,
+        selected_columns,
+        numeric_columns,
+        grouping_column,
+        update,
+        "anova",
+        bin_width=cfg.bin_width,
+        bin_reference=cfg.bin_reference,
+    )
     return result
 
 

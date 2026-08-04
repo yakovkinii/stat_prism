@@ -15,7 +15,6 @@
 #  You should have received a copy of the GNU General Public License along with
 #  StatPrism.  If not, see <https://www.gnu.org/licenses/>.
 
-# VALIDATED
 
 from src.common.constant import ColumnType
 from src.pyside_ext.elements.column_selector import Field
@@ -62,7 +61,12 @@ class Elements(ItemInSidePanelWithAutoConfigHolder):
     # values; tick "Manual" (or edit the value) to override. Only relevant when the
     # "Reverse-score first" field has columns.
     flip_reference = IISPWACReference(label_text="Manual flip reference", field_index=1)
-    replace_flipped = IISPWACCheckBox(label_text="Replace reverse-scored columns with flipped", default_state=True)
+    # Both only matter once reverse-keyed items are chosen; hidden until the second field has columns.
+    replace_flipped = IISPWACCheckBox(
+        label_text="Replace reverse-scored columns with flipped",
+        default_state=True,
+        visible_when=lambda kwargs: len(kwargs.get("column_selector") or []) > 1 and bool(kwargs["column_selector"][1]),
+    )
 
     name = IISPWACLongTextEdit(
         label_text="Scale name:",
@@ -94,8 +98,8 @@ class Elements(ItemInSidePanelWithAutoConfigHolder):
         max_value=100,
         default_value=0,
     )
-    color = IISPWACColorPicker(label_text="Scale color:")
-    questions_color = IISPWACColorPicker(label_text="Questions color:")
+    # One color tag shared by the new scale column and the item columns it was built from.
+    color = IISPWACColorPicker(label_text="Color:")
 
 
 class CalculateScale(BaseModulePanel):
@@ -107,12 +111,10 @@ class CalculateScale(BaseModulePanel):
             stretch=True,
         )
         self.set_label("Calculate Scale")
-        # "Max missing %" only applies to the threshold mode; grey it out for "Skip respondent".
+        # "Max missing %" only applies to the threshold mode; hide it for "Skip respondent".
         self.elements_.missing_values.set_handler_current_index_changed(self._sync_missing_enabled)
         self._sync_missing_enabled()
 
     def _sync_missing_enabled(self):
-        threshold = self.elements_.missing_threshold
-        enabled = self.elements_.missing_values.combo_box.currentText() != MISSING_SKIP
-        for w in (threshold.spin_box, threshold.minus_button, threshold.plus_button):
-            w.setEnabled(enabled)
+        visible = self.elements_.missing_values.combo_box.currentText() != MISSING_SKIP
+        self.elements_.missing_threshold.widget.setVisible(visible)

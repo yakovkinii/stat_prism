@@ -15,7 +15,6 @@
 #  You should have received a copy of the GNU General Public License along with
 #  StatPrism.  If not, see <https://www.gnu.org/licenses/>.
 
-# VALIDATED
 
 from PySide6.QtWidgets import QLabel, QLineEdit
 
@@ -28,12 +27,12 @@ from src.side_area_panel.blueprint.element import ItemInSidePanelWithAutoConfig
 
 
 class IISPWACLongTextEdit(ItemInSidePanelWithAutoConfig):
-    def __init__(self, label_text: str, enabled_when=None):
+    def __init__(self, label_text: str, visible_when=None):
         super().__init__()
         self.label_text = label_text
-        # Optional predicate(kwargs) -> bool. When supplied, the edit (and its label) are
-        # enabled only while it returns True; disabled (grayed, read-only) otherwise.
-        self.enabled_when = enabled_when
+        # Optional predicate(kwargs) -> bool. When supplied, the edit (with its label) is
+        # shown only while it returns True and hidden (not grayed) otherwise.
+        self.visible_when = visible_when
         self.handler_editing_finished = None
 
     def post_init(self, name, parent_widget):
@@ -62,10 +61,8 @@ class IISPWACLongTextEdit(ItemInSidePanelWithAutoConfig):
     def configure(self, **kwargs):
         text = kwargs[self.name]
         self.edit.setText(text if text is not None else "")
-        if self.enabled_when is not None:
-            enabled = bool(self.enabled_when(kwargs))
-            self.edit.setEnabled(enabled)
-            self.label.setEnabled(enabled)
+        if self.visible_when is not None:
+            self.widget.setVisible(bool(self.visible_when(kwargs)))
 
     def set_alert(self):
         set_stylesheet(

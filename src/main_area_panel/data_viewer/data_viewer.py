@@ -15,7 +15,6 @@
 #  You should have received a copy of the GNU General Public License along with
 #  StatPrism.  If not, see <https://www.gnu.org/licenses/>.
 
-# VALIDATED
 
 import math
 
@@ -34,6 +33,7 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
+from src.common.config import read_ui_value, write_ui_value
 from src.common.constant import COLUMN_TYPE_ICONS, COLUMN_TYPE_ICONS_ON_LIGHT, ColumnType
 from src.data.data import Data
 from src.pyside_ext.markup import css
@@ -322,11 +322,14 @@ class TablePopup(QWidget):
         layout.addWidget(QLabel("Columns:", bar))
         self.width_combo = QComboBox(bar)
         self.width_combo.addItems(["Fixed width", "Standard widths", "Fit content"])
-        self.width_combo.setCurrentIndex(_MODE_FIXED)  # default: uniform medium width
+        # Restore the last-used column-width mode from the .ini; default: uniform medium width.
+        saved_mode = self.width_combo.findText(read_ui_value("table_preview_columns", "Fixed width"))
+        self.width_combo.setCurrentIndex(saved_mode if saved_mode >= 0 else _MODE_FIXED)
         layout.addWidget(self.width_combo)
 
         self.wrap_checkbox = QCheckBox("Wrap text", bar)
-        self.wrap_checkbox.setChecked(False)  # default: wrap on
+        # Restore the last-used wrap state from the .ini; default: off.
+        self.wrap_checkbox.setChecked(read_ui_value("table_preview_wrap", "false").strip().lower() == "true")
         layout.addWidget(self.wrap_checkbox)
 
         layout.addStretch(1)
@@ -335,6 +338,9 @@ class TablePopup(QWidget):
     def _relayout(self, *args):
         mode = self.width_combo.currentIndex()
         wrap = self.wrap_checkbox.isChecked()
+        # Remember both controls across popups / sessions.
+        write_ui_value("table_preview_columns", self.width_combo.currentText())
+        write_ui_value("table_preview_wrap", "true" if wrap else "false")
         table = self.table
         frozen = table.frozen
         model = self._model

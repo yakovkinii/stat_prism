@@ -15,7 +15,6 @@
 #  You should have received a copy of the GNU General Public License along with
 #  StatPrism.  If not, see <https://www.gnu.org/licenses/>.
 
-# VALIDATED
 
 from src.common.constant import NDASH
 from src.common.languages import LANGUAGE
@@ -390,12 +389,12 @@ TRANSLATIONS = {
         "ua": "мають рівні середні значення",
     },
     "ttest.prop.normal": {
-        "en": "are normally distributed (p > 0.05)",
-        "ua": "розподілені нормально (p > 0.05)",
+        "en": "are normally distributed (p &gt; 0.05)",
+        "ua": "розподілені нормально (p &gt; 0.05)",
     },
     "ttest.prop.not_normal": {
-        "en": "are not normally distributed (p < 0.05)",
-        "ua": "розподілені ненормально (p < 0.05)",
+        "en": "are not normally distributed (p &lt; 0.05)",
+        "ua": "розподілені ненормально (p &lt; 0.05)",
     },
     "ttest.prop.homogeneous": {
         "en": "have homogeneity of variance",

@@ -46,7 +46,6 @@ def _config(**overrides):
         missing_values="Skip respondent",
         missing_threshold=0,
         color=None,
-        questions_color=None,
     )
     base.update(overrides)
     return CalculateScaleStudyConfig(**base)

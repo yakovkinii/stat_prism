@@ -14,6 +14,8 @@
 #
 #  You should have received a copy of the GNU General Public License along with
 #  StatPrism.  If not, see <https://www.gnu.org/licenses/>.
+
+
 import pandas as pd
 
 from src.side_area_panel.modules.common.result.registry import BaseResult

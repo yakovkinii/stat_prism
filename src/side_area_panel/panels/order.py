@@ -15,7 +15,6 @@
 #  You should have received a copy of the GNU General Public License along with
 #  StatPrism.  If not, see <https://www.gnu.org/licenses/>.
 
-# VALIDATED
 
 from src.common.decorators import log_method, log_method_noarg
 from src.pyside_ext.elements.order import OrderVisualizer

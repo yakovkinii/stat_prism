@@ -15,8 +15,6 @@
 #  You should have received a copy of the GNU General Public License along with
 #  StatPrism.  If not, see <https://www.gnu.org/licenses/>.
 
-# VALIDATED
-
 
 def css(selector: str = "#id", **kwargs):
     properties = "\n".join(f"\t{key.replace('_', '-')}: {value};" for key, value in kwargs.items())

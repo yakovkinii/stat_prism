@@ -15,7 +15,6 @@
 #  You should have received a copy of the GNU General Public License along with
 #  StatPrism.  If not, see <https://www.gnu.org/licenses/>.
 
-# VALIDATED
 
 from enum import Enum
 
@@ -58,16 +57,16 @@ ID_COLUMN_NAME = "ID"
 # items). A column's color is None/0 when untagged. Kept deliberately soft so text stays
 # readable on top.
 PASTEL_PALETTE = [
-    "#ffd6d6",  # red
-    "#ffe3c2",  # orange
-    "#fff5ba",  # yellow
-    "#e2f5c4",  # lime
-    "#c8f0e0",  # teal
-    "#cfe6ff",  # blue
-    "#d9d6ff",  # indigo
-    "#f0d6ff",  # violet
-    "#ffd6ec",  # pink
-    "#e6e6e6",  # gray
+    "#ffb3b3",  # red
+    "#ffcf9e",  # orange
+    "#fdf29a",  # yellow
+    "#d0ee9c",  # lime
+    "#9fe6c4",  # teal
+    "#a6d5ff",  # blue
+    "#bcb6ff",  # indigo
+    "#e0b0ff",  # violet
+    "#ffabda",  # pink
+    "#dcdcdc",  # gray
 ]
 
 

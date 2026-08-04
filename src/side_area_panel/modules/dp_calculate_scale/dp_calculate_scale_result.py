@@ -15,8 +15,6 @@
 #  You should have received a copy of the GNU General Public License along with
 #  StatPrism.  If not, see <https://www.gnu.org/licenses/>.
 
-# VALIDATED
-
 
 import attrs
 
@@ -52,7 +50,6 @@ class CalculateScaleStudyConfig:
     missing_values = attrs.field(default=None)
     missing_threshold = attrs.field(default=None)
     color = attrs.field(default=None)
-    questions_color = attrs.field(default=None)
 
 
 class CalculateScaleResult(BaseResult):

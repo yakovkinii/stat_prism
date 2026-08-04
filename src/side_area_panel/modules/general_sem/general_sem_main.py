@@ -15,6 +15,7 @@
 #  You should have received a copy of the GNU General Public License along with
 #  StatPrism.  If not, see <https://www.gnu.org/licenses/>.
 
+
 import logging
 
 import numpy as np
@@ -377,7 +378,7 @@ def _param_prose(insp, display, n_cases: int, n_equations: int) -> str:
     if n_paths:
         p = reg["p-value"].map(_num) if "p-value" in reg.columns else None
         n_sig = int(sum(1 for v in (p if p is not None else []) if v is not None and v < 0.05))
-        text += f"{n_sig} of {n_paths} directed path(s) reached significance (p < .05). "
+        text += f"{n_sig} of {n_paths} directed path(s) reached significance (p &lt; .05). "
         est_col = "Est. Std" if "Est. Std" in reg.columns else "Estimate"
         strongest, best = None, -1.0
         for _, r in reg.iterrows():

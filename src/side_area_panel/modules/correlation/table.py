@@ -15,8 +15,6 @@
 #  You should have received a copy of the GNU General Public License along with
 #  StatPrism.  If not, see <https://www.gnu.org/licenses/>.
 
-# VALIDATED
-
 
 from src.common.constant import MDASH
 from src.common.translations import t

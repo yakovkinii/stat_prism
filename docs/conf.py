@@ -53,11 +53,11 @@ extensions = [
 
 # MyST Markdown extensions used across the guide.
 myst_enable_extensions = [
-    "colon_fence",   # ::: fenced admonitions / directives
-    "deflist",       # definition lists
+    "colon_fence",  # ::: fenced admonitions / directives
+    "deflist",  # definition lists
     "attrs_inline",  # inline attributes
-    "linkify",       # bare URLs become links
-    "tasklist",      # - [ ] checklists
+    "linkify",  # bare URLs become links
+    "tasklist",  # - [ ] checklists
     "substitution",
 ]
 myst_heading_anchors = 3  # auto-anchor h1..h3 for cross-page links

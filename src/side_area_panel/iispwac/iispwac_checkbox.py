@@ -15,7 +15,6 @@
 #  You should have received a copy of the GNU General Public License along with
 #  StatPrism.  If not, see <https://www.gnu.org/licenses/>.
 
-# VALIDATED
 
 from PySide6.QtWidgets import QCheckBox
 
@@ -27,10 +26,13 @@ from src.side_area_panel.blueprint.element import ItemInSidePanelWithAutoConfig
 
 
 class IISPWACCheckBox(ItemInSidePanelWithAutoConfig):
-    def __init__(self, label_text: str, default_state: bool):
+    def __init__(self, label_text: str, default_state: bool, visible_when=None):
         super().__init__()
         self.label_text = label_text
         self.default_state = default_state
+        # Optional predicate(kwargs) -> bool. When supplied, the checkbox is shown only
+        # while it returns True and hidden (not grayed) otherwise.
+        self.visible_when = visible_when
         self.handler_state_changed = None
 
     def post_init(self, name, parent_widget):
@@ -79,6 +81,9 @@ class IISPWACCheckBox(ItemInSidePanelWithAutoConfig):
             state = self.default_state
 
         self.widget.setChecked(state)
+
+        if self.visible_when is not None:
+            self.widget.setVisible(bool(self.visible_when(kwargs)))
 
     @log_method_noarg
     def set_alert(self):

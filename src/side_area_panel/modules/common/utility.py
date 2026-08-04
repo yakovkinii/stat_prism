@@ -15,13 +15,20 @@
 #  You should have received a copy of the GNU General Public License along with
 #  StatPrism.  If not, see <https://www.gnu.org/licenses/>.
 
-# VALIDATED
 
 import numpy as np
 import pandas as pd
 
 from src.common.constant import MDASH
 from src.common.translations import t
+
+
+def round_to_one_sig_fig(x):
+    """Round to a single significant figure (e.g. 7.4 -> 7, 0.0123 -> 0.01). Zero or a
+    non-finite input is returned unchanged."""
+    if x == 0 or not np.isfinite(x):
+        return x
+    return round(x, -int(np.floor(np.log10(abs(x)))))
 
 
 def unique_name(base: str, existing) -> str:
