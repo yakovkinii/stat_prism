@@ -228,6 +228,15 @@ class ModuleRegistry(Enum):
         icon_path="mdi6.calculator-variant-outline",
     )
 
+    # Appended at the end so existing modules keep their positional settings-panel index
+    # (older saved projects store that index per result). It still lists under Data Processing,
+    # since the selectors filter by module_type rather than enum adjacency.
+    REORDER_COLUMNS = ModuleRegistryItem(
+        display_name="Reorder Columns",
+        icon_path="mdi6.table-edit",
+        module_type=ModuleType.DATA_PROCESSING,
+    )
+
     @property
     def display_name(self):
         return self.value.display_name

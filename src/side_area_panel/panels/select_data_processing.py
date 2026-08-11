@@ -60,6 +60,7 @@ class SelectDataProcessing(BasePanel):
         DATA_MANAGER.add_data_to_chain(result_id=result_id)
 
         self.root_class.main_area_panel.add_data_processing(result_id=result_id)
+        self.root_class.main_area_panel.update_focus(result_id=result_id)
 
         module.ui_instance.configure(result_id=result_id)
         if getattr(module.ui_instance, "recalculate_on_create", False):

@@ -342,16 +342,19 @@ class MainAreaClass:
         self.update_focus(new_id)
 
     def scroll_to_result(self, result_id):
-        """Bring a (just-added) study into view, animating the scroll when possible."""
+        """Bring a (just-added) study into view, animating the scroll when possible. Aligns the
+        study's bottom edge to the viewport, so a freshly created card is fully in view."""
         obj = self.get_result_object(result_id)
         if obj is None:
             return
         # Defer one tick so the new card has a real geometry to scroll to.
-        QTimer.singleShot(0, lambda: self._animate_scroll_to(obj.widget))
+        QTimer.singleShot(0, lambda: self._animate_scroll_to(obj.widget, align_bottom=True))
 
-    def _animate_scroll_to(self, target_widget):
+    def _animate_scroll_to(self, target_widget, align_bottom=False):
         bar = self.widget.verticalScrollBar()
         top = target_widget.mapTo(self.widget_in_scroll_area, QPoint(0, 0)).y()
+        if align_bottom:
+            top = top + target_widget.height() - self.widget.viewport().height()
         target = max(bar.minimum(), min(top, bar.maximum()))
         animation = QPropertyAnimation(bar, b"value", self.widget)
         animation.setDuration(300)

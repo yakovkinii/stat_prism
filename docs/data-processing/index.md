@@ -24,6 +24,7 @@ The pages below describe each step.
 
 preprocess
 transform
+reorder
 calculate-scale
 invert-scale
 formula

@@ -24,6 +24,7 @@ from src.side_area_panel.iispwac.iispwac_column_selector import IISPWACColumnSel
 from src.side_area_panel.iispwac.iispwac_combobox import IISPWACComboBox
 from src.side_area_panel.iispwac.iispwac_cross_loading_list import IISPWACCrossLoadingList
 from src.side_area_panel.iispwac.iispwac_data_source import IISPWACDataSource
+from src.side_area_panel.iispwac.iispwac_residual_correlation_list import IISPWACResidualCorrelationList
 from src.side_area_panel.iispwac.iispwac_spacer import IISPWACSpacer
 from src.side_area_panel.iispwac.iispwac_spin import IISPWACSpin
 from src.side_area_panel.modules.base.base import BaseModulePanel
@@ -61,7 +62,9 @@ class Elements(ItemInSidePanelWithAutoConfigHolder):
         default_state=False,
     )
     modification_hints = IISPWACCheckBox(label_text="Modification hints (cross-loadings)", default_state=False)
+    correlated_residuals = IISPWACCheckBox(label_text="Modification hints (correlated residuals)", default_state=False)
     cross_loadings = IISPWACCrossLoadingList()
+    residual_correlations = IISPWACResidualCorrelationList()
     interpretation = IISPWACComboBox(label_text=PROSE_LABEL, items=PROSE_LEVELS)
     number_columns = IISPWACCheckBox(label_text="Number variables in tables", default_state=False)
     plots = IISPWACCheckBox(label_text="Plots", default_state=False)
