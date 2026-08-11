@@ -19,12 +19,22 @@ that model fits.
 - **Estimator** — **Maximum Likelihood (ML)** or **Diagonally Weighted Least Squares (DWLS)**
   (DWLS suits ordinal items).
 - **Allow factor correlation** — oblique (correlated factors) vs orthogonal.
-- **Modification hints** — adds a table of possible cross-loadings, ranked by the mean absolute
-  standardized residual between an item and another factor's indicators. These are
-  residual-based *hints*, not exact Lagrange-multiplier modification indices.
-- **Apply cross-loadings** — a checklist of the current suggestions (and any already applied).
-  Tick one to add that item as a cross-loading on the suggested factor; the model re-fits with
-  it, and the loadings table then shows the item loading on both factors. Untick to revert.
+- **Second-order factor** — adds a general factor that explains the correlations among the
+  first-order factors (needs at least 3 first-order factors). With exactly three, the
+  second-order part is just-identified, so its fit matches the oblique model; it differs only
+  with four or more factors.
+- **Modification hints (cross-loadings)** — a table of possible cross-loadings, ranked by the
+  mean absolute standardized residual between an item and another factor's indicators.
+- **Modification hints (correlated residuals)** — a table of item pairs whose residuals covary
+  most (candidates for letting two items' measurement errors correlate — e.g. similar wording,
+  content, method, or reverse scoring). Both tables are residual-based *hints*, not exact
+  Lagrange-multiplier modification indices.
+- **Apply cross-loadings** — a checklist of the current cross-loading suggestions (and any
+  already applied). Tick one to add that item as a cross-loading on the suggested factor; the
+  model re-fits, and the loadings table then shows the item loading on both factors. Untick to
+  revert.
+- **Apply correlated residuals** — the same idea for residual covariances: tick an item pair to
+  free the covariance between their residuals and re-fit. Untick to revert.
 
 ## Output
 
@@ -44,3 +54,6 @@ that model fits.
 
 - You need enough complete cases for a stable solution, and the model must be identified
   (each factor needs enough indicators).
+- With the **DWLS** estimator the fit indices (χ², RMSEA, CFI, TLI) are the robust,
+  mean-and-variance-adjusted (Satorra–Bentler / WLSMV) versions, so the degrees of freedom can
+  be fractional.

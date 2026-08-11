@@ -60,6 +60,7 @@ def _fit_cfa(cfg, structure, values, columns):
         allow_factor_correlation=cfg.allow_factor_correlation,
         objective=getattr(cfg, "estimator", None) or OBJECTIVE_ML,
         second_order=bool(getattr(cfg, "second_order", False)),
+        residual_correlations=getattr(cfg, "residual_correlations", None),
     )
     return estimator.fit(values, var_names=columns)
 
@@ -70,6 +71,16 @@ def _is_nan(value) -> bool:
 
 def _fmt(value, decimals: int = 3) -> str:
     return "—" if _is_nan(value) else format_statistic_apa(value, decimals)
+
+
+def _fmt_df(value) -> str:
+    """Degrees of freedom: shown as an integer for the usual (ML) case, but the Satorra-Bentler
+    (DWLS) rescaling makes df fractional, so keep one decimal when it is not whole."""
+    if _is_nan(value):
+        return "—"
+    if abs(value - round(value)) < 1e-6:
+        return str(int(round(value)))
+    return f"{value:.1f}"
 
 
 def _interpretation_key(name: str, value) -> str:
@@ -107,7 +118,7 @@ def _fit_prose(fit: dict, converged: bool) -> str:
     chi2, df, p = fit["Chi-square"], fit["df"], fit["p-value"]
     if not _is_nan(p):
         key = "cfa.report.chi2_good" if p >= 0.05 else "cfa.report.chi2_poor"
-        text += t(key, df=df, chi2=_fmt(chi2, 2), p=format_p_apa_full(p))
+        text += t(key, df=_fmt_df(df), chi2=_fmt(chi2, 2), p=format_p_apa_full(p))
     text += t(
         "cfa.report.indices",
         rmsea=_fmt(fit["RMSEA"]),
@@ -185,7 +196,7 @@ def recalculate_cfa_study(elements, result: CFAResult, update) -> CFAResult:
 
     rows = [
         ("χ²", _fmt(fit["Chi-square"], 2), None),
-        ("df", "—" if _is_nan(fit["df"]) else str(int(fit["df"])), None),
+        ("df", _fmt_df(fit["df"]), None),
         (t("common.p_value"), format_p_apa_exact(fit["p-value"]), _interpretation_key("p", fit["p-value"])),
         ("RMSEA", _fmt(fit["RMSEA"]), _interpretation_key("RMSEA", fit["RMSEA"])),
         ("CFI", _fmt(fit["CFI"]), _interpretation_key("CFI", fit["CFI"])),
@@ -302,8 +313,19 @@ def recalculate_cfa_study(elements, result: CFAResult, update) -> CFAResult:
     result.suggested_cross_loadings = _cross_loading_suggestions(
         cfa_result.std_resid_, structure, columns, _MOD_HINT_THRESHOLD
     )
+    # Item-pair residual suggestions, stored so the "Apply correlated residuals" control can offer
+    # them; already-applied pairs are dropped so they are not re-suggested.
+    applied_residuals = {frozenset((str(a), str(b))) for a, b in (getattr(cfg, "residual_correlations", None) or [])}
+    result.suggested_residual_correlations = [
+        (a, b, score)
+        for a, b, score in _correlated_residual_suggestions(cfa_result.std_resid_, columns, _MOD_HINT_THRESHOLD)
+        if frozenset((str(a), str(b))) not in applied_residuals
+    ]
     if cfg.modification_hints:
         _render_modification_hints(result, result.suggested_cross_loadings, factor_names, numbering, len(structure))
+
+    if getattr(cfg, "correlated_residuals", False):
+        _render_correlated_residual_hints(result, result.suggested_residual_correlations, numbering)
 
     result.title_context = f"{n_factors} factors"
     update(100)
@@ -342,6 +364,57 @@ def _cross_loading_suggestions(std_resid, structure, columns, threshold):
                 suggestions.append((var, fi, score))
     suggestions.sort(key=lambda s: s[2], reverse=True)
     return suggestions
+
+
+def _correlated_residual_suggestions(std_resid, columns, threshold):
+    """Item pairs whose standardized residual covariance is large: the model under-reproduces
+    their observed covariance, so letting the two items' measurement errors correlate may improve
+    fit. Returns ``[(item_a, item_b, score), …]`` worst-first.
+
+    Residual-based approximation, not the exact Lagrange-multiplier modification index (the
+    backend does not expose it)."""
+    if std_resid is None or len(columns) < 2:
+        return []
+    resid = np.asarray(std_resid, dtype=float)
+    suggestions = []
+    for i in range(len(columns)):
+        for j in range(i + 1, len(columns)):
+            score = abs(float(resid[i, j]))
+            if np.isfinite(score) and score >= threshold:
+                suggestions.append((columns[i], columns[j], score))
+    suggestions.sort(key=lambda s: s[2], reverse=True)
+    return suggestions
+
+
+def _render_correlated_residual_hints(result, suggestions, numbering):
+    """Scored item-pair table for possible correlated residuals. Always emits an element (with a
+    note when there is nothing to suggest) so the option is never silently inert."""
+    table = HTMLTableV2(table_caption=t("cfa.caption.resid_hints"), table_note=t("cfa.resid_hints_note"))
+    if not suggestions:
+        table.add_text(t("cfa.resid_hints_none", threshold=f"{_MOD_HINT_THRESHOLD:.2f}"))
+        result.update_and_add_element(table, "cfa residual hints")
+        return
+    table.add_title_row_apa(
+        Row(
+            [
+                Cell(t("cfa.col.item_a")),
+                Cell(t("cfa.col.item_b")),
+                Cell(t("cfa.col.resid_pair"), center=True),
+            ]
+        )
+    )
+    for var_a, var_b, score in suggestions[:15]:
+        table.add_single_row_apa(
+            Row(
+                [
+                    Cell(numbering.label(var_a), push_to_left=True),
+                    Cell(numbering.label(var_b), push_to_left=True),
+                    Cell(format_r_apa(score), center=True),
+                ]
+            )
+        )
+    table.table_note = numbering.append_to_note(table.table_note or "")
+    result.update_and_add_element(table, "cfa residual hints")
 
 
 def _render_modification_hints(result, suggestions, factor_names, numbering, n_factors):

@@ -150,6 +150,8 @@ class MainWindowClass(QtWidgets.QMainWindow):
         QShortcut(QKeySequence.StandardKey.Open, self, activated=lambda: home_initial.open_handler())
         # Ctrl+R: recalculate every study (same as File ▸ Recalculate All).
         QShortcut(QKeySequence("Ctrl+R"), self, activated=lambda: self.main_area_panel.recompute_all())
+        # Escape: deselect the active study (clear the main-area focus, back to the Home panel).
+        QShortcut(QKeySequence("Escape"), self, activated=lambda: self.main_area_panel.activate_result(None, None))
 
     @log_method_noarg
     def activate_main_area_display(self):

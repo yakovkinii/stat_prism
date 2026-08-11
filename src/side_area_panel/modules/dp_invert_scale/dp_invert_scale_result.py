@@ -34,6 +34,20 @@ class InvertScaleStudyConfig:
     data_source = attrs.field(default=None)
     column_selector = attrs.field(default=None)
     reference = attrs.field(default=None)
+    replace_in_place = attrs.field(default=None)
+
+    def __getstate__(self):
+        return {field.name: getattr(self, field.name) for field in attrs.fields(type(self))}
+
+    def __setstate__(self, state):
+        # Support save files pickled before replace_in_place was added: attrs' generated
+        # __setstate__ leaves a missing field unset, so a later attrs.asdict() raises
+        # AttributeError. Seed every field with its default first, then apply the pickle.
+        fields = attrs.fields(type(self))
+        if isinstance(state, tuple):
+            state = dict(zip([field.name for field in fields], state))
+        for field in fields:
+            object.__setattr__(self, field.name, state.get(field.name, field.default))
 
 
 class InvertScaleResult(BaseResult):
@@ -60,5 +74,6 @@ class InvertScaleResult(BaseResult):
         parts = [
             f"Columns ({len(columns)}): " + (", ".join(columns) if columns else "none"),
             f"Inverted as: ({reference_text}) − x",
+            "Mode: replace in place" if getattr(cfg, "replace_in_place", False) else "Mode: new (inverted) column",
         ]
         self.description = "<br>".join(parts)

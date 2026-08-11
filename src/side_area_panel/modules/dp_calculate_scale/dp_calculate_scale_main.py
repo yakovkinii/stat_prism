@@ -107,7 +107,11 @@ def dp_calculate_scale_main(elements: Elements, result: CalculateScaleResult, up
     new_column = DataColumn.initialize_from_series(scale_series)
     new_column.color = cfg.color  # user-chosen colour tag for the new scale column
 
-    data.add_column_after(all_item_columns[-1], new_column)
+    # Insert the scale after the right-most of its item columns (by position in the data), so it
+    # lands after all of them rather than in the middle when reverse-scored items sit earlier.
+    names = data.column_names()
+    last_item = max(all_item_columns, key=names.index)
+    data.add_column_after(last_item, new_column)
 
     # Reverse-scored source columns: when "Replace" is on (default), write the flipped values
     # back into those columns in the output so they match what went into the scale. (Skipped

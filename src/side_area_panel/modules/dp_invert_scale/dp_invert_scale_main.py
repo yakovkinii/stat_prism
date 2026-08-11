@@ -54,10 +54,19 @@ def dp_invert_scale_main(elements: Elements, result: InvertScaleResult, update):
             return result
         reference = pooled.max() + pooled.min()
 
+    replace_in_place = bool(getattr(cfg, "replace_in_place", False))
     existing = set(data.column_names())
     for original_column_name in columns:
-        new_name = unique_name(f"{original_column_name} (inverted)", existing)
+        if replace_in_place:
+            # Overwrite the column: same name, no copy.
+            column = data[original_column_name]
+            column.data_series = reference - pd.to_numeric(column.data_series, errors="coerce")
+            # Rebuild the ordinal/nominal order to reflect the new (inverted) values.
+            column.order = {}
+            column.automatically_update_order()
+            continue
 
+        new_name = unique_name(f"{original_column_name} (inverted)", existing)
         inverted = data[original_column_name].copy()
         inverted.data_series = reference - pd.to_numeric(inverted.data_series, errors="coerce")
         inverted.rename(new_name)

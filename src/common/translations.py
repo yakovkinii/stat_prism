@@ -1205,6 +1205,31 @@ TRANSLATIONS = {
             "може покращити відповідність."
         ),
     },
+    "cfa.caption.resid_hints": {
+        "en": "Modification hints (correlated residuals)",
+        "ua": "Підказки щодо модифікації (корельовані залишки)",
+    },
+    "cfa.resid_hints_none": {
+        "en": "No correlated residuals suggested — every item-pair residual is below {threshold}.",
+        "ua": "Корельованих залишків не запропоновано — усі залишки для пар пунктів нижчі за {threshold}.",
+    },
+    "cfa.resid_hints_note": {
+        "en": (
+            "Item pairs whose standardized residual covariance is large. Allowing the measurement "
+            "errors of two questions to correlate may make sense when the items share wording, "
+            "content, method, or reverse scoring. Residual-based suggestion, not an exact "
+            "modification index."
+        ),
+        "ua": (
+            "Пари пунктів із великою стандартизованою залишковою коваріацією. Дозволити кореляцію "
+            "похибок вимірювання двох запитань може бути доречно, коли пункти мають схоже "
+            "формулювання, зміст, метод або зворотне шкалування. Підказка на основі залишків, а не "
+            "точний індекс модифікації."
+        ),
+    },
+    "cfa.col.item_a": {"en": "Item 1", "ua": "Пункт 1"},
+    "cfa.col.item_b": {"en": "Item 2", "ua": "Пункт 2"},
+    "cfa.col.resid_pair": {"en": "|resid.|", "ua": "|залишок|"},
     "cfa.col.index": {"en": "Index", "ua": "Індекс"},
     "cfa.col.value": {"en": "Value", "ua": "Значення"},
     "cfa.col.interpretation": {"en": "Interpretation", "ua": "Інтерпретація"},
@@ -2171,7 +2196,10 @@ TRANSLATIONS = {
             "but it is sensitive to sample size). <b>RMSEA</b>: &lt; .05 good, &lt; .08 acceptable, "
             "&lt; .10 mediocre, otherwise poor. <b>CFI / TLI</b>: &ge; .95 excellent, &ge; .90 "
             "acceptable, otherwise poor. <b>SRMR</b>: &le; .08 good, otherwise poor. <b>df</b> are the "
-            "model degrees of freedom.</li>"
+            "model degrees of freedom. With the <b>DWLS</b> estimator the &chi;&sup2;, RMSEA, CFI and TLI "
+            "are reported as their robust, mean-and-variance-adjusted (Satorra&ndash;Bentler / WLSMV) "
+            "versions &mdash; a valid test under diagonal weighting &mdash; so <b>df</b> may be "
+            "fractional.</li>"
             "<li><b>Factor correlations.</b> With &lsquo;Allow factor correlation&rsquo; the factors may "
             "correlate (oblique model) and a factor-correlation matrix (&Phi;) is reported; otherwise "
             "the factors are constrained orthogonal.</li>"
@@ -2179,12 +2207,23 @@ TRANSLATIONS = {
             "estimated loading is starred from a Wald test (* p &lt; .05, ** .01, *** .001). The "
             "standard errors are <i>asymptotic</i> &mdash; from the numerical Hessian of the ML "
             "discrepancy, Cov(&theta;) &asymp; (2/N)&middot;H&#8315;&sup1; &mdash; so treat them as "
-            "approximate, especially in small samples. Modification indices are not provided.</li>"
+            "approximate, especially in small samples.</li>"
             "<li><b>Verbal indicators.</b> &lsquo;Verbal indicators in tables&rsquo; adds an "
             "Interpretation column to the fit-index table.</li>"
             "<li><b>Numbered variables.</b> &lsquo;Number variables in tables&rsquo; replaces the "
             "indicator names in the loadings table with numbers (1, 2, 3&hellip;) and adds a numbered "
             "legend to the table&rsquo;s note.</li>"
+            "<li><b>Second-order factor.</b> &lsquo;Second-order factor&rsquo; adds a general factor that "
+            "explains the correlations among the first-order factors (needs &ge; 3 first-order factors). "
+            "With exactly three first-order factors it is just-identified, so its fit is identical to the "
+            "oblique model; the fit differs only with four or more factors.</li>"
+            "<li><b>Modification hints.</b> &lsquo;Modification hints&rsquo; list the largest standardized "
+            "residuals as possible <i>cross-loadings</i> (an item also loading on another factor) or "
+            "<i>correlated residuals</i> (two items&rsquo; measurement errors allowed to correlate &mdash; "
+            "e.g. similar wording, content, method, or reverse scoring). These are residual-based "
+            "approximations, not exact Lagrange-multiplier modification indices. Tick a suggestion under "
+            "&lsquo;Apply cross-loadings&rsquo; or &lsquo;Apply correlated residuals&rsquo; to add it to "
+            "the model and refit.</li>"
             "<li><b>Reproducibility.</b> Optimisation uses a fixed random seed, so re-running the same "
             "model gives the same solution. A non-convergence warning means the estimate may be "
             "unreliable.</li>"
@@ -2207,7 +2246,10 @@ TRANSLATIONS = {
             "відповідність (незначущий = добре, але чутливий до розміру вибірки). <b>RMSEA</b>: "
             "&lt; .05 добре, &lt; .08 прийнятно, &lt; .10 посередньо, інакше погано. <b>CFI / TLI</b>: "
             "&ge; .95 відмінно, &ge; .90 прийнятно, інакше погано. <b>SRMR</b>: &le; .08 добре, інакше "
-            "погано. <b>df</b> &mdash; це ступені свободи моделі.</li>"
+            "погано. <b>df</b> &mdash; це ступені свободи моделі. З оцінювачем <b>DWLS</b> &chi;&sup2;, "
+            "RMSEA, CFI і TLI наводяться у робастних, скоригованих за середнім і дисперсією "
+            "(Satorra&ndash;Bentler / WLSMV) версіях &mdash; коректний тест за діагонального зважування "
+            "&mdash; тож <b>df</b> можуть бути дробовими.</li>"
             "<li><b>Кореляції факторів.</b> З &lsquo;Дозволити кореляцію факторів&rsquo; фактори "
             "можуть корелювати (косокутна модель) і наводиться матриця кореляцій факторів (&Phi;); "
             "інакше фактори обмежені як ортогональні.</li>"
@@ -2215,13 +2257,24 @@ TRANSLATIONS = {
             "таблицях&rsquo; кожне оцінене навантаження позначається зірочками за тестом Вальда "
             "(* p &lt; .05, ** .01, *** .001). Стандартні похибки <i>асимптотичні</i> &mdash; з "
             "числового гессіана розбіжності ML, Cov(&theta;) &asymp; (2/N)&middot;H&#8315;&sup1; "
-            "&mdash; тож сприймайте їх як наближені, особливо на малих вибірках. Індекси модифікації "
-            "не надаються.</li>"
+            "&mdash; тож сприймайте їх як наближені, особливо на малих вибірках.</li>"
             "<li><b>Словесні індикатори.</b> &lsquo;Словесні індикатори в таблицях&rsquo; додають "
             "стовпець Інтерпретація до таблиці індексів відповідності.</li>"
             "<li><b>Нумерація змінних.</b> &lsquo;Нумерувати змінні в таблицях&rsquo; замінює назви "
             "індикаторів у таблиці навантажень номерами (1, 2, 3&hellip;) і додає нумеровану легенду "
             "до примітки таблиці.</li>"
+            "<li><b>Фактор другого порядку.</b> &lsquo;Фактор другого порядку&rsquo; додає загальний "
+            "фактор, що пояснює кореляції між факторами першого порядку (потребує &ge; 3 факторів "
+            "першого порядку). Рівно з трьома факторами першого порядку він точно ідентифікований, тож "
+            "його відповідність збігається з косокутною моделлю; відповідність відрізняється лише за "
+            "чотирьох і більше факторів.</li>"
+            "<li><b>Підказки щодо модифікації.</b> &lsquo;Підказки щодо модифікації&rsquo; перелічують "
+            "найбільші стандартизовані залишки як можливі <i>крос-навантаження</i> (пункт навантажується "
+            "ще й на інший фактор) або <i>корельовані залишки</i> (похибки вимірювання двох пунктів "
+            "дозволено корелювати &mdash; напр. схоже формулювання, зміст, метод або зворотне "
+            "шкалування). Це наближення на основі залишків, а не точні індекси модифікації "
+            "(множники Лагранжа). Позначте підказку в &lsquo;Застосувати крос-навантаження&rsquo; чи "
+            "&lsquo;Застосувати корельовані залишки&rsquo;, щоб додати її до моделі та переоцінити.</li>"
             "<li><b>Відтворюваність.</b> Оптимізація використовує фіксований випадковий seed, тож "
             "повторний запуск тієї самої моделі дає той самий розв&rsquo;язок. Попередження про "
             "незбіжність означає, що оцінка може бути ненадійною.</li>"

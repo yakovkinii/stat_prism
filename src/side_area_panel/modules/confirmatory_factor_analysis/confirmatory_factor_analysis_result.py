@@ -33,11 +33,27 @@ class CFAStudyConfig:
     allow_factor_correlation = attrs.field(default=None)
     second_order = attrs.field(default=None)
     modification_hints = attrs.field(default=None)
+    correlated_residuals = attrs.field(default=None)
     cross_loadings = attrs.field(default=None)  # applied cross-loadings: [[item, factor_index], ...]
+    residual_correlations = attrs.field(default=None)  # applied residual covariances: [[item_a, item_b], ...]
     verbal_indicators = attrs.field(default=None)
     interpretation = attrs.field(default=None)
     number_columns = attrs.field(default=None)
     plots = attrs.field(default=None)
+
+    def __getstate__(self):
+        return {field.name: getattr(self, field.name) for field in attrs.fields(type(self))}
+
+    def __setstate__(self, state):
+        # Support save files pickled before a field (e.g. correlated_residuals) was added:
+        # attrs' generated __setstate__ leaves any missing field unset, so a later
+        # attrs.asdict() raises AttributeError. Seed every field with its default first, then
+        # apply whatever the pickle stored.
+        fields = attrs.fields(type(self))
+        if isinstance(state, tuple):
+            state = dict(zip([field.name for field in fields], state))
+        for field in fields:
+            object.__setattr__(self, field.name, state.get(field.name, field.default))
 
 
 class CFAResult(BaseResult):
@@ -52,6 +68,9 @@ class CFAResult(BaseResult):
         # Residual-based cross-loading suggestions from the last fit: [(item, factor_index, score)].
         # The "Apply cross-loadings" element reads this to offer them for application.
         self.suggested_cross_loadings = []
+        # Residual-based correlated-residual suggestions from the last fit: [(item_a, item_b, score)].
+        # The "Apply correlated residuals" element reads this to offer them for application.
+        self.suggested_residual_correlations = []
         self.update_description()
         self.set_placeholder()
 

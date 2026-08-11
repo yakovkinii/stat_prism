@@ -16,10 +16,13 @@
 #  StatPrism.  If not, see <https://www.gnu.org/licenses/>.
 
 
+import logging
+
 import numpy as np
 import pandas as pd
 import semopy
 from scipy.stats import chi2 as _chi2
+from semopy.stats import calc_chi2, calc_dof, get_baseline_model
 
 from src.side_area_panel.modules.confirmatory_factor_analysis.cfa_numpy import CFAResultStruct
 
@@ -30,11 +33,14 @@ _OBJECTIVE_TO_SEMOPY = {OBJECTIVE_ML: "MLW", OBJECTIVE_DWLS: "DWLS"}
 OBJECTIVES = [OBJECTIVE_ML, OBJECTIVE_DWLS]
 
 
-def _fit_report(S, L, phi, uniq, n_obs, n_params):
-    """Fit indices + standardized quantities from the model matrices — identical maths to
-    ``cfa_numpy`` so the two backends summarise a solution the same way."""
+def _fit_report(S, Sigma, L, n_obs, n_params):
+    """Fit indices + standardized quantities from the sample covariance ``S`` and the model-implied
+    covariance ``Sigma``. Sigma comes from the fitted model (semopy's ``calc_sigma``), not a
+    re-derivation from ``L @ phi @ L.T + diag(uniq)`` -- so it correctly reflects a second-order
+    factor, cross-loadings and any freed residual covariances. These serve as the fallback fit
+    indices and supply the standardized residuals / loadings the heatmap and modification hints
+    read."""
     n_vars = S.shape[0]
-    Sigma = L @ phi @ L.T + np.diag(uniq)
     _, logdet_S = np.linalg.slogdet(S)
     _, logdet_Sigma = np.linalg.slogdet(Sigma)
     tr = np.trace(np.linalg.solve(Sigma, S))
@@ -70,6 +76,83 @@ def _fit_report(S, L, phi, uniq, n_obs, n_params):
     return fit_indices, std_loadings, std_resid
 
 
+def _sb_scaled_chi2(model, naive_chi2, dof):
+    """Satorra-Bentler mean-and-variance-adjusted (WLSMV) rescaling of a fit's naive ``N * F``
+    statistic, returning ``(scaled_chi2, scaled_dof)``. Under diagonal weighting the naive statistic
+    is a mixture of chi-squares (its mean is not the model df), so it must be rescaled to recover an
+    approximately chi-square statistic -- this is the statistically valid test for DWLS.
+
+    Uses semopy's own model matrices: ``mx_w`` is the empirical (ADF, fourth-moment) covariance of
+    the sample moments Gamma, the DWLS fit weight is ``diag(Gamma)^-1``, and ``calc_sigma_grad``
+    gives the model Jacobian Delta. With ``U = W - W Delta (Delta' W Delta)^-1 Delta' W`` the naive
+    statistic has mean ``k1 = tr(U Gamma)`` and variance ``2 k2 = 2 tr((U Gamma)^2)``; matching the
+    first two moments of a chi-square gives scaled df ``k1^2 / k2`` and scaled statistic
+    ``naive * k1 / k2``."""
+    _, (m, c) = model.calc_sigma()
+    inds = model.inds_triu_sigma
+    delta = np.array([g[inds] for g in model.calc_sigma_grad(m, c)]).T  # (n_moments, n_params)
+    gamma = model.mx_w
+    weight = np.diag(model.mx_w_inv) if np.ndim(model.mx_w_inv) == 1 else model.mx_w_inv
+    wd = weight @ delta
+    u = weight - wd @ np.linalg.pinv(delta.T @ wd) @ wd.T
+    ug = u @ gamma
+    k1 = float(np.trace(ug))
+    k2 = float(np.trace(ug @ ug))
+    if not (np.isfinite(k1) and np.isfinite(k2)) or k1 <= 0 or k2 <= 0:
+        return naive_chi2, dof
+    return naive_chi2 * k1 / k2, k1 * k1 / k2
+
+
+def _semopy_fit_indices(model, srmr):
+    """Fit indices from semopy's model, computed the standard (lavaan-style) way so they line up
+    with tools such as jamovi and reflect any freed residual covariances.
+
+    For ML this is semopy's own ``calc_stats``. For DWLS the naive ``N * F`` statistic is not
+    chi-square distributed, so the model *and* the baseline chi-square are each replaced by their
+    Satorra-Bentler mean-and-variance-adjusted (WLSMV) values before the indices are formed. SRMR is
+    not part of calc_stats, so it is passed in from the matrix-based computation."""
+    is_dwls = str(getattr(model.last_result, "name_obj", "")).upper() == "DWLS"
+    if not is_dwls:
+        stats = semopy.calc_stats(model).iloc[0]
+        return {
+            "Chi-square": float(stats["chi2"]),
+            "df": float(stats["DoF"]),
+            "p-value": float(stats["chi2 p-value"]),
+            "RMSEA": float(stats["RMSEA"]),
+            "CFI": float(stats["CFI"]),
+            "TLI": float(stats["TLI"]),
+            "SRMR": srmr,
+        }
+
+    dof = calc_dof(model)
+    chi2_model, dof = _sb_scaled_chi2(model, calc_chi2(model, dof)[0], dof)
+
+    # The baseline (independence) model is refit with the same objective and rescaled the same way,
+    # so CFI / TLI compare like with like.
+    base = get_baseline_model(model)
+    base.fit(obj=model.last_result.name_obj)
+    dof_base = calc_dof(base)
+    chi2_base, dof_base = _sb_scaled_chi2(base, calc_chi2(base, dof_base)[0], dof_base)
+
+    p_value = float(1 - _chi2.cdf(chi2_model, dof)) if dof > 0 else np.nan
+    rmsea = np.sqrt(max((chi2_model / dof - 1) / (model.n_samples - 1), 0.0)) if dof > 0 else np.nan
+    cfi = 1 - max(chi2_model - dof, 0.0) / max(chi2_base - dof_base, 1e-12) if dof_base > 0 else np.nan
+    if dof > 0 and dof_base > 0:
+        a, b = chi2_model / dof, chi2_base / dof_base
+        tli = (b - a) / (b - 1) if b != 1 else np.nan
+    else:
+        tli = np.nan
+    return {
+        "Chi-square": float(chi2_model),
+        "df": float(dof),
+        "p-value": p_value,
+        "RMSEA": float(rmsea),
+        "CFI": float(cfi),
+        "TLI": float(tli),
+        "SRMR": srmr,
+    }
+
+
 class CFASemopyEstimator:
     """CFA via semopy. Mirrors :class:`cfa_numpy.CFAEstimator`'s interface."""
 
@@ -77,7 +160,13 @@ class CFASemopyEstimator:
     SECOND_ORDER = "G"
 
     def __init__(
-        self, structure, allow_factor_correlation=True, objective=OBJECTIVE_ML, second_order=False, **_ignored
+        self,
+        structure,
+        allow_factor_correlation=True,
+        objective=OBJECTIVE_ML,
+        second_order=False,
+        residual_correlations=None,
+        **_ignored,
     ):
         self.structure = structure
         self.allow_factor_correlation = allow_factor_correlation
@@ -85,8 +174,10 @@ class CFASemopyEstimator:
         # A single second-order factor loading on every first-order factor (needs >= 3 factors to
         # be identified). semopy backend only.
         self.second_order = second_order
+        # Item pairs whose residual covariance is freed: [[item_a, item_b], ...].
+        self.residual_correlations = residual_correlations or []
 
-    def _model_description(self, factor_names, present):
+    def _model_description(self, factor_names, present, residual_pairs=None):
         lines = []
         for name, indicators in zip(factor_names, present):
             lines.append(f"{name} =~ " + " + ".join(indicators))
@@ -98,6 +189,9 @@ class CFASemopyEstimator:
             for i in range(len(factor_names)):
                 for j in range(i + 1, len(factor_names)):
                     lines.append(f"{factor_names[i]} ~~ 0*{factor_names[j]}")
+        # Free the residual covariance of each requested item pair (measurement errors correlate).
+        for alias_a, alias_b in residual_pairs or []:
+            lines.append(f"{alias_a} ~~ {alias_b}")
         return "\n".join(lines)
 
     def fit(self, X, var_names=None):
@@ -127,8 +221,19 @@ class CFASemopyEstimator:
                 raise ValueError(f"Factor {j + 1} must have at least 2 variables for identification.")
             present.append(cols)
 
+        # Map requested residual-correlation pairs to their aliases, keeping only pairs whose
+        # two (distinct) items are both in the model.
+        residual_pairs = []
+        for pair in self.residual_correlations:
+            try:
+                item_a, item_b = pair[0], pair[1]
+            except (TypeError, IndexError):
+                continue
+            if item_a in alias_of and item_b in alias_of and item_a != item_b:
+                residual_pairs.append((alias_of[item_a], alias_of[item_b]))
+
         data = pd.DataFrame(X, columns=aliases)
-        model = semopy.Model(self._model_description(factor_names, present))
+        model = semopy.Model(self._model_description(factor_names, present, residual_pairs))
         obj = _OBJECTIVE_TO_SEMOPY.get(self.objective, "MLW")
         res = model.fit(data, obj=obj)
         converged = bool(getattr(res, "success", True))
@@ -190,10 +295,19 @@ class CFASemopyEstimator:
                 phi[:, j] *= -1
 
         S = np.cov(X, rowvar=False, bias=True)
-        n_params = int(np.count_nonzero(L)) + n_vars
-        if self.allow_factor_correlation and n_factors > 1:
-            n_params += n_factors * (n_factors - 1) // 2
-        fit_indices, std_loadings, std_resid = _fit_report(S, L, phi, uniq, n_obs, n_params)
+        # Model-implied covariance and exact free-parameter count come straight from the fitted
+        # model, so df and the discrepancy are right for the second-order factor, cross-loadings and
+        # freed residual covariances (re-deriving Sigma from L/phi/uniq would miss all three).
+        sigma_model = model.calc_sigma()[0]
+        n_params = len(model.param_vals)
+        fit_indices, std_loadings, std_resid = _fit_report(S, sigma_model, L, n_obs, n_params)
+        # Prefer semopy's native fit statistics (lavaan-style baseline / likelihood, so they match
+        # jamovi and reflect freed residual covariances). Keep the matrix-based values as a fallback
+        # and for SRMR, which calc_stats does not provide.
+        try:
+            fit_indices = _semopy_fit_indices(model, fit_indices["SRMR"])
+        except Exception:
+            logging.warning("semopy calc_stats failed; using matrix-based fit indices", exc_info=True)
 
         second_order_loadings = None
         if self.second_order and second_order:

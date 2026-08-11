@@ -12,6 +12,14 @@ r{
 
 # StatPrism Release Notes
 
+### StatPrism 1.2.6 (11 Aug 2026)
+
+* CFA: add item residual correlations
+* CFA: use semopy's fit indexes
+* MISC: ui alignment
+* New reorder dp study
+
+
 ### StatPrism 1.2.5 (4 Aug 2026)
 
 * Streamline UI
