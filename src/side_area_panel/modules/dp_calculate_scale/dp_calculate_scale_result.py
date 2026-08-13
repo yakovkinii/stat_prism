@@ -24,8 +24,10 @@ from src.side_area_panel.modules.common.result.registry import BaseResult
 _METHODOLOGY = (
     "<b>Calculate scale</b><br>"
     "Builds a new scale column by aggregating the selected item columns &mdash; <b>Sum</b> or "
-    "<b>Mean</b> across the items, per row. Optionally convert the result to <b>Stanine</b> "
-    "(1&ndash;9). The source questions can be kept, deleted, or auto-renamed (e.g. "
+    "<b>Mean</b> across the items, per row. Optionally <b>normalize</b> the result &mdash; Z-score, "
+    "Stanine, Center, Min-max, Log or Rank; Stanine is the normalized 1&ndash;9 score (mean 5, SD ~2) "
+    "from each value's percentile rank cut at the standard stanine bands, not a linear rescale. The "
+    "source questions can be kept, deleted, or auto-renamed (e.g. "
     "&lsquo;Scale Q1&rsquo;&hellip;). <b>Missing values</b> controls respondents with missing "
     "items: <i>Skip respondent</i> (default) gives no scale value when <i>any</i> item is missing; "
     "<i>Allow up to max %</i> aggregates over the present items as long as the share "

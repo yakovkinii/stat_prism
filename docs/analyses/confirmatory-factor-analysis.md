@@ -35,6 +35,10 @@ that model fits.
   revert.
 - **Apply correlated residuals** — the same idea for residual covariances: tick an item pair to
   free the covariance between their residuals and re-fit. Untick to revert.
+- **Create a Calculate Scale step per factor** (button at the bottom) — for each factor, adds a
+  new {doc}`../data-processing/calculate-scale` step with that factor's items pre-selected. The
+  scale name is left blank on purpose, so each new step prompts you to name it. Pressing the
+  button always adds fresh steps.
 
 ## Output
 

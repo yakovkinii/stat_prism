@@ -8,6 +8,9 @@ customizing, and getting those results out — especially into Word for a report
 - Each analysis produces one **result card**.
 - A card can hold several **elements** — tables and plots — shown as tabs you can switch
   between.
+- **Rename a study** by clicking its title and typing a new name (press Enter or click away to
+  finish). The name is used on the card and in the copied/exported report. For data-processing
+  steps the `[Data N]` label is kept automatically.
 - Results update automatically when you change a setting or an upstream data step.
 
 ## Customizing plots

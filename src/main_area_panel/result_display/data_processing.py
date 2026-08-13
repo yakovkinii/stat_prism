@@ -27,7 +27,7 @@ from src.common.decorators import log_method
 from src.common.ui_constructor import create_simple_tool_button_qta, create_tool_button_qta
 from src.main_area_panel.data_viewer.data_viewer import view_data_popup
 from src.main_area_panel.result_display.base import BaseResultDisplay
-from src.main_area_panel.result_display.elements.result_label import ResultLabel
+from src.main_area_panel.result_display.elements.result_label import EditableTitle
 from src.main_area_panel.result_display.export import export_data_to_excel
 from src.main_area_panel.show_in_main_area_popup import view_widget_in_popup
 from src.pyside_ext.elements.toggle_switch import ToggleSwitch
@@ -95,15 +95,24 @@ class DataProcessingResultDisplay(BaseResultDisplay):
         )
         self.body_layout.addWidget(self.text_widget, 1)
 
-        self.label = widget_in_layout(
-            widget=ResultLabel(parent=self.text_widget, label_text=label_text),
-            layout=self.text_layout,
-            setup=lambda w, l: [
-                w.clicked.connect(lambda: self.activate_result(self.result_id, None)),
-                w.setFont(Style.font_study_title),
-                set_stylesheet(w, css(color=Style.Color.TitleBrand)),
-            ],
+        # Editable title in a [title][stretch] row: clicking the title renames it; clicking the
+        # stretch beside it falls through and still activates the card.
+        self.title_row, self.title_row_layout = empty_widget(
+            widget_class=QWidgetClickable,
+            parent=self.text_widget,
+            outer_layout=self.text_layout,
+            inner_layout_class=QHBoxLayout,
+            setup=lambda w, l: [w.clicked.connect(lambda: self.activate_result(self.result_id, None))],
         )
+        self.label = widget_in_layout(
+            widget=EditableTitle(
+                parent=self.title_row,
+                result_id=result_id,
+                suffix_fn=lambda: f" [Data{result_id}]",
+            ),
+            layout=self.title_row_layout,
+        )
+        self.title_row_layout.addStretch()
 
         self.info = widget_in_layout(
             widget=QLabelClickable(self.text_widget),
@@ -319,6 +328,7 @@ class DataProcessingResultDisplay(BaseResultDisplay):
 
     def refresh(self):
         result = RESULTS[self.result_id]
+        self.label.refresh()  # in case a reset reverted the title to the module type name
         self.body_widget.show()
         description = result.description
         data = result.data
@@ -337,6 +347,9 @@ class DataProcessingResultDisplay(BaseResultDisplay):
             error_html = HTML.div(HTML.bold(error), color=Style.Color.Danger.value)
             description = f"{error_html}<br>{description}" if description else error_html
             inline = f"{WARNING} {error} | {inline}" if inline else f"{WARNING} {error}"
+        # Collapse any literal newlines/tabs (a plain-text QLabel would render them as hard
+        # breaks) so the collapsed band always stays on a single line.
+        inline = " ".join(inline.split())
         self.info.setText(description)
         self.info_inline.setText(inline)
         self._update_toggle()

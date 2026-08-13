@@ -74,3 +74,13 @@ match. See {doc}`projects-and-settings`.
 Use **File ▸ Save** / **Save As…** to store everything — the data, every processing step,
 and every analysis — in a single `.sp` project file you can reopen later. See
 {doc}`projects-and-settings`.
+
+## Keyboard shortcuts
+
+| Shortcut | Action |
+| --- | --- |
+| **Ctrl+O** | Open a project |
+| **Ctrl+S** | Save |
+| **Ctrl+Shift+S** | Save As… |
+| **Ctrl+R** | Recalculate all studies (also **File ▸ Recalculate All**) |
+| **Esc** | Deselect the current study (return to the Home panel) |

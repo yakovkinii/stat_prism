@@ -28,6 +28,7 @@ from src.side_area_panel.iispwac.iispwac_reference import IISPWACReference
 from src.side_area_panel.iispwac.iispwac_spin import IISPWACSpin
 from src.side_area_panel.iispwac.iispwac_text_edit import IISPWACLongTextEdit
 from src.side_area_panel.modules.base.base import BaseModulePanel
+from src.side_area_panel.modules.common.utility import NORMALIZATION_METHODS
 
 # Dropdown labels for how to handle respondents with missing items.
 MISSING_SKIP = "Skip respondent"
@@ -77,7 +78,7 @@ class Elements(ItemInSidePanelWithAutoConfigHolder):
     )
     scale = IISPWACComboBox(
         label_text="Normalization:",
-        items=["None", "Stanine"],
+        items=NORMALIZATION_METHODS,
     )
     questions_action = IISPWACComboBox(
         label_text="Questions:",

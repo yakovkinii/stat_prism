@@ -41,23 +41,48 @@ def unique_name(base: str, existing) -> str:
     return name
 
 
+# Numeric normalizations offered by both Transform Column and Calculate Scale.
+NORMALIZATION_METHODS = ["None", "Z-score", "Stanine", "Center", "Min-max", "Log", "Rank"]
+
+
+def apply_normalization(x: pd.Series, method: str) -> pd.Series:
+    """Normalize a numeric series by the named method; an unknown method (incl. 'None') passes
+    the series through unchanged."""
+    if method == "Z-score":
+        std = x.std()
+        return (x - x.mean()) / std if std else x - x.mean()
+    if method == "Center":
+        return x - x.mean()
+    if method == "Min-max":
+        span = x.max() - x.min()
+        return (x - x.min()) / span if span else x - x.min()
+    if method == "Log":
+        return np.log(x.where(x > 0))
+    if method == "Rank":
+        return x.rank(method="average")
+    if method == "Stanine":
+        return to_stanine(x)
+    return x
+
+
 def to_stanine(series: pd.Series) -> pd.Series:
-    """Map a numeric series onto the 1-9 stanine scale, preserving missing values."""
-    min_val = series.min()
-    max_val = series.max()
-    if pd.isna(min_val) or pd.isna(max_val) or max_val == min_val:
-        return series.apply(lambda x: 5 if pd.notna(x) else x)
-
-    def transform(x):
-        if pd.isna(x):
-            return x
-        if x <= min_val:
-            return 1
-        if x >= max_val:
-            return 9
-        return int(((x - min_val) / (max_val - min_val)) * 8) + 1
-
-    return series.apply(transform)
+    """Map a numeric series onto the 1-9 stanine scale (mean 5, SD ~2), preserving missing values.
+    A true stanine is a *normalized* score: each value's percentile rank is cut at the standard
+    stanine bands (4 / 7 / 12 / 17 / 20 / 17 / 12 / 7 / 4 %), which correspond to the normal-curve
+    thresholds -- not a linear min-max rescale."""
+    valid = series.dropna()
+    result = pd.Series(np.nan, index=series.index, dtype=float)
+    if valid.empty:
+        return result
+    if valid.nunique() < 2:
+        result.loc[valid.index] = 5.0
+        return result
+    # Mid-rank percentile position (ties averaged), then the cumulative-proportion cut points of the
+    # nine stanine bands.
+    percentile = (valid.rank(method="average") - 0.5) / len(valid)
+    cuts = [0.04, 0.11, 0.23, 0.40, 0.60, 0.77, 0.89, 0.96]
+    result.loc[valid.index] = (np.digitize(percentile.to_numpy(), cuts) + 1).astype(float)
+    return result
 
 
 def smart_comma_join(items):

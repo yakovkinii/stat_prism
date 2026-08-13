@@ -21,7 +21,7 @@ import pandas as pd
 from src.common.decorators import log_function
 from src.data.data import DataColumn
 from src.data.data_manager import DATA_MANAGER
-from src.side_area_panel.modules.common.utility import to_stanine, unique_name
+from src.side_area_panel.modules.common.utility import apply_normalization, unique_name
 from src.side_area_panel.modules.dp_calculate_scale.dp_calculate_scale_result import CalculateScaleResult
 from src.side_area_panel.modules.dp_calculate_scale.dp_calculate_scale_ui import Elements
 
@@ -98,14 +98,14 @@ def dp_calculate_scale_main(elements: Elements, result: CalculateScaleResult, up
         raise ValueError(f"Unknown aggregation method: {method}")
     scale_series = aggregated.where(allow)
 
-    if cfg.scale == "Stanine":
-        scale_series = to_stanine(scale_series)
-    elif cfg.scale not in [None, "None"]:
-        raise ValueError(f"Unknown normalization option: {cfg.scale}")
+    if cfg.scale and cfg.scale != "None":
+        scale_series = apply_normalization(scale_series, cfg.scale)
 
     scale_series.name = scale_name
     new_column = DataColumn.initialize_from_series(scale_series)
-    new_column.color = cfg.color  # user-chosen colour tag for the new scale column
+    # A blank (transparent) color means "no color tag" for the new column; keep it untagged.
+    if cfg.color:
+        new_column.color = cfg.color
 
     # Insert the scale after the right-most of its item columns (by position in the data), so it
     # lands after all of them rather than in the middle when reverse-scored items sit earlier.
@@ -132,16 +132,19 @@ def dp_calculate_scale_main(elements: Elements, result: CalculateScaleResult, up
     elif action == "Auto-rename":
         # Auto-rename already gives a fresh "<scale> Q{i}" name, so no "(flipped)" suffix.
         for i, column in enumerate(all_item_columns, start=1):
-            data[column].color = cfg.color  # tag before rename (column object persists)
+            if cfg.color:  # a blank (transparent) color leaves the item's existing tag unchanged
+                data[column].color = cfg.color  # tag before rename (column object persists)
             target = f"{scale_name} Q{i}"
             if target != column:
                 target = unique_name(target, set(data.column_names()) - {column})
                 data.rename_column(column, target)
     elif action == "Keep":
         for column in question_columns:
-            data[column].color = cfg.color
+            if cfg.color:
+                data[column].color = cfg.color
         for column in flipped_columns:
-            data[column].color = cfg.color
+            if cfg.color:
+                data[column].color = cfg.color
             # Mark a replaced reverse-scored column as flipped in its name.
             if replace_flipped and flip_reference is not None:
                 new_name = unique_name(f"{column} (flipped)", set(data.column_names()) - {column})
