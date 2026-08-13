@@ -1,5 +1,13 @@
 <img src="./resources/banner.png" alt="StatPrism"/>
 
+[![Documentation](https://img.shields.io/badge/read-TheDocs-eee?logoColor=black)](https://stat-prism.readthedocs.io/en/latest/)
+[![Homepage](https://img.shields.io/badge/homepage-StatPrism-000000?logoColor=white)](https://www.yakovkinii.com/stat_prism/)
+![License](https://img.shields.io/badge/license-GPL_3.0-00ff00)
+![Language](https://img.shields.io/badge/language-Nuitka_python-3776AB?logoColor=white)
+![Supported Platforms](https://img.shields.io/badge/platform-Widows-ffffff?logoColor=black)
+![Downloads](https://img.shields.io/github/downloads/yakovkinii/stat_prism/total)
+
+
 StatPrism is a statistical software targeting the scientists and students
 of Psychological and Sociological sciences.
 
