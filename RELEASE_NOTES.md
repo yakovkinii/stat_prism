@@ -12,6 +12,21 @@ r{
 
 # StatPrism Release Notes
 
+### StatPrism 1.2.7 (13 Aug 2026)
+
+* Results: rename any result by clicking its title; exports and copy use the new name
+* Calculate Scale: more normalization options (Z-score, Stanine, Center, Min-max, Log, Rank)
+* Calculate Scale: an unset (transparent) color now leaves item color tags unchanged
+* CFA: button to create one Calculate Scale step per factor, with that factor's items pre-selected
+* CFA / SEM: use semopy's standardized loadings and fit indices; DWLS fit indices are now Satorra-Bentler (WLSMV) scaled
+* Descriptive: Kolmogorov-Smirnov normality test now uses the Lilliefors significance correction
+* Correlation: more accurate tetrachoric standard error
+* Fix stanine normalization
+* Recalculate All (Ctrl+R) now deselects the current study first
+* Collapsed data-processing cards keep their summary on a single line
+* Docs: keyboard shortcuts reference
+
+
 ### StatPrism 1.2.6 (11 Aug 2026)
 
 * CFA: add item residual correlations

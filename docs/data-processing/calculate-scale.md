@@ -3,8 +3,13 @@
 Builds a new scale column by aggregating the selected item columns per row:
 
 - **Sum** or **Mean** across the items.
-- Optionally convert the result to **Stanine** (1–9).
+- Optionally **normalize** the result — Z-score, Stanine, Center, Min-max, Log, or Rank.
+  *Stanine* is the normalized 1–9 score (mean 5, SD ≈ 2) from each value's percentile rank,
+  using the standard stanine bands (not a linear rescale).
 - The source questions can be kept, deleted, or auto-renamed.
+
+**Color** tags the new scale column and its item columns. Leaving the color unset (**None**)
+means "no change" — the items keep their existing color tags rather than being cleared.
 
 **Reverse-keyed items** — put any reverse-scored questions in the **Reverse-score first**
 field. They are flipped (using the same reference as {doc}`invert-scale` — auto-inferred as

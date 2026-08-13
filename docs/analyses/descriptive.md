@@ -21,7 +21,8 @@ Tables
 : **Extended statistics** adds skewness, kurtosis, quartiles, and more to the basic
   N / mean / SD / median. **Frequency table** lists category counts (for categorical
   variables, split by group when grouping is set). **Normality test** runs Shapiro–Wilk,
-  Kolmogorov–Smirnov, or Anderson–Darling, with optional verbal indicators of normality.
+  Kolmogorov–Smirnov (Lilliefors-corrected), or Anderson–Darling, with optional verbal
+  indicators of normality.
 
 Plots
 : **Distribution** (histogram, with an optional KDE smoothing curve and control over bin

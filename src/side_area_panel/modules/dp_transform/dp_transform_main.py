@@ -16,13 +16,12 @@
 #  StatPrism.  If not, see <https://www.gnu.org/licenses/>.
 
 
-import numpy as np
 import pandas as pd
 
 from src.common.constant import ColumnType
 from src.common.decorators import log_function
 from src.data.data_manager import DATA_MANAGER
-from src.side_area_panel.modules.common.utility import to_stanine, unique_name
+from src.side_area_panel.modules.common.utility import apply_normalization, unique_name
 from src.side_area_panel.modules.dp_transform.dp_transform_result import TransformResult
 from src.side_area_panel.modules.dp_transform.dp_transform_ui import Elements
 
@@ -32,24 +31,6 @@ def _parse_float(text):
         return float(text)
     except (TypeError, ValueError):
         return None
-
-
-def _apply_normalize(x: pd.Series, method: str) -> pd.Series:
-    if method == "Z-score":
-        std = x.std()
-        return (x - x.mean()) / std if std else x - x.mean()
-    if method == "Center":
-        return x - x.mean()
-    if method == "Min-max":
-        span = x.max() - x.min()
-        return (x - x.min()) / span if span else x - x.min()
-    if method == "Log":
-        return np.log(x.where(x > 0))
-    if method == "Rank":
-        return x.rank(method="average")
-    if method == "Stanine":
-        return to_stanine(x)
-    return x
 
 
 @log_function
@@ -116,7 +97,7 @@ def _transform_column(new_data, column_name, spec, rename):
         coerced = pd.to_numeric(col.data_series, errors="coerce")
         method = spec.get("normalize") or "None"
         if method != "None":
-            coerced = _apply_normalize(coerced, method)
+            coerced = apply_normalization(coerced, method)
         if coerced.notna().all() and bool((coerced == coerced.round()).all()):
             col.data_series = coerced.astype("int64")
             col.column_dtype = "int"

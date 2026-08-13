@@ -27,7 +27,7 @@ from src.common.decorators import log_method
 from src.common.progress import with_progress
 from src.common.ui_constructor import create_simple_tool_button_qta
 from src.main_area_panel.result_display.base import BaseResultDisplay
-from src.main_area_panel.result_display.elements.result_label import ResultLabel
+from src.main_area_panel.result_display.elements.result_label import EditableTitle
 from src.main_area_panel.result_display.plot_result_element import PlotResultElementDisplay, ZoomedPlotView
 from src.main_area_panel.result_display.table_result_element import TableResultElementDisplay
 from src.main_area_panel.show_in_main_area_popup import view_widget_in_popup
@@ -66,15 +66,10 @@ class DataAnalysisResultDisplay(BaseResultDisplay):
             setup=lambda w, l: [w.clicked.connect(lambda: self.activate_result(self.result_id, None))],
         )
 
+        # Editable in place: clicking the title renames it; clicking beside it activates the card.
         self.label = widget_in_layout(
-            widget=ResultLabel(parent=self.header_widget, label_text=label_text),
+            widget=EditableTitle(parent=self.header_widget, result_id=result_id),
             layout=self.header_layout,
-            setup=lambda w, l: [
-                w.clicked.connect(lambda: self.activate_result(self.result_id, None)),
-                # Study titles: smaller and brand-colored (gold on dark, dark gold on light).
-                w.setFont(Style.font_study_title),
-                set_stylesheet(w, css(color=Style.Color.TitleBrand)),
-            ],
         )
 
         self.header_layout.addStretch()
@@ -426,6 +421,7 @@ class DataAnalysisResultDisplay(BaseResultDisplay):
     def refresh(self):
         # A full rebuild invalidates any zoomed copy; close the popup first.
         self._close_zoom_popup()
+        self.label.refresh()  # in case a reset reverted the title to the module type name
         while self.html_result_elements_container_layout.count():
             item = self.html_result_elements_container_layout.takeAt(0)
             if item.widget():

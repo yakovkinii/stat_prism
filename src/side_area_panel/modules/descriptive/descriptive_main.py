@@ -20,6 +20,7 @@ import logging
 
 import numpy as np
 from scipy import stats
+from statsmodels.stats.diagnostic import lilliefors
 
 from src.common.constant import ColumnType
 from src.common.decorators import log_function
@@ -124,10 +125,11 @@ def _normality_stats(col, group, series, test) -> dict:
     if n >= 3 and data.nunique() > 1:
         try:
             if test == _KS:
-                sigma = data.std()
-                if sigma > 0:
-                    result = stats.kstest(data, "norm", args=(data.mean(), sigma))
-                    statistic, p_value = result.statistic, result.pvalue
+                # Lilliefors: the KS statistic with the correct null distribution for a normal
+                # whose mean/SD are estimated from the data. Plain kstest against N(mean, sd)
+                # assumes the parameters are known and gives an invalid (too large) p-value.
+                if data.std() > 0:
+                    statistic, p_value = lilliefors(data, dist="norm", pvalmethod="approx")
             elif test == _AD:
                 statistic, p_value = _anderson_darling_normal_p(data)
             else:  # Shapiro-Wilk

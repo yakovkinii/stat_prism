@@ -28,7 +28,11 @@ from src.side_area_panel.modules.common.prose import prose_enabled
 from src.side_area_panel.modules.common.result.html_result import Cell, HTMLTableV2, Row
 from src.side_area_panel.modules.common.result.plot_result import FactorDiagram, PlotV2
 from src.side_area_panel.modules.common.utility import format_p_apa_exact, format_r_apa, format_statistic_apa, get_stars
-from src.side_area_panel.modules.confirmatory_factor_analysis.cfa_semopy import _OBJECTIVE_TO_SEMOPY, OBJECTIVE_ML
+from src.side_area_panel.modules.confirmatory_factor_analysis.cfa_semopy import (
+    _OBJECTIVE_TO_SEMOPY,
+    OBJECTIVE_ML,
+    calc_stats_scaled,
+)
 from src.side_area_panel.modules.general_sem.general_sem_result import GeneralSEMResult
 
 
@@ -134,8 +138,10 @@ def recalculate_general_sem_study(elements, result: GeneralSEMResult, update) ->
     prose = prose_enabled(cfg.interpretation)
 
     # ----- Fit indices -----
+    # calc_stats_scaled: plain calc_stats for ML, but Satorra-Bentler (WLSMV) scaled for DWLS, so
+    # the chi-square and every chi-square-derived index (CFI/TLI/RMSEA/...) are valid under DWLS.
     try:
-        stats = semopy.calc_stats(model)
+        stats = calc_stats_scaled(model)
     except Exception as error:  # pragma: no cover - defensive
         logging.warning("SEM: calc_stats failed (%s)", error)
         stats = None

@@ -16,7 +16,10 @@
 #  StatPrism.  If not, see <https://www.gnu.org/licenses/>.
 
 
+from PySide6.QtWidgets import QPushButton
+
 from src.common.constant import ColumnType
+from src.data.data_manager import DATA_MANAGER
 from src.pyside_ext.elements.column_selector import Field
 from src.side_area_panel.blueprint.element import ItemInSidePanelWithAutoConfigHolder
 from src.side_area_panel.iispwac.iispwac_checkbox import IISPWACCheckBox
@@ -29,8 +32,9 @@ from src.side_area_panel.iispwac.iispwac_spacer import IISPWACSpacer
 from src.side_area_panel.iispwac.iispwac_spin import IISPWACSpin
 from src.side_area_panel.modules.base.base import BaseModulePanel
 from src.side_area_panel.modules.common.prose import PROSE_LABEL, PROSE_LEVELS
-from src.side_area_panel.modules.common.result.registry import RESULTS
+from src.side_area_panel.modules.common.result.registry import RESULTS, get_unique_result_id
 from src.side_area_panel.modules.confirmatory_factor_analysis.cfa_semopy import OBJECTIVES
+from src.side_area_panel.modules.registry import ModuleRegistry
 
 
 def _make_factor_fields(n_factors: int):
@@ -76,6 +80,38 @@ class ConfirmatoryFactorAnalysis(BaseModulePanel):
         self.init_elements(Elements)
         self.set_label("Confirmatory Factor Analysis")
         self.elements_.n_factors.set_handler_value_changed(self._sync_factor_fields)
+        # At the very end: spin off one Calculate Scale step per factor, with that factor's items
+        # pre-selected. Pressing it always adds fresh steps (existing ones are not tracked).
+        self.make_scales_button = QPushButton("Create a Calculate Scale step per factor", self.widget_for_elements)
+        self.make_scales_button.clicked.connect(self._create_scale_studies)
+        self.widget_for_elements_layout.addWidget(self.make_scales_button)
+
+    def _create_scale_studies(self):
+        # Read the live factor assignments (one list of items per factor).
+        structure = self.elements_.get_kwargs().get("column_selector") or []
+        module = ModuleRegistry.CALCULATE_SCALE.value
+        for factor_vars in structure:
+            questions = list(factor_vars or [])
+            if not questions:
+                continue
+            result_id = get_unique_result_id()
+            config = module.config_class()
+            config.data_source = "Auto"
+            # Field 0 = Questions, field 1 = Reverse-score first (left empty).
+            config.column_selector = [questions, []]
+            config.name = ""  # blank on purpose: the new step will prompt for a scale name
+            RESULTS[result_id] = module.result_class(
+                unique_id=result_id,
+                settings_panel_index=module.settings_stacked_widget_index,
+                config=config,
+            )
+            RESULTS[result_id].data = DATA_MANAGER.get_data_from_data_label(
+                data_label="Auto", current_result_id=result_id
+            )
+            DATA_MANAGER.add_data_to_chain(result_id=result_id)
+            self.root_class.main_area_panel.add_data_processing(result_id=result_id)
+            module.ui_instance.configure(result_id=result_id)
+            module.ui_instance.recalculate()
 
     def _sync_factor_fields(self):
         n = self.elements_.n_factors.spin_box.value()

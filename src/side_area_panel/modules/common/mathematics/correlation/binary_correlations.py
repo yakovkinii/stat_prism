@@ -110,16 +110,21 @@ def tetrachoric_corr_2x2_table(table):
 
     rho_est = float(result.x)  # Estimated correlation
 
-    # Compute standard error
-    se = (1 / np.sqrt(n)) * (1 / (1 - rho_est**2))
+    # Asymptotic SE from the 2x2 multinomial Fisher information. Each cell probability changes with
+    # rho by +/- the bivariate-normal density at the threshold corner (h, k), so the information is
+    # I = n * density(h, k; rho)^2 * sum(1 / p_ij) and SE = 1 / sqrt(I). (The old 1/(sqrt(n)(1-r^2))
+    # was not the tetrachoric SE and gave unreliable p-values.)
+    h, k = norm.ppf(p1), norm.ppf(p2)
+    density = np.exp(-(h**2 - 2 * rho_est * h * k + k**2) / (2 * (1 - rho_est**2))) / (
+        2 * np.pi * np.sqrt(1 - rho_est**2)
+    )
+    p11 = float(multivariate_normal.cdf([h, k], mean=[0, 0], cov=[[1, rho_est], [rho_est, 1]]))
+    cells = np.clip([p11, norm.cdf(h) - p11, norm.cdf(k) - p11, 1 - norm.cdf(h) - norm.cdf(k) + p11], epsilon, None)
+    information = n * density**2 * float(np.sum(1.0 / cells))
+    se = 1.0 / np.sqrt(information) if information > 0 else np.nan
 
-    # Compute z-score
-    z = rho_est / se
-
-    # Compute two-tailed p-value
-    p_value = 2 * (1 - norm.cdf(abs(z)))
-
-    # Degrees of freedom
+    z = rho_est / se if np.isfinite(se) and se > 0 else np.nan
+    p_value = 2 * (1 - norm.cdf(abs(z))) if np.isfinite(z) else np.nan
     df = n - 2
 
     return rho_est, se, p_value, df

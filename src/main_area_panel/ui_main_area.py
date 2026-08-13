@@ -183,6 +183,9 @@ class MainAreaClass:
         """Recompute every data-processing study (chain order) and every analysis."""
         if self._cascading:
             return
+        # Deselect the active study first, so a recompute never re-runs against a card whose
+        # settings panel is mid-edit (and the focus returns to Home).
+        self.activate_result(None, None)
         self._cascading = True
         try:
             for result_id in list(DATA_MANAGER.data_chain):
