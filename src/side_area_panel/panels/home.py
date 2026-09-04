@@ -170,6 +170,7 @@ class AboutDialog(QDialog):
         """
         )
         text.setTextFormat(Qt.TextFormat.RichText)
+        text.setWordWrap(True)  # wrap the long license paragraph instead of clipping it
         text.setOpenExternalLinks(True)
         text.setTextInteractionFlags(Qt.TextSelectableByMouse | Qt.LinksAccessibleByMouse)
         text.setAlignment(Qt.AlignLeft)
