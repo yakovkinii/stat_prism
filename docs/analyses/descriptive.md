@@ -20,7 +20,9 @@ variable's distribution.
 Tables
 : **Extended statistics** adds skewness, kurtosis, quartiles, and more to the basic
   N / mean / SD / median. **Frequency table** lists category counts (for categorical
-  variables, split by group when grouping is set). **Normality test** runs Shapiro–Wilk,
+  variables, split by group when grouping is set). **Ordinal frequency table** (off by default)
+  adds the same count table for ordinal variables, with the rows in their defined order.
+  **Normality test** runs Shapiro–Wilk,
   Kolmogorov–Smirnov (Lilliefors-corrected), or Anderson–Darling, with optional verbal
   indicators of normality.
 

@@ -83,6 +83,9 @@ class IISPWACColumnReorderList(ItemInSidePanelWithAutoConfig):
         # Saved order first (existing columns only), then any columns new since it was saved.
         saved_set = set(saved)
         ordered = [n for n in saved if n in names] + [n for n in names if n not in saved_set]
+        # Rebuilding resets the scroll to the top; keep the user where they were (a reorder triggers
+        # a recompute, which reconfigures this list right after a drop).
+        scroll_value = self.list_widget.verticalScrollBar().value()
         self._suppress = True
         self.list_widget.clear()
         for column_name in ordered:
@@ -95,6 +98,7 @@ class IISPWACColumnReorderList(ItemInSidePanelWithAutoConfig):
                 item.setForeground(QColor(column_text_color(color)))
             self.list_widget.addItem(item)
         self._suppress = False
+        self.list_widget.verticalScrollBar().setValue(scroll_value)
 
     def get_kwargs(self):
         return {self.name: [self.list_widget.item(i).text() for i in range(self.list_widget.count())]}
