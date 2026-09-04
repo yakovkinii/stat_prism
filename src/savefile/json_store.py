@@ -35,6 +35,7 @@ import logging
 import os
 import tempfile
 import zipfile
+from pathlib import PurePath
 
 import attrs
 import numpy as np
@@ -48,7 +49,8 @@ from src.side_area_panel.modules.registry import ModuleRegistry
 
 
 def _json_default(obj):
-    """Let json.dump handle the numpy scalar types that can appear in configs / column orders."""
+    """Let json.dump handle the non-JSON types that can appear in configs / column orders:
+    numpy scalars/arrays and filesystem paths."""
     if isinstance(obj, np.integer):
         return int(obj)
     if isinstance(obj, np.floating):
@@ -57,6 +59,8 @@ def _json_default(obj):
         return bool(obj)
     if isinstance(obj, np.ndarray):
         return obj.tolist()
+    if isinstance(obj, PurePath):
+        return str(obj)
     raise TypeError(f"Not JSON serializable: {type(obj)}")
 
 
