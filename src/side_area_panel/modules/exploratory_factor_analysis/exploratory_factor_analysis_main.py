@@ -195,13 +195,15 @@ def recalculate_factor_analysis_study(elements, result: FactorAnalysisResult, up
     diag_table.add_title_row_apa(
         _diag_row([Cell(t("efa.row.kmo")), Cell(format_r_apa(kmo_overall), center=True)], _kmo_label(kmo_overall))
     )
-    for name, val in zip(columns, msa):
-        diag_table.add_single_row_apa(
-            _diag_row(
-                [Cell(t("efa.row.msa", name=numbering.label(name))), Cell(format_r_apa(val), center=True)],
-                _kmo_label(val),
+    # Per-item MSA rows are optional (this table gets long with many items) -- off by default.
+    if cfg.show_item_msa:
+        for name, val in zip(columns, msa):
+            diag_table.add_single_row_apa(
+                _diag_row(
+                    [Cell(t("efa.row.msa", name=numbering.label(name))), Cell(format_r_apa(val), center=True)],
+                    _kmo_label(val),
+                )
             )
-        )
     diag_table.add_single_row_apa(
         _diag_row([Cell(t("efa.row.bartlett")), Cell(format_statistic_apa(bart_chi2), center=True)], "—")
     )
@@ -224,31 +226,34 @@ def recalculate_factor_analysis_study(elements, result: FactorAnalysisResult, up
     cumulative_pct = np.cumsum(variance_pct)
     n_kaiser = int(np.sum(eigenvalues > 1))
 
-    eig_table = HTMLTableV2(table_caption=t("efa.caption.eigen"))
-    eig_table.add_title_row_apa(
-        Row(
-            [
-                Cell(t("efa.col.component")),
-                Cell(t("efa.col.eigenvalue"), center=True),
-                Cell(t("efa.col.variance_pct"), center=True),
-                Cell(t("efa.col.cumulative"), center=True),
-            ]
-        )
-    )
-    for i, (ev, pct, cum) in enumerate(zip(eigenvalues, variance_pct, cumulative_pct), 1):
-        eig_table.add_single_row_apa(
+    # The eigenvalues table is optional (long with many items) -- off by default. The eigenvalues
+    # themselves are still computed above for the scree plot and the Kaiser count.
+    if cfg.show_eigenvalues:
+        eig_table = HTMLTableV2(table_caption=t("efa.caption.eigen"))
+        eig_table.add_title_row_apa(
             Row(
                 [
-                    Cell(str(i)),
-                    Cell(format_statistic_apa(ev), center=True),
-                    Cell(format_value_apa(pct, 1), center=True),
-                    Cell(format_value_apa(cum, 1), center=True),
+                    Cell(t("efa.col.component")),
+                    Cell(t("efa.col.eigenvalue"), center=True),
+                    Cell(t("efa.col.variance_pct"), center=True),
+                    Cell(t("efa.col.cumulative"), center=True),
                 ]
             )
         )
-    if prose_enabled(cfg.interpretation):
-        eig_table.add_text(t("efa.report.kaiser", n=n_kaiser) if n_kaiser > 0 else t("efa.report.kaiser_none"))
-    result.update_and_add_element(eig_table, "efa eigenvalues")
+        for i, (ev, pct, cum) in enumerate(zip(eigenvalues, variance_pct, cumulative_pct), 1):
+            eig_table.add_single_row_apa(
+                Row(
+                    [
+                        Cell(str(i)),
+                        Cell(format_statistic_apa(ev), center=True),
+                        Cell(format_value_apa(pct, 1), center=True),
+                        Cell(format_value_apa(cum, 1), center=True),
+                    ]
+                )
+            )
+        if prose_enabled(cfg.interpretation):
+            eig_table.add_text(t("efa.report.kaiser", n=n_kaiser) if n_kaiser > 0 else t("efa.report.kaiser_none"))
+        result.update_and_add_element(eig_table, "efa eigenvalues")
 
     if cfg.plots:
         colors = Colors()
@@ -304,8 +309,19 @@ def recalculate_factor_analysis_study(elements, result: FactorAnalysisResult, up
     communalities = fa.get_communalities()
     uniquenesses = fa.get_uniquenesses()
 
+    # Stored for the "Create CFA" button: item loadings (items x factors), item names, and whether
+    # the rotation is oblique (-> allow factor correlation in the derived CFA).
+    result.efa_loadings = loadings.tolist()
+    result.efa_columns = list(columns)
+    result.efa_is_oblique = bool(is_oblique)
+
     # ----- Factor loadings table -----
-    load_table = HTMLTableV2(table_caption=t("efa.caption.loadings", rotation=cfg.rotation))
+    # Show the rotation in the caption only when one is applied (no "(none)").
+    if cfg.rotation and cfg.rotation != RotationType.NONE.value:
+        loadings_caption = t("efa.caption.loadings", rotation=cfg.rotation)
+    else:
+        loadings_caption = t("efa.caption.loadings_plain")
+    load_table = HTMLTableV2(table_caption=loadings_caption)
     load_header = (
         [Cell(t("efa.col.variable"))]
         + [Cell(name, center=True) for name in factor_names]

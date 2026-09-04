@@ -31,14 +31,25 @@ which factor.
   sampling-adequacy table — a KMO/MSA adequacy word per row and a significance verdict for
   Bartlett), **Number columns**, **Verbal report** (dropdown for how much written interpretation),
   and **Plots**.
+- **Show per-item MSA** and **Show eigenvalues table** — both off by default, since these tables
+  get long with many items. The overall KMO/Bartlett row and the scree plot are always shown.
 
 ## Output
 
-- **Sampling adequacy** — KMO (overall and per item) and Bartlett's test, with plain-language
-  adequacy labels when verbal indicators are on.
-- **Eigenvalues** and a **scree plot**.
+- **Sampling adequacy** — the overall KMO and Bartlett's test (plus per-item MSA when **Show
+  per-item MSA** is on), with plain-language adequacy labels when verbal indicators are on.
+- A **scree plot**, and the **eigenvalues** table when **Show eigenvalues table** is on.
 - **Factor loadings** with communalities and uniquenesses, plus a loadings **heatmap**.
 - **Factor correlations** and a structure matrix for oblique rotations.
+
+## Create a CFA from this solution
+
+The **Create a CFA from this solution** button (at the bottom of the settings) spins off a new
+{doc}`confirmatory-factor-analysis` study pre-configured from the current EFA: the same variables
+and number of factors, each item assigned to the factor it loads on most strongly, factor
+correlation enabled when the rotation was oblique, and a DWLS estimator when the EFA used
+polychoric correlations (ML otherwise). Run the EFA first so its loadings are available, then
+adjust the generated CFA as needed. The two studies are independent.
 
 ## Notes
 

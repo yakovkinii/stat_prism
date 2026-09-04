@@ -25,11 +25,16 @@ class DataManager:
     def __init__(self):
         self.raw_data_result_id = None
         self.data_chain = []
+        # When False, get_data_from_data_label skips a result's inline filters. The inline-filter
+        # settings panel turns this off while it resolves columns/values, so a filter is configured
+        # against the analysis's unfiltered base input rather than the already-filtered data.
+        self._apply_inline = True
 
     def reset(self):
         """Forget all chain state (used when opening a project / starting a new one)."""
         self.raw_data_result_id = None
         self.data_chain = []
+        self._apply_inline = True
 
     def set_raw_data_result_id(self, result_id: str):
         assert (
@@ -93,7 +98,18 @@ class DataManager:
             # To be caught by main() of data analysis
             raise ValueError(f"Data label {result_id} not found in data chain.")
 
-        return RESULTS[result_id].data.copy()
+        base = RESULTS[result_id].data.copy()
+        # Apply the requesting study's own inline filters (analyses only). This is the single point
+        # where an analysis's per-study filters take effect, so every analysis module gets already
+        # filtered data with no changes of its own.
+        if self._apply_inline:
+            owner = RESULTS.get(current_result_id)
+            filters = getattr(owner, "inline_filters", None) if owner is not None else None
+            if filters:
+                from src.side_area_panel.modules.common.inline_filter import apply_inline_filters
+
+                base = apply_inline_filters(base, filters)
+        return base
 
     def try_to_remove_result(self, result_id: int):
         if result_id in self.data_chain:

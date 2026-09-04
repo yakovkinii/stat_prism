@@ -30,11 +30,13 @@ that model fits.
   content, method, or reverse scoring). Both tables are residual-based *hints*, not exact
   Lagrange-multiplier modification indices.
 - **Apply cross-loadings** — a checklist of the current cross-loading suggestions (and any
-  already applied). Tick one to add that item as a cross-loading on the suggested factor; the
-  model re-fits, and the loadings table then shows the item loading on both factors. Untick to
-  revert.
-- **Apply correlated residuals** — the same idea for residual covariances: tick an item pair to
-  free the covariance between their residuals and re-fit. Untick to revert.
+  already applied). Only the **top 6** suggestions are listed, with the total count shown in the
+  heading (e.g. *Apply cross-loadings (54)*). Tick one to add that item as a cross-loading on the
+  suggested factor; the model re-fits, and the loadings table then shows the item loading on both
+  factors. Untick to revert.
+- **Apply correlated residuals** — the same idea for residual covariances (top 6 shown, total in
+  the heading): tick an item pair to free the covariance between their residuals and re-fit. Untick
+  to revert.
 - **Create a Calculate Scale step per factor** (button at the bottom) — for each factor, adds a
   new {doc}`../data-processing/calculate-scale` step with that factor's items pre-selected. The
   scale name is left blank on purpose, so each new step prompts you to name it. Pressing the
@@ -47,12 +49,15 @@ that model fits.
 - **Factor loadings** for the specified structure.
 - With **Plots** on, a loadings **heatmap** and a **factor-structure path diagram** — factors
   right-aligned on the left, indicators left-aligned on the right, linked by their standardized
-  loadings (factor correlations shown as links for oblique models). Its plot settings offer
-  **Vertical spacing** and **Horizontal distance** sliders (which set the boxes' separation
-  without changing their size), an **Arrow color** picker, an **Arrow label size** slider (the
-  loading numbers), a **Correlation curve** slider (0 = straight, up to a full bulge for the
+  loadings (factor correlations shown as links for oblique models). Any **applied cross-loadings**
+  are drawn as dashed arrows to the second factor, and **freed residual correlations** as curved
+  links between the two indicators, so the diagram reflects the full fitted model. The figure size
+  is set by the shared **Plot Size** (width) and **Aspect** sliders; the **Vertical spacing** and
+  **Horizontal distance** sliders then distribute the boxes *within* that fixed size. Also offered:
+  an **Arrow color** picker, an **Arrow label size** slider (the loading numbers), a **Name label
+  size** slider (the factor / indicator names, which start smaller and shrink further for larger
+  models), a **Correlation curve** slider (0 = straight, up to a full bulge for the
   factor-correlation links), and an **Arrow width ∝ loading** toggle (uniform arrows otherwise).
-  The overall figure honors the shared **Plot Size** slider.
 
 ## Notes
 

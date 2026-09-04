@@ -28,7 +28,13 @@ from src.data.data_manager import DATA_MANAGER
 from src.side_area_panel.modules.common.column_numbering import ColumnNumbering
 from src.side_area_panel.modules.common.prose import prose_enabled
 from src.side_area_panel.modules.common.result.html_result import Cell, HTMLTableV2, Row
-from src.side_area_panel.modules.common.result.plot_result import FactorDiagram, Heatmap, PlotV2
+from src.side_area_panel.modules.common.result.plot_result import (
+    FactorDiagram,
+    FactorDiagramConfig,
+    Heatmap,
+    PlotV2,
+    factor_diagram_font_defaults,
+)
 from src.side_area_panel.modules.common.utility import (
     format_p_apa_exact,
     format_p_apa_full,
@@ -44,6 +50,8 @@ from src.side_area_panel.modules.confirmatory_factor_analysis.confirmatory_facto
 
 # Residual-correlation level at which a cross-loading is hinted (see _add_modification_hints).
 _MOD_HINT_THRESHOLD = 0.10
+# Only the strongest modification suggestions are worth acting on; show at most this many.
+_MAX_SUGGESTIONS = 6
 
 
 def _fail(result: CFAResult, message: str) -> CFAResult:
@@ -272,10 +280,30 @@ def recalculate_cfa_study(elements, result: CFAResult, update) -> CFAResult:
                 for i in range(n_factors)
                 for j in range(i + 1, n_factors)
             ]
+        # Extra edges: applied cross-loadings (item -> a second factor) and freed residual
+        # correlations (item <-> item), so the diagram shows the full fitted model, not just the
+        # primary structure.
+        cross_loadings = []
+        for cross_item, fi in cfg.cross_loadings or []:
+            if cross_item in var_index and 0 <= fi < n_factors:
+                value = float(loadings[var_index[cross_item], fi])
+                cross_loadings.append((factor_names[fi], str(cross_item), format_r_apa(value), value))
+        residual_correlations = []
+        for res_a, res_b in cfg.residual_correlations or []:
+            if res_a in var_index and res_b in var_index:
+                residual_correlations.append((str(res_a), str(res_b), "", 0.0))
+        node_fs, edge_fs = factor_diagram_font_defaults(len(columns))
         result.update_and_add_element(
             PlotV2(
                 items=[
-                    FactorDiagram(factors=diagram_factors, correlations=correlations, label=t("cfa.plot.structure"))
+                    FactorDiagram(
+                        factors=diagram_factors,
+                        correlations=correlations,
+                        cross_loadings=cross_loadings,
+                        residual_correlations=residual_correlations,
+                        label=t("cfa.plot.structure"),
+                        config=FactorDiagramConfig(node_font_size=node_fs, label_font_size=edge_fs),
+                    )
                 ],
                 plot_title=t("cfa.plot.structure"),
                 x_axis_title="",
@@ -309,18 +337,21 @@ def recalculate_cfa_study(elements, result: CFAResult, update) -> CFAResult:
 
     # Residual-based cross-loading suggestions. Always computed and stored on the result so the
     # "Apply cross-loadings" control can offer them; also shown as a scored table when the
-    # Modification hints option is on.
-    result.suggested_cross_loadings = _cross_loading_suggestions(
-        cfa_result.std_resid_, structure, columns, _MOD_HINT_THRESHOLD
-    )
+    # Modification hints option is on. Only the top few are worth acting on, so keep the top
+    # _MAX_SUGGESTIONS (and record the full count so the control can say e.g. "(54)").
+    all_cross_loadings = _cross_loading_suggestions(cfa_result.std_resid_, structure, columns, _MOD_HINT_THRESHOLD)
+    result.suggested_cross_loadings_total = len(all_cross_loadings)
+    result.suggested_cross_loadings = all_cross_loadings[:_MAX_SUGGESTIONS]
     # Item-pair residual suggestions, stored so the "Apply correlated residuals" control can offer
     # them; already-applied pairs are dropped so they are not re-suggested.
     applied_residuals = {frozenset((str(a), str(b))) for a, b in (getattr(cfg, "residual_correlations", None) or [])}
-    result.suggested_residual_correlations = [
+    all_residual_correlations = [
         (a, b, score)
         for a, b, score in _correlated_residual_suggestions(cfa_result.std_resid_, columns, _MOD_HINT_THRESHOLD)
         if frozenset((str(a), str(b))) not in applied_residuals
     ]
+    result.suggested_residual_correlations_total = len(all_residual_correlations)
+    result.suggested_residual_correlations = all_residual_correlations[:_MAX_SUGGESTIONS]
     if cfg.modification_hints:
         _render_modification_hints(result, result.suggested_cross_loadings, factor_names, numbering, len(structure))
 

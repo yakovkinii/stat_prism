@@ -54,9 +54,11 @@ class IISPWACCrossLoadingList(ItemInSidePanelWithAutoConfig):
         approved_keys = {(str(item), int(fi)) for item, fi in approved}
 
         suggestions = []
+        total_suggestions = None
         result_id = kwargs.get("result_id")
         try:
             suggestions = getattr(RESULTS[result_id], "suggested_cross_loadings", None) or []
+            total_suggestions = getattr(RESULTS[result_id], "suggested_cross_loadings_total", None)
         except Exception:
             suggestions = []
 
@@ -72,7 +74,9 @@ class IISPWACCrossLoadingList(ItemInSidePanelWithAutoConfig):
 
         self._clear_container()
         self.pairs = []
-        self.label.setText(f"{self.label_text} ({len(candidates)})")
+        # Show the full suggestion count (e.g. "(54)") even though only the top few are listed.
+        shown = total_suggestions if total_suggestions is not None else len(candidates)
+        self.label.setText(f"{self.label_text} ({shown})")
         for item, fi, score in candidates:
             text = f"{item} {RARROW} F{fi + 1}" + (f"  (r={score:.2f})" if score is not None else "")
             checkbox = QCheckBox(text, self.container)

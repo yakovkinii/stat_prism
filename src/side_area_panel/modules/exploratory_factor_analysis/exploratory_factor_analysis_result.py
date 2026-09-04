@@ -66,6 +66,8 @@ class FactorAnalysisStudyConfig:
     factor_names = attrs.field(default=None)
     kaiser_normalization = attrs.field(default=None)
     verbal_indicators = attrs.field(default=None)
+    show_item_msa = attrs.field(default=None)
+    show_eigenvalues = attrs.field(default=None)
     plots = attrs.field(default=None)
     number_columns = attrs.field(default=None)
     interpretation = attrs.field(default=None)

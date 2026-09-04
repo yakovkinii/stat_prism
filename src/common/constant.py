@@ -19,6 +19,7 @@
 from enum import Enum
 
 import qtawesome as qta
+from PySide6.QtGui import QColor
 
 from src.pyside_ext.styling import Style
 
@@ -33,6 +34,7 @@ DARROW = "↓"
 CROSS = "✕"
 RTRIANGLE = "▸"
 RESET_ARROW = "⟲"
+ELLIPSIS = "…"
 MU = "μ"
 SIGMA = "σ"
 RHO = "ρ"
@@ -109,15 +111,58 @@ _TYPE_ICON_COLOR_ON_LIGHT = {
     ColumnType.ID: "#6a1b9a",
 }
 
+# Light, bright variants for drawing on a dark background (a dark color tag, or the dark header
+# chrome). Theme-independent so the choice can be made per background luminance, not per UI theme.
+_TYPE_ICON_COLOR_ON_DARK = {
+    ColumnType.NUMERIC: "#5b9bd5",
+    ColumnType.NOMINAL: "#e57373",
+    ColumnType.ORDINAL: "#81c784",
+    ColumnType.ID: "#b388d9",
+}
+
 COLUMN_TYPE_ICONS = {
     ctype: qta.icon(glyph, color=_TYPE_ICON_COLOR[ctype], opacity=0.9) for ctype, glyph in _TYPE_ICON_GLYPH.items()
 }
 
-# Use when the icon sits on a column's pastel color tag (see COLOR_ROLE in the data viewer).
+# Use when the icon sits on a light background (a pastel color tag, or a light header).
 COLUMN_TYPE_ICONS_ON_LIGHT = {
     ctype: qta.icon(glyph, color=_TYPE_ICON_COLOR_ON_LIGHT[ctype], opacity=0.95)
     for ctype, glyph in _TYPE_ICON_GLYPH.items()
 }
+
+# Use when the icon sits on a dark background (a dark color tag, or the dark header chrome).
+COLUMN_TYPE_ICONS_ON_DARK = {
+    ctype: qta.icon(glyph, color=_TYPE_ICON_COLOR_ON_DARK[ctype], opacity=0.95)
+    for ctype, glyph in _TYPE_ICON_GLYPH.items()
+}
+
+
+def is_light_color(color) -> bool:
+    """True when a color string is light enough that dark text/icons read better on it than light
+    ones (by perceived luminance). Falsy or invalid colors return False."""
+    if not (isinstance(color, str) and color):
+        return False
+    c = QColor(color)
+    if not c.isValid():
+        return False
+    return (0.299 * c.red() + 0.587 * c.green() + 0.114 * c.blue()) > 140
+
+
+def column_type_icon(column_type, color):
+    """The column-type icon suited to its background: the dark set on a light color tag, the light
+    set on a dark tag, and the theme-tinted set when there is no tag (theme-appropriate already)."""
+    if isinstance(color, str) and color:
+        return (COLUMN_TYPE_ICONS_ON_LIGHT if is_light_color(color) else COLUMN_TYPE_ICONS_ON_DARK)[column_type]
+    return COLUMN_TYPE_ICONS[column_type]
+
+
+def column_text_color(color):
+    """Text color for a column name shown on `color`: black on a light tag, white on a dark tag,
+    and None (leave the widget/theme default) when there is no tag."""
+    if not (isinstance(color, str) and color):
+        return None
+    return "black" if is_light_color(color) else "white"
+
 
 BASE_STYLES = (
     f"<style>"

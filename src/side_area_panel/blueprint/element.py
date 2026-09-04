@@ -105,3 +105,17 @@ class ItemInSidePanelWithAutoConfigHolder:
 
         for name, item in items.items():
             item.clear_alert()
+
+    def broken_columns(self):
+        """Selected columns that an upstream edit invalidated (renamed/removed, or type changed),
+        aggregated across every element that tracks them (currently the column selector). Empty
+        when nothing is broken. Modules stop / no-op on a non-empty result (see BaseModulePanel)."""
+        cls = self.__class__
+        items = {k: v for k, v in vars(cls).items() if not k.startswith("_") and not callable(v)}
+
+        names = []
+        for name, item in items.items():
+            getter = getattr(item, "broken_columns", None)
+            if callable(getter):
+                names.extend(getter())
+        return names

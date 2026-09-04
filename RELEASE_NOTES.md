@@ -12,6 +12,38 @@ r{
 
 # StatPrism Release Notes
 
+
+
+### StatPrism 1.2.8 (4 Sep 2026)
+
+* Project files: routed by module identity (not a positional index) so reordering/adding modules no longer breaks older saves; opening a project made with a newer StatPrism is now refused with a clear message
+* Project files: now saved as JSON + parquet (the raw dataset and each study's settings; results are recomputed on open). 1.2.8 still opens older pickle projects, so use it to re-save them in the new format - later versions will drop pickle
+* Heatmaps: color-bar width slider; tick font shrinks automatically when there are many categories
+* EFA: per-item MSA and the eigenvalues table are now optional (off by default, they get long); cleaner table titles ("Eigenvalues"; "Factor loadings" with no "(none)")
+* EFA: "Create a CFA from this solution" now properly selects the new CFA (its settings panel shows)
+* CFA/SEM path diagram: separate name-label font slider, smaller by default and auto-shrinking with model size
+* CFA: modification suggestions (cross-loadings / correlated residuals) list only the top 6, with the total count shown
+* Analyses: add per-analysis inline filters (Add filter on the card) - preview removed rows, combine with AND, no chain step needed
+* Formula Column: double-click a column in the new column list to insert it into the formula
+* Data-processing steps now always auto-update; the Auto-recalculate setting governs analyses only
+* A column an earlier study renames/removes (or retypes) now shows bold red and stops the study instead of being silently dropped
+* Preprocess: rename a column by clicking its name in place (Tab fills the original); Map values / type / order are now big aligned buttons that highlight when set, with a Reset in each pop-up
+* Plot settings: clicking a slider now jumps to the clicked position instead of a large step
+* Heatmaps: x-axis labels are upright (rotated 90 degrees) by default
+* Inline filters: each shows its condition and the extra rows it removes, are included when copying, and open by clicking the row (highlighted like a result element); the broken-column picker now keeps missing columns so you can drag them out
+* Plots: contingency and heatmap x-axis labels are upright by default; long tick labels and default axis titles are trimmed with an ellipsis to avoid overlap
+* Plot settings: wider ranges for size, font, spacing and related sliders
+* EFA: Create a CFA from this solution (same items/factors, items assigned by loading, oblique -> correlated factors)
+* Replaced Reorder Columns with Arrange Columns: drag every column into order in one compact, color-tagged list (no column selector), listed right after Calculate Scale
+* Transform Column: reworked layout (Map values + type side by side, bold when set, pop-up resets); rename hidden when multiple columns are selected
+* Heatmaps: a "Trim long labels" option (on by default; hidden when labels are numbered)
+* CFA / SEM path diagram: size fixed by Plot Size and Aspect, spacing sliders distribute items within it; cross-loadings (dashed) and freed residual correlations now shown
+* About: fixed the banner showing as a black strip (it was drawn unscaled)
+* Column names shown on a color tag now pick black or white text and the matching icon set by the tag's brightness, everywhere they appear (data viewer, column selectors, Arrange) and in both UI themes
+* Formula Column: multiline formula field, with Tab to auto-complete column names
+
+
+
 ### StatPrism 1.2.7 (13 Aug 2026)
 
 * Results: rename any result by clicking its title; exports and copy use the new name
@@ -25,7 +57,6 @@ r{
 * Recalculate All (Ctrl+R) now deselects the current study first
 * Collapsed data-processing cards keep their summary on a single line
 * Docs: keyboard shortcuts reference
-
 
 ### StatPrism 1.2.6 (11 Aug 2026)
 

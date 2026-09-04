@@ -24,8 +24,9 @@ The pages below describe each step.
 
 preprocess
 transform
-reorder
 calculate-scale
+arrange
+reorder
 invert-scale
 formula
 group

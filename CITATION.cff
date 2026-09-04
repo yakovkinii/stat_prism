@@ -15,8 +15,8 @@ authors:
     given-names: N. V.
   - family-names: Yakovkin
     given-names: I. I.
-version: 1.2.7
-date-released: 2026-08-13
+version: 1.2.8
+date-released: 2026-09-04
 license: GPL-3.0-or-later
 repository-code: "https://github.com/yakovkinii/stat_prism"
 url: "https://www.yakovkinii.com/stat_prism/"

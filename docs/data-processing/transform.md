@@ -12,3 +12,8 @@ Reshapes one column **in place** (it is replaced, not duplicated). In order, it 
 
 Use this to make a column ordinal with a proper order, to reverse-key an item, or to
 standardize a variable before analysis.
+
+**Map values** and the **type** dropdown sit side by side, with an **Order** button (ordinal only)
+below; the Map values / Order buttons are bold when a mapping or custom order is in effect, and each
+pop-up has a **Reset** button. When several columns are selected the shared transform applies to all
+of them and the **rename** field is hidden (renaming only makes sense for a single column).

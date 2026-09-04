@@ -28,7 +28,7 @@ from mpl_toolkits.axes_grid1 import make_axes_locatable
 from PySide6.QtGui import QImage
 from PySide6.QtWidgets import QApplication
 
-from src.common.constant import PROPORTIONAL
+from src.common.constant import ELLIPSIS, PROPORTIONAL
 from src.common.qcolor import Colors, rgba_tuple_from_rgb_and_a
 from src.common.theme import THEME
 from src.pyside_ext.elements.base import BasePanelElement
@@ -140,6 +140,18 @@ class Band:
         self.config = config if config else BandPlotConfig()
 
 
+_MAX_TICK_LABEL_CHARS = 18
+_MAX_AXIS_TITLE_CHARS = 40
+
+
+def _ellipsize(text, max_chars=_MAX_TICK_LABEL_CHARS):
+    """Trim an over-long label to max_chars with a trailing ellipsis, so long column names/values
+    don't overlap or overflow the plot. Applied to non-editable tick labels and to axis titles
+    that are still at their default (an edited title is shown in full)."""
+    s = str(text)
+    return s if len(s) <= max_chars else s[: max_chars - 1] + ELLIPSIS
+
+
 class Heatmap:
     def __init__(self, df, p, label, config=None):
         self.df = df
@@ -178,10 +190,23 @@ class MediationDiagram:
 # links between factor nodes; regressions is an optional list of (from_factor, to_factor, coef_str)
 # drawn as curved directed arrows between factor nodes (the SEM structural paths).
 class FactorDiagram:
-    def __init__(self, factors, correlations=None, regressions=None, label="Factor structure", config=None):
+    def __init__(
+        self,
+        factors,
+        correlations=None,
+        regressions=None,
+        cross_loadings=None,
+        residual_correlations=None,
+        label="Factor structure",
+        config=None,
+    ):
         self.factors = factors
         self.correlations = correlations or []
         self.regressions = regressions or []
+        # Extra edges beyond each indicator's primary factor: cross_loadings = [(factor, indicator,
+        # label, value), ...]; residual_correlations = [(indicator_a, indicator_b, label, value), ...].
+        self.cross_loadings = cross_loadings or []
+        self.residual_correlations = residual_correlations or []
         self.label = label
         self.config = config if config else FactorDiagramConfig()
 
@@ -248,10 +273,10 @@ class PathDiagramConfig(BasePlotConfig):
         super().__init__()
         self.arrow_color = ColorGridItemSetting(current_color=arrow_color, label="Arrow color")
         self.label_font_size = SliderResultItemSetting(
-            label="Label size", current_value=label_font_size, min_value=5, max_value=24, step=1
+            label="Label size", current_value=label_font_size, min_value=5, max_value=60, step=1
         )
         self.spread = SliderResultItemSetting(
-            label="Horizontal spread", current_value=spread, min_value=0.5, max_value=2.5, step=0.1
+            label="Horizontal spread", current_value=spread, min_value=0.5, max_value=5.0, step=0.1
         )
         self.display_settings = ContainerResultItemSetting(
             items=[self.arrow_color, self.label_font_size, self.spread], add_stretch=True
@@ -267,20 +292,26 @@ class FactorDiagramConfig(BasePlotConfig):
         arrow_color: Tuple[int, int, int] = (90, 90, 90),
         label_font_size: int = 11,
         curve_strength: float = 0.2,
+        node_font_size: int = 9,
     ):
         super().__init__()
         # row_spacing = vertical inches allotted per indicator row; column_gap = figure width in
         # inches (the factor->indicator horizontal distance). Both size the figure directly, so the
         # boxes keep their (point-based) size and only the separation between them changes.
         self.row_spacing = SliderResultItemSetting(
-            label="Vertical spacing", current_value=row_spacing, min_value=0.3, max_value=1.6, step=0.1
+            label="Vertical spacing", current_value=row_spacing, min_value=0.3, max_value=4.0, step=0.1
         )
         self.column_gap = SliderResultItemSetting(
-            label="Horizontal distance", current_value=column_gap, min_value=0.5, max_value=10.0, step=0.5
+            label="Horizontal distance", current_value=column_gap, min_value=0.5, max_value=30.0, step=0.5
         )
         self.arrow_color = ColorGridItemSetting(current_color=arrow_color, label="Arrow color")
         self.label_font_size = SliderResultItemSetting(
-            label="Arrow label size", current_value=label_font_size, min_value=5, max_value=24, step=1
+            label="Arrow label size", current_value=label_font_size, min_value=5, max_value=60, step=1
+        )
+        # Font for the factor / indicator (column) name boxes. Its default is set by the caller from
+        # the item count (smaller for larger models); the slider overrides.
+        self.node_font_size = SliderResultItemSetting(
+            label="Name label size", current_value=node_font_size, min_value=4, max_value=60, step=1
         )
         self.proportional_arrows = PlainCheckboxResultItemSetting(
             label=f"Arrow width {PROPORTIONAL} loading", current_value=proportional_arrows
@@ -295,11 +326,21 @@ class FactorDiagramConfig(BasePlotConfig):
                 self.column_gap,
                 self.arrow_color,
                 self.label_font_size,
+                self.node_font_size,
                 self.curve_strength,
                 self.proportional_arrows,
             ],
             add_stretch=True,
         )
+
+
+def factor_diagram_font_defaults(n_indicators):
+    """Default (node label, edge label) font sizes for a factor / path diagram, shrinking as the
+    model grows so a large diagram stays readable. The plot's font sliders still override these."""
+    n = max(int(n_indicators), 10)
+    node = max(5, min(9, round(90 / n)))
+    edge = max(5, min(10, round(100 / n)))
+    return node, edge
 
 
 class ContingencyPlotConfig(BasePlotConfig):
@@ -348,7 +389,7 @@ class PiePlotConfig(BasePlotConfig):
         self.numbered_labels = PlainCheckboxResultItemSetting(label="Numbered labels", current_value=numbered_labels)
         self.radial_labels = PlainCheckboxResultItemSetting(label="Radial labels", current_value=radial_labels)
         self.label_font_size = SliderResultItemSetting(
-            label="Label Size", current_value=label_font_size, min_value=6, max_value=24, step=1
+            label="Label Size", current_value=label_font_size, min_value=6, max_value=60, step=1
         )
         self.donut_hole = SliderResultItemSetting(
             label="Donut Hole", current_value=donut_hole, min_value=0, max_value=0.8, step=0.1
@@ -406,7 +447,7 @@ class ScatterPlotConfig(BasePlotConfig):
         )
         self.marker_shape: str = marker_shape
         self.point_size: SliderResultItemSetting = SliderResultItemSetting(
-            label="Point Size", current_value=point_size, min_value=0, max_value=16, step=1
+            label="Point Size", current_value=point_size, min_value=0, max_value=40, step=1
         )
         self.jitter_x: SliderResultItemSetting = SliderResultItemSetting(
             label="Jitter X", current_value=jitter_x, min_value=0, max_value=2, step=0.2
@@ -533,6 +574,8 @@ class HeatmapPlotConfig(BasePlotConfig):
         alpha: float = 0.5,
         font_size=10,
         numbered_labels: bool = False,
+        trim_labels: bool = True,
+        colorbar_width: float = 0.15,
         colormap: str = HEATMAP_COLORMAPS[0],
     ):
         super().__init__()
@@ -564,8 +607,23 @@ class HeatmapPlotConfig(BasePlotConfig):
             label="Font Size",
             current_value=font_size,
             min_value=5,
-            max_value=20,
+            max_value=60,
             step=1,
+        )
+        # Trim long row/column names with an ellipsis. Meaningless when labels are numbered, so it is
+        # hidden then (see PlotV2.__init__, where its `enabled` is tied to numbered_labels). Assigned
+        # last so it appends to _value_settings order and doesn't shift older saved plots' settings.
+        self.trim_labels = PlainCheckboxResultItemSetting(
+            label="Trim long labels",
+            current_value=trim_labels,
+        )
+        # Width of the color bar, as a fraction of the plot area. Assigned last for save-order stability.
+        self.colorbar_width: SliderResultItemSetting = SliderResultItemSetting(
+            label="Color bar width",
+            current_value=colorbar_width,
+            min_value=0.02,
+            max_value=0.4,
+            step=0.01,
         )
         self.display_settings = ContainerResultItemSetting(
             items=[
@@ -573,8 +631,10 @@ class HeatmapPlotConfig(BasePlotConfig):
                 self.symmetric_color_scale,
                 self.only_significant,
                 self.numbered_labels,
+                self.trim_labels,
                 self.alpha,
                 self.font_size,
+                self.colorbar_width,
             ],
             add_stretch=True,
         )
@@ -595,7 +655,7 @@ class PlotV2(BaseResultElement):
         plot_aspect=None,
         x_range: Tuple[float, float] = None,
         y_range: Tuple[float, float] = None,
-        tilt_x_axis_labels=0,
+        tilt_x_axis_labels=None,
         axis_title_font_size=None,
         tick_label_font_size=None,
         legend_font_size=None,
@@ -646,6 +706,20 @@ class PlotV2(BaseResultElement):
         self.class_id: str = "PlotV2"
         self.items = items if items else []
         self.x_axis_items = x_axis_items
+        # Heatmaps and contingency plots have many categorical x labels that overlap horizontally,
+        # so default their rotation to 90 degrees (upright). Other plots default to 0. A saved/user
+        # value overrides.
+        if tilt_x_axis_labels is None:
+            wide_labels = any(isinstance(it, (Heatmap, ContingencyPlot)) for it in self.items)
+            tilt_x_axis_labels = 90 if wide_labels else 0
+        # Many categories crowd the tick labels (heatmap rows/cols, or a categorical x axis), so
+        # shrink the default tick font as the count grows past ~10. A saved/user value still overrides.
+        category_counts = [max(len(it.df.columns), len(it.df.index)) for it in self.items if isinstance(it, Heatmap)]
+        if x_axis_items:
+            category_counts.append(len(x_axis_items))
+        max_categories = max(category_counts) if category_counts else 0
+        if max_categories > 10:
+            tick_label_font_size = max(6, int(round(tick_label_font_size * 10.0 / max_categories)))
         self.plot_title = SingleLineTextResultItemSetting(label="Title:", current_value=plot_title)
         self.x_axis_title = SingleLineTextResultItemSetting(label="X axis title", current_value=x_axis_title)
         self.y_axis_title = SingleLineTextResultItemSetting(label="Y axis title", current_value=y_axis_title)
@@ -658,25 +732,25 @@ class PlotV2(BaseResultElement):
         )
         # --- Figure-level appearance (applies to every plot type) ---
         self.plot_size = SliderResultItemSetting(
-            label="Plot Size", current_value=plot_size, min_value=200, max_value=1400, step=50
+            label="Plot Size", current_value=plot_size, min_value=200, max_value=3000, step=50
         )
         self.plot_aspect = SliderResultItemSetting(
-            label="Aspect (H/W)", current_value=plot_aspect, min_value=0.3, max_value=2.0, step=0.1
+            label="Aspect (H/W)", current_value=plot_aspect, min_value=0.2, max_value=4.0, step=0.1
         )
         self.axis_title_font_size = SliderResultItemSetting(
-            label="Axis Title Size", current_value=axis_title_font_size, min_value=6, max_value=30, step=1
+            label="Axis Title Size", current_value=axis_title_font_size, min_value=6, max_value=72, step=1
         )
         self.tick_label_font_size = SliderResultItemSetting(
-            label="Tick Label Size", current_value=tick_label_font_size, min_value=6, max_value=30, step=1
+            label="Tick Label Size", current_value=tick_label_font_size, min_value=6, max_value=72, step=1
         )
         self.legend_font_size = SliderResultItemSetting(
-            label="Legend Size", current_value=legend_font_size, min_value=6, max_value=30, step=1
+            label="Legend Size", current_value=legend_font_size, min_value=6, max_value=72, step=1
         )
         self.frame_thickness = SliderResultItemSetting(
-            label="Frame Thickness", current_value=frame_thickness, min_value=0, max_value=5, step=0.5
+            label="Frame Thickness", current_value=frame_thickness, min_value=0, max_value=12, step=0.5
         )
         self.margin = SliderResultItemSetting(
-            label="Margin", current_value=margin, min_value=0, max_value=2.0, step=0.1
+            label="Margin", current_value=margin, min_value=0, max_value=5.0, step=0.1
         )
         self.frame_color = ColorGridItemSetting(current_color=frame_color, label="Frame / Tick Color")
         self.text_color = ColorGridItemSetting(current_color=text_color, label="Text Color")
@@ -765,6 +839,8 @@ class PlotV2(BaseResultElement):
         for item in self.items:
             if isinstance(item, Heatmap):
                 item.config.only_significant.enabled = item.p is not None
+                # "Trim long labels" is pointless once labels are numbers -> hide it then.
+                item.config.trim_labels.enabled = not item.config.numbered_labels.get_current_value()
 
         self._gc_ignore = []
 
@@ -1036,14 +1112,22 @@ class PlotV2(BaseResultElement):
                         alpha=alpha,
                     )
                 )
-                # add colorbar
+                # add colorbar (its width is a fraction of the plot area, user-controlled)
                 ax.images[0].set_clim(vmin, vmax)
-                cbar = fig.colorbar(ax.images[0], ax=ax, orientation="vertical")
+                cbar = fig.colorbar(
+                    ax.images[0],
+                    ax=ax,
+                    orientation="vertical",
+                    fraction=item.config.colorbar_width.get_current_value(),
+                )
                 cbar.ax.tick_params(colors=tick_color)
 
                 if item.config.numbered_labels.get_current_value():
                     col_labels = [str(i + 1) for i in range(len(item.df.columns))]
                     row_labels = [str(i + 1) for i in range(len(item.df.index))]
+                elif item.config.trim_labels.get_current_value():
+                    col_labels = [_ellipsize(c) for c in item.df.columns]
+                    row_labels = [_ellipsize(r) for r in item.df.index]
                 else:
                     col_labels = item.df.columns
                     row_labels = item.df.index
@@ -1260,13 +1344,18 @@ class PlotV2(BaseResultElement):
             if self.numbered_x_labels.get_current_value():
                 ax.set_xticklabels([str(i + 1) for i in range(len(self.x_axis_items))])
             else:
-                ax.set_xticklabels(self.x_axis_items)
+                ax.set_xticklabels([_ellipsize(v) for v in self.x_axis_items])
 
         ax.tick_params(axis="x", rotation=self.tilt_x_axis_labels.current_value)
 
-        # axis titles -- placement follows the chosen layout (titles can be long)
+        # axis titles -- placement follows the chosen layout (titles can be long). A title still at
+        # its default (usually a column name) is trimmed with an ellipsis; an edited one is kept full.
         x_title = self.x_axis_title.get_current_value()
         y_title = self.y_axis_title.get_current_value()
+        if not self.x_axis_title.is_modified():
+            x_title = _ellipsize(x_title, _MAX_AXIS_TITLE_CHARS)
+        if not self.y_axis_title.is_modified():
+            y_title = _ellipsize(y_title, _MAX_AXIS_TITLE_CHARS)
         layout = self.axis_layout.get_current_value()
         if layout == "Edges":
             ax.set_xlabel(x_title, loc="right")
@@ -1384,7 +1473,9 @@ class PlotV2(BaseResultElement):
             zorder=3,
         )
 
-    def _draw_edge(self, ax, start, end, label, edge, text, face, font_size, curve=0.0, directed=True, linewidth=1.6):
+    def _draw_edge(
+        self, ax, start, end, label, edge, text, face, font_size, curve=0.0, directed=True, linewidth=1.6, linestyle="-"
+    ):
         if curve:
             # Draw the arc ourselves as a quadratic Bezier in DATA space (control point matches
             # matplotlib's arc3: C = midpoint + rad*(dy, -dx)). Because it lives in data space, the
@@ -1395,7 +1486,7 @@ class PlotV2(BaseResultElement):
             t = np.linspace(0.0, 1.0, 40)
             bx = (1 - t) ** 2 * start[0] + 2 * (1 - t) * t * cx + t**2 * end[0]
             by = (1 - t) ** 2 * start[1] + 2 * (1 - t) * t * cy + t**2 * end[1]
-            ax.plot(bx, by, color=edge, linewidth=linewidth, zorder=1)
+            ax.plot(bx, by, color=edge, linewidth=linewidth, linestyle=linestyle, zorder=1)
             label_x = 0.25 * start[0] + 0.5 * cx + 0.25 * end[0]
             label_y = 0.25 * start[1] + 0.5 * cy + 0.25 * end[1]
         else:
@@ -1407,6 +1498,7 @@ class PlotV2(BaseResultElement):
                     arrowstyle="-|>" if directed else "-",
                     color=edge,
                     lw=linewidth,
+                    linestyle=linestyle,
                     shrinkA=20,
                     shrinkB=20,
                 ),
@@ -1430,7 +1522,7 @@ class PlotV2(BaseResultElement):
 
     def _draw_mediation_diagram(self, ax, item):
         edge, text, face = self._diagram_colors()
-        fs = self.tick_label_font_size.get_current_value()  # node labels
+        fs = item.config.node_font_size.get_current_value()  # factor / indicator (name) labels
         label_fs = item.config.label_font_size.get_current_value()  # edge (coefficient) labels
         arrow_color = rgba_tuple_from_rgb_and_a(item.config.arrow_color.get_current_value(), 255)
         s = item.config.spread.get_current_value()  # widens the triangle horizontally
@@ -1467,16 +1559,30 @@ class PlotV2(BaseResultElement):
         label_fs = item.config.label_font_size.get_current_value()
         curve_strength = item.config.curve_strength.get_current_value()
 
-        # Metric layout (see figure sizing below): each data unit is a fixed physical size, so the
-        # factor column stays pinned at x=0 and only the indicators move right as the slider grows.
+        # Layout inside a FIXED coordinate frame [0, FRAME] x [0, FRAME]. The figure's physical size
+        # is set from Plot Size x Aspect below, and the spacing sliders only move items *within* this
+        # frame (they no longer resize the figure). "Horizontal distance" sets how far the indicator
+        # column sits from the factor column; "Vertical spacing" sets the per-row gap, clamped so all
+        # rows fit the frame height.
+        FRAME = 10.0
+        LEFT_LABEL_ROOM = 2.6  # room for factor labels (drawn ha=right)
+        RIGHT_LABEL_ROOM = 2.6  # room for indicator labels (drawn ha=left)
         rows = [(fname, ind, load, value) for fname, inds in item.factors for (ind, load, value) in inds]
         n_ind = max(len(rows), 1)
-        y_of = {(fname, ind): (n_ind - 1 - i) for i, (fname, ind, _l, _v) in enumerate(rows)}
-        factor_x, indicator_x = 0.0, max(0.4, h_distance)
+
+        factor_x = LEFT_LABEL_ROOM
+        max_sep = FRAME - LEFT_LABEL_ROOM - RIGHT_LABEL_ROOM
+        indicator_x = factor_x + max(0.15, min(1.0, h_distance / 12.0)) * max_sep
+
+        avail_h = FRAME - 1.2
+        step = min(row_inch * 2.2, avail_h / (n_ind - 1)) if n_ind > 1 else 0.0
+        y_top = (FRAME + step * (n_ind - 1)) / 2.0  # vertically centered block
+        y_of = {(fname, ind): (y_top - i * step) for i, (fname, ind, _l, _v) in enumerate(rows)}
+        y_by_indicator = {ind: y for (fname, ind), y in y_of.items()}
 
         factor_pos = {}
         for fname, inds in item.factors:
-            ys = [y_of[(fname, ind)] for ind, _l, _v in inds] or [0.0]
+            ys = [y_of[(fname, ind)] for ind, _l, _v in inds] or [FRAME / 2.0]
             factor_pos[fname] = (factor_x, sum(ys) / len(ys))
 
         def _edge_width(value):
@@ -1507,6 +1613,37 @@ class PlotV2(BaseResultElement):
                     curve=curve_strength,
                     directed=False,
                 )
+        # Cross-loadings: an indicator also loading on another factor (dashed to distinguish from
+        # its primary loading). The indicator keeps its primary row position.
+        for fname, ind, load, value in getattr(item, "cross_loadings", []):
+            if fname in factor_pos and ind in y_by_indicator:
+                self._draw_edge(
+                    ax,
+                    factor_pos[fname],
+                    (indicator_x, y_by_indicator[ind]),
+                    load,
+                    arrow_color,
+                    text,
+                    face,
+                    label_fs,
+                    linewidth=_edge_width(value),
+                    linestyle="--",
+                )
+        # Freed residual correlations: undirected curved links between two indicators.
+        for a, b, load, value in getattr(item, "residual_correlations", []):
+            if a in y_by_indicator and b in y_by_indicator:
+                self._draw_edge(
+                    ax,
+                    (indicator_x, y_by_indicator[a]),
+                    (indicator_x, y_by_indicator[b]),
+                    load,
+                    arrow_color,
+                    text,
+                    face,
+                    label_fs,
+                    curve=curve_strength + 0.25,
+                    directed=False,
+                )
         # SEM structural paths: directed curved arrows between factor nodes. A slightly larger curve
         # than the correlations so the two do not sit exactly on top of one another.
         for src, dst, coef in getattr(item, "regressions", []):
@@ -1524,25 +1661,16 @@ class PlotV2(BaseResultElement):
                     directed=True,
                 )
 
-        # Metric figure sizing. The axes fills the whole figure (no fractional margins), and each
-        # data unit maps to a fixed number of inches, so the sliders control *relative* proportions:
-        #   * height = rows x per-row inches  -> real, uniform vertical separation;
-        #   * a fixed inches-per-x-unit means the factor column (x=0) is always the same distance
-        #     from the left edge, while a larger "Horizontal distance" only pushes the indicators
-        #     (x=indicator_x) further right and widens the figure to the right.
-        # The natural size is then scaled uniformly so the figure width honours the "Plot Size"
-        # slider (otherwise the diagram would ignore it and could grow arbitrarily large).
-        k_in_per_x = 1.3
-        x_lo, x_hi = factor_x - 0.9, indicator_x + 0.9
-        natural_w = (x_hi - x_lo) * k_in_per_x
-        natural_h = max(1.5, n_ind * row_inch)
+        # Figure size is fixed by Plot Size (width) and Aspect (height / width); the item positions
+        # above already live in the fixed [0, FRAME] frame, so the spacing sliders redistribute items
+        # within this size rather than resizing the figure.
         dpi = ax.figure.get_dpi()
-        target_w = self.plot_size.get_current_value() / dpi  # "Plot Size" is in pixels
-        scale = target_w / natural_w if natural_w else 1.0
-        ax.figure.set_size_inches(natural_w * scale, natural_h * scale)
+        width_in = self.plot_size.get_current_value() / dpi  # "Plot Size" is in pixels
+        height_in = max(1.0, width_in * self.plot_aspect.get_current_value())
+        ax.figure.set_size_inches(width_in, height_in)
         ax.set_position([0.0, 0.0, 1.0, 1.0])
-        ax.set_xlim(x_lo, x_hi)
-        ax.set_ylim(-0.6, n_ind - 0.4)
+        ax.set_xlim(0.0, FRAME)
+        ax.set_ylim(0.0, FRAME)
         ax.set_aspect("auto")
         ax.axis("off")
 

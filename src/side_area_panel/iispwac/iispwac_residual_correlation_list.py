@@ -60,9 +60,11 @@ class IISPWACResidualCorrelationList(ItemInSidePanelWithAutoConfig):
         approved_keys = {frozenset((str(a), str(b))) for a, b in approved}
 
         suggestions = []
+        total_suggestions = None
         result_id = kwargs.get("result_id")
         try:
             suggestions = getattr(RESULTS[result_id], "suggested_residual_correlations", None) or []
+            total_suggestions = getattr(RESULTS[result_id], "suggested_residual_correlations_total", None)
         except Exception:
             suggestions = []
 
@@ -77,7 +79,9 @@ class IISPWACResidualCorrelationList(ItemInSidePanelWithAutoConfig):
 
         self._clear_container()
         self.pairs = []
-        self.label.setText(f"{self.label_text} ({len(candidates)})")
+        # Show the full suggestion count even though only the top few are listed.
+        shown = total_suggestions if total_suggestions is not None else len(candidates)
+        self.label.setText(f"{self.label_text} ({shown})")
         for a, b, score in candidates:
             text = f"{a} {LRARROW} {b}" + (f"  (r={score:.2f})" if score is not None else "")
             checkbox = QCheckBox(text, self.container)

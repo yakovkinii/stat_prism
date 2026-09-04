@@ -18,9 +18,11 @@
 
 import ast
 
+from PySide6.QtCore import QEvent, Qt
 from PySide6.QtWidgets import (
     QCheckBox,
     QFrame,
+    QGridLayout,
     QHBoxLayout,
     QLabel,
     QLineEdit,
@@ -43,11 +45,78 @@ from src.pyside_ext.unique_qss import set_stylesheet
 from src.side_area_panel.blueprint.element import ItemInSidePanelWithAutoConfig
 
 _TYPES = [ColumnType.NOMINAL.value, ColumnType.ORDINAL.value, ColumnType.NUMERIC.value]
-_MAX_SUMMARY_ITEMS = 8
 
 
 def _to_python(value):
     return value.item() if hasattr(value, "item") else value
+
+
+class _EditableColumnName(QLineEdit):
+    # The column's name, editable in place like a result-card title: it reads as plain text
+    # (frameless) and shows the effective name (the rename, or the original when unchanged).
+    # Clicking edits it; committing an empty value (or the original) clears the rename. Tab on an
+    # empty field fills the original name so the user can edit from it -- intercepted in event()
+    # because the focus framework consumes Tab before keyPressEvent.
+    def __init__(self, parent, original, new_name, on_commit):
+        super().__init__(parent)
+        self._original = original
+        self._new_name = new_name or ""
+        self._on_commit = on_commit
+        self.setFrame(False)
+        # Empty (being edited) -> show the Tab hint as placeholder; the original name is filled by Tab.
+        self.setPlaceholderText("Tab for original name")
+        self.setContextMenuPolicy(Qt.ContextMenuPolicy.NoContextMenu)
+        self._refresh_display()
+
+    def _effective(self):
+        return self._new_name or self._original
+
+    def _refresh_display(self):
+        if not self.hasFocus():
+            self.setText(self._effective())
+            self.home(False)
+        self.setToolTip(self._effective())
+        set_stylesheet(
+            self,
+            css(background="transparent", border="none", padding="0", font_size=Style.FontSize.regular),
+        )
+        # Bold when the column has been renamed, to signal the change.
+        font = self.font()
+        font.setBold(bool(self._new_name))
+        self.setFont(font)
+
+    def set_new_name(self, new_name):
+        self._new_name = new_name or ""
+        self._refresh_display()
+
+    def focusInEvent(self, event):
+        super().focusInEvent(event)
+        self.setText(self._new_name)  # empty -> placeholder shows the original
+        self.selectAll()
+
+    def focusOutEvent(self, event):
+        text = self.text().strip()
+        self._new_name = "" if text == self._original else text
+        super().focusOutEvent(event)
+        self._refresh_display()
+        self._on_commit(self._new_name)
+
+    def keyPressEvent(self, event):
+        key = event.key()
+        if key in (Qt.Key.Key_Return, Qt.Key.Key_Enter):
+            self.clearFocus()
+            return
+        if key == Qt.Key.Key_Escape:
+            self.setText(self._new_name)
+            self.clearFocus()
+            return
+        super().keyPressEvent(event)
+
+    def event(self, e):
+        if e.type() == QEvent.Type.KeyPress and e.key() == Qt.Key.Key_Tab and not self.text():
+            self.setText(self._original)
+            return True
+        return super().event(e)
 
 
 class IISPWACColumnEditor(ItemInSidePanelWithAutoConfig):
@@ -60,6 +129,7 @@ class IISPWACColumnEditor(ItemInSidePanelWithAutoConfig):
         self.cards = []  # per-column widget bundles, in column order
         self.order = []  # current column order (original names)
         self._built_columns = None
+        self._built_result_id = None
         self._suppress = False
 
     def post_init(self, name, parent_widget):
@@ -92,9 +162,14 @@ class IISPWACColumnEditor(ItemInSidePanelWithAutoConfig):
             specs[col.column_name] = self._spec_from(saved_by_original.get(col.column_name), col, uniques)
         self.specs = specs
 
-        if self.order != self._built_columns:
+        # Rebuild the cards when the columns change OR when a different study is being configured.
+        # Two Preprocess studies over the same data share column names, so without the result-id
+        # check switching between them would keep the previous study's widgets (leaking one study's
+        # edits into the other's fields).
+        if self.order != self._built_columns or result_id != self._built_result_id:
             self._rebuild(columns)
             self._built_columns = list(self.order)
+            self._built_result_id = result_id
         else:
             self._refresh_all_summaries()
 
@@ -156,24 +231,26 @@ class IISPWACColumnEditor(ItemInSidePanelWithAutoConfig):
             card_layout.setSpacing(3)
 
             header = QHBoxLayout()
-            title = QLabel(name, card)
-            title.setToolTip(name)
-            set_stylesheet(title, css(font_size=Style.FontSize.regular))
-            header.addWidget(title)
-            header.addStretch()
-
-            # Compact, horizontally-aligned controls: color tag, keep (checked = keep), copy-up, reset.
-            color_btn = QPushButton(card)
-            color_btn.setFixedSize(26, 24)
-            color_btn.setToolTip("Column color tag (for grouping; e.g. by questionnaire)")
-            color_btn.clicked.connect(lambda _=False, n=name: self._open_color_picker(n))
-            header.addWidget(color_btn)
-
+            # Keep (checked = keep) comes first, then the editable name, then color / copy / reset.
             keep_checkbox = QCheckBox(card)
             keep_checkbox.setToolTip("Keep this column (uncheck to remove it from the output)")
             keep_checkbox.setChecked(not self.specs[name].get("remove"))
             keep_checkbox.toggled.connect(lambda checked, n=name: self._on_keep(n, checked))
             header.addWidget(keep_checkbox)
+
+            name_field = _EditableColumnName(
+                card,
+                original=name,
+                new_name=self.specs[name]["new_name"],
+                on_commit=lambda value, n=name: self._on_rename(n, value),
+            )
+            header.addWidget(name_field, 1)
+
+            color_btn = QPushButton(card)
+            color_btn.setFixedSize(26, 24)
+            color_btn.setToolTip("Column color tag (for grouping; e.g. by questionnaire)")
+            color_btn.clicked.connect(lambda _=False, n=name: self._open_color_picker(n))
+            header.addWidget(color_btn)
 
             copy_btn = QPushButton(UARROW, card)
             copy_btn.setFixedSize(26, 24)
@@ -198,47 +275,32 @@ class IISPWACColumnEditor(ItemInSidePanelWithAutoConfig):
             card_layout.addWidget(body)
             body_layout = QVBoxLayout(body)
             body_layout.setContentsMargins(0, 0, 0, 0)
-            body_layout.setSpacing(3)
+            body_layout.setSpacing(6)
 
-            rename = QLineEdit(body)
-            rename.setPlaceholderText(name)
-            rename.setText(self.specs[name]["new_name"])
-            # Tooltip shows the full (new) name so it stays readable when the field is narrow.
-            rename.setToolTip(self.specs[name]["new_name"] or name)
-            rename.editingFinished.connect(lambda n=name, e=rename: self._on_rename(n, e))
-            body_layout.addWidget(rename)
+            # Big, horizontally-aligned actions: Map values + Type on one row (equal width); the
+            # Order button (ordinal only) sits half-width below, under Map values.
+            grid = QGridLayout()
+            grid.setContentsMargins(0, 0, 0, 0)
+            grid.setHorizontalSpacing(6)
+            grid.setVerticalSpacing(6)
+            grid.setColumnStretch(0, 1)
+            grid.setColumnStretch(1, 1)
 
-            map_row = QHBoxLayout()
             map_button = QPushButton("Map values...", body)
             map_button.clicked.connect(lambda _=False, n=name: self._open_mapping(n))
-            map_summary = QLabel(body)
-            map_summary.setWordWrap(True)
-            set_stylesheet(map_summary, css(font_size=Style.FontSize.smaller, color=Style.Color.SecondaryText))
-            map_row.addWidget(map_button)
-            map_row.addWidget(map_summary, 1)
-            body_layout.addLayout(map_row)
+            grid.addWidget(map_button, 0, 0)
 
-            type_row = QHBoxLayout()
-            type_row.addWidget(QLabel("Type:", body))
             type_combo = NoScrollComboBox(body)
             type_combo.addItems(_TYPES)
             type_combo.setCurrentText(self.specs[name]["type"])
             type_combo.currentTextChanged.connect(lambda text, n=name: self._on_type(n, text))
-            type_row.addWidget(type_combo)
-            type_row.addStretch()
-            body_layout.addLayout(type_row)
+            grid.addWidget(type_combo, 0, 1)
 
-            order_row = QWidget(body)
-            order_layout = QHBoxLayout(order_row)
-            order_layout.setContentsMargins(0, 0, 0, 0)
-            order_button = QPushButton("Order...", order_row)
+            order_button = QPushButton("Order...", body)
             order_button.clicked.connect(lambda _=False, n=name: self._open_order(n))
-            order_summary = QLabel(order_row)
-            order_summary.setWordWrap(True)
-            set_stylesheet(order_summary, css(font_size=Style.FontSize.smaller, color=Style.Color.SecondaryText))
-            order_layout.addWidget(order_button)
-            order_layout.addWidget(order_summary, 1)
-            body_layout.addWidget(order_row)
+            grid.addWidget(order_button, 1, 0)  # half-width, aligned under Map values
+
+            body_layout.addLayout(grid)
 
             body.setEnabled(not self.specs[name].get("remove"))
 
@@ -247,13 +309,12 @@ class IISPWACColumnEditor(ItemInSidePanelWithAutoConfig):
                 {
                     "name": name,
                     "card": card,
-                    "rename": rename,
+                    "name_field": name_field,
                     "keep_checkbox": keep_checkbox,
                     "color_button": color_btn,
                     "type_combo": type_combo,
-                    "order_row": order_row,
-                    "order_summary": order_summary,
-                    "map_summary": map_summary,
+                    "map_button": map_button,
+                    "order_button": order_button,
                     "body": body,
                 }
             )
@@ -273,12 +334,25 @@ class IISPWACColumnEditor(ItemInSidePanelWithAutoConfig):
             if spec is None:
                 continue
             is_ordinal = spec["type"] == ColumnType.ORDINAL.value
-            card["order_row"].setVisible(is_ordinal)
-            if is_ordinal:
-                order_values = spec["order"] or self.unique_values.get(name, [])
-                card["order_summary"].setText(self._format_order(order_values))
-            card["map_summary"].setText(self._format_mapping(spec["mapping"]))
+            # The Order button appears only for ordinal columns; the action buttons (and the type
+            # dropdown) go bold when they carry a change from the default, replacing the old summaries.
+            card["order_button"].setVisible(is_ordinal)
+            self._style_action_button(card["order_button"], is_ordinal and spec.get("order") is not None)
+            self._style_action_button(card["map_button"], self._has_mapping(spec))
+            self._style_action_button(card["type_combo"], spec["type"] != self.original_types.get(name))
             self._apply_color_button(name)
+
+    @staticmethod
+    def _has_mapping(spec) -> bool:
+        return any(f != t for f, t in (spec.get("mapping") or []))
+
+    @staticmethod
+    def _style_action_button(button, applied: bool):
+        # Bold the label via the widget font (not a stylesheet) when a setting is active, so the
+        # button keeps its native pressable look and only changes weight.
+        font = button.font()
+        font.setBold(applied)
+        button.setFont(font)
 
     def _apply_color_button(self, name):
         card = self._card(name)
@@ -293,25 +367,6 @@ class IISPWACColumnEditor(ItemInSidePanelWithAutoConfig):
                 button, css(background=Style.Color.BackgroundEdit, border=f"1px dashed {Style.Color.BorderElevated}")
             )
 
-    @staticmethod
-    def _format_order(values):
-        shown = [str(v) for v in values[:_MAX_SUMMARY_ITEMS]]
-        if len(values) > _MAX_SUMMARY_ITEMS:
-            shown.append("...")
-        return " < ".join(shown)
-
-    @staticmethod
-    def _format_mapping(mapping):
-        if not mapping:
-            return ""
-        parts = [f"{f!r} {RARROW} {t!r}" for f, t in mapping if f != t]
-        if not parts:
-            return ""
-        text = ", ".join(parts[:_MAX_SUMMARY_ITEMS])
-        if len(parts) > _MAX_SUMMARY_ITEMS:
-            text += ", ..."
-        return text
-
     def _changed(self):
         if self._suppress:
             return
@@ -319,9 +374,8 @@ class IISPWACColumnEditor(ItemInSidePanelWithAutoConfig):
             self.handler_changed()
         self.on_recalculate()
 
-    def _on_rename(self, name, edit):
-        self.specs[name]["new_name"] = edit.text().strip()
-        edit.setToolTip(edit.text().strip() or name)
+    def _on_rename(self, name, new_name):
+        self.specs[name]["new_name"] = new_name
         self._changed()
 
     def _on_type(self, name, text):
@@ -350,8 +404,8 @@ class IISPWACColumnEditor(ItemInSidePanelWithAutoConfig):
         card = self._card(name)
         if card is not None:
             self._suppress = True
-            if card.get("rename") is not None:
-                card["rename"].setText("")
+            if card.get("name_field") is not None:
+                card["name_field"].set_new_name("")
             if card.get("keep_checkbox") is not None:
                 card["keep_checkbox"].setChecked(True)
             card["type_combo"].setCurrentText(spec["type"])
@@ -396,15 +450,19 @@ class IISPWACColumnEditor(ItemInSidePanelWithAutoConfig):
         show_color_picker(self.widget, choose)
 
     def _open_order(self, name):
-        values = self.specs[name]["order"] or list(self.unique_values.get(name, []))
+        natural = list(self.unique_values.get(name, []))
+        values = self.specs[name]["order"] or natural
 
         content = QFrame()
         content.setMinimumWidth(600)
         set_stylesheet(
             content, css(background=Style.Color.BackgroundElevated, border=f"1px solid {Style.Color.BorderElevated}")
         )
-        layout = QHBoxLayout(content)
-        layout.setContentsMargins(12, 12, 12, 12)
+        outer = QVBoxLayout(content)
+        outer.setContentsMargins(12, 12, 12, 12)
+        outer.setSpacing(8)
+
+        top = QHBoxLayout()
 
         list_widget = CustomListWidget(content)
         list_widget.setSizeAdjustPolicy(QListWidget.AdjustToContents)
@@ -418,13 +476,24 @@ class IISPWACColumnEditor(ItemInSidePanelWithAutoConfig):
                 selector="QListWidget::item", background=Style.Color.BackgroundPanel, margin="2px", border_radius="5px"
             ),
         )
-        for value in values:
-            list_widget.add_custom_item(value, str(value))
-        layout.addWidget(list_widget)
+
+        def populate(order_values):
+            list_widget.clear()
+            for value in order_values:
+                list_widget.add_custom_item(value, str(value))
+
+        populate(values)
+        top.addWidget(list_widget)
 
         hint = QLabel(f"SMALL\n{DARROW * 6}\nLARGE", content)
         set_stylesheet(hint, css(font_size=Style.FontSize.regular, color=Style.Color.SecondaryText))
-        layout.addWidget(hint)
+        top.addWidget(hint)
+        outer.addLayout(top)
+
+        reset_button = QPushButton("Reset order", content)
+        reset_button.setToolTip("Restore the natural (data) order")
+        reset_button.clicked.connect(lambda: populate(natural))
+        outer.addWidget(reset_button, alignment=Qt.AlignmentFlag.AlignLeft)
 
         def on_close():
             ordered = []
@@ -432,7 +501,8 @@ class IISPWACColumnEditor(ItemInSidePanelWithAutoConfig):
                 item_widget = list_widget.itemWidget(list_widget.item(i))
                 if item_widget is not None:
                     ordered.append(item_widget.value)
-            self.specs[name]["order"] = ordered or None
+            # Store a custom order only when it differs from the natural order (else it is "no order").
+            self.specs[name]["order"] = ordered if (ordered and ordered != natural) else None
             self._refresh_all_summaries()
             self._changed()
 
@@ -484,6 +554,11 @@ class IISPWACColumnEditor(ItemInSidePanelWithAutoConfig):
         scroll.setWidget(inner)
         outer.addWidget(scroll)
 
+        reset_button = QPushButton("Reset mapping", content)
+        reset_button.setToolTip("Clear the mapping (map every value to itself)")
+        reset_button.clicked.connect(lambda: [edit.setText(repr(value)) for value, edit in rows])
+        outer.addWidget(reset_button, alignment=Qt.AlignmentFlag.AlignLeft)
+
         def on_close():
             mapping = []
             for value, edit in rows:
@@ -493,7 +568,10 @@ class IISPWACColumnEditor(ItemInSidePanelWithAutoConfig):
                 except (ValueError, SyntaxError):
                     target = text  # fall back to the raw string
                 mapping.append([value, target])
-            self.specs[name]["mapping"] = mapping or None
+            # An all-identity mapping is "no mapping".
+            if all(f == t for f, t in mapping):
+                mapping = None
+            self.specs[name]["mapping"] = mapping
             self._refresh_all_summaries()
             self._changed()
 

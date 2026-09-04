@@ -1,17 +1,12 @@
 # Reorder Columns
 
-Rearranges the column order of the dataset. Only the order changes — the values are left
-untouched.
+```{note}
+**Deprecated** — superseded by {doc}`arrange`, which lays out the whole column order in one
+drag-and-drop list. Reorder Columns is kept for compatibility with older projects and will be
+removed in a future version. Prefer **Arrange Columns** for new work.
+```
 
-- **Columns to move (in order)** — pick the columns you want to move. Drag the chips inside the
-  field to set the order they should appear in.
-- **Place selected** — where the moved block goes:
-  - **Move to front** — before all the other columns.
-  - **Move to back** — after all the other columns.
-  - **Position of first selected column** — back where the first of the selected columns
-    originally sat.
-  - **Position of last selected column** — back where the last of the selected columns
-    originally sat. (When the selected columns were already next to each other, this and
-    *Position of first selected column* give the same result.)
-
-The columns you do not pick keep their relative order, and the **ID** column always stays first.
+Moves a **selected block** of columns together — in the order you arrange them — to the front or
+back of the dataset (or back to where the first/last selected column used to sit). Unselected
+columns keep their relative order, and the ID column always stays first. Only the order changes;
+the values are untouched.

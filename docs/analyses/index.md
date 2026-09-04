@@ -59,5 +59,15 @@ Most analyses share a few conveniences:
   caption under the figure. Pie charts also expose separate sliders for the radial position
   of the percentages and of the slice names (move either outside the pie).
 - **Confidence intervals / effect sizes** — where applicable, reported alongside the test.
+- **Inline filters** — a per-analysis filter, added with the **Add filter** button in the analysis
+  card's button row. It restricts the analysis to a subset of rows *without* adding a
+  data-processing step to the chain, so it affects only this analysis. Each filter row (just under
+  the title) shows its **condition** and how many **additional** rows it removes beyond the earlier
+  filters, plus an eye button to **preview** those rows (shown in red) and a delete button. **Click
+  the row** to configure it (the same options as the {doc}`../data-processing/filter` step, with a
+  **Back** button to the analysis). Multiple filters combine with **AND** — a row is kept only if it
+  passes every filter. The filter summary is included when you copy the analysis. If a filter's
+  column later disappears, the row is outlined red and the analysis stops with an error until you fix
+  or remove it.
 
 Every result can be copied or exported — see {doc}`../results-and-export`.

@@ -18,6 +18,7 @@
 
 from src.side_area_panel.blueprint.element import ItemInSidePanelWithAutoConfigHolder
 from src.side_area_panel.iispwac.iispwac_data_source import IISPWACDataSource
+from src.side_area_panel.iispwac.iispwac_formula_edit import IISPWACFormulaEdit
 from src.side_area_panel.iispwac.iispwac_spacer import IISPWACSpacer
 from src.side_area_panel.iispwac.iispwac_text_edit import IISPWACLongTextEdit
 from src.side_area_panel.modules.base.base import BaseModulePanel
@@ -28,7 +29,7 @@ class Elements(ItemInSidePanelWithAutoConfigHolder):
     data_source = IISPWACDataSource()
     spacer = IISPWACSpacer()
     new_name = IISPWACLongTextEdit(label_text="New column name:")
-    formula = IISPWACLongTextEdit(label_text="Formula (pandas eval. E.g. colA+colB; `col A`/`col B`):")
+    formula = IISPWACFormulaEdit(label_text="Formula (pandas eval. E.g. colA+colB; `col A`/`col B`).")
 
 
 class Formula(BaseModulePanel):

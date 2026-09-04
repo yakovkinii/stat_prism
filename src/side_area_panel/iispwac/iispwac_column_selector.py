@@ -24,7 +24,7 @@ from PySide6 import QtCore, QtGui, QtWidgets
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QDialog, QLabel, QListWidgetItem
 
-from src.common.constant import COLUMN_TYPE_ICONS, COLUMN_TYPE_ICONS_ON_LIGHT, ColumnType, SettingsPanelSize
+from src.common.constant import COLUMN_TYPE_ICONS, ColumnType, SettingsPanelSize, column_text_color, column_type_icon
 from src.common.decorators import log_method, log_method_noarg
 from src.common.ui_constructor import create_tool_button_qta
 from src.data.data import DataColumn
@@ -41,16 +41,16 @@ ITEM_HEIGHT = 20
 
 
 def _type_icon(column_type, color):
-    """The column-type icon, in its darker on-light variant when the chip carries a
-    (light pastel) color tag so it stays visible against the background."""
-    on_light = isinstance(color, str) and color
-    return (COLUMN_TYPE_ICONS_ON_LIGHT if on_light else COLUMN_TYPE_ICONS)[column_type]
+    """The column-type icon suited to the (optional) color tag: dark icons on a light tag, light
+    icons on a dark tag, theme-tinted when untagged. Matches the data-viewer header."""
+    return column_type_icon(column_type, color)
 
 
 def _column_item(text, icon=None, color=None) -> QListWidgetItem:
     """A list item for a column name. The full name is set as a tooltip so a name that is
     truncated/elided in the narrow panel is still readable on hover. `color` (a pastel hex
-    tag) paints the item background, matching the data-viewer header color."""
+    tag) paints the item background; the text goes black or white to stay legible on it,
+    matching the data-viewer header."""
     item = QListWidgetItem(text)
     item.setToolTip(str(text))
     item.setSizeHint(QtCore.QSize(0, ITEM_HEIGHT))
@@ -58,10 +58,33 @@ def _column_item(text, icon=None, color=None) -> QListWidgetItem:
         item.setIcon(icon)
     if isinstance(color, str) and color:
         item.setBackground(QtGui.QColor(color))
-        # The color tags are light pastels, so the (dark-UI) light default text is
-        # unreadable on them -- use dark text, matching the data-viewer header.
-        item.setForeground(QtGui.QColor(Style.Color.TextOnLight.value))
+        item.setForeground(QtGui.QColor(column_text_color(color)))
     return item
+
+
+def _broken_item(text) -> QListWidgetItem:
+    """A selected column that is no longer valid (renamed/removed, or its type changed): shown
+    bold red so the user sees exactly what broke. The study is stopped / no-oped separately."""
+    item = QListWidgetItem(text)
+    item.setToolTip(f"{text} — no longer available; re-select it")
+    item.setSizeHint(QtCore.QSize(0, ITEM_HEIGHT))
+    item.setIcon(qta.icon("mdi.alert", color="red"))
+    item.setForeground(QtGui.QColor("red"))
+    font = item.font()
+    font.setBold(True)
+    item.setFont(font)
+    return item
+
+
+def _allowed_types_for(column_type: ColumnType):
+    """Column types a field of the given type accepts (ID is a closed type)."""
+    if column_type == ColumnType.ID:
+        return [ColumnType.ID]
+    if column_type == ColumnType.NOMINAL:
+        return [ColumnType.NOMINAL, ColumnType.ORDINAL, ColumnType.NUMERIC]
+    if column_type == ColumnType.ORDINAL:
+        return [ColumnType.ORDINAL, ColumnType.NUMERIC]
+    return [ColumnType.NUMERIC]
 
 
 @attrs.define
@@ -247,20 +270,24 @@ class IISPWACColumnSelector(ItemInSidePanelWithAutoConfig):
 
         self.columns = columns
         self.column_names = [column.column_name for column in columns]
-        main_list_names = [column.column_name for column in columns]
 
-        # Drop any previously-selected columns that no longer exist in this data
-        # source (e.g. after the user switches the data source).
-        available = set(self.column_names)
-        selected_columns_list = [[col for col in selected if col in available] for selected in selected_columns_list]
-        self.selected_columns_list = selected_columns_list
+        # Keep every previously-selected column, even ones an upstream edit broke (the column was
+        # renamed/removed, or its type changed so this field no longer accepts it). Broken ones are
+        # shown bold-red so the user sees exactly what broke; broken_columns() then stops the study
+        # (analysis) or makes it a no-op (data-processing). Dropping them silently would hide the
+        # breakage and change results without warning.
+        self.selected_columns_list = [list(selected) for selected in selected_columns_list]
+        self._broken = []
 
-        for panel_list, selected_columns in zip(self.panel_list_widgets, selected_columns_list):
+        for field, panel_list, selected_columns in zip(
+            self.fields, self.panel_list_widgets, self.selected_columns_list
+        ):
             clean_up_list_widget(panel_list)
             for column in selected_columns:
-                if column not in main_list_names:
+                if self._is_broken(column, field):
+                    self._broken.append(column)
+                    panel_list.addItem(_broken_item(column))
                     continue
-                main_list_names.remove(column)
                 item = _column_item(
                     column,
                     _type_icon(
@@ -271,6 +298,24 @@ class IISPWACColumnSelector(ItemInSidePanelWithAutoConfig):
                 )
                 panel_list.addItem(item)
 
+    def _allowed_types_for_field(self, field):
+        allowed = list(_allowed_types_for(field.column_type))
+        if getattr(field, "include_id", False):
+            allowed.append(ColumnType.ID)
+        return allowed
+
+    def _is_broken(self, column_name, field) -> bool:
+        """True if a selected column can no longer be used by this field: it no longer exists,
+        or its (possibly changed) type is not one the field accepts."""
+        if column_name not in self.column_names:
+            return True
+        column_type = self.columns[self.column_names.index(column_name)].column_type
+        return column_type not in self._allowed_types_for_field(field)
+
+    def broken_columns(self):
+        """Names of currently-selected columns that are no longer valid (empty when all fine)."""
+        return list(getattr(self, "_broken", []))
+
     @log_method_noarg
     def handler_open_popup(self):
         self.popup.configure(self.columns, self.selected_columns_list)
@@ -278,20 +323,19 @@ class IISPWACColumnSelector(ItemInSidePanelWithAutoConfig):
 
     @log_method_noarg
     def popup_closed(self):
+        self._broken = []
         for i, (panel_list, popup_panel_list) in enumerate(zip(self.panel_list_widgets, self.popup.panel_list_widgets)):
             clean_up_list_widget(panel_list)
-            selected_columns = [popup_panel_list.item(i).text() for i in range(popup_panel_list.count())]
+            selected_columns = [popup_panel_list.item(j).text() for j in range(popup_panel_list.count())]
             self.selected_columns_list[i] = selected_columns
+            field = self.fields[i]
             for column in selected_columns:
-                item = _column_item(
-                    column,
-                    _type_icon(
-                        self.columns[self.column_names.index(column)].column_type,
-                        self.columns[self.column_names.index(column)].color,
-                    ),
-                    color=self.columns[self.column_names.index(column)].color,
-                )
-                panel_list.addItem(item)
+                if self._is_broken(column, field):
+                    self._broken.append(column)
+                    panel_list.addItem(_broken_item(column))
+                    continue
+                col = self.columns[self.column_names.index(column)]
+                panel_list.addItem(_column_item(column, _type_icon(col.column_type, col.color), color=col.color))
             # tell layout to recalculate heights
             panel_list.updateGeometry()
 
@@ -469,38 +513,31 @@ class ColumnSelectorExPopup:
         for panel_list in self.panel_list_widgets:
             panel_list.itemDoubleClicked.connect(self.handle_double_click)
 
+    def _popup_item(self, text) -> QListWidgetItem:
+        """An item for a column name, red/bold when the column no longer exists so a broken
+        selection stays visible in the popup (the user drags it to the pool to drop it)."""
+        if text in self.column_names:
+            column = self.columns[self.column_names.index(text)]
+            return _column_item(text, _type_icon(column.column_type, column.color), color=column.color)
+        return _broken_item(text)
+
     def configure(self, columns: List[DataColumn], selected_columns_list: List[List[str]]):
         clean_up_list_widget(self.main_list)
         self.columns = columns
         self.column_names = [column.column_name for column in columns]
         main_list_names = [column.column_name for column in columns]
 
+        # Keep every selected column in its field -- including broken ones (shown red) -- so opening
+        # then closing the popup is a no-op. The user removes a broken column by dragging it out.
         for panel_list, selected_columns in zip(self.panel_list_widgets, selected_columns_list):
             clean_up_list_widget(panel_list)
             for column in selected_columns:
-                if column not in main_list_names:
-                    continue
-                main_list_names.remove(column)
-                item = _column_item(
-                    column,
-                    _type_icon(
-                        columns[self.column_names.index(column)].column_type,
-                        columns[self.column_names.index(column)].color,
-                    ),
-                    color=columns[self.column_names.index(column)].color,
-                )
-                panel_list.addItem(item)
+                if column in main_list_names:
+                    main_list_names.remove(column)
+                panel_list.addItem(self._popup_item(column))
 
         for column in main_list_names:
-            item = _column_item(
-                column,
-                _type_icon(
-                    columns[self.column_names.index(column)].column_type,
-                    columns[self.column_names.index(column)].color,
-                ),
-                color=columns[self.column_names.index(column)].color,
-            )
-            self.main_list.addItem(item)
+            self.main_list.addItem(self._popup_item(column))
         self.success = False
 
     def main_list_clicked(self):
@@ -584,6 +621,8 @@ class ColumnSelectorExPopup:
     def handle_double_click(self, item):
         source_list = item.listWidget()
         if source_list == self.main_list:
+            if item.text() not in self.column_names:
+                return  # a broken column in the pool cannot be added to a field
             # Place into the first field that accepts this column's type and has room
             # (field 1, then 2, ...), rather than only the first single-column-or-empty field.
             column_type = self.columns[self.column_names.index(item.text())].column_type
@@ -610,10 +649,11 @@ class ColumnSelectorExPopup:
                 if (panel_list.count() > 0) or (len(selected_main) > 1):
                     return
 
+            # Broken (non-existent) columns can sit in the pool but cannot be added to a field.
+            selected_main = [it for it in selected_main if it.text() in self.column_names]
             if selected_main:
-                selected_main_names = [item.text() for item in selected_main]
                 selected_main_types = [
-                    self.columns[self.column_names.index(item)].column_type for item in selected_main_names
+                    self.columns[self.column_names.index(it.text())].column_type for it in selected_main
                 ]
                 allowed_types = self._field_allowed_types(self.fields[button_index])
 
@@ -625,15 +665,7 @@ class ColumnSelectorExPopup:
                     return
 
                 for item in selected_main:
-                    new_item = _column_item(
-                        item.text(),
-                        _type_icon(
-                            self.columns[self.column_names.index(item.text())].column_type,
-                            self.columns[self.column_names.index(item.text())].color,
-                        ),
-                        color=self.columns[self.column_names.index(item.text())].color,
-                    )
-                    panel_list.addItem(new_item)
+                    panel_list.addItem(self._popup_item(item.text()))
                     self.main_list.takeItem(self.main_list.row(item))
         elif (
             (button.text() == "Remove" and not from_drop and not from_double_click)
@@ -643,32 +675,20 @@ class ColumnSelectorExPopup:
             selected_list = [item] if from_double_click else (panel_list.selectedItems())
             if selected_list:
                 for item in selected_list:
-                    new_item = _column_item(
-                        item.text(),
-                        _type_icon(
-                            self.columns[self.column_names.index(item.text())].column_type,
-                            self.columns[self.column_names.index(item.text())].color,
-                        ),
-                        color=self.columns[self.column_names.index(item.text())].color,
-                    )
-                    self.main_list.addItem(new_item)
+                    text = item.text()
                     panel_list.takeItem(panel_list.row(item))
+                    # A broken column removed from a field is simply dropped (it no longer exists);
+                    # a real column returns to the pool.
+                    if text in self.column_names:
+                        self.main_list.addItem(self._popup_item(text))
 
                 sorted_items = sorted(
                     (self.main_list.item(i).text() for i in range(self.main_list.count())),
-                    key=lambda x: self.column_names.index(x),
+                    key=lambda x: self.column_names.index(x) if x in self.column_names else len(self.column_names),
                 )
                 clean_up_list_widget(self.main_list)
-                for item in sorted_items:
-                    new_item = _column_item(
-                        item,
-                        _type_icon(
-                            self.columns[self.column_names.index(item)].column_type,
-                            self.columns[self.column_names.index(item)].color,
-                        ),
-                        color=self.columns[self.column_names.index(item)].color,
-                    )
-                    self.main_list.addItem(new_item)
+                for text in sorted_items:
+                    self.main_list.addItem(self._popup_item(text))
         for panel_list in self.panel_list_widgets:
             panel_list.updateGeometry()
 
