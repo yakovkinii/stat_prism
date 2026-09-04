@@ -26,7 +26,12 @@ from src.data.data_manager import DATA_MANAGER
 from src.side_area_panel.iispwac.iispwac_path_builder import resolve_factor_labels
 from src.side_area_panel.modules.common.prose import prose_enabled
 from src.side_area_panel.modules.common.result.html_result import Cell, HTMLTableV2, Row
-from src.side_area_panel.modules.common.result.plot_result import FactorDiagram, PlotV2
+from src.side_area_panel.modules.common.result.plot_result import (
+    FactorDiagram,
+    FactorDiagramConfig,
+    PlotV2,
+    factor_diagram_font_defaults,
+)
 from src.side_area_panel.modules.common.utility import format_p_apa_exact, format_r_apa, format_statistic_apa, get_stars
 from src.side_area_panel.modules.confirmatory_factor_analysis.cfa_semopy import (
     _OBJECTIVE_TO_SEMOPY,
@@ -295,8 +300,14 @@ def _build_path_diagram(insp, display, factor_token, structure, usable, has_std)
         elif op == "~":  # semopy: outcome ~ predictor -> arrow predictor → outcome
             regressions.append((display.get(rval, rval), display.get(lval, lval), coef))
 
+    n_rows = sum(len(indicators) for _, indicators in diagram_factors)
+    node_fs, edge_fs = factor_diagram_font_defaults(n_rows)
     return FactorDiagram(
-        factors=diagram_factors, correlations=correlations, regressions=regressions, label="Path diagram"
+        factors=diagram_factors,
+        correlations=correlations,
+        regressions=regressions,
+        label="Path diagram",
+        config=FactorDiagramConfig(node_font_size=node_fs, label_font_size=edge_fs),
     )
 
 

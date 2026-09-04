@@ -141,43 +141,59 @@ class MainAreaClass:
         DATA_MANAGER.reset()
 
     def _recompute_result(self, result_id):
+        # Recompute from the study's stored config WITHOUT loading it into the shared settings
+        # panel, so cascading a change never disturbs the study the user is currently viewing/editing
+        # (its widgets and validation highlights stay put).
         panel = self.root_class.settings_panel.panels[RESULTS[result_id].settings_panel_index]
-        panel.configure(result_id)
-        panel.recalculate()
+        panel.recompute_from_config(result_id)
 
     def cascade_update(self, source_result_id):
-        """When a data-processing / raw-data result changes, recompute every
-        downstream data-processing study (in chain order) and every data-analysis
-        study. Analysis edits do not propagate (they are leaves)."""
+        """When a data-processing / raw-data result changes, recompute every downstream
+        data-processing study (in chain order) -- those ALWAYS auto-update, so their Refresh
+        never stays amber (except a step made a no-op by a broken column reference, which sets
+        its own stale flag). Every analysis then either recomputes (Auto-recalculate on) or is
+        flagged stale (off). Analysis edits do not propagate (they are leaves)."""
         if self._cascading or source_result_id not in DATA_MANAGER.data_chain:
-            return
-        if not self.auto_recalculate:
-            # Manual mode: don't recompute, just flag the dependents stale.
-            self._flag_dependents_stale(source_result_id)
             return
         self._cascading = True
         try:
-            for result_id in self._dependent_ids(source_result_id):
+            for result_id in self._dependent_dp_ids(source_result_id):
                 self._recompute_result(result_id)
+            if self.auto_recalculate:
+                for result_id in list(self.data_analysis_objects):
+                    self._recompute_result(result_id)
         finally:
             self._cascading = False
+        if not self.auto_recalculate:
+            for result_id in list(self.data_analysis_objects):
+                self._mark_stale(result_id)
+
+    def _dependent_dp_ids(self, source_result_id):
+        """Downstream data-processing studies, in chain order."""
+        chain = list(DATA_MANAGER.data_chain)
+        start = chain.index(source_result_id) + 1
+        return [rid for rid in chain[start:] if rid in self.data_processing_objects]
 
     def _dependent_ids(self, source_result_id):
         """Downstream data-processing studies (in chain order) + every analysis study."""
-        chain = list(DATA_MANAGER.data_chain)
-        start = chain.index(source_result_id) + 1
-        ids = [rid for rid in chain[start:] if rid in self.data_processing_objects]
-        ids += list(self.data_analysis_objects)
-        return ids
+        return self._dependent_dp_ids(source_result_id) + list(self.data_analysis_objects)
 
-    def _flag_dependents_stale(self, source_result_id):
-        """Mark every dependent study as needing recalculation and turn its Refresh button
-        an alarm color, without recomputing (manual / auto-recalculate-off mode)."""
-        for result_id in self._dependent_ids(source_result_id):
-            RESULTS[result_id].needs_update = True
-            obj = self.data_processing_objects.get(result_id) or self.data_analysis_objects.get(result_id)
-            if obj is not None and hasattr(obj, "set_stale"):
-                obj.set_stale(True)
+    def _recompute_all_data_processing(self):
+        """Recompute every data-processing study in chain order (they always auto-update)."""
+        self._cascading = True
+        try:
+            for result_id in list(DATA_MANAGER.data_chain):
+                if result_id in self.data_processing_objects:
+                    self._recompute_result(result_id)
+        finally:
+            self._cascading = False
+
+    def _mark_stale(self, result_id):
+        """Flag one study as needing recalculation and turn its Refresh button an alarm color."""
+        RESULTS[result_id].needs_update = True
+        obj = self.data_processing_objects.get(result_id) or self.data_analysis_objects.get(result_id)
+        if obj is not None and hasattr(obj, "set_stale"):
+            obj.set_stale(True)
 
     def recompute_all(self):
         """Recompute every data-processing study (chain order) and every analysis."""
@@ -201,12 +217,13 @@ class MainAreaClass:
                 obj.set_stale(False)
 
     def mark_all_stale(self):
-        """Flag every recalculable study (data-processing + analysis) as needing
-        recalculation, turning its Refresh button an alarm color, without recomputing."""
-        for objects in (self.data_processing_objects, self.data_analysis_objects):
-            for obj in objects.values():
-                if hasattr(obj, "set_stale"):
-                    obj.set_stale(True)
+        """Used on project load with Auto-recalculate off. Data-processing studies always
+        auto-update, so recompute them (their Refresh must never load amber); only the analyses
+        are flagged stale (amber Refresh) and left for the user to recalculate."""
+        self._recompute_all_data_processing()
+        for obj in self.data_analysis_objects.values():
+            if hasattr(obj, "set_stale"):
+                obj.set_stale(True)
 
     def collapse_all(self):
         """Collapse every study card (raw data, data-processing, analysis) to its header."""
@@ -338,6 +355,8 @@ class MainAreaClass:
             settings_panel_index=source.settings_panel_index,
             config=copy.deepcopy(source.config),
         )
+        # Carry over the analysis's inline filters as an independent copy.
+        RESULTS[new_id].inline_filters = copy.deepcopy(getattr(source, "inline_filters", []) or [])
         self.add_data_analysis(new_id)
         panel = self.root_class.settings_panel.panels[source.settings_panel_index]
         panel.configure(new_id)
@@ -398,19 +417,21 @@ class MainAreaClass:
         survivors = [rid for rid in dependents if rid in RESULTS]
         if not survivors:
             return
-        if self.auto_recalculate:
-            self._cascading = True
-            try:
-                for rid in survivors:
+        # Downstream data-processing studies always recompute; analyses honor Auto-recalculate.
+        dp_survivors = [rid for rid in survivors if rid in self.data_processing_objects]
+        analysis_survivors = [rid for rid in survivors if rid in self.data_analysis_objects]
+        self._cascading = True
+        try:
+            for rid in dp_survivors:
+                self._recompute_result(rid)
+            if self.auto_recalculate:
+                for rid in analysis_survivors:
                     self._recompute_result(rid)
-            finally:
-                self._cascading = False
-        else:
-            for rid in survivors:
-                RESULTS[rid].needs_update = True
-                obj = self.data_processing_objects.get(rid) or self.data_analysis_objects.get(rid)
-                if obj is not None and hasattr(obj, "set_stale"):
-                    obj.set_stale(True)
+        finally:
+            self._cascading = False
+        if not self.auto_recalculate:
+            for rid in analysis_survivors:
+                self._mark_stale(rid)
 
     def update_focus(self, result_id, result_element_id=None):
         if self.focused_result_id is not None:

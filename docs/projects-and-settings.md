@@ -2,8 +2,15 @@
 
 ## Saving and reopening your work
 
-A StatPrism **project** (`.sp` file) stores everything — the imported data, every
-processing step, and every analysis with its settings and results.
+A StatPrism **project** (`.sp` file) stores your imported dataset and every step and analysis
+with its settings; the results are recomputed from those when you reopen it.
+
+```{note}
+Projects are saved in a new format (JSON + parquet) from version 1.2.8. That version still opens
+projects saved by older versions, so open an old project once and **Save** it to convert it; some
+later version will stop reading the old format. Opening a project saved by a *newer* version than
+you have installed is not supported — update StatPrism first.
+```
 
 - **File ▸ Save** — save to the current project file.
 - **File ▸ Save As…** — save to a new file.

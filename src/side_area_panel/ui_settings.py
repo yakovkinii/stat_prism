@@ -150,11 +150,13 @@ class SettingsPanelClass:
             ui_theme_menu.addAction(ui_action)
             self.ui_theme_actions[ui_name] = ui_action
 
-        # Auto-recalculate: when on (default), changing a data-processing study recomputes
-        # every dependent study immediately. When off, dependents are only flagged (their
-        # Refresh button turns an alarm color) until recalculated.
-        self.auto_recalculate_action = QAction("Auto-recalculate", self.widget)
+        # Auto-recalculate governs ANALYSES only: when on (default), changing an upstream study
+        # recomputes every analysis immediately; when off, analyses are only flagged (their
+        # Refresh button turns an alarm color) until recalculated. Data-processing studies always
+        # auto-update regardless of this setting.
+        self.auto_recalculate_action = QAction("Auto-recalculate analyses", self.widget)
         self.auto_recalculate_action.setCheckable(True)
+        self.auto_recalculate_action.setToolTip("Recompute analyses automatically.")
         self.auto_recalculate_action.setChecked(bool(self.root_class.main_area_panel.auto_recalculate))
         self.auto_recalculate_action.toggled.connect(self.set_auto_recalculate)
 

@@ -16,11 +16,6 @@
 #  StatPrism.  If not, see <https://www.gnu.org/licenses/>.
 
 
-import json
-import pickle
-import tempfile
-import zipfile
-
 from PySide6 import QtWidgets
 from PySide6.QtGui import QIcon, QPixmap, Qt
 from PySide6.QtWidgets import QDialog, QHBoxLayout, QLabel, QPushButton, QVBoxLayout
@@ -34,6 +29,7 @@ from src.common.theme import THEME
 from src.data.data_manager import DATA_MANAGER
 from src.pyside_ext.elements.button_large import LargeButton
 from src.pyside_ext.elements.spacer import Spacer
+from src.savefile.json_store import save_project_json
 from src.side_area_panel.blueprint.registry import PanelRegistry
 from src.side_area_panel.modules.common.result.registry import RESULTS
 from src.side_area_panel.panels.base import BasePanel
@@ -97,25 +93,15 @@ class Home(BasePanel):
             file_path = self.root_class.current_file_path
 
         # Project metadata: StatPrism version + the active theme / language, so the
-        # project reopens in the look & language it was saved with.
+        # project reopens in the look & language it was saved with. Saved in the JSON+parquet form
+        # (see savefile.json_store); the raw dataset and configs are stored and everything else is
+        # recomputed on load. Older pickle projects still open (see home_initial.load_file).
         meta = {
-            "format": 1,
             "version": version,
             "theme": THEME.name(),
             "language": LANGUAGE.language.value,
         }
-
-        with tempfile.TemporaryDirectory() as temp_dir:
-            with open(f"{temp_dir}/meta.json", "w", encoding="utf-8") as file:
-                json.dump(meta, file, ensure_ascii=False, indent=2)
-            with open(f"{temp_dir}/data_manager.pkl", "wb") as file:
-                pickle.dump(DATA_MANAGER, file)
-            with open(f"{temp_dir}/results.pkl", "wb") as file:
-                pickle.dump(RESULTS, file)
-            with zipfile.ZipFile(file_path, "w") as zipf:
-                zipf.write(f"{temp_dir}/meta.json", "meta.json")
-                zipf.write(f"{temp_dir}/data_manager.pkl", "data_manager.pkl")
-                zipf.write(f"{temp_dir}/results.pkl", "results.pkl")
+        save_project_json(file_path, DATA_MANAGER, RESULTS, meta)
 
         self.root_class.set_current_file_path(file_path)
         self.root_class.clear_dirty()
@@ -153,6 +139,9 @@ class AboutDialog(QDialog):
         banner = QLabel()
         pixmap = QPixmap(":/mat/resources/banner.png")
         if not pixmap.isNull():
+            # The banner is ~1675px wide; scale it down to the dialog width so the whole image shows
+            # (drawn unscaled it was clipped to a dark left strip, which looked "all black").
+            pixmap = pixmap.scaledToWidth(540, Qt.TransformationMode.SmoothTransformation)
             banner.setPixmap(pixmap)
             banner.setAlignment(Qt.AlignCenter)
         layout.addWidget(banner)

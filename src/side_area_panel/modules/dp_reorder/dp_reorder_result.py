@@ -15,6 +15,9 @@
 #  You should have received a copy of the GNU General Public License along with
 #  StatPrism.  If not, see <https://www.gnu.org/licenses/>.
 
+#  DEPRECATED: superseded by Arrange Columns. Kept in 1.2.8 only so projects saved with 1.2.7 or
+#  earlier (which may contain a Reorder Columns step) still load. Slated for removal in 1.3.0, where
+#  a save-file migration will convert any Reorder Columns step into an Arrange Columns step.
 
 import attrs
 

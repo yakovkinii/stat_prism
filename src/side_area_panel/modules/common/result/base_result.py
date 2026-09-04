@@ -39,6 +39,9 @@ class BaseResult:
         self.settings_panel_index: int = ...
         self.config = ...
         self.needs_update: bool = False
+        # Per-analysis inline filters (Filter configs owned by this study, not chain members).
+        # Analyses populate this; other result types leave it empty. See modules.common.inline_filter.
+        self.inline_filters: list = []
         # For keeping the user settings
         self.old_result_elements: Dict[str, BaseResultElement] = dict()
 

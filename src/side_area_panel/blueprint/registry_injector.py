@@ -23,6 +23,7 @@ from src.side_area_panel.panels.blank import Blank
 from src.side_area_panel.panels.column_selector import ColumnSelector
 from src.side_area_panel.panels.home import Home
 from src.side_area_panel.panels.home_initial import HomeInitial
+from src.side_area_panel.panels.inline_filter_panel import InlineFilterPanel
 from src.side_area_panel.panels.inversion_config import InversionConfig
 from src.side_area_panel.panels.mapping import Mapping
 from src.side_area_panel.panels.order import Order
@@ -39,6 +40,7 @@ def inject_classes_to_panel_registry():
     PanelRegistry.COLUMN_SELECTOR.value.ui_class = ColumnSelector
     PanelRegistry.MAPPING.value.ui_class = Mapping
     PanelRegistry.INVERSION_CONFIG.value.ui_class = InversionConfig
+    PanelRegistry.INLINE_FILTER.value.ui_class = InlineFilterPanel
     PanelRegistry.BLANK.value.ui_class = Blank
     PanelRegistry.ORDER.value.ui_class = Order
     PanelRegistry.HTML_TABLE_V2_SETTINGS.value.ui_class = ResultItemSettingsV2

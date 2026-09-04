@@ -16,28 +16,17 @@
 #  StatPrism.  If not, see <https://www.gnu.org/licenses/>.
 
 
-import operator
-import re
-
-import pandas as pd
-
 from src.common.decorators import log_function
 from src.data.data_manager import DATA_MANAGER
-from src.side_area_panel.iispwac.iispwac_column_filter import EMPTY_SENTINEL
 from src.side_area_panel.modules.dp_filter.dp_filter_result import FilterDataResult
 from src.side_area_panel.modules.dp_filter.dp_filter_ui import Elements
-
-_NUMERIC_OPS = {
-    "<": operator.lt,
-    ">": operator.gt,
-    "<=": operator.le,
-    ">=": operator.ge,
-}
-
-
-def _empty_mask(series: pd.Series) -> pd.Series:
-    """True where the cell is missing or blank -- captures both NaN and empty strings ""."""
-    return series.isna() | (series.astype(str).str.strip() == "")
+from src.side_area_panel.modules.dp_filter.filter_logic import (
+    ALERT_COLUMN,
+    ALERT_VALUE,
+    apply_mask,
+    compute_keep_mask,
+    removed_positions,
+)
 
 
 def _set_no_filter(result, data):
@@ -61,79 +50,18 @@ def dp_filter_main(elements: Elements, result: FilterDataResult, update):
     if not cfg.enabled:
         return _set_no_filter(result, data)
 
-    selected = cfg.column_selector[0]
-    if not selected:
+    mask, error, alert = compute_keep_mask(data, cfg)
+    if alert == ALERT_COLUMN:
         elements.column_selector.set_alert(0)
-        result.error_message = "Select a column to filter."
-        return _set_no_filter(result, data)
-    column_name = selected[0]
-
-    spec = cfg.column_filter
-    if spec is None or spec.get("column") != column_name:
-        # Not configured for the current column yet -> no-op.
-        return _set_no_filter(result, data)
-
-    series = data[column_name].data_series
-    mode = spec.get("mode")
-    mask = None
-
-    if mode == "numeric":
-        operation = spec.get("operation")
-        if operation in ("is empty", "is not empty"):
-            empties = _empty_mask(series)
-            mask = empties if operation == "is empty" else ~empties
-        else:
-            value_text = spec.get("value")
-            if value_text in (None, ""):
-                return _set_no_filter(result, data)
-            numeric = pd.to_numeric(series, errors="coerce")
-            if operation in ("==", "!="):
-                # Accept multiple values (space/comma/semicolon separated) -> in / not in.
-                # Numeric tokens match numerically; if any token is non-numeric (e.g. a
-                # string ID like "boot_1"), fall back to matching the values as strings.
-                tokens = [tok for tok in re.split(r"[,;\s]+", value_text.strip()) if tok != ""]
-                if not tokens:
-                    return _set_no_filter(result, data)
-                try:
-                    values = [float(tok) for tok in tokens]
-                    is_in = numeric.isin(values)
-                except ValueError:
-                    is_in = series.astype(str).str.strip().isin(tokens)
-                mask = is_in if operation == "==" else ~is_in
-            else:
-                op = _NUMERIC_OPS.get(operation)
-                if op is None:
-                    return _set_no_filter(result, data)
-                try:
-                    value = float(value_text)
-                except (TypeError, ValueError):
-                    elements.column_filter.set_alert()
-                    result.error_message = "Enter a numeric value for this comparison."
-                    return _set_no_filter(result, data)
-                mask = op(numeric, value).fillna(False)
-    elif mode == "categorical":
-        kept = spec.get("kept_values")
-        if kept is None:
-            return _set_no_filter(result, data)  # all values kept -> no-op
-        # The "(empty)" pseudo-value keeps missing/blank cells; real values match directly.
-        keep_empty = EMPTY_SENTINEL in kept
-        real_kept = [v for v in kept if v != EMPTY_SENTINEL]
-        mask = series.isin(real_kept)
-        if keep_empty:
-            mask = mask | _empty_mask(series)
-    else:
-        return _set_no_filter(result, data)
-
+    elif alert == ALERT_VALUE:
+        elements.column_filter.set_alert()
+    if error:
+        result.error_message = error
     if mask is None:
         return _set_no_filter(result, data)
 
-    mask = mask.astype(bool)
     # Record the removed row positions (relative to the unfiltered row order) for the popup.
     result.full_data = data.copy()
-    result.removed_positions = [i for i, keep in enumerate(mask.tolist()) if not keep]
-
-    new_data = data.copy()
-    for column in new_data.columns:
-        column.data_series = column.data_series[mask]
-    result.data = new_data
+    result.removed_positions = removed_positions(mask)
+    result.data = apply_mask(data, mask)
     return result

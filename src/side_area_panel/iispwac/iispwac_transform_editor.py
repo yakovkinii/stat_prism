@@ -19,9 +19,11 @@
 import ast
 
 import pandas as pd
+from PySide6.QtCore import Qt
 from PySide6.QtWidgets import (
     QCheckBox,
     QFrame,
+    QGridLayout,
     QHBoxLayout,
     QLabel,
     QLineEdit,
@@ -45,7 +47,6 @@ from src.side_area_panel.blueprint.element import ItemInSidePanelWithAutoConfig
 _TYPES = [ColumnType.NOMINAL.value, ColumnType.ORDINAL.value, ColumnType.NUMERIC.value]
 # Numeric normalizations offered for a Numeric target. "None" leaves the values as-is.
 NORMALIZE_METHODS = ["None", "Z-score", "Stanine", "Center", "Min-max", "Log", "Rank"]
-_MAX_SUMMARY_ITEMS = 8
 
 
 def _to_python(value):
@@ -63,6 +64,7 @@ class IISPWACTransformEditor(ItemInSidePanelWithAutoConfig):
         self.is_numeric_column = False
         self.unique_values = []
         self._built_column = None
+        self._built_result_id = None
         self._suppress = False
 
     def post_init(self, name, parent_widget):
@@ -96,6 +98,7 @@ class IISPWACTransformEditor(ItemInSidePanelWithAutoConfig):
             if self._built_column is not None or not getattr(self, "cards", None):
                 self._rebuild_empty()
                 self._built_column = None
+            self._built_result_id = result_id
             return
 
         # Several columns can be transformed together; they share one spec applied over the
@@ -107,9 +110,12 @@ class IISPWACTransformEditor(ItemInSidePanelWithAutoConfig):
         self.unique_values = self._union_unique(columns)
         self.spec = self._spec_from(saved, columns)
 
-        if self.columns != self._built_column:
+        # Rebuild on a column change OR a different study (two Transform studies over the same
+        # selection share column names, so the result-id check keeps their widgets independent).
+        if self.columns != self._built_column or result_id != self._built_result_id:
             self._rebuild()
             self._built_column = list(self.columns)
+            self._built_result_id = result_id
         else:
             self._refresh_visibility()
 
@@ -194,53 +200,43 @@ class IISPWACTransformEditor(ItemInSidePanelWithAutoConfig):
         layout.setSpacing(4)
 
         # --- New name (default text = the current column name) ---
-        # Renaming only applies to a single column; with several selected it is disabled.
+        # Renaming only applies to a single column; with several selected the field is hidden.
         multiple = len(self.columns) > 1
-        layout.addWidget(QLabel("New name:", card))
-        self.rename_edit = QLineEdit(card)
+        self.rename_row = QWidget(card)
+        rename_layout = QVBoxLayout(self.rename_row)
+        rename_layout.setContentsMargins(0, 0, 0, 0)
+        rename_layout.setSpacing(3)
+        rename_layout.addWidget(QLabel("New name:", self.rename_row))
+        self.rename_edit = QLineEdit(self.rename_row)
+        self.rename_edit.setText(spec["new_name"])
+        self.rename_edit.setToolTip(spec["new_name"] or self.column_name)
         self.rename_edit.editingFinished.connect(self._on_rename)
-        if multiple:
-            self.rename_edit.setEnabled(False)
-            self.rename_edit.setPlaceholderText("(rename disabled for multiple columns)")
-        else:
-            self.rename_edit.setText(spec["new_name"])
-            self.rename_edit.setToolTip(spec["new_name"] or self.column_name)
-        layout.addWidget(self.rename_edit)
+        rename_layout.addWidget(self.rename_edit)
+        layout.addWidget(self.rename_row)
+        self.rename_row.setVisible(not multiple)
 
-        # --- Map values ---
-        map_row = QHBoxLayout()
-        map_button = QPushButton("Map values...", card)
-        map_button.clicked.connect(self._open_mapping)
-        self.map_summary = QLabel(card)
-        self.map_summary.setWordWrap(True)
-        set_stylesheet(self.map_summary, css(font_size=Style.FontSize.smaller, color=Style.Color.SecondaryText))
-        map_row.addWidget(map_button)
-        map_row.addWidget(self.map_summary, 1)
-        layout.addLayout(map_row)
+        # --- Big actions: Map values + Type side by side; Order half-width below (ordinal) ---
+        grid = QGridLayout()
+        grid.setContentsMargins(0, 0, 0, 0)
+        grid.setHorizontalSpacing(6)
+        grid.setVerticalSpacing(6)
+        grid.setColumnStretch(0, 1)
+        grid.setColumnStretch(1, 1)
 
-        # --- Type ---
-        type_row = QHBoxLayout()
-        type_row.addWidget(QLabel("Type:", card))
+        self.map_button = QPushButton("Map values...", card)
+        self.map_button.clicked.connect(self._open_mapping)
+        grid.addWidget(self.map_button, 0, 0)
+
         self.type_combo = NoScrollComboBox(card)
         self.type_combo.addItems(_TYPES)
         self.type_combo.setCurrentText(spec["type"])
         self.type_combo.currentTextChanged.connect(self._on_type)
-        type_row.addWidget(self.type_combo)
-        type_row.addStretch()
-        layout.addLayout(type_row)
+        grid.addWidget(self.type_combo, 0, 1)
 
-        # --- Order (ordinal only) ---
-        self.order_row = QWidget(card)
-        order_layout = QHBoxLayout(self.order_row)
-        order_layout.setContentsMargins(0, 0, 0, 0)
-        order_button = QPushButton("Order...", self.order_row)
-        order_button.clicked.connect(self._open_order)
-        self.order_summary = QLabel(self.order_row)
-        self.order_summary.setWordWrap(True)
-        set_stylesheet(self.order_summary, css(font_size=Style.FontSize.smaller, color=Style.Color.SecondaryText))
-        order_layout.addWidget(order_button)
-        order_layout.addWidget(self.order_summary, 1)
-        layout.addWidget(self.order_row)
+        self.order_button = QPushButton("Order...", card)
+        self.order_button.clicked.connect(self._open_order)
+        grid.addWidget(self.order_button, 1, 0)  # half-width, aligned under Map values
+        layout.addLayout(grid)
 
         # --- Flip (ordinal only) ---
         self.flip_row = QWidget(card)
@@ -294,14 +290,23 @@ class IISPWACTransformEditor(ItemInSidePanelWithAutoConfig):
             return
         is_ordinal = self.spec["type"] == ColumnType.ORDINAL.value
         is_numeric = self.spec["type"] == ColumnType.NUMERIC.value
-        self.order_row.setVisible(is_ordinal)
+        self.order_button.setVisible(is_ordinal)
         self.flip_row.setVisible(is_ordinal)
         self.normalize_row.setVisible(is_numeric)
-        if is_ordinal:
-            order_values = self.spec["order"] or self.unique_values
-            self.order_summary.setText(self._format_order(order_values))
-        self.map_summary.setText(self._format_mapping(self.spec["mapping"]))
+        # Bold the action buttons when they carry a setting (replaces the old text summaries).
+        self._style_action_button(self.map_button, self._has_mapping(self.spec))
+        self._style_action_button(self.order_button, is_ordinal and self.spec.get("order") is not None)
         self._apply_color_button()
+
+    @staticmethod
+    def _has_mapping(spec) -> bool:
+        return any(f != t for f, t in (spec.get("mapping") or []))
+
+    @staticmethod
+    def _style_action_button(button, applied: bool):
+        font = button.font()
+        font.setBold(applied)
+        button.setFont(font)
 
     def _apply_color_button(self):
         color = self.spec.get("color")
@@ -312,25 +317,6 @@ class IISPWACTransformEditor(ItemInSidePanelWithAutoConfig):
                 self.color_button,
                 css(background=Style.Color.BackgroundEdit, border=f"1px dashed {Style.Color.BorderElevated}"),
             )
-
-    @staticmethod
-    def _format_order(values):
-        shown = [str(v) for v in values[:_MAX_SUMMARY_ITEMS]]
-        if len(values) > _MAX_SUMMARY_ITEMS:
-            shown.append("...")
-        return " < ".join(shown)
-
-    @staticmethod
-    def _format_mapping(mapping):
-        if not mapping:
-            return ""
-        parts = [f"{f!r} {RARROW} {t!r}" for f, t in mapping if f != t]
-        if not parts:
-            return ""
-        text = ", ".join(parts[:_MAX_SUMMARY_ITEMS])
-        if len(parts) > _MAX_SUMMARY_ITEMS:
-            text += ", ..."
-        return text
 
     def _changed(self):
         if self._suppress:
@@ -370,15 +356,18 @@ class IISPWACTransformEditor(ItemInSidePanelWithAutoConfig):
         show_color_picker(self.widget, choose)
 
     def _open_order(self):
-        values = self.spec["order"] or list(self.unique_values)
+        natural = list(self.unique_values)
+        values = self.spec["order"] or natural
 
         content = QFrame()
         content.setMinimumWidth(600)
         set_stylesheet(
             content, css(background=Style.Color.BackgroundElevated, border=f"1px solid {Style.Color.BorderElevated}")
         )
-        layout = QHBoxLayout(content)
-        layout.setContentsMargins(12, 12, 12, 12)
+        outer = QVBoxLayout(content)
+        outer.setContentsMargins(12, 12, 12, 12)
+        outer.setSpacing(8)
+        top = QHBoxLayout()
 
         list_widget = CustomListWidget(content)
         list_widget.setSizeAdjustPolicy(QListWidget.AdjustToContents)
@@ -388,13 +377,24 @@ class IISPWACTransformEditor(ItemInSidePanelWithAutoConfig):
             css(background=Style.Color.Background),
             css(selector="QListWidget::item", background=Style.Color.BackgroundPanel, margin="2px"),
         )
-        for value in values:
-            list_widget.add_custom_item(value, str(value))
-        layout.addWidget(list_widget)
+
+        def populate(order_values):
+            list_widget.clear()
+            for value in order_values:
+                list_widget.add_custom_item(value, str(value))
+
+        populate(values)
+        top.addWidget(list_widget)
 
         hint = QLabel(f"SMALL\n{DARROW * 6}\nLARGE", content)
         set_stylesheet(hint, css(font_size=Style.FontSize.regular, color=Style.Color.SecondaryText))
-        layout.addWidget(hint)
+        top.addWidget(hint)
+        outer.addLayout(top)
+
+        reset_button = QPushButton("Reset order", content)
+        reset_button.setToolTip("Restore the natural (data) order")
+        reset_button.clicked.connect(lambda: populate(natural))
+        outer.addWidget(reset_button, alignment=Qt.AlignmentFlag.AlignLeft)
 
         def on_close():
             ordered = []
@@ -402,7 +402,7 @@ class IISPWACTransformEditor(ItemInSidePanelWithAutoConfig):
                 item_widget = list_widget.itemWidget(list_widget.item(i))
                 if item_widget is not None:
                     ordered.append(item_widget.value)
-            self.spec["order"] = ordered or None
+            self.spec["order"] = ordered if (ordered and ordered != natural) else None
             self._refresh_visibility()
             self._changed()
 
@@ -452,6 +452,11 @@ class IISPWACTransformEditor(ItemInSidePanelWithAutoConfig):
         scroll.setWidget(inner)
         outer.addWidget(scroll)
 
+        reset_button = QPushButton("Reset mapping", content)
+        reset_button.setToolTip("Clear the mapping (map every value to itself)")
+        reset_button.clicked.connect(lambda: [edit.setText(repr(value)) for value, edit in rows])
+        outer.addWidget(reset_button, alignment=Qt.AlignmentFlag.AlignLeft)
+
         def on_close():
             mapping = []
             for value, edit in rows:
@@ -461,7 +466,9 @@ class IISPWACTransformEditor(ItemInSidePanelWithAutoConfig):
                 except (ValueError, SyntaxError):
                     target = text
                 mapping.append([value, target])
-            self.spec["mapping"] = mapping or None
+            if all(f == t for f, t in mapping):
+                mapping = None
+            self.spec["mapping"] = mapping
             self._refresh_visibility()
             self._changed()
 

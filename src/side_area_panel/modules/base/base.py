@@ -29,6 +29,7 @@ from src.common.decorators import log_method, log_method_noarg
 from src.common.messages import Message
 from src.common.translations import t
 from src.common.ui_constructor import create_tool_button_qta
+from src.data.data_manager import DATA_MANAGER
 from src.pyside_ext.elements.utility.layout_helpers import add_widget
 from src.pyside_ext.layout import HBoxLayout
 from src.pyside_ext.markup import css
@@ -40,6 +41,22 @@ from src.side_area_panel.modules.common.result.registry import RESULTS
 
 if TYPE_CHECKING:
     from src.ui_main import MainWindowClass
+
+
+class _SilentElements:
+    """Stand-in for a module's Elements during a headless recompute. Main functions only touch
+    `elements` to raise alerts (e.g. elements.column_selector.set_alert(0)); this swallows any such
+    attribute access or call so those alerts never land on the shared on-screen widgets. Inputs are
+    read from result.config, never from elements, so nothing else is needed."""
+
+    def __getattr__(self, _name):
+        return self
+
+    def __call__(self, *args, **kwargs):
+        return self
+
+
+_SILENT_ELEMENTS = _SilentElements()
 
 
 class BaseModulePanel:
@@ -219,6 +236,19 @@ class BaseModulePanel:
         result.config = result.config_class(**self.elements_.get_kwargs())
         self.elements_.clear_alerts()
 
+        # A column an earlier study renamed/removed (or whose type changed) is shown bold-red in the
+        # selector and stops the study here, before it computes on stale inputs.
+        broken = self.elements_.broken_columns() if hasattr(self.elements_, "broken_columns") else []
+        if broken:
+            self._handle_broken_columns(result, broken)
+            return
+
+        # An inline filter (analyses only) pointing at a since-removed column also stops the study.
+        inline_broken = self._broken_inline_filters(result)
+        if inline_broken:
+            self._handle_broken_inline_filters(result, inline_broken)
+            return
+
         # Computation runs synchronously on the GUI thread; drive the bar with a callback that
         # forces an immediate repaint of just the bar widget (no event-loop pump, so no reentrancy).
         progress_bar = self.root_class.settings_panel.progress_bar
@@ -238,15 +268,154 @@ class BaseModulePanel:
             result.set_error(t("common.calc_error", error=str(e)))
         self.recalculate_on_done(result)
 
-    @log_method
-    def recalculate_on_done(self, result):
+    def _set_broken_columns_result(self, result, broken, is_dp):
+        """Populate `result` for a broken-column stop: analyses show an error; data-processing steps
+        pass the source data through unchanged (a no-op)."""
+        names = ", ".join(dict.fromkeys(broken))
+        message = f"Column(s) no longer available: {names}. Re-select them in the column selector."
+        if is_dp:
+            source = getattr(result.config, "data_source", None) or "Auto"
+            try:
+                result.data = DATA_MANAGER.get_data_from_data_label(
+                    data_label=source, current_result_id=result.unique_id
+                ).copy()
+            except Exception:
+                logging.exception("Broken-column no-op: could not resolve source data")
+            result.error_message = message
+        else:
+            result.set_error(message)
+
+    def _handle_broken_columns(self, result, broken):
+        """Widget (user-edit) path: stop the study, finalize, and keep an amber Refresh for a
+        data-processing no-op (the one case a data-processing Refresh is amber)."""
+        main_area = self.root_class.main_area_panel
+        is_dp = self.result_id in main_area.data_processing_objects
+        self._set_broken_columns_result(result, broken, is_dp)
+        self.recalculate_on_done(result)
+        if is_dp:
+            main_area._mark_stale(self.result_id)
+
+    def _broken_columns_from_config(self, result):
+        """Selected columns that no longer EXIST, read from the stored config without touching the
+        widgets (for headless recompute). Name-only: the type-based check needs the field
+        definitions -- which are unreliable off-screen for variable-field modules -- and is
+        re-applied when the study is opened."""
+        selected = getattr(result.config, "column_selector", None)
+        if not selected:
+            return []
+        source = getattr(result.config, "data_source", None) or "Auto"
+        try:
+            names = set(
+                DATA_MANAGER.get_data_from_data_label(
+                    data_label=source, current_result_id=result.unique_id
+                ).column_names()
+            )
+        except Exception:
+            return []
+        broken = []
+        for field_selected in selected:
+            for column in field_selected or []:
+                if column not in names:
+                    broken.append(column)
+        return broken
+
+    def _broken_inline_filters(self, result):
+        """Indices of this analysis's inline filters whose target column is gone (empty otherwise)."""
+        filters = getattr(result, "inline_filters", None)
+        if not filters:
+            return []
+        from src.side_area_panel.modules.common.inline_filter import broken_filter_indices
+
+        source = getattr(result.config, "data_source", None) or "Auto"
+        DATA_MANAGER._apply_inline = False
+        try:
+            base = DATA_MANAGER.get_data_from_data_label(data_label=source, current_result_id=result.unique_id)
+        except Exception:
+            return []
+        finally:
+            DATA_MANAGER._apply_inline = True
+        return broken_filter_indices(base, filters)
+
+    def _set_broken_inline_result(self, result, indices):
+        from src.side_area_panel.modules.common.inline_filter import filter_target_column, get_inline_filters
+
+        filters = get_inline_filters(result)
+        columns = [filter_target_column(filters[i]) for i in indices if filter_target_column(filters[i])]
+        names = ", ".join(dict.fromkeys(columns))
+        result.set_error(f"An inline filter refers to a column no longer available: {names}. Fix or remove the filter.")
+
+    def _handle_broken_inline_filters(self, result, indices):
+        self._set_broken_inline_result(result, indices)
+        self.recalculate_on_done(result)
+
+    def recompute_from_config(self, result_id):
+        """Recompute a study from its STORED config, without loading it into (or otherwise touching)
+        the shared settings widgets. This is how cascade propagation recomputes downstream studies,
+        so the currently-displayed study -- including its validation highlights -- is left alone.
+        Main functions read their inputs from result.config and only use `elements` to flag alerts,
+        so a silent stand-in is passed for elements here."""
+        result = RESULTS[result_id]
+        main_area = self.root_class.main_area_panel
+        is_dp = result_id in main_area.data_processing_objects
+
+        broken = self._broken_columns_from_config(result)
+        if broken:
+            self._set_broken_columns_result(result, broken, is_dp)
+            self._finalize_recompute(result, result_id)
+            if is_dp:
+                main_area._mark_stale(result_id)
+            return
+
+        inline_broken = self._broken_inline_filters(result)
+        if inline_broken:
+            self._set_broken_inline_result(result, inline_broken)
+            self._finalize_recompute(result, result_id)
+            return
+
+        progress_bar = self.root_class.settings_panel.progress_bar
+        progress_bar.setRange(0, 100)
+        progress_bar.setValue(0)
+        progress_bar.show()
+        progress_bar.repaint()
+
+        def update(value):
+            progress_bar.setValue(int(value))
+            progress_bar.repaint()
+
+        try:
+            result = self.main_function(elements=_SILENT_ELEMENTS, result=result, update=update)
+        except Exception as e:
+            logging.exception("Error during recompute")
+            result.set_error(t("common.calc_error", error=str(e)))
+        self._finalize_recompute(result, result_id)
+        card = main_area.data_processing_objects.get(result_id) or main_area.data_analysis_objects.get(result_id)
+        if card is not None and hasattr(card, "set_stale"):
+            card.set_stale(False)
+
+    def _finalize_recompute(self, result, result_id):
+        """Store and re-render a recomputed result WITHOUT reconfiguring the settings panel."""
         result.update_description()
         self.root_class.mark_dirty()
-        RESULTS[self.result_id] = result
-        self.root_class.main_area_panel.refresh_result(result_id=self.result_id)
-        self.configure(result_id=self.result_id)
-        # Propagate to downstream data-processing studies and all analyses.
-        self.root_class.main_area_panel.cascade_update(self.result_id)
+        RESULTS[result_id] = result
+        self.root_class.main_area_panel.refresh_result(result_id=result_id)
+
+    @log_method
+    def recalculate_on_done(self, result):
+        focused_id = self.result_id
+        main_area = self.root_class.main_area_panel
+        # This study just recomputed, so it is up to date -- clear any amber (stale) flag on its
+        # card. A broken-column no-op re-sets it afterwards (see _handle_broken_columns).
+        card = main_area.data_processing_objects.get(focused_id) or main_area.data_analysis_objects.get(focused_id)
+        if card is not None and hasattr(card, "set_stale"):
+            card.set_stale(False)
+        result.update_description()
+        self.root_class.mark_dirty()
+        RESULTS[focused_id] = result
+        main_area.refresh_result(result_id=focused_id)
+        self.configure(result_id=focused_id)
+        # Propagate to downstream studies. cascade_update recomputes them headlessly (from their
+        # stored config), so it never disturbs this panel's widgets -- no restore needed.
+        main_area.cascade_update(focused_id)
 
     @log_method_noarg
     def delete(self):

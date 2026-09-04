@@ -43,6 +43,7 @@ class PanelRegistry(Enum):
     ORDER = PanelRegistryItem(unique_id_for_enum="ORDER")
     MAPPING = PanelRegistryItem(unique_id_for_enum="MAPPING")
     INVERSION_CONFIG = PanelRegistryItem(unique_id_for_enum="INVERSION_CONFIG")
+    INLINE_FILTER = PanelRegistryItem(unique_id_for_enum="INLINE_FILTER")
 
     @property
     def ui_class(self):

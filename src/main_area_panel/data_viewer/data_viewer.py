@@ -34,7 +34,13 @@ from PySide6.QtWidgets import (
 )
 
 from src.common.config import read_ui_value, write_ui_value
-from src.common.constant import COLUMN_TYPE_ICONS, COLUMN_TYPE_ICONS_ON_LIGHT, ColumnType
+from src.common.constant import (
+    COLUMN_TYPE_ICONS,
+    COLUMN_TYPE_ICONS_ON_DARK,
+    COLUMN_TYPE_ICONS_ON_LIGHT,
+    ColumnType,
+    is_light_color,
+)
 from src.data.data import Data
 from src.pyside_ext.markup import css
 from src.pyside_ext.styling import Style
@@ -136,6 +142,12 @@ class CustomHeader(QHeaderView):
         background = QtGui.QColor(color) if color else QtGui.QColor(Style.Color.BackgroundElevated.value)
         painter.fillRect(rect, background)
 
+        # Decide legibility from the actual background: light background -> black text + the dark
+        # icon set; dark background -> white text + the lighter icon set. This adapts to each tag's
+        # exact color, and to the theme-dependent chrome for untagged headers (which is light in the
+        # light theme, dark in the dark theme).
+        on_light = is_light_color(color if color else Style.Color.BackgroundElevated.value)
+
         pen = QtGui.QPen(QtGui.QColor(Style.Color.BorderElevated.value))
         pen.setWidth(2)
         painter.setPen(pen)
@@ -144,9 +156,9 @@ class CustomHeader(QHeaderView):
         text_rect = rect.adjusted(4, 2, -4, -2)
 
         column_type = model.headerData(logicalIndex, self.orientation(), TYPE_ROLE)
-        # On a (light pastel) color tag the normal icon is hard to see -> use the darker
-        # on-light variant; untagged headers keep the regular theme-tinted icon.
-        icon_set = COLUMN_TYPE_ICONS_ON_LIGHT if color else COLUMN_TYPE_ICONS
+        # Dark icon set on a light background, light icon set on a dark one (theme-independent, so
+        # the choice follows the actual background, not the UI theme).
+        icon_set = COLUMN_TYPE_ICONS_ON_LIGHT if on_light else COLUMN_TYPE_ICONS_ON_DARK
         icon = icon_set.get(column_type)
         if icon is not None:
             pixmap = icon.pixmap(_ICON_SIZE, _ICON_SIZE)
@@ -159,8 +171,8 @@ class CustomHeader(QHeaderView):
             flags = QtCore.Qt.AlignLeft | QtCore.Qt.AlignTop | QtCore.Qt.TextWordWrap
         else:
             flags = QtCore.Qt.AlignLeft | QtCore.Qt.AlignVCenter
-        # Dark text on a light pastel tag; light text on the dark header otherwise.
-        text_color = Style.Color.TextOnLight.value if color else Style.Color.Text.value
+        # Black text on a light background, white on a dark one.
+        text_color = "black" if on_light else "white"
         painter.setPen(QtGui.QPen(QtGui.QColor(text_color)))
         painter.drawText(text_rect, flags, text)
 

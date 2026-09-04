@@ -31,6 +31,8 @@ from src.common.messages import MessageType
 from src.common.theme import THEME, Themes
 from src.data.data_manager import DATA_MANAGER
 from src.pyside_ext.elements.button_large import LargeButton
+from src.savefile.json_store import backfill_config, load_project_json
+from src.savefile.versioning import IncompatibleProjectError, check_openable
 from src.side_area_panel.blueprint.registry import PanelRegistry
 from src.side_area_panel.modules.common.result.registry import RESULTS, get_unique_result_id
 from src.side_area_panel.modules.registry import ModuleRegistry, ModuleType
@@ -67,7 +69,10 @@ class HomeInitial(BasePanel):
             logging.info("No file selected")
             return
 
-        self.load_file(file_path)
+        try:
+            self.load_file(file_path)
+        except IncompatibleProjectError as error:
+            QtWidgets.QMessageBox.warning(self.widget, "Cannot open project", str(error))
 
     @log_method
     def load_file(self, file_path):
@@ -82,22 +87,33 @@ class HomeInitial(BasePanel):
         # the previously loaded project.
         self.root_class.main_area_panel.clear_all()
 
+        is_json_project = False
         if file_path.endswith(".sp"):
             with tempfile.TemporaryDirectory() as temp_dir:
                 with zipfile.ZipFile(file_path, "r") as zipf:
                     zipf.extractall(temp_dir)
 
-                # Restore the saved theme & language before the results render, so they
-                # appear in the project's look and language.
+                # Refuse projects saved by a newer, incompatible version (see savefile.versioning).
                 meta_path = f"{temp_dir}/meta.json"
+                meta = {}
                 if os.path.exists(meta_path):
                     with open(meta_path, encoding="utf-8") as f:
-                        self._apply_project_meta(json.load(f))
+                        meta = json.load(f)
+                check_openable(meta)
 
-                # Map each module's settings-panel index to its type, so a saved result is
-                # routed to the right lane by module_type (no hand-maintained index lists).
-                index_to_type = {
-                    module.value.settings_stacked_widget_index: module.value.module_type for module in ModuleRegistry
+                # Restore the saved theme & language before the results render, so they
+                # appear in the project's look and language.
+                if meta:
+                    self._apply_project_meta(meta)
+
+                # Route each saved result to its module by the identity of its config object (a
+                # stable class), not by a positional settings-panel index -- so adding/reordering
+                # modules never mis-routes an older project. The (possibly stale) index is repaired
+                # to the module's current one.
+                config_to_module = {
+                    module.value.config_class: module.value
+                    for module in ModuleRegistry
+                    if module.value.config_class is not None
                 }
                 add_by_type = {
                     ModuleType.RAW_DATA: self.root_class.main_area_panel.add_raw_data,
@@ -105,16 +121,41 @@ class HomeInitial(BasePanel):
                     ModuleType.DATA_ANALYSIS: self.root_class.main_area_panel.add_data_analysis,
                 }
 
-                with open(f"{temp_dir}/results.pkl", "rb") as f:
-                    results = pickle.load(f)
+                if meta.get("storage") == "json":
+                    # New JSON+parquet form: rebuild studies from configs, restore the raw dataset,
+                    # and recompute the rest (derived studies are not stored).
+                    is_json_project = True
+                    results, raw_data_result_id, data_chain = load_project_json(temp_dir, meta.get("version"))
                     for result in results.values():
+                        module = config_to_module.get(type(result.config))
+                        if module is None:
+                            logging.warning("Skipping study with unknown config %s", type(result.config))
+                            continue
+                        result.settings_panel_index = module.settings_stacked_widget_index
                         RESULTS[result.unique_id] = result
-                        module_type = index_to_type.get(result.settings_panel_index, ModuleType.DATA_ANALYSIS)
-                        add_by_type[module_type](result.unique_id)
+                        add_by_type[module.module_type](result.unique_id)
+                    DATA_MANAGER.raw_data_result_id = raw_data_result_id
+                    DATA_MANAGER.data_chain = list(data_chain)
+                else:
+                    # Legacy pickle form (StatPrism <= 1.2.8).
+                    with open(f"{temp_dir}/results.pkl", "rb") as f:
+                        results = pickle.load(f)
+                        for result in results.values():
+                            module = config_to_module.get(type(result.config))
+                            if module is None:
+                                logging.warning("Skipping study with unknown config %s", type(result.config))
+                                continue
+                            # Shim: fill in config fields added since the pickle was written (a
+                            # slotted attrs object unpickled from older code lacks them). Deprecated;
+                            # remove once pickle support is dropped and migrations cover it.
+                            backfill_config(result.config)
+                            result.settings_panel_index = module.settings_stacked_widget_index
+                            RESULTS[result.unique_id] = result
+                            add_by_type[module.module_type](result.unique_id)
 
-                with open(f"{temp_dir}/data_manager.pkl", "rb") as f:
-                    data_manager = pickle.load(f)
-                    DATA_MANAGER.from_unpickled(data_manager)
+                    with open(f"{temp_dir}/data_manager.pkl", "rb") as f:
+                        data_manager = pickle.load(f)
+                        DATA_MANAGER.from_unpickled(data_manager)
 
         else:
             module = ModuleRegistry.RAW_DATA.value
@@ -129,12 +170,12 @@ class HomeInitial(BasePanel):
             module.ui_instance.configure(result_id=result_id)
             ModuleRegistry.RAW_DATA.ui_instance.open_file(file_path)
 
-        # A loaded project stores each study's saved output. With auto-recalculate on,
-        # recompute everything so it reflects the current code/data; with it off, just flag
-        # every study as needing recalculation (amber Refresh) without recomputing.
+        # A JSON project stores only the raw dataset + configs, so its studies must always be
+        # recomputed. A legacy pickle project stored each study's output: recompute if
+        # auto-recalculate is on, otherwise just flag every study amber without recomputing.
         if file_path.endswith(".sp"):
             main_area = self.root_class.main_area_panel
-            if main_area.auto_recalculate:
+            if is_json_project or main_area.auto_recalculate:
                 main_area.recompute_all()
             else:
                 main_area.mark_all_stale()

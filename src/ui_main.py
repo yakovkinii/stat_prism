@@ -225,8 +225,16 @@ class MainWindowClass(QtWidgets.QMainWindow):
         if file_path is not None:
             import os
 
+            from PySide6 import QtWidgets
+
+            from src.savefile.versioning import IncompatibleProjectError
+
             file_path = os.path.abspath(file_path)
-            PanelRegistry.HOME_INITIAL.ui_instance.load_file(file_path)
+            try:
+                PanelRegistry.HOME_INITIAL.ui_instance.load_file(file_path)
+            except IncompatibleProjectError as error:
+                QtWidgets.QMessageBox.warning(self, "Cannot open project", str(error))
+                return
             if file_path.endswith(".sp"):
                 self.set_current_file_path(file_path)
 

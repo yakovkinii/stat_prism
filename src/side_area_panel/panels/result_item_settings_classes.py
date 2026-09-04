@@ -19,7 +19,18 @@
 from typing import Tuple
 
 from PySide6.QtCore import QPoint, Qt, QTimer
-from PySide6.QtWidgets import QCheckBox, QFrame, QGridLayout, QHBoxLayout, QLabel, QPushButton, QSlider, QVBoxLayout
+from PySide6.QtWidgets import (
+    QCheckBox,
+    QFrame,
+    QGridLayout,
+    QHBoxLayout,
+    QLabel,
+    QProxyStyle,
+    QPushButton,
+    QSlider,
+    QStyle,
+    QVBoxLayout,
+)
 
 from src.common.constant import SettingsPanelSize
 from src.common.decorators import log_method_noarg
@@ -33,6 +44,16 @@ from src.pyside_ext.elements.utility.primitive_elements import NoScrollComboBox
 from src.pyside_ext.markup import css
 from src.pyside_ext.styling import Style
 from src.pyside_ext.unique_qss import set_stylesheet
+
+
+class _AbsoluteSliderStyle(QProxyStyle):
+    # Makes a left-click anywhere on the groove jump the handle straight to the clicked position,
+    # instead of Qt's default single page-step jump (which, on the short ranges these sliders use,
+    # lurches almost from min to max on one click). Dragging is unaffected.
+    def styleHint(self, hint, option=None, widget=None, returnData=None):
+        if hint == QStyle.StyleHint.SH_Slider_AbsoluteSetButtons:
+            return Qt.MouseButton.LeftButton.value
+        return super().styleHint(hint, option, widget, returnData)
 
 
 # Default-value tracking for settings that hold a single current_value. Subclasses must set
@@ -284,6 +305,11 @@ class SliderResultItemSetting(_ValueDefaultsMixin, BasePanelElement):
                 widget.setMaximumWidth(SettingsPanelSize.max_col_width),
             ],
         )
+        # Click-to-position instead of the default page-step jump. The proxy style is kept on a
+        # reference (self._slider_style) so it is not garbage-collected while the slider lives.
+        self._slider_style = _AbsoluteSliderStyle(self.slider.style())
+        self._slider_style.setParent(self.slider)
+        self.slider.setStyle(self._slider_style)
 
         # Debounce: while dragging, the value updates live but the (expensive) re-render
         # is coalesced so it runs once after the drag settles, not on every tick.

@@ -41,7 +41,8 @@ def dp_formula_main(elements: Elements, result: FormulaResult, update):
     result.data = new_data
     result.error_message = ""
 
-    formula = (cfg.formula or "").strip()
+    # The formula field is multiline (for readability); flatten newlines to spaces before eval.
+    formula = (cfg.formula or "").replace("\r", " ").replace("\n", " ").strip()
     new_name_raw = (cfg.new_name or "").strip()
     if not new_name_raw:
         elements.new_name.set_alert()

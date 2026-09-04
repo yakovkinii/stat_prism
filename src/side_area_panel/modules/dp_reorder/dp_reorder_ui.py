@@ -15,6 +15,8 @@
 #  You should have received a copy of the GNU General Public License along with
 #  StatPrism.  If not, see <https://www.gnu.org/licenses/>.
 
+#  DEPRECATED: superseded by Arrange Columns; kept in 1.2.8 for backward compatibility only (see
+#  dp_reorder_result). Slated for removal in 1.3.0.
 
 from src.common.constant import ColumnType
 from src.pyside_ext.elements.column_selector import Field

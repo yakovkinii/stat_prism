@@ -40,6 +40,9 @@ from src.side_area_panel.modules.descriptive.descriptive_ui import Descriptive
 from src.side_area_panel.modules.dp_2d_outliers.dp_2d_outliers_main import dp_2d_outliers_main
 from src.side_area_panel.modules.dp_2d_outliers.dp_2d_outliers_result import TwoDOutliersResult, TwoDOutliersStudyConfig
 from src.side_area_panel.modules.dp_2d_outliers.dp_2d_outliers_ui import TwoDOutliers
+from src.side_area_panel.modules.dp_arrange.dp_arrange_main import dp_arrange_main
+from src.side_area_panel.modules.dp_arrange.dp_arrange_result import ArrangeColumnsResult, ArrangeColumnsStudyConfig
+from src.side_area_panel.modules.dp_arrange.dp_arrange_ui import ArrangeColumns
 from src.side_area_panel.modules.dp_bootstrap.dp_bootstrap_main import dp_bootstrap_main
 from src.side_area_panel.modules.dp_bootstrap.dp_bootstrap_result import BootstrapResult, BootstrapStudyConfig
 from src.side_area_panel.modules.dp_bootstrap.dp_bootstrap_ui import Bootstrap
@@ -293,6 +296,12 @@ def inject_classes_to_module_registry():
     ModuleRegistry.RESPONSE_QUALITY.value.config_class = ResponseQualityStudyConfig
     ModuleRegistry.RESPONSE_QUALITY.value.main_function = dp_response_quality_main
 
+    ModuleRegistry.ARRANGE_COLUMNS.value.ui_class = ArrangeColumns
+    ModuleRegistry.ARRANGE_COLUMNS.value.result_class = ArrangeColumnsResult
+    ModuleRegistry.ARRANGE_COLUMNS.value.config_class = ArrangeColumnsStudyConfig
+    ModuleRegistry.ARRANGE_COLUMNS.value.main_function = dp_arrange_main
+
+    # Deprecated (see registry.py); wired only so 1.2.7-and-earlier projects still load.
     ModuleRegistry.REORDER_COLUMNS.value.ui_class = ReorderColumns
     ModuleRegistry.REORDER_COLUMNS.value.result_class = ReorderColumnsResult
     ModuleRegistry.REORDER_COLUMNS.value.config_class = ReorderColumnsStudyConfig
