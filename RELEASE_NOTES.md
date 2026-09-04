@@ -16,6 +16,7 @@ r{
 
 ### StatPrism 1.2.8 (4 Sep 2026)
 
+* Descriptive: optional frequency table for ordinal variables (off by default; rows follow the ordinal order)
 * Project files: routed by module identity (not a positional index) so reordering/adding modules no longer breaks older saves; opening a project made with a newer StatPrism is now refused with a clear message
 * Project files: now saved as JSON + parquet (the raw dataset and each study's settings; results are recomputed on open). 1.2.8 still opens older pickle projects, so use it to re-save them in the new format - later versions will drop pickle
 * Heatmaps: color-bar width slider; tick font shrinks automatically when there are many categories

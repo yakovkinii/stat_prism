@@ -78,5 +78,14 @@ RESULTS: Dict[
 ] = {}
 
 
+# Monotonic so ids are never reused within a run. max()+1 alone would hand a freshly created study
+# the id of a just-deleted one, which breaks caches keyed by result_id (e.g. the Preprocess editor
+# kept the deleted study's settings). Also kept above any ids restored from a loaded project.
+_next_result_id = 1
+
+
 def get_unique_result_id():
-    return max(RESULTS.keys()) + 1 if len(RESULTS) > 0 else 1
+    global _next_result_id
+    candidate = max(_next_result_id, (max(RESULTS.keys()) + 1) if RESULTS else 1)
+    _next_result_id = candidate + 1
+    return candidate

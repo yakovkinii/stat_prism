@@ -275,6 +275,42 @@ def recalculate_descriptive_study(elements, result: DescriptiveResult, update) -
                 )
             result.update_and_add_element(freq, f"descriptive freq {col}")
 
+    # ----- Ordinal frequency tables (optional) -----
+    # Ordinal columns get quantitative treatment above, but can also have a nominal-style frequency
+    # table -- built from the original labels (df holds numeric codes for ordinal) with the rows in
+    # the column's defined ordinal order. Off by default.
+    if cfg.frequency_table_ordinal:
+        ordinal_columns = [col for col in selected_columns if data[col].column_type == ColumnType.ORDINAL]
+        for col in ordinal_columns:
+            labels = data[col].data_series  # original labels, same row order as df
+
+            def _ordered_labels(vc, column=col):
+                return vc.reindex(data.ordered_categories(column, list(vc.index)))
+
+            if grouping_column is None:
+                value_counts = labels.dropna().value_counts()
+                if value_counts.empty:
+                    continue
+                freq = get_frequency_table(
+                    caption=t("descriptive.freq.caption", col=col),
+                    value_counts=_ordered_labels(value_counts),
+                )
+            else:
+                group_counts = [
+                    (gv, _ordered_labels(labels[(df[grouping_column] == gv).to_numpy()].dropna().value_counts()))
+                    for gv in groupby_values
+                ]
+                if all(vc.empty for _, vc in group_counts):
+                    continue
+                freq = get_grouped_frequency_table(
+                    caption=t("descriptive.freq.caption", col=col),
+                    groupby_column=grouping_column,
+                    col=col,
+                    group_counts=group_counts,
+                    verbal=prose_enabled(cfg.interpretation),
+                )
+            result.update_and_add_element(freq, f"descriptive freq ordinal {col}")
+
     # ----- Plots -----
     update(30)
     bin_width = _parse_positive_float(cfg.bin_width)

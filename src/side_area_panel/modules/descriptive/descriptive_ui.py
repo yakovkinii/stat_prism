@@ -65,6 +65,11 @@ def _has_categories(kwargs):
     return not types or bool(types & {ColumnType.ORDINAL, ColumnType.NOMINAL})
 
 
+def _has_ordinal(kwargs):
+    types = _selected_variable_types(kwargs)
+    return not types or ColumnType.ORDINAL in types
+
+
 class Elements(ItemInSidePanelWithAutoConfigHolder):
     data_source = IISPWACDataSource()
     column_selector = IISPWACColumnSelector(
@@ -93,6 +98,9 @@ class Elements(ItemInSidePanelWithAutoConfigHolder):
     )
     frequency_table = IISPWACCheckBox(
         label_text="Categorical frequency table", default_state=True, visible_when=_has_categorical
+    )
+    frequency_table_ordinal = IISPWACCheckBox(
+        label_text="Ordinal frequency table", default_state=False, visible_when=_has_ordinal
     )
     show_normality = IISPWACCheckBox(label_text="Normality test", default_state=True, visible_when=_has_quantitative)
     normality_test = IISPWACComboBox(

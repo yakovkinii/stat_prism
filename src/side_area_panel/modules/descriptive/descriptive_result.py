@@ -31,6 +31,7 @@ class DescriptiveStudyConfig:
     # Tables
     extended_stats = attrs.field(default=None)
     frequency_table = attrs.field(default=None)
+    frequency_table_ordinal = attrs.field(default=None)
     show_normality = attrs.field(default=None)
     normality_test = attrs.field(default=None)
     verbal_indicators = attrs.field(default=None)  # in-table verbal columns (e.g. "Normal?")

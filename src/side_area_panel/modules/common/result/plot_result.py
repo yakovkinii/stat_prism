@@ -715,7 +715,7 @@ class PlotV2(BaseResultElement):
         # Many categories crowd the tick labels (heatmap rows/cols, or a categorical x axis), so
         # shrink the default tick font as the count grows past ~10. A saved/user value still overrides.
         category_counts = [max(len(it.df.columns), len(it.df.index)) for it in self.items if isinstance(it, Heatmap)]
-        if x_axis_items:
+        if x_axis_items is not None and len(x_axis_items):
             category_counts.append(len(x_axis_items))
         max_categories = max(category_counts) if category_counts else 0
         if max_categories > 10:
