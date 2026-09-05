@@ -61,11 +61,6 @@
 #    nuitka-project: --file-version={APP_VERSION}
 #    nuitka-project: --product-version={APP_VERSION}
 
-# pre-import because dynamic import causes crashes on win11
-from PySide6.QtWebEngineWidgets import QWebEngineView
-
-_ = QWebEngineView
-
 
 def _setup_logging(level=None):
     """Send logs to a single file that is overwritten on each launch (the packaged app runs with

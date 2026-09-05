@@ -82,9 +82,6 @@ from src.side_area_panel.modules.dp_outliers.dp_outliers_ui import Outliers
 from src.side_area_panel.modules.dp_preprocess.dp_preprocess_main import dp_preprocess_main
 from src.side_area_panel.modules.dp_preprocess.dp_preprocess_result import PreprocessResult, PreprocessStudyConfig
 from src.side_area_panel.modules.dp_preprocess.dp_preprocess_ui import Preprocess
-from src.side_area_panel.modules.dp_reorder.dp_reorder_main import dp_reorder_main
-from src.side_area_panel.modules.dp_reorder.dp_reorder_result import ReorderColumnsResult, ReorderColumnsStudyConfig
-from src.side_area_panel.modules.dp_reorder.dp_reorder_ui import ReorderColumns
 from src.side_area_panel.modules.dp_response_quality.dp_response_quality_main import dp_response_quality_main
 from src.side_area_panel.modules.dp_response_quality.dp_response_quality_result import (
     ResponseQualityResult,
@@ -300,9 +297,3 @@ def inject_classes_to_module_registry():
     ModuleRegistry.ARRANGE_COLUMNS.value.result_class = ArrangeColumnsResult
     ModuleRegistry.ARRANGE_COLUMNS.value.config_class = ArrangeColumnsStudyConfig
     ModuleRegistry.ARRANGE_COLUMNS.value.main_function = dp_arrange_main
-
-    # Deprecated (see registry.py); wired only so 1.2.7-and-earlier projects still load.
-    ModuleRegistry.REORDER_COLUMNS.value.ui_class = ReorderColumns
-    ModuleRegistry.REORDER_COLUMNS.value.result_class = ReorderColumnsResult
-    ModuleRegistry.REORDER_COLUMNS.value.config_class = ReorderColumnsStudyConfig
-    ModuleRegistry.REORDER_COLUMNS.value.main_function = dp_reorder_main

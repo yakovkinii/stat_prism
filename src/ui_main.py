@@ -30,8 +30,6 @@ _TICKS = 14
 from PySide6 import QtWidgets
 
 _tick(1, _TICKS)
-from PySide6.QtWebEngineWidgets import QWebEngineView
-
 _tick(2, _TICKS)
 from PySide6.QtWidgets import QStackedWidget, QWidget
 
@@ -207,17 +205,10 @@ class MainWindowClass(QtWidgets.QMainWindow):
             pass
 
     def init_web_view_and_show_maximized(self, file_path=None):
-        webview = QWebEngineView(self.central_widget)
-        self.central_widget_layout.addWidget(webview)
-        webview.setHtml("dummy")
-
         # Apply the dark title bar *before* the first show so the frame is created dark
         # (setting it only after show leaves it light until a manual resize).
         self._apply_dark_titlebar()
         self.showMaximized()
-
-        self.central_widget_layout.removeWidget(webview)
-        webview.deleteLater()
 
         # Opened via command line / file association (double-click an .sp). The path
         # comes from the launcher's sys.argv[1]; resolve it to an absolute path before

@@ -67,14 +67,25 @@ def check_openable(meta):
     return file_version
 
 
+def _migrate_reorder_to_arrange(project_dict):
+    """1.3.0 removed the deprecated Reorder Columns module. Convert any such saved step into an
+    Arrange Columns step so the project still loads. The old block-move can't be mapped to a full
+    column order exactly, so it becomes a pass-through (empty order) -- the study stays in the chain,
+    in natural order, for the user to redo if needed."""
+    for entry in project_dict.get("results", []):
+        if entry.get("module") == "REORDER_COLUMNS":
+            entry["module"] = "ARRANGE_COLUMNS"
+            old_config = entry.get("config") or {}
+            entry["config"] = {"data_source": old_config.get("data_source"), "order": []}
+    return project_dict
+
+
 # Ordered converters on the JSON project dict, one per version that changed the save shape -- patch
 # (``c``) bumps included, not only breaking (``b``) ones. Each is ``(version_it_upgrades_TO, fn)``,
 # a pure ``project_dict -> project_dict``. On load, every converter whose target is above the file's
-# version and not above this build's is applied in version order. Empty for now (1.2.8 is the first
-# JSON version); e.g. 1.3.0 will add one that converts any Reorder Columns step into Arrange Columns.
+# version and not above this build's is applied in version order.
 _MIGRATIONS = [
-    # ("1.2.9", _migrate_1_2_8_to_1_2_9),
-    # ("1.3.0", _migrate_1_2_x_to_1_3_0),
+    ("1.3.0", _migrate_reorder_to_arrange),
 ]
 
 

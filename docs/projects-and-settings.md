@@ -6,10 +6,10 @@ A StatPrism **project** (`.sp` file) stores your imported dataset and every step
 with its settings; the results are recomputed from those when you reopen it.
 
 ```{note}
-Projects are saved in a new format (JSON + parquet) from version 1.2.8. That version still opens
-projects saved by older versions, so open an old project once and **Save** it to convert it; some
-later version will stop reading the old format. Opening a project saved by a *newer* version than
-you have installed is not supported — update StatPrism first.
+Projects use a JSON + parquet format (since version 1.2.8). Projects saved by versions **before
+1.2.8** use the old format, which this version no longer opens — open such a project once in
+**version 1.2.8** and **Save** it to convert it, then it will open here. Opening a project saved by a
+*newer* version than you have installed is also not supported — update StatPrism first.
 ```
 
 - **File ▸ Save** — save to the current project file.
