@@ -109,6 +109,16 @@ def read_plot_theme(fallback: str = "Default") -> str:
     return read_ui_value("plot_theme", fallback)
 
 
+def read_ui_scale(default: float = 1.0) -> float:
+    """The user's UI zoom factor (applied via QT_SCALE_FACTOR at startup). Clamped to a sane range;
+    an unreadable/garbage value falls back to the default."""
+    try:
+        scale = float(read_ui_value("ui_scale", str(default)))
+    except ValueError:
+        return default
+    return min(3.0, max(0.5, scale))
+
+
 def read_auto_recalculate(default: bool = False) -> bool:
     value = read_ui_value("auto_recalculate", "true" if default else "false").strip().lower()
     if value == "true":
