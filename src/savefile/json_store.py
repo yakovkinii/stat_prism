@@ -108,6 +108,50 @@ def _config_from_dict(config_class, config_dict):
     return backfill_config(config_class(**kwargs))
 
 
+def _set_setting_value(setting, value):
+    if hasattr(setting, "current_value"):
+        setting.current_value = value
+    elif hasattr(setting, "current_color"):
+        setting.current_color = value
+
+
+def _serialize_element_settings(element):
+    values = {}
+    value_settings = getattr(element, "_value_settings", None)
+    if callable(value_settings):
+        for index, setting in enumerate(value_settings()):
+            if setting.is_modified():
+                values[str(index)] = setting.get_current_value()
+    caption = getattr(element, "table_caption", None)
+    if caption is not None and caption.is_modified():
+        values["caption"] = caption.get_current_value()
+    return values or None
+
+
+def _apply_element_settings(element, values):
+    value_settings = getattr(element, "_value_settings", None)
+    if callable(value_settings):
+        settings = value_settings()
+        for index, setting in enumerate(settings):
+            if str(index) in values:
+                _set_setting_value(setting, values[str(index)])
+    caption = getattr(element, "table_caption", None)
+    if caption is not None and "caption" in values:
+        _set_setting_value(caption, values["caption"])
+
+
+def reapply_element_settings(result) -> bool:
+    saved = getattr(result, "_saved_element_settings", None)
+    if not saved:
+        return False
+    applied = False
+    for name, element in getattr(result, "old_result_elements", {}).items():
+        if name in saved:
+            _apply_element_settings(element, saved[name])
+            applied = True
+    return applied
+
+
 def _serialize_data(data):
     """A raw dataset -> (DataFrame of values, per-column metadata). Columns are keyed positionally
     (c0, c1, ...) so duplicate display names don't collide in the parquet frame."""
@@ -184,6 +228,13 @@ def save_project_json(file_path, data_manager, results, meta):
         inline_filters = getattr(result, "inline_filters", None)
         if inline_filters:
             entry["inline_filters"] = [attrs.asdict(f) for f in inline_filters]
+        element_settings = {}
+        for name, element in getattr(result, "old_result_elements", {}).items():
+            values = _serialize_element_settings(element)
+            if values:
+                element_settings[name] = values
+        if element_settings:
+            entry["element_settings"] = element_settings
         project["results"].append(entry)
 
         if result_id == data_manager.raw_data_result_id and getattr(result, "data", None) is not None:
@@ -247,6 +298,7 @@ def load_project_json(temp_dir, file_version=None):
         inline_filters = entry.get("inline_filters")
         if inline_filters:
             result.inline_filters = [_config_from_dict(FilterDataStudyConfig, f) for f in inline_filters]
+        result._saved_element_settings = entry.get("element_settings") or {}
         if result_id == raw_data_result_id and raw_data is not None:
             result.data = raw_data
         results[result_id] = result
