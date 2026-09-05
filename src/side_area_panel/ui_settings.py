@@ -24,7 +24,7 @@ from PySide6.QtCore import QUrl
 from PySide6.QtGui import QAction, QDesktopServices
 from PySide6.QtWidgets import QMenu, QMenuBar, QProgressBar, QVBoxLayout
 
-from src.common.config import write_ui_value
+from src.common.config import read_ui_scale, write_ui_value
 from src.common.constant import SettingsPanelSize
 from src.common.languages import LANGUAGE, Languages
 from src.common.theme import THEME, Themes
@@ -96,6 +96,7 @@ class SettingsPanelClass:
         language_menu = QMenu("Language", self.widget)
         plot_theme_menu = QMenu("Plot theme", self.widget)
         ui_theme_menu = QMenu("UI theme", self.widget)
+        ui_scale_menu = QMenu("UI scale", self.widget)
         help_menu = QMenu("Help", self.widget)
 
         # ----- File menu: documents | recalculate | exit ----- (handlers wired below)
@@ -150,6 +151,18 @@ class SettingsPanelClass:
             ui_theme_menu.addAction(ui_action)
             self.ui_theme_actions[ui_name] = ui_action
 
+        # UI scale (zoom): scales the whole interface, on top of Windows' display scaling. Persisted
+        # to statprism.ini and applied on the next start (it's a startup-only Qt scale factor).
+        current_scale = read_ui_scale()
+        self.ui_scale_actions = {}
+        for scale in (0.75, 0.9, 1.0, 1.1, 1.25, 1.5, 1.75, 2.0):
+            scale_action = QAction(f"{int(round(scale * 100))}%", self.widget)
+            scale_action.setCheckable(True)
+            scale_action.setChecked(abs(scale - current_scale) < 1e-3)
+            scale_action.triggered.connect(lambda _checked=False, s=scale: self.set_ui_scale(s))
+            ui_scale_menu.addAction(scale_action)
+            self.ui_scale_actions[scale] = scale_action
+
         # Auto-recalculate governs ANALYSES only: when on (default), changing an upstream study
         # recomputes every analysis immediately; when off, analyses are only flagged (their
         # Refresh button turns an alarm color) until recalculated. Data-processing studies always
@@ -165,6 +178,8 @@ class SettingsPanelClass:
         settings_menu.addMenu(plot_theme_menu)
         settings_menu.addSeparator()
         settings_menu.addMenu(ui_theme_menu)
+        settings_menu.addSeparator()
+        settings_menu.addMenu(ui_scale_menu)
         settings_menu.addSeparator()
         settings_menu.addAction(self.auto_recalculate_action)
 
@@ -227,6 +242,18 @@ class SettingsPanelClass:
             self.widget,
             "UI theme",
             "The UI theme will change the next time you start StatPrism.",
+        )
+
+    def set_ui_scale(self, scale: float):
+        """Persist the UI zoom factor to statprism.ini. It applies on the next start (it's a Qt
+        startup scale factor), so prompt the user."""
+        write_ui_value("ui_scale", f"{scale:g}")
+        for candidate, action in self.ui_scale_actions.items():
+            action.setChecked(candidate == scale)
+        QtWidgets.QMessageBox.information(
+            self.widget,
+            "UI scale",
+            "The UI scale will change the next time you start StatPrism.",
         )
 
     def set_auto_recalculate(self, enabled: bool):

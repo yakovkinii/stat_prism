@@ -83,14 +83,6 @@ class ModuleRegistry(Enum):
         module_type=ModuleType.DATA_PROCESSING,
     )
 
-    # DEPRECATED: superseded by Arrange Columns. Kept for 1.2.8 only so projects saved with 1.2.7
-    # or earlier still load; to be removed in 1.3.0 (with a save-file migration to Arrange Columns).
-    REORDER_COLUMNS = ModuleRegistryItem(
-        display_name="Reorder Columns",
-        icon_path="mdi6.table-edit",
-        module_type=ModuleType.DATA_PROCESSING,
-    )
-
     # Derive a new column -- shared icon.
     FORMULA = ModuleRegistryItem(
         display_name="Formula Column",

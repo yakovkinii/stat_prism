@@ -14,6 +14,14 @@ r{
 
 
 
+### StatPrism 1.3.0 (4 Sep 2026)
+
+* Project files: figure and table display settings (colors, fonts, axis titles, sizes, ...) are now saved with the project and restored on open
+* Project files: dropped the old pickle format. Projects saved before 1.2.8 must be opened in 1.2.8 and re-saved first; this version tells you so if you try to open one
+* Removed Reorder Columns (use Arrange Columns); an old project's Reorder step is converted to a pass-through Arrange step on load
+* Removed the QtWebEngine dependency (it was unused), for a smaller, simpler build
+
+
 ### StatPrism 1.2.8 (4 Sep 2026)
 
 * Descriptive: optional frequency table for ordinal variables (off by default; rows follow the ordinal order)

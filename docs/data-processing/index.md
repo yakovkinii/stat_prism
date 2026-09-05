@@ -26,7 +26,6 @@ preprocess
 transform
 calculate-scale
 arrange
-reorder
 invert-scale
 formula
 group

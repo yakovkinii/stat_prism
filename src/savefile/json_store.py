@@ -82,30 +82,12 @@ def _known_fields(config_class):
     return {name for name in params if name != "self"}
 
 
-def backfill_config(config):
-    """DEPRECATED SHIM (remove in 1.3.0, once a proper save-file migration exists): fill in attrs
-    config fields that an older save predates, so newer code that reads them does not hit an
-    AttributeError. Uses each field's own default (None for our configs)."""
-    cls = type(config)
-    if not attrs.has(cls):
-        return config
-    for field in attrs.fields(cls):
-        if not hasattr(config, field.name):
-            default = field.default
-            if default is attrs.NOTHING:
-                default = None
-            elif isinstance(default, attrs.Factory):
-                default = default.factory()
-            setattr(config, field.name, default)
-    return config
-
-
 def _config_from_dict(config_class, config_dict):
-    """Build a config from a saved dict: keep only fields the class knows (forward-compatible with
-    newer saves), then backfill any this save predates."""
+    """Build a config from a saved dict, keeping only the fields the class knows. Unknown keys (from
+    a newer save) are dropped; fields the save predates fall back to the attrs class defaults."""
     known = _known_fields(config_class)
     kwargs = {key: value for key, value in (config_dict or {}).items() if key in known}
-    return backfill_config(config_class(**kwargs))
+    return config_class(**kwargs)
 
 
 def _set_setting_value(setting, value):

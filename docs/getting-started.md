@@ -69,6 +69,10 @@ several **plot themes** (**Settings ▸ Plot theme**), and has a light/dark **UI
 (**Settings ▸ UI theme**). Changing the language or plot theme rebuilds your results to
 match. See {doc}`projects-and-settings`.
 
+If the interface looks too small or too large on your screen — displays and Windows'
+own scaling vary a lot — use **Settings ▸ UI scale** to zoom the whole interface (this is on top
+of Windows' display scaling). It applies the next time you start StatPrism.
+
 ## Saving your work
 
 Use **File ▸ Save** / **Save As…** to store everything — the data, every processing step,

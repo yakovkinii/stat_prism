@@ -95,7 +95,7 @@ class Home(BasePanel):
         # Project metadata: StatPrism version + the active theme / language, so the
         # project reopens in the look & language it was saved with. Saved in the JSON+parquet form
         # (see savefile.json_store); the raw dataset and configs are stored and everything else is
-        # recomputed on load. Older pickle projects still open (see home_initial.load_file).
+        # recomputed on load.
         meta = {
             "version": version,
             "theme": THEME.name(),

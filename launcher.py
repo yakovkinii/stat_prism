@@ -61,11 +61,6 @@
 #    nuitka-project: --file-version={APP_VERSION}
 #    nuitka-project: --product-version={APP_VERSION}
 
-# pre-import because dynamic import causes crashes on win11
-from PySide6.QtWebEngineWidgets import QWebEngineView
-
-_ = QWebEngineView
-
 
 def _setup_logging(level=None):
     """Send logs to a single file that is overwritten on each launch (the packaged app runs with
@@ -127,6 +122,14 @@ if __name__ == "__main__":
         # Match the window chrome (title bar) to the active UI theme. Must be set before the
         # QApplication is constructed.
         os.environ.setdefault("QT_QPA_PLATFORM", f"windows:darkmode={'2' if IS_DARK_THEME else '0'}")
+
+    # User UI zoom: scales the whole interface (fonts and all widget sizes) on top of Windows' own
+    # display scaling. Applied via QT_SCALE_FACTOR, which must be set before the QApplication exists.
+    from src.common.config import read_ui_scale
+
+    _ui_scale = read_ui_scale()
+    if abs(_ui_scale - 1.0) > 1e-3:
+        os.environ.setdefault("QT_SCALE_FACTOR", f"{_ui_scale:g}")
 
     app = QApplication(sys.argv)
     pixmap = QPixmap(":/mat/resources/splash.png")
