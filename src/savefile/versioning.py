@@ -76,7 +76,7 @@ def _migrate_reorder_to_arrange(project_dict):
         if entry.get("module") == "REORDER_COLUMNS":
             entry["module"] = "ARRANGE_COLUMNS"
             old_config = entry.get("config") or {}
-            entry["config"] = {"data_source": old_config.get("data_source"), "order": []}
+            entry["config"] = {"data_source": old_config.get("data_source") or "Auto", "order": []}
     return project_dict
 
 
