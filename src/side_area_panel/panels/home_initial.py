@@ -31,7 +31,7 @@ from src.common.messages import MessageType
 from src.common.theme import THEME, Themes
 from src.data.data_manager import DATA_MANAGER
 from src.pyside_ext.elements.button_large import LargeButton
-from src.savefile.json_store import backfill_config, load_project_json
+from src.savefile.json_store import backfill_config, load_project_json, reapply_element_settings
 from src.savefile.versioning import IncompatibleProjectError, check_openable
 from src.side_area_panel.blueprint.registry import PanelRegistry
 from src.side_area_panel.modules.common.result.registry import RESULTS, get_unique_result_id
@@ -177,6 +177,9 @@ class HomeInitial(BasePanel):
             main_area = self.root_class.main_area_panel
             if is_json_project or main_area.auto_recalculate:
                 main_area.recompute_all()
+                for result in list(RESULTS.values()):
+                    if reapply_element_settings(result):
+                        main_area.refresh_result(result_id=result.unique_id)
             else:
                 main_area.mark_all_stale()
 
