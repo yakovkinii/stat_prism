@@ -111,12 +111,16 @@ def _transform_column(new_data, column_name, spec, rename):
 
     # 3. Ordering (ordinal only); explicit order expressed over the mapped values.
     if ctype == ColumnType.ORDINAL:
-        col.order = {}
-        for raw in spec.get("order") or []:
-            value = mapping.get(raw, raw)
-            value = value if pd.isna(value) else str(value)
-            if value not in col.order:
-                col.order[value] = len(col.order) + 1
+        # Only (re)build the order from an explicit one; otherwise keep the upstream order
+        # (automatically_update_order fills only the values that lack a position). See the same
+        # note in dp_preprocess_main.
+        if spec.get("order"):
+            col.order = {}
+            for raw in spec["order"]:
+                value = mapping.get(raw, raw)
+                value = value if pd.isna(value) else str(value)
+                if value not in col.order:
+                    col.order[value] = len(col.order) + 1
         col.automatically_update_order()
     else:
         col.order = {}

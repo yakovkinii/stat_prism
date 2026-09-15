@@ -38,6 +38,9 @@ class BaseResult:
         # Settings panel index for activating the result
         self.settings_panel_index: int = ...
         self.config = ...
+        # Non-rendered numeric result (NumericResult), set by studies migrated to the
+        # compute -> transpile split; None for studies that still build HTML directly.
+        self.numeric = None
         self.needs_update: bool = False
         # Per-analysis inline filters (Filter configs owned by this study, not chain members).
         # Analyses populate this; other result types leave it empty. See modules.common.inline_filter.

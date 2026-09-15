@@ -87,16 +87,19 @@ def dp_preprocess_main(elements: Elements, result: PreprocessResult, update):
             col.data_series = col.data_series.apply(lambda v: v if pd.isna(v) else str(v))
             col.column_dtype = "str"
 
-        # 3. Ordering (ordinal only). The data is now string labels, so the explicit order
-        #    (expressed over the mapped values) is stringified to match; missing entries are
-        #    auto-filled in natural order.
+        # 3. Ordering (ordinal only). Only (re)build the order when the user gave an explicit one
+        #    (expressed over the mapped values, stringified to match the now-string labels).
+        #    Otherwise keep the column's existing/upstream order: automatically_update_order fills
+        #    positions only for values that lack one, so a brand-new ordinal gets a natural order
+        #    while an upstream custom order is preserved rather than reset to natural.
         if ctype == ColumnType.ORDINAL:
-            col.order = {}
-            for raw in spec.get("order") or []:
-                value = mapping.get(raw, raw)
-                value = value if pd.isna(value) else str(value)
-                if value not in col.order:
-                    col.order[value] = len(col.order) + 1
+            if spec.get("order"):
+                col.order = {}
+                for raw in spec["order"]:
+                    value = mapping.get(raw, raw)
+                    value = value if pd.isna(value) else str(value)
+                    if value not in col.order:
+                        col.order[value] = len(col.order) + 1
             col.automatically_update_order()
         else:
             col.order = {}
@@ -109,8 +112,11 @@ def dp_preprocess_main(elements: Elements, result: PreprocessResult, update):
             col.rename(target)
         assigned.add(target)
 
-        # 5. Colour tag (data-viewer header / column-selector background). None clears it.
-        col.color = spec.get("color")
+        # 5. Colour tag (data-viewer header / column-selector background). Only override when the
+        #    spec carries an explicit "color" key; without one the upstream tag is left as-is (the
+        #    "no change" default). An explicit None clears the tag.
+        if "color" in spec:
+            col.color = spec["color"]
 
     new_data.update_lookups()
     if cast_failed:

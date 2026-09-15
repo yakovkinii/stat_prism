@@ -75,10 +75,11 @@ class OverlayPopup(QWidget):
         super().closeEvent(event)
 
 
-def show_color_picker(anchor_widget, on_choose) -> OverlayPopup:
-    """Centered pastel-swatch palette plus a 'None' (reset) button. Calls `on_choose(color)`
+def show_color_picker(anchor_widget, on_choose, on_keep=None) -> OverlayPopup:
+    """Centered pastel-swatch palette plus a 'None' (clear) button. Calls `on_choose(color)`
     with a hex string or None, then closes. Shared by the preprocess editor and the
-    IISPWACColorPicker element."""
+    IISPWACColorPicker element. When `on_keep` is given, also shows a 'No change' button that
+    calls `on_keep()` (used where a colour can inherit from upstream rather than be set)."""
     holder = {}
     content = QFrame()
     set_stylesheet(
@@ -105,6 +106,19 @@ def show_color_picker(anchor_widget, on_choose) -> OverlayPopup:
     none_button = QPushButton("None", content)
     none_button.clicked.connect(lambda _=False: choose(None))
     grid.addWidget(none_button, (len(PASTEL_PALETTE) // per_row) + 1, 0, 1, per_row)
+
+    if on_keep is not None:
+
+        def keep():
+            on_keep()
+            popup = holder.get("popup")
+            if popup is not None:
+                popup.close()
+
+        keep_button = QPushButton("No change", content)
+        keep_button.setToolTip("Follow the upstream color (remove this study's override)")
+        keep_button.clicked.connect(lambda _=False: keep())
+        grid.addWidget(keep_button, (len(PASTEL_PALETTE) // per_row) + 2, 0, 1, per_row)
 
     holder["popup"] = OverlayPopup(anchor_widget, content)
     return holder["popup"]

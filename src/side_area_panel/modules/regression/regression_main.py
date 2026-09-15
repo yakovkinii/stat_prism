@@ -398,6 +398,9 @@ def recalculate_regression_study(elements, result: RegressionResult, update) -> 
 
     # ----- Model fit table + verbal report -----
     fit_table = HTMLTableV2(table_caption=t("regression.caption.fit"))
+    # Name the outcome (SPSS-style note): it is otherwise only in the truncated title context,
+    # and a long column name would bloat a table column -- a wrapping note stays readable.
+    fit_table.table_note = t("regression.note.dependent", dv=dependent_column)
     fit_header = [
         Cell(),
         Cell(t("regression.col.n"), center=True),
@@ -730,6 +733,9 @@ def _run_logistic(result, df, dependent_column, independent_columns, moderator_c
 
     # ----- Model fit table (pseudo-R², likelihood-ratio test) -----
     fit_table = HTMLTableV2(table_caption=t("regression.caption.fit"))
+    # Name the outcome (SPSS-style note): it is otherwise only in the truncated title context,
+    # and a long column name would bloat a table column -- a wrapping note stays readable.
+    fit_table.table_note = t("regression.note.dependent", dv=dependent_column)
     fit_header = [
         Cell(),
         Cell(t("regression.col.n"), center=True),
@@ -871,6 +877,9 @@ def _run_multinomial(result, df, dependent_column, independent_columns, moderato
 
     # ----- Model fit table (pseudo-R², likelihood-ratio test) -----
     fit_table = HTMLTableV2(table_caption=t("regression.caption.fit"))
+    # Name the outcome (SPSS-style note): it is otherwise only in the truncated title context,
+    # and a long column name would bloat a table column -- a wrapping note stays readable.
+    fit_table.table_note = t("regression.note.dependent", dv=dependent_column)
     fit_header = [
         Cell(),
         Cell(t("regression.col.n"), center=True),
