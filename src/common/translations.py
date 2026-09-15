@@ -816,6 +816,7 @@ TRANSLATIONS = {
     "regression.caption.fit": {"en": "Model fit", "ua": "Якість моделі"},
     "regression.caption.coefficients": {"en": "Coefficients", "ua": "Коефіцієнти"},
     "regression.caption.paths": {"en": "Path estimates", "ua": "Оцінки шляхів"},
+    "regression.note.dependent": {"en": "Dependent variable: {dv}", "ua": "Залежна змінна: {dv}"},
     "regression.row.model": {"en": "Model", "ua": "Модель"},
     "regression.row.intercept": {"en": "Intercept", "ua": "Вільний член"},
     "regression.col.n": {"en": "N", "ua": "N"},

@@ -21,6 +21,7 @@ import attrs
 from src.common.translations import t
 from src.pyside_ext.markup import HTML
 from src.pyside_ext.styling import Style
+from src.side_area_panel.modules.common.result.numeric_result import NumericResult
 from src.side_area_panel.modules.common.result.registry import BaseResult
 
 
@@ -35,6 +36,26 @@ class ReliabilityStudyConfig:
     verbal_indicators = attrs.field(default=None)
     interpretation = attrs.field(default=None)
     number_columns = attrs.field(default=None)
+
+
+@attrs.define
+class ReliabilityItemStat:
+    name: str
+    item_rest: float
+    alpha_deleted: float
+    # nan when McDonald's omega is off (it drives whether omega-if-deleted is computed at all).
+    omega_deleted: float = float("nan")
+
+
+@attrs.define
+class ReliabilityNumericResult(NumericResult):
+    scale_name: str = ""
+    n_items: int = 0
+    alpha: float = float("nan")
+    # nan when omega is off; also the full-scale omega the if-deleted comparisons are made against.
+    omega: float = float("nan")
+    items: list = attrs.field(factory=list)
+    error: str = ""
 
 
 class ReliabilityResult(BaseResult):

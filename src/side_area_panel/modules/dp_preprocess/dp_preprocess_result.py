@@ -56,18 +56,26 @@ class PreprocessResult(BaseResult):
         self.data = Data([])
 
     def update_description(self):
+        # Only edited columns are stored now (untouched ones are dropped), so the summary counts
+        # the changes rather than the total column count.
         specs = self.config.columns or []
+        if not specs:
+            self.description = "No changes"
+            return
         renamed = [s for s in specs if (s.get("new_name") or "").strip()]
         mapped = [s for s in specs if s.get("mapping") and any(f != t for f, t in s["mapping"])]
         ordered = [s for s in specs if s.get("order")]
+        recolored = [s for s in specs if "color" in s]
         removed = [s for s in specs if s.get("remove")]
-        parts = [f"Columns: {len(specs)}"]
+        parts = [f"Edited columns: {len(specs)}"]
         if renamed:
             parts.append(f"Renamed: {len(renamed)}")
         if mapped:
             parts.append(f"Mapped: {len(mapped)}")
         if ordered:
             parts.append(f"Reordered: {len(ordered)}")
+        if recolored:
+            parts.append(f"Recolored: {len(recolored)}")
         if removed:
             parts.append(f"Removed: {len(removed)}")
         self.description = "<br>".join(parts)

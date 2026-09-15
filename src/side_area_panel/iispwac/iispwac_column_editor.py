@@ -126,6 +126,7 @@ class IISPWACColumnEditor(ItemInSidePanelWithAutoConfig):
         self.specs = {}  # original_name -> spec dict
         self.unique_values = {}  # original_name -> sorted list of (python) unique values
         self.original_types = {}  # original_name -> the column's original ColumnType value
+        self.original_colors = {}  # original_name -> the column's upstream colour ("no change" baseline)
         self.cards = []  # per-column widget bundles, in column order
         self.order = []  # current column order (original names)
         self._built_columns = None
@@ -154,6 +155,9 @@ class IISPWACColumnEditor(ItemInSidePanelWithAutoConfig):
 
         self.order = [col.column_name for col in columns]
         self.original_types = {col.column_name: col.column_type.value for col in columns}
+        self.original_colors = {
+            col.column_name: (col.color if isinstance(col.color, str) and col.color else None) for col in columns
+        }
         self.unique_values = {}
         specs = {}
         for col in columns:
@@ -185,9 +189,10 @@ class IISPWACColumnEditor(ItemInSidePanelWithAutoConfig):
         return values
 
     def _spec_from(self, saved, col, uniques):
-        # The column may already carry a color tag from upstream; keep it unless overridden.
         default_color = col.color if isinstance(col.color, str) and col.color else None
         if saved is None:
+            # No saved entry -> a default spec with no colour override (the "no change" state: the
+            # column keeps whatever tag upstream gives it).
             return {
                 "original": col.column_name,
                 "new_name": "",
@@ -195,24 +200,45 @@ class IISPWACColumnEditor(ItemInSidePanelWithAutoConfig):
                 "order": None,
                 "mapping": None,
                 "remove": False,
-                "color": default_color,
             }
         order = [v for v in (saved.get("order") or []) if v in uniques]
         if order:
             order = order + [v for v in uniques if v not in order]
         mapping = [[f, t] for f, t in (saved.get("mapping") or []) if f in uniques]
-        return {
+        spec = {
             "original": col.column_name,
             "new_name": saved.get("new_name") or "",
             "type": saved.get("type") if saved.get("type") in _TYPES else col.column_type.value,
             "order": order or None,
             "mapping": mapping or None,
             "remove": bool(saved.get("remove", False)),
-            "color": saved.get("color", default_color),
         }
+        # A colour is an override only when it was saved AND differs from the upstream tag. This both
+        # migrates legacy saves (which stored every column's upstream colour as a no-op) and lets an
+        # explicit clear (None over an upstream colour) round-trip as a real override.
+        if "color" in saved and saved.get("color") != default_color:
+            spec["color"] = saved.get("color")
+        return spec
 
     def get_kwargs(self):
-        return {self.name: [self.specs[name] for name in self.order if name in self.specs]}
+        specs = [self.specs[name] for name in self.order if name in self.specs]
+        # Drop untouched columns entirely: the editor rebuilds a default spec for any column with no
+        # saved entry, so persisting them only bloats the JSON (and would needlessly pin an ordinal's
+        # order / a column's type & colour to their snapshot values).
+        return {self.name: [s for s in specs if not self._is_default_spec(s)]}
+
+    def _is_default_spec(self, spec) -> bool:
+        if spec.get("remove"):
+            return False
+        if (spec.get("new_name") or "").strip():
+            return False
+        if self._has_mapping(spec):
+            return False
+        if spec.get("order"):
+            return False
+        if "color" in spec:  # any explicit colour override (set or cleared)
+            return False
+        return spec.get("type") == self.original_types.get(spec.get("original"))
 
     def _rebuild(self, columns):
         while self.layout.count():
@@ -358,14 +384,20 @@ class IISPWACColumnEditor(ItemInSidePanelWithAutoConfig):
         card = self._card(name)
         if card is None or card.get("color_button") is None:
             return
-        color = self.specs.get(name, {}).get("color")
         button = card["color_button"]
-        if isinstance(color, str) and color:
-            set_stylesheet(button, css(background=color, border="1px solid gray"))
-        else:
-            set_stylesheet(
-                button, css(background=Style.Color.BackgroundEdit, border=f"1px dashed {Style.Color.BorderElevated}")
-            )
+        spec = self.specs.get(name, {})
+        overridden = "color" in spec
+        effective = spec["color"] if overridden else self.original_colors.get(name)
+        # Solid border = the colour is overridden for this study; dashed = inherited from upstream
+        # ("no change"). The swatch shows the effective colour (neutral fill for none).
+        border = f"2px solid {Style.Color.Text}" if overridden else f"1px dashed {Style.Color.BorderElevated}"
+        background = effective if (isinstance(effective, str) and effective) else Style.Color.BackgroundEdit
+        set_stylesheet(button, css(background=background, border=border))
+        button.setToolTip(
+            "Column color tag: overridden for this study (click to change, or reset to no change)"
+            if overridden
+            else "Column color tag: no change (inherits the upstream color); click to override"
+        )
 
     def _changed(self):
         if self._suppress:
@@ -399,7 +431,7 @@ class IISPWACColumnEditor(ItemInSidePanelWithAutoConfig):
         spec["order"] = None
         spec["mapping"] = None
         spec["remove"] = False
-        spec["color"] = None
+        spec.pop("color", None)  # back to "no change" (follow upstream), not an explicit clear
 
         card = self._card(name)
         if card is not None:
@@ -424,7 +456,10 @@ class IISPWACColumnEditor(ItemInSidePanelWithAutoConfig):
         spec = self.specs[name]
 
         spec["type"] = previous["type"]
-        spec["color"] = previous.get("color")
+        if "color" in previous:
+            spec["color"] = previous["color"]
+        else:
+            spec.pop("color", None)
         if previous["mapping"]:
             spec["mapping"] = [[f, t] for f, t in previous["mapping"] if f in uniques] or None
         if previous["order"]:
@@ -440,14 +475,25 @@ class IISPWACColumnEditor(ItemInSidePanelWithAutoConfig):
         self._changed()
 
     def _open_color_picker(self, name):
-        """Pick a pastel color tag for the column (or None to clear)."""
+        """Pick a colour tag for the column. Choosing the upstream colour (or "No change") drops the
+        override so the column follows upstream; "None" is an explicit clear, kept as an override
+        only when the column actually has an upstream colour to clear."""
+        original = self.original_colors.get(name)
 
         def choose(color):
-            self.specs[name]["color"] = color
+            if color == original:
+                self.specs[name].pop("color", None)  # same as upstream -> no override
+            else:
+                self.specs[name]["color"] = color
             self._apply_color_button(name)
             self._changed()
 
-        show_color_picker(self.widget, choose)
+        def keep():
+            self.specs[name].pop("color", None)
+            self._apply_color_button(name)
+            self._changed()
+
+        show_color_picker(self.widget, choose, on_keep=keep)
 
     def _open_order(self, name):
         natural = list(self.unique_values.get(name, []))

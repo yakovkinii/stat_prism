@@ -221,6 +221,14 @@ if __name__ == "__main__":
 
         logging.error("".join(tb.format_exception(exctype, value, traceback)))
 
+        # Best-effort: capture the very latest state so the crash-recovery prompt on the next start
+        # restores work done since the last autosave tick.
+        if main_win is not None:
+            try:
+                main_win.autosave.perform_autosave()
+            except Exception:
+                pass
+
         # Call the normal Exception hook after
         sys._excepthook(exctype, value, traceback)
 

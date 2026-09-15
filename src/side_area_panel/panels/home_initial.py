@@ -30,6 +30,7 @@ from src.common.messages import MessageType
 from src.common.theme import THEME, Themes
 from src.data.data_manager import DATA_MANAGER
 from src.pyside_ext.elements.button_large import LargeButton
+from src.savefile.autosave import autosave_dir
 from src.savefile.json_store import load_project_json, reapply_element_settings
 from src.savefile.versioning import IncompatibleProjectError, check_openable
 from src.side_area_panel.blueprint.registry import PanelRegistry
@@ -90,57 +91,10 @@ class HomeInitial(BasePanel):
             with tempfile.TemporaryDirectory() as temp_dir:
                 with zipfile.ZipFile(file_path, "r") as zipf:
                     zipf.extractall(temp_dir)
-
-                # Refuse projects saved by a newer, incompatible version (see savefile.versioning).
-                meta_path = f"{temp_dir}/meta.json"
-                meta = {}
-                if os.path.exists(meta_path):
-                    with open(meta_path, encoding="utf-8") as f:
-                        meta = json.load(f)
-                check_openable(meta)
-
-                # Legacy pickle projects (StatPrism <= 1.2.7) are no longer supported. 1.2.8 reads
-                # both formats and saves JSON, so route the user through it to upgrade.
-                if meta.get("storage") != "json":
-                    raise IncompatibleProjectError(
-                        "This project was saved in the old (pickle) format, which this version no "
-                        "longer opens. Open it in StatPrism 1.2.8 and use File > Save to convert it "
-                        "to the current format, then open it here."
-                    )
-
-                # Restore the saved theme & language before the results render, so they
-                # appear in the project's look and language.
-                if meta:
-                    self._apply_project_meta(meta)
-
-                # Route each saved result to its module by the identity of its config object (a
-                # stable class), not by a positional settings-panel index -- so adding/reordering
-                # modules never mis-routes a project.
-                config_to_module = {
-                    module.value.config_class: module.value
-                    for module in ModuleRegistry
-                    if module.value.config_class is not None
-                }
-                add_by_type = {
-                    ModuleType.RAW_DATA: self.root_class.main_area_panel.add_raw_data,
-                    ModuleType.DATA_PROCESSING: self.root_class.main_area_panel.add_data_processing,
-                    ModuleType.DATA_ANALYSIS: self.root_class.main_area_panel.add_data_analysis,
-                }
-
-                # JSON+parquet form: rebuild studies from configs, restore the raw dataset, and
-                # recompute the rest (derived studies are not stored).
-                results, raw_data_result_id, data_chain = load_project_json(temp_dir, meta.get("version"))
-                for result in results.values():
-                    module = config_to_module.get(type(result.config))
-                    if module is None:
-                        logging.warning("Skipping study with unknown config %s", type(result.config))
-                        continue
-                    result.settings_panel_index = module.settings_stacked_widget_index
-                    RESULTS[result.unique_id] = result
-                    add_by_type[module.module_type](result.unique_id)
-                DATA_MANAGER.raw_data_result_id = raw_data_result_id
-                DATA_MANAGER.data_chain = list(data_chain)
-
+                self._restore_json_project(temp_dir, self._read_meta(temp_dir))
+            # Remember the project file so the next Save writes back to it (and the title bar
+            # shows it).
+            self.root_class.set_current_file_path(file_path)
         else:
             module = ModuleRegistry.RAW_DATA.value
 
@@ -153,27 +107,87 @@ class HomeInitial(BasePanel):
             self.root_class.main_area_panel.add_raw_data(result_id=result_id)
             module.ui_instance.configure(result_id=result_id)
             ModuleRegistry.RAW_DATA.ui_instance.open_file(file_path)
-
-        # A project stores only the raw dataset + configs, so its studies are always recomputed.
-        if file_path.endswith(".sp"):
-            main_area = self.root_class.main_area_panel
-            main_area.recompute_all()
-            for result in list(RESULTS.values()):
-                if reapply_element_settings(result):
-                    main_area.refresh_result(result_id=result.unique_id)
-
-        # Remember the project file so the next Save writes back to it (and the title bar
-        # shows it). A raw data import is not a project, so clear the path -> Save acts as
-        # Save As, prompting for a new .sp.
-        if file_path.endswith(".sp"):
-            self.root_class.set_current_file_path(file_path)
-        else:
+            # A raw data import is not a project, so clear the path -> Save acts as Save As.
             self.root_class.set_current_file_path(None)
 
         # A freshly loaded project (or freshly imported file) has no unsaved changes yet,
         # even though building its cards marked the session dirty.
         self.root_class.clear_dirty()
+        # The raw dataset was (re)established -> the crash-recovery snapshot must rewrite its parquet.
+        self.root_class.autosave.mark_raw_changed()
 
+        self.root_class.action_activate_panel_by_index(PanelRegistry.HOME.settings_stacked_widget_index)
+
+    def _read_meta(self, directory) -> dict:
+        meta_path = f"{directory}/meta.json"
+        if os.path.exists(meta_path):
+            with open(meta_path, encoding="utf-8") as f:
+                return json.load(f)
+        return {}
+
+    def _restore_json_project(self, directory, meta: dict):
+        """Rebuild the session from an extracted JSON project directory -- shared by opening a .sp
+        and by crash recovery. Refuses newer / legacy-pickle files, applies the saved theme &
+        language before results render, routes each study to its module by config-object identity
+        (a stable class, not a positional index) so adding/reordering modules never mis-routes a
+        project, restores the raw dataset, then recomputes the derived studies (only the raw dataset
+        and configs are stored) and reapplies per-element display settings."""
+        # Refuse projects saved by a newer, incompatible version (see savefile.versioning).
+        check_openable(meta)
+
+        # Legacy pickle projects (StatPrism <= 1.2.7) are no longer supported. 1.2.8 reads both
+        # formats and saves JSON, so route the user through it to upgrade.
+        if meta.get("storage") != "json":
+            raise IncompatibleProjectError(
+                "This project was saved in the old (pickle) format, which this version no "
+                "longer opens. Open it in StatPrism 1.2.8 and use File > Save to convert it "
+                "to the current format, then open it here."
+            )
+
+        if meta:
+            self._apply_project_meta(meta)
+
+        config_to_module = {
+            module.value.config_class: module.value
+            for module in ModuleRegistry
+            if module.value.config_class is not None
+        }
+        add_by_type = {
+            ModuleType.RAW_DATA: self.root_class.main_area_panel.add_raw_data,
+            ModuleType.DATA_PROCESSING: self.root_class.main_area_panel.add_data_processing,
+            ModuleType.DATA_ANALYSIS: self.root_class.main_area_panel.add_data_analysis,
+        }
+
+        results, raw_data_result_id, data_chain = load_project_json(directory, meta.get("version"))
+        for result in results.values():
+            module = config_to_module.get(type(result.config))
+            if module is None:
+                logging.warning("Skipping study with unknown config %s", type(result.config))
+                continue
+            result.settings_panel_index = module.settings_stacked_widget_index
+            RESULTS[result.unique_id] = result
+            add_by_type[module.module_type](result.unique_id)
+        DATA_MANAGER.raw_data_result_id = raw_data_result_id
+        DATA_MANAGER.data_chain = list(data_chain)
+
+        main_area = self.root_class.main_area_panel
+        main_area.recompute_all()
+        for result in list(RESULTS.values()):
+            if reapply_element_settings(result):
+                main_area.refresh_result(result_id=result.unique_id)
+
+    def recover_autosave(self):
+        """Restore the crash-recovery snapshot into a live session. The restored work is marked
+        unsaved (it postdates the last real save), and Save targets the original project file when
+        the snapshot recorded one."""
+        directory = str(autosave_dir())
+        meta = self._read_meta(directory)
+        self.root_class.main_area_panel.clear_all()
+        self._restore_json_project(directory, meta)
+        self.root_class.set_current_file_path(meta.get("source_path"))
+        # Recovered work has not been saved to a real project file yet.
+        self.root_class.mark_dirty()
+        self.root_class.autosave.mark_raw_changed()
         self.root_class.action_activate_panel_by_index(PanelRegistry.HOME.settings_stacked_widget_index)
 
     def _apply_project_meta(self, meta: dict):

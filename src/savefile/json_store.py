@@ -181,8 +181,10 @@ def _deserialize_data(df, columns_meta):
     return Data(columns)
 
 
-def save_project_json(file_path, data_manager, results, meta):
-    """Write ``results`` + ``data_manager`` to ``file_path`` in the JSON+parquet form."""
+def _build_project_dict(data_manager, results) -> dict:
+    """The chain + per-study module/title/config (plus inline filters and per-element display
+    settings) as a JSON-safe dict. This is the whole project *except* the raw dataset, which is
+    stored separately in parquet."""
     config_to_module_name = {
         module.value.config_class: module.name for module in ModuleRegistry if module.value.config_class is not None
     }
@@ -192,9 +194,6 @@ def save_project_json(file_path, data_manager, results, meta):
         "data_chain": list(data_manager.data_chain),
         "results": [],
     }
-    raw_df = None
-    raw_columns_meta = None
-
     for result_id, result in results.items():
         module_name = config_to_module_name.get(type(result.config))
         if module_name is None:
@@ -218,22 +217,39 @@ def save_project_json(file_path, data_manager, results, meta):
         if element_settings:
             entry["element_settings"] = element_settings
         project["results"].append(entry)
+    return project
 
-        if result_id == data_manager.raw_data_result_id and getattr(result, "data", None) is not None:
-            raw_df, raw_columns_meta = _serialize_data(result.data)
 
+def write_project_bundle(directory, data_manager, results, meta, write_raw=True) -> list:
+    """Write the project as loose files into ``directory`` (the unzipped form of a ``.sp``):
+    ``meta.json`` and ``project.json`` always; ``raw.parquet`` + ``raw_columns.json`` only when
+    ``write_raw``. Autosave passes ``write_raw=False`` on ticks where the raw dataset is unchanged,
+    so only the two small JSON files are rewritten and the heavy parquet is left in place. Returns
+    the member filenames written. Shared by :func:`save_project_json` (which then zips them) and by
+    the crash-recovery autosave (which leaves them loose)."""
+    project = _build_project_dict(data_manager, results)
     stored_meta = {**meta, "storage": "json"}
-    with tempfile.TemporaryDirectory() as temp_dir:
-        with open(f"{temp_dir}/meta.json", "w", encoding="utf-8") as file:
-            json.dump(stored_meta, file, ensure_ascii=False, indent=2)
-        with open(f"{temp_dir}/project.json", "w", encoding="utf-8") as file:
-            json.dump(project, file, ensure_ascii=False, indent=2, default=_json_default)
-        members = ["meta.json", "project.json"]
-        if raw_columns_meta:
-            raw_df.to_parquet(f"{temp_dir}/raw.parquet")
-            with open(f"{temp_dir}/raw_columns.json", "w", encoding="utf-8") as file:
+    with open(f"{directory}/meta.json", "w", encoding="utf-8") as file:
+        json.dump(stored_meta, file, ensure_ascii=False, indent=2)
+    with open(f"{directory}/project.json", "w", encoding="utf-8") as file:
+        json.dump(project, file, ensure_ascii=False, indent=2, default=_json_default)
+    members = ["meta.json", "project.json"]
+
+    if write_raw:
+        raw_result = results.get(data_manager.raw_data_result_id)
+        if raw_result is not None and getattr(raw_result, "data", None) is not None:
+            raw_df, raw_columns_meta = _serialize_data(raw_result.data)
+            raw_df.to_parquet(f"{directory}/raw.parquet")
+            with open(f"{directory}/raw_columns.json", "w", encoding="utf-8") as file:
                 json.dump(raw_columns_meta, file, ensure_ascii=False, indent=2, default=_json_default)
             members += ["raw.parquet", "raw_columns.json"]
+    return members
+
+
+def save_project_json(file_path, data_manager, results, meta):
+    """Write ``results`` + ``data_manager`` to ``file_path`` as a zipped JSON+parquet ``.sp``."""
+    with tempfile.TemporaryDirectory() as temp_dir:
+        members = write_project_bundle(temp_dir, data_manager, results, meta, write_raw=True)
         with zipfile.ZipFile(file_path, "w", zipfile.ZIP_DEFLATED) as zipf:
             for member in members:
                 zipf.write(f"{temp_dir}/{member}", member)

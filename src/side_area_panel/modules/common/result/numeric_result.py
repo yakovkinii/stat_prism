@@ -16,4 +16,11 @@
 #  StatPrism.  If not, see <https://www.gnu.org/licenses/>.
 
 
-version = "1.3.1"
+# Base for a study's non-rendered numeric result: the exact values a study computed, decoupled
+# from any HTML. A study's *_main computes one of these (a pure, headless step, no Qt), then a
+# transpiler turns it into rendered result elements. Headless tests read the numbers straight off
+# it and compare them to numeric benchmarks, instead of diffing localized, rounded HTML. Subclasses
+# are attrs data classes holding the study's coefficients plus `error`: a non-empty message means
+# the study could not compute, and the transpiler renders only that message.
+class NumericResult:
+    error = ""

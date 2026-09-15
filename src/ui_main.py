@@ -68,6 +68,8 @@ from src.side_area_panel.ui_settings import SettingsPanelClass
 
 _tick(14, _TICKS)
 
+from src.savefile.autosave import AutoSaveManager
+
 
 class MainWindowClass(QtWidgets.QMainWindow):
     """
@@ -82,6 +84,11 @@ class MainWindowClass(QtWidgets.QMainWindow):
         # Dirty = there are changes since the last save / load. Drives the unsaved-changes
         # prompt on New / Open / window close.
         self.dirty = False
+
+        # Crash-recovery autosave (a single rolling snapshot in the app-data folder). Created before
+        # any panel so an early mark_dirty always has it; its timers start here, and the recovery
+        # prompt for a previous crash is offered on first show.
+        self.autosave = AutoSaveManager(self)
 
         # Setup
         self.widget = self  # split class and widget for clarity
@@ -228,9 +235,35 @@ class MainWindowClass(QtWidgets.QMainWindow):
                 return
             if file_path.endswith(".sp"):
                 self.set_current_file_path(file_path)
+        else:
+            self._maybe_offer_recovery()
+
+    def _maybe_offer_recovery(self):
+        """After a crash the previous session's autosave snapshot survives; offer to restore it.
+        Only reached on a plain launch (no file opened via the command line / file association)."""
+        if not self.autosave.has_recoverable():
+            return
+        box = QtWidgets.QMessageBox(self)
+        box.setIcon(QtWidgets.QMessageBox.Icon.Question)
+        box.setWindowTitle("Recover session")
+        box.setText("StatPrism didn't close properly last time. Restore your last session?")
+        restore_button = box.addButton("Restore", QtWidgets.QMessageBox.ButtonRole.AcceptRole)
+        box.addButton("Discard", QtWidgets.QMessageBox.ButtonRole.DestructiveRole)
+        box.setDefaultButton(restore_button)
+        box.exec()
+        if box.clickedButton() is restore_button:
+            try:
+                PanelRegistry.HOME_INITIAL.ui_instance.recover_autosave()
+                return
+            except Exception:
+                logging.exception("Autosave recovery failed")
+                QtWidgets.QMessageBox.warning(self, "Recover session", "Could not restore the last session.")
+        # Declined or failed: drop the stale snapshot so it is not offered again next start.
+        self.autosave.clear_files()
 
     def mark_dirty(self):
         self.dirty = True
+        self.autosave.notify_changed()
 
     def clear_dirty(self):
         self.dirty = False
@@ -267,6 +300,10 @@ class MainWindowClass(QtWidgets.QMainWindow):
 
     def closeEvent(self, event):
         if self.confirm_discard_if_dirty():
+            # A clean exit: stop autosave and drop the snapshot, so the next start does not mistake
+            # it for a crash.
+            self.autosave.stop()
+            self.autosave.clear_files()
             event.accept()
         else:
             event.ignore()
