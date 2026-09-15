@@ -16,4 +16,4 @@
 #  StatPrism.  If not, see <https://www.gnu.org/licenses/>.
 
 
-version = "1.3.0"
+version = "1.3.1"

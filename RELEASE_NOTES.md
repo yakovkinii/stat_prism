@@ -12,6 +12,15 @@ r{
 
 # StatPrism Release Notes
 
+### StatPrism 1.3.1 (15 Sep 2026)
+
+* Automatic crash recovery: StatPrism keeps a background snapshot of your session and, if it did not close properly last time, offers to restore it on the next start. Can be turned off in Settings
+* Regression: the results now state the dependent variable (a note under the model-fit table), so the analysis is unambiguous even when column names are long
+* Preprocess: columns you did not change are no longer written into the project file - smaller saves, and an untouched column now follows upstream changes instead of being pinned to its old type/color
+* Preprocess: a column's color tag now defaults to "no change" (it inherits the upstream color); the color button shows whether it is overridden for this study, and the picker has a "No change" option to remove an override
+* Fixed: Preprocess and Transform Column no longer reset an ordinal column's custom category order when you edit the column for another reason or leave its order untouched
+
+
 
 
 ### StatPrism 1.3.0 (4 Sep 2026)

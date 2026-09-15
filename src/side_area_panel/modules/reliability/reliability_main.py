@@ -199,7 +199,11 @@ def transpile_reliability(result: ReliabilityResult, numeric: ReliabilityNumeric
     coef_table.add_single_row_apa(Row(alpha_row))
 
     report = t(
-        "reliability.report.main", scale=numeric.scale_name, n=numeric.n_items, level=level_word, alpha=format_r_apa(alpha)
+        "reliability.report.main",
+        scale=numeric.scale_name,
+        n=numeric.n_items,
+        level=level_word,
+        alpha=format_r_apa(alpha),
     )
 
     if show_omega:
