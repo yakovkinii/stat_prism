@@ -12,6 +12,13 @@ r{
 
 # StatPrism Release Notes
 
+### StatPrism 1.3.2 (16 Sep 2026)
+
+* Fixed: settings (UI theme, UI scale, language, autosave, ...) were not being saved on installed builds - the config file could not be written next to the app. Settings are now stored per-user under %LOCALAPPDATA%/StatPrism and persist reliably
+* Crash logs are now kept under a unique name (statprism-crash-<timestamp>.log) instead of being overwritten by the next launch, so a crash can still be diagnosed afterwards
+* UI scale: added an 80% option
+
+
 ### StatPrism 1.3.1 (15 Sep 2026)
 
 * Automatic crash recovery: StatPrism keeps a background snapshot of your session and, if it did not close properly last time, offers to restore it on the next start. Can be turned off in Settings

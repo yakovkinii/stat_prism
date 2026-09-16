@@ -155,7 +155,7 @@ class SettingsPanelClass:
         # to statprism.ini and applied on the next start (it's a startup-only Qt scale factor).
         current_scale = read_ui_scale()
         self.ui_scale_actions = {}
-        for scale in (0.75, 0.9, 1.0, 1.1, 1.25, 1.5, 1.75, 2.0):
+        for scale in (0.75, 0.8, 0.9, 1.0, 1.1, 1.25, 1.5, 1.75, 2.0):
             scale_action = QAction(f"{int(round(scale * 100))}%", self.widget)
             scale_action.setCheckable(True)
             scale_action.setChecked(abs(scale - current_scale) < 1e-3)
