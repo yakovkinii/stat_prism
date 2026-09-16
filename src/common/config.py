@@ -30,26 +30,36 @@ def _env_override(key: str):
     return os.environ.get(f"STATPRISM_{key.upper()}")
 
 
+def _user_ini_path() -> Path:
+    # Per-user, always-writable location. An installed app's own directory (cwd) is often read-only
+    # (e.g. Program Files), so writing the ini there silently fails and nothing persists. Mirrors the
+    # launcher log and the autosave folder under %LOCALAPPDATA%/StatPrism.
+    base = os.environ.get("LOCALAPPDATA") or os.path.expanduser("~")
+    return Path(base) / "StatPrism" / _INI_NAME
+
+
 def _ini_candidates() -> list:
-    # Next to the running app (cwd) first, then the repository root (for source runs).
-    return [Path.cwd() / _INI_NAME, Path(__file__).resolve().parents[2] / _INI_NAME]
+    # Read order: the per-user ini we write to, then a portable ini next to the app (cwd), then the
+    # repository root (for source runs).
+    return [_user_ini_path(), Path.cwd() / _INI_NAME, Path(__file__).resolve().parents[2] / _INI_NAME]
+
+
+def _writable_ini_path() -> Path:
+    # Always write to the per-user location so settings persist even when the app directory is
+    # read-only (the source of the "settings not saved / no ini anywhere" reports).
+    return _user_ini_path()
 
 
 def _create_default_ini() -> None:
-    try:  # writing can fail on a read-only install dir; a missing config is non-fatal
-        _ini_candidates()[0].write_text(
+    path = _writable_ini_path()
+    try:  # writing can still fail (e.g. no home dir); a missing config is non-fatal
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(
             f"[ui]\n# UI color theme: light or dark\ntheme = {_DEFAULT_THEME}\n",
             encoding="utf-8",
         )
     except Exception:
         pass
-
-
-def _writable_ini_path() -> Path:
-    for path in _ini_candidates():
-        if path.is_file():
-            return path
-    return _ini_candidates()[0]
 
 
 def read_theme_name() -> str:
@@ -94,7 +104,8 @@ def write_ui_value(key: str, value: str) -> None:
     if not parser.has_section("ui"):
         parser.add_section("ui")
     parser.set("ui", key, value)
-    try:  # the install dir can be read-only; failing to persist a setting is non-fatal
+    try:  # failing to persist a setting is non-fatal (e.g. no home dir)
+        path.parent.mkdir(parents=True, exist_ok=True)
         with path.open("w", encoding="utf-8") as handle:
             parser.write(handle)
     except Exception:

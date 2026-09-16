@@ -210,13 +210,18 @@ if __name__ == "__main__":
 
     logging.info(f"Version: {version}")
 
+    # Stdlib helpers used by the crash hook below. Kept module-level; `traceback` is imported as
+    # `tb` because the hook's own `traceback` parameter would otherwise shadow the module.
+    import shutil
+    import traceback as tb
+    from datetime import datetime
+    from pathlib import Path
+
     # Back up the reference to the exceptionhook
     sys._excepthook = sys.excepthook
     main_win = None
 
     def my_exception_hook(exctype, value, traceback):
-        import traceback as tb
-
         global win_main
 
         logging.error("".join(tb.format_exception(exctype, value, traceback)))
@@ -228,6 +233,20 @@ if __name__ == "__main__":
                 main_win.autosave.perform_autosave()
             except Exception:
                 pass
+
+        # Preserve this run's log under a unique name: the main log is truncated on every launch, so
+        # without this the crash log would be overwritten the next time StatPrism starts.
+        try:
+            for handler in logging.getLogger().handlers:
+                if isinstance(handler, logging.FileHandler):
+                    handler.flush()
+                    log_path = Path(handler.baseFilename)
+                    crash_path = log_path.with_name(f"statprism-crash-{datetime.now():%Y%m%d-%H%M%S}.log")
+                    shutil.copyfile(log_path, crash_path)
+                    logging.error("Crash log saved to %s", crash_path)
+                    break
+        except Exception:
+            pass
 
         # Call the normal Exception hook after
         sys._excepthook(exctype, value, traceback)
