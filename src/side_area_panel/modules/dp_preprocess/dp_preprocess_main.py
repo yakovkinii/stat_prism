@@ -87,12 +87,10 @@ def dp_preprocess_main(elements: Elements, result: PreprocessResult, update):
             col.data_series = col.data_series.apply(lambda v: v if pd.isna(v) else str(v))
             col.column_dtype = "str"
 
-        # 3. Ordering (ordinal only). Only (re)build the order when the user gave an explicit one
+        # 3. Ordering (ordinal / nominal). Only (re)build the order when the user gave an explicit one
         #    (expressed over the mapped values, stringified to match the now-string labels).
-        #    Otherwise keep the column's existing/upstream order: automatically_update_order fills
-        #    positions only for values that lack one, so a brand-new ordinal gets a natural order
-        #    while an upstream custom order is preserved rather than reset to natural.
-        if ctype == ColumnType.ORDINAL:
+        #    Otherwise keep the column's existing/upstream order.
+        if ctype in (ColumnType.ORDINAL, ColumnType.NOMINAL):
             if spec.get("order"):
                 col.order = {}
                 for raw in spec["order"]:

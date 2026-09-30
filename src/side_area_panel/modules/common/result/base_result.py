@@ -18,6 +18,7 @@
 
 from typing import Dict, List
 
+from src.common.constant import WARNING
 from src.common.translations import t
 from src.pyside_ext.markup import HTML
 from src.pyside_ext.styling import Style
@@ -52,8 +53,15 @@ class BaseResult:
         # Validation / status message for data-processing cards. Shown (red) in the card's
         # short summary when a step can't compute (e.g. no column selected); "" when fine.
         self.error_message = ""
+        # Non-fatal warnings (e.g. an ordinal column was treated as numeric). Rendered as an orange
+        # banner atop an analysis result (get_html) and as a compact orange icon on a DP card.
+        self.warnings: List[str] = []
 
         self.header = ""
+
+    def set_warning(self, message: str):
+        if message not in self.warnings:
+            self.warnings.append(message)
 
     def init_header(self, title):
         self.header = HTML.div(HTML.bold(title), font_size=Style.FontSize.regular)
@@ -104,8 +112,20 @@ class BaseResult:
     def rename_column(self, old_name, new_name):
         pass
 
+    def _warning_banner_html(self) -> str:
+        # Orange, non-fatal banner at the top of an analysis result (distinct from set_error, which
+        # replaces the output in red). Lists every warning raised while computing.
+        return HTML.div(
+            HTML.bold(f"{WARNING} " + "<br>".join(self.warnings)),
+            color=Style.Color.Warning.value,
+            font_size=Style.FontSize.smaller,
+        )
+
     def get_html(self):
-        htmls = [self.header]
+        htmls = []
+        if self.warnings:
+            htmls.append(self._warning_banner_html())
+        htmls.append(self.header)
         for element in self.result_elements:
             htmls.append(element.get_html())
         return "<br>".join(htmls)

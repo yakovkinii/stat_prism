@@ -20,7 +20,7 @@ import qtawesome as qta
 from PySide6 import QtCore
 from PySide6.QtCore import QSize, QTimer
 from PySide6.QtGui import Qt
-from PySide6.QtWidgets import QHBoxLayout, QSizePolicy, QTextBrowser, QVBoxLayout, QWidget
+from PySide6.QtWidgets import QHBoxLayout, QLabel, QSizePolicy, QTextBrowser, QVBoxLayout, QWidget
 
 from src.common.constant import TIMES, WARNING
 from src.common.decorators import log_method
@@ -135,6 +135,15 @@ class DataProcessingResultDisplay(BaseResultDisplay):
                 set_stylesheet(w, css(color=Style.Color.SecondaryText, font_size=Style.FontSize.smallest)),
                 w.clicked.connect(lambda: self.activate_result(self.result_id, None)),
             ],
+        )
+
+        # Compact status indicator: red = error, orange = warning; the full message shows on hover and
+        # in the expanded description. Hidden when the step is fine.
+        self.status_icon = widget_in_layout(
+            widget=QLabel(self.body_widget),
+            layout=self.body_layout,
+            alignment=Qt.AlignmentFlag.AlignVCenter,
+            setup=lambda w, l: [w.setVisible(False)],
         )
 
         # Enable/disable toggle for toggleable results (e.g. the Filter module). It sits to
@@ -340,19 +349,36 @@ class DataProcessingResultDisplay(BaseResultDisplay):
             # and the HTML entity becomes a real multiplication sign (the inline label renders
             # as plain text).
             inline = description.replace("<br>", " | ").replace("&times;", TIMES)
-        # A validation / status message (e.g. "Select a column") leads the summary in red so
-        # the user sees why a step produced no change.
+        # A validation / status message (e.g. "Select a column") or a non-fatal warning (e.g. an
+        # ordinal treated as numeric) leads the expanded summary -- red for an error, orange for a
+        # warning. The collapsed band relies on the compact status icon instead of inline text.
         error = getattr(result, "error_message", "")
+        warnings = getattr(result, "warnings", []) or []
         if error:
             error_html = HTML.div(HTML.bold(error), color=Style.Color.Danger.value)
             description = f"{error_html}<br>{description}" if description else error_html
-            inline = f"{WARNING} {error} | {inline}" if inline else f"{WARNING} {error}"
+        elif warnings:
+            warning_html = HTML.div(HTML.bold(f"{WARNING} " + "<br>".join(warnings)), color=Style.Color.Warning.value)
+            description = f"{warning_html}<br>{description}" if description else warning_html
         # Collapse any literal newlines/tabs (a plain-text QLabel would render them as hard
         # breaks) so the collapsed band always stays on a single line.
         inline = " ".join(inline.split())
         self.info.setText(description)
         self.info_inline.setText(inline)
+        self._update_status_icon(error, warnings)
         self._update_toggle()
+
+    def _update_status_icon(self, error, warnings):
+        if error:
+            self.status_icon.setPixmap(qta.icon("mdi6.alert-circle", color=Style.Color.Danger.value).pixmap(18, 18))
+            self.status_icon.setToolTip(error)
+            self.status_icon.setVisible(True)
+        elif warnings:
+            self.status_icon.setPixmap(qta.icon("mdi6.alert", color=Style.Color.Warning.value).pixmap(18, 18))
+            self.status_icon.setToolTip("\n".join(warnings))
+            self.status_icon.setVisible(True)
+        else:
+            self.status_icon.setVisible(False)
 
     def _update_toggle(self):
         if self.toggle_button is None:

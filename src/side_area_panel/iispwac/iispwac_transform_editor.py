@@ -289,13 +289,14 @@ class IISPWACTransformEditor(ItemInSidePanelWithAutoConfig):
         if self.spec is None:
             return
         is_ordinal = self.spec["type"] == ColumnType.ORDINAL.value
+        has_order = self.spec["type"] in (ColumnType.ORDINAL.value, ColumnType.NOMINAL.value)
         is_numeric = self.spec["type"] == ColumnType.NUMERIC.value
-        self.order_button.setVisible(is_ordinal)
+        self.order_button.setVisible(has_order)
         self.flip_row.setVisible(is_ordinal)
         self.normalize_row.setVisible(is_numeric)
         # Bold the action buttons when they carry a setting (replaces the old text summaries).
         self._style_action_button(self.map_button, self._has_mapping(self.spec))
-        self._style_action_button(self.order_button, is_ordinal and self.spec.get("order") is not None)
+        self._style_action_button(self.order_button, has_order and self.spec.get("order") is not None)
         self._apply_color_button()
 
     @staticmethod

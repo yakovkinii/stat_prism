@@ -39,10 +39,10 @@ class Elements(ItemInSidePanelWithAutoConfigHolder):
             ),
         ],
     )
-    drop_reference = IISPWACCheckBox(label_text="Drop reference category (for regression)", default_state=True)
+    drop_reference = IISPWACCheckBox(label_text="Drop reference category (for regression)", default_state=False)
     reference = IISPWACLongTextEdit(
         label_text="Reference category (blank = first):",
-        visible_when=lambda kwargs: bool(kwargs.get("drop_reference", True)),
+        visible_when=lambda kwargs: bool(kwargs.get("drop_reference", False)),
     )
 
 

@@ -176,5 +176,5 @@ r{
 * Plot theme and language are remembered between sessions (statprism.ini)
 * Interface translations (i18n) with language switching
 * Modules regrouped in the registry with shared, family-based icons
-* HTML snapshot test suite and an online user guide (Read the Docs)
+* Online user guide (Read the Docs)
 * Packaging prepared for Nuitka-built Windows executables

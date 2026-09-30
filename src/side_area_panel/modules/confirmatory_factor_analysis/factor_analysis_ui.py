@@ -88,10 +88,19 @@ class ConfirmatoryFactorAnalysis(BaseModulePanel):
 
     def _create_scale_studies(self):
         # Read the live factor assignments (one list of items per factor).
-        structure = self.elements_.get_kwargs().get("column_selector") or []
+        kwargs = self.elements_.get_kwargs()
+        structure = kwargs.get("column_selector") or []
+        data = DATA_MANAGER.get_data_from_data_label(
+            data_label=kwargs.get("data_source") or "Auto",
+            current_result_id=self.result_id,
+        )
         module = ModuleRegistry.CALCULATE_SCALE.value
         for factor_vars in structure:
-            questions = list(factor_vars or [])
+            questions = [
+                column
+                for column in (factor_vars or [])
+                if column in data.column_names() and data[column].column_type in (ColumnType.NUMERIC, ColumnType.ORDINAL)
+            ]
             if not questions:
                 continue
             result_id = get_unique_result_id()

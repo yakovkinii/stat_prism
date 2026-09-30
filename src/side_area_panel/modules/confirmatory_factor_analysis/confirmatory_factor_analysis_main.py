@@ -24,6 +24,7 @@ from scipy.stats import norm
 
 from src.common.decorators import log_function
 from src.common.translations import t
+from src.data.data import OrdinalCastError
 from src.data.data_manager import DATA_MANAGER
 from src.side_area_panel.modules.common.column_numbering import ColumnNumbering
 from src.side_area_panel.modules.common.prose import prose_enabled
@@ -41,8 +42,14 @@ from src.side_area_panel.modules.common.utility import (
     format_r_apa,
     format_statistic_apa,
     get_stars,
+    ordinal_cast_error_message,
+    ordinal_numeric_cast_warning,
 )
-from src.side_area_panel.modules.confirmatory_factor_analysis.cfa_semopy import OBJECTIVE_ML, CFASemopyEstimator
+from src.side_area_panel.modules.confirmatory_factor_analysis.cfa_semopy import (
+    OBJECTIVE_DWLS,
+    OBJECTIVE_ML,
+    CFASemopyEstimator,
+)
 from src.side_area_panel.modules.confirmatory_factor_analysis.confirmatory_factor_analysis_result import (
     CFAResult,
     CFAStudyConfig,
@@ -173,8 +180,20 @@ def recalculate_cfa_study(elements, result: CFAResult, update) -> CFAResult:
         data_label=cfg.data_source,
         current_result_id=result.unique_id,
     )
-    # Ordinal items are scored numerically so Likert scales are usable.
-    df = data.get_dataframe(columns=unique_vars, map_ordinal=True)
+    result.warnings = []
+    # DWLS/WLSMV is a true-ordinal estimator: it works on the ordinal order codes. Every other
+    # estimator (ML) treats ordinals numerically via their face values (error on non-numeric
+    # categories, warn that they were cast).
+    is_ordinal_estimator = (getattr(cfg, "estimator", None) or OBJECTIVE_ML) == OBJECTIVE_DWLS
+    if is_ordinal_estimator:
+        df = data.get_dataframe(columns=unique_vars, map_ordinal=True)
+    else:
+        try:
+            df, cast = data.get_numeric_face_dataframe(unique_vars)
+        except OrdinalCastError as error:
+            return _fail(result, ordinal_cast_error_message(error.column_name))
+        if cast:
+            result.set_warning(ordinal_numeric_cast_warning(cast))
     df = df.select_dtypes(include=[np.number]).astype(float).dropna(axis=0)
     if df.shape[1] < 2 or any(len([v for v in fv if v in df.columns]) < 2 for fv in structure):
         return _fail(result, t("cfa.error.min_per_factor"))

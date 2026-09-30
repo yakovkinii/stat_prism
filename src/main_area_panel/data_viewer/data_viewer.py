@@ -19,6 +19,7 @@
 import math
 
 import numpy as np
+import pandas as pd
 from PySide6 import QtCore, QtGui
 from PySide6.QtWidgets import (
     QAbstractItemView,
@@ -39,6 +40,7 @@ from src.common.constant import (
     COLUMN_TYPE_ICONS_ON_DARK,
     COLUMN_TYPE_ICONS_ON_LIGHT,
     ColumnType,
+    MDASH,
     is_light_color,
 )
 from src.data.data import Data
@@ -65,11 +67,11 @@ def _format_cell(value, sig_figs: int = 5) -> str:
     """Display formatter for the data grid: floats are shown to at most `sig_figs`
     significant figures, but never coarser than the ones place (the integer part is kept
     intact and only the fractional part is rounded). Ints / strings are shown verbatim;
-    NaN shows blank."""
+    NaN shows an em dash."""
     if isinstance(value, (float, np.floating)):
         x = float(value)
         if math.isnan(x):
-            return ""
+            return MDASH
         if math.isinf(x) or x == 0:
             return "0" if x == 0 else str(x)
         magnitude = math.floor(math.log10(abs(x)))
@@ -81,6 +83,8 @@ def _format_cell(value, sig_figs: int = 5) -> str:
         if "." in text:
             text = text.rstrip("0").rstrip(".")
         return text
+    if value is None or (not isinstance(value, str) and pd.isna(value)):
+        return MDASH
     return str(value)
 
 

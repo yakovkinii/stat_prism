@@ -18,9 +18,14 @@
 
 import pandas as pd
 
+from src.common.constant import ColumnType
 from src.common.decorators import log_function
 from src.data.data_manager import DATA_MANAGER
-from src.side_area_panel.modules.common.utility import unique_name
+from src.side_area_panel.modules.common.utility import (
+    ordinal_numeric_cast_warning,
+    smart_comma_join,
+    unique_name,
+)
 from src.side_area_panel.modules.dp_invert_scale.dp_invert_scale_result import InvertScaleResult
 from src.side_area_panel.modules.dp_invert_scale.dp_invert_scale_ui import Elements
 
@@ -35,12 +40,36 @@ def dp_invert_scale_main(elements: Elements, result: InvertScaleResult, update):
     # Default to a pass-through so downstream stays valid while inputs are incomplete.
     result.data = data.copy()
     result.error_message = ""
+    result.warnings = []
 
     columns = cfg.column_selector[0]
     if columns in [None, []]:
         elements.column_selector.set_alert(0)
         result.error_message = "Select at least one column."
         return result
+
+    # Inverting a scale is only well-defined on a plain numeric scale. An ordinal with a custom order
+    # (order != numeric order of its labels) or non-numeric categories can't be inverted arithmetically
+    # -- refuse it rather than silently reverse by magnitude. Auto-inferred numeric ordinals are fine.
+    invalid = [
+        c
+        for c in columns
+        if data[c].column_type == ColumnType.ORDINAL and not data.order_matches_numeric_face(c)
+    ]
+    if invalid:
+        elements.column_selector.set_alert(0)
+        result.error_message = (
+            "Cannot invert ordinal column(s) with a custom order or non-numeric categories: "
+            + smart_comma_join([str(c) for c in invalid])
+            + ". Invert only plain numeric scales (or convert these to numeric first)."
+        )
+        return result
+
+    # Inverting reads ordinal columns via their numeric face values -> warn (consistent with the
+    # other modules that treat ordinals as numeric).
+    cast_ordinals = [c for c in columns if data[c].column_type == ColumnType.ORDINAL]
+    if cast_ordinals:
+        result.set_warning(ordinal_numeric_cast_warning(cast_ordinals))
 
     # All selected columns share one reference. Auto = (max + min) over the pooled
     # values of every selected column; a manual reference overrides it.

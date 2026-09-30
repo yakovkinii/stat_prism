@@ -18,12 +18,35 @@
 
 import pandas as pd
 
+from src.common.constant import ColumnType
 from src.common.decorators import log_function
 from src.data.data import DataColumn
 from src.data.data_manager import DATA_MANAGER
-from src.side_area_panel.modules.common.utility import apply_normalization, unique_name
+from src.side_area_panel.modules.common.utility import (
+    apply_normalization,
+    ordinal_numeric_cast_warning,
+    smart_comma_join,
+    unique_name,
+)
 from src.side_area_panel.modules.dp_calculate_scale.dp_calculate_scale_result import CalculateScaleResult
 from src.side_area_panel.modules.dp_calculate_scale.dp_calculate_scale_ui import Elements
+
+_ITEM_TYPES = (ColumnType.NUMERIC, ColumnType.ORDINAL)
+
+
+def _face_value_numeric(data, column_name):
+    """Numeric item values for Calculate Scale.
+
+    Ordinal columns are deliberately parsed from their displayed values, not from their internal
+    order codes. Empty strings / missing values become NaN and are handled by the missing-value
+    policy; non-empty, non-numeric labels are reported as invalid input.
+    """
+    series = data[column_name].data_series
+    numeric = pd.to_numeric(series, errors="coerce")
+    non_empty = series.notna() & (series.astype(str).str.strip() != "")
+    if bool((numeric.isna() & non_empty).any()):
+        return numeric, False
+    return numeric, True
 
 
 @log_function
@@ -36,6 +59,7 @@ def dp_calculate_scale_main(elements: Elements, result: CalculateScaleResult, up
     # Default to a pass-through so downstream stays valid while inputs are incomplete.
     result.data = data.copy()
     result.error_message = ""
+    result.warnings = []
 
     question_columns = cfg.column_selector[0] or []
     # Optional reverse-keyed items (second selector field); flipped first, then pooled in.
@@ -44,6 +68,42 @@ def dp_calculate_scale_main(elements: Elements, result: CalculateScaleResult, up
     if not all_item_columns:
         elements.column_selector.set_alert(0)
         result.error_message = "Select at least one item column."
+        return result
+
+    available = set(data.column_names())
+    invalid_type = [
+        column
+        for column in all_item_columns
+        if column not in available or data[column].column_type not in _ITEM_TYPES
+    ]
+    if invalid_type:
+        elements.column_selector.set_alert(0)
+        result.error_message = "Calculate Scale accepts numeric or ordinal item columns only."
+        return result
+
+    item_values = {}
+    invalid_values = []
+    for column in all_item_columns:
+        item_values[column], valid = _face_value_numeric(data, column)
+        if not valid:
+            invalid_values.append(column)
+    if invalid_values:
+        elements.column_selector.set_alert(0)
+        result.error_message = "Ordinal item values must be parseable as numbers: " + ", ".join(invalid_values)
+        return result
+
+    # Reverse-keying is an inversion, so it is only well-defined on a plain numeric scale: refuse a
+    # flipped ordinal that has a custom order (order != numeric order of its labels).
+    bad_flip = [
+        c for c in flipped_columns if data[c].column_type == ColumnType.ORDINAL and not data.order_matches_numeric_face(c)
+    ]
+    if bad_flip:
+        elements.column_selector.set_alert(1)
+        result.error_message = (
+            "Cannot reverse-key ordinal column(s) with a custom order: "
+            + smart_comma_join([str(c) for c in bad_flip])
+            + ". Reverse only plain numeric scales."
+        )
         return result
 
     scale_name = (cfg.name or "").strip()
@@ -57,14 +117,17 @@ def dp_calculate_scale_main(elements: Elements, result: CalculateScaleResult, up
         result.error_message = f"A column named '{scale_name}' already exists."
         return result
 
+    # Ordinal items are combined using their numeric face values -> warn (consistent with the other
+    # modules that treat ordinals as numeric).
+    cast_ordinals = [c for c in all_item_columns if data[c].column_type == ColumnType.ORDINAL]
+    if cast_ordinals:
+        result.set_warning(ordinal_numeric_cast_warning(cast_ordinals))
+
     # Reference for reverse-scoring: manual override, else (max + min) over the pooled values
     # of the reverse-keyed columns (same rule as the Invert Scale module).
     flip_reference = cfg.flip_reference
     if flipped_columns and flip_reference is None:
-        pooled = pd.concat(
-            [pd.to_numeric(data[column].data_series, errors="coerce") for column in flipped_columns],
-            ignore_index=True,
-        )
+        pooled = pd.concat([item_values[column] for column in flipped_columns], ignore_index=True)
         if not pooled.dropna().empty:
             flip_reference = pooled.max() + pooled.min()
 
@@ -72,8 +135,8 @@ def dp_calculate_scale_main(elements: Elements, result: CalculateScaleResult, up
         return flip_reference - series if flip_reference is not None else series
 
     # Build an aligned numeric frame of all items (raw questions + reverse-scored columns).
-    item_series = [pd.to_numeric(data[column].data_series, errors="coerce") for column in question_columns]
-    item_series += [_flip(pd.to_numeric(data[column].data_series, errors="coerce")) for column in flipped_columns]
+    item_series = [item_values[column] for column in question_columns]
+    item_series += [_flip(item_values[column]) for column in flipped_columns]
     items = pd.concat(item_series, axis=1)
 
     # Missing-value policy:
@@ -121,7 +184,10 @@ def dp_calculate_scale_main(elements: Elements, result: CalculateScaleResult, up
     if flipped_columns and replace_flipped and flip_reference is not None and action != "Delete":
         for column in flipped_columns:
             source = data[column]
-            source.data_series = _flip(pd.to_numeric(source.data_series, errors="coerce"))
+            source.data_series = _flip(item_values[column])
+            source.column_type = ColumnType.NUMERIC
+            source.is_numeric = True
+            source.column_dtype = "float"
             source.order = {}
             source.automatically_update_order()
 

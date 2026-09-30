@@ -28,6 +28,7 @@ from sklearn.metrics import silhouette_score
 from src.common.decorators import log_function
 from src.common.qcolor import Colors
 from src.common.translations import t
+from src.data.data import OrdinalCastError
 from src.data.data_manager import DATA_MANAGER
 from src.side_area_panel.modules.cluster_analysis.cluster_analysis_result import ClusterAnalysisResult, ClusterMethod
 from src.side_area_panel.modules.common.prose import prose_enabled
@@ -40,7 +41,13 @@ from src.side_area_panel.modules.common.result.plot_result import (
     Scatter,
     ScatterPlotConfig,
 )
-from src.side_area_panel.modules.common.utility import format_r_apa, format_statistic_apa, format_value_apa
+from src.side_area_panel.modules.common.utility import (
+    format_r_apa,
+    format_statistic_apa,
+    format_value_apa,
+    ordinal_cast_error_message,
+    ordinal_numeric_cast_warning,
+)
 
 
 def _fail(result: ClusterAnalysisResult, message: str) -> ClusterAnalysisResult:
@@ -68,6 +75,7 @@ def recalculate_cluster_analysis_study(elements, result: ClusterAnalysisResult, 
     are handled centrally by the panel's recalculate()."""
     cfg = result.config
     result.result_elements = []
+    result.warnings = []
 
     method = ClusterMethod(cfg.method)
 
@@ -81,8 +89,14 @@ def recalculate_cluster_analysis_study(elements, result: ClusterAnalysisResult, 
         current_result_id=result.unique_id,
     )
 
-    # Ordinal items are scored numerically so Likert scales are usable.
-    df = data.get_dataframe(columns=selected, map_ordinal=True)
+    # Clustering is numeric (Euclidean distance): ordinal columns are used via their face values
+    # (error on non-numeric categories, warn that they were cast). Non-numeric columns are dropped.
+    try:
+        df, cast = data.get_numeric_face_dataframe(selected)
+    except OrdinalCastError as error:
+        return _fail(result, ordinal_cast_error_message(error.column_name))
+    if cast:
+        result.set_warning(ordinal_numeric_cast_warning(cast))
     df = df.select_dtypes(include=[np.number]).astype(float).dropna(axis=0)
     n_rows, n_cols = df.shape
     if n_cols < 1:

@@ -22,9 +22,10 @@ import numpy as np
 import pandas as pd
 from scipy.stats import linregress
 
-from src.common.constant import TIMES, ColumnType
+from src.common.constant import TIMES
 from src.common.decorators import log_function
 from src.common.translations import t
+from src.data.data import OrdinalCastError
 from src.data.data_manager import DATA_MANAGER
 from src.side_area_panel.modules.common.column_numbering import ColumnNumbering
 from src.side_area_panel.modules.common.mathematics.correlation.correlation import (
@@ -35,7 +36,12 @@ from src.side_area_panel.modules.common.mathematics.correlation.correlation impo
 )
 from src.side_area_panel.modules.common.prose import prose_enabled
 from src.side_area_panel.modules.common.result.plot_result import Band, Heatmap, Line, PlotV2, Scatter
-from src.side_area_panel.modules.common.utility import format_r_apa, smart_comma_join
+from src.side_area_panel.modules.common.utility import (
+    format_r_apa,
+    ordinal_cast_error_message,
+    ordinal_numeric_cast_warning,
+    smart_comma_join,
+)
 from src.side_area_panel.modules.correlation.correlation_result import (
     CORRELATION_TYPE_MAP,
     CorrelationResult,
@@ -43,6 +49,7 @@ from src.side_area_panel.modules.correlation.correlation_result import (
 )
 from src.side_area_panel.modules.correlation.report import get_cross_report, get_report
 from src.side_area_panel.modules.correlation.table import get_table_compact, get_table_cross, get_table_full
+from src.side_area_panel.modules.descriptive.plot import ordinal_axis_tick_labels
 
 
 def _fail(result: CorrelationResult, message: str) -> CorrelationResult:
@@ -97,8 +104,11 @@ def to_full_matrix(df: pd.DataFrame) -> pd.DataFrame:
     return full_matrix
 
 
-def _pairwise_plot(df, name1, name2):
-    """Scatter of (name1, name2) with an OLS regression line and its standard-error band."""
+def _pairwise_plot(df, name1, name2, data):
+    """Scatter of (name1, name2) with an OLS regression line and its standard-error band. An ordinal
+    axis is relabelled from its plotted values to the face-value categories, so the plot never shows
+    order codes (for a rank estimator `df` holds codes; for Pearson it already holds the numeric face
+    values, where the relabel is an identity or a no-op)."""
     scatter = Scatter(x=df[name1], y=df[name2], label=t("correlation.plot.points"))
 
     regression = linregress(df[name1], df[name2])
@@ -126,14 +136,22 @@ def _pairwise_plot(df, name1, name2):
         plot_title=t("correlation.plot.scatter_title", a=name1, b=name2),
         x_axis_title=name1,
         y_axis_title=name2,
+        x_axis_tick_labels=ordinal_axis_tick_labels(data, name1, df[name1]),
+        y_axis_tick_labels=ordinal_axis_tick_labels(data, name2, df[name2]),
     )
 
 
-def _ordinal_pearson_warning(result, data, columns, kind, html_table):
-    if any(data[col].column_type == ColumnType.ORDINAL for col in columns) and kind == CorrelationType.PEARSON:
-        msg = t("correlation.warning.ordinal_pearson")
-        logging.warning(msg)
-        html_table.add_text(msg)
+def _get_correlation_df(result, data, columns, kind):
+    """Numeric dataframe for a correlation of `columns`. Pearson treats ordinals as an interval scale
+    (their face values, erroring on non-numeric categories) and warns that it did so; the rank /
+    latent estimators (Spearman, Kendall, polychoric, phi, tetrachoric) use the order codes and are
+    true ordinal (no warning). Raises OrdinalCastError for the caller to convert to a failure."""
+    if kind == CorrelationType.PEARSON:
+        df, cast = data.get_numeric_face_dataframe(columns)
+        if cast:
+            result.set_warning(ordinal_numeric_cast_warning(cast))
+        return df
+    return data.get_dataframe(columns=columns, map_ordinal=True)
 
 
 def _constant_column_warning(df, columns, html_table):
@@ -154,6 +172,7 @@ def recalculate_correlation_study(elements, result: CorrelationResult, update) -
     Unexpected exceptions are handled centrally by the panel's recalculate()."""
     cfg = result.config
     result.result_elements = []
+    result.warnings = []
 
     selected_columns = list(cfg.column_selector[0] or [])
     control_columns = cfg.column_selector[1] or []
@@ -182,7 +201,10 @@ def recalculate_correlation_study(elements, result: CorrelationResult, update) -
     if is_cross:
         return _run_cross(result, cfg, data, selected_columns, second_set, control_columns, kind, is_partial, update)
 
-    df = data.get_dataframe(columns=list(selected_columns) + list(control_columns), map_ordinal=True)
+    try:
+        df = _get_correlation_df(result, data, list(selected_columns) + list(control_columns), kind)
+    except OrdinalCastError as error:
+        return _fail(result, ordinal_cast_error_message(error.column_name))
 
     columns = list(selected_columns)
 
@@ -217,7 +239,6 @@ def recalculate_correlation_study(elements, result: CorrelationResult, update) -
             verbal = t("correlation.partial.note", controls=", ".join(control_columns)) + verbal
         html_table.add_text(verbal)
 
-    _ordinal_pearson_warning(result, data, columns, kind, html_table)
     _constant_column_warning(df, columns, html_table)
 
     result.title_context = ", ".join(col[:16] for col in columns)
@@ -253,7 +274,7 @@ def recalculate_correlation_study(elements, result: CorrelationResult, update) -
                     continue
                 if cfg.report_only_significant and p_full.loc[name1, name2] > 0.05:
                     continue
-                result.update_and_add_element(_pairwise_plot(df, name1, name2), f"correlation plot {name1} | {name2}")
+                result.update_and_add_element(_pairwise_plot(df, name1, name2, data), f"correlation plot {name1} | {name2}")
             update(60 + 35 * (i + 1) / len(columns))
 
     update(100)
@@ -264,7 +285,10 @@ def _run_cross(result, cfg, data, rows, cols, control_columns, kind, is_partial,
     """Rectangular two-set (cross) correlation: every variable in the first set against every
     variable in the second set, as a full rows×cols matrix."""
     all_columns = list(dict.fromkeys(list(rows) + list(cols) + list(control_columns)))
-    df = data.get_dataframe(columns=all_columns, map_ordinal=True)
+    try:
+        df = _get_correlation_df(result, data, all_columns, kind)
+    except OrdinalCastError as error:
+        return _fail(result, ordinal_cast_error_message(error.column_name))
 
     if is_partial:
         correlation_matrix, p_matrix, df_matrix = calculate_partial_cross_correlations(
@@ -304,7 +328,6 @@ def _run_cross(result, cfg, data, rows, cols, control_columns, kind, is_partial,
             verbal = t("correlation.partial.note", controls=", ".join(control_columns)) + verbal
         html_table.add_text(verbal)
 
-    _ordinal_pearson_warning(result, data, list(rows) + list(cols), kind, html_table)
     _constant_column_warning(df, list(rows) + list(cols), html_table)
 
     result.title_context = ", ".join(c[:16] for c in rows) + f" {TIMES} " + ", ".join(c[:16] for c in cols)
@@ -335,7 +358,7 @@ def _run_cross(result, cfg, data, rows, cols, control_columns, kind, is_partial,
                     continue
                 if cfg.report_only_significant and p_matrix.loc[name1, name2] > 0.05:
                     continue
-                result.update_and_add_element(_pairwise_plot(df, name1, name2), f"correlation plot {name1} | {name2}")
+                result.update_and_add_element(_pairwise_plot(df, name1, name2, data), f"correlation plot {name1} | {name2}")
             update(60 + 35 * (step + 1) / len(rows))
 
     update(100)

@@ -23,6 +23,7 @@ import pandas as pd
 from scipy import stats
 from scipy.stats import gaussian_kde
 
+from src.common.constant import ColumnType
 from src.common.constant import ID_COLUMN_NAME
 from src.common.qcolor import Colors
 from src.common.translations import t
@@ -45,6 +46,7 @@ def create_box_plot(
     group_names: List[str],
     column: str,
     grouping_column: str,
+    y_axis_tick_labels=None,
 ) -> PlotV2:
     """Grouped box plot (shared with the mean-comparison module)."""
     items = []
@@ -60,8 +62,27 @@ def create_box_plot(
         x_axis_title=grouping_column,
         y_axis_title=column,
         x_axis_items=group_names,
+        y_axis_tick_labels=y_axis_tick_labels,
     )
     return plot_result
+
+
+def ordinal_axis_tick_labels(data, column: str, series: pd.Series = None):
+    """Tick labels for an ordinal column that is plotted using its internal numeric order keys."""
+    if data[column].column_type != ColumnType.ORDINAL:
+        return None
+    order = data[column].order or {}
+    if not order:
+        return None
+    present = None
+    if series is not None:
+        present = set(series.dropna().tolist())
+    labels = []
+    for value, code in sorted(order.items(), key=lambda item: item[1]):
+        if present is not None and code not in present:
+            continue
+        labels.append((code, str(value)))
+    return labels or None
 
 
 def _histogram_edges(series: pd.Series, bin_width, bin_reference=None):
@@ -101,7 +122,17 @@ def _kde_curve(series: pd.Series, edges, kde_smoothing):
         return None, None
 
 
-def make_distribution_plot(df, col, groupby_column, groupby_values, bin_width, bin_reference, kde_smoothing, show_kde):
+def make_distribution_plot(
+    df,
+    col,
+    groupby_column,
+    groupby_values,
+    bin_width,
+    bin_reference,
+    kde_smoothing,
+    show_kde,
+    x_axis_tick_labels=None,
+):
     """Histogram (density) + optional KDE; overlaid per group when grouping is set."""
     edges = _histogram_edges(df[col], bin_width, bin_reference)
     if edges is None or len(edges) < 2:
@@ -171,6 +202,7 @@ def make_distribution_plot(df, col, groupby_column, groupby_values, bin_width, b
         plot_title=title,
         x_axis_title=col,
         y_axis_title=t("descriptive.density"),
+        x_axis_tick_labels=x_axis_tick_labels,
     )
 
 
@@ -190,7 +222,15 @@ def _outliers(subframe, col):
     return labels
 
 
-def make_box_plot(df, col, groupby_column, groupby_values, id_column=None, mark_outliers=False):
+def make_box_plot(
+    df,
+    col,
+    groupby_column,
+    groupby_values,
+    id_column=None,
+    mark_outliers=False,
+    y_axis_tick_labels=None,
+):
     """Box plot; one box (whole variable) or one per group. Outliers are optionally
     labelled on the plot (the verbal outlier report lives under the summary table)."""
     items = []
@@ -226,10 +266,11 @@ def make_box_plot(df, col, groupby_column, groupby_values, id_column=None, mark_
         x_axis_title=(groupby_column if groupby_column else ""),
         y_axis_title=col,
         x_axis_items=x_axis_items,
+        y_axis_tick_labels=y_axis_tick_labels,
     )
 
 
-def make_qq_plot(series: pd.Series, col: str):
+def make_qq_plot(series: pd.Series, col: str, y_axis_tick_labels=None):
     """Normal Q-Q plot: sample quantiles vs theoretical normal quantiles + a fit line."""
     data = series.dropna()
     if len(data) < 3:
@@ -251,6 +292,7 @@ def make_qq_plot(series: pd.Series, col: str):
         plot_title=title,
         x_axis_title=t("descriptive.qq.theoretical"),
         y_axis_title=t("descriptive.qq.sample"),
+        y_axis_tick_labels=y_axis_tick_labels,
     )
 
 
@@ -267,8 +309,6 @@ def make_frequency_bar_plot(df, col: str, groupby_column=None, groupby_values=No
             return None
         if category_order is not None:
             value_counts = value_counts.reindex(category_order)
-        else:
-            value_counts = value_counts.sort_index()
         categories = [str(c) for c in value_counts.index]
         items = [
             Bar(
@@ -280,7 +320,7 @@ def make_frequency_bar_plot(df, col: str, groupby_column=None, groupby_values=No
             )
         ]
     else:
-        all_categories = category_order if category_order is not None else sorted(df[col].dropna().unique(), key=str)
+        all_categories = category_order if category_order is not None else list(df[col].dropna().unique())
         if len(all_categories) == 0:
             return None
         categories = [str(c) for c in all_categories]
@@ -320,8 +360,6 @@ def make_pie_plot(series: pd.Series, col: str, category_order=None):
         return None
     if category_order is not None:
         value_counts = value_counts.reindex(category_order)
-    else:
-        value_counts = value_counts.sort_index()
     title = t("descriptive.plot.pie", col=col)
     return PlotV2(
         items=[

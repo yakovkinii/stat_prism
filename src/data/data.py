@@ -28,6 +28,26 @@ from src.common.decorators import log_method
 ORDER_COLUMN = "__ORDER__"
 
 
+def sorted_numeric_or_alpha(values):
+    """Default category sort: numeric when every value is castable to a number, else alphabetical.
+    So Likert-style labels ('1'..'10') sort 1, 2, ..., 10 rather than '1', '10', '2', while text
+    categories fall back to alphabetical."""
+    items = list(values)
+    try:
+        return sorted(items, key=lambda v: float(v))
+    except (TypeError, ValueError):
+        return sorted(items, key=str)
+
+
+class OrdinalCastError(Exception):
+    """An ordinal column whose face values are not all numeric was fed to a module that must treat it
+    numerically. Carries the column name so the module can show a clear 'convert first' message."""
+
+    def __init__(self, column_name: str):
+        self.column_name = column_name
+        super().__init__(column_name)
+
+
 class DataColumn:
     def __init__(
         self,
@@ -64,8 +84,11 @@ class DataColumn:
 
         if dtype is None:
             logging.warning(f"Unknown type detected for {data_series.name}. Trying to convert to string")
-            data_series = data_series.astype(str)
+            data_series = data_series.fillna("").astype(str)
             dtype = "str"
+
+        if dtype == "str":
+            data_series = data_series.fillna("").astype(str)
 
         return cls(
             column_name=str(data_series.name),
@@ -84,9 +107,14 @@ class DataColumn:
             self.order = {}
             return self
 
-        self.order = {o: i for i, o in enumerate(sorted(self.order, key=self.order.get))}
-        unique_values = self.data_series.sort_values().unique()
-        for value in sorted(unique_values):
+        if self.column_type == ColumnType.NOMINAL and not self.order:
+            return self
+
+        self.order = {o: i for i, o in enumerate(sorted(self.order, key=self.order.get), start=1)}
+        unique_values = self.data_series.dropna().unique()
+        for value in sorted_numeric_or_alpha(unique_values):
+            if isinstance(value, str) and value == "":
+                continue
             if value not in self.order:
                 order = max(self.order.values()) + 1 if len(self.order) > 0 else 1
                 self.order[value] = order
@@ -103,7 +131,7 @@ class DataColumn:
                 self.column_dtype = "float"
             except ValueError:
                 try:
-                    self.data_series = self.data_series.astype(str)
+                    self.data_series = self.data_series.fillna("").astype(str)
                     self.column_dtype = "str"
                     logging.warning(f"Column {self.column_name} was cast to str")
                     if self.column_type == ColumnType.NUMERIC:
@@ -145,7 +173,7 @@ class Data:
     def initialize_from_dataframe(cls, dataframe: pd.DataFrame):
         for column in dataframe.columns:
             if pd.api.types.is_string_dtype(dataframe[column]):
-                dataframe[column] = dataframe[column].astype(str)
+                dataframe[column] = dataframe[column].fillna("").astype(str)
             elif pd.api.types.is_float_dtype(dataframe[column]):
                 dataframe[column] = dataframe[column].astype(float)
             elif pd.api.types.is_integer_dtype(dataframe[column]):
@@ -153,7 +181,7 @@ class Data:
             else:
                 logging.warning(f"Unknown type detected for {column}")
                 logging.info("Trying to convert to string")
-                dataframe[column] = dataframe[column].astype(str)
+                dataframe[column] = dataframe[column].fillna("").astype(str)
 
         dataframe.columns = pd.Index([str(column) for column in dataframe.columns])
         if len(set(dataframe.columns)) != len(dataframe.columns):
@@ -266,6 +294,48 @@ class Data:
     def get_series(self, column: str, map_ordinal: bool = False) -> pd.Series:
         return self.get_dataframe(columns=[column], map_ordinal=map_ordinal)[column]
 
+    def to_mapped_ints(self, column_name: str) -> pd.Series:
+        """Ordinal values as internal order codes for analysis calculations."""
+        return self.get_series(column_name, map_ordinal=True)
+
+    def to_face_value(self, column_name: str, code):
+        """Map an ordinal analysis code back to the value shown to the user."""
+        return self.ordered_value_label(column_name, code)
+
+    def get_numeric_face_dataframe(self, columns):
+        """DataFrame for modules that must treat their inputs as numeric. Numeric columns pass through;
+        an ORDINAL column has its FACE values cast to numeric (never the internal order codes), and an
+        ordinal whose face values are not all numeric raises :class:`OrdinalCastError`. Returns
+        ``(df, cast_ordinals)`` -- ``cast_ordinals`` lists the ordinal columns that were cast, so the
+        caller can show the 'treated as numeric' warning."""
+        df = self.get_dataframe(columns=columns)
+        cast = []
+        for col in columns:
+            if self[col].column_type != ColumnType.ORDINAL:
+                continue
+            numeric = pd.to_numeric(df[col], errors="coerce")
+            non_missing = df[col].notna() & (df[col].astype(str).str.strip() != "")
+            if bool((numeric.isna() & non_missing).any()):
+                raise OrdinalCastError(col)
+            df[col] = numeric
+            cast.append(col)
+        return df, cast
+
+    def order_matches_numeric_face(self, column_name: str) -> bool:
+        """True when the ordinal column's category order equals sorting its face values numerically --
+        i.e. it is a plain numeric scale (auto-inferred, or a custom order that still agrees with the
+        numbers). Scale inversion is only well-defined in that case; a non-numeric or reordered scale
+        returns False so the caller can refuse."""
+        order = self[column_name].order or {}
+        if not order:
+            return False
+        try:
+            numeric_sorted = sorted(order.keys(), key=lambda v: float(v))
+        except (TypeError, ValueError):
+            return False
+        order_sorted = sorted(order.keys(), key=lambda v: order[v])
+        return numeric_sorted == order_sorted
+
     def get_id_series(self) -> pd.Series:
         return self.get_dataframe(columns=[ID_COLUMN_NAME])[ID_COLUMN_NAME]
 
@@ -277,8 +347,41 @@ class Data:
         sort alphabetically and ignore the user-defined ordinal order."""
         order = self[column_name].order or {}
         present = sorted((v for v in values if v in order), key=lambda v: order[v])
-        missing = sorted(v for v in values if v not in order)
+        # No prescribed order -> default sort (numeric when castable, else alphabetical), for both
+        # nominal and ordinal; any value missing from a partial order is appended the same way.
+        missing = sorted_numeric_or_alpha(v for v in values if v not in order)
         return present + missing
+
+    def ordered_value_label(self, column_name: str, code):
+        """Map an ordinal analysis code back to the displayed category/value.
+
+        Exact codes return their category. Interpolated medians/quartiles between two
+        ordered categories are shown on the visible numeric scale when possible, otherwise
+        as the adjacent displayed labels, so result tables do not expose internal order keys.
+        """
+        order = self[column_name].order or {}
+        if not order or pd.isna(code):
+            return code
+
+        by_code = {float(v): k for k, v in order.items()}
+        code = float(code)
+        if code in by_code:
+            return by_code[code]
+
+        lower = max((k for k in by_code if k < code), default=None)
+        upper = min((k for k in by_code if k > code), default=None)
+        if lower is None or upper is None:
+            return code
+
+        lo, hi = by_code[lower], by_code[upper]
+        try:
+            lo_num, hi_num = float(lo), float(hi)
+            if np.isfinite(lo_num) and np.isfinite(hi_num):
+                value = lo_num + (code - lower) * (hi_num - lo_num) / (upper - lower)
+                return int(value) if float(value).is_integer() else value
+        except (TypeError, ValueError):
+            pass
+        return f"{lo}/{hi}"
 
     def n_columns(self):
         return len(self.columns)

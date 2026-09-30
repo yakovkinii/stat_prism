@@ -58,7 +58,7 @@ def dp_onehot_main(elements: Elements, result: OneHotResult, update):
     if not categories:
         return result  # nothing to encode -> pass-through
 
-    drop = cfg.drop_reference if cfg.drop_reference is not None else True
+    drop = cfg.drop_reference if cfg.drop_reference is not None else False
     if drop:
         ref = (cfg.reference or "").strip()
         reference = ref if ref in categories else categories[0]

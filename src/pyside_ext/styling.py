@@ -74,6 +74,7 @@ class Style:
         Highlight = Scheme.accent
         Selection = Scheme.selection
         Danger = Scheme.danger
+        Warning = Scheme.warning
         Text = Scheme.text
         SimpleToolButton = Scheme.tool_glyph
         SecondaryText = Scheme.text_secondary

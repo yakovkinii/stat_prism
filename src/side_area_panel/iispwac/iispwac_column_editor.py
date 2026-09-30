@@ -359,11 +359,11 @@ class IISPWACColumnEditor(ItemInSidePanelWithAutoConfig):
             spec = self.specs.get(name)
             if spec is None:
                 continue
-            is_ordinal = spec["type"] == ColumnType.ORDINAL.value
-            # The Order button appears only for ordinal columns; the action buttons (and the type
+            has_order = spec["type"] in (ColumnType.ORDINAL.value, ColumnType.NOMINAL.value)
+            # The Order button appears for ordered categorical columns; the action buttons (and the type
             # dropdown) go bold when they carry a change from the default, replacing the old summaries.
-            card["order_button"].setVisible(is_ordinal)
-            self._style_action_button(card["order_button"], is_ordinal and spec.get("order") is not None)
+            card["order_button"].setVisible(has_order)
+            self._style_action_button(card["order_button"], has_order and spec.get("order") is not None)
             self._style_action_button(card["map_button"], self._has_mapping(spec))
             self._style_action_button(card["type_combo"], spec["type"] != self.original_types.get(name))
             self._apply_color_button(name)

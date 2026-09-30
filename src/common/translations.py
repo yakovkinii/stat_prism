@@ -25,6 +25,20 @@ TRANSLATIONS = {
         "en": "Note",
         "ua": "Нотатка",
     },
+    "ordinal.warning.numeric_cast": {
+        "en": "Ordinal columns were treated as numeric (their face values were used): {columns}.",
+        "ua": "Порядкові стовпці оброблено як числові (використано їх видимі значення): {columns}.",
+    },
+    "ordinal.error.non_numeric": {
+        "en": (
+            "Column '{column}' is ordinal with non-numeric categories. Convert it to numeric first, "
+            "or use a method that supports ordinal data (e.g. Spearman / polychoric)."
+        ),
+        "ua": (
+            "Стовпець '{column}' є порядковим з нечисловими категоріями. Спочатку перетворіть його на "
+            "числовий або скористайтеся методом, що підтримує порядкові дані (напр., Спірмен / поліхорика)."
+        ),
+    },
     "common.table": {
         "en": "Table",
         "ua": "Таблиця",
@@ -471,6 +485,10 @@ TRANSLATIONS = {
     "ttest.plot.density": {
         "en": "Density",
         "ua": "Щільність",
+    },
+    "ttest.warning.kde_failed": {
+        "en": "The density (KDE) curve could not be drawn for one or more groups of {col} (no variation).",
+        "ua": "Криву щільності (KDE) не вдалося побудувати для однієї чи кількох груп «{col}» (немає варіації).",
     },
     # Validation / error messages
     "ttest.error.one_grouping": {
@@ -1896,7 +1914,9 @@ TRANSLATIONS = {
             "Polychoric assumes an underlying continuous variable behind each ordinal item. Phi and "
             "Tetrachoric require binary items (&le; 2 unique values) and are rescaled to 0&ndash;1 "
             "first; Tetrachoric assumes an underlying continuous variable. (For ordinal Likert-type "
-            "items, Polychoric is generally preferred over Pearson.)</li>"
+            "items, Polychoric is generally preferred over Pearson.) Tetrachoric and Polychoric "
+            "reliability analyses smooth a non-positive-definite item correlation matrix before computing "
+            "&alpha;, &omega;, and item-rest statistics.</li>"
             "<li><b>If item removed.</b> Each item&rsquo;s &lsquo;&alpha; if removed&rsquo; is &alpha; "
             "recomputed on the remaining items. The corrected item&ndash;total (item&ndash;rest) "
             "correlation is computed from the same item correlation matrix as &alpha; &mdash; "

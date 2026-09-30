@@ -23,6 +23,13 @@ from scipy import stats
 from src.side_area_panel.modules.common.removal import ids_for_mask
 
 
+def _face_numeric(data, column_name) -> pd.Series:
+    """Column values as numeric on the user-facing scale: for an ordinal this is its face values cast
+    to numbers (non-numeric -> NaN), never the internal order codes. Outlier detection is numeric, so
+    the caller validates/warns via Data.get_numeric_face_dataframe first."""
+    return pd.to_numeric(data[column_name].data_series, errors="coerce")
+
+
 def _univariate_mask(series: pd.Series, method: str, k: float) -> pd.Series:
     if method == "Z-score":
         std = series.std()
@@ -43,7 +50,7 @@ def detect_univariate_outliers(data, columns, method) -> list:
 
     outlier = None
     for column_name in columns:
-        x = data.get_series(column_name, map_ordinal=True)
+        x = _face_numeric(data, column_name)
         column_outlier = _univariate_mask(x, method, k).fillna(False)
         outlier = column_outlier if outlier is None else (outlier | column_outlier)
     if outlier is None:
@@ -64,7 +71,7 @@ def detect_grouped_outliers(data, columns, grouping_column, method) -> list:
 
     outlier = None
     for column_name in columns:
-        x = data.get_series(column_name, map_ordinal=True)
+        x = _face_numeric(data, column_name)
         column_outlier = x.groupby(group_labels, group_keys=False).transform(group_mask).fillna(False).astype(bool)
         outlier = column_outlier if outlier is None else (outlier | column_outlier)
     if outlier is None:
@@ -80,7 +87,7 @@ def detect_nd_outliers(data, columns, confidence=0.95) -> list:
     if len(columns) < 2:
         return []
 
-    frame = pd.concat([data.get_series(column=c, map_ordinal=True) for c in columns], axis=1)
+    frame = pd.concat([_face_numeric(data, c) for c in columns], axis=1)
     outlier = pd.Series(False, index=frame.index)
     valid = ~frame.isna().any(axis=1)
     points = frame[valid].to_numpy()

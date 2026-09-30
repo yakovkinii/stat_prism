@@ -41,6 +41,17 @@ def unique_name(base: str, existing) -> str:
     return name
 
 
+def ordinal_numeric_cast_warning(columns) -> str:
+    """The orange warning shown when a module treated ordinal columns as numeric by casting their
+    face values (used by every 'cast + warn' analysis / data-processing study)."""
+    return t("ordinal.warning.numeric_cast", columns=smart_comma_join([str(c) for c in columns]))
+
+
+def ordinal_cast_error_message(column) -> str:
+    """The error shown when a numeric-only module is given an ordinal with non-numeric categories."""
+    return t("ordinal.error.non_numeric", column=str(column))
+
+
 # Numeric normalizations offered by both Transform Column and Calculate Scale.
 NORMALIZATION_METHODS = ["None", "Z-score", "Stanine", "Center", "Min-max", "Log", "Rank"]
 
@@ -100,10 +111,19 @@ def smart_comma_join(items):
     return ", ".join(items[:-1]) + f",{and_word}{items[-1]}"
 
 
+def _is_missing_value(value):
+    if value is None:
+        return True
+    try:
+        return bool(pd.isna(value))
+    except (TypeError, ValueError):
+        return False
+
+
 def format_value_apa(value, decimals=1):
     if isinstance(value, str):
         return value
-    if np.isnan(value) or value is None:
+    if _is_missing_value(value):
         return MDASH
     return str(f"{round(value, decimals):.{decimals}f}")
 
@@ -111,7 +131,7 @@ def format_value_apa(value, decimals=1):
 def format_statistic_apa(statistic, decimals=2):
     if isinstance(statistic, str):
         return statistic
-    if np.isnan(statistic) or statistic is None:
+    if _is_missing_value(statistic):
         return MDASH
     return str(f"{round(statistic, decimals):.{decimals}f}")
 
@@ -119,7 +139,7 @@ def format_statistic_apa(statistic, decimals=2):
 def format_p_apa(p, decimals=3, add_equals=False):
     if isinstance(p, str):
         return "= " * add_equals + p
-    if np.isnan(p) or p is None:
+    if _is_missing_value(p):
         return MDASH
     if p < 0.001:
         return "&lt;&nbsp;.001"
@@ -131,7 +151,7 @@ def format_p_apa(p, decimals=3, add_equals=False):
 
 
 def format_p_apa_full(p, decimals=3):
-    if np.isnan(p) or p is None:
+    if _is_missing_value(p):
         return MDASH
     if p < 0.001:
         return "p&lt;.001"
@@ -147,14 +167,14 @@ def format_r_apa(value, decimals=2):
     dropped, e.g. .85, -.30. Intended for values in (-1, 1)."""
     if isinstance(value, str):
         return value
-    if value is None or np.isnan(value):
+    if _is_missing_value(value):
         return MDASH
     return f"{round(value, decimals):.{decimals}f}".replace("0.", ".")
 
 
 def get_stars(p):
     """Significance stars: *** p<.001, ** p<.01, * p<.05, otherwise empty."""
-    if p is None or np.isnan(p):
+    if _is_missing_value(p):
         return ""
     if p < 0.001:
         return "***"
@@ -175,7 +195,7 @@ def format_p_apa_exact(p, decimals=3):
     correlation / descriptive tables where the exact p is wanted."""
     if isinstance(p, str):
         return p
-    if p is None or np.isnan(p):
+    if _is_missing_value(p):
         return MDASH
     if p < 0.001:
         return "&lt;&nbsp;.001"
@@ -186,7 +206,7 @@ def format_p_apa_prose(p, decimals=3):
     """Inline prose form: 'p &lt; .001' or 'p = .023' (exact for p >= .001)."""
     if isinstance(p, str):
         return p
-    if p is None or np.isnan(p):
+    if _is_missing_value(p):
         return MDASH
     if p < 0.001:
         return "p &lt; .001"
@@ -195,6 +215,6 @@ def format_p_apa_prose(p, decimals=3):
 
 def format_apa(r, p, df, letter):
     """Composite stat string: 'letter(df) = .52, p = .003' (df omitted when NaN)."""
-    if np.isnan(df):
+    if _is_missing_value(df):
         return f"{letter} = {format_r_apa(r)}, {format_p_apa_prose(p)}"
     return f"{letter}({df}) = {format_r_apa(r)}, {format_p_apa_prose(p)}"

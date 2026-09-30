@@ -181,7 +181,7 @@ def _deserialize_data(df, columns_meta):
     return Data(columns)
 
 
-def _build_project_dict(data_manager, results) -> dict:
+def build_project_dict(data_manager, results) -> dict:
     """The chain + per-study module/title/config (plus inline filters and per-element display
     settings) as a JSON-safe dict. This is the whole project *except* the raw dataset, which is
     stored separately in parquet."""
@@ -220,6 +220,31 @@ def _build_project_dict(data_manager, results) -> dict:
     return project
 
 
+def write_project_files(directory, project, meta) -> list:
+    """Write a (prebuilt) project dict + meta as loose ``meta.json`` / ``project.json`` in
+    ``directory``. Used to lay down a specific snapshot -- notably an older one, for undo/redo -- so
+    it takes the project dict rather than rebuilding it from the live results."""
+    stored_meta = {**meta, "storage": "json"}
+    with open(f"{directory}/meta.json", "w", encoding="utf-8") as file:
+        json.dump(stored_meta, file, ensure_ascii=False, indent=2)
+    with open(f"{directory}/project.json", "w", encoding="utf-8") as file:
+        json.dump(project, file, ensure_ascii=False, indent=2, default=_json_default)
+    return ["meta.json", "project.json"]
+
+
+def write_raw_files(directory, data_manager, results) -> bool:
+    """Write the raw dataset (``raw.parquet`` + ``raw_columns.json``) into ``directory``. Returns
+    True when a raw dataset was present and written."""
+    raw_result = results.get(data_manager.raw_data_result_id)
+    if raw_result is None or getattr(raw_result, "data", None) is None:
+        return False
+    raw_df, raw_columns_meta = _serialize_data(raw_result.data)
+    raw_df.to_parquet(f"{directory}/raw.parquet")
+    with open(f"{directory}/raw_columns.json", "w", encoding="utf-8") as file:
+        json.dump(raw_columns_meta, file, ensure_ascii=False, indent=2, default=_json_default)
+    return True
+
+
 def write_project_bundle(directory, data_manager, results, meta, write_raw=True) -> list:
     """Write the project as loose files into ``directory`` (the unzipped form of a ``.sp``):
     ``meta.json`` and ``project.json`` always; ``raw.parquet`` + ``raw_columns.json`` only when
@@ -227,22 +252,10 @@ def write_project_bundle(directory, data_manager, results, meta, write_raw=True)
     so only the two small JSON files are rewritten and the heavy parquet is left in place. Returns
     the member filenames written. Shared by :func:`save_project_json` (which then zips them) and by
     the crash-recovery autosave (which leaves them loose)."""
-    project = _build_project_dict(data_manager, results)
-    stored_meta = {**meta, "storage": "json"}
-    with open(f"{directory}/meta.json", "w", encoding="utf-8") as file:
-        json.dump(stored_meta, file, ensure_ascii=False, indent=2)
-    with open(f"{directory}/project.json", "w", encoding="utf-8") as file:
-        json.dump(project, file, ensure_ascii=False, indent=2, default=_json_default)
-    members = ["meta.json", "project.json"]
-
-    if write_raw:
-        raw_result = results.get(data_manager.raw_data_result_id)
-        if raw_result is not None and getattr(raw_result, "data", None) is not None:
-            raw_df, raw_columns_meta = _serialize_data(raw_result.data)
-            raw_df.to_parquet(f"{directory}/raw.parquet")
-            with open(f"{directory}/raw_columns.json", "w", encoding="utf-8") as file:
-                json.dump(raw_columns_meta, file, ensure_ascii=False, indent=2, default=_json_default)
-            members += ["raw.parquet", "raw_columns.json"]
+    project = build_project_dict(data_manager, results)
+    members = write_project_files(directory, project, meta)
+    if write_raw and write_raw_files(directory, data_manager, results):
+        members += ["raw.parquet", "raw_columns.json"]
     return members
 
 

@@ -677,6 +677,8 @@ class PlotV2(BaseResultElement):
         y_min="",
         y_max="",
         numbered_x_labels=False,
+        x_axis_tick_labels=None,
+        y_axis_tick_labels=None,
     ):
         super().__init__()
         # Defaults come from the active theme unless explicitly provided (e.g. restored
@@ -706,6 +708,8 @@ class PlotV2(BaseResultElement):
         self.class_id: str = "PlotV2"
         self.items = items if items else []
         self.x_axis_items = x_axis_items
+        self.x_axis_tick_labels = x_axis_tick_labels
+        self.y_axis_tick_labels = y_axis_tick_labels
         # Heatmaps and contingency plots have many categorical x labels that overlap horizontally,
         # so default their rotation to 90 degrees (upright). Other plots default to 0. A saved/user
         # value overrides.
@@ -717,6 +721,10 @@ class PlotV2(BaseResultElement):
         category_counts = [max(len(it.df.columns), len(it.df.index)) for it in self.items if isinstance(it, Heatmap)]
         if x_axis_items is not None and len(x_axis_items):
             category_counts.append(len(x_axis_items))
+        if x_axis_tick_labels is not None and len(x_axis_tick_labels):
+            category_counts.append(len(x_axis_tick_labels))
+        if y_axis_tick_labels is not None and len(y_axis_tick_labels):
+            category_counts.append(len(y_axis_tick_labels))
         max_categories = max(category_counts) if category_counts else 0
         if max_categories > 10:
             tick_label_font_size = max(6, int(round(tick_label_font_size * 10.0 / max_categories)))
@@ -1345,6 +1353,15 @@ class PlotV2(BaseResultElement):
                 ax.set_xticklabels([str(i + 1) for i in range(len(self.x_axis_items))])
             else:
                 ax.set_xticklabels([_ellipsize(v) for v in self.x_axis_items])
+        elif self.x_axis_tick_labels:
+            ticks, labels = zip(*self.x_axis_tick_labels)
+            ax.set_xticks(ticks)
+            ax.set_xticklabels([_ellipsize(v) for v in labels])
+
+        if self.y_axis_tick_labels:
+            ticks, labels = zip(*self.y_axis_tick_labels)
+            ax.set_yticks(ticks)
+            ax.set_yticklabels([_ellipsize(v) for v in labels])
 
         ax.tick_params(axis="x", rotation=self.tilt_x_axis_labels.current_value)
 
@@ -1394,9 +1411,10 @@ class PlotV2(BaseResultElement):
         # categorical x carrying labels.
         categorical_axes = any(isinstance(it, (Heatmap, ContingencyPlot)) for it in self.items)
         if not categorical_axes:
-            if self.x_axis_items is None:
+            if self.x_axis_items is None and not self.x_axis_tick_labels:
                 self._apply_axis_ticks(ax, "x")
-            self._apply_axis_ticks(ax, "y")
+            if not self.y_axis_tick_labels:
+                self._apply_axis_ticks(ax, "y")
 
         if legend:
             leg = ax.legend(fontsize=self.legend_font_size.get_current_value())

@@ -1,0 +1,242 @@
+{
+  "tolerance": 1e-06,
+  "generated_by": "tests/benchmarks/reliability/r/generate_reliability_benchmarks.R",
+  "studies": {
+    "pearson_four_items_with_omega": {
+      "error": "",
+      "scale": {
+        "n_items": 4,
+        "alpha": 0.980748896709316,
+        "omega": 0.980764843721964
+      },
+      "items": [
+        {
+          "name": "item_a",
+          "item_rest": 0.956288873831467,
+          "alpha_deleted": 0.97293869895293,
+          "omega_deleted": 0.97300458725815
+        },
+        {
+          "name": "item_b",
+          "item_rest": 0.945340724460831,
+          "alpha_deleted": 0.975907081713522,
+          "omega_deleted": 0.975920219679564
+        },
+        {
+          "name": "item_c",
+          "item_rest": 0.944044387479621,
+          "alpha_deleted": 0.976257585467135,
+          "omega_deleted": 0.976267848615391
+        },
+        {
+          "name": "item_d",
+          "item_rest": 0.956580870177617,
+          "alpha_deleted": 0.972859328207341,
+          "omega_deleted": 0.972928555290674
+        }
+      ]
+    },
+    "pearson_ordinal_string_items_with_omega": {
+      "error": "",
+      "scale": {
+        "n_items": 4,
+        "alpha": 0.980748896709316,
+        "omega": 0.980764843721964
+      },
+      "items": [
+        {
+          "name": "ord_a",
+          "item_rest": 0.956288873831467,
+          "alpha_deleted": 0.97293869895293,
+          "omega_deleted": 0.97300458725815
+        },
+        {
+          "name": "ord_b",
+          "item_rest": 0.945340724460831,
+          "alpha_deleted": 0.975907081713522,
+          "omega_deleted": 0.975920219679564
+        },
+        {
+          "name": "ord_c",
+          "item_rest": 0.944044387479621,
+          "alpha_deleted": 0.976257585467135,
+          "omega_deleted": 0.976267848615391
+        },
+        {
+          "name": "ord_d",
+          "item_rest": 0.956580870177617,
+          "alpha_deleted": 0.972859328207341,
+          "omega_deleted": 0.972928555290674
+        }
+      ]
+    },
+    "spearman_three_items_no_omega": {
+      "error": "",
+      "scale": {
+        "n_items": 3,
+        "alpha": 0.968632021060889,
+        "omega": null
+      },
+      "items": [
+        {
+          "name": "item_a",
+          "item_rest": 0.95551434832712,
+          "alpha_deleted": 0.936754711180181,
+          "omega_deleted": null
+        },
+        {
+          "name": "item_b",
+          "item_rest": 0.923357473015322,
+          "alpha_deleted": 0.960155821385753,
+          "omega_deleted": null
+        },
+        {
+          "name": "item_c",
+          "item_rest": 0.918425367922934,
+          "alpha_deleted": 0.963706498878238,
+          "omega_deleted": null
+        }
+      ]
+    },
+    "kendall_three_items_no_omega": {
+      "error": "",
+      "scale": {
+        "n_items": 3,
+        "alpha": 0.948347343882981,
+        "omega": null
+      },
+      "items": [
+        {
+          "name": "item_a",
+          "item_rest": 0.91655644944855,
+          "alpha_deleted": 0.905153537409734,
+          "omega_deleted": null
+        },
+        {
+          "name": "item_b",
+          "item_rest": 0.884486854573012,
+          "alpha_deleted": 0.929749798150792,
+          "omega_deleted": null
+        },
+        {
+          "name": "item_c",
+          "item_rest": 0.873626607180806,
+          "alpha_deleted": 0.937973041316385,
+          "omega_deleted": null
+        }
+      ]
+    },
+    "kendall_tau_c_three_items_no_omega": {
+      "error": "",
+      "scale": {
+        "n_items": 3,
+        "alpha": 0.945357436318817,
+        "omega": null
+      },
+      "items": [
+        {
+          "name": "item_a",
+          "item_rest": 0.905110188073665,
+          "alpha_deleted": 0.905109489051095,
+          "omega_deleted": null
+        },
+        {
+          "name": "item_b",
+          "item_rest": 0.864674811446955,
+          "alpha_deleted": 0.936170212765957,
+          "omega_deleted": null
+        },
+        {
+          "name": "item_c",
+          "item_rest": 0.887253751313129,
+          "alpha_deleted": 0.918918918918919,
+          "omega_deleted": null
+        }
+      ]
+    },
+    "phi_binary_items_no_omega": {
+      "error": "",
+      "scale": {
+        "n_items": 3,
+        "alpha": 0.819846792985024,
+        "omega": null
+      },
+      "items": [
+        {
+          "name": "bin_a",
+          "item_rest": 0.834104868203528,
+          "alpha_deleted": 0.579795897113271,
+          "omega_deleted": null
+        },
+        {
+          "name": "bin_b",
+          "item_rest": 0.520230942208652,
+          "alpha_deleted": 0.898979485566356,
+          "omega_deleted": null
+        },
+        {
+          "name": "bin_c",
+          "item_rest": 0.688247201611685,
+          "alpha_deleted": 0.736842105263158,
+          "omega_deleted": null
+        }
+      ]
+    },
+    "tetrachoric_binary_items_no_omega": {
+      "error": "",
+      "scale": {
+        "n_items": 3,
+        "alpha": 0.917113341179326,
+        "omega": null
+      },
+      "items": [
+        {
+          "name": "bin_a",
+          "item_rest": 0.977369779715893,
+          "alpha_deleted": 0.755898893691503,
+          "omega_deleted": null
+        },
+        {
+          "name": "bin_b",
+          "item_rest": 0.700350628890251,
+          "alpha_deleted": 0.984749606916759,
+          "omega_deleted": null
+        },
+        {
+          "name": "bin_c",
+          "item_rest": 0.835497130360645,
+          "alpha_deleted": 0.878014909286845,
+          "omega_deleted": null
+        }
+      ]
+    },
+    "polychoric_likert_items_no_omega": {
+      "error": "",
+      "scale": {
+        "n_items": 3,
+        "alpha": 0.995562113943315,
+        "omega": null
+      },
+      "items": [
+        {
+          "name": "item_a",
+          "item_rest": 0.999999993674876,
+          "alpha_deleted": 0.986641967050451,
+          "omega_deleted": null
+        },
+        {
+          "name": "item_b",
+          "item_rest": 0.985151226013631,
+          "alpha_deleted": 0.996676147759326,
+          "omega_deleted": null
+        },
+        {
+          "name": "item_c",
+          "item_rest": 0.985132024280341,
+          "alpha_deleted": 0.996689069634166,
+          "omega_deleted": null
+        }
+      ]
+    }
+  }
+}

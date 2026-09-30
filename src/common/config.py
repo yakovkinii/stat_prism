@@ -137,12 +137,3 @@ def read_auto_recalculate(default: bool = False) -> bool:
     if value == "false":
         return False
     return default  # unrecognized value in the ini -> fall back to the default
-
-
-def read_autosave_enabled(default: bool = True) -> bool:
-    value = read_ui_value("autosave", "true" if default else "false").strip().lower()
-    if value == "true":
-        return True
-    if value == "false":
-        return False
-    return default  # unrecognized value in the ini -> fall back to the default

@@ -24,12 +24,18 @@ from factor_analyzer import FactorAnalyzer
 
 from src.common.decorators import log_function
 from src.common.translations import t
+from src.data.data import OrdinalCastError
 from src.data.data_manager import DATA_MANAGER
 from src.side_area_panel.modules.common.column_numbering import ColumnNumbering
 from src.side_area_panel.modules.common.mathematics.correlation.correlation import calculate_correlations
 from src.side_area_panel.modules.common.prose import ProseDetail, prose_detail_from, prose_enabled
 from src.side_area_panel.modules.common.result.html_result import Cell, HTMLTableV2, Row
-from src.side_area_panel.modules.common.utility import format_r_apa, smart_comma_join
+from src.side_area_panel.modules.common.utility import (
+    format_r_apa,
+    ordinal_cast_error_message,
+    ordinal_numeric_cast_warning,
+    smart_comma_join,
+)
 from src.side_area_panel.modules.correlation.correlation_result import CORRELATION_TYPE_MAP, CorrelationType
 from src.side_area_panel.modules.reliability.reliability_result import (
     ReliabilityItemStat,
@@ -46,6 +52,8 @@ _PANDAS_CORR = {
 }
 # Types that need dichotomous items (estimated from 2x2 tables).
 _BINARY_TYPES = (CorrelationType.PHI, CorrelationType.TETRACHORIC)
+_SMOOTH_TYPES = (CorrelationType.TETRACHORIC, CorrelationType.POLYCHORIC)
+_SMOOTH_EIGEN_TOL = 1e-12
 
 
 def _fail(result: ReliabilityResult, message: str) -> ReliabilityResult:
@@ -76,6 +84,45 @@ def _full_correlation_matrix(df: pd.DataFrame, kind: CorrelationType) -> pd.Data
     arr = np.where(np.isnan(arr), arr.T, arr)  # mirror the filled triangle
     np.fill_diagonal(arr, 1.0)
     return pd.DataFrame(arr, index=df.columns, columns=df.columns)
+
+
+def _smooth_correlation_matrix(corr_matrix: pd.DataFrame) -> pd.DataFrame:
+    """Return a positive-definite correlation matrix when pairwise ordinal estimators produce a
+    near-singular / non-positive-definite matrix.
+
+    This follows psych::cor.smooth's approach: lift tiny/negative eigenvalues, rescale the
+    adjusted eigenvalues back to the matrix dimension, reconstruct, and renormalize to a
+    correlation matrix with diagonal 1. Already positive-definite matrices are returned unchanged.
+    """
+    values = np.asarray(corr_matrix.values, dtype=float)
+    values = (values + values.T) / 2
+    np.fill_diagonal(values, 1.0)
+
+    try:
+        eigenvalues, eigenvectors = np.linalg.eigh(values)
+    except np.linalg.LinAlgError:
+        logging.warning("Reliability: correlation matrix eigendecomposition failed; leaving it unsmoothed")
+        return corr_matrix
+    if np.all(eigenvalues >= _SMOOTH_EIGEN_TOL):
+        return corr_matrix
+
+    adjusted = np.maximum(eigenvalues, 100 * _SMOOTH_EIGEN_TOL)
+    eigen_sum = float(np.sum(adjusted))
+    if eigen_sum <= 0 or not np.isfinite(eigen_sum):
+        logging.warning("Reliability: correlation matrix smoothing failed; leaving it unsmoothed")
+        return corr_matrix
+    adjusted = adjusted * (values.shape[0] / eigen_sum)
+
+    smoothed = eigenvectors @ np.diag(adjusted) @ eigenvectors.T
+    scale = np.sqrt(np.diag(smoothed))
+    if np.any(scale <= 0) or np.any(~np.isfinite(scale)):
+        logging.warning("Reliability: correlation matrix smoothing failed; leaving it unsmoothed")
+        return corr_matrix
+    smoothed = smoothed / np.outer(scale, scale)
+    smoothed = (smoothed + smoothed.T) / 2
+    np.fill_diagonal(smoothed, 1.0)
+    logging.info("Reliability: smoothed non-positive-definite ordinal correlation matrix")
+    return pd.DataFrame(smoothed, index=corr_matrix.index, columns=corr_matrix.columns)
 
 
 def mcdonald_omega(corr_matrix: np.ndarray) -> float:
@@ -141,6 +188,8 @@ def compute_reliability(config: ReliabilityStudyConfig, df) -> ReliabilityNumeri
                 if df[col].max() != 0:
                     df[col] = df[col] / df[col].max()
         correlation_matrix = _full_correlation_matrix(df, correlation_type)
+        if correlation_type in _SMOOTH_TYPES:
+            correlation_matrix = _smooth_correlation_matrix(correlation_matrix)
 
     corr_values = np.asarray(correlation_matrix.values, dtype=float)
     alpha = cronbach_alpha(corr_values)
@@ -281,6 +330,7 @@ def recalculate_reliability_study(elements, result: ReliabilityResult, update) -
     the panel's recalculate()."""
     config: ReliabilityStudyConfig = result.config
     result.result_elements = []
+    result.warnings = []
 
     items = config.column_selector[0] if config.column_selector else None
     if not items or len(items) < 2:
@@ -290,7 +340,20 @@ def recalculate_reliability_study(elements, result: ReliabilityResult, update) -
         data_label=config.data_source,
         current_result_id=result.unique_id,
     )
-    df = data.get_dataframe(columns=items, map_ordinal=True)
+    correlation_type = CORRELATION_TYPE_MAP[config.correlation_type]
+    if correlation_type == CorrelationType.PEARSON:
+        # Pearson treats items as an interval scale: use the ordinal FACE values (not order codes),
+        # erroring on non-numeric categories and warning that ordinals were cast.
+        try:
+            df, cast = data.get_numeric_face_dataframe(items)
+        except OrdinalCastError as error:
+            return _fail(result, ordinal_cast_error_message(error.column_name))
+        if cast:
+            result.set_warning(ordinal_numeric_cast_warning(cast))
+    else:
+        # Spearman / Kendall (ranks) and polychoric / phi / tetrachoric (latent / 2x2) are true
+        # ordinal estimators: feed the order codes; only coefficients are shown, never the codes.
+        df = data.get_dataframe(columns=items, map_ordinal=True)
     update(15)
 
     numeric = compute_reliability(config, df)

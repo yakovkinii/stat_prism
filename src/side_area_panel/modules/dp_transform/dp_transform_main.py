@@ -109,8 +109,8 @@ def _transform_column(new_data, column_name, spec, rename):
         col.data_series = col.data_series.apply(lambda v: v if pd.isna(v) else str(v))
         col.column_dtype = "str"
 
-    # 3. Ordering (ordinal only); explicit order expressed over the mapped values.
-    if ctype == ColumnType.ORDINAL:
+    # 3. Ordering (ordinal / nominal); explicit order expressed over the mapped values.
+    if ctype in (ColumnType.ORDINAL, ColumnType.NOMINAL):
         # Only (re)build the order from an explicit one; otherwise keep the upstream order
         # (automatically_update_order fills only the values that lack a position). See the same
         # note in dp_preprocess_main.

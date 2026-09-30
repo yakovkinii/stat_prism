@@ -26,8 +26,8 @@ _METHODOLOGY = (
     "Turns a single-select nominal column with k categories into <b>0/1 indicator columns</b> "
     "(one per category, named <i>column = category</i>). This lets a categorical variable be "
     "used as a <b>regression predictor</b> &mdash; the regression input accepts only numeric / "
-    "ordinal columns, so a nominal must be encoded first. With <b>Drop reference category</b> on "
-    "(default), one category is omitted (k&minus;1 columns) and becomes the baseline each "
+    "ordinal columns, so a nominal must be encoded first. By default all k categories are kept. "
+    "With <b>Drop reference category</b> on, one category is omitted (k&minus;1 columns) and becomes the baseline each "
     "indicator&rsquo;s coefficient is compared against &mdash; the usual setup for regression "
     "(it avoids the redundant, collinear k-th column). Leave it off to keep all k columns "
     "(useful for plain description). A row with a missing value gets 0 in every indicator. The "
@@ -64,8 +64,8 @@ class OneHotResult(BaseResult):
         selected = cfg.column_selector[0] if cfg.column_selector else []
         column = selected[0] if selected else "(none)"
         parts = [f"Column: {column}"]
-        # drop_reference defaults to True (checkbox default state) when unset.
-        drop = cfg.drop_reference if cfg.drop_reference is not None else True
+        # drop_reference defaults to False (checkbox default state) when unset.
+        drop = cfg.drop_reference if cfg.drop_reference is not None else False
         if drop:
             ref = (cfg.reference or "").strip()
             parts.append(f"Reference dropped: {ref if ref else '(first category)'}")

@@ -23,8 +23,10 @@ from src.side_area_panel.modules.common.result.registry import BaseResult
 
 _METHODOLOGY = (
     "<b>Calculate scale</b><br>"
-    "Builds a new scale column by aggregating the selected item columns &mdash; <b>Sum</b> or "
-    "<b>Mean</b> across the items, per row. Optionally <b>normalize</b> the result &mdash; Z-score, "
+    "Builds a new scale column from numeric or ordinal item columns by aggregating them &mdash; "
+    "<b>Sum</b> or <b>Mean</b> across the items, per row. Ordinal items are read from their "
+    "displayed values, which must be parseable as numbers; their internal order codes are not used. "
+    "Optionally <b>normalize</b> the result &mdash; Z-score, "
     "Stanine, Center, Min-max, Log or Rank; Stanine is the normalized 1&ndash;9 score (mean 5, SD ~2) "
     "from each value's percentile rank cut at the standard stanine bands, not a linear rescale. The "
     "source questions can be kept, deleted, or auto-renamed (e.g. "

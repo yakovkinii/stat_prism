@@ -28,6 +28,7 @@ from scipy.stats import chi2
 from src.common.decorators import log_function
 from src.common.qcolor import Colors
 from src.common.translations import t
+from src.data.data import OrdinalCastError
 from src.data.data_manager import DATA_MANAGER
 from src.side_area_panel.modules.common.column_numbering import ColumnNumbering
 from src.side_area_panel.modules.common.mathematics.correlation.correlation import calculate_correlations
@@ -40,6 +41,8 @@ from src.side_area_panel.modules.common.utility import (
     format_r_apa,
     format_statistic_apa,
     format_value_apa,
+    ordinal_cast_error_message,
+    ordinal_numeric_cast_warning,
 )
 from src.side_area_panel.modules.correlation.correlation_result import CorrelationType
 from src.side_area_panel.modules.exploratory_factor_analysis.exploratory_factor_analysis_result import (
@@ -146,6 +149,7 @@ def recalculate_factor_analysis_study(elements, result: FactorAnalysisResult, up
     exceptions are handled centrally by the panel's recalculate()."""
     cfg = result.config
     result.result_elements = []
+    result.warnings = []
 
     selected = cfg.column_selector[0] if cfg.column_selector else None
     if not selected or len(selected) < 2:
@@ -155,8 +159,19 @@ def recalculate_factor_analysis_study(elements, result: FactorAnalysisResult, up
         data_label=cfg.data_source,
         current_result_id=result.unique_id,
     )
-    # Ordinal items are scored numerically so Likert scales are usable.
-    df = data.get_dataframe(columns=selected, map_ordinal=True)
+    # Polychoric extraction is a true-ordinal estimator (uses the order codes, no warning); every
+    # other correlation treats the items numerically, so ordinals are used via their face values
+    # (error on non-numeric categories, warn that they were cast).
+    is_polychoric = (cfg.correlation_method or "Pearson") == "Polychoric"
+    if is_polychoric:
+        df = data.get_dataframe(columns=selected, map_ordinal=True)
+    else:
+        try:
+            df, cast = data.get_numeric_face_dataframe(selected)
+        except OrdinalCastError as error:
+            return _fail(result, ordinal_cast_error_message(error.column_name))
+        if cast:
+            result.set_warning(ordinal_numeric_cast_warning(cast))
     df = df.select_dtypes(include=[np.number]).astype(float).dropna(axis=0)
     n_rows, n_cols = df.shape
     if n_rows < 5 or n_cols < 2:
@@ -173,7 +188,6 @@ def recalculate_factor_analysis_study(elements, result: FactorAnalysisResult, up
 
     # Inter-item correlation drives KMO/Bartlett, the eigenvalues, and (in polychoric mode) the
     # extraction itself. Pearson uses the raw data; Polychoric feeds the in-house matrix.
-    is_polychoric = (cfg.correlation_method or "Pearson") == "Polychoric"
     if is_polychoric:
         correlation = _polychoric_matrix(df)
         if not np.all(np.isfinite(correlation)):

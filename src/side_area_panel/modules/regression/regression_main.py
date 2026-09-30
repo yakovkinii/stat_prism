@@ -28,6 +28,7 @@ from statsmodels.stats.stattools import durbin_watson
 from src.common.decorators import log_function
 from src.common.qcolor import Colors
 from src.common.translations import t
+from src.data.data import OrdinalCastError
 from src.data.data_manager import DATA_MANAGER
 from src.side_area_panel.modules.common.prose import prose_enabled
 from src.side_area_panel.modules.common.result.html_result import Cell, HTMLTableV2, Row
@@ -46,6 +47,8 @@ from src.side_area_panel.modules.common.utility import (
     format_r_apa,
     format_statistic_apa,
     format_value_apa,
+    ordinal_cast_error_message,
+    ordinal_numeric_cast_warning,
     smart_comma_join,
 )
 from src.side_area_panel.modules.common.verbal.significance import significance_verbal
@@ -348,15 +351,35 @@ def recalculate_regression_study(elements, result: RegressionResult, update) -> 
         data_label=cfg.data_source,
         current_result_id=result.unique_id,
     )
-    # Drop rows with any missing value in the used columns (list-wise) so OLS doesn't fail.
-    df = data.get_dataframe(columns=all_columns, map_ordinal=True).dropna()
-    update(10)
+    result.warnings = []
 
     verbal = bool(cfg.verbal_indicators)
     prose = prose_enabled(cfg.interpretation)
     show_std = bool(cfg.standardized)
 
     model_type = cfg.model_type or RegressionModelType.LINEAR.value
+
+    # Predictors (and, for linear regression, the outcome) are modelled numerically, so ordinal
+    # columns are used via their face values -- error on non-numeric categories, warn that they were
+    # cast. A logistic / multinomial OUTCOME is categorical, so it keeps its face labels (not cast).
+    predictors = list(independent_columns)
+    if moderator_column is not None:
+        predictors.append(moderator_column)
+    if mediator_column is not None:
+        predictors.append(mediator_column)
+    numeric_columns = [dependent_column] + predictors if model_type == RegressionModelType.LINEAR.value else predictors
+    try:
+        df, cast = data.get_numeric_face_dataframe(numeric_columns)
+    except OrdinalCastError as error:
+        return _fail(result, ordinal_cast_error_message(error.column_name))
+    if model_type != RegressionModelType.LINEAR.value:
+        df = pd.concat([df, data.get_dataframe(columns=[dependent_column])], axis=1)
+    if cast:
+        result.set_warning(ordinal_numeric_cast_warning(cast))
+    # Drop rows with any missing value in the used columns (list-wise) so the models don't fail.
+    df = df.dropna()
+    update(10)
+
     if model_type == RegressionModelType.LOGISTIC.value:
         if mediator_column:
             elements.column_selector.set_alert(3)
