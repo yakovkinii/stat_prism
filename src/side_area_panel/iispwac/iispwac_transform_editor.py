@@ -60,6 +60,7 @@ class IISPWACTransformEditor(ItemInSidePanelWithAutoConfig):
         self.spec = None
         self.column_name = None
         self.columns = []
+        self._column_objects = []
         self.column_type = None
         self.is_numeric_column = False
         self.unique_values = []
@@ -93,6 +94,7 @@ class IISPWACTransformEditor(ItemInSidePanelWithAutoConfig):
         if not columns:
             self.spec = None
             self.columns = []
+            self._column_objects = []
             self.column_name = None
             self.unique_values = []
             if self._built_column is not None or not getattr(self, "cards", None):
@@ -104,6 +106,7 @@ class IISPWACTransformEditor(ItemInSidePanelWithAutoConfig):
         # Several columns can be transformed together; they share one spec applied over the
         # union of their values (each column only takes the entries it actually has).
         self.columns = [c.column_name for c in columns]
+        self._column_objects = columns
         self.column_name = self.columns[0]
         self.column_type = columns[0].column_type
         self.is_numeric_column = all(bool(c.is_numeric) for c in columns)
@@ -291,8 +294,16 @@ class IISPWACTransformEditor(ItemInSidePanelWithAutoConfig):
         is_ordinal = self.spec["type"] == ColumnType.ORDINAL.value
         has_order = self.spec["type"] in (ColumnType.ORDINAL.value, ColumnType.NOMINAL.value)
         is_numeric = self.spec["type"] == ColumnType.NUMERIC.value
+        can_flip = is_ordinal and self._can_flip_ordinal()
+        if not can_flip and self.spec.get("flip"):
+            self.spec["flip"] = False
+            if hasattr(self, "flip_check"):
+                was_suppressed = self._suppress
+                self._suppress = True
+                self.flip_check.setChecked(False)
+                self._suppress = was_suppressed
         self.order_button.setVisible(has_order)
-        self.flip_row.setVisible(is_ordinal)
+        self.flip_row.setVisible(can_flip)
         self.normalize_row.setVisible(is_numeric)
         # Bold the action buttons when they carry a setting (replaces the old text summaries).
         self._style_action_button(self.map_button, self._has_mapping(self.spec))
@@ -302,6 +313,24 @@ class IISPWACTransformEditor(ItemInSidePanelWithAutoConfig):
     @staticmethod
     def _has_mapping(spec) -> bool:
         return any(f != t for f, t in (spec.get("mapping") or []))
+
+    def _mapped_unique_values(self):
+        mapping = {f: t for f, t in (self.spec.get("mapping") or [])}
+        return [mapping.get(value, value) for value in self.unique_values]
+
+    def _can_flip_ordinal(self) -> bool:
+        # Flipping is allowed only for an ordinal with no prescribed order (neither one assigned in this
+        # transform nor one already on a source column) whose face values are numeric.
+        if self.spec.get("order"):
+            return False
+        if any(
+            column.column_type == ColumnType.ORDINAL and column.order for column in self._column_objects
+        ):
+            return False
+        series = pd.Series(self._mapped_unique_values())
+        numeric = pd.to_numeric(series, errors="coerce")
+        non_empty = series.notna() & (series.astype(str).str.strip() != "")
+        return not bool((numeric.isna() & non_empty).any())
 
     @staticmethod
     def _style_action_button(button, applied: bool):
@@ -337,6 +366,12 @@ class IISPWACTransformEditor(ItemInSidePanelWithAutoConfig):
         self._changed()
 
     def _on_flip(self, checked):
+        if checked and not self._can_flip_ordinal():
+            was_suppressed = self._suppress
+            self._suppress = True
+            self.flip_check.setChecked(False)
+            self._suppress = was_suppressed
+            checked = False
         self.spec["flip"] = bool(checked)
         self._changed()
 

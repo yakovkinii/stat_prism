@@ -27,6 +27,7 @@ from src.common.constant import ColumnType
 from src.common.constant import ID_COLUMN_NAME
 from src.common.qcolor import Colors
 from src.common.translations import t
+from src.data.data import infer_ordinal_order
 from src.side_area_panel.modules.common.result.plot_result import (
     Bar,
     BarPlotConfig,
@@ -71,7 +72,7 @@ def ordinal_axis_tick_labels(data, column: str, series: pd.Series = None):
     """Tick labels for an ordinal column that is plotted using its internal numeric order keys."""
     if data[column].column_type != ColumnType.ORDINAL:
         return None
-    order = data[column].order or {}
+    order = infer_ordinal_order(data[column])
     if not order:
         return None
     present = None

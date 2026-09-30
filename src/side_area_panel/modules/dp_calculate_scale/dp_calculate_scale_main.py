@@ -92,17 +92,16 @@ def dp_calculate_scale_main(elements: Elements, result: CalculateScaleResult, up
         result.error_message = "Ordinal item values must be parseable as numbers: " + ", ".join(invalid_values)
         return result
 
-    # Reverse-keying is an inversion, so it is only well-defined on a plain numeric scale: refuse a
-    # flipped ordinal that has a custom order (order != numeric order of its labels).
-    bad_flip = [
-        c for c in flipped_columns if data[c].column_type == ColumnType.ORDINAL and not data.order_matches_numeric_face(c)
-    ]
+    # Reverse-keying is an inversion done on face values, so it is only well-defined for an ordinal with
+    # no prescribed order (its face values are already validated numeric above); refuse a flipped
+    # ordinal that carries a custom order.
+    bad_flip = [c for c in flipped_columns if data[c].column_type == ColumnType.ORDINAL and data[c].order]
     if bad_flip:
         elements.column_selector.set_alert(1)
         result.error_message = (
-            "Cannot reverse-key ordinal column(s) with a custom order: "
+            "Cannot reverse-key ordinal column(s) with a prescribed order: "
             + smart_comma_join([str(c) for c in bad_flip])
-            + ". Reverse only plain numeric scales."
+            + ". Reverse only ordinals with no custom order."
         )
         return result
 

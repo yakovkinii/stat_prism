@@ -26,7 +26,7 @@ from scipy import stats
 from src.common.constant import ColumnType, MDASH
 from src.common.decorators import log_function
 from src.common.translations import t
-from src.data.data import OrdinalCastError
+from src.data.data import OrdinalCastError, infer_ordinal_order
 from src.data.data_manager import DATA_MANAGER
 from src.side_area_panel.modules.common.column_numbering import ColumnNumbering
 from src.side_area_panel.modules.common.prose import ProseDetail, prose_enabled, prose_includes
@@ -542,10 +542,12 @@ def _add_plots(result, wide, conditions, y_axis_tick_labels):
 def _shared_ordinal_axis_tick_labels(data, wide, conditions):
     if not all(data[col].column_type == ColumnType.ORDINAL for col in conditions):
         return None
-    first_order = data[conditions[0]].order or {}
+    # The box plot shares one value axis, so it can only be relabelled when every condition maps to the
+    # same ordinal scale (its prescribed order, or the order inferred when none is stored).
+    first_order = infer_ordinal_order(data[conditions[0]])
     if not first_order:
         return None
-    if any((data[col].order or {}) != first_order for col in conditions[1:]):
+    if any(infer_ordinal_order(data[col]) != first_order for col in conditions[1:]):
         return None
     return ordinal_axis_tick_labels(data, conditions[0], pd.concat([wide[col] for col in conditions], ignore_index=True))
 

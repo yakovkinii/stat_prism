@@ -20,8 +20,10 @@ import pandas as pd
 
 from src.common.constant import ColumnType
 from src.common.decorators import log_function
+from src.data.data import OrdinalCastError
 from src.data.data_manager import DATA_MANAGER
 from src.side_area_panel.modules.common.utility import (
+    ordinal_cast_error_message,
     ordinal_numeric_cast_warning,
     smart_comma_join,
     unique_name,
@@ -48,28 +50,30 @@ def dp_invert_scale_main(elements: Elements, result: InvertScaleResult, update):
         result.error_message = "Select at least one column."
         return result
 
-    # Inverting a scale is only well-defined on a plain numeric scale. An ordinal with a custom order
-    # (order != numeric order of its labels) or non-numeric categories can't be inverted arithmetically
-    # -- refuse it rather than silently reverse by magnitude. Auto-inferred numeric ordinals are fine.
-    invalid = [
-        c
-        for c in columns
-        if data[c].column_type == ColumnType.ORDINAL and not data.order_matches_numeric_face(c)
-    ]
-    if invalid:
+    # Inverting reverses a scale as (reference - x) on face values. An ordinal with a prescribed order
+    # is not a plain numeric scale, so refuse it; an ordinal with no prescribed order is fine as long as
+    # its face values are numeric.
+    ordinal_columns = [c for c in columns if data[c].column_type == ColumnType.ORDINAL]
+    prescribed = [c for c in ordinal_columns if data[c].order]
+    if prescribed:
         elements.column_selector.set_alert(0)
         result.error_message = (
-            "Cannot invert ordinal column(s) with a custom order or non-numeric categories: "
-            + smart_comma_join([str(c) for c in invalid])
-            + ". Invert only plain numeric scales (or convert these to numeric first)."
+            "Cannot invert ordinal column(s) with a prescribed order: "
+            + smart_comma_join([str(c) for c in prescribed])
+            + ". Invert only ordinals with no custom order (or convert them to numeric first)."
         )
         return result
 
-    # Inverting reads ordinal columns via their numeric face values -> warn (consistent with the
-    # other modules that treat ordinals as numeric).
-    cast_ordinals = [c for c in columns if data[c].column_type == ColumnType.ORDINAL]
-    if cast_ordinals:
-        result.set_warning(ordinal_numeric_cast_warning(cast_ordinals))
+    # Inverting reads ordinal columns via their numeric face values: refuse a non-numeric ordinal, and
+    # warn that the rest were treated as numeric (consistent with the other modules that cast ordinals).
+    try:
+        data.get_numeric_face_dataframe(ordinal_columns)
+    except OrdinalCastError as error:
+        elements.column_selector.set_alert(0)
+        result.error_message = ordinal_cast_error_message(error.column_name)
+        return result
+    if ordinal_columns:
+        result.set_warning(ordinal_numeric_cast_warning(ordinal_columns))
 
     # All selected columns share one reference. Auto = (max + min) over the pooled
     # values of every selected column; a manual reference overrides it.

@@ -21,7 +21,11 @@ import pandas as pd
 from src.common.constant import ColumnType
 from src.common.decorators import log_function
 from src.data.data_manager import DATA_MANAGER
-from src.side_area_panel.modules.common.utility import apply_normalization, unique_name
+from src.side_area_panel.modules.common.utility import (
+    apply_normalization,
+    ordinal_numeric_cast_warning,
+    unique_name,
+)
 from src.side_area_panel.modules.dp_transform.dp_transform_result import TransformResult
 from src.side_area_panel.modules.dp_transform.dp_transform_ui import Elements
 
@@ -31,6 +35,49 @@ def _parse_float(text):
         return float(text)
     except (TypeError, ValueError):
         return None
+
+
+def _mapped_series(column, spec):
+    series = column.data_series
+    mapping = {f: t for f, t in (spec.get("mapping") or [])}
+    if mapping:
+        series = series.map(lambda v: mapping[v] if v in mapping else v)
+    return series
+
+
+def _non_empty(series):
+    return series.notna() & (series.astype(str).str.strip() != "")
+
+
+def _flip_target_type(column, spec):
+    try:
+        return ColumnType(spec.get("type"))
+    except (ValueError, TypeError):
+        return column.column_type
+
+
+def _flip_casts_ordinal(column, spec) -> bool:
+    """True when the flip will treat an ordinal source column as numeric (its face values are used),
+    so the caller can raise the 'treated as numeric' warning -- as Invert Scale / Calculate Scale do."""
+    return (
+        column.column_type == ColumnType.ORDINAL
+        and _flip_target_type(column, spec) == ColumnType.ORDINAL
+        and bool(spec.get("flip"))
+    )
+
+
+def _ordinal_flip_error(column, spec):
+    if _flip_target_type(column, spec) != ColumnType.ORDINAL or not spec.get("flip"):
+        return None
+    if spec.get("order"):
+        return f"Cannot flip '{column.column_name}' after assigning an explicit ordinal order."
+    if column.column_type == ColumnType.ORDINAL and column.order:
+        return f"Cannot flip ordinal column '{column.column_name}' because it has a prescribed order."
+    series = _mapped_series(column, spec)
+    numeric = pd.to_numeric(series, errors="coerce")
+    if bool((numeric.isna() & _non_empty(series)).any()):
+        return f"Cannot flip '{column.column_name}' because its ordinal face values are not numeric."
+    return None
 
 
 @log_function
@@ -44,6 +91,7 @@ def dp_transform_main(elements: Elements, result: TransformResult, update):
     # Default to a pass-through so downstream stays valid while inputs are incomplete.
     result.data = new_data
     result.error_message = ""
+    result.warnings = []
 
     selected = cfg.column_selector[0] if cfg.column_selector else None
     if not selected:
@@ -58,6 +106,19 @@ def dp_transform_main(elements: Elements, result: TransformResult, update):
         return result
 
     spec = cfg.transform_spec if isinstance(cfg.transform_spec, dict) else {}
+    for column_name in valid:
+        error = _ordinal_flip_error(data[column_name], spec)
+        if error:
+            elements.column_selector.set_alert(0)
+            result.error_message = error
+            return result
+
+    # Flipping an ordinal uses its numeric face values -> warn (consistent with Invert / Calculate
+    # Scale, the other modules that treat ordinals as numeric).
+    cast_ordinals = [c for c in valid if _flip_casts_ordinal(data[c], spec)]
+    if cast_ordinals:
+        result.set_warning(ordinal_numeric_cast_warning(cast_ordinals))
+
     # The same spec is applied to every selected column; renaming only makes sense for one.
     single = len(valid) == 1
     for column_name in valid:
@@ -73,8 +134,7 @@ def _transform_column(new_data, column_name, spec, rename):
 
     # 1. Value mapping (keys are original values; unmapped values pass through).
     mapping = {f: t for f, t in (spec.get("mapping") or [])}
-    if mapping:
-        col.data_series = col.data_series.map(lambda v: mapping[v] if v in mapping else v)
+    col.data_series = _mapped_series(col, spec)
 
     # 2. Target type.
     try:
@@ -84,7 +144,8 @@ def _transform_column(new_data, column_name, spec, rename):
     col.column_type = ctype
     col.is_numeric = ctype == ColumnType.NUMERIC
 
-    # Ordinal flip works on the numeric codes, before any stringification.
+    # Ordinal flip is allowed only for plain numeric face-value scales. Validation above rejects
+    # explicit/custom ordinal orders and non-numeric face values, so this never uses order codes.
     if ctype == ColumnType.ORDINAL and spec.get("flip"):
         numeric = pd.to_numeric(col.data_series, errors="coerce")
         if not numeric.dropna().empty:

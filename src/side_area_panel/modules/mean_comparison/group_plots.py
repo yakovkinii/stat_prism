@@ -25,6 +25,7 @@ from scipy.stats import gaussian_kde
 from src.common.constant import ColumnType
 from src.common.qcolor import Colors
 from src.common.translations import t
+from src.data.data import infer_ordinal_order
 from src.side_area_panel.modules.common.result.plot_result import Bar, BarPlotConfig, Line, LinePlotConfig, PlotV2
 from src.side_area_panel.modules.descriptive.plot import _histogram_edges, create_box_plot, ordinal_axis_tick_labels
 
@@ -75,7 +76,7 @@ def add_group_distribution_plots(
         # A numeric column (including an ordinal cast to numeric) is plotted on its values as-is.
         is_true_ordinal = is_ordinal and col not in numeric_columns
         if is_true_ordinal:
-            work = df.assign(**{col: df[col].map(data[col].order or {})})
+            work = df.assign(**{col: df[col].map(infer_ordinal_order(data[col]))})
             axis_tick_labels = ordinal_axis_tick_labels(data, col, work[col])
         else:
             work = df

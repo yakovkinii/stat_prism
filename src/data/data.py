@@ -39,6 +39,20 @@ def sorted_numeric_or_alpha(values):
         return sorted(items, key=str)
 
 
+def infer_ordinal_order(column) -> dict:
+    """The column's ordinal order as ``{face_value: code}``.
+
+    An ordinal column carries an ``order`` dict only when the user has prescribed one; when it is
+    absent the order is inferred on demand by the standard rule -- numeric when every value casts to a
+    number, else alphabetical. This way a study always has a mapping to work with, without an order
+    being eagerly stored on every ordinal column. Operates on a column object so both a :class:`Data`
+    instance and UI editors (which hold column objects, not a Data) can share it."""
+    if column.order:
+        return column.order
+    values = [v for v in column.data_series.dropna().unique() if not (isinstance(v, str) and v == "")]
+    return {value: index for index, value in enumerate(sorted_numeric_or_alpha(values), start=1)}
+
+
 class OrdinalCastError(Exception):
     """An ordinal column whose face values are not all numeric was fed to a module that must treat it
     numerically. Carries the column name so the module can show a clear 'convert first' message."""
@@ -107,7 +121,10 @@ class DataColumn:
             self.order = {}
             return self
 
-        if self.column_type == ColumnType.NOMINAL and not self.order:
+        # Ordinal / nominal columns carry an order dict only when one has been prescribed. With none
+        # set, leave it empty -- ordinal studies infer the order on demand (see infer_ordinal_order).
+        # When a (partial) order is present, re-index it and append any values still lacking a place.
+        if not self.order:
             return self
 
         self.order = {o: i for i, o in enumerate(sorted(self.order, key=self.order.get), start=1)}
@@ -277,17 +294,26 @@ class Data:
                 )
             df = df[columns]
 
-        # sort using order dicts
+        # Sort by order dicts. Ordinals use their prescribed order or, when none is stored, the order
+        # inferred on demand (so an ordinal always sorts / maps consistently); nominals sort only when
+        # an explicit order is present.
         for col in df.columns:
             column = self[col]
-            if len(column.order) > 0:
-                if map_ordinal and column.column_type == ColumnType.ORDINAL:
-                    df[col] = df[col].map(column.order)
+            if column.column_type == ColumnType.ORDINAL:
+                effective_order = infer_ordinal_order(column)
+                if not effective_order:
+                    continue
+                if map_ordinal:
+                    df[col] = df[col].map(effective_order)
                     df = df.sort_values(col)
                 else:
-                    df[ORDER_COLUMN] = df[col].map(column.order)
+                    df[ORDER_COLUMN] = df[col].map(effective_order)
                     df = df.sort_values(ORDER_COLUMN)
                     df = df.drop(ORDER_COLUMN, axis=1)
+            elif len(column.order) > 0:
+                df[ORDER_COLUMN] = df[col].map(column.order)
+                df = df.sort_values(ORDER_COLUMN)
+                df = df.drop(ORDER_COLUMN, axis=1)
 
         return df
 
@@ -321,21 +347,6 @@ class Data:
             cast.append(col)
         return df, cast
 
-    def order_matches_numeric_face(self, column_name: str) -> bool:
-        """True when the ordinal column's category order equals sorting its face values numerically --
-        i.e. it is a plain numeric scale (auto-inferred, or a custom order that still agrees with the
-        numbers). Scale inversion is only well-defined in that case; a non-numeric or reordered scale
-        returns False so the caller can refuse."""
-        order = self[column_name].order or {}
-        if not order:
-            return False
-        try:
-            numeric_sorted = sorted(order.keys(), key=lambda v: float(v))
-        except (TypeError, ValueError):
-            return False
-        order_sorted = sorted(order.keys(), key=lambda v: order[v])
-        return numeric_sorted == order_sorted
-
     def get_id_series(self) -> pd.Series:
         return self.get_dataframe(columns=[ID_COLUMN_NAME])[ID_COLUMN_NAME]
 
@@ -359,7 +370,7 @@ class Data:
         ordered categories are shown on the visible numeric scale when possible, otherwise
         as the adjacent displayed labels, so result tables do not expose internal order keys.
         """
-        order = self[column_name].order or {}
+        order = infer_ordinal_order(self[column_name])
         if not order or pd.isna(code):
             return code
 

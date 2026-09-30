@@ -25,9 +25,9 @@ _METHODOLOGY = (
     "<b>Transform column</b><br>"
     "Reshapes one selected column <i>in place</i> (the column is replaced, not duplicated). "
     "In order: <b>value mapping</b> (recode specific values); <b>target type</b> "
-    "(Nominal / Ordinal / Numeric); for Ordinal an explicit <b>category order</b> and an "
-    "optional <b>flip</b> that reverses the scale as (reference − x), with the reference "
-    "defaulting to max + min; for Numeric a <b>normalisation</b> "
+    "(Nominal / Ordinal / Numeric); for Ordinal an explicit <b>category order</b>. Plain numeric "
+    "ordinal face values can be <b>flipped</b> as (reference - x) only when no custom order is "
+    "defined; for Numeric a <b>normalisation</b> "
     "(Z-score, Stanine, Center, Min-max, Log, Rank); and a <b>colour tag</b>. The new name "
     "defaults to the column's current name."
 )
