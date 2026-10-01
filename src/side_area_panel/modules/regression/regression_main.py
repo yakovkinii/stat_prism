@@ -384,15 +384,17 @@ def recalculate_regression_study(elements, result: RegressionResult, update) -> 
         if mediator_column:
             elements.column_selector.set_alert(3)
             return _fail(result, t("regression.error.logit_no_mediation"))
+        dependent_order = data.ordered_categories(dependent_column, list(df[dependent_column].dropna().unique()))
         return _run_logistic(
-            result, df, dependent_column, independent_columns, moderator_column, cfg, verbal, prose, update
+            result, df, dependent_column, dependent_order, independent_columns, moderator_column, cfg, verbal, prose, update
         )
     if model_type == RegressionModelType.MULTINOMIAL.value:
         if mediator_column:
             elements.column_selector.set_alert(3)
             return _fail(result, t("regression.error.logit_no_mediation"))
+        dependent_order = data.ordered_categories(dependent_column, list(df[dependent_column].dropna().unique()))
         return _run_multinomial(
-            result, df, dependent_column, independent_columns, moderator_column, cfg, verbal, prose, update
+            result, df, dependent_column, dependent_order, independent_columns, moderator_column, cfg, verbal, prose, update
         )
 
     independent_cols = independent_columns.copy()
@@ -725,7 +727,9 @@ def _build_plot(df, model, mediator_model, dependent_column, independent_columns
 # ===================================================================================
 
 
-def _run_logistic(result, df, dependent_column, independent_columns, moderator_column, cfg, verbal, prose, update):
+def _run_logistic(
+    result, df, dependent_column, dependent_order, independent_columns, moderator_column, cfg, verbal, prose, update
+):
     """Fit a binary logistic regression (statsmodels Logit) and build the fit, coefficient
     and (optional) diagnostics/plot. Moderation is supported via interaction terms;
     mediation is not (filtered out by the caller)."""
@@ -739,8 +743,8 @@ def _run_logistic(result, df, dependent_column, independent_columns, moderator_c
             df[interaction_term] = df[ind_col] * df[moderator_column]
             independent_cols.append(interaction_term)
 
-    # ----- Binary outcome: map the two distinct values to 0/1 (positive = the larger one) -----
-    distinct = sorted(pd.unique(df[dependent_column]))
+    # ----- Binary outcome: map the two distinct values to 0/1 (positive = the later ordered one) -----
+    distinct = [value for value in dependent_order if value in set(pd.unique(df[dependent_column]))]
     if len(distinct) != 2:
         return _fail(result, t("regression.error.not_binary", values=len(distinct)))
     positive_label = distinct[1]
@@ -869,7 +873,9 @@ def _logistic_coefficient_prose(model, dependent_column, positive_label) -> str:
 # ===================================================================================
 
 
-def _run_multinomial(result, df, dependent_column, independent_columns, moderator_column, cfg, verbal, prose, update):
+def _run_multinomial(
+    result, df, dependent_column, dependent_order, independent_columns, moderator_column, cfg, verbal, prose, update
+):
     """Fit a multinomial logistic regression (statsmodels MNLogit) for an unordered outcome
     with 3+ categories. Coefficients are reported as a block per non-reference category (vs the
     first category as the baseline). Moderation is supported via interaction terms; mediation
@@ -884,10 +890,11 @@ def _run_multinomial(result, df, dependent_column, independent_columns, moderato
             independent_cols.append(interaction_term)
 
     # Encode the outcome to 0..K-1; the first category (code 0) is the reference/baseline.
-    codes, categories = pd.factorize(df[dependent_column], sort=True)
-    categories = list(categories)
+    categories = [value for value in dependent_order if value in set(pd.unique(df[dependent_column]))]
     if len(categories) < 3:
         return _fail(result, t("regression.error.not_multinomial", values=len(categories)))
+    code_of = {value: code for code, value in enumerate(categories)}
+    codes = df[dependent_column].map(code_of).to_numpy()
 
     n = len(df)
     if n < len(independent_cols) + 2:

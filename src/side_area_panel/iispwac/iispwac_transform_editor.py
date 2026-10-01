@@ -413,7 +413,9 @@ class IISPWACTransformEditor(ItemInSidePanelWithAutoConfig):
         show_color_picker(self.widget, choose)
 
     def _open_order(self):
-        natural = self._mapped_unique_values()
+        # Default (no prescribed order) lists the already-mapped values in the standard order -- numeric
+        # when they all cast to numbers, else alphabetical -- so a str->number mapping shows up sorted.
+        natural = sorted_numeric_or_alpha(self._mapped_unique_values())
         saved = [value for value in (self.spec["order"] or []) if value in natural]
         values = (saved + [value for value in natural if value not in saved]) if saved else natural
 
@@ -451,7 +453,7 @@ class IISPWACTransformEditor(ItemInSidePanelWithAutoConfig):
 
         buttons = QHBoxLayout()
         reset_button = QPushButton("Reset order", content)
-        reset_button.setToolTip("Restore the natural (data) order")
+        reset_button.setToolTip("Restore the default order")
         reset_button.clicked.connect(lambda: populate(natural))
         buttons.addWidget(reset_button)
         ok_button = QPushButton("OK", content)

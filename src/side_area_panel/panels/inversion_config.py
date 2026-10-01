@@ -22,6 +22,7 @@ from PySide6.QtWidgets import QDoubleSpinBox, QHBoxLayout, QLabel, QSizePolicy, 
 
 from src.common.constant import RARROW
 from src.common.decorators import log_method, log_method_noarg
+from src.data.data import sorted_numeric_or_alpha
 from src.pyside_ext.elements.base import BasePanelElement
 from src.pyside_ext.elements.title import Title
 from src.pyside_ext.markup import css
@@ -131,7 +132,7 @@ class InversionVisualizer(BasePanelElement):
         self.preview_labels = []
 
         if unique_values is not None and len(unique_values) > 0:
-            sorted_values = sorted(unique_values)
+            sorted_values = sorted_numeric_or_alpha(unique_values)
 
             # Limit the preview to first 5 + last 5 so a long list does not clutter the panel.
             if len(sorted_values) > 10:

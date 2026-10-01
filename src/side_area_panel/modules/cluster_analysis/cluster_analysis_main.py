@@ -49,6 +49,8 @@ from src.side_area_panel.modules.common.utility import (
     ordinal_numeric_cast_warning,
 )
 
+_ROW_ID_COLUMN = "__STATPRISM_ROW_ID__"
+
 
 def _fail(result: ClusterAnalysisResult, message: str) -> ClusterAnalysisResult:
     """Show a validation message to the user and log it, then stop."""
@@ -97,16 +99,21 @@ def recalculate_cluster_analysis_study(elements, result: ClusterAnalysisResult, 
         return _fail(result, ordinal_cast_error_message(error.column_name))
     if cast:
         result.set_warning(ordinal_numeric_cast_warning(cast))
-    df = df.select_dtypes(include=[np.number]).astype(float).dropna(axis=0)
+    ids = data.get_id_series().reindex(df.index)
+    df = df.select_dtypes(include=[np.number]).astype(float)
+    columns = list(df.columns)
+    df[_ROW_ID_COLUMN] = ids
+    df = df.dropna(axis=0)
     n_rows, n_cols = df.shape
+    n_cols -= 1
     if n_cols < 1:
         return _fail(result, t("cluster.msg.select_variable"))
     k = cfg.n_clusters
     if n_rows < k:
         return _fail(result, t("cluster.msg.not_enough", n=k))
 
-    columns = list(df.columns)
-    original = df.values
+    id_labels = df[_ROW_ID_COLUMN].tolist()
+    original = df[columns].values
     standardize = bool(cfg.standardize)
     verbal = bool(cfg.verbal_indicators)
 
@@ -221,7 +228,7 @@ def recalculate_cluster_analysis_study(elements, result: ClusterAnalysisResult, 
         assign_table.add_title_row_apa(
             Row([Cell(t("cluster.col.observation")), Cell(t("cluster.col.cluster"), center=True)])
         )
-        for id_label, label in zip(data.get_id_series(), labels):
+        for id_label, label in zip(id_labels, labels):
             assign_table.add_single_row_apa(Row([Cell(id_label, push_to_left=True), Cell(str(label + 1), center=True)]))
         result.update_and_add_element(assign_table, "cluster assignments")
 

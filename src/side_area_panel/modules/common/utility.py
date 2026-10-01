@@ -42,9 +42,10 @@ def unique_name(base: str, existing) -> str:
 
 
 def ordinal_numeric_cast_warning(columns) -> str:
-    """The orange warning shown when a module treated ordinal columns as numeric by casting their
-    face values (used by every 'cast + warn' analysis / data-processing study)."""
-    return t("ordinal.warning.numeric_cast", columns=smart_comma_join([str(c) for c in columns]))
+    """The short orange warning shown when a module treated ordinal columns as numeric by casting their
+    face values (used by every 'cast + warn' analysis / data-processing study). ``columns`` is the list
+    of cast columns the caller declares; the message is kept short and does not enumerate them."""
+    return t("ordinal.warning.numeric_cast")
 
 
 def ordinal_cast_error_message(column) -> str:

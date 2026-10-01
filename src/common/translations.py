@@ -26,8 +26,8 @@ TRANSLATIONS = {
         "ua": "Нотатка",
     },
     "ordinal.warning.numeric_cast": {
-        "en": "Ordinal columns were treated as numeric (their face values were used): {columns}.",
-        "ua": "Порядкові стовпці оброблено як числові (використано їх видимі значення): {columns}.",
+        "en": "Ordinal columns were treated as numeric.",
+        "ua": "Порядкові стовпці оброблено як числові.",
     },
     "ordinal.error.non_numeric": {
         "en": (

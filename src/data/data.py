@@ -25,9 +25,6 @@ import pandas as pd
 from src.common.constant import ID_COLUMN_NAME, ColumnType
 from src.common.decorators import log_method
 
-ORDER_COLUMN = "__ORDER__"
-
-
 def sorted_numeric_or_alpha(values):
     """Default category sort: numeric when every value is castable to a number, else alphabetical.
     So Likert-style labels ('1'..'10') sort 1, 2, ..., 10 rather than '1', '10', '2', while text
@@ -294,26 +291,14 @@ class Data:
                 )
             df = df[columns]
 
-        # Sort by order dicts. Ordinals use their prescribed order or, when none is stored, the order
-        # inferred on demand (so an ordinal always sorts / maps consistently); nominals sort only when
-        # an explicit order is present.
+        # Data access preserves row order. Category ordering belongs at the display layer
+        # (tables, plots, filters, editors) via ordered_categories().
         for col in df.columns:
             column = self[col]
             if column.column_type == ColumnType.ORDINAL:
                 effective_order = infer_ordinal_order(column)
-                if not effective_order:
-                    continue
                 if map_ordinal:
                     df[col] = df[col].map(effective_order)
-                    df = df.sort_values(col)
-                else:
-                    df[ORDER_COLUMN] = df[col].map(effective_order)
-                    df = df.sort_values(ORDER_COLUMN)
-                    df = df.drop(ORDER_COLUMN, axis=1)
-            elif len(column.order) > 0:
-                df[ORDER_COLUMN] = df[col].map(column.order)
-                df = df.sort_values(ORDER_COLUMN)
-                df = df.drop(ORDER_COLUMN, axis=1)
 
         return df
 
@@ -356,7 +341,8 @@ class Data:
         order dict appended in natural sort. Use this for the *display* order of
         categories, because pandas `crosstab` / `value_counts().sort_index()` otherwise
         sort alphabetically and ignore the user-defined ordinal order."""
-        order = self[column_name].order or {}
+        column = self[column_name]
+        order = infer_ordinal_order(column) if column.column_type == ColumnType.ORDINAL else (column.order or {})
         present = sorted((v for v in values if v in order), key=lambda v: order[v])
         # No prescribed order -> default sort (numeric when castable, else alphabetical), for both
         # nominal and ordinal; any value missing from a partial order is appended the same way.
