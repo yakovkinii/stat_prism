@@ -49,4 +49,4 @@ class Elements(ItemInSidePanelWithAutoConfigHolder):
 class OneHot(BaseModulePanel):
     def setup_ui(self):
         self.init_elements(Elements)
-        self.set_label("Encode Categories")
+        self.set_label("One-hot encoding")

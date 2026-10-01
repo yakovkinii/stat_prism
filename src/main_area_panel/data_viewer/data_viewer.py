@@ -303,6 +303,17 @@ class TablePopup(QWidget):
         set_stylesheet(overlay, css(background_color=Style.Color.Overlay))
         overlay.show()
 
+        self._close_mark = QLabel("×", self)
+        self._close_mark.setAttribute(QtCore.Qt.WA_TransparentForMouseEvents)
+        self._close_mark.setAlignment(QtCore.Qt.AlignCenter)
+        self._close_mark.setFixedSize(48, 48)
+        self._close_mark.move(self.width() - 64, 16)
+        set_stylesheet(
+            self._close_mark,
+            css(color=Style.Color.Text, font_size=32, background="transparent", border="none"),
+        )
+        self._close_mark.show()
+
         self.popup = QFrame(self)
         w, h = int(window.width() * 0.95), int(window.height() * 0.95)
         self.popup.setFixedSize(w, h)
@@ -325,6 +336,7 @@ class TablePopup(QWidget):
 
         self.raise_()
         self.show()
+        self._close_mark.raise_()
         # Take keyboard focus so Escape closes the popup (same outcome as clicking outside).
         self.setFocusPolicy(QtCore.Qt.StrongFocus)
         self.setFocus()

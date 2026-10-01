@@ -20,6 +20,7 @@ from PySide6.QtWidgets import QCheckBox, QComboBox, QHBoxLayout, QLabel, QLineEd
 
 from src.common.constant import ColumnType
 from src.common.decorators import log_method_noarg
+from src.data.data import sorted_numeric_or_alpha
 from src.data.data_manager import DATA_MANAGER
 from src.pyside_ext.markup import css
 from src.pyside_ext.styling import Style
@@ -145,7 +146,9 @@ class IISPWACColumnFilter(ItemInSidePanelWithAutoConfig):
     def _build_categorical(self, column, spec):
         values = list(column.data_series.dropna().unique())
         order = column.order or {}
-        values.sort(key=lambda v: order.get(v, 0))
+        ranked = sorted((v for v in values if v in order), key=lambda v: order[v])
+        unranked = sorted_numeric_or_alpha(v for v in values if v not in order)
+        values = ranked + unranked
 
         kept = spec.get("kept_values") if spec else None
         kept_set = set(kept) if kept is not None else None

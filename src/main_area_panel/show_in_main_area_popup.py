@@ -17,7 +17,7 @@
 
 
 from PySide6 import QtCore
-from PySide6.QtWidgets import QWidget
+from PySide6.QtWidgets import QLabel, QWidget
 
 from src.pyside_ext.markup import css
 from src.pyside_ext.styling import Style
@@ -42,12 +42,24 @@ class WidgetPopup(QWidget):
         set_stylesheet(self._overlay, css(background_color=Style.Color.Overlay))
         self._overlay.show()
 
+        self._close_mark = QLabel("×", self)
+        self._close_mark.setAttribute(QtCore.Qt.WA_TransparentForMouseEvents)
+        self._close_mark.setAlignment(QtCore.Qt.AlignCenter)
+        self._close_mark.setFixedSize(48, 48)
+        self._close_mark.move(self.width() - 64, 16)
+        set_stylesheet(
+            self._close_mark,
+            css(color=Style.Color.Text, font_size=32, background="transparent", border="none"),
+        )
+        self._close_mark.show()
+
         self.content = widget
         self.content.setParent(self)
         # Clicks on the content itself must not close the popup.
         self.content.mousePressEvent = lambda e: e.accept()
         self.recenter_content()
         self.content.raise_()
+        self._close_mark.raise_()
         self.show()
         # Take keyboard focus so Escape closes the popup (same outcome as clicking outside).
         self.setFocusPolicy(QtCore.Qt.StrongFocus)

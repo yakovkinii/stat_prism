@@ -41,6 +41,17 @@ class OverlayPopup(QWidget):
         set_stylesheet(self._overlay, css(background_color=Style.Color.Overlay))
         self._overlay.show()
 
+        self._close_mark = QLabel("×", self)
+        self._close_mark.setAttribute(Qt.WidgetAttribute.WA_TransparentForMouseEvents)
+        self._close_mark.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self._close_mark.setFixedSize(48, 48)
+        self._close_mark.move(self.width() - 64, 16)
+        set_stylesheet(
+            self._close_mark,
+            css(color=Style.Color.Text, font_size=32, background="transparent", border="none"),
+        )
+        self._close_mark.show()
+
         self.content = content
         self.content.setParent(self)
         # Clicks on the panel itself must not close the popup.
@@ -51,6 +62,7 @@ class OverlayPopup(QWidget):
             (self.height() - self.content.height()) // 2,
         )
         self.content.raise_()
+        self._close_mark.raise_()
 
         self.raise_()
         self.show()

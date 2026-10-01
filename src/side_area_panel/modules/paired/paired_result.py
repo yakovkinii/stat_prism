@@ -43,7 +43,7 @@ class PairedResult(BaseResult):
         # Unique integer id, not for display
         self.unique_id: int = unique_id
 
-        self.title = "Paired/Repeated Measures"
+        self.title = "Paired T-test/ANOVA"
         self.title_context = ""
         self.settings_panel_index = settings_panel_index
         self.config_class = PairedStudyConfig

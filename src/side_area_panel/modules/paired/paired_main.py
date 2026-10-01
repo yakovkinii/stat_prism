@@ -59,7 +59,7 @@ _VALUE = "__value__"
 
 def _fail(result: PairedResult, message: str) -> PairedResult:
     """Show a validation message to the user and log it, then stop."""
-    logging.warning("Paired/Repeated Measures: %s", message)
+    logging.warning("Paired T-test/ANOVA: %s", message)
     result.set_error(message)
     return result
 

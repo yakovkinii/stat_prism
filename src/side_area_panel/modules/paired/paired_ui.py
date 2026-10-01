@@ -72,4 +72,4 @@ class Elements(ItemInSidePanelWithAutoConfigHolder):
 class Paired(BaseModulePanel):
     def setup_ui(self):
         self.init_elements(Elements)
-        self.set_label("Paired/Repeated Measures")
+        self.set_label("Paired T-test/ANOVA")

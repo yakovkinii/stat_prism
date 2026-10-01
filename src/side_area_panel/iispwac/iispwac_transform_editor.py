@@ -35,6 +35,7 @@ from PySide6.QtWidgets import (
 )
 
 from src.common.constant import DARROW, MINUS, NDASH, RARROW, ColumnType
+from src.data.data import sorted_numeric_or_alpha
 from src.data.data_manager import DATA_MANAGER
 from src.pyside_ext.elements.order import CustomListWidget
 from src.pyside_ext.elements.utility.primitive_elements import NoScrollComboBox
@@ -51,6 +52,27 @@ NORMALIZE_METHODS = ["None", "Z-score", "Stanine", "Center", "Min-max", "Log", "
 
 def _to_python(value):
     return value.item() if hasattr(value, "item") else value
+
+
+def _dedupe(values):
+    out = []
+    for value in values:
+        duplicate = False
+        for existing in out:
+            try:
+                same_missing = bool(pd.isna(value) and pd.isna(existing))
+            except (TypeError, ValueError):
+                same_missing = False
+            try:
+                same_value = bool(value == existing)
+            except (TypeError, ValueError):
+                same_value = False
+            if same_missing or same_value:
+                duplicate = True
+                break
+        if not duplicate:
+            out.append(value)
+    return out
 
 
 class IISPWACTransformEditor(ItemInSidePanelWithAutoConfig):
@@ -134,13 +156,10 @@ class IISPWACTransformEditor(ItemInSidePanelWithAutoConfig):
     def _sorted_unique(self, column):
         values = [_to_python(v) for v in column.data_series.dropna().unique()]
         if column.order:
-            values.sort(key=lambda v: column.order.get(v, 0))
-        else:
-            try:
-                values.sort()
-            except TypeError:
-                values.sort(key=lambda v: str(v))
-        return values
+            ranked = sorted((v for v in values if v in column.order), key=lambda v: column.order[v])
+            unranked = sorted_numeric_or_alpha(v for v in values if v not in column.order)
+            return ranked + unranked
+        return sorted_numeric_or_alpha(values)
 
     def _spec_from(self, saved, columns):
         first = columns[0]
@@ -159,10 +178,12 @@ class IISPWACTransformEditor(ItemInSidePanelWithAutoConfig):
                 "normalize": "None",
                 "color": default_color,
             }
-        order = [v for v in (saved.get("order") or []) if v in self.unique_values]
-        if order:
-            order = order + [v for v in self.unique_values if v not in order]
         mapping = [[f, t] for f, t in (saved.get("mapping") or []) if f in self.unique_values]
+        mapping_dict = {f: t for f, t in mapping}
+        mapped_unique = _dedupe([mapping_dict.get(value, value) for value in self.unique_values])
+        order = [v for v in (saved.get("order") or []) if v in mapped_unique]
+        if order:
+            order = order + [v for v in mapped_unique if v not in order]
         return {
             "columns": names,
             "new_name": saved.get("new_name") if saved.get("new_name") is not None else first.column_name,
@@ -316,7 +337,7 @@ class IISPWACTransformEditor(ItemInSidePanelWithAutoConfig):
 
     def _mapped_unique_values(self):
         mapping = {f: t for f, t in (self.spec.get("mapping") or [])}
-        return [mapping.get(value, value) for value in self.unique_values]
+        return _dedupe([mapping.get(value, value) for value in self.unique_values])
 
     def _can_flip_ordinal(self) -> bool:
         # Flipping is allowed only for an ordinal with no prescribed order (neither one assigned in this
@@ -392,8 +413,9 @@ class IISPWACTransformEditor(ItemInSidePanelWithAutoConfig):
         show_color_picker(self.widget, choose)
 
     def _open_order(self):
-        natural = list(self.unique_values)
-        values = self.spec["order"] or natural
+        natural = self._mapped_unique_values()
+        saved = [value for value in (self.spec["order"] or []) if value in natural]
+        values = (saved + [value for value in natural if value not in saved]) if saved else natural
 
         content = QFrame()
         content.setMinimumWidth(600)
@@ -427,10 +449,15 @@ class IISPWACTransformEditor(ItemInSidePanelWithAutoConfig):
         top.addWidget(hint)
         outer.addLayout(top)
 
+        buttons = QHBoxLayout()
         reset_button = QPushButton("Reset order", content)
         reset_button.setToolTip("Restore the natural (data) order")
         reset_button.clicked.connect(lambda: populate(natural))
-        outer.addWidget(reset_button, alignment=Qt.AlignmentFlag.AlignLeft)
+        buttons.addWidget(reset_button)
+        ok_button = QPushButton("OK", content)
+        buttons.addWidget(ok_button)
+        buttons.addStretch(1)
+        outer.addLayout(buttons)
 
         def on_close():
             ordered = []
@@ -442,7 +469,9 @@ class IISPWACTransformEditor(ItemInSidePanelWithAutoConfig):
             self._refresh_visibility()
             self._changed()
 
-        OverlayPopup(self.widget, content, on_close=on_close)
+        holder = {}
+        ok_button.clicked.connect(lambda _=False: holder["popup"].close())
+        holder["popup"] = OverlayPopup(self.widget, content, on_close=on_close)
 
     def _open_mapping(self):
         uniques = self.unique_values
@@ -488,10 +517,15 @@ class IISPWACTransformEditor(ItemInSidePanelWithAutoConfig):
         scroll.setWidget(inner)
         outer.addWidget(scroll)
 
+        buttons = QHBoxLayout()
         reset_button = QPushButton("Reset mapping", content)
         reset_button.setToolTip("Clear the mapping (map every value to itself)")
         reset_button.clicked.connect(lambda: [edit.setText(repr(value)) for value, edit in rows])
-        outer.addWidget(reset_button, alignment=Qt.AlignmentFlag.AlignLeft)
+        buttons.addWidget(reset_button)
+        ok_button = QPushButton("OK", content)
+        buttons.addWidget(ok_button)
+        buttons.addStretch(1)
+        outer.addLayout(buttons)
 
         def on_close():
             mapping = []
@@ -508,11 +542,13 @@ class IISPWACTransformEditor(ItemInSidePanelWithAutoConfig):
             self._refresh_visibility()
             self._changed()
 
-        OverlayPopup(self.widget, content, on_close=on_close)
+        holder = {}
+        ok_button.clicked.connect(lambda _=False: holder["popup"].close())
+        holder["popup"] = OverlayPopup(self.widget, content, on_close=on_close)
 
     def _open_flip_explanation(self):
         """Explain the flip and preview each value -> (reference - value)."""
-        numeric = pd.to_numeric(pd.Series(self.unique_values), errors="coerce").dropna()
+        numeric = pd.to_numeric(pd.Series(self._mapped_unique_values()), errors="coerce").dropna()
         ref_text = (self.spec.get("flip_reference") or "").strip()
         try:
             reference = float(ref_text) if ref_text else (numeric.max() + numeric.min() if not numeric.empty else 0.0)

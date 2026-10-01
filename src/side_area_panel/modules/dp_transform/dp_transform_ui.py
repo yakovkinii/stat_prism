@@ -43,4 +43,4 @@ class Elements(ItemInSidePanelWithAutoConfigHolder):
 class Transform(BaseModulePanel):
     def setup_ui(self):
         self.init_elements(Elements)
-        self.set_label("Transform Column")
+        self.set_label("Transform Column(s)")
