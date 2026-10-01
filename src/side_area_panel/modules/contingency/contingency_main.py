@@ -24,6 +24,7 @@ from scipy import stats
 
 from src.common.decorators import log_function
 from src.common.translations import t
+from src.data.data import category_display_series
 from src.data.data_manager import DATA_MANAGER
 from src.side_area_panel.modules.common.prose import prose_enabled, prose_includes
 from src.side_area_panel.modules.common.result.html_result import Cell, HTMLTableV2, Row
@@ -198,6 +199,8 @@ def recalculate_contingency_study(elements, result: ContingencyResult, update) -
         current_result_id=result.unique_id,
     )
     df = data.get_dataframe(columns=[col1, col2])
+    df[col1] = category_display_series(df[col1])
+    df[col2] = category_display_series(df[col2])
 
     contingency_table = pd.crosstab(df[col1], df[col2])
     if contingency_table.empty or contingency_table.values.sum() == 0:
@@ -208,8 +211,8 @@ def recalculate_contingency_study(elements, result: ContingencyResult, update) -
     # crosstab sorts categories alphabetically; reorder both axes by each column's defined
     # order so ordinal categories follow their ordinality rather than the alphabet.
     contingency_table = contingency_table.reindex(
-        index=data.ordered_categories(col1, list(contingency_table.index)),
-        columns=data.ordered_categories(col2, list(contingency_table.columns)),
+        index=data.ordered_category_labels(col1, list(contingency_table.index)),
+        columns=data.ordered_category_labels(col2, list(contingency_table.columns)),
     )
 
     update(40)

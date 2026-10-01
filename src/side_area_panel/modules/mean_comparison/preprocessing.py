@@ -22,7 +22,7 @@ import pandas as pd
 from typing import TYPE_CHECKING
 
 from src.common.constant import ColumnType, MDASH
-from src.data.data import Data, sorted_numeric_or_alpha
+from src.data.data import Data, category_display_series, is_empty_value, sorted_numeric_or_alpha
 from src.side_area_panel.modules.common.utility import format_value_apa
 from src.side_area_panel.modules.mean_comparison.constant import MeanComparisonMethod, MissingValuesInGrouping
 
@@ -56,37 +56,17 @@ def prepare_df_for_mean_comparison(
     if map_ordinal and data[grouping_column].column_type == ColumnType.ORDINAL:
         df[grouping_column] = data[grouping_column].data_series
 
-    df.loc[
-        df[grouping_column].isin(
-            [
-                pd.NA,
-                None,
-                float("nan"),
-                "",
-                " ",
-                "NA",
-                "N/A",
-                "null",
-                "NULL",
-                "NaN",
-                "nan",
-            ]
-        ),
-        grouping_column,
-    ] = pd.NA
-
     if cfg.grouping_missing == MissingValuesInGrouping.SKIP.value:
-        df = df[df[grouping_column].notna()].copy()
+        df = df[~df[grouping_column].apply(is_empty_value)].copy()
     elif cfg.grouping_missing == MissingValuesInGrouping.TREAT_AS_NA.value:
-        # Standardize missing-like values to a string label
-        df[grouping_column] = df[grouping_column].fillna("N/A")
+        # Standardize missing-like values to the same display label used elsewhere.
+        df[grouping_column] = category_display_series(df[grouping_column])
     else:
         raise ValueError(f"Unknown MissingValuesInGrouping option: {cfg.grouping_missing}")
 
-    # Group labels are only ever used as text (table headers, plot legends, prose). A numeric
-    # grouping column otherwise yields numpy floats that crash on `str + value` concatenation
-    # downstream. Render them as clean strings here (1.0 -> "1", 1.5 -> "1.5").
-    df[grouping_column] = df[grouping_column].map(_group_label)
+    # Group labels are only ever used as text (table headers, plot legends, prose). Normalize once
+    # so all downstream comparisons are string-only and NaN-safe.
+    df[grouping_column] = category_display_series(df[grouping_column])
 
     # Order the rows by the grouping column's display order (prescribed order first, else
     # alphabetical) once, here: every downstream table/plot then lists groups the same way via a
@@ -130,23 +110,14 @@ def split_value_columns(data: Data, cfg: MeanComparisonStudyConfig, df: pd.DataF
     return numeric_columns, non_numeric_columns, cast_ordinals
 
 
-def _group_label(value) -> str:
-    """Stable text label for a group value: integers without a trailing ``.0``."""
-    if isinstance(value, float) and value.is_integer():
-        return str(int(value))
-    return str(value)
-
-
 def ordered_groups(data: Data, grouping_column: str, df: pd.DataFrame) -> list:
     """Distinct group values present in ``df``, in display order: the grouping column's prescribed
-    order first, then anything else alphabetically (Data.ordered_categories' rule). The prepared
-    frame stores group values as text labels (see ``_group_label``), so the column's raw order keys
-    are matched through the same label to line the two up."""
-    order = data[grouping_column].order or {}
-    label_rank = {_group_label(value): rank for value, rank in order.items()}
+    order first, then anything else alphabetically. The prepared frame stores normalized display
+    labels, so order is applied by mapping raw values to the same labels before comparison."""
     present = list(df[grouping_column].dropna().unique())
-    ranked = sorted((g for g in present if g in label_rank), key=lambda g: label_rank[g])
-    rest = sorted_numeric_or_alpha(g for g in present if g not in label_rank)
+    ordered = data.ordered_category_labels(grouping_column, list(data[grouping_column].data_series.unique()))
+    ranked = [label for label in ordered if label in set(present)]
+    rest = sorted_numeric_or_alpha(g for g in present if g not in set(ranked))
     return ranked + rest
 
 

@@ -9,5 +9,5 @@ Turns a single-select **nominal** column with *k* categories into **0/1 indicato
 - Turn **Drop reference category** on to omit one category (*k* − 1 columns) and use it as
   the baseline for regression.
 
-A row with a missing value gets 0 in every indicator. The original column is left untouched
-and the indicators are inserted right after it.
+Missing or blank values are encoded as an `—` category. The original column is left
+untouched and the indicators are inserted right after it.

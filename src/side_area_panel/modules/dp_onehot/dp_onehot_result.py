@@ -30,7 +30,7 @@ _METHODOLOGY = (
     "With <b>Drop reference category</b> on, one category is omitted (k&minus;1 columns) and becomes the baseline each "
     "indicator&rsquo;s coefficient is compared against &mdash; the usual setup for regression "
     "(it avoids the redundant, collinear k-th column). Leave it off to keep all k columns "
-    "(useful for plain description). A row with a missing value gets 0 in every indicator. The "
+    "(useful for plain description). Missing or blank values are encoded as an &mdash; category. The "
     "original column is left untouched and the indicators are inserted right after it."
 )
 

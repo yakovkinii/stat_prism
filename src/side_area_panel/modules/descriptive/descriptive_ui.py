@@ -24,8 +24,9 @@ from src.side_area_panel.iispwac.iispwac_checkbox import IISPWACCheckBox
 from src.side_area_panel.iispwac.iispwac_column_selector import IISPWACColumnSelector
 from src.side_area_panel.iispwac.iispwac_combobox import IISPWACComboBox
 from src.side_area_panel.iispwac.iispwac_data_source import IISPWACDataSource
+from src.side_area_panel.iispwac.iispwac_float_protected_spin import IISPWACFloatProtectedSpin
+from src.side_area_panel.iispwac.iispwac_float_spin import IISPWACFloatSpin
 from src.side_area_panel.iispwac.iispwac_spacer import IISPWACSpacer
-from src.side_area_panel.iispwac.iispwac_text_edit import IISPWACLongTextEdit
 from src.side_area_panel.modules.base.base import BaseModulePanel
 from src.side_area_panel.modules.common.prose import PROSE_LABEL, PROSE_LEVELS
 
@@ -126,16 +127,34 @@ class Elements(ItemInSidePanelWithAutoConfigHolder):
     show_kde = IISPWACCheckBox(label_text="Show KDE curve", default_state=True, visible_when=_has_quantitative)
     # Bin / KDE controls only apply while distribution plots (and KDE) are shown, and only for
     # quantitative variables.
-    bin_width = IISPWACLongTextEdit(
-        label_text="Bin width (blank: auto):",
+    # Bin width has no clean default (auto = data-dependent), so it is off by default and the manual
+    # spin is greyed until ticked. Bin reference has a clean default (0) and KDE smoothing a clean
+    # default (1), so those are plain always-on spins.
+    bin_width = IISPWACFloatProtectedSpin(
+        label_text="Manual bin width",
+        min_value=0.0001,
+        max_value=1000000.0,
+        default_value=1.0,
+        decimals=2,
+        step=1.0,
         visible_when=lambda kwargs: bool(kwargs.get("show_distribution")) and _has_quantitative(kwargs),
     )
-    bin_reference = IISPWACLongTextEdit(
-        label_text="Bin reference (blank: auto):",
+    bin_reference = IISPWACFloatSpin(
+        label_text="Bin reference:",
+        min_value=-1000000.0,
+        max_value=1000000.0,
+        default_value=0.0,
+        decimals=2,
+        step=1.0,
         visible_when=lambda kwargs: bool(kwargs.get("show_distribution")) and _has_quantitative(kwargs),
     )
-    kde_smoothing = IISPWACLongTextEdit(
-        label_text="KDE smoothing (blank: auto; <1: sharper; >1: smoother):",
+    kde_smoothing = IISPWACFloatSpin(
+        label_text="KDE smoothing:",
+        min_value=0.1,
+        max_value=10.0,
+        default_value=1.0,
+        decimals=1,
+        step=0.1,
         visible_when=lambda kwargs: bool(kwargs.get("show_distribution"))
         and bool(kwargs.get("show_kde"))
         and _has_quantitative(kwargs),

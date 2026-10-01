@@ -18,6 +18,7 @@
 
 from PySide6.QtWidgets import QLabel, QPushButton
 
+from src.data.data_manager import DATA_MANAGER
 from src.pyside_ext.elements.utility.layout_helpers import add_widget
 from src.pyside_ext.layout import HBoxLayout
 from src.pyside_ext.markup import css
@@ -28,9 +29,12 @@ from src.side_area_panel.blueprint.element import ItemInSidePanelWithAutoConfig
 
 
 class IISPWACColorPicker(ItemInSidePanelWithAutoConfig):
-    def __init__(self, label_text: str):
+    def __init__(self, label_text: str, default_from_columns: bool = False):
         super().__init__()
         self.label_text = label_text
+        # When no colour is stored yet, default to the colour shared by every selected column (if they
+        # all share one) -- e.g. a scale built from same-coloured items inherits that colour.
+        self.default_from_columns = default_from_columns
         self.color = None
 
     def post_init(self, name, parent_widget):
@@ -48,6 +52,10 @@ class IISPWACColorPicker(ItemInSidePanelWithAutoConfig):
 
     def _open_picker(self):
         def choose(color):
+            # With a column default, "None" must mean "explicitly no colour" (stored as "") so the
+            # default does not re-apply on the next configure; otherwise clearing would be undoable.
+            if color is None and self.default_from_columns:
+                color = ""
             self.color = color
             self._apply_button()
             self.on_recalculate()
@@ -67,5 +75,26 @@ class IISPWACColorPicker(ItemInSidePanelWithAutoConfig):
         return {self.name: self.color}
 
     def configure(self, **kwargs):
-        self.color = kwargs.get(self.name)
+        stored = kwargs.get(self.name)
+        if stored is None and self.default_from_columns:
+            stored = self._common_column_color(kwargs)
+        self.color = stored
         self._apply_button()
+
+    def _common_column_color(self, kwargs):
+        """The colour shared by every selected column, or None when they are empty, uncoloured, or
+        differ. Reads the same config kwargs the framework passes to every element."""
+        try:
+            data = DATA_MANAGER.get_data_from_data_label(
+                data_label=kwargs.get("data_source") or "Auto",
+                current_result_id=kwargs["result_id"],
+            )
+            available = set(data.column_names())
+            names = [name for field in (kwargs.get("column_selector") or []) for name in (field or [])]
+            colors = [data[name].color for name in names if name in available]
+            first = colors[0] if colors else None
+            if isinstance(first, str) and first and all(color == first for color in colors):
+                return first
+            return None
+        except Exception:
+            return None

@@ -22,6 +22,7 @@ import pandas as pd
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import (
     QCheckBox,
+    QDoubleSpinBox,
     QFrame,
     QGridLayout,
     QHBoxLayout,
@@ -35,7 +36,7 @@ from PySide6.QtWidgets import (
 )
 
 from src.common.constant import DARROW, MINUS, NDASH, RARROW, ColumnType
-from src.data.data import sorted_numeric_or_alpha
+from src.data.data import category_display_value, sorted_numeric_or_alpha
 from src.data.data_manager import DATA_MANAGER
 from src.pyside_ext.elements.order import CustomListWidget
 from src.pyside_ext.elements.utility.primitive_elements import NoScrollComboBox
@@ -73,6 +74,14 @@ def _dedupe(values):
         if not duplicate:
             out.append(value)
     return out
+
+
+def _normalized_mapping(mapping):
+    return {category_display_value(source): target for source, target in (mapping or [])}
+
+
+def _mapped_value(value, mapping):
+    return mapping.get(category_display_value(value), value)
 
 
 class IISPWACTransformEditor(ItemInSidePanelWithAutoConfig):
@@ -270,12 +279,21 @@ class IISPWACTransformEditor(ItemInSidePanelWithAutoConfig):
         self.flip_check.setChecked(spec["flip"])
         self.flip_check.toggled.connect(self._on_flip)
         flip_layout.addWidget(self.flip_check)
-        flip_layout.addWidget(QLabel("ref:", self.flip_row))
-        self.flip_ref_edit = QLineEdit(self.flip_row)
-        self.flip_ref_edit.setPlaceholderText("auto")
-        self.flip_ref_edit.setText(spec["flip_reference"])
-        self.flip_ref_edit.editingFinished.connect(self._on_flip_ref)
-        flip_layout.addWidget(self.flip_ref_edit, 1)
+        # Reference: off by default (auto = max + min), the greyed spin activates when "manual ref" is
+        # ticked -- same checkbox-protected pattern as Calculate / Invert Scale. State is set before the
+        # handlers are connected so the build does not fire a recalculation.
+        self.flip_ref_check = QCheckBox("manual ref", self.flip_row)
+        flip_layout.addWidget(self.flip_ref_check)
+        self.flip_ref_spin = QDoubleSpinBox(self.flip_row)
+        self.flip_ref_spin.setRange(-999999.0, 999999.0)
+        self.flip_ref_spin.setDecimals(2)
+        manual_ref = self._parse_saved_reference(spec["flip_reference"])
+        self.flip_ref_spin.setValue(manual_ref if manual_ref is not None else self._flip_auto_reference())
+        self.flip_ref_check.setChecked(manual_ref is not None)
+        self.flip_ref_spin.setEnabled(manual_ref is not None)
+        self.flip_ref_check.toggled.connect(self._on_flip_ref_check)
+        self.flip_ref_spin.valueChanged.connect(self._on_flip_ref_spin)
+        flip_layout.addWidget(self.flip_ref_spin, 1)
         flip_info = QPushButton("?", self.flip_row)
         flip_info.setFixedSize(24, 24)
         flip_info.clicked.connect(self._open_flip_explanation)
@@ -336,8 +354,8 @@ class IISPWACTransformEditor(ItemInSidePanelWithAutoConfig):
         return any(f != t for f, t in (spec.get("mapping") or []))
 
     def _mapped_unique_values(self):
-        mapping = {f: t for f, t in (self.spec.get("mapping") or [])}
-        return _dedupe([mapping.get(value, value) for value in self.unique_values])
+        mapping = _normalized_mapping(self.spec.get("mapping"))
+        return _dedupe([_mapped_value(value, mapping) for value in self.unique_values])
 
     def _can_flip_ordinal(self) -> bool:
         # Flipping is allowed only for an ordinal with no prescribed order (neither one assigned in this
@@ -396,9 +414,36 @@ class IISPWACTransformEditor(ItemInSidePanelWithAutoConfig):
         self.spec["flip"] = bool(checked)
         self._changed()
 
-    def _on_flip_ref(self):
-        self.spec["flip_reference"] = self.flip_ref_edit.text().strip()
+    def _on_flip_ref_check(self, checked):
+        self.flip_ref_spin.setEnabled(checked)
+        # Stored as text ("" = auto) so saved files, the preview, and dp_transform keep one format.
+        self.spec["flip_reference"] = str(self.flip_ref_spin.value()) if checked else ""
         self._changed()
+
+    def _on_flip_ref_spin(self):
+        if self.flip_ref_check.isChecked():
+            self.spec["flip_reference"] = str(self.flip_ref_spin.value())
+            self._changed()
+
+    @staticmethod
+    def _parse_saved_reference(value):
+        try:
+            text = str(value).strip()
+            return float(text) if text else None
+        except (TypeError, ValueError):
+            return None
+
+    def _flip_auto_reference(self) -> float:
+        """Auto reference shown (greyed) when manual is off: max + min pooled over the selected
+        columns, matching what dp_transform computes at run time."""
+        try:
+            pooled = pd.concat(
+                [pd.to_numeric(column.data_series, errors="coerce") for column in self._column_objects],
+                ignore_index=True,
+            ).dropna()
+            return float(pooled.max() + pooled.min()) if not pooled.empty else 0.0
+        except Exception:
+            return 0.0
 
     def _on_normalize(self, text):
         self.spec["normalize"] = text

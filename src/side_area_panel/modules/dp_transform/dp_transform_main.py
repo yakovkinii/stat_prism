@@ -20,6 +20,7 @@ import pandas as pd
 
 from src.common.constant import ColumnType
 from src.common.decorators import log_function
+from src.data.data import category_display_value
 from src.data.data_manager import DATA_MANAGER
 from src.side_area_panel.modules.common.utility import (
     apply_normalization,
@@ -37,11 +38,19 @@ def _parse_float(text):
         return None
 
 
+def _normalized_mapping(spec):
+    return {category_display_value(source): target for source, target in (spec.get("mapping") or [])}
+
+
+def _mapped_value(value, mapping):
+    return mapping.get(category_display_value(value), value)
+
+
 def _mapped_series(column, spec):
     series = column.data_series
-    mapping = {f: t for f, t in (spec.get("mapping") or [])}
+    mapping = _normalized_mapping(spec)
     if mapping:
-        series = series.map(lambda v: mapping[v] if v in mapping else v)
+        series = series.map(lambda v: _mapped_value(v, mapping))
     return series
 
 
@@ -62,7 +71,7 @@ def _remap_prescribed_order(order, mapping):
         return {}
     remapped = {}
     for raw, _rank in sorted(order.items(), key=lambda item: item[1]):
-        value = mapping.get(raw, raw)
+        value = _mapped_value(raw, mapping)
         value = value if pd.isna(value) else str(value)
         if value not in remapped:
             remapped[value] = len(remapped) + 1
@@ -153,7 +162,7 @@ def _transform_column(new_data, column_name, spec, rename):
     col = new_data[column_name]
 
     # 1. Value mapping (keys are original values; unmapped values pass through).
-    mapping = {f: t for f, t in (spec.get("mapping") or [])}
+    mapping = _normalized_mapping(spec)
     col.data_series = _mapped_series(col, spec)
 
     # 2. Target type.
@@ -201,7 +210,7 @@ def _transform_column(new_data, column_name, spec, rename):
         if spec.get("order"):
             col.order = {}
             for raw in spec["order"]:
-                value = mapping.get(raw, raw)
+                value = _mapped_value(raw, mapping)
                 value = value if pd.isna(value) else str(value)
                 if value not in col.order:
                     col.order[value] = len(col.order) + 1

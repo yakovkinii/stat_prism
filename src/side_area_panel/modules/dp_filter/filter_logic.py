@@ -25,7 +25,8 @@ import re
 
 import pandas as pd
 
-from src.side_area_panel.iispwac.iispwac_column_filter import EMPTY_SENTINEL
+from src.data.data import category_display_series
+from src.side_area_panel.modules.dp_filter.filter_values import saved_filter_value_label
 
 _NUMERIC_OPS = {
     "<": operator.lt,
@@ -106,12 +107,8 @@ def compute_keep_mask(data, config):
         kept = spec.get("kept_values")
         if kept is None:
             return None, "", ALERT_NONE  # all values kept -> no-op
-        # The "(empty)" pseudo-value keeps missing/blank cells; real values match directly.
-        keep_empty = EMPTY_SENTINEL in kept
-        real_kept = [v for v in kept if v != EMPTY_SENTINEL]
-        mask = series.isin(real_kept)
-        if keep_empty:
-            mask = mask | empty_mask(series)
+        kept_labels = {saved_filter_value_label(value) for value in kept}
+        mask = category_display_series(series).isin(kept_labels)
     else:
         return None, "", ALERT_NONE
 

@@ -99,6 +99,9 @@ def _histogram_edges(series: pd.Series, bin_width, bin_reference=None):
     else:
         span = hi - lo
         w = round_to_one_sig_fig(span / 5.0) if span > 0 else 0
+        # Integer data gets an integer default bin width (at least 1) so bars line up on whole numbers.
+        if w > 0 and bool((data == data.round()).all()):
+            w = max(1.0, float(round(w)))
         if w <= 0:  # constant column (or degenerate span) -> fall back to automatic bins
             _, edges = np.histogram(data, bins="auto")
             return edges

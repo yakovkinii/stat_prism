@@ -28,7 +28,7 @@ from statsmodels.stats.stattools import durbin_watson
 from src.common.decorators import log_function
 from src.common.qcolor import Colors
 from src.common.translations import t
-from src.data.data import OrdinalCastError
+from src.data.data import OrdinalCastError, category_display_series
 from src.data.data_manager import DATA_MANAGER
 from src.side_area_panel.modules.common.prose import prose_enabled
 from src.side_area_panel.modules.common.result.html_result import Cell, HTMLTableV2, Row
@@ -374,6 +374,7 @@ def recalculate_regression_study(elements, result: RegressionResult, update) -> 
         return _fail(result, ordinal_cast_error_message(error.column_name))
     if model_type != RegressionModelType.LINEAR.value:
         df = pd.concat([df, data.get_dataframe(columns=[dependent_column])], axis=1)
+        df[dependent_column] = category_display_series(df[dependent_column])
     if cast:
         result.set_warning(ordinal_numeric_cast_warning(cast))
     # Drop rows with any missing value in the used columns (list-wise) so the models don't fail.
@@ -384,7 +385,7 @@ def recalculate_regression_study(elements, result: RegressionResult, update) -> 
         if mediator_column:
             elements.column_selector.set_alert(3)
             return _fail(result, t("regression.error.logit_no_mediation"))
-        dependent_order = data.ordered_categories(dependent_column, list(df[dependent_column].dropna().unique()))
+        dependent_order = data.ordered_category_labels(dependent_column, list(df[dependent_column].unique()))
         return _run_logistic(
             result, df, dependent_column, dependent_order, independent_columns, moderator_column, cfg, verbal, prose, update
         )
@@ -392,7 +393,7 @@ def recalculate_regression_study(elements, result: RegressionResult, update) -> 
         if mediator_column:
             elements.column_selector.set_alert(3)
             return _fail(result, t("regression.error.logit_no_mediation"))
-        dependent_order = data.ordered_categories(dependent_column, list(df[dependent_column].dropna().unique()))
+        dependent_order = data.ordered_category_labels(dependent_column, list(df[dependent_column].unique()))
         return _run_multinomial(
             result, df, dependent_column, dependent_order, independent_columns, moderator_column, cfg, verbal, prose, update
         )

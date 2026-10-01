@@ -25,6 +25,7 @@ from statsmodels.stats.diagnostic import lilliefors
 from src.common.constant import ColumnType
 from src.common.decorators import log_function
 from src.common.translations import t
+from src.data.data import category_display_series
 from src.data.data_manager import DATA_MANAGER
 from src.side_area_panel.modules.common.column_numbering import ColumnNumbering
 from src.side_area_panel.modules.common.prose import prose_enabled
@@ -186,18 +187,20 @@ def recalculate_descriptive_study(elements, result: DescriptiveResult, update) -
     # Ordinal columns are mapped to numeric codes so they get quantitative treatment
     # (summary / distribution / box / Q-Q) -- e.g. Likert scales; nominal stay as labels.
     df = data.get_dataframe(columns=columns, map_ordinal=True, include_id_column=True)
-    if grouping_column and data[grouping_column].column_type == ColumnType.ORDINAL:
-        # The grouping column only labels/splits groups. Keep its user-facing values so group
-        # captions, legends, and tables never expose internal ordinal codes.
-        df[grouping_column] = data[grouping_column].data_series.reindex(df.index)
+    if grouping_column:
+        # The grouping column only labels/splits groups. Use normalized display labels so group
+        # comparisons are string-only and missing/blank cells collapse to the same mdash label.
+        df[grouping_column] = category_display_series(data[grouping_column].data_series.reindex(df.index))
     update(5)
 
     numeric_columns = [
         col for col in selected_columns if data[col].column_type in (ColumnType.NUMERIC, ColumnType.ORDINAL)
     ]
     categorical_columns = [col for col in selected_columns if col not in numeric_columns]
+    for col in categorical_columns:
+        df[col] = category_display_series(df[col])
     groupby_values = (
-        data.ordered_categories(grouping_column, list(df[grouping_column].dropna().unique()))
+        data.ordered_category_labels(grouping_column, list(data[grouping_column].data_series.reindex(df.index).unique()))
         if grouping_column
         else None
     )
@@ -281,7 +284,7 @@ def recalculate_descriptive_study(elements, result: DescriptiveResult, update) -
             # Order categories by the column's defined order (ordinality / custom order)
             # rather than alphabetically.
             def _ordered(vc):
-                return vc.reindex(data.ordered_categories(col, list(vc.index)))
+                return vc.reindex(data.ordered_category_labels(col, list(vc.index)))
 
             if grouping_column is None:
                 value_counts = df[col].value_counts()
@@ -313,13 +316,13 @@ def recalculate_descriptive_study(elements, result: DescriptiveResult, update) -
     if cfg.frequency_table_ordinal:
         ordinal_columns = [col for col in selected_columns if data[col].column_type == ColumnType.ORDINAL]
         for col in ordinal_columns:
-            labels = data[col].data_series  # original labels, same row order as df
+            labels = category_display_series(data[col].data_series.reindex(df.index))
 
             def _ordered_labels(vc, column=col):
-                return vc.reindex(data.ordered_categories(column, list(vc.index)))
+                return vc.reindex(data.ordered_category_labels(column, list(vc.index)))
 
             if grouping_column is None:
-                value_counts = labels.dropna().value_counts()
+                value_counts = labels.value_counts()
                 if value_counts.empty:
                     continue
                 freq = get_frequency_table(
@@ -328,7 +331,7 @@ def recalculate_descriptive_study(elements, result: DescriptiveResult, update) -
                 )
             else:
                 group_counts = [
-                    (gv, _ordered_labels(labels[(df[grouping_column] == gv).to_numpy()].dropna().value_counts()))
+                    (gv, _ordered_labels(labels[df[grouping_column] == gv].value_counts()))
                     for gv in groupby_values
                 ]
                 if all(vc.empty for _, vc in group_counts):
@@ -384,8 +387,8 @@ def recalculate_descriptive_study(elements, result: DescriptiveResult, update) -
             # labels (df holds numeric codes here), with categories in the column's defined ordinal
             # order. (Plain numeric columns get neither.)
             if data[col].column_type == ColumnType.ORDINAL and (cfg.show_frequency_bars or cfg.show_pie):
-                label_series = data[col].data_series.reindex(df.index)
-                category_order = data.ordered_categories(col, list(label_series.dropna().unique()))
+                label_series = category_display_series(data[col].data_series.reindex(df.index))
+                category_order = data.ordered_category_labels(col, list(data[col].data_series.reindex(df.index).unique()))
                 if cfg.show_frequency_bars:
                     freq_df = df.copy()
                     freq_df[col] = label_series
@@ -393,11 +396,11 @@ def recalculate_descriptive_study(elements, result: DescriptiveResult, update) -
                     if plot is not None:
                         result.update_and_add_element(plot, f"descriptive frequency {col}")
                 if cfg.show_pie:
-                    plot = make_pie_plot(label_series.dropna(), col, category_order)
+                    plot = make_pie_plot(label_series, col, category_order)
                     if plot is not None:
                         result.update_and_add_element(plot, f"descriptive pie {col}")
         else:
-            category_order = data.ordered_categories(col, list(df[col].dropna().unique()))
+            category_order = data.ordered_category_labels(col, list(df[col].unique()))
             if cfg.show_frequency_bars:
                 plot = make_frequency_bar_plot(df, col, grouping_column, groupby_values, category_order)
                 if plot is not None:

@@ -24,7 +24,8 @@ from src.side_area_panel.iispwac.iispwac_column_selector import IISPWACColumnSel
 from src.side_area_panel.iispwac.iispwac_combobox import IISPWACComboBox
 from src.side_area_panel.iispwac.iispwac_data_source import IISPWACDataSource
 from src.side_area_panel.iispwac.iispwac_spacer import IISPWACSpacer
-from src.side_area_panel.iispwac.iispwac_text_edit import IISPWACLongTextEdit
+from src.side_area_panel.iispwac.iispwac_float_protected_spin import IISPWACFloatProtectedSpin
+from src.side_area_panel.iispwac.iispwac_float_spin import IISPWACFloatSpin
 from src.side_area_panel.modules.base.base import BaseModulePanel
 from src.side_area_panel.modules.common.prose import PROSE_LABEL, PROSE_LEVELS
 from src.side_area_panel.modules.mean_comparison.constant import (
@@ -87,12 +88,24 @@ class Elements(ItemInSidePanelWithAutoConfigHolder):
         label_text="Plots",
         default_state=False,
     )
-    bin_width = IISPWACLongTextEdit(
-        label_text="Bin width (blank: auto):",
+    # Bin width has no clean default (auto = data-dependent) -> off by default, manual spin greyed
+    # until ticked. Bin reference has a clean default (0) -> a plain always-on spin.
+    bin_width = IISPWACFloatProtectedSpin(
+        label_text="Manual bin width",
+        min_value=0.0001,
+        max_value=1000000.0,
+        default_value=1.0,
+        decimals=2,
+        step=1.0,
         visible_when=lambda kwargs: bool(kwargs.get("plots")),
     )
-    bin_reference = IISPWACLongTextEdit(
-        label_text="Bin reference (blank: auto):",
+    bin_reference = IISPWACFloatSpin(
+        label_text="Bin reference:",
+        min_value=-1000000.0,
+        max_value=1000000.0,
+        default_value=0.0,
+        decimals=2,
+        step=1.0,
         visible_when=lambda kwargs: bool(kwargs.get("plots")),
     )
 

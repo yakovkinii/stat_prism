@@ -484,11 +484,11 @@ TRANSLATIONS = {
     },
     "ttest.plot.density": {
         "en": "Density",
-        "ua": "Щільність",
+        "ua": "Густина",
     },
     "ttest.warning.kde_failed": {
         "en": "The density (KDE) curve could not be drawn for one or more groups of {col} (no variation).",
-        "ua": "Криву щільності (KDE) не вдалося побудувати для однієї чи кількох груп «{col}» (немає варіації).",
+        "ua": "Криву густини розподілу (KDE) не вдалося побудувати для однієї чи кількох груп «{col}» (немає варіації).",
     },
     # Validation / error messages
     "ttest.error.one_grouping": {
@@ -568,7 +568,7 @@ TRANSLATIONS = {
             "(наприклад, стать або вікова група респондента).</div>"
         ),
     },
-    # ----- Paired / Repeated Measures -----
+    # ----- Paired T-test/ANOVA -----
     "paired.error.min_conditions": {
         "en": "Select at least two conditions (repeated measurements) to compare.",
         "ua": "Виберіть щонайменше дві умови (повторні вимірювання) для порівняння.",
@@ -685,7 +685,7 @@ TRANSLATIONS = {
     },
     "paired.description": {
         "en": (
-            "<h2>Paired / Repeated Measures</h2>"
+            "<h2>Paired T-test/ANOVA</h2>"
             "<h3>Description</h3>"
             "<div>Compare two or more repeated measurements taken on the same respondents "
             "(e.g. before / after, or several time points or conditions) to determine whether "
@@ -707,7 +707,7 @@ TRANSLATIONS = {
             "of the same respondents. Respondents missing any condition are dropped.</div>"
         ),
         "ua": (
-            "<h2>Залежні вибірки / повторні вимірювання</h2>"
+            "<h2>Paired T-test/ANOVA</h2>"
             "<h3>Опис</h3>"
             "<div>Порівняння двох або більше повторних вимірювань на тих самих респондентах "
             "(наприклад, до / після або кілька моментів часу чи умов) для визначення, чи "
@@ -1630,7 +1630,7 @@ TRANSLATIONS = {
         "en": "All outlier IDs: ({ids}). ",
         "ua": "Усі ID викидів: ({ids}). ",
     },
-    "descriptive.density": {"en": "Density", "ua": "Щільність"},
+    "descriptive.density": {"en": "Density", "ua": "Густина розподілу"},
     "descriptive.plot.distribution": {
         "en": "Distribution of {col}",
         "ua": "Розподіл «{col}»",

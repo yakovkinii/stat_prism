@@ -20,16 +20,13 @@ from PySide6.QtWidgets import QCheckBox, QComboBox, QHBoxLayout, QLabel, QLineEd
 
 from src.common.constant import ColumnType
 from src.common.decorators import log_method_noarg
-from src.data.data import sorted_numeric_or_alpha
+from src.data.data import category_display_value, infer_ordinal_order, sorted_numeric_or_alpha
 from src.data.data_manager import DATA_MANAGER
 from src.pyside_ext.markup import css
 from src.pyside_ext.styling import Style
 from src.pyside_ext.unique_qss import set_stylesheet
 from src.side_area_panel.blueprint.element import ItemInSidePanelWithAutoConfig
-
-# Sentinel "value" for the categorical "(empty)" checkbox, representing missing / blank
-# cells (both "" and NaN). Kept distinct from any real category label.
-EMPTY_SENTINEL = "__EMPTY__"
+from src.side_area_panel.modules.dp_filter.filter_values import saved_filter_value_label
 
 
 class IISPWACColumnFilter(ItemInSidePanelWithAutoConfig):
@@ -144,35 +141,30 @@ class IISPWACColumnFilter(ItemInSidePanelWithAutoConfig):
         self.value_edit.setPlaceholderText("" if ignores_value else "value")
 
     def _build_categorical(self, column, spec):
-        values = list(column.data_series.dropna().unique())
-        order = column.order or {}
+        values = list(column.data_series.unique())
+        order = infer_ordinal_order(column) if column.column_type == ColumnType.ORDINAL else (column.order or {})
         ranked = sorted((v for v in values if v in order), key=lambda v: order[v])
         unranked = sorted_numeric_or_alpha(v for v in values if v not in order)
-        values = ranked + unranked
+        values = []
+        seen = set()
+        for value in ranked + unranked:
+            label = category_display_value(value)
+            if label in seen:
+                continue
+            seen.add(label)
+            values.append(label)
 
         kept = spec.get("kept_values") if spec else None
-        kept_set = set(kept) if kept is not None else None
+        kept_set = {saved_filter_value_label(value) for value in kept} if kept is not None else None
 
         for value in values:
-            checkbox = QCheckBox(str(value), self.container)
+            checkbox = QCheckBox(value, self.container)
             # Tooltip shows the full category value so it stays readable when truncated.
-            checkbox.setToolTip(str(value))
+            checkbox.setToolTip(value)
             checkbox.setChecked(True if kept_set is None else (value in kept_set))
             checkbox.stateChanged.connect(self.on_changed)
             self.container_layout.addWidget(checkbox)
             self.value_pairs.append((value, checkbox))
-
-        # If the column has any missing / blank cells, offer a dedicated "(empty)" checkbox
-        # so empties can be kept or dropped just like a normal category. Captures "" and NaN.
-        series = column.data_series
-        has_empty = bool(series.isna().any() or (series.astype(str).str.strip() == "").any())
-        if has_empty:
-            checkbox = QCheckBox("(empty)", self.container)
-            checkbox.setToolTip("Missing or blank cells")
-            checkbox.setChecked(True if kept_set is None else (EMPTY_SENTINEL in kept_set))
-            checkbox.stateChanged.connect(self.on_changed)
-            self.container_layout.addWidget(checkbox)
-            self.value_pairs.append((EMPTY_SENTINEL, checkbox))
 
     def get_kwargs(self):
         if self.current_mode == "numeric":

@@ -22,8 +22,28 @@ from typing import Dict, List, Optional, Union
 import numpy as np
 import pandas as pd
 
-from src.common.constant import ID_COLUMN_NAME, ColumnType
+from src.common.constant import ID_COLUMN_NAME, ColumnType, MDASH
 from src.common.decorators import log_method
+
+
+def is_empty_value(value) -> bool:
+    """Missing/blank value test used for categorical display and comparison."""
+    try:
+        if pd.isna(value):
+            return True
+    except (TypeError, ValueError):
+        pass
+    return isinstance(value, str) and value.strip() == ""
+
+
+def category_display_value(value) -> str:
+    """User-facing categorical comparison value: strings only, blanks/NaN as mdash."""
+    return MDASH if is_empty_value(value) else str(value)
+
+
+def category_display_series(series: pd.Series) -> pd.Series:
+    return series.apply(category_display_value)
+
 
 def sorted_numeric_or_alpha(values):
     """Default category sort: numeric when every value is castable to a number, else alphabetical.
@@ -292,7 +312,7 @@ class Data:
             df = df[columns]
 
         # Data access preserves row order. Category ordering belongs at the display layer
-        # (tables, plots, filters, editors) via ordered_categories().
+        # (tables, plots, filters, editors) via ordered_category_labels().
         for col in df.columns:
             column = self[col]
             if column.column_type == ColumnType.ORDINAL:
@@ -335,18 +355,35 @@ class Data:
     def get_id_series(self) -> pd.Series:
         return self.get_dataframe(columns=[ID_COLUMN_NAME])[ID_COLUMN_NAME]
 
-    def ordered_categories(self, column_name: str, values) -> list:
-        """Order category `values` by the column's defined order (its ordinality for
-        ordinal columns; the stored order for nominal), with any value missing from the
-        order dict appended in natural sort. Use this for the *display* order of
-        categories, because pandas `crosstab` / `value_counts().sort_index()` otherwise
-        sort alphabetically and ignore the user-defined ordinal order."""
+    def ordered_category_labels(self, column_name: str, values) -> list[str]:
+        """Display labels for category values in the column's display order.
+
+        Ordering is resolved by mapping the column's raw order keys to the same normalized labels
+        used by callers. This keeps custom/ordinal orders safe even after downstream code has already
+        converted values to strings.
+        """
+        labels = []
+        seen = set()
+        for value in values:
+            label = category_display_value(value)
+            if label in seen:
+                continue
+            seen.add(label)
+            labels.append(label)
+
         column = self[column_name]
         order = infer_ordinal_order(column) if column.column_type == ColumnType.ORDINAL else (column.order or {})
-        present = sorted((v for v in values if v in order), key=lambda v: order[v])
-        # No prescribed order -> default sort (numeric when castable, else alphabetical), for both
-        # nominal and ordinal; any value missing from a partial order is appended the same way.
-        missing = sorted_numeric_or_alpha(v for v in values if v not in order)
+        ordered_labels = []
+        seen_order = set()
+        for value, _rank in sorted(order.items(), key=lambda item: item[1]):
+            label = category_display_value(value)
+            if label in seen_order:
+                continue
+            seen_order.add(label)
+            ordered_labels.append(label)
+
+        present = [label for label in ordered_labels if label in seen]
+        missing = sorted_numeric_or_alpha(label for label in labels if label not in seen_order)
         return present + missing
 
     def ordered_value_label(self, column_name: str, code):

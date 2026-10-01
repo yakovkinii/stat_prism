@@ -20,10 +20,19 @@ import pandas as pd
 
 from src.common.constant import ColumnType
 from src.common.decorators import log_function
+from src.data.data import category_display_value
 from src.data.data_manager import DATA_MANAGER
 from src.side_area_panel.modules.common.utility import unique_name
 from src.side_area_panel.modules.dp_preprocess.dp_preprocess_result import PreprocessResult
 from src.side_area_panel.modules.dp_preprocess.dp_preprocess_ui import Elements
+
+
+def _normalized_mapping(spec):
+    return {category_display_value(source): target for source, target in (spec.get("mapping") or [])}
+
+
+def _mapped_value(value, mapping):
+    return mapping.get(category_display_value(value), value)
 
 
 def _remap_prescribed_order(order, mapping):
@@ -31,7 +40,7 @@ def _remap_prescribed_order(order, mapping):
         return {}
     remapped = {}
     for raw, _rank in sorted(order.items(), key=lambda item: item[1]):
-        value = mapping.get(raw, raw)
+        value = _mapped_value(raw, mapping)
         value = value if pd.isna(value) else str(value)
         if value not in remapped:
             remapped[value] = len(remapped) + 1
@@ -69,9 +78,9 @@ def dp_preprocess_main(elements: Elements, result: PreprocessResult, update):
             continue
 
         # 1. Value mapping (keys are the original values; unmapped values pass through).
-        mapping = {f: t for f, t in (spec.get("mapping") or [])}
+        mapping = _normalized_mapping(spec)
         if mapping:
-            col.data_series = col.data_series.map(lambda v: mapping[v] if v in mapping else v)
+            col.data_series = col.data_series.map(lambda v: _mapped_value(v, mapping))
 
         # 2. Target type: cast the values now (after mapping), not just at analysis time.
         #    nominal / ordinal -> string labels; numeric -> int when possible, else float.
@@ -106,7 +115,7 @@ def dp_preprocess_main(elements: Elements, result: PreprocessResult, update):
             if spec.get("order"):
                 col.order = {}
                 for raw in spec["order"]:
-                    value = mapping.get(raw, raw)
+                    value = _mapped_value(raw, mapping)
                     value = value if pd.isna(value) else str(value)
                     if value not in col.order:
                         col.order[value] = len(col.order) + 1
