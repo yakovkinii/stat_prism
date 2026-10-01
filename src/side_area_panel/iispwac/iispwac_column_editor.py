@@ -36,7 +36,7 @@ from PySide6.QtWidgets import (
 
 from src.common.constant import DARROW, RARROW, RESET_ARROW, UARROW, ColumnType
 from src.common.decorators import log_method_noarg
-from src.data.data import sorted_numeric_or_alpha
+from src.data.data import category_display_value, sorted_numeric_or_alpha
 from src.data.data_manager import DATA_MANAGER
 from src.pyside_ext.elements.order import CustomListWidget
 from src.pyside_ext.elements.utility.primitive_elements import NoScrollComboBox
@@ -72,6 +72,14 @@ def _dedupe(values):
         if not duplicate:
             out.append(value)
     return out
+
+
+def _normalized_mapping(mapping):
+    return {category_display_value(source): target for source, target in (mapping or [])}
+
+
+def _mapped_value(value, mapping):
+    return mapping.get(category_display_value(value), value)
 
 
 class _EditableColumnName(QLineEdit):
@@ -221,9 +229,10 @@ class IISPWACColumnEditor(ItemInSidePanelWithAutoConfig):
                 "mapping": None,
                 "remove": False,
             }
-        mapping = [[f, t] for f, t in (saved.get("mapping") or []) if f in uniques]
-        mapping_dict = {f: t for f, t in mapping}
-        mapped_uniques = _dedupe([mapping_dict.get(value, value) for value in uniques])
+        unique_labels = {category_display_value(value) for value in uniques}
+        mapping = [[f, t] for f, t in (saved.get("mapping") or []) if category_display_value(f) in unique_labels]
+        mapping_dict = _normalized_mapping(mapping)
+        mapped_uniques = _dedupe([_mapped_value(value, mapping_dict) for value in uniques])
         order = [v for v in (saved.get("order") or []) if v in mapped_uniques]
         if order:
             order = order + [v for v in mapped_uniques if v not in order]
@@ -243,8 +252,8 @@ class IISPWACColumnEditor(ItemInSidePanelWithAutoConfig):
         return spec
 
     def _mapped_unique_values(self, name):
-        mapping = {f: t for f, t in (self.specs[name].get("mapping") or [])}
-        return _dedupe([mapping.get(value, value) for value in self.unique_values.get(name, [])])
+        mapping = _normalized_mapping(self.specs[name].get("mapping"))
+        return _dedupe([_mapped_value(value, mapping) for value in self.unique_values.get(name, [])])
 
     def get_kwargs(self):
         specs = [self.specs[name] for name in self.order if name in self.specs]
