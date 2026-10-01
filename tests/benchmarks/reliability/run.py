@@ -6,7 +6,6 @@ from tests.benchmarks.common import BenchmarkCaseResult, compare_payloads, load_
 from tests.benchmarks.reliability.cases import CASES
 from tests.benchmarks.reliability.paths import BENCHMARK_PATH, GENERATOR_PATH, HERE
 
-
 MODULE = "reliability"
 RELATIVE_TOLERANCES = {
     "tetrachoric_binary_items_no_omega": 1e-4,
@@ -41,9 +40,9 @@ def reliability_numeric_payload(numeric) -> dict:
 
 
 def run_case(case: dict, benchmarks: dict) -> BenchmarkCaseResult:
-    from src.side_area_panel.modules.reliability.reliability_main import compute_reliability
     from src.common.constant import ColumnType
     from src.data.data import Data
+    from src.side_area_panel.modules.reliability.reliability_main import compute_reliability
 
     study = case["study"]
     config = case["config"]()

@@ -1,8 +1,8 @@
 from __future__ import annotations
 
-import pandas as pd
 from types import SimpleNamespace
 
+import pandas as pd
 
 LIKERT_ITEMS = ["item_a", "item_b", "item_c", "item_d"]
 BINARY_ITEMS = ["bin_a", "bin_b", "bin_c"]

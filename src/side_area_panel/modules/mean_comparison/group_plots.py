@@ -155,7 +155,9 @@ def add_group_distribution_plots(
 
         result.update_and_add_element(
             create_box_plot(
-                groups=[work.loc[work[groupby_column] == groupby_value][col].dropna() for groupby_value in groupby_values],
+                groups=[
+                    work.loc[work[groupby_column] == groupby_value][col].dropna() for groupby_value in groupby_values
+                ],
                 group_names=groupby_values,
                 column=col,
                 grouping_column=groupby_column,

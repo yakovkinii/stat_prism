@@ -34,8 +34,16 @@ class IISPWACFloatProtectedSpin(ItemInSidePanelWithAutoConfig):
     with the value's name, e.g. "Manual bin width") precedes a checkbox that guards a greyed-out float
     spin. Unchecked returns ``None`` (auto); checking it activates the spin and returns its value."""
 
-    def __init__(self, label_text: str, min_value: float, max_value: float, default_value: float = 0.0,
-                 decimals: int = 2, step: float = 1.0, visible_when=None):
+    def __init__(
+        self,
+        label_text: str,
+        min_value: float,
+        max_value: float,
+        default_value: float = 0.0,
+        decimals: int = 2,
+        step: float = 1.0,
+        visible_when=None,
+    ):
         super().__init__()
         self.label_text = label_text
         self.min_value = min_value

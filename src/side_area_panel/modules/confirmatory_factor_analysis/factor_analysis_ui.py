@@ -99,7 +99,8 @@ class ConfirmatoryFactorAnalysis(BaseModulePanel):
             questions = [
                 column
                 for column in (factor_vars or [])
-                if column in data.column_names() and data[column].column_type in (ColumnType.NUMERIC, ColumnType.ORDINAL)
+                if column in data.column_names()
+                and data[column].column_type in (ColumnType.NUMERIC, ColumnType.ORDINAL)
             ]
             if not questions:
                 continue

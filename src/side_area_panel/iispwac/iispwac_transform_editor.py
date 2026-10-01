@@ -19,7 +19,6 @@
 import ast
 
 import pandas as pd
-from PySide6.QtCore import Qt
 from PySide6.QtWidgets import (
     QCheckBox,
     QDoubleSpinBox,
@@ -187,9 +186,10 @@ class IISPWACTransformEditor(ItemInSidePanelWithAutoConfig):
                 "normalize": "None",
                 "color": default_color,
             }
-        mapping = [[f, t] for f, t in (saved.get("mapping") or []) if f in self.unique_values]
-        mapping_dict = {f: t for f, t in mapping}
-        mapped_unique = _dedupe([mapping_dict.get(value, value) for value in self.unique_values])
+        unique_labels = {category_display_value(value) for value in self.unique_values}
+        mapping = [[f, t] for f, t in (saved.get("mapping") or []) if category_display_value(f) in unique_labels]
+        mapping_dict = _normalized_mapping(mapping)
+        mapped_unique = _dedupe([_mapped_value(value, mapping_dict) for value in self.unique_values])
         order = [v for v in (saved.get("order") or []) if v in mapped_unique]
         if order:
             order = order + [v for v in mapped_unique if v not in order]
@@ -362,9 +362,7 @@ class IISPWACTransformEditor(ItemInSidePanelWithAutoConfig):
         # transform nor one already on a source column) whose face values are numeric.
         if self.spec.get("order"):
             return False
-        if any(
-            column.column_type == ColumnType.ORDINAL and column.order for column in self._column_objects
-        ):
+        if any(column.column_type == ColumnType.ORDINAL and column.order for column in self._column_objects):
             return False
         series = pd.Series(self._mapped_unique_values())
         numeric = pd.to_numeric(series, errors="coerce")

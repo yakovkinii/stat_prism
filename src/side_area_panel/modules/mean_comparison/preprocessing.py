@@ -18,10 +18,11 @@
 
 from __future__ import annotations
 
-import pandas as pd
 from typing import TYPE_CHECKING
 
-from src.common.constant import ColumnType, MDASH
+import pandas as pd
+
+from src.common.constant import MDASH, ColumnType
 from src.data.data import Data, category_display_series, is_empty_value, sorted_numeric_or_alpha
 from src.side_area_panel.modules.common.utility import format_value_apa
 from src.side_area_panel.modules.mean_comparison.constant import MeanComparisonMethod, MissingValuesInGrouping

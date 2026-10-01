@@ -22,11 +22,7 @@ from src.common.constant import ColumnType
 from src.common.decorators import log_function
 from src.data.data import category_display_value
 from src.data.data_manager import DATA_MANAGER
-from src.side_area_panel.modules.common.utility import (
-    apply_normalization,
-    ordinal_numeric_cast_warning,
-    unique_name,
-)
+from src.side_area_panel.modules.common.utility import apply_normalization, ordinal_numeric_cast_warning, unique_name
 from src.side_area_panel.modules.dp_transform.dp_transform_result import TransformResult
 from src.side_area_panel.modules.dp_transform.dp_transform_ui import Elements
 

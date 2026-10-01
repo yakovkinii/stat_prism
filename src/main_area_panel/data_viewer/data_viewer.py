@@ -39,8 +39,8 @@ from src.common.constant import (
     COLUMN_TYPE_ICONS,
     COLUMN_TYPE_ICONS_ON_DARK,
     COLUMN_TYPE_ICONS_ON_LIGHT,
-    ColumnType,
     MDASH,
+    ColumnType,
     is_light_color,
 )
 from src.data.data import Data

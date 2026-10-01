@@ -1,8 +1,8 @@
 from __future__ import annotations
 
 import os
-import subprocess
 import shutil
+import subprocess
 from pathlib import Path
 
 from tests.benchmarks.reliability.paths import BENCHMARK_PATH, GENERATOR_PATH

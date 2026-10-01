@@ -274,7 +274,9 @@ def recalculate_correlation_study(elements, result: CorrelationResult, update) -
                     continue
                 if cfg.report_only_significant and p_full.loc[name1, name2] > 0.05:
                     continue
-                result.update_and_add_element(_pairwise_plot(df, name1, name2, data), f"correlation plot {name1} | {name2}")
+                result.update_and_add_element(
+                    _pairwise_plot(df, name1, name2, data), f"correlation plot {name1} | {name2}"
+                )
             update(60 + 35 * (i + 1) / len(columns))
 
     update(100)
@@ -358,7 +360,9 @@ def _run_cross(result, cfg, data, rows, cols, control_columns, kind, is_partial,
                     continue
                 if cfg.report_only_significant and p_matrix.loc[name1, name2] > 0.05:
                     continue
-                result.update_and_add_element(_pairwise_plot(df, name1, name2, data), f"correlation plot {name1} | {name2}")
+                result.update_and_add_element(
+                    _pairwise_plot(df, name1, name2, data), f"correlation plot {name1} | {name2}"
+                )
             update(60 + 35 * (step + 1) / len(rows))
 
     update(100)

@@ -12,6 +12,21 @@ r{
 
 # StatPrism Release Notes
 
+### StatPrism 1.3.3 (1 Oct 2026)
+
+* Ordinal handling is now more explicit and consistent: analyses that support ordinal data use ordinal order codes internally but display only the original face values; analyses that need numeric inputs use the visible face values and report a clear error when they cannot be parsed as numbers
+* Pearson correlations, parametric mean comparisons, paired parametric tests, linear regression, Calculate Scale, Invert Scale, and Transform Column now warn when ordinal columns are treated as numeric face-value scales
+* Descriptive statistics now avoid arithmetic summaries for ordinal variables, show ordinal min/median/quartiles/max as face values, and relabel ordinal plot axes so internal order codes are not exposed
+* Nominal and ordinal category ordering is respected more broadly in frequency tables, plots, one-hot encoding, grouping, regression outcomes, and categorical filters; missing/blank category values are displayed consistently as an em dash
+* Calculate Scale now accepts ordinal items by parsing their face values as numbers; reverse-keyed ordinal items remain ordinal when written back, while the calculated scale itself is numeric
+* One-hot encoding now keeps all generated columns by default instead of dropping a reference category
+* Transform / Preprocess value mapping and category ordering now use the same string/mdash-safe comparison rules as filters and one-hot encoding
+* Undo / redo is available through Ctrl+Z / Ctrl+Y using autosave snapshots; crash recovery autosave is always kept in the background
+* Pop-up editors are easier to close: reset pop-ups now also have an OK button, and overlay pop-ups show a visible close mark on the dimmed background
+* Descriptive distribution plots gained bin-width and KDE smoothing controls; KDE failures for constant groups are reported as warnings instead of crashing the plot
+* Reliability: tetrachoric/polychoric item correlation matrices are smoothed when needed before alpha, omega, and item-rest statistics are computed
+
+
 ### StatPrism 1.3.2 (16 Sep 2026)
 
 * Fixed: settings (UI theme, UI scale, language, autosave, ...) were not being saved on installed builds - the config file could not be written next to the app. Settings are now stored per-user under %LOCALAPPDATA%/StatPrism and persist reliably

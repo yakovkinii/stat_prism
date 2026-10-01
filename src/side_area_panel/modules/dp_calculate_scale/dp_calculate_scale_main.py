@@ -81,9 +81,7 @@ def dp_calculate_scale_main(elements: Elements, result: CalculateScaleResult, up
 
     available = set(data.column_names())
     invalid_type = [
-        column
-        for column in all_item_columns
-        if column not in available or data[column].column_type not in _ITEM_TYPES
+        column for column in all_item_columns if column not in available or data[column].column_type not in _ITEM_TYPES
     ]
     if invalid_type:
         elements.column_selector.set_alert(0)

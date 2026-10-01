@@ -387,7 +387,16 @@ def recalculate_regression_study(elements, result: RegressionResult, update) -> 
             return _fail(result, t("regression.error.logit_no_mediation"))
         dependent_order = data.ordered_category_labels(dependent_column, list(df[dependent_column].unique()))
         return _run_logistic(
-            result, df, dependent_column, dependent_order, independent_columns, moderator_column, cfg, verbal, prose, update
+            result,
+            df,
+            dependent_column,
+            dependent_order,
+            independent_columns,
+            moderator_column,
+            cfg,
+            verbal,
+            prose,
+            update,
         )
     if model_type == RegressionModelType.MULTINOMIAL.value:
         if mediator_column:
@@ -395,7 +404,16 @@ def recalculate_regression_study(elements, result: RegressionResult, update) -> 
             return _fail(result, t("regression.error.logit_no_mediation"))
         dependent_order = data.ordered_category_labels(dependent_column, list(df[dependent_column].unique()))
         return _run_multinomial(
-            result, df, dependent_column, dependent_order, independent_columns, moderator_column, cfg, verbal, prose, update
+            result,
+            df,
+            dependent_column,
+            dependent_order,
+            independent_columns,
+            moderator_column,
+            cfg,
+            verbal,
+            prose,
+            update,
         )
 
     independent_cols = independent_columns.copy()

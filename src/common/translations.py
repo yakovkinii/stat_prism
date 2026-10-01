@@ -488,7 +488,8 @@ TRANSLATIONS = {
     },
     "ttest.warning.kde_failed": {
         "en": "The density (KDE) curve could not be drawn for one or more groups of {col} (no variation).",
-        "ua": "Криву густини розподілу (KDE) не вдалося побудувати для однієї чи кількох груп «{col}» (немає варіації).",
+        "ua": "Криву густини розподілу (KDE) не вдалося побудувати для однієї "
+        "чи кількох груп «{col}» (немає варіації).",
     },
     # Validation / error messages
     "ttest.error.one_grouping": {

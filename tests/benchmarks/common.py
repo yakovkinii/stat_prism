@@ -10,7 +10,6 @@ from datetime import date
 from pathlib import Path
 from typing import Iterable
 
-
 ROOT = Path(__file__).resolve().parent
 REPORT_DIR = ROOT / "reports"
 DEFAULT_REPORT = REPORT_DIR / "full_benchmark_report.html"
@@ -100,9 +99,7 @@ def compare_payloads(
                 diff = abs(float(actual_value) - float(expected_value))
                 denom = abs(float(expected_value))
                 rel_diff = diff / denom if denom > 0 else (0.0 if diff == 0 else math.inf)
-                passed = diff <= tolerance or (
-                    relative_tolerance is not None and rel_diff <= relative_tolerance
-                )
+                passed = diff <= tolerance or (relative_tolerance is not None and rel_diff <= relative_tolerance)
             comparisons.append(
                 BenchmarkComparison(
                     path,
@@ -165,8 +162,10 @@ def render_report(results: Iterable[BenchmarkCaseResult], output_path: Path = DE
         "<title>StatPrism Benchmark Report</title>",
         "<style>",
         "body{font-family:Arial,sans-serif;margin:24px;line-height:1.35}",
-        "h2.module{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-top:34px;padding:10px 12px;background:#1f2937;color:white}",
-        ".module-status{padding:4px 10px;border-radius:4px;background:#f3f4f6;color:#111827;font-size:16px;letter-spacing:0;font-weight:bold}",
+        "h2.module{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-top:34px;"
+        "padding:10px 12px;background:#1f2937;color:white}",
+        ".module-status{padding:4px 10px;border-radius:4px;background:#f3f4f6;color:#111827;font-size:16px;"
+        "letter-spacing:0;font-weight:bold}",
         ".module-status.pass{color:#0a6b22}.module-status.fail{color:#a40000}",
         "details.study{margin:12px 0 18px}",
         "details.study>summary{cursor:pointer;font-size:1.05em;font-weight:bold;margin:10px 0 4px}",
@@ -202,10 +201,7 @@ def render_report(results: Iterable[BenchmarkCaseResult], output_path: Path = DE
         generator_label = result.generator_path.as_posix()
         open_attr = "" if result.passed else " open"
         parts.append(f"<details class='study'{open_attr}>")
-        parts.append(
-            f"<summary>{html.escape(result.study)} "
-            f"<span class='{cls}'>{status}</span></summary>"
-        )
+        parts.append(f"<summary>{html.escape(result.study)} " f"<span class='{cls}'>{status}</span></summary>")
         parts.append(
             "<p class='meta'>"
             f"Benchmark: <a href='{html.escape(benchmark_href)}'>{html.escape(benchmark_label)}</a><br>"
@@ -221,11 +217,7 @@ def render_report(results: Iterable[BenchmarkCaseResult], output_path: Path = DE
                 continue
             row_cls = "pass" if comparison.passed else "fail"
             diff = "" if comparison.difference is None else f"{comparison.difference:.3g}"
-            rel_diff = (
-                ""
-                if comparison.relative_difference is None
-                else f"{comparison.relative_difference:.3g}"
-            )
+            rel_diff = "" if comparison.relative_difference is None else f"{comparison.relative_difference:.3g}"
             parts.append(
                 "<tr>"
                 f"<td>{html.escape(comparison.path)}</td>"

@@ -200,7 +200,9 @@ def recalculate_descriptive_study(elements, result: DescriptiveResult, update) -
     for col in categorical_columns:
         df[col] = category_display_series(df[col])
     groupby_values = (
-        data.ordered_category_labels(grouping_column, list(data[grouping_column].data_series.reindex(df.index).unique()))
+        data.ordered_category_labels(
+            grouping_column, list(data[grouping_column].data_series.reindex(df.index).unique())
+        )
         if grouping_column
         else None
     )
@@ -331,8 +333,7 @@ def recalculate_descriptive_study(elements, result: DescriptiveResult, update) -
                 )
             else:
                 group_counts = [
-                    (gv, _ordered_labels(labels[df[grouping_column] == gv].value_counts()))
-                    for gv in groupby_values
+                    (gv, _ordered_labels(labels[df[grouping_column] == gv].value_counts())) for gv in groupby_values
                 ]
                 if all(vc.empty for _, vc in group_counts):
                     continue
@@ -388,7 +389,9 @@ def recalculate_descriptive_study(elements, result: DescriptiveResult, update) -
             # order. (Plain numeric columns get neither.)
             if data[col].column_type == ColumnType.ORDINAL and (cfg.show_frequency_bars or cfg.show_pie):
                 label_series = category_display_series(data[col].data_series.reindex(df.index))
-                category_order = data.ordered_category_labels(col, list(data[col].data_series.reindex(df.index).unique()))
+                category_order = data.ordered_category_labels(
+                    col, list(data[col].data_series.reindex(df.index).unique())
+                )
                 if cfg.show_frequency_bars:
                     freq_df = df.copy()
                     freq_df[col] = label_series

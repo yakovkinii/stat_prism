@@ -22,7 +22,7 @@ from typing import Dict, List, Optional, Union
 import numpy as np
 import pandas as pd
 
-from src.common.constant import ID_COLUMN_NAME, ColumnType, MDASH
+from src.common.constant import ID_COLUMN_NAME, MDASH, ColumnType
 from src.common.decorators import log_method
 
 

@@ -23,8 +23,7 @@ import pandas as pd
 from scipy import stats
 from scipy.stats import gaussian_kde
 
-from src.common.constant import ColumnType
-from src.common.constant import ID_COLUMN_NAME
+from src.common.constant import ID_COLUMN_NAME, ColumnType
 from src.common.qcolor import Colors
 from src.common.translations import t
 from src.data.data import infer_ordinal_order

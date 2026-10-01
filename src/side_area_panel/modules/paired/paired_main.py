@@ -23,7 +23,7 @@ import pingouin as pg
 from scikit_posthocs import posthoc_nemenyi_friedman
 from scipy import stats
 
-from src.common.constant import ColumnType, MDASH
+from src.common.constant import MDASH, ColumnType
 from src.common.decorators import log_function
 from src.common.translations import t
 from src.data.data import OrdinalCastError, infer_ordinal_order
@@ -549,7 +549,9 @@ def _shared_ordinal_axis_tick_labels(data, wide, conditions):
         return None
     if any(infer_ordinal_order(data[col]) != first_order for col in conditions[1:]):
         return None
-    return ordinal_axis_tick_labels(data, conditions[0], pd.concat([wide[col] for col in conditions], ignore_index=True))
+    return ordinal_axis_tick_labels(
+        data, conditions[0], pd.concat([wide[col] for col in conditions], ignore_index=True)
+    )
 
 
 def _eta_squared_magnitude(eta_sq) -> str:
