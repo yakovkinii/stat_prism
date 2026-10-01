@@ -5,7 +5,6 @@
 ![License](https://img.shields.io/badge/license-GPL_3.0-00ff00)
 ![Language](https://img.shields.io/badge/language-Nuitka_python-3776AB?logoColor=white)
 ![Supported Platforms](https://img.shields.io/badge/platform-Widows-ffffff?logoColor=black)
-![Downloads](https://img.shields.io/github/downloads/yakovkinii/stat_prism/total)
 
 
 StatPrism is a statistical software targeting the scientists and students
