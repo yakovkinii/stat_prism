@@ -18,7 +18,9 @@
 
 import pandas as pd
 
+from src.common.constant import ColumnType
 from src.common.decorators import log_function
+from src.data.data import infer_ordinal_order
 from src.data.data_manager import DATA_MANAGER
 from src.side_area_panel.modules.dp_impute.dp_impute_result import ImputeResult
 from src.side_area_panel.modules.dp_impute.dp_impute_ui import Elements
@@ -42,6 +44,7 @@ def dp_impute_main(elements: Elements, result: ImputeResult, update):
     result.filled_count = 0
     result.removed_count = 0
     result.error_message = ""
+    result.warnings = []
 
     selected = cfg.column_selector[0] if cfg.column_selector else None
     if not selected:
@@ -50,6 +53,13 @@ def dp_impute_main(elements: Elements, result: ImputeResult, update):
         return result
 
     method = cfg.method or "Mean"
+
+    if method == "Mean":
+        ordinal_selected = [c for c in selected if new_data[c].column_type == ColumnType.ORDINAL]
+        if ordinal_selected:
+            elements.column_selector.set_alert(0)
+            result.error_message = "Mean imputation does not accept ordinal columns: " + ", ".join(ordinal_selected)
+            return result
 
     if method == "Remove rows":
         # Drop every row missing any selected column.
@@ -71,7 +81,18 @@ def dp_impute_main(elements: Elements, result: ImputeResult, update):
         if n_missing == 0:
             continue
 
-        if method in ("Mean", "Median"):
+        is_ordinal = column.column_type == ColumnType.ORDINAL
+        if method == "Median" and is_ordinal:
+            # Median is an order statistic -> a real category. Take it on the order codes and fill with
+            # that face-value category (works for non-numeric labels too); no numeric cast, no warning.
+            codes = series.map(infer_ordinal_order(column)).dropna()
+            if codes.empty:
+                continue
+            fill_value = new_data.to_face_value(column_name, codes.quantile(0.5, interpolation="nearest"))
+            column.data_series = series.where(~missing, fill_value)
+        elif method in ("Mean", "Median"):
+            # Mean is numeric-only (ordinals were rejected above). Median on numeric columns is
+            # arithmetic; ordinal median uses the order-statistic branch above.
             numeric = pd.to_numeric(series, errors="coerce")
             if numeric.notna().sum() == 0:
                 continue  # nothing to estimate from

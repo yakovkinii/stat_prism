@@ -40,6 +40,7 @@ def dp_formula_main(elements: Elements, result: FormulaResult, update):
     # Default to a pass-through so downstream stays valid while inputs are incomplete.
     result.data = new_data
     result.error_message = ""
+    result.warnings = []
 
     # The formula field is multiline (for readability); flatten newlines to spaces before eval.
     formula = (cfg.formula or "").replace("\r", " ").replace("\n", " ").strip()

@@ -49,6 +49,15 @@ def _face_value_numeric(data, column_name):
     return numeric, True
 
 
+def _restore_flipped_face_dtype(column, flipped):
+    """Store a flipped source column on its face-value scale, preserving ordinal columns as ordinal."""
+    if column.column_dtype == "str":
+        return flipped.map(lambda v: v if pd.isna(v) else str(int(v) if float(v).is_integer() else v)), "str"
+    if column.column_dtype == "int" and flipped.notna().all() and bool((flipped == flipped.round()).all()):
+        return flipped.astype("int64"), "int"
+    return flipped, "float"
+
+
 @log_function
 def dp_calculate_scale_main(elements: Elements, result: CalculateScaleResult, update):
     cfg = result.config
@@ -183,10 +192,10 @@ def dp_calculate_scale_main(elements: Elements, result: CalculateScaleResult, up
     if flipped_columns and replace_flipped and flip_reference is not None and action != "Delete":
         for column in flipped_columns:
             source = data[column]
-            source.data_series = _flip(item_values[column])
-            source.column_type = ColumnType.NUMERIC
-            source.is_numeric = True
-            source.column_dtype = "float"
+            source.data_series, source.column_dtype = _restore_flipped_face_dtype(source, _flip(item_values[column]))
+            # Reverse-keying an ordinal changes its displayed face values but does not make the
+            # source question numeric. With no prescribed order, downstream ordinal analysis infers
+            # the new order from those flipped face values.
             source.order = {}
             source.automatically_update_order()
 

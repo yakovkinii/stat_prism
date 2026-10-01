@@ -32,6 +32,16 @@ from src.side_area_panel.modules.dp_invert_scale.dp_invert_scale_result import I
 from src.side_area_panel.modules.dp_invert_scale.dp_invert_scale_ui import Elements
 
 
+def _restore_inverted_face_dtype(column, reference):
+    """Invert on numeric face values, then store them in the same face-value dtype shape when possible."""
+    inverted = reference - pd.to_numeric(column.data_series, errors="coerce")
+    if column.column_dtype == "str":
+        return inverted.map(lambda v: v if pd.isna(v) else str(int(v) if float(v).is_integer() else v)), "str"
+    if column.column_dtype == "int" and inverted.notna().all() and bool((inverted == inverted.round()).all()):
+        return inverted.astype("int64"), "int"
+    return inverted, "float"
+
+
 @log_function
 def dp_invert_scale_main(elements: Elements, result: InvertScaleResult, update):
     cfg = result.config
@@ -93,17 +103,19 @@ def dp_invert_scale_main(elements: Elements, result: InvertScaleResult, update):
         if replace_in_place:
             # Overwrite the column: same name, no copy.
             column = data[original_column_name]
-            column.data_series = reference - pd.to_numeric(column.data_series, errors="coerce")
-            # Rebuild the ordinal/nominal order to reflect the new (inverted) values.
+            column.data_series, column.column_dtype = _restore_inverted_face_dtype(column, reference)
+            # A flipped ordinal remains ordinal, but its values are now new face values with no
+            # prescribed order; downstream ordinal analysis infers the order from those values.
             column.order = {}
             column.automatically_update_order()
             continue
 
         new_name = unique_name(f"{original_column_name} (inverted)", existing)
         inverted = data[original_column_name].copy()
-        inverted.data_series = reference - pd.to_numeric(inverted.data_series, errors="coerce")
+        inverted.data_series, inverted.column_dtype = _restore_inverted_face_dtype(inverted, reference)
         inverted.rename(new_name)
-        # Rebuild the ordinal/nominal order to reflect the new (inverted) values.
+        # A flipped ordinal remains ordinal, but its values are now new face values with no
+        # prescribed order; downstream ordinal analysis infers the order from those values.
         inverted.order = {}
         inverted.automatically_update_order()
 

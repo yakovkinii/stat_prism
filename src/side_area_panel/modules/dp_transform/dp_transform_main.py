@@ -49,6 +49,26 @@ def _non_empty(series):
     return series.notna() & (series.astype(str).str.strip() != "")
 
 
+def _restore_flipped_face_dtype(column, flipped):
+    if column.column_dtype == "str":
+        return flipped.map(lambda v: v if pd.isna(v) else str(int(v) if float(v).is_integer() else v)), "str"
+    if column.column_dtype == "int" and flipped.notna().all() and bool((flipped == flipped.round()).all()):
+        return flipped.astype("int64"), "int"
+    return flipped, "float"
+
+
+def _remap_prescribed_order(order, mapping):
+    if not order:
+        return {}
+    remapped = {}
+    for raw, _rank in sorted(order.items(), key=lambda item: item[1]):
+        value = mapping.get(raw, raw)
+        value = value if pd.isna(value) else str(value)
+        if value not in remapped:
+            remapped[value] = len(remapped) + 1
+    return remapped
+
+
 def _flip_target_type(column, spec):
     try:
         return ColumnType(spec.get("type"))
@@ -146,13 +166,16 @@ def _transform_column(new_data, column_name, spec, rename):
 
     # Ordinal flip is allowed only for plain numeric face-value scales. Validation above rejects
     # explicit/custom ordinal orders and non-numeric face values, so this never uses order codes.
+    flipped_ordinal = False
     if ctype == ColumnType.ORDINAL and spec.get("flip"):
         numeric = pd.to_numeric(col.data_series, errors="coerce")
         if not numeric.dropna().empty:
             reference = _parse_float(spec.get("flip_reference"))
             if reference is None:
                 reference = numeric.max() + numeric.min()
-            col.data_series = reference - numeric
+            col.data_series, col.column_dtype = _restore_flipped_face_dtype(col, reference - numeric)
+            col.order = {}
+            flipped_ordinal = True
 
     if ctype == ColumnType.NUMERIC:
         coerced = pd.to_numeric(col.data_series, errors="coerce")
@@ -165,7 +188,7 @@ def _transform_column(new_data, column_name, spec, rename):
         else:
             col.data_series = coerced
             col.column_dtype = "float"
-    else:
+    elif not flipped_ordinal:
         # nominal / ordinal -> string labels (keep NaN as NaN)
         col.data_series = col.data_series.apply(lambda v: v if pd.isna(v) else str(v))
         col.column_dtype = "str"
@@ -182,6 +205,8 @@ def _transform_column(new_data, column_name, spec, rename):
                 value = value if pd.isna(value) else str(value)
                 if value not in col.order:
                     col.order[value] = len(col.order) + 1
+        elif not flipped_ordinal and (mapping or col.order):
+            col.order = _remap_prescribed_order(col.order, mapping)
         col.automatically_update_order()
     else:
         col.order = {}

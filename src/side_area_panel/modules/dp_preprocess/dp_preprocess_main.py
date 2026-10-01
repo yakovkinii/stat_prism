@@ -26,6 +26,18 @@ from src.side_area_panel.modules.dp_preprocess.dp_preprocess_result import Prepr
 from src.side_area_panel.modules.dp_preprocess.dp_preprocess_ui import Elements
 
 
+def _remap_prescribed_order(order, mapping):
+    if not order:
+        return {}
+    remapped = {}
+    for raw, _rank in sorted(order.items(), key=lambda item: item[1]):
+        value = mapping.get(raw, raw)
+        value = value if pd.isna(value) else str(value)
+        if value not in remapped:
+            remapped[value] = len(remapped) + 1
+    return remapped
+
+
 @log_function
 def dp_preprocess_main(elements: Elements, result: PreprocessResult, update):
     cfg = result.config
@@ -98,6 +110,8 @@ def dp_preprocess_main(elements: Elements, result: PreprocessResult, update):
                     value = value if pd.isna(value) else str(value)
                     if value not in col.order:
                         col.order[value] = len(col.order) + 1
+            elif mapping or col.order:
+                col.order = _remap_prescribed_order(col.order, mapping)
             col.automatically_update_order()
         else:
             col.order = {}

@@ -172,7 +172,7 @@ class DataColumn:
             self.is_numeric,
             self.inverted,
             self.color,
-            self.order,
+            self.order.copy(),
         )
 
     def rename(self, new_name: str):
