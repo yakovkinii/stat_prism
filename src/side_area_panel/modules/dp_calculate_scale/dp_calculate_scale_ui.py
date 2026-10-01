@@ -100,7 +100,7 @@ class Elements(ItemInSidePanelWithAutoConfigHolder):
         default_value=0,
     )
     # One color tag shared by the new scale column and the item columns it was built from.
-    color = IISPWACColorPicker(label_text="Color:")
+    color = IISPWACColorPicker(label_text="Color:", default_from_columns=True)
 
 
 class CalculateScale(BaseModulePanel):

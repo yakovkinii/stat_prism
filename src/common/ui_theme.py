@@ -42,6 +42,8 @@ LIGHT = {
     "accent": "#0055ff",
     "selection": "#cfe3ff",
     "danger": "#770000",
+    # Non-fatal warning (e.g. "ordinal treated as numeric"): dark amber, legible on the light paper.
+    "warning": "#9a6700",
     # Removed-row text in the data preview: vivid red on the light paper.
     "removed_row": "#ee0000",
     # Brand color for study titles (legible dark gold on the light paper)
@@ -77,6 +79,8 @@ DARK = {
     "accent": "#aaeedd88",
     "selection": "#3a3320",
     "danger": "#ff6b6b",
+    # Non-fatal warning (e.g. "ordinal treated as numeric"): amber, legible on the dark chrome.
+    "warning": "#e0a030",
     # Removed-row text in the data preview: lighter red, legible on the dark table.
     "removed_row": "#ff6b6b",
     # Brand color for study titles (banner gold)

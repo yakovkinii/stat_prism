@@ -24,6 +24,7 @@ import pandas as pd
 
 from src.common.constant import ColumnType
 from src.common.decorators import log_function
+from src.data.data import infer_ordinal_order, sorted_numeric_or_alpha
 from src.data.data_manager import DATA_MANAGER
 from src.side_area_panel.modules.dp_bootstrap.dp_bootstrap_result import BootstrapResult
 from src.side_area_panel.modules.dp_bootstrap.dp_bootstrap_ui import Elements
@@ -118,7 +119,7 @@ def _generate_normal(column, spec, pool, existing, n, rng):
         return [float(v) for v in draw]
 
     # Ordinal: work in the order-code space, snap back to a real category.
-    order = column.order or {}
+    order = infer_ordinal_order(column)
     if spec.get("value_source") == "custom":
         candidates = [v for v in pool if v in order]
     else:
@@ -198,15 +199,21 @@ def _sort_key(column):
 
         return key
     if column.column_type == ColumnType.ORDINAL:
-        order = column.order or {}
+        order = infer_ordinal_order(column)
 
         def key(v):
             return (1, 0) if _is_missing(v) else (0, order.get(v, 0))
 
         return key
 
+    order = column.order or {}
+
     def key(v):
-        return (1, "") if _is_missing(v) else (0, str(v))
+        if _is_missing(v):
+            return (2, 0, "")
+        if v in order:
+            return (0, order[v], "")
+        return (1, 0, str(v))
 
     return key
 
@@ -244,12 +251,13 @@ def _code_new_rows(column, n):
     series = pd.Series(values)
     if column.column_type == ColumnType.NUMERIC or column.is_numeric:
         return pd.to_numeric(series, errors="coerce")
-    if column.column_type == ColumnType.ORDINAL and column.order:
-        return pd.to_numeric(series.map(column.order), errors="coerce")
-    # Nominal: code by the SAME ordering rank-matching used to induce the correlation
-    # (alphabetical by label, matching _sort_key) -- not pd.factorize's first-appearance
-    # order, which disagrees with it and would flip the measured sign.
-    uniques = sorted(series.dropna().unique(), key=lambda v: str(v))
+    if column.column_type == ColumnType.ORDINAL:
+        return pd.to_numeric(series.map(infer_ordinal_order(column)), errors="coerce")
+    # Nominal: code by the SAME ordering rank-matching used to induce the correlation -- not
+    # pd.factorize's first-appearance order, which disagrees with it and would flip the measured sign.
+    order = column.order or {}
+    uniques = sorted((v for v in series.dropna().unique() if v in order), key=lambda v: order[v])
+    uniques += sorted_numeric_or_alpha(v for v in series.dropna().unique() if v not in order)
     rank_of = {v: float(i) for i, v in enumerate(uniques)}
     return series.map(rank_of)
 

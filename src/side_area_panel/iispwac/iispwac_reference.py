@@ -20,6 +20,7 @@ import pandas as pd
 from PySide6.QtWidgets import QCheckBox, QDoubleSpinBox, QPushButton
 
 from src.common.decorators import log_method_noarg
+from src.data.data import sorted_numeric_or_alpha
 from src.data.data_manager import DATA_MANAGER
 from src.pyside_ext.elements.utility.layout_helpers import add_widget
 from src.pyside_ext.layout import HBoxLayout
@@ -163,5 +164,5 @@ class IISPWACReference(ItemInSidePanelWithAutoConfig):
     def on_view_clicked(self):
         if self.column is None:
             return
-        unique_values = sorted(self.column.dropna().unique())
+        unique_values = sorted_numeric_or_alpha(self.column.dropna().unique())
         self.v_widget = show_value_mapping_popup(self.view_button, unique_values, self._get_reference_value())

@@ -1,8 +1,10 @@
 # Calculate Scale
 
-Builds a new scale column by aggregating the selected item columns per row:
+Builds a new scale column by aggregating selected numeric or ordinal item columns per row:
 
 - **Sum** or **Mean** across the items.
+- Ordinal items are parsed from their displayed values, not their internal order codes. If those
+  displayed values cannot be parsed as numbers, the study shows an error.
 - Optionally **normalize** the result — Z-score, Stanine, Center, Min-max, Log, or Rank.
   *Stanine* is the normalized 1–9 score (mean 5, SD ≈ 2) from each value's percentile rank,
   using the standard stanine bands (not a linear rescale).

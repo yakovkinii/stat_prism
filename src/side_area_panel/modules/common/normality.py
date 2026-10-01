@@ -60,7 +60,7 @@ def process_normality_check(
 
     for index, col in enumerate(selected_columns):
         all_normal = True
-        for i, (group_name, group) in enumerate(df.groupby(grouping_column)):
+        for i, (group_name, group) in enumerate(df.groupby(grouping_column, sort=False)):
             shapiro_result = cast(ShapiroResult, stats.shapiro(group[col].dropna()))
             table.add_single_row_apa(
                 Row(

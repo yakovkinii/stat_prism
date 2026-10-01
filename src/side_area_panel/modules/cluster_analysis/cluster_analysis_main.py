@@ -28,6 +28,7 @@ from sklearn.metrics import silhouette_score
 from src.common.decorators import log_function
 from src.common.qcolor import Colors
 from src.common.translations import t
+from src.data.data import OrdinalCastError
 from src.data.data_manager import DATA_MANAGER
 from src.side_area_panel.modules.cluster_analysis.cluster_analysis_result import ClusterAnalysisResult, ClusterMethod
 from src.side_area_panel.modules.common.prose import prose_enabled
@@ -40,7 +41,15 @@ from src.side_area_panel.modules.common.result.plot_result import (
     Scatter,
     ScatterPlotConfig,
 )
-from src.side_area_panel.modules.common.utility import format_r_apa, format_statistic_apa, format_value_apa
+from src.side_area_panel.modules.common.utility import (
+    format_r_apa,
+    format_statistic_apa,
+    format_value_apa,
+    ordinal_cast_error_message,
+    ordinal_numeric_cast_warning,
+)
+
+_ROW_ID_COLUMN = "__STATPRISM_ROW_ID__"
 
 
 def _fail(result: ClusterAnalysisResult, message: str) -> ClusterAnalysisResult:
@@ -68,6 +77,7 @@ def recalculate_cluster_analysis_study(elements, result: ClusterAnalysisResult, 
     are handled centrally by the panel's recalculate()."""
     cfg = result.config
     result.result_elements = []
+    result.warnings = []
 
     method = ClusterMethod(cfg.method)
 
@@ -81,18 +91,29 @@ def recalculate_cluster_analysis_study(elements, result: ClusterAnalysisResult, 
         current_result_id=result.unique_id,
     )
 
-    # Ordinal items are scored numerically so Likert scales are usable.
-    df = data.get_dataframe(columns=selected, map_ordinal=True)
-    df = df.select_dtypes(include=[np.number]).astype(float).dropna(axis=0)
+    # Clustering is numeric (Euclidean distance): ordinal columns are used via their face values
+    # (error on non-numeric categories, warn that they were cast). Non-numeric columns are dropped.
+    try:
+        df, cast = data.get_numeric_face_dataframe(selected)
+    except OrdinalCastError as error:
+        return _fail(result, ordinal_cast_error_message(error.column_name))
+    if cast:
+        result.set_warning(ordinal_numeric_cast_warning(cast))
+    ids = data.get_id_series().reindex(df.index)
+    df = df.select_dtypes(include=[np.number]).astype(float)
+    columns = list(df.columns)
+    df[_ROW_ID_COLUMN] = ids
+    df = df.dropna(axis=0)
     n_rows, n_cols = df.shape
+    n_cols -= 1
     if n_cols < 1:
         return _fail(result, t("cluster.msg.select_variable"))
     k = cfg.n_clusters
     if n_rows < k:
         return _fail(result, t("cluster.msg.not_enough", n=k))
 
-    columns = list(df.columns)
-    original = df.values
+    id_labels = df[_ROW_ID_COLUMN].tolist()
+    original = df[columns].values
     standardize = bool(cfg.standardize)
     verbal = bool(cfg.verbal_indicators)
 
@@ -207,7 +228,7 @@ def recalculate_cluster_analysis_study(elements, result: ClusterAnalysisResult, 
         assign_table.add_title_row_apa(
             Row([Cell(t("cluster.col.observation")), Cell(t("cluster.col.cluster"), center=True)])
         )
-        for id_label, label in zip(data.get_id_series(), labels):
+        for id_label, label in zip(id_labels, labels):
             assign_table.add_single_row_apa(Row([Cell(id_label, push_to_left=True), Cell(str(label + 1), center=True)]))
         result.update_and_add_element(assign_table, "cluster assignments")
 

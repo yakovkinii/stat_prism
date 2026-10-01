@@ -22,6 +22,7 @@ import numpy as np
 import semopy
 
 from src.common.decorators import log_function
+from src.data.data import OrdinalCastError
 from src.data.data_manager import DATA_MANAGER
 from src.side_area_panel.iispwac.iispwac_path_builder import resolve_factor_labels
 from src.side_area_panel.modules.common.prose import prose_enabled
@@ -32,9 +33,17 @@ from src.side_area_panel.modules.common.result.plot_result import (
     PlotV2,
     factor_diagram_font_defaults,
 )
-from src.side_area_panel.modules.common.utility import format_p_apa_exact, format_r_apa, format_statistic_apa, get_stars
+from src.side_area_panel.modules.common.utility import (
+    format_p_apa_exact,
+    format_r_apa,
+    format_statistic_apa,
+    get_stars,
+    ordinal_cast_error_message,
+    ordinal_numeric_cast_warning,
+)
 from src.side_area_panel.modules.confirmatory_factor_analysis.cfa_semopy import (
     _OBJECTIVE_TO_SEMOPY,
+    OBJECTIVE_DWLS,
     OBJECTIVE_ML,
     calc_stats_scaled,
 )
@@ -76,7 +85,20 @@ def recalculate_general_sem_study(elements, result: GeneralSEMResult, update) ->
         return _fail(result, "Assign indicators to at least one factor.")
 
     data = DATA_MANAGER.get_data_from_data_label(data_label=cfg.data_source, current_result_id=result.unique_id)
-    df = data.get_dataframe(columns=observed_needed, map_ordinal=True)
+    result.warnings = []
+    # DWLS/WLSMV is a true-ordinal estimator: it works on the ordinal order codes. Every other
+    # estimator (ML) treats ordinals numerically via their face values (error on non-numeric
+    # categories, warn that they were cast).
+    is_ordinal_estimator = (cfg.estimator or OBJECTIVE_ML) == OBJECTIVE_DWLS
+    if is_ordinal_estimator:
+        df = data.get_dataframe(columns=observed_needed, map_ordinal=True)
+    else:
+        try:
+            df, cast = data.get_numeric_face_dataframe(observed_needed)
+        except OrdinalCastError as error:
+            return _fail(result, ordinal_cast_error_message(error.column_name))
+        if cast:
+            result.set_warning(ordinal_numeric_cast_warning(cast))
     df = df.select_dtypes(include=[np.number]).astype(float).dropna(axis=0)
     if df.shape[0] < 3 or df.shape[1] < 2:
         return _fail(result, "Not enough complete numeric data to fit the model.")

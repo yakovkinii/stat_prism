@@ -23,9 +23,10 @@ import pingouin as pg
 from scikit_posthocs import posthoc_nemenyi_friedman
 from scipy import stats
 
-from src.common.constant import MDASH
+from src.common.constant import MDASH, ColumnType
 from src.common.decorators import log_function
 from src.common.translations import t
+from src.data.data import OrdinalCastError, infer_ordinal_order
 from src.data.data_manager import DATA_MANAGER
 from src.side_area_panel.modules.common.column_numbering import ColumnNumbering
 from src.side_area_panel.modules.common.prose import ProseDetail, prose_enabled, prose_includes
@@ -35,12 +36,15 @@ from src.side_area_panel.modules.common.utility import (
     format_p_apa_full,
     format_statistic_apa,
     format_value_apa,
+    ordinal_cast_error_message,
+    ordinal_numeric_cast_warning,
     smart_comma_join,
 )
 from src.side_area_panel.modules.common.verbal.effect_size import cohen_d_magnitude, correlation_magnitude
 from src.side_area_panel.modules.common.verbal.significance import assumption_met_verbal, significance_verbal
 from src.side_area_panel.modules.common.verbal.test import TestResult
-from src.side_area_panel.modules.descriptive.plot import create_box_plot
+from src.side_area_panel.modules.descriptive.plot import create_box_plot, ordinal_axis_tick_labels
+from src.side_area_panel.modules.mean_comparison.preprocessing import median_iqr_display
 from src.side_area_panel.modules.paired.constant import PairedAssumptionChecks, PairedMethod
 from src.side_area_panel.modules.paired.paired_result import PairedResult
 from src.side_area_panel.modules.paired.paired_ui import Elements
@@ -55,7 +59,7 @@ _VALUE = "__value__"
 
 def _fail(result: PairedResult, message: str) -> PairedResult:
     """Show a validation message to the user and log it, then stop."""
-    logging.warning("Paired/Repeated Measures: %s", message)
+    logging.warning("Paired T-test/ANOVA: %s", message)
     result.set_error(message)
     return result
 
@@ -67,6 +71,7 @@ def recalculate_paired_study(elements: Elements, result: PairedResult, update) -
     Unexpected exceptions are handled centrally by the panel's recalculate()."""
     cfg = result.config
     result.result_elements = []
+    result.warnings = []
 
     conditions = cfg.column_selector[0]
     if len(conditions) < 2:
@@ -79,19 +84,45 @@ def recalculate_paired_study(elements: Elements, result: PairedResult, update) -
         data_label=cfg.data_source,
         current_result_id=result.unique_id,
     )
-    # Repeated measures need complete cases: drop a respondent missing any condition.
-    wide = data.get_dataframe(columns=conditions, map_ordinal=True).dropna().reset_index(drop=True)
-    if len(wide) < _MIN_CASES:
-        return _fail(result, t("paired.error.insufficient", n=len(wide)))
+    # Complete cases only (drop a respondent missing any condition). The codes frame drives the
+    # nonparametric (fully-ordinal) family; the completeness mask is taken from it so both families
+    # agree on which respondents are kept.
+    codes_full = data.get_dataframe(columns=conditions, map_ordinal=True)
+    complete_mask = codes_full.notna().all(axis=1)
+    codes_wide = codes_full[complete_mask].reset_index(drop=True)
+    if len(codes_wide) < _MIN_CASES:
+        return _fail(result, t("paired.error.insufficient", n=len(codes_wide)))
 
     result.title_context = ", ".join(col[:16] for col in conditions)
     update(10)
 
     two_conditions = len(conditions) == 2
-    parametric = _resolve_parametric(cfg, wide, conditions, two_conditions)
+    has_ordinal = any(data[col].column_type == ColumnType.ORDINAL for col in conditions)
+    # Which family: the user's explicit choice wins. The parametric family does not support ordinals,
+    # so a forced parametric run treats them numerically via their face values; the nonparametric
+    # family is fully ordinal. AUTO prefers the fully-ordinal family whenever an ordinal is present
+    # (an ordinal is only cast when the user explicitly asks for the parametric family).
+    parametric = _resolve_parametric(cfg, codes_wide, conditions, two_conditions, has_ordinal)
+
+    if parametric:
+        # Parametric family: ordinals are treated as numeric via their face values (error on a
+        # non-numeric category, warn that they were cast). Same complete cases as the codes frame.
+        try:
+            face_full, cast = data.get_numeric_face_dataframe(conditions)
+        except OrdinalCastError as error:
+            return _fail(result, ordinal_cast_error_message(error.column_name))
+        wide = face_full[complete_mask].reset_index(drop=True)
+        if cast:
+            result.set_warning(ordinal_numeric_cast_warning(cast))
+    else:
+        wide = codes_wide
+
     numbering = ColumnNumbering(list(conditions), enabled=bool(getattr(cfg, "number_columns", False)))
 
-    result.update_and_add_element(_descriptives_table(wide, conditions, numbering), "paired descriptives")
+    result.update_and_add_element(
+        _descriptives_table(data, wide, conditions, numbering, parametric),
+        "paired descriptives",
+    )
 
     if cfg.assumption_checks != PairedAssumptionChecks.NEVER.value:
         result.update_and_add_element(
@@ -113,24 +144,33 @@ def recalculate_paired_study(elements: Elements, result: PairedResult, update) -
     update(70)
 
     if cfg.plots:
-        _add_plots(result, wide, conditions)
+        # The parametric frame already holds numeric face values (plain numeric axis); only the codes
+        # frame needs its axis ticks relabelled from order codes back to the categories.
+        tick_labels = None if parametric else _shared_ordinal_axis_tick_labels(data, wide, conditions)
+        _add_plots(result, wide, conditions, tick_labels)
 
     update(100)
     return result
 
 
-def _resolve_parametric(cfg, wide, conditions, two_conditions) -> bool:
-    """Whether to use the parametric family. AUTO decides from the Shapiro-Wilk check:
-    on the paired differences (two conditions) or per condition (three or more)."""
+def _resolve_parametric(cfg, codes_wide, conditions, two_conditions, has_ordinal) -> bool:
+    """Whether to use the parametric family. The user's explicit choice wins. AUTO prefers the
+    fully-ordinal (nonparametric) family whenever an ordinal condition is present, and otherwise
+    decides numeric normality by Shapiro-Wilk (on the paired differences for two conditions, per
+    condition for three or more). ``codes_wide`` holds the raw numeric values in the AUTO/all-numeric
+    case, so it is the right frame for that check."""
     if cfg.method == PairedMethod.PARAMETRIC.value:
         return True
     if cfg.method == PairedMethod.NON_PARAMETRIC.value:
         return False
-    # AUTO
+    # AUTO: an ordinal is only treated numerically when the user explicitly asks for the parametric
+    # family, so prefer the fully-ordinal family here.
+    if has_ordinal:
+        return False
     if two_conditions:
-        diff = wide[conditions[0]] - wide[conditions[1]]
+        diff = codes_wide[conditions[0]] - codes_wide[conditions[1]]
         return stats.shapiro(diff).pvalue > 0.05
-    return all(stats.shapiro(wide[col]).pvalue > 0.05 for col in conditions)
+    return all(stats.shapiro(codes_wide[col]).pvalue > 0.05 for col in conditions)
 
 
 def _to_long(wide: pd.DataFrame, conditions) -> pd.DataFrame:
@@ -140,7 +180,7 @@ def _to_long(wide: pd.DataFrame, conditions) -> pd.DataFrame:
     return frame.melt(id_vars=_SUBJECT, value_vars=list(conditions), var_name=_CONDITION, value_name=_VALUE)
 
 
-def _descriptives_table(wide: pd.DataFrame, conditions, numbering=None) -> HTMLTableV2:
+def _descriptives_table(data, wide: pd.DataFrame, conditions, numbering=None, parametric=False) -> HTMLTableV2:
     numbering = numbering if numbering is not None else ColumnNumbering([], False)
     table = HTMLTableV2(table_caption=t("paired.caption.descriptives"))
     table.add_title_row_apa(
@@ -157,16 +197,29 @@ def _descriptives_table(wide: pd.DataFrame, conditions, numbering=None) -> HTMLT
     )
     for col in conditions:
         series = wide[col]
-        iqr = series.quantile(0.75) - series.quantile(0.25)
+        is_ordinal = data[col].column_type == ColumnType.ORDINAL
+        if parametric or not is_ordinal:
+            # Numeric treatment (ordinals cast to their face values for the parametric family): every
+            # cell is the ordinary arithmetic statistic.
+            mean = format_value_apa(series.mean())
+            sd = format_value_apa(series.std())
+            median = format_value_apa(series.median())
+            iqr = format_value_apa(series.quantile(0.75) - series.quantile(0.25))
+        else:
+            # Nonparametric (fully-ordinal) family: mean / SD are undefined on an ordinal scale (dash);
+            # median / IQR map the order codes back to the face-value scale via the shared helper.
+            mean = MDASH
+            sd = MDASH
+            median, iqr = median_iqr_display(data, col, series)
         table.add_single_row_apa(
             Row(
                 [
                     Cell(numbering.label(col), push_to_left=True),
                     Cell(str(len(series)), center=True),
-                    Cell(format_value_apa(series.mean()), center=True),
-                    Cell(format_value_apa(series.std()), center=True),
-                    Cell(format_value_apa(series.median()), center=True),
-                    Cell(format_value_apa(iqr), center=True),
+                    Cell(mean, center=True),
+                    Cell(sd, center=True),
+                    Cell(median, center=True),
+                    Cell(iqr, center=True),
                 ]
             )
         )
@@ -475,14 +528,30 @@ def _posthoc_table(
     return table
 
 
-def _add_plots(result, wide, conditions):
+def _add_plots(result, wide, conditions, y_axis_tick_labels):
     box_plot = create_box_plot(
         groups=[wide[col] for col in conditions],
         group_names=list(conditions),
         column=t("paired.plot.value_axis"),
         grouping_column=t("paired.plot.condition_axis"),
+        y_axis_tick_labels=y_axis_tick_labels,
     )
     result.update_and_add_element(box_plot, "paired box_plot")
+
+
+def _shared_ordinal_axis_tick_labels(data, wide, conditions):
+    if not all(data[col].column_type == ColumnType.ORDINAL for col in conditions):
+        return None
+    # The box plot shares one value axis, so it can only be relabelled when every condition maps to the
+    # same ordinal scale (its prescribed order, or the order inferred when none is stored).
+    first_order = infer_ordinal_order(data[conditions[0]])
+    if not first_order:
+        return None
+    if any(infer_ordinal_order(data[col]) != first_order for col in conditions[1:]):
+        return None
+    return ordinal_axis_tick_labels(
+        data, conditions[0], pd.concat([wide[col] for col in conditions], ignore_index=True)
+    )
 
 
 def _eta_squared_magnitude(eta_sq) -> str:

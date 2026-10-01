@@ -28,6 +28,7 @@ from src.side_area_panel.modules.dp_filter.filter_logic import (
     filter_target_column,
     removed_positions,
 )
+from src.side_area_panel.modules.dp_filter.filter_values import saved_filter_value_label
 
 
 def get_inline_filters(result):
@@ -107,7 +108,7 @@ def describe_filter(config) -> str:
     if spec.get("mode") == "categorical":
         kept = spec.get("kept_values")
         if kept:
-            return f"{column}: " + ", ".join(str(v) for v in kept)
+            return f"{column}: " + ", ".join(saved_filter_value_label(v) for v in kept)
     return column
 
 

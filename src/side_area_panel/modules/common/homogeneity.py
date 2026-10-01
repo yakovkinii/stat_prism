@@ -59,7 +59,10 @@ def process_homogeneity_check(
     for index, col in enumerate(selected_columns):
         levene_result = cast(
             LeveneResult,
-            stats.levene(*[group[col].dropna() for name, group in df.groupby(grouping_column)], center="mean"),
+            stats.levene(
+                *[group[col].dropna() for name, group in df.groupby(grouping_column, sort=False)],
+                center="mean",
+            ),
         )
 
         table.add_single_row_apa(

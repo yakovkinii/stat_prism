@@ -22,10 +22,10 @@ import pingouin as pg
 from scikit_posthocs import posthoc_dunn, posthoc_tamhane, posthoc_tukey_hsd
 from scipy import stats
 
-from src.common.constant import MDASH, ColumnType
+from src.common.constant import MDASH
 from src.common.decorators import log_function
 from src.common.translations import t
-from src.data.data import Data
+from src.data.data import Data, OrdinalCastError
 from src.side_area_panel.modules.common.column_numbering import ColumnNumbering
 from src.side_area_panel.modules.common.homogeneity import process_homogeneity_check
 from src.side_area_panel.modules.common.normality import process_normality_check
@@ -37,6 +37,8 @@ from src.side_area_panel.modules.common.utility import (
     format_r_apa,
     format_statistic_apa,
     format_value_apa,
+    ordinal_cast_error_message,
+    ordinal_numeric_cast_warning,
     smart_comma_join,
 )
 from src.side_area_panel.modules.common.verbal.significance import significance_verbal
@@ -44,7 +46,12 @@ from src.side_area_panel.modules.common.verbal.test import TestResult, describe_
 from src.side_area_panel.modules.mean_comparison.constant import AssumptionChecksInGrouping, MeanComparisonMethod
 from src.side_area_panel.modules.mean_comparison.group_plots import add_group_distribution_plots
 from src.side_area_panel.modules.mean_comparison.mean_comparison_result import MeanComparisonResult
-from src.side_area_panel.modules.mean_comparison.preprocessing import prepare_df_for_mean_comparison
+from src.side_area_panel.modules.mean_comparison.preprocessing import (
+    median_iqr_display,
+    ordered_groups,
+    prepare_df_for_mean_comparison,
+    split_value_columns,
+)
 
 
 @log_function
@@ -59,8 +66,13 @@ def recalculate_mean_comparison_anova(
     # Apply filters and grouping-missing policy
     df = prepare_df_for_mean_comparison(data=data, cfg=cfg)
 
-    numeric_columns = [col for col in selected_columns if data[col].column_type == ColumnType.NUMERIC]
-    non_numeric_columns = [col for col in selected_columns if col not in numeric_columns]
+    try:
+        numeric_columns, non_numeric_columns, cast_ordinals = split_value_columns(data, cfg, df)
+    except OrdinalCastError as error:
+        result.set_error(ordinal_cast_error_message(error.column_name))
+        return result
+    if cast_ordinals:
+        result.set_warning(ordinal_numeric_cast_warning(cast_ordinals))
 
     numbering = ColumnNumbering(list(selected_columns), enabled=bool(getattr(cfg, "number_columns", False)))
 
@@ -145,6 +157,7 @@ def recalculate_mean_comparison_anova(
                 cfg=cfg,
                 map_ordinal=True,
             ),
+            data=data,
             non_numeric_columns=non_numeric_columns,
             non_normal_columns=non_normal_columns,
             grouping_column=grouping_column,
@@ -195,12 +208,14 @@ def recalculate_mean_comparison_anova(
         "anova",
         bin_width=cfg.bin_width,
         bin_reference=cfg.bin_reference,
+        data=data,
     )
     return result
 
 
 def process_non_normal_anova(
     df: pd.DataFrame,
+    data: Data,
     non_numeric_columns,
     non_normal_columns,
     grouping_column,
@@ -213,7 +228,7 @@ def process_non_normal_anova(
     numbering = numbering if numbering is not None else ColumnNumbering([], False)
     table = HTMLTableV2(table_caption=t("ttest.caption.kruskal"))
 
-    group_names = df[grouping_column].unique().tolist()
+    group_names = ordered_groups(data, grouping_column, df)
 
     table.add_single_row_apa(
         Row(
@@ -238,12 +253,11 @@ def process_non_normal_anova(
     significant_columns = []
 
     for col in columns:
-        groups = [group[col].dropna() for name, group in df.groupby(grouping_column)]
+        groups = [df.loc[df[grouping_column] == name, col].dropna() for name in group_names]
 
         h_stat, p_val = stats.kruskal(*groups)
 
-        median = [group.median() for group in groups]
-        iqr = [group.quantile(0.75) - group.quantile(0.25) for group in groups]
+        median_iqr = [median_iqr_display(data, col, group) for group in groups]
 
         if p_val > 0.05:
             accepted_columns.append(TestResult(variable=col, letter="H", statistic=h_stat, p=p_val))
@@ -262,10 +276,10 @@ def process_non_normal_anova(
                 + [Cell(str(len(groups) - 1), center=True)]
                 + [
                     _
-                    for median_value, iqr_value in zip(median, iqr)
+                    for median_value, iqr_value in median_iqr
                     for _ in (
-                        Cell(format_value_apa(median_value), center=True),
-                        Cell(format_value_apa(iqr_value), center=True),
+                        Cell(median_value, center=True),
+                        Cell(iqr_value, center=True),
                     )
                 ]
             )
@@ -299,6 +313,7 @@ def process_non_normal_anova(
         post_hoc_table.add_title_row_apa(Row([Cell()] + [Cell(name, center=True) for name in group_names]))
         df_val = df[[col, grouping_column]].dropna(subset=[col])
         posthoc_results = posthoc_dunn(df_val, val_col=col, group_col=grouping_column)
+        posthoc_results = posthoc_results.reindex(index=group_names, columns=group_names)
         for i, group_name in enumerate(group_names):
             row = [Cell(group_name, push_to_left=True)]
             for j in range(i + 1):
@@ -454,6 +469,7 @@ def process_non_homogeneous_anova(
         post_hoc_table.add_title_row_apa(Row([Cell()] + [Cell(name, center=True) for name in group_names]))
         df_val = df[[col, grouping_column]].dropna(subset=[col])
         posthoc_results = posthoc_tamhane(df_val, val_col=col, group_col=grouping_column)
+        posthoc_results = posthoc_results.reindex(index=group_names, columns=group_names)
 
         for i, group_name in enumerate(group_names):
             row = [Cell(group_name, push_to_left=True)]
@@ -618,6 +634,7 @@ def process_homogeneous_anova(
         posthoc_table.add_title_row_apa(Row([Cell()] + [Cell(name, center=True) for name in group_names]))
         df_val = df[[col, grouping_column]].dropna(subset=[col])
         posthoc_results = posthoc_tukey_hsd(df_val, val_col=col, group_col=grouping_column)
+        posthoc_results = posthoc_results.reindex(index=group_names, columns=group_names)
 
         for i, group_name in enumerate(group_names):
             row = [Cell(group_name, push_to_left=True)]

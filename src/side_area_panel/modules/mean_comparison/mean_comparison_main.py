@@ -46,6 +46,7 @@ def recalculate_mean_comparison_study(elements: Elements, result: MeanComparison
     by the panel's recalculate()."""
     cfg = result.config
     result.result_elements = []
+    result.warnings = []
 
     grouping_columns = cfg.column_selector[1]
     if len(grouping_columns) != 1:
@@ -67,7 +68,7 @@ def recalculate_mean_comparison_study(elements: Elements, result: MeanComparison
     if len(groups) < 2:
         return _fail(result, t("ttest.error.not_enough_groups", groups=", ".join(map(str, groups))))
 
-    group_sizes = df.groupby(grouping_column).size()
+    group_sizes = df.groupby(grouping_column, sort=False).size()
     if group_sizes.min() < _MIN_GROUP_SIZE:
         return _fail(result, t("ttest.error.insufficient_population", groups=str(group_sizes.to_dict())))
 

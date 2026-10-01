@@ -59,7 +59,7 @@ class ModuleRegistry(Enum):
     )
 
     TRANSFORM = ModuleRegistryItem(
-        display_name="Transform Column",
+        display_name="Transform Column(s)",
         icon_path="mdi6.table-edit",
         module_type=ModuleType.DATA_PROCESSING,
     )

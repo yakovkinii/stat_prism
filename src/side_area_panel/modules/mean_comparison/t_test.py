@@ -19,10 +19,9 @@
 import pandas as pd
 from scipy import stats
 
-from src.common.constant import ColumnType
 from src.common.decorators import log_function
 from src.common.translations import t
-from src.data.data import Data
+from src.data.data import Data, OrdinalCastError
 from src.side_area_panel.modules.common.column_numbering import ColumnNumbering
 from src.side_area_panel.modules.common.homogeneity import process_homogeneity_check
 from src.side_area_panel.modules.common.normality import process_normality_check
@@ -32,6 +31,8 @@ from src.side_area_panel.modules.common.utility import (
     format_p_apa,
     format_statistic_apa,
     format_value_apa,
+    ordinal_cast_error_message,
+    ordinal_numeric_cast_warning,
     smart_comma_join,
 )
 from src.side_area_panel.modules.common.verbal.effect_size import cohen_d_magnitude, correlation_magnitude
@@ -40,7 +41,12 @@ from src.side_area_panel.modules.common.verbal.test import TestResult, describe_
 from src.side_area_panel.modules.mean_comparison.constant import AssumptionChecksInGrouping, MeanComparisonMethod
 from src.side_area_panel.modules.mean_comparison.group_plots import add_group_distribution_plots
 from src.side_area_panel.modules.mean_comparison.mean_comparison_result import MeanComparisonResult
-from src.side_area_panel.modules.mean_comparison.preprocessing import prepare_df_for_mean_comparison
+from src.side_area_panel.modules.mean_comparison.preprocessing import (
+    median_iqr_display,
+    ordered_groups,
+    prepare_df_for_mean_comparison,
+    split_value_columns,
+)
 
 
 @log_function
@@ -55,8 +61,13 @@ def recalculate_mean_comparison_t_test(
     grouping_column = cfg.column_selector[1][0]
     df = prepare_df_for_mean_comparison(data=data, cfg=cfg)
 
-    numeric_columns = [col for col in selected_columns if data[col].column_type == ColumnType.NUMERIC]
-    non_numeric_columns = [col for col in selected_columns if col not in numeric_columns]
+    try:
+        numeric_columns, non_numeric_columns, cast_ordinals = split_value_columns(data, cfg, df)
+    except OrdinalCastError as error:
+        result.set_error(ordinal_cast_error_message(error.column_name))
+        return result
+    if cast_ordinals:
+        result.set_warning(ordinal_numeric_cast_warning(cast_ordinals))
 
     numbering = ColumnNumbering(list(selected_columns), enabled=bool(getattr(cfg, "number_columns", False)))
 
@@ -163,6 +174,7 @@ def recalculate_mean_comparison_t_test(
                     cfg=cfg,
                     map_ordinal=True,
                 ),
+                data=data,
                 non_numeric_columns=non_numeric_columns,
                 non_normal_columns=non_normal_columns,
                 grouping_column=grouping_column,
@@ -216,6 +228,7 @@ def recalculate_mean_comparison_t_test(
         "t_test",
         bin_width=cfg.bin_width,
         bin_reference=cfg.bin_reference,
+        data=data,
     )
     return result
 
@@ -233,6 +246,7 @@ def _cohen_d_ci(cohen_d: float, n1: int, n2: int) -> str:
 
 def process_non_normal_t_test(
     df: pd.DataFrame,
+    data: Data,
     non_numeric_columns,
     non_normal_columns,
     grouping_column,
@@ -247,8 +261,13 @@ def process_non_normal_t_test(
     show_sig = 1 if verbal_indicators else 0
     numbering = numbering if numbering is not None else ColumnNumbering([], False)
     table = HTMLTableV2(table_caption=t("ttest.caption.mann_whitney"))
-    group1_name = df[grouping_column].unique()[0]
-    group2_name = df[grouping_column].unique()[1]
+    # The grouping column carries face-value labels (never order codes), so a group's name is just
+    # its value; the two groups are taken in display order.
+    group1_value, group2_value = ordered_groups(data, grouping_column, df)[:2]
+    group1_mask = df[grouping_column] == group1_value
+    group2_mask = df[grouping_column] == group2_value
+    group1_name = group1_value
+    group2_name = group2_value
 
     table.add_single_row_apa(
         Row(
@@ -292,18 +311,16 @@ def process_non_normal_t_test(
     rejected_columns = []
 
     for col in columns:
-        group1 = df[df[grouping_column] == df[grouping_column].unique()[0]][col].dropna()
-        group2 = df[df[grouping_column] == df[grouping_column].unique()[1]][col].dropna()
-
-        if group1.empty or group2.empty:
-            continue
+        # An empty group (a column with no data in one group) leaves the test undefined; like the
+        # Kruskal-Wallis path in anova.py, let the test raise so the study reports the error rather
+        # than silently dropping the column.
+        group1 = df.loc[group1_mask, col].dropna()
+        group2 = df.loc[group2_mask, col].dropna()
 
         u1_stat, p_val = stats.mannwhitneyu(group1, group2)
         u2_stat = len(group1) * len(group2) - u1_stat
         u_stat = min(u1_stat, u2_stat)
-        median, iqr = [group.median() for group in [group1, group2]], [
-            group.quantile(0.75) - group.quantile(0.25) for group in [group1, group2]
-        ]
+        median_iqr = [median_iqr_display(data, col, group) for group in (group1, group2)]
         # Directional rank-biserial correlation (keeps the sign of the effect):
         # computed from U1 so a positive value means group 1 tends to rank higher.
         rank_biserial_correlation = 1 - 2 * u1_stat / (len(group1) * len(group2))
@@ -329,12 +346,12 @@ def process_non_normal_t_test(
                 ]
                 + [Cell(significance_verbal(p_val), center=True)] * show_sig
                 + [
-                    Cell(format_value_apa(median[0]), center=True),
-                    Cell(format_value_apa(iqr[0]), center=True),
+                    Cell(median_iqr[0][0], center=True),
+                    Cell(median_iqr[0][1], center=True),
                 ]
                 + [
-                    Cell(format_value_apa(median[1]), center=True),
-                    Cell(format_value_apa(iqr[1]), center=True),
+                    Cell(median_iqr[1][0], center=True),
+                    Cell(median_iqr[1][1], center=True),
                 ]
                 + [
                     Cell(format_statistic_apa(rank_biserial_correlation), center=True),

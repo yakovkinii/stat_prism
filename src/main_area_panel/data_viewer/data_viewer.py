@@ -19,6 +19,7 @@
 import math
 
 import numpy as np
+import pandas as pd
 from PySide6 import QtCore, QtGui
 from PySide6.QtWidgets import (
     QAbstractItemView,
@@ -38,6 +39,7 @@ from src.common.constant import (
     COLUMN_TYPE_ICONS,
     COLUMN_TYPE_ICONS_ON_DARK,
     COLUMN_TYPE_ICONS_ON_LIGHT,
+    MDASH,
     ColumnType,
     is_light_color,
 )
@@ -65,11 +67,11 @@ def _format_cell(value, sig_figs: int = 5) -> str:
     """Display formatter for the data grid: floats are shown to at most `sig_figs`
     significant figures, but never coarser than the ones place (the integer part is kept
     intact and only the fractional part is rounded). Ints / strings are shown verbatim;
-    NaN shows blank."""
+    NaN shows an em dash."""
     if isinstance(value, (float, np.floating)):
         x = float(value)
         if math.isnan(x):
-            return ""
+            return MDASH
         if math.isinf(x) or x == 0:
             return "0" if x == 0 else str(x)
         magnitude = math.floor(math.log10(abs(x)))
@@ -81,6 +83,8 @@ def _format_cell(value, sig_figs: int = 5) -> str:
         if "." in text:
             text = text.rstrip("0").rstrip(".")
         return text
+    if value is None or (not isinstance(value, str) and pd.isna(value)):
+        return MDASH
     return str(value)
 
 
@@ -299,6 +303,17 @@ class TablePopup(QWidget):
         set_stylesheet(overlay, css(background_color=Style.Color.Overlay))
         overlay.show()
 
+        self._close_mark = QLabel("×", self)
+        self._close_mark.setAttribute(QtCore.Qt.WA_TransparentForMouseEvents)
+        self._close_mark.setAlignment(QtCore.Qt.AlignCenter)
+        self._close_mark.setFixedSize(48, 48)
+        self._close_mark.move(self.width() - 64, 16)
+        set_stylesheet(
+            self._close_mark,
+            css(color=Style.Color.Text, font_size=32, background="transparent", border="none"),
+        )
+        self._close_mark.show()
+
         self.popup = QFrame(self)
         w, h = int(window.width() * 0.95), int(window.height() * 0.95)
         self.popup.setFixedSize(w, h)
@@ -321,6 +336,7 @@ class TablePopup(QWidget):
 
         self.raise_()
         self.show()
+        self._close_mark.raise_()
         # Take keyboard focus so Escape closes the popup (same outcome as clicking outside).
         self.setFocusPolicy(QtCore.Qt.StrongFocus)
         self.setFocus()

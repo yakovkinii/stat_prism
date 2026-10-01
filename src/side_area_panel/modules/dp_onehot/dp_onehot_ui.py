@@ -39,14 +39,14 @@ class Elements(ItemInSidePanelWithAutoConfigHolder):
             ),
         ],
     )
-    drop_reference = IISPWACCheckBox(label_text="Drop reference category (for regression)", default_state=True)
+    drop_reference = IISPWACCheckBox(label_text="Drop reference category (for regression)", default_state=False)
     reference = IISPWACLongTextEdit(
         label_text="Reference category (blank = first):",
-        visible_when=lambda kwargs: bool(kwargs.get("drop_reference", True)),
+        visible_when=lambda kwargs: bool(kwargs.get("drop_reference", False)),
     )
 
 
 class OneHot(BaseModulePanel):
     def setup_ui(self):
         self.init_elements(Elements)
-        self.set_label("Encode Categories")
+        self.set_label("One-hot encoding")

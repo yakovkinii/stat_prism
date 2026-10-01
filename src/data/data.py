@@ -22,10 +22,61 @@ from typing import Dict, List, Optional, Union
 import numpy as np
 import pandas as pd
 
-from src.common.constant import ID_COLUMN_NAME, ColumnType
+from src.common.constant import ID_COLUMN_NAME, MDASH, ColumnType
 from src.common.decorators import log_method
 
-ORDER_COLUMN = "__ORDER__"
+
+def is_empty_value(value) -> bool:
+    """Missing/blank value test used for categorical display and comparison."""
+    try:
+        if pd.isna(value):
+            return True
+    except (TypeError, ValueError):
+        pass
+    return isinstance(value, str) and value.strip() == ""
+
+
+def category_display_value(value) -> str:
+    """User-facing categorical comparison value: strings only, blanks/NaN as mdash."""
+    return MDASH if is_empty_value(value) else str(value)
+
+
+def category_display_series(series: pd.Series) -> pd.Series:
+    return series.apply(category_display_value)
+
+
+def sorted_numeric_or_alpha(values):
+    """Default category sort: numeric when every value is castable to a number, else alphabetical.
+    So Likert-style labels ('1'..'10') sort 1, 2, ..., 10 rather than '1', '10', '2', while text
+    categories fall back to alphabetical."""
+    items = list(values)
+    try:
+        return sorted(items, key=lambda v: float(v))
+    except (TypeError, ValueError):
+        return sorted(items, key=str)
+
+
+def infer_ordinal_order(column) -> dict:
+    """The column's ordinal order as ``{face_value: code}``.
+
+    An ordinal column carries an ``order`` dict only when the user has prescribed one; when it is
+    absent the order is inferred on demand by the standard rule -- numeric when every value casts to a
+    number, else alphabetical. This way a study always has a mapping to work with, without an order
+    being eagerly stored on every ordinal column. Operates on a column object so both a :class:`Data`
+    instance and UI editors (which hold column objects, not a Data) can share it."""
+    if column.order:
+        return column.order
+    values = [v for v in column.data_series.dropna().unique() if not (isinstance(v, str) and v == "")]
+    return {value: index for index, value in enumerate(sorted_numeric_or_alpha(values), start=1)}
+
+
+class OrdinalCastError(Exception):
+    """An ordinal column whose face values are not all numeric was fed to a module that must treat it
+    numerically. Carries the column name so the module can show a clear 'convert first' message."""
+
+    def __init__(self, column_name: str):
+        self.column_name = column_name
+        super().__init__(column_name)
 
 
 class DataColumn:
@@ -64,8 +115,11 @@ class DataColumn:
 
         if dtype is None:
             logging.warning(f"Unknown type detected for {data_series.name}. Trying to convert to string")
-            data_series = data_series.astype(str)
+            data_series = data_series.fillna("").astype(str)
             dtype = "str"
+
+        if dtype == "str":
+            data_series = data_series.fillna("").astype(str)
 
         return cls(
             column_name=str(data_series.name),
@@ -84,9 +138,17 @@ class DataColumn:
             self.order = {}
             return self
 
-        self.order = {o: i for i, o in enumerate(sorted(self.order, key=self.order.get))}
-        unique_values = self.data_series.sort_values().unique()
-        for value in sorted(unique_values):
+        # Ordinal / nominal columns carry an order dict only when one has been prescribed. With none
+        # set, leave it empty -- ordinal studies infer the order on demand (see infer_ordinal_order).
+        # When a (partial) order is present, re-index it and append any values still lacking a place.
+        if not self.order:
+            return self
+
+        self.order = {o: i for i, o in enumerate(sorted(self.order, key=self.order.get), start=1)}
+        unique_values = self.data_series.dropna().unique()
+        for value in sorted_numeric_or_alpha(unique_values):
+            if isinstance(value, str) and value == "":
+                continue
             if value not in self.order:
                 order = max(self.order.values()) + 1 if len(self.order) > 0 else 1
                 self.order[value] = order
@@ -103,7 +165,7 @@ class DataColumn:
                 self.column_dtype = "float"
             except ValueError:
                 try:
-                    self.data_series = self.data_series.astype(str)
+                    self.data_series = self.data_series.fillna("").astype(str)
                     self.column_dtype = "str"
                     logging.warning(f"Column {self.column_name} was cast to str")
                     if self.column_type == ColumnType.NUMERIC:
@@ -127,7 +189,7 @@ class DataColumn:
             self.is_numeric,
             self.inverted,
             self.color,
-            self.order,
+            self.order.copy(),
         )
 
     def rename(self, new_name: str):
@@ -145,7 +207,7 @@ class Data:
     def initialize_from_dataframe(cls, dataframe: pd.DataFrame):
         for column in dataframe.columns:
             if pd.api.types.is_string_dtype(dataframe[column]):
-                dataframe[column] = dataframe[column].astype(str)
+                dataframe[column] = dataframe[column].fillna("").astype(str)
             elif pd.api.types.is_float_dtype(dataframe[column]):
                 dataframe[column] = dataframe[column].astype(float)
             elif pd.api.types.is_integer_dtype(dataframe[column]):
@@ -153,7 +215,7 @@ class Data:
             else:
                 logging.warning(f"Unknown type detected for {column}")
                 logging.info("Trying to convert to string")
-                dataframe[column] = dataframe[column].astype(str)
+                dataframe[column] = dataframe[column].fillna("").astype(str)
 
         dataframe.columns = pd.Index([str(column) for column in dataframe.columns])
         if len(set(dataframe.columns)) != len(dataframe.columns):
@@ -249,36 +311,111 @@ class Data:
                 )
             df = df[columns]
 
-        # sort using order dicts
+        # Data access preserves row order. Category ordering belongs at the display layer
+        # (tables, plots, filters, editors) via ordered_category_labels().
         for col in df.columns:
             column = self[col]
-            if len(column.order) > 0:
-                if map_ordinal and column.column_type == ColumnType.ORDINAL:
-                    df[col] = df[col].map(column.order)
-                    df = df.sort_values(col)
-                else:
-                    df[ORDER_COLUMN] = df[col].map(column.order)
-                    df = df.sort_values(ORDER_COLUMN)
-                    df = df.drop(ORDER_COLUMN, axis=1)
+            if column.column_type == ColumnType.ORDINAL:
+                effective_order = infer_ordinal_order(column)
+                if map_ordinal:
+                    df[col] = df[col].map(effective_order)
 
         return df
 
     def get_series(self, column: str, map_ordinal: bool = False) -> pd.Series:
         return self.get_dataframe(columns=[column], map_ordinal=map_ordinal)[column]
 
+    def to_mapped_ints(self, column_name: str) -> pd.Series:
+        """Ordinal values as internal order codes for analysis calculations."""
+        return self.get_series(column_name, map_ordinal=True)
+
+    def to_face_value(self, column_name: str, code):
+        """Map an ordinal analysis code back to the value shown to the user."""
+        return self.ordered_value_label(column_name, code)
+
+    def get_numeric_face_dataframe(self, columns):
+        """DataFrame for modules that must treat their inputs as numeric. Numeric columns pass through;
+        an ORDINAL column has its FACE values cast to numeric (never the internal order codes), and an
+        ordinal whose face values are not all numeric raises :class:`OrdinalCastError`. Returns
+        ``(df, cast_ordinals)`` -- ``cast_ordinals`` lists the ordinal columns that were cast, so the
+        caller can show the 'treated as numeric' warning."""
+        df = self.get_dataframe(columns=columns)
+        cast = []
+        for col in columns:
+            if self[col].column_type != ColumnType.ORDINAL:
+                continue
+            numeric = pd.to_numeric(df[col], errors="coerce")
+            non_missing = df[col].notna() & (df[col].astype(str).str.strip() != "")
+            if bool((numeric.isna() & non_missing).any()):
+                raise OrdinalCastError(col)
+            df[col] = numeric
+            cast.append(col)
+        return df, cast
+
     def get_id_series(self) -> pd.Series:
         return self.get_dataframe(columns=[ID_COLUMN_NAME])[ID_COLUMN_NAME]
 
-    def ordered_categories(self, column_name: str, values) -> list:
-        """Order category `values` by the column's defined order (its ordinality for
-        ordinal columns; the stored order for nominal), with any value missing from the
-        order dict appended in natural sort. Use this for the *display* order of
-        categories, because pandas `crosstab` / `value_counts().sort_index()` otherwise
-        sort alphabetically and ignore the user-defined ordinal order."""
-        order = self[column_name].order or {}
-        present = sorted((v for v in values if v in order), key=lambda v: order[v])
-        missing = sorted(v for v in values if v not in order)
+    def ordered_category_labels(self, column_name: str, values) -> list[str]:
+        """Display labels for category values in the column's display order.
+
+        Ordering is resolved by mapping the column's raw order keys to the same normalized labels
+        used by callers. This keeps custom/ordinal orders safe even after downstream code has already
+        converted values to strings.
+        """
+        labels = []
+        seen = set()
+        for value in values:
+            label = category_display_value(value)
+            if label in seen:
+                continue
+            seen.add(label)
+            labels.append(label)
+
+        column = self[column_name]
+        order = infer_ordinal_order(column) if column.column_type == ColumnType.ORDINAL else (column.order or {})
+        ordered_labels = []
+        seen_order = set()
+        for value, _rank in sorted(order.items(), key=lambda item: item[1]):
+            label = category_display_value(value)
+            if label in seen_order:
+                continue
+            seen_order.add(label)
+            ordered_labels.append(label)
+
+        present = [label for label in ordered_labels if label in seen]
+        missing = sorted_numeric_or_alpha(label for label in labels if label not in seen_order)
         return present + missing
+
+    def ordered_value_label(self, column_name: str, code):
+        """Map an ordinal analysis code back to the displayed category/value.
+
+        Exact codes return their category. Interpolated medians/quartiles between two
+        ordered categories are shown on the visible numeric scale when possible, otherwise
+        as the adjacent displayed labels, so result tables do not expose internal order keys.
+        """
+        order = infer_ordinal_order(self[column_name])
+        if not order or pd.isna(code):
+            return code
+
+        by_code = {float(v): k for k, v in order.items()}
+        code = float(code)
+        if code in by_code:
+            return by_code[code]
+
+        lower = max((k for k in by_code if k < code), default=None)
+        upper = min((k for k in by_code if k > code), default=None)
+        if lower is None or upper is None:
+            return code
+
+        lo, hi = by_code[lower], by_code[upper]
+        try:
+            lo_num, hi_num = float(lo), float(hi)
+            if np.isfinite(lo_num) and np.isfinite(hi_num):
+                value = lo_num + (code - lower) * (hi_num - lo_num) / (upper - lower)
+                return int(value) if float(value).is_integer() else value
+        except (TypeError, ValueError):
+            pass
+        return f"{lo}/{hi}"
 
     def n_columns(self):
         return len(self.columns)

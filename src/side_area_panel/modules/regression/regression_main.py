@@ -28,6 +28,7 @@ from statsmodels.stats.stattools import durbin_watson
 from src.common.decorators import log_function
 from src.common.qcolor import Colors
 from src.common.translations import t
+from src.data.data import OrdinalCastError, category_display_series
 from src.data.data_manager import DATA_MANAGER
 from src.side_area_panel.modules.common.prose import prose_enabled
 from src.side_area_panel.modules.common.result.html_result import Cell, HTMLTableV2, Row
@@ -46,6 +47,8 @@ from src.side_area_panel.modules.common.utility import (
     format_r_apa,
     format_statistic_apa,
     format_value_apa,
+    ordinal_cast_error_message,
+    ordinal_numeric_cast_warning,
     smart_comma_join,
 )
 from src.side_area_panel.modules.common.verbal.significance import significance_verbal
@@ -348,28 +351,69 @@ def recalculate_regression_study(elements, result: RegressionResult, update) -> 
         data_label=cfg.data_source,
         current_result_id=result.unique_id,
     )
-    # Drop rows with any missing value in the used columns (list-wise) so OLS doesn't fail.
-    df = data.get_dataframe(columns=all_columns, map_ordinal=True).dropna()
-    update(10)
+    result.warnings = []
 
     verbal = bool(cfg.verbal_indicators)
     prose = prose_enabled(cfg.interpretation)
     show_std = bool(cfg.standardized)
 
     model_type = cfg.model_type or RegressionModelType.LINEAR.value
+
+    # Predictors (and, for linear regression, the outcome) are modelled numerically, so ordinal
+    # columns are used via their face values -- error on non-numeric categories, warn that they were
+    # cast. A logistic / multinomial OUTCOME is categorical, so it keeps its face labels (not cast).
+    predictors = list(independent_columns)
+    if moderator_column is not None:
+        predictors.append(moderator_column)
+    if mediator_column is not None:
+        predictors.append(mediator_column)
+    numeric_columns = [dependent_column] + predictors if model_type == RegressionModelType.LINEAR.value else predictors
+    try:
+        df, cast = data.get_numeric_face_dataframe(numeric_columns)
+    except OrdinalCastError as error:
+        return _fail(result, ordinal_cast_error_message(error.column_name))
+    if model_type != RegressionModelType.LINEAR.value:
+        df = pd.concat([df, data.get_dataframe(columns=[dependent_column])], axis=1)
+        df[dependent_column] = category_display_series(df[dependent_column])
+    if cast:
+        result.set_warning(ordinal_numeric_cast_warning(cast))
+    # Drop rows with any missing value in the used columns (list-wise) so the models don't fail.
+    df = df.dropna()
+    update(10)
+
     if model_type == RegressionModelType.LOGISTIC.value:
         if mediator_column:
             elements.column_selector.set_alert(3)
             return _fail(result, t("regression.error.logit_no_mediation"))
+        dependent_order = data.ordered_category_labels(dependent_column, list(df[dependent_column].unique()))
         return _run_logistic(
-            result, df, dependent_column, independent_columns, moderator_column, cfg, verbal, prose, update
+            result,
+            df,
+            dependent_column,
+            dependent_order,
+            independent_columns,
+            moderator_column,
+            cfg,
+            verbal,
+            prose,
+            update,
         )
     if model_type == RegressionModelType.MULTINOMIAL.value:
         if mediator_column:
             elements.column_selector.set_alert(3)
             return _fail(result, t("regression.error.logit_no_mediation"))
+        dependent_order = data.ordered_category_labels(dependent_column, list(df[dependent_column].unique()))
         return _run_multinomial(
-            result, df, dependent_column, independent_columns, moderator_column, cfg, verbal, prose, update
+            result,
+            df,
+            dependent_column,
+            dependent_order,
+            independent_columns,
+            moderator_column,
+            cfg,
+            verbal,
+            prose,
+            update,
         )
 
     independent_cols = independent_columns.copy()
@@ -702,7 +746,9 @@ def _build_plot(df, model, mediator_model, dependent_column, independent_columns
 # ===================================================================================
 
 
-def _run_logistic(result, df, dependent_column, independent_columns, moderator_column, cfg, verbal, prose, update):
+def _run_logistic(
+    result, df, dependent_column, dependent_order, independent_columns, moderator_column, cfg, verbal, prose, update
+):
     """Fit a binary logistic regression (statsmodels Logit) and build the fit, coefficient
     and (optional) diagnostics/plot. Moderation is supported via interaction terms;
     mediation is not (filtered out by the caller)."""
@@ -716,8 +762,8 @@ def _run_logistic(result, df, dependent_column, independent_columns, moderator_c
             df[interaction_term] = df[ind_col] * df[moderator_column]
             independent_cols.append(interaction_term)
 
-    # ----- Binary outcome: map the two distinct values to 0/1 (positive = the larger one) -----
-    distinct = sorted(pd.unique(df[dependent_column]))
+    # ----- Binary outcome: map the two distinct values to 0/1 (positive = the later ordered one) -----
+    distinct = [value for value in dependent_order if value in set(pd.unique(df[dependent_column]))]
     if len(distinct) != 2:
         return _fail(result, t("regression.error.not_binary", values=len(distinct)))
     positive_label = distinct[1]
@@ -846,7 +892,9 @@ def _logistic_coefficient_prose(model, dependent_column, positive_label) -> str:
 # ===================================================================================
 
 
-def _run_multinomial(result, df, dependent_column, independent_columns, moderator_column, cfg, verbal, prose, update):
+def _run_multinomial(
+    result, df, dependent_column, dependent_order, independent_columns, moderator_column, cfg, verbal, prose, update
+):
     """Fit a multinomial logistic regression (statsmodels MNLogit) for an unordered outcome
     with 3+ categories. Coefficients are reported as a block per non-reference category (vs the
     first category as the baseline). Moderation is supported via interaction terms; mediation
@@ -861,10 +909,11 @@ def _run_multinomial(result, df, dependent_column, independent_columns, moderato
             independent_cols.append(interaction_term)
 
     # Encode the outcome to 0..K-1; the first category (code 0) is the reference/baseline.
-    codes, categories = pd.factorize(df[dependent_column], sort=True)
-    categories = list(categories)
+    categories = [value for value in dependent_order if value in set(pd.unique(df[dependent_column]))]
     if len(categories) < 3:
         return _fail(result, t("regression.error.not_multinomial", values=len(categories)))
+    code_of = {value: code for code, value in enumerate(categories)}
+    codes = df[dependent_column].map(code_of).to_numpy()
 
     n = len(df)
     if n < len(independent_cols) + 2:

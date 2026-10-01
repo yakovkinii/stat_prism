@@ -17,9 +17,11 @@
 
 
 from src.common.decorators import log_function
+from src.data.data import OrdinalCastError
 from src.data.data_manager import DATA_MANAGER
 from src.side_area_panel.modules.common.outlier_logic import detect_grouped_outliers
 from src.side_area_panel.modules.common.removal import clear_removal, finalize_removal
+from src.side_area_panel.modules.common.utility import ordinal_cast_error_message, ordinal_numeric_cast_warning
 from src.side_area_panel.modules.dp_grouped_outliers.dp_grouped_outliers_result import GroupedOutliersResult
 from src.side_area_panel.modules.dp_grouped_outliers.dp_grouped_outliers_ui import Elements
 
@@ -34,6 +36,7 @@ def dp_grouped_outliers_main(elements: Elements, result: GroupedOutliersResult, 
         data_label=cfg.data_source,
         current_result_id=result.unique_id,
     )
+    result.warnings = []
 
     if not cfg.enabled:
         return clear_removal(result, data)  # disabled -> no-op, stays in chain
@@ -47,5 +50,17 @@ def dp_grouped_outliers_main(elements: Elements, result: GroupedOutliersResult, 
         elements.column_selector.set_alert(1)
         return clear_removal(result, data, "Select a grouping column.")
 
-    candidates = detect_grouped_outliers(data, selected, grouping[0], cfg.method or "IQR")
+    # Outlier detection is numeric: ordinals are used via their face values (error on non-numeric
+    # categories, warn that they were cast). The grouping column is only used to split, so it is not
+    # cast here.
+    columns = [c for c in selected if c in data.column_names()]
+    try:
+        _, cast = data.get_numeric_face_dataframe(columns)
+    except OrdinalCastError as error:
+        elements.column_selector.set_alert(0)
+        return clear_removal(result, data, ordinal_cast_error_message(error.column_name))
+    if cast:
+        result.set_warning(ordinal_numeric_cast_warning(cast))
+
+    candidates = detect_grouped_outliers(data, columns, grouping[0], cfg.method or "IQR")
     return finalize_removal(result, data, candidates, cfg.remove_list)

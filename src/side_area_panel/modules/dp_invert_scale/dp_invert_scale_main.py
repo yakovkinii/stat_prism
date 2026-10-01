@@ -18,11 +18,28 @@
 
 import pandas as pd
 
+from src.common.constant import ColumnType
 from src.common.decorators import log_function
+from src.data.data import OrdinalCastError
 from src.data.data_manager import DATA_MANAGER
-from src.side_area_panel.modules.common.utility import unique_name
+from src.side_area_panel.modules.common.utility import (
+    ordinal_cast_error_message,
+    ordinal_numeric_cast_warning,
+    smart_comma_join,
+    unique_name,
+)
 from src.side_area_panel.modules.dp_invert_scale.dp_invert_scale_result import InvertScaleResult
 from src.side_area_panel.modules.dp_invert_scale.dp_invert_scale_ui import Elements
+
+
+def _restore_inverted_face_dtype(column, reference):
+    """Invert on numeric face values, then store them in the same face-value dtype shape when possible."""
+    inverted = reference - pd.to_numeric(column.data_series, errors="coerce")
+    if column.column_dtype == "str":
+        return inverted.map(lambda v: v if pd.isna(v) else str(int(v) if float(v).is_integer() else v)), "str"
+    if column.column_dtype == "int" and inverted.notna().all() and bool((inverted == inverted.round()).all()):
+        return inverted.astype("int64"), "int"
+    return inverted, "float"
 
 
 @log_function
@@ -35,12 +52,38 @@ def dp_invert_scale_main(elements: Elements, result: InvertScaleResult, update):
     # Default to a pass-through so downstream stays valid while inputs are incomplete.
     result.data = data.copy()
     result.error_message = ""
+    result.warnings = []
 
     columns = cfg.column_selector[0]
     if columns in [None, []]:
         elements.column_selector.set_alert(0)
         result.error_message = "Select at least one column."
         return result
+
+    # Inverting reverses a scale as (reference - x) on face values. An ordinal with a prescribed order
+    # is not a plain numeric scale, so refuse it; an ordinal with no prescribed order is fine as long as
+    # its face values are numeric.
+    ordinal_columns = [c for c in columns if data[c].column_type == ColumnType.ORDINAL]
+    prescribed = [c for c in ordinal_columns if data[c].order]
+    if prescribed:
+        elements.column_selector.set_alert(0)
+        result.error_message = (
+            "Cannot invert ordinal column(s) with a prescribed order: "
+            + smart_comma_join([str(c) for c in prescribed])
+            + ". Invert only ordinals with no custom order (or convert them to numeric first)."
+        )
+        return result
+
+    # Inverting reads ordinal columns via their numeric face values: refuse a non-numeric ordinal, and
+    # warn that the rest were treated as numeric (consistent with the other modules that cast ordinals).
+    try:
+        data.get_numeric_face_dataframe(ordinal_columns)
+    except OrdinalCastError as error:
+        elements.column_selector.set_alert(0)
+        result.error_message = ordinal_cast_error_message(error.column_name)
+        return result
+    if ordinal_columns:
+        result.set_warning(ordinal_numeric_cast_warning(ordinal_columns))
 
     # All selected columns share one reference. Auto = (max + min) over the pooled
     # values of every selected column; a manual reference overrides it.
@@ -60,17 +103,19 @@ def dp_invert_scale_main(elements: Elements, result: InvertScaleResult, update):
         if replace_in_place:
             # Overwrite the column: same name, no copy.
             column = data[original_column_name]
-            column.data_series = reference - pd.to_numeric(column.data_series, errors="coerce")
-            # Rebuild the ordinal/nominal order to reflect the new (inverted) values.
+            column.data_series, column.column_dtype = _restore_inverted_face_dtype(column, reference)
+            # A flipped ordinal remains ordinal, but its values are now new face values with no
+            # prescribed order; downstream ordinal analysis infers the order from those values.
             column.order = {}
             column.automatically_update_order()
             continue
 
         new_name = unique_name(f"{original_column_name} (inverted)", existing)
         inverted = data[original_column_name].copy()
-        inverted.data_series = reference - pd.to_numeric(inverted.data_series, errors="coerce")
+        inverted.data_series, inverted.column_dtype = _restore_inverted_face_dtype(inverted, reference)
         inverted.rename(new_name)
-        # Rebuild the ordinal/nominal order to reflect the new (inverted) values.
+        # A flipped ordinal remains ordinal, but its values are now new face values with no
+        # prescribed order; downstream ordinal analysis infers the order from those values.
         inverted.order = {}
         inverted.automatically_update_order()
 

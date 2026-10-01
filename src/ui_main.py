@@ -153,6 +153,10 @@ class MainWindowClass(QtWidgets.QMainWindow):
         QShortcut(QKeySequence.StandardKey.Save, self, activated=lambda: home.save_handler())
         QShortcut(QKeySequence.StandardKey.SaveAs, self, activated=lambda: home.save_as_handler())
         QShortcut(QKeySequence.StandardKey.Open, self, activated=lambda: home_initial.open_handler())
+        # Ctrl+Z / Ctrl+Y: session-level undo/redo over the autosave snapshots. A focused text field
+        # claims these first via ShortcutOverride, so in-field text editing keeps its own undo.
+        QShortcut(QKeySequence.StandardKey.Undo, self, activated=lambda: self.autosave.undo())
+        QShortcut(QKeySequence.StandardKey.Redo, self, activated=lambda: self.autosave.redo())
         # Ctrl+R: recalculate every study (same as File ▸ Recalculate All).
         QShortcut(QKeySequence("Ctrl+R"), self, activated=lambda: self.main_area_panel.recompute_all())
         # Escape: deselect the active study (clear the main-area focus, back to the Home panel).

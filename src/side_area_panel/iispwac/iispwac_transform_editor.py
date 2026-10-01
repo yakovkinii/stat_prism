@@ -19,9 +19,9 @@
 import ast
 
 import pandas as pd
-from PySide6.QtCore import Qt
 from PySide6.QtWidgets import (
     QCheckBox,
+    QDoubleSpinBox,
     QFrame,
     QGridLayout,
     QHBoxLayout,
@@ -35,6 +35,7 @@ from PySide6.QtWidgets import (
 )
 
 from src.common.constant import DARROW, MINUS, NDASH, RARROW, ColumnType
+from src.data.data import category_display_value, sorted_numeric_or_alpha
 from src.data.data_manager import DATA_MANAGER
 from src.pyside_ext.elements.order import CustomListWidget
 from src.pyside_ext.elements.utility.primitive_elements import NoScrollComboBox
@@ -53,6 +54,35 @@ def _to_python(value):
     return value.item() if hasattr(value, "item") else value
 
 
+def _dedupe(values):
+    out = []
+    for value in values:
+        duplicate = False
+        for existing in out:
+            try:
+                same_missing = bool(pd.isna(value) and pd.isna(existing))
+            except (TypeError, ValueError):
+                same_missing = False
+            try:
+                same_value = bool(value == existing)
+            except (TypeError, ValueError):
+                same_value = False
+            if same_missing or same_value:
+                duplicate = True
+                break
+        if not duplicate:
+            out.append(value)
+    return out
+
+
+def _normalized_mapping(mapping):
+    return {category_display_value(source): target for source, target in (mapping or [])}
+
+
+def _mapped_value(value, mapping):
+    return mapping.get(category_display_value(value), value)
+
+
 class IISPWACTransformEditor(ItemInSidePanelWithAutoConfig):
     def __init__(self):
         super().__init__()
@@ -60,6 +90,7 @@ class IISPWACTransformEditor(ItemInSidePanelWithAutoConfig):
         self.spec = None
         self.column_name = None
         self.columns = []
+        self._column_objects = []
         self.column_type = None
         self.is_numeric_column = False
         self.unique_values = []
@@ -93,6 +124,7 @@ class IISPWACTransformEditor(ItemInSidePanelWithAutoConfig):
         if not columns:
             self.spec = None
             self.columns = []
+            self._column_objects = []
             self.column_name = None
             self.unique_values = []
             if self._built_column is not None or not getattr(self, "cards", None):
@@ -104,6 +136,7 @@ class IISPWACTransformEditor(ItemInSidePanelWithAutoConfig):
         # Several columns can be transformed together; they share one spec applied over the
         # union of their values (each column only takes the entries it actually has).
         self.columns = [c.column_name for c in columns]
+        self._column_objects = columns
         self.column_name = self.columns[0]
         self.column_type = columns[0].column_type
         self.is_numeric_column = all(bool(c.is_numeric) for c in columns)
@@ -131,13 +164,10 @@ class IISPWACTransformEditor(ItemInSidePanelWithAutoConfig):
     def _sorted_unique(self, column):
         values = [_to_python(v) for v in column.data_series.dropna().unique()]
         if column.order:
-            values.sort(key=lambda v: column.order.get(v, 0))
-        else:
-            try:
-                values.sort()
-            except TypeError:
-                values.sort(key=lambda v: str(v))
-        return values
+            ranked = sorted((v for v in values if v in column.order), key=lambda v: column.order[v])
+            unranked = sorted_numeric_or_alpha(v for v in values if v not in column.order)
+            return ranked + unranked
+        return sorted_numeric_or_alpha(values)
 
     def _spec_from(self, saved, columns):
         first = columns[0]
@@ -156,10 +186,13 @@ class IISPWACTransformEditor(ItemInSidePanelWithAutoConfig):
                 "normalize": "None",
                 "color": default_color,
             }
-        order = [v for v in (saved.get("order") or []) if v in self.unique_values]
+        unique_labels = {category_display_value(value) for value in self.unique_values}
+        mapping = [[f, t] for f, t in (saved.get("mapping") or []) if category_display_value(f) in unique_labels]
+        mapping_dict = _normalized_mapping(mapping)
+        mapped_unique = _dedupe([_mapped_value(value, mapping_dict) for value in self.unique_values])
+        order = [v for v in (saved.get("order") or []) if v in mapped_unique]
         if order:
-            order = order + [v for v in self.unique_values if v not in order]
-        mapping = [[f, t] for f, t in (saved.get("mapping") or []) if f in self.unique_values]
+            order = order + [v for v in mapped_unique if v not in order]
         return {
             "columns": names,
             "new_name": saved.get("new_name") if saved.get("new_name") is not None else first.column_name,
@@ -246,12 +279,21 @@ class IISPWACTransformEditor(ItemInSidePanelWithAutoConfig):
         self.flip_check.setChecked(spec["flip"])
         self.flip_check.toggled.connect(self._on_flip)
         flip_layout.addWidget(self.flip_check)
-        flip_layout.addWidget(QLabel("ref:", self.flip_row))
-        self.flip_ref_edit = QLineEdit(self.flip_row)
-        self.flip_ref_edit.setPlaceholderText("auto")
-        self.flip_ref_edit.setText(spec["flip_reference"])
-        self.flip_ref_edit.editingFinished.connect(self._on_flip_ref)
-        flip_layout.addWidget(self.flip_ref_edit, 1)
+        # Reference: off by default (auto = max + min), the greyed spin activates when "manual ref" is
+        # ticked -- same checkbox-protected pattern as Calculate / Invert Scale. State is set before the
+        # handlers are connected so the build does not fire a recalculation.
+        self.flip_ref_check = QCheckBox("manual ref", self.flip_row)
+        flip_layout.addWidget(self.flip_ref_check)
+        self.flip_ref_spin = QDoubleSpinBox(self.flip_row)
+        self.flip_ref_spin.setRange(-999999.0, 999999.0)
+        self.flip_ref_spin.setDecimals(2)
+        manual_ref = self._parse_saved_reference(spec["flip_reference"])
+        self.flip_ref_spin.setValue(manual_ref if manual_ref is not None else self._flip_auto_reference())
+        self.flip_ref_check.setChecked(manual_ref is not None)
+        self.flip_ref_spin.setEnabled(manual_ref is not None)
+        self.flip_ref_check.toggled.connect(self._on_flip_ref_check)
+        self.flip_ref_spin.valueChanged.connect(self._on_flip_ref_spin)
+        flip_layout.addWidget(self.flip_ref_spin, 1)
         flip_info = QPushButton("?", self.flip_row)
         flip_info.setFixedSize(24, 24)
         flip_info.clicked.connect(self._open_flip_explanation)
@@ -289,18 +331,43 @@ class IISPWACTransformEditor(ItemInSidePanelWithAutoConfig):
         if self.spec is None:
             return
         is_ordinal = self.spec["type"] == ColumnType.ORDINAL.value
+        has_order = self.spec["type"] in (ColumnType.ORDINAL.value, ColumnType.NOMINAL.value)
         is_numeric = self.spec["type"] == ColumnType.NUMERIC.value
-        self.order_button.setVisible(is_ordinal)
-        self.flip_row.setVisible(is_ordinal)
+        can_flip = is_ordinal and self._can_flip_ordinal()
+        if not can_flip and self.spec.get("flip"):
+            self.spec["flip"] = False
+            if hasattr(self, "flip_check"):
+                was_suppressed = self._suppress
+                self._suppress = True
+                self.flip_check.setChecked(False)
+                self._suppress = was_suppressed
+        self.order_button.setVisible(has_order)
+        self.flip_row.setVisible(can_flip)
         self.normalize_row.setVisible(is_numeric)
         # Bold the action buttons when they carry a setting (replaces the old text summaries).
         self._style_action_button(self.map_button, self._has_mapping(self.spec))
-        self._style_action_button(self.order_button, is_ordinal and self.spec.get("order") is not None)
+        self._style_action_button(self.order_button, has_order and self.spec.get("order") is not None)
         self._apply_color_button()
 
     @staticmethod
     def _has_mapping(spec) -> bool:
         return any(f != t for f, t in (spec.get("mapping") or []))
+
+    def _mapped_unique_values(self):
+        mapping = _normalized_mapping(self.spec.get("mapping"))
+        return _dedupe([_mapped_value(value, mapping) for value in self.unique_values])
+
+    def _can_flip_ordinal(self) -> bool:
+        # Flipping is allowed only for an ordinal with no prescribed order (neither one assigned in this
+        # transform nor one already on a source column) whose face values are numeric.
+        if self.spec.get("order"):
+            return False
+        if any(column.column_type == ColumnType.ORDINAL and column.order for column in self._column_objects):
+            return False
+        series = pd.Series(self._mapped_unique_values())
+        numeric = pd.to_numeric(series, errors="coerce")
+        non_empty = series.notna() & (series.astype(str).str.strip() != "")
+        return not bool((numeric.isna() & non_empty).any())
 
     @staticmethod
     def _style_action_button(button, applied: bool):
@@ -336,12 +403,45 @@ class IISPWACTransformEditor(ItemInSidePanelWithAutoConfig):
         self._changed()
 
     def _on_flip(self, checked):
+        if checked and not self._can_flip_ordinal():
+            was_suppressed = self._suppress
+            self._suppress = True
+            self.flip_check.setChecked(False)
+            self._suppress = was_suppressed
+            checked = False
         self.spec["flip"] = bool(checked)
         self._changed()
 
-    def _on_flip_ref(self):
-        self.spec["flip_reference"] = self.flip_ref_edit.text().strip()
+    def _on_flip_ref_check(self, checked):
+        self.flip_ref_spin.setEnabled(checked)
+        # Stored as text ("" = auto) so saved files, the preview, and dp_transform keep one format.
+        self.spec["flip_reference"] = str(self.flip_ref_spin.value()) if checked else ""
         self._changed()
+
+    def _on_flip_ref_spin(self):
+        if self.flip_ref_check.isChecked():
+            self.spec["flip_reference"] = str(self.flip_ref_spin.value())
+            self._changed()
+
+    @staticmethod
+    def _parse_saved_reference(value):
+        try:
+            text = str(value).strip()
+            return float(text) if text else None
+        except (TypeError, ValueError):
+            return None
+
+    def _flip_auto_reference(self) -> float:
+        """Auto reference shown (greyed) when manual is off: max + min pooled over the selected
+        columns, matching what dp_transform computes at run time."""
+        try:
+            pooled = pd.concat(
+                [pd.to_numeric(column.data_series, errors="coerce") for column in self._column_objects],
+                ignore_index=True,
+            ).dropna()
+            return float(pooled.max() + pooled.min()) if not pooled.empty else 0.0
+        except Exception:
+            return 0.0
 
     def _on_normalize(self, text):
         self.spec["normalize"] = text
@@ -356,8 +456,11 @@ class IISPWACTransformEditor(ItemInSidePanelWithAutoConfig):
         show_color_picker(self.widget, choose)
 
     def _open_order(self):
-        natural = list(self.unique_values)
-        values = self.spec["order"] or natural
+        # Default (no prescribed order) lists the already-mapped values in the standard order -- numeric
+        # when they all cast to numbers, else alphabetical -- so a str->number mapping shows up sorted.
+        natural = sorted_numeric_or_alpha(self._mapped_unique_values())
+        saved = [value for value in (self.spec["order"] or []) if value in natural]
+        values = (saved + [value for value in natural if value not in saved]) if saved else natural
 
         content = QFrame()
         content.setMinimumWidth(600)
@@ -391,10 +494,15 @@ class IISPWACTransformEditor(ItemInSidePanelWithAutoConfig):
         top.addWidget(hint)
         outer.addLayout(top)
 
+        buttons = QHBoxLayout()
         reset_button = QPushButton("Reset order", content)
-        reset_button.setToolTip("Restore the natural (data) order")
+        reset_button.setToolTip("Restore the default order")
         reset_button.clicked.connect(lambda: populate(natural))
-        outer.addWidget(reset_button, alignment=Qt.AlignmentFlag.AlignLeft)
+        buttons.addWidget(reset_button)
+        ok_button = QPushButton("OK", content)
+        buttons.addWidget(ok_button)
+        buttons.addStretch(1)
+        outer.addLayout(buttons)
 
         def on_close():
             ordered = []
@@ -406,7 +514,9 @@ class IISPWACTransformEditor(ItemInSidePanelWithAutoConfig):
             self._refresh_visibility()
             self._changed()
 
-        OverlayPopup(self.widget, content, on_close=on_close)
+        holder = {}
+        ok_button.clicked.connect(lambda _=False: holder["popup"].close())
+        holder["popup"] = OverlayPopup(self.widget, content, on_close=on_close)
 
     def _open_mapping(self):
         uniques = self.unique_values
@@ -452,10 +562,15 @@ class IISPWACTransformEditor(ItemInSidePanelWithAutoConfig):
         scroll.setWidget(inner)
         outer.addWidget(scroll)
 
+        buttons = QHBoxLayout()
         reset_button = QPushButton("Reset mapping", content)
         reset_button.setToolTip("Clear the mapping (map every value to itself)")
         reset_button.clicked.connect(lambda: [edit.setText(repr(value)) for value, edit in rows])
-        outer.addWidget(reset_button, alignment=Qt.AlignmentFlag.AlignLeft)
+        buttons.addWidget(reset_button)
+        ok_button = QPushButton("OK", content)
+        buttons.addWidget(ok_button)
+        buttons.addStretch(1)
+        outer.addLayout(buttons)
 
         def on_close():
             mapping = []
@@ -472,11 +587,13 @@ class IISPWACTransformEditor(ItemInSidePanelWithAutoConfig):
             self._refresh_visibility()
             self._changed()
 
-        OverlayPopup(self.widget, content, on_close=on_close)
+        holder = {}
+        ok_button.clicked.connect(lambda _=False: holder["popup"].close())
+        holder["popup"] = OverlayPopup(self.widget, content, on_close=on_close)
 
     def _open_flip_explanation(self):
         """Explain the flip and preview each value -> (reference - value)."""
-        numeric = pd.to_numeric(pd.Series(self.unique_values), errors="coerce").dropna()
+        numeric = pd.to_numeric(pd.Series(self._mapped_unique_values()), errors="coerce").dropna()
         ref_text = (self.spec.get("flip_reference") or "").strip()
         try:
             reference = float(ref_text) if ref_text else (numeric.max() + numeric.min() if not numeric.empty else 0.0)

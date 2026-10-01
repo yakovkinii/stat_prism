@@ -24,7 +24,7 @@ from PySide6.QtCore import QUrl
 from PySide6.QtGui import QAction, QDesktopServices
 from PySide6.QtWidgets import QMenu, QMenuBar, QProgressBar, QVBoxLayout
 
-from src.common.config import read_autosave_enabled, read_ui_scale, write_ui_value
+from src.common.config import read_ui_scale, write_ui_value
 from src.common.constant import SettingsPanelSize
 from src.common.languages import LANGUAGE, Languages
 from src.common.theme import THEME, Themes
@@ -173,15 +173,6 @@ class SettingsPanelClass:
         self.auto_recalculate_action.setChecked(bool(self.root_class.main_area_panel.auto_recalculate))
         self.auto_recalculate_action.toggled.connect(self.set_auto_recalculate)
 
-        # Autosave keeps a background snapshot in the app-data folder so an unexpected crash can be
-        # recovered on the next start. Set the initial state before connecting, so the check does
-        # not fire set_autosave before root_class.autosave exists.
-        self.autosave_action = QAction("Autosave (crash recovery)", self.widget)
-        self.autosave_action.setCheckable(True)
-        self.autosave_action.setToolTip("Keep a background snapshot so an unexpected crash can be recovered.")
-        self.autosave_action.setChecked(read_autosave_enabled())
-        self.autosave_action.toggled.connect(self.set_autosave)
-
         settings_menu.addMenu(language_menu)
         settings_menu.addSeparator()
         settings_menu.addMenu(plot_theme_menu)
@@ -191,7 +182,6 @@ class SettingsPanelClass:
         settings_menu.addMenu(ui_scale_menu)
         settings_menu.addSeparator()
         settings_menu.addAction(self.auto_recalculate_action)
-        settings_menu.addAction(self.autosave_action)
 
         # ----- Help menu -----
         self.about_action = QAction("About", self.widget)
@@ -269,10 +259,6 @@ class SettingsPanelClass:
     def set_auto_recalculate(self, enabled: bool):
         self.root_class.main_area_panel.auto_recalculate = enabled
         write_ui_value("auto_recalculate", "true" if enabled else "false")
-
-    def set_autosave(self, enabled: bool):
-        self.root_class.autosave.set_enabled(enabled)
-        write_ui_value("autosave", "true" if enabled else "false")
 
     def set_theme(self, theme: Themes):
         THEME.set_theme(theme)

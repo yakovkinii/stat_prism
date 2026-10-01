@@ -20,14 +20,15 @@ import attrs
 
 from src.data.data import Data
 from src.side_area_panel.modules.common.result.registry import BaseResult
+from src.side_area_panel.modules.dp_filter.filter_values import saved_filter_value_label
 
 _METHODOLOGY = (
     "<b>Filter</b><br>"
     "Keeps only the rows that match a condition on one column. For a numeric column, keep rows "
     "where the value satisfies a comparison (&lt;, &le;, =, &ge;, &gt;, &ne;) against a value, or "
     "use <i>is empty</i> / <i>is not empty</i> to filter on missing cells; for a categorical "
-    "column, keep only the ticked category values (a <i>(empty)</i> option appears when the column "
-    'has blank cells). Empty matches both NaN and "". Rows that don\'t match are removed '
+    "column, keep only the ticked category values. Missing and blank values appear as &mdash;. "
+    'Empty matches both NaN and "". Rows that don\'t match are removed '
     "downstream. Previewing the data shows removed rows in red. Toggle the step off (card button) "
     "to keep all rows."
 )
@@ -78,7 +79,8 @@ class FilterDataResult(BaseResult):
             elif spec.get("mode") == "categorical":
                 kept = spec.get("kept_values")
                 if kept is not None:
-                    parts.append("Keep values: " + (", ".join(str(v) for v in kept) if kept else "(none)"))
+                    labels = [saved_filter_value_label(v) for v in kept]
+                    parts.append("Keep values: " + (", ".join(labels) if labels else "(none)"))
 
         parts.append("Status: enabled" if cfg.enabled else "Status: disabled")
         self.description = "<br>".join(parts)

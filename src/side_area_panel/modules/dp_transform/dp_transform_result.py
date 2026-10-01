@@ -22,12 +22,12 @@ from src.data.data import Data
 from src.side_area_panel.modules.common.result.registry import BaseResult
 
 _METHODOLOGY = (
-    "<b>Transform column</b><br>"
+    "<b>Transform column(s)</b><br>"
     "Reshapes one selected column <i>in place</i> (the column is replaced, not duplicated). "
     "In order: <b>value mapping</b> (recode specific values); <b>target type</b> "
-    "(Nominal / Ordinal / Numeric); for Ordinal an explicit <b>category order</b> and an "
-    "optional <b>flip</b> that reverses the scale as (reference − x), with the reference "
-    "defaulting to max + min; for Numeric a <b>normalisation</b> "
+    "(Nominal / Ordinal / Numeric); for Ordinal an explicit <b>category order</b>. Plain numeric "
+    "ordinal face values can be <b>flipped</b> as (reference - x) only when no custom order is "
+    "defined; for Numeric a <b>normalisation</b> "
     "(Z-score, Stanine, Center, Min-max, Log, Rank); and a <b>colour tag</b>. The new name "
     "defaults to the column's current name."
 )
@@ -44,7 +44,7 @@ class TransformResult(BaseResult):
     def __init__(self, unique_id, settings_panel_index, config: TransformStudyConfig):
         super().__init__(unique_id)
         self.unique_id: int = unique_id
-        self.title = "Transform Column"
+        self.title = "Transform Column(s)"
         self.title_context = ""
         self.settings_panel_index = settings_panel_index
         self.config_class = TransformStudyConfig

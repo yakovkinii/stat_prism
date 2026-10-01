@@ -125,13 +125,17 @@ class HomeInitial(BasePanel):
                 return json.load(f)
         return {}
 
-    def _restore_json_project(self, directory, meta: dict):
-        """Rebuild the session from an extracted JSON project directory -- shared by opening a .sp
-        and by crash recovery. Refuses newer / legacy-pickle files, applies the saved theme &
+    def _restore_json_project(self, directory, meta: dict, respect_auto_recalculate: bool = False):
+        """Rebuild the session from an extracted JSON project directory -- shared by opening a .sp,
+        crash recovery, and undo/redo. Refuses newer / legacy-pickle files, applies the saved theme &
         language before results render, routes each study to its module by config-object identity
         (a stable class, not a positional index) so adding/reordering modules never mis-routes a
-        project, restores the raw dataset, then recomputes the derived studies (only the raw dataset
-        and configs are stored) and reapplies per-element display settings."""
+        project, restores the raw dataset, then rebuilds the derived studies (only the raw dataset
+        and configs are stored) and reapplies per-element display settings.
+
+        With ``respect_auto_recalculate`` (undo/redo), the rebuild follows the Auto-recalculate
+        setting -- data-processing always recomputes, analyses only when it is on (else they are
+        marked stale) -- instead of forcing a full recompute the way opening a project does."""
         # Refuse projects saved by a newer, incompatible version (see savefile.versioning).
         check_openable(meta)
 
@@ -171,10 +175,24 @@ class HomeInitial(BasePanel):
         DATA_MANAGER.data_chain = list(data_chain)
 
         main_area = self.root_class.main_area_panel
-        main_area.recompute_all()
+        if respect_auto_recalculate and not main_area.auto_recalculate:
+            main_area.mark_all_stale()
+        else:
+            main_area.recompute_all()
         for result in list(RESULTS.values()):
             if reapply_element_settings(result):
                 main_area.refresh_result(result_id=result.unique_id)
+
+    def restore_snapshot_from_autosave(self):
+        """Reload the current session from the autosave snapshot on disk (used by undo/redo). Unlike
+        opening a project it honors Auto-recalculate on the rebuild and keeps the current file path
+        (undo changes the session, so it stays unsaved)."""
+        directory = str(autosave_dir())
+        meta = self._read_meta(directory)
+        self.root_class.main_area_panel.clear_all()
+        self._restore_json_project(directory, meta, respect_auto_recalculate=True)
+        self.root_class.mark_dirty()
+        self.root_class.action_activate_panel_by_index(PanelRegistry.HOME.settings_stacked_widget_index)
 
     def recover_autosave(self):
         """Restore the crash-recovery snapshot into a live session. The restored work is marked

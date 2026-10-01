@@ -18,6 +18,7 @@
 
 import ast
 
+import pandas as pd
 from PySide6.QtCore import QEvent, Qt
 from PySide6.QtWidgets import (
     QCheckBox,
@@ -35,6 +36,7 @@ from PySide6.QtWidgets import (
 
 from src.common.constant import DARROW, RARROW, RESET_ARROW, UARROW, ColumnType
 from src.common.decorators import log_method_noarg
+from src.data.data import category_display_value, sorted_numeric_or_alpha
 from src.data.data_manager import DATA_MANAGER
 from src.pyside_ext.elements.order import CustomListWidget
 from src.pyside_ext.elements.utility.primitive_elements import NoScrollComboBox
@@ -49,6 +51,35 @@ _TYPES = [ColumnType.NOMINAL.value, ColumnType.ORDINAL.value, ColumnType.NUMERIC
 
 def _to_python(value):
     return value.item() if hasattr(value, "item") else value
+
+
+def _dedupe(values):
+    out = []
+    for value in values:
+        duplicate = False
+        for existing in out:
+            try:
+                same_missing = bool(pd.isna(value) and pd.isna(existing))
+            except (TypeError, ValueError):
+                same_missing = False
+            try:
+                same_value = bool(value == existing)
+            except (TypeError, ValueError):
+                same_value = False
+            if same_missing or same_value:
+                duplicate = True
+                break
+        if not duplicate:
+            out.append(value)
+    return out
+
+
+def _normalized_mapping(mapping):
+    return {category_display_value(source): target for source, target in (mapping or [])}
+
+
+def _mapped_value(value, mapping):
+    return mapping.get(category_display_value(value), value)
 
 
 class _EditableColumnName(QLineEdit):
@@ -180,13 +211,10 @@ class IISPWACColumnEditor(ItemInSidePanelWithAutoConfig):
     def _sorted_unique(self, col):
         values = [_to_python(v) for v in col.data_series.dropna().unique()]
         if col.order:
-            values.sort(key=lambda v: col.order.get(v, 0))
-        else:
-            try:
-                values.sort()
-            except TypeError:
-                values.sort(key=lambda v: str(v))
-        return values
+            ranked = sorted((v for v in values if v in col.order), key=lambda v: col.order[v])
+            unranked = sorted_numeric_or_alpha(v for v in values if v not in col.order)
+            return ranked + unranked
+        return sorted_numeric_or_alpha(values)
 
     def _spec_from(self, saved, col, uniques):
         default_color = col.color if isinstance(col.color, str) and col.color else None
@@ -201,10 +229,13 @@ class IISPWACColumnEditor(ItemInSidePanelWithAutoConfig):
                 "mapping": None,
                 "remove": False,
             }
-        order = [v for v in (saved.get("order") or []) if v in uniques]
+        unique_labels = {category_display_value(value) for value in uniques}
+        mapping = [[f, t] for f, t in (saved.get("mapping") or []) if category_display_value(f) in unique_labels]
+        mapping_dict = _normalized_mapping(mapping)
+        mapped_uniques = _dedupe([_mapped_value(value, mapping_dict) for value in uniques])
+        order = [v for v in (saved.get("order") or []) if v in mapped_uniques]
         if order:
-            order = order + [v for v in uniques if v not in order]
-        mapping = [[f, t] for f, t in (saved.get("mapping") or []) if f in uniques]
+            order = order + [v for v in mapped_uniques if v not in order]
         spec = {
             "original": col.column_name,
             "new_name": saved.get("new_name") or "",
@@ -219,6 +250,10 @@ class IISPWACColumnEditor(ItemInSidePanelWithAutoConfig):
         if "color" in saved and saved.get("color") != default_color:
             spec["color"] = saved.get("color")
         return spec
+
+    def _mapped_unique_values(self, name):
+        mapping = _normalized_mapping(self.specs[name].get("mapping"))
+        return _dedupe([_mapped_value(value, mapping) for value in self.unique_values.get(name, [])])
 
     def get_kwargs(self):
         specs = [self.specs[name] for name in self.order if name in self.specs]
@@ -359,11 +394,11 @@ class IISPWACColumnEditor(ItemInSidePanelWithAutoConfig):
             spec = self.specs.get(name)
             if spec is None:
                 continue
-            is_ordinal = spec["type"] == ColumnType.ORDINAL.value
-            # The Order button appears only for ordinal columns; the action buttons (and the type
+            has_order = spec["type"] in (ColumnType.ORDINAL.value, ColumnType.NOMINAL.value)
+            # The Order button appears for ordered categorical columns; the action buttons (and the type
             # dropdown) go bold when they carry a change from the default, replacing the old summaries.
-            card["order_button"].setVisible(is_ordinal)
-            self._style_action_button(card["order_button"], is_ordinal and spec.get("order") is not None)
+            card["order_button"].setVisible(has_order)
+            self._style_action_button(card["order_button"], has_order and spec.get("order") is not None)
             self._style_action_button(card["map_button"], self._has_mapping(spec))
             self._style_action_button(card["type_combo"], spec["type"] != self.original_types.get(name))
             self._apply_color_button(name)
@@ -496,8 +531,11 @@ class IISPWACColumnEditor(ItemInSidePanelWithAutoConfig):
         show_color_picker(self.widget, choose, on_keep=keep)
 
     def _open_order(self, name):
-        natural = list(self.unique_values.get(name, []))
-        values = self.specs[name]["order"] or natural
+        # Default (no prescribed order) lists the already-mapped values in the standard order -- numeric
+        # when they all cast to numbers, else alphabetical -- so a str->number mapping shows up sorted.
+        natural = sorted_numeric_or_alpha(self._mapped_unique_values(name))
+        saved = [value for value in (self.specs[name]["order"] or []) if value in natural]
+        values = (saved + [value for value in natural if value not in saved]) if saved else natural
 
         content = QFrame()
         content.setMinimumWidth(600)
@@ -536,10 +574,15 @@ class IISPWACColumnEditor(ItemInSidePanelWithAutoConfig):
         top.addWidget(hint)
         outer.addLayout(top)
 
+        buttons = QHBoxLayout()
         reset_button = QPushButton("Reset order", content)
-        reset_button.setToolTip("Restore the natural (data) order")
+        reset_button.setToolTip("Restore the default order")
         reset_button.clicked.connect(lambda: populate(natural))
-        outer.addWidget(reset_button, alignment=Qt.AlignmentFlag.AlignLeft)
+        buttons.addWidget(reset_button)
+        ok_button = QPushButton("OK", content)
+        buttons.addWidget(ok_button)
+        buttons.addStretch(1)
+        outer.addLayout(buttons)
 
         def on_close():
             ordered = []
@@ -552,7 +595,9 @@ class IISPWACColumnEditor(ItemInSidePanelWithAutoConfig):
             self._refresh_all_summaries()
             self._changed()
 
-        OverlayPopup(self.widget, content, on_close=on_close)
+        holder = {}
+        ok_button.clicked.connect(lambda _=False: holder["popup"].close())
+        holder["popup"] = OverlayPopup(self.widget, content, on_close=on_close)
 
     def _open_mapping(self, name):
         uniques = self.unique_values.get(name, [])
@@ -600,10 +645,15 @@ class IISPWACColumnEditor(ItemInSidePanelWithAutoConfig):
         scroll.setWidget(inner)
         outer.addWidget(scroll)
 
+        buttons = QHBoxLayout()
         reset_button = QPushButton("Reset mapping", content)
         reset_button.setToolTip("Clear the mapping (map every value to itself)")
         reset_button.clicked.connect(lambda: [edit.setText(repr(value)) for value, edit in rows])
-        outer.addWidget(reset_button, alignment=Qt.AlignmentFlag.AlignLeft)
+        buttons.addWidget(reset_button)
+        ok_button = QPushButton("OK", content)
+        buttons.addWidget(ok_button)
+        buttons.addStretch(1)
+        outer.addLayout(buttons)
 
         def on_close():
             mapping = []
@@ -621,7 +671,9 @@ class IISPWACColumnEditor(ItemInSidePanelWithAutoConfig):
             self._refresh_all_summaries()
             self._changed()
 
-        OverlayPopup(self.widget, content, on_close=on_close)
+        holder = {}
+        ok_button.clicked.connect(lambda _=False: holder["popup"].close())
+        holder["popup"] = OverlayPopup(self.widget, content, on_close=on_close)
 
     def set_handler_changed(self, handler):
         self.handler_changed = handler
