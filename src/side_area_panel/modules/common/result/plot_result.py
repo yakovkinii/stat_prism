@@ -268,6 +268,7 @@ class PathDiagramConfig(BasePlotConfig):
         self,
         arrow_color: Tuple[int, int, int] = (90, 90, 90),
         label_font_size: int = 11,
+        node_font_size: int = 9,
         spread: float = 1.0,
     ):
         super().__init__()
@@ -275,11 +276,14 @@ class PathDiagramConfig(BasePlotConfig):
         self.label_font_size = SliderResultItemSetting(
             label="Label size", current_value=label_font_size, min_value=5, max_value=60, step=1
         )
+        self.node_font_size = SliderResultItemSetting(
+            label="Name label size", current_value=node_font_size, min_value=4, max_value=60, step=1
+        )
         self.spread = SliderResultItemSetting(
             label="Horizontal spread", current_value=spread, min_value=0.5, max_value=5.0, step=0.1
         )
         self.display_settings = ContainerResultItemSetting(
-            items=[self.arrow_color, self.label_font_size, self.spread], add_stretch=True
+            items=[self.arrow_color, self.label_font_size, self.node_font_size, self.spread], add_stretch=True
         )
 
 
@@ -1540,7 +1544,8 @@ class PlotV2(BaseResultElement):
 
     def _draw_mediation_diagram(self, ax, item):
         edge, text, face = self._diagram_colors()
-        fs = item.config.node_font_size.get_current_value()  # factor / indicator (name) labels
+        node_font_size = getattr(item.config, "node_font_size", item.config.label_font_size)
+        fs = node_font_size.get_current_value()  # node (name) labels
         label_fs = item.config.label_font_size.get_current_value()  # edge (coefficient) labels
         arrow_color = rgba_tuple_from_rgb_and_a(item.config.arrow_color.get_current_value(), 255)
         s = item.config.spread.get_current_value()  # widens the triangle horizontally

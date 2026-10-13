@@ -67,6 +67,11 @@ class Elements(ItemInSidePanelWithAutoConfigHolder):
         label_text="Plots",
         default_state=False,
     )
+    plot_significant_only = IISPWACCheckBox(
+        label_text="Plot significant only",
+        default_state=True,
+        visible_when=lambda kwargs: bool(kwargs.get("plots")),
+    )
 
 
 class Paired(BaseModulePanel):

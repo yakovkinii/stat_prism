@@ -55,7 +55,7 @@ class CorrelationStudyConfig:
     compact = attrs.field(default=None)
     generate_heatmap = attrs.field(default=None)
     generate_plots = attrs.field(default=None)
-    report_only_significant = attrs.field(default=None)
+    report_only_significant = attrs.field(default=True)
     confidence_intervals = attrs.field(default=None)
     number_columns = attrs.field(default=None)
     interpretation = attrs.field(default=None)

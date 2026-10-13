@@ -197,11 +197,26 @@ def recalculate_mean_comparison_anova(
 
     if not cfg.plots:
         return result
+    plot_columns = selected_columns
+    if cfg.plot_significant_only:
+        plot_columns = _significant_anova_columns(
+            df=df,
+            rank_df=prepare_df_for_mean_comparison(
+                data=data,
+                cfg=cfg,
+                map_ordinal=True,
+            ),
+            data=data,
+            grouping_column=grouping_column,
+            non_normal_columns=non_numeric_columns + non_normal_columns,
+            non_homogeneous_columns=non_homogeneous_columns,
+            homogeneous_columns=homogeneous_columns,
+        )
 
     add_group_distribution_plots(
         result,
         df,
-        selected_columns,
+        plot_columns,
         numeric_columns,
         grouping_column,
         update,
@@ -211,6 +226,40 @@ def recalculate_mean_comparison_anova(
         data=data,
     )
     return result
+
+
+def _significant_anova_columns(
+    df,
+    rank_df,
+    data,
+    grouping_column,
+    non_normal_columns,
+    non_homogeneous_columns,
+    homogeneous_columns,
+):
+    significant = []
+    ordered = ordered_groups(data, grouping_column, rank_df)
+    for col in non_normal_columns:
+        groups = [rank_df.loc[rank_df[grouping_column] == name, col].dropna() for name in ordered]
+        if stats.kruskal(*groups).pvalue < 0.05:
+            significant.append(col)
+
+    for col in non_homogeneous_columns:
+        welch_result = pg.welch_anova(data=df, dv=col, between=grouping_column)
+        if welch_result["p-unc"].values[0] < 0.05:
+            significant.append(col)
+
+    groups = list(df[grouping_column].drop_duplicates())
+    for col in homogeneous_columns:
+        group_data = [df.loc[df[grouping_column] == name, col].dropna() for name in groups]
+        if stats.f_oneway(*group_data).pvalue < 0.05:
+            significant.append(col)
+    return significant
+
+
+def _posthoc_table_note(numbering, column):
+    note = f"Column: {numbering.label(column)}."
+    return numbering.append_to_note(note)
 
 
 def process_non_normal_anova(
@@ -342,6 +391,7 @@ def process_non_normal_anova(
                 ),
             )
         )
+        post_hoc_table.table_note = _posthoc_table_note(numbering, col)
         post_hoc_items.append(post_hoc_table)
 
     return table, *post_hoc_items
@@ -500,6 +550,7 @@ def process_non_homogeneous_anova(
                 ),
             )
         )
+        post_hoc_table.table_note = _posthoc_table_note(numbering, col)
         post_hoc_items.append(post_hoc_table)
 
     return table, *post_hoc_items
@@ -664,6 +715,7 @@ def process_homogeneous_anova(
                 ),
             )
         )
+        posthoc_table.table_note = _posthoc_table_note(numbering, col)
         post_hoc_items.append(posthoc_table)
 
     return table, *post_hoc_items

@@ -61,6 +61,7 @@ class RawDataResultDisplay(BaseResultDisplay):
             inner_layout_class=QHBoxLayout,
             setup=lambda w, l: [
                 w.clicked.connect(lambda: self.activate_result(self.result_id, None)),
+                w.doubleClicked.connect(self.toggle_collapsed),
                 l.setContentsMargins(4, 2, 4, 2),
                 l.setSpacing(8),
             ],
@@ -94,6 +95,7 @@ class RawDataResultDisplay(BaseResultDisplay):
                 l.setContentsMargins(0, 0, 0, 0),
                 l.setSpacing(0),
                 w.clicked.connect(lambda: self.activate_result(self.result_id, None)),
+                w.doubleClicked.connect(self.toggle_collapsed),
             ],
         )
         self.body_layout.addWidget(self.text_widget, 1)
@@ -115,6 +117,7 @@ class RawDataResultDisplay(BaseResultDisplay):
                 w.setWordWrap(True),
                 set_stylesheet(w, css(font_size=Style.FontSize.smallest)),
                 w.clicked.connect(lambda: self.activate_result(self.result_id, None)),
+                w.doubleClicked.connect(self.toggle_collapsed),
             ],
         )
 
@@ -127,6 +130,7 @@ class RawDataResultDisplay(BaseResultDisplay):
                 w.setSizePolicy(QSizePolicy.Policy.Ignored, QSizePolicy.Policy.Preferred),
                 set_stylesheet(w, css(color=Style.Color.SecondaryText, font_size=Style.FontSize.smallest)),
                 w.clicked.connect(lambda: self.activate_result(self.result_id, None)),
+                w.doubleClicked.connect(self.toggle_collapsed),
             ],
         )
 

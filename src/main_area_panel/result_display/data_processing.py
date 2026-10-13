@@ -63,6 +63,7 @@ class DataProcessingResultDisplay(BaseResultDisplay):
             inner_layout_class=QHBoxLayout,
             setup=lambda w, l: [
                 w.clicked.connect(lambda: self.activate_result(self.result_id, None)),
+                w.doubleClicked.connect(self.toggle_collapsed),
                 l.setContentsMargins(4, 2, 4, 2),
                 l.setSpacing(8),
             ],
@@ -91,6 +92,7 @@ class DataProcessingResultDisplay(BaseResultDisplay):
                 l.setContentsMargins(0, 0, 0, 0),
                 l.setSpacing(0),
                 w.clicked.connect(lambda: self.activate_result(self.result_id, None)),
+                w.doubleClicked.connect(self.toggle_collapsed),
             ],
         )
         self.body_layout.addWidget(self.text_widget, 1)
@@ -102,7 +104,10 @@ class DataProcessingResultDisplay(BaseResultDisplay):
             parent=self.text_widget,
             outer_layout=self.text_layout,
             inner_layout_class=QHBoxLayout,
-            setup=lambda w, l: [w.clicked.connect(lambda: self.activate_result(self.result_id, None))],
+            setup=lambda w, l: [
+                w.clicked.connect(lambda: self.activate_result(self.result_id, None)),
+                w.doubleClicked.connect(self.toggle_collapsed),
+            ],
         )
         self.label = widget_in_layout(
             widget=EditableTitle(
@@ -120,6 +125,7 @@ class DataProcessingResultDisplay(BaseResultDisplay):
             setup=lambda w, l: [
                 w.setWordWrap(True),
                 w.clicked.connect(lambda: self.activate_result(self.result_id, None)),
+                w.doubleClicked.connect(self.toggle_collapsed),
             ],
         )
 
@@ -134,6 +140,7 @@ class DataProcessingResultDisplay(BaseResultDisplay):
                 w.setSizePolicy(QSizePolicy.Policy.Ignored, QSizePolicy.Policy.Preferred),
                 set_stylesheet(w, css(color=Style.Color.SecondaryText, font_size=Style.FontSize.smallest)),
                 w.clicked.connect(lambda: self.activate_result(self.result_id, None)),
+                w.doubleClicked.connect(self.toggle_collapsed),
             ],
         )
 

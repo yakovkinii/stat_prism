@@ -88,6 +88,11 @@ class Elements(ItemInSidePanelWithAutoConfigHolder):
         label_text="Plots",
         default_state=False,
     )
+    plot_significant_only = IISPWACCheckBox(
+        label_text="Plot significant only",
+        default_state=True,
+        visible_when=lambda kwargs: bool(kwargs.get("plots")),
+    )
     # Bin width has no clean default (auto = data-dependent) -> off by default, manual spin greyed
     # until ticked. Bin reference has a clean default (0) -> a plain always-on spin.
     bin_width = IISPWACFloatProtectedSpin(

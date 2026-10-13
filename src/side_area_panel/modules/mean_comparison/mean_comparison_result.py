@@ -37,6 +37,7 @@ class MeanComparisonStudyConfig:
     confidence_intervals = attrs.field(default=None)
     number_columns = attrs.field(default=None)
     plots = attrs.field(default=None)
+    plot_significant_only = attrs.field(default=True)
     bin_width = attrs.field(default=None)
     bin_reference = attrs.field(default=None)
 
@@ -52,7 +53,10 @@ class MeanComparisonStudyConfig:
         if isinstance(state, tuple):
             state = dict(zip([field.name for field in fields], state))
         for field in fields:
-            object.__setattr__(self, field.name, state.get(field.name, field.default))
+            value = state.get(field.name, field.default)
+            if field.name == "plot_significant_only" and value is attrs.NOTHING:
+                value = True
+            object.__setattr__(self, field.name, value)
 
 
 class MeanComparisonResult(BaseResult):

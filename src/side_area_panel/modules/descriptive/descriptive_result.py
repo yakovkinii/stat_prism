@@ -32,6 +32,7 @@ class DescriptiveStudyConfig:
     extended_stats = attrs.field(default=None)
     frequency_table = attrs.field(default=None)
     frequency_table_ordinal = attrs.field(default=None)
+    frequency_table_numeric = attrs.field(default=False)
     show_normality = attrs.field(default=None)
     normality_test = attrs.field(default=None)
     verbal_indicators = attrs.field(default=None)  # in-table verbal columns (e.g. "Normal?")
@@ -49,6 +50,19 @@ class DescriptiveStudyConfig:
     bin_width = attrs.field(default=None)
     bin_reference = attrs.field(default=None)
     kde_smoothing = attrs.field(default=None)
+
+    def __getstate__(self):
+        return {field.name: getattr(self, field.name) for field in attrs.fields(type(self))}
+
+    def __setstate__(self, state):
+        fields = attrs.fields(type(self))
+        if isinstance(state, tuple):
+            state = dict(zip([field.name for field in fields], state))
+        for field in fields:
+            value = state.get(field.name, field.default)
+            if field.name == "frequency_table_numeric" and value is attrs.NOTHING:
+                value = False
+            object.__setattr__(self, field.name, value)
 
 
 class DescriptiveResult(BaseResult):

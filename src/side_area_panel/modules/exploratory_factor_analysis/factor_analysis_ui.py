@@ -60,6 +60,7 @@ class Elements(ItemInSidePanelWithAutoConfigHolder):
     verbal_indicators = IISPWACCheckBox(label_text="Verbal indicators in tables", default_state=False)
     show_item_msa = IISPWACCheckBox(label_text="Show per-item MSA", default_state=False)
     show_eigenvalues = IISPWACCheckBox(label_text="Show eigenvalues table", default_state=False)
+    sort_by_factor_loadings = IISPWACCheckBox(label_text="Sort by factor loadings", default_state=False)
     number_columns = IISPWACCheckBox(label_text="Number variables in tables", default_state=False)
     interpretation = IISPWACComboBox(label_text=PROSE_LABEL, items=PROSE_LEVELS)
     plots = IISPWACCheckBox(label_text="Plots", default_state=False)
