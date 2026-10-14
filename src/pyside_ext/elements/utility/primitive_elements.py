@@ -33,12 +33,16 @@ class NoScrollComboBox(QComboBox):
 
 class QWidgetClickable(QFrame):
     clicked = QtCore.Signal()
+    doubleClicked = QtCore.Signal()
 
     def __init__(self, parent=None):
         super().__init__(parent)
 
     def mousePressEvent(self, event):
         self.clicked.emit()
+
+    def mouseDoubleClickEvent(self, event):
+        self.doubleClicked.emit()
 
 
 class QListWidgetClickable(QtWidgets.QListWidget):

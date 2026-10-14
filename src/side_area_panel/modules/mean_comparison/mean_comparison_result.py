@@ -37,6 +37,7 @@ class MeanComparisonStudyConfig:
     confidence_intervals = attrs.field(default=None)
     number_columns = attrs.field(default=None)
     plots = attrs.field(default=None)
+    plot_significant_only = attrs.field(default=True)
     bin_width = attrs.field(default=None)
     bin_reference = attrs.field(default=None)
 

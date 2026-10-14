@@ -329,6 +329,10 @@ def recalculate_factor_analysis_study(elements, result: FactorAnalysisResult, up
     result.efa_columns = list(columns)
     result.efa_is_oblique = bool(is_oblique)
 
+    display_order = list(range(len(columns)))
+    if getattr(cfg, "sort_by_factor_loadings", False):
+        display_order.sort(key=lambda i: (int(np.argmax(np.abs(loadings[i]))), -float(np.max(np.abs(loadings[i]))), i))
+
     # ----- Factor loadings table -----
     # Show the rotation in the caption only when one is applied (no "(none)").
     if cfg.rotation and cfg.rotation != RotationType.NONE.value:
@@ -342,7 +346,8 @@ def recalculate_factor_analysis_study(elements, result: FactorAnalysisResult, up
         + [Cell(t("efa.col.communality"), center=True), Cell(t("efa.col.uniqueness"), center=True)]
     )
     load_table.add_title_row_apa(Row(load_header))
-    for idx, var in enumerate(columns):
+    for idx in display_order:
+        var = columns[idx]
         row = [Cell(numbering.label(var), push_to_left=True)]
         row += [Cell(format_r_apa(loadings[idx, j]), center=True) for j in range(m)]
         row += [
@@ -355,7 +360,11 @@ def recalculate_factor_analysis_study(elements, result: FactorAnalysisResult, up
 
     # ----- Loadings heatmap -----
     if cfg.plots:
-        loadings_df = pd.DataFrame(loadings, index=columns, columns=factor_names)
+        loadings_df = pd.DataFrame(
+            loadings[display_order, :],
+            index=[columns[i] for i in display_order],
+            columns=factor_names,
+        )
         result.update_and_add_element(
             PlotV2(
                 items=[Heatmap(df=loadings_df, p=None, label=t("efa.plot.loadings"))],

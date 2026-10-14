@@ -68,9 +68,20 @@ class FactorAnalysisStudyConfig:
     verbal_indicators = attrs.field(default=None)
     show_item_msa = attrs.field(default=None)
     show_eigenvalues = attrs.field(default=None)
+    sort_by_factor_loadings = attrs.field(default=False)
     plots = attrs.field(default=None)
     number_columns = attrs.field(default=None)
     interpretation = attrs.field(default=None)
+
+    def __getstate__(self):
+        return {field.name: getattr(self, field.name) for field in attrs.fields(type(self))}
+
+    def __setstate__(self, state):
+        fields = attrs.fields(type(self))
+        if isinstance(state, tuple):
+            state = dict(zip([field.name for field in fields], state))
+        for field in fields:
+            object.__setattr__(self, field.name, state.get(field.name, field.default))
 
 
 class FactorAnalysisResult(BaseResult):

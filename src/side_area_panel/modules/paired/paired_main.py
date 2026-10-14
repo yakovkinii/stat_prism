@@ -146,8 +146,9 @@ def recalculate_paired_study(elements: Elements, result: PairedResult, update) -
     if cfg.plots:
         # The parametric frame already holds numeric face values (plain numeric axis); only the codes
         # frame needs its axis ticks relabelled from order codes back to the categories.
-        tick_labels = None if parametric else _shared_ordinal_axis_tick_labels(data, wide, conditions)
-        _add_plots(result, wide, conditions, tick_labels)
+        if not cfg.plot_significant_only or _paired_plot_is_significant(wide, conditions, parametric, two_conditions):
+            tick_labels = None if parametric else _shared_ordinal_axis_tick_labels(data, wide, conditions)
+            _add_plots(result, wide, conditions, tick_labels)
 
     update(100)
     return result
@@ -178,6 +179,18 @@ def _to_long(wide: pd.DataFrame, conditions) -> pd.DataFrame:
     frame = wide[conditions].copy()
     frame[_SUBJECT] = frame.index
     return frame.melt(id_vars=_SUBJECT, value_vars=list(conditions), var_name=_CONDITION, value_name=_VALUE)
+
+
+def _paired_plot_is_significant(wide: pd.DataFrame, conditions, parametric: bool, two_conditions: bool) -> bool:
+    if two_conditions:
+        if parametric:
+            return stats.ttest_rel(wide[conditions[0]], wide[conditions[1]]).pvalue < 0.05
+        return pg.wilcoxon(wide[conditions[0]], wide[conditions[1]])["p-val"].values[0] < 0.05
+    if parametric:
+        long = _to_long(wide, conditions)
+        aov = pg.rm_anova(data=long, dv=_VALUE, within=_CONDITION, subject=_SUBJECT, correction=True, detailed=False)
+        return aov["p-unc"].values[0] < 0.05
+    return stats.friedmanchisquare(*[wide[col] for col in conditions]).pvalue < 0.05
 
 
 def _descriptives_table(data, wide: pd.DataFrame, conditions, numbering=None, parametric=False) -> HTMLTableV2:
@@ -524,7 +537,8 @@ def _posthoc_table(
             ),
         )
     )
-    table.table_note = numbering.append_to_note(table.table_note or "")
+    note = "Columns: " + ", ".join(numbering.label(name) for name in conditions) + "."
+    table.table_note = numbering.append_to_note(note)
     return table
 
 

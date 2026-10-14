@@ -304,7 +304,7 @@ TRANSLATIONS = {
     },
     "ttest.caption.levene": {
         "en": "Levene's test for homogeneity of variance",
-        "ua": "Критерій Лівіня для однорідності дисперсій",
+        "ua": "Критерій Левена для однорідності дисперсій",
     },
     # Column headers (statistic names)
     "ttest.col.mann_whitney_u": {
@@ -329,7 +329,7 @@ TRANSLATIONS = {
     },
     "ttest.col.levene_f": {
         "en": "Levene's F",
-        "ua": "F Лівіня",
+        "ua": "F Левена",
     },
     "ttest.col.shapiro_w": {
         "en": "Shapiro-Wilk W",
@@ -366,7 +366,7 @@ TRANSLATIONS = {
     },
     "ttest.test.levene": {
         "en": "Levene's test",
-        "ua": "критерій Лівіня",
+        "ua": "критерій Левена",
     },
     # What the test checks
     "ttest.check.diff_groups": {
@@ -484,7 +484,7 @@ TRANSLATIONS = {
     },
     "ttest.plot.density": {
         "en": "Density",
-        "ua": "Густина",
+        "ua": "Густина розподілу",
     },
     "ttest.warning.kde_failed": {
         "en": "The density (KDE) curve could not be drawn for one or more groups of {col} (no variation).",
@@ -550,7 +550,7 @@ TRANSLATIONS = {
             "<ul>"
             "<li>Якщо змінна нечислова або не розподілена нормально (критерій Шапіро–Уілка), "
             "використовується U-критерій Манна–Уітні.</li>"
-            "<li>Якщо порушено однорідність дисперсій (критерій Лівіня), використовується "
+            "<li>Якщо порушено однорідність дисперсій (критерій Левена), використовується "
             "t-критерій Велча.</li>"
             "<li>Інакше використовується t-критерій для незалежних вибірок.</li>"
             "</ul></div>"
@@ -559,7 +559,7 @@ TRANSLATIONS = {
             "<ul>"
             "<li>Якщо змінна нечислова або не розподілена нормально (критерій Шапіро–Уілка), "
             "використовується критерій Краскела–Уолліса.</li>"
-            "<li>Якщо порушено однорідність дисперсій (критерій Лівіня), використовується "
+            "<li>Якщо порушено однорідність дисперсій (критерій Левена), використовується "
             "ANOVA Велча.</li>"
             "<li>Інакше використовується однофакторний дисперсійний аналіз (ANOVA).</li>"
             "</ul></div>"
@@ -1669,7 +1669,9 @@ TRANSLATIONS = {
             "SE, skewness and kurtosis); categorical variables get frequency tables.</div>"
             "<div>Optional plots (each opt-in): distribution histograms with a KDE curve, "
             "box plots with outliers, normal Q-Q plots, and &mdash; for categorical "
-            "variables &mdash; frequency bar charts and pie charts. A grouping column "
+            "variables &mdash; frequency bar charts and pie charts. Ordinal variables can use "
+            "their defined order for frequency tables/plots; exact numeric values can also be "
+            "treated as categories when the numeric frequency-table option is enabled. A grouping column "
             "splits the numeric summary, distributions and box plots by group.</div>"
             "<div>For distributions you can set the histogram bin width (1 for Likert "
             "scales) and the KDE smoothing.</div>"
@@ -1678,12 +1680,14 @@ TRANSLATIONS = {
             "<h2>Описова статистика</h2>"
             "<h3>Опис</h3>"
             "<div>Підсумовує обрані змінні. Для числових змінних будується підсумкова "
-            "таблиця (N, пропуски, середнє, SD, мінімум, максимум, Шапіро&ndash;Вілк; за "
+            "таблиця (N, пропуски, середнє, SD, мінімум, максимум, Шапіро&ndash;Уілк; за "
             "бажанням медіана, IQR, SE, асиметрія та ексцес); для категоріальних &mdash; "
             "таблиці частот.</div>"
             "<div>Додаткові графіки (кожен вмикається окремо): гістограми розподілу з "
             "кривою KDE, діаграми розмаху з викидами, графіки Q-Q, а для категоріальних "
-            "змінних &mdash; стовпчасті діаграми частот і кругові діаграми. Стовпець "
+            "змінних &mdash; стовпчасті діаграми частот і кругові діаграми. Порядкові змінні можуть "
+            "використовувати свій заданий порядок у таблицях/графіках частот; точні числові значення "
+            "також можна трактувати як категорії, коли ввімкнено опцію числової таблиці частот. Стовпець "
             "групування розбиває підсумок, розподіли та діаграми розмаху за групами.</div>"
             "<div>Для розподілів можна задати ширину інтервалу гістограми (1 для шкал "
             "Лайкерта) та згладжування KDE.</div>"
@@ -1724,6 +1728,8 @@ TRANSLATIONS = {
             "skipped in the verbal summary.</li>"
             "<li><b>Missing data.</b> Pairwise deletion &mdash; each pair uses only rows where both "
             "variables are present.</li>"
+            "<li><b>Table layout.</b> The full matrix layout is the default; the compact layout can "
+            "be enabled to reduce wide output.</li>"
             "<li><b>Ordinal variables.</b> Selected ordinal variables are mapped to numeric codes. "
             "Using Pearson&rsquo;s r on ordinal data triggers a warning (it assumes interval data).</li>"
             "<li><b>Reporting.</b> Significance stars: * p &lt; .05, ** p &lt; .01, *** p &lt; .001; "
@@ -1740,7 +1746,7 @@ TRANSLATIONS = {
             "<li><b>Коефіцієнти та p-значення.</b>"
             "<ul>"
             "<li>r Пірсона &mdash; p-значення за t-розподілом, df = n &minus; 2 (наводиться).</li>"
-            "<li>&rho; Спірмена / &tau; Кендала (tau-b) / &tau;<sub>c</sub> &mdash; "
+            "<li>&rho; Спірмена / &tau; Кендалла (tau-b) / &tau;<sub>c</sub> &mdash; "
             "p-значення зі SciPy; df не наводиться.</li>"
             "<li>Фі &phi; &mdash; &radic;(&chi;<sup>2</sup>/N) із таблиці 2&times;2; p-значення з "
             "тесту хі-квадрат.</li>"
@@ -1752,7 +1758,7 @@ TRANSLATIONS = {
             "</ul></li>"
             "<li><b>Довірчі інтервали.</b> Якщо увімкнено, 95% ДІ обчислюється через z-перетворення "
             "Фішера (SE = 1/&radic;(n &minus; 3)) для r Пірсона та для &rho; Спірмена з невеликим "
-            "збільшенням дисперсії (SE &times; 1.03). ДІ <i>не</i> є обґрунтованим для &tau; Кендала, "
+            "збільшенням дисперсії (SE &times; 1.03). ДІ <i>не</i> є обґрунтованим для &tau; Кендалла, "
             "фі, тетрахоричної чи поліхоричної кореляції, тож ці комірки показують "
             "&lsquo;&mdash;&rsquo;.</li>"
             "<li><b>Часткова кореляція.</b> Якщо задано змінні в полі &lsquo;Контролювати&rsquo;, "
@@ -1831,6 +1837,8 @@ TRANSLATIONS = {
             "<li><b>Post-hoc</b> (only when enabled and the omnibus test is significant): one-way "
             "ANOVA &rarr; Tukey HSD; Welch&rsquo;s ANOVA &rarr; Tamhane&rsquo;s T2; "
             "Kruskal&ndash;Wallis &rarr; Dunn&rsquo;s test.</li>"
+            "<li><b>Plots.</b> When plots are enabled, &lsquo;Plot significant only&rsquo; is on by "
+            "default and limits distribution/box plots to variables whose selected test is significant.</li>"
             "<li><b>Threshold.</b> All tests are two-sided and use &alpha; = .05.</li>"
             "<li><b>Missing data.</b> Missing values are dropped per variable before each test; "
             "missing group labels follow the &ldquo;Missing in grouping&rdquo; setting.</li>"
@@ -1846,7 +1854,7 @@ TRANSLATIONS = {
             "родина ANOVA. Числові змінні, що проходять перевірку припущень, використовують "
             "параметричні тести; порядкові / нечислові змінні та числові змінні, що не проходять "
             "перевірку на нормальність, використовують непараметричні тести.</li>"
-            "<li><b>Нормальність.</b> Шапіро&ndash;Вілк, обчислюється для кожної групи. Змінна "
+            "<li><b>Нормальність.</b> Шапіро&ndash;Уілк, обчислюється для кожної групи. Змінна "
             "вважається нормальною лише тоді, коли кожна група проходить перевірку (p &gt; .05).</li>"
             "<li><b>Однорідність дисперсій.</b> Тест Левена, центрований за <i>середнім</i> "
             "(не за медіаною / варіант Брауна&ndash;Форсайта). Рівність дисперсій припускається, "
@@ -1856,15 +1864,15 @@ TRANSLATIONS = {
             "свободи Велча&ndash;Саттертвейта.</li>"
             "<li><b>Параметричний, 3+ груп.</b> Рівні дисперсії &rarr; однофакторний ANOVA; "
             "нерівні дисперсії &rarr; ANOVA Велча.</li>"
-            "<li><b>Непараметричний.</b> Дві групи &rarr; U Манна&ndash;Вітні; три і більше "
-            "&rarr; H Краскела&ndash;Волліса.</li>"
+            "<li><b>Непараметричний.</b> Дві групи &rarr; U Манна&ndash;Уітні; три і більше "
+            "&rarr; H Краскела&ndash;Уолліса.</li>"
             "<li><b>Розміри ефекту.</b>"
             "<ul>"
             "<li>t Стьюдента: d Коена з об&rsquo;єднаним SD.</li>"
             "<li>t Велча: d Коена, стандартизований за середньоквадратичним двох групових "
             "дисперсій, &radic;((s<sub>1</sub><sup>2</sup>+s<sub>2</sub><sup>2</sup>)/2), а не за "
             "об&rsquo;єднаним SD.</li>"
-            "<li>Манн&ndash;Вітні: рангово-бісеріальна кореляція "
+            "<li>Манн&ndash;Уітні: рангово-бісеріальна кореляція "
             "r = 1 &minus; 2&middot;U<sub>1</sub>/(n<sub>1</sub>&middot;n<sub>2</sub>), наводиться "
             "<i>зі своїм знаком</i>, щоб зберегти напрям ефекту; U у таблиці &mdash; це менше з "
             "U<sub>1</sub>/U<sub>2</sub>.</li>"
@@ -1878,7 +1886,7 @@ TRANSLATIONS = {
             "великовибіркової стандартної похибки "
             "SE = &radic;((n<sub>1</sub>+n<sub>2</sub>)/(n<sub>1</sub>n<sub>2</sub>) + "
             "d<sup>2</sup>/(2(n<sub>1</sub>+n<sub>2</sub>))). Це стосується лише параметричного "
-            "(t-тест) розміру ефекту; рангово-бісеріальний r Манна&ndash;Вітні наводиться без ДІ.</li>"
+            "(t-тест) розміру ефекту; рангово-бісеріальний r Манна&ndash;Уітні наводиться без ДІ.</li>"
             "<li><b>Словесні індикатори.</b> &lsquo;Словесні індикатори в таблицях&rsquo; додають "
             "стовпці звичайною мовою поруч із кожним p-значенням: висновок Значущо? у таблицях "
             "результатів і висновок Нормально? / Рівні дисп.? у таблицях перевірки припущень "
@@ -1888,7 +1896,7 @@ TRANSLATIONS = {
             "апостеріорних тестів залишаються без анотацій.</li>"
             "<li><b>Апостеріорні</b> (лише коли увімкнено та омнібусний тест значущий): "
             "однофакторний ANOVA &rarr; HSD Тьюкі; ANOVA Велча &rarr; T2 Тамхейна; "
-            "Краскел&ndash;Волліс &rarr; тест Данна.</li>"
+            "Краскел&ndash;Уолліс &rarr; тест Данна.</li>"
             "<li><b>Поріг.</b> Усі тести двосторонні та використовують &alpha; = .05.</li>"
             "<li><b>Пропущені дані.</b> Пропущені значення вилучаються для кожної змінної перед "
             "кожним тестом; пропущені мітки груп підпорядковуються налаштуванню "
@@ -1956,7 +1964,7 @@ TRANSLATIONS = {
             "&alpha; про рівні навантаження (тау-еквівалентність) і часто є кращим вибором для "
             "конгенеричних шкал.</li>"
             "<li><b>Тип кореляції.</b> Ті самі оцінювачі, що й в аналізі Кореляції. Пірсон, "
-            "Спірмен, &tau;-b Кендала та &tau;-c Кендала працюють із пунктами безпосередньо; "
+            "Спірмен, &tau;-b Кендалла та &tau;-c Кендалла працюють із пунктами безпосередньо; "
             "Поліхорична припускає прихований неперервний показник за кожним порядковим пунктом. "
             "Фі та Тетрахорична потребують бінарних пунктів (&le; 2 унікальних значень) і спершу "
             "масштабуються до 0&ndash;1; Тетрахорична припускає прихований неперервний показник. "
@@ -2113,9 +2121,9 @@ TRANSLATIONS = {
             "нелінійність. <b>Нормальний Q-Q</b> залишків має триматися лінії відліку; систематичні "
             "відхилення вказують на ненормальні залишки. <b>Впливові спостереження</b> позначаються "
             "за D Кука (&gt; 4/n), розмахом (leverage &gt; 2(k+1)/n) або |студентизованим залишком| "
-            "&gt; 3 (список обмежено 20 рядками). <b>Дарбін&ndash;Вотсон</b> перевіряє автокореляцію "
+            "&gt; 3 (список обмежено 20 рядками). <b>Дарбін&ndash;Уотсон</b> перевіряє автокореляцію "
             "залишків: &asymp; 2 свідчить про незалежні залишки, &lt; 1 або &gt; 3 &mdash; привід для "
-            "занепокоєння. Впливові спостереження та Дарбін&ndash;Вотсон наводяться лише для лінійної "
+            "занепокоєння. Впливові спостереження та Дарбін&ndash;Уотсон наводяться лише для лінійної "
             "моделі.</li>"
             "<li><b>Припущення (тут не перевіряються).</b> OLS припускає приблизно лінійний "
             "зв&rsquo;язок, незалежні похибки зі сталою дисперсією (гомоскедастичні) та &mdash; для "
@@ -2148,7 +2156,8 @@ TRANSLATIONS = {
             "effect &mdash; use it to assign variables to factors. Communality is the variance of a "
             "variable explained by the factors; uniqueness is 1 &minus; communality. The structure "
             "matrix (oblique only) is the variable&ndash;factor correlation including shared factor "
-            "variance.</li>"
+            "variance. The optional &lsquo;Sort by factor loadings&rsquo; setting sorts the loading table "
+            "and heatmap by each item&rsquo;s strongest loading.</li>"
             "<li><b>Out-of-range loadings.</b> A <i>negative</i> loading is normal &mdash; it just means "
             "the variable relates inversely to the factor (a reverse-keyed item); interpret its "
             "magnitude as usual. A loading or communality <i>above 1</i> (equivalently a negative "
@@ -2186,7 +2195,9 @@ TRANSLATIONS = {
             "фактор&rarr;змінна; використовуйте її, щоб віднести змінні до факторів. Спільність "
             "&mdash; це дисперсія змінної, пояснена факторами; унікальність &mdash; це 1 &minus; "
             "спільність. Структурна матриця (лише косокутне) &mdash; це кореляція змінна&ndash;фактор "
-            "із урахуванням спільної факторної дисперсії.</li>"
+            "із урахуванням спільної факторної дисперсії. Необов&rsquo;язкове налаштування "
+            "&lsquo;Сортувати за факторними навантаженнями&rsquo; впорядковує таблицю навантажень і "
+            "теплокарту за найсильнішим навантаженням кожного пункту.</li>"
             "<li><b>Навантаження поза діапазоном.</b> <i>Від&rsquo;ємне</i> навантаження &mdash; це "
             "нормально: воно просто означає, що змінна пов&rsquo;язана з фактором обернено "
             "(реверсивний пункт); інтерпретуйте його величину як зазвичай. Навантаження чи "
@@ -2391,6 +2402,9 @@ TRANSLATIONS = {
             "<li><b>Post-hoc</b> (only when &lsquo;Effect size / Post-hoc&rsquo; is on, three or more "
             "conditions, and the omnibus test is significant): parametric &rarr; pairwise paired "
             "t-tests with Holm correction; non-parametric &rarr; Nemenyi test.</li>"
+            "<li><b>Plots.</b> When plots are enabled, &lsquo;Plot significant only&rsquo; is on by "
+            "default and shows the condition plot only when the selected paired/repeated-measures "
+            "test is significant.</li>"
             "<li><b>Verbal indicators.</b> &lsquo;Verbal indicators in tables&rsquo; adds plain-language "
             "columns next to each p-value (Significant? / Normal? at &alpha; = .05) and a Magnitude "
             "column for the effect size (Cohen&rsquo;s d by |d| 0.2 / 0.5 / 0.8; the rank-biserial r "
@@ -2411,7 +2425,7 @@ TRANSLATIONS = {
             "<li><b>Вибір тесту.</b> Дві умови використовують родину парних вибірок; три і більше "
             "&mdash; родину повторних вимірювань. Параметричні тести застосовуються, коли перевірка "
             "на нормальність проходить; інакше використовуються непараметричні відповідники.</li>"
-            "<li><b>Нормальність.</b> Шапіро&ndash;Вілк. Для двох умов обчислюється на парних "
+            "<li><b>Нормальність.</b> Шапіро&ndash;Уілк. Для двох умов обчислюється на парних "
             "різницях; для трьох і більше &mdash; для кожної умови. Дані вважаються нормальними лише "
             "тоді, коли кожна перевірка проходить (p &gt; .05).</li>"
             "<li><b>Параметричний, 2 умови.</b> t-тест для парних вибірок; розмір ефекту d Коена "
@@ -2422,7 +2436,7 @@ TRANSLATIONS = {
             "поряд із непоправленим.</li>"
             "<li><b>Непараметричний, 2 умови.</b> Знаково-ранговий тест Вілкоксона; розмір ефекту "
             "&mdash; рангово-бісеріальна кореляція для парних спостережень.</li>"
-            "<li><b>Непараметричний, 3+ умов.</b> Тест Фрідмана; розмір ефекту W Кендала.</li>"
+            "<li><b>Непараметричний, 3+ умов.</b> Тест Фрідмана; розмір ефекту W Кендалла.</li>"
             "<li><b>Апостеріорні</b> (лише коли увімкнено &lsquo;Розмір ефекту / Апостеріорні&rsquo;, "
             "три і більше умов та омнібусний тест значущий): параметричні &rarr; попарні парні "
             "t-тести з поправкою Холма; непараметричні &rarr; тест Немені.</li>"
@@ -2522,7 +2536,8 @@ TRANSLATIONS = {
             "tools that report it. With large N any test flags trivial deviations, so pair it with the "
             "Q-Q plot and skewness/kurtosis.</li>"
             "<li><b>Categorical summary.</b> A per-variable frequency table with counts and "
-            "percentages (of non-missing) is shown for non-numeric variables.</li>"
+            "percentages (of non-missing) is shown for non-numeric variables. Optional frequency "
+            "tables can also be shown for ordinal variables and for exact numeric values.</li>"
             "<li><b>Histograms.</b> Densities. Bin width defaults to (max &minus; min) / 5 rounded to "
             "one significant figure unless a Bin width is given &mdash; set it to 1 for Likert-type "
             "scales so each value is its own bar. A Bin reference value (default 0) becomes the center "
@@ -2536,6 +2551,9 @@ TRANSLATIONS = {
             "enable &lsquo;Label outliers&rsquo; to also tag each point on the plot.</li>"
             "<li><b>Q-Q plots.</b> Sample quantiles vs theoretical normal quantiles, with a "
             "reference line.</li>"
+            "<li><b>Pie charts.</b> Pie charts always use a legend. The plot settings control "
+            "legend percentages/counts, donut hole, slice gap, outline width, shadow, hatch patterns, "
+            "legend spacing and colour palette.</li>"
             "<li><b>Verbal indicators.</b> &lsquo;Verbal indicators in tables&rsquo; adds plain-language "
             "columns (e.g. the Normal? conclusion) to the tables; untick it for numbers only.</li>"
             "<li><b>Grouping.</b> A grouping column splits the numeric summary, distribution plots, "
@@ -2554,11 +2572,11 @@ TRANSLATIONS = {
             "<li><b>Числовий підсумок.</b> N, пропуски, середнє, SD, мінімум і максимум; за бажанням "
             "(Розширена статистика) медіана, Q1/Q3 (IQR), стандартна похибка середнього, а також "
             "асиметрія та ексцес (Фішерів / надлишковий, тож нормальний розподіл має 0).</li>"
-            "<li><b>Нормальність.</b> Тест на вибір &mdash; Шапіро&ndash;Вілк (W), "
+            "<li><b>Нормальність.</b> Тест на вибір &mdash; Шапіро&ndash;Уілк (W), "
             "Колмогоров&ndash;Смирнов (D, з поправкою <b>Ліллієфорса</b> &mdash; коректний нульовий "
             "розподіл для нормального, чиї середнє та SD оцінено з даних) або Андерсон&ndash;Дарлінг "
             "(A&sup2;, p-значення за наближенням Стівенса) &mdash; потребує N &ge; 3. Показується "
-            "окремою таблицею плюс словесний підсумок. <i>Що обрати:</i> Шапіро&ndash;Вілк &mdash; "
+            "окремою таблицею плюс словесний підсумок. <i>Що обрати:</i> Шапіро&ndash;Уілк &mdash; "
             "найпотужніший загальний вибір, рекомендований для малих і середніх вибірок (приблизно "
             "N &le; 50, дійсний до кількох тисяч); Андерсон&ndash;Дарлінг чутливіший до відхилень у "
             "хвостах і добре працює на більших вибірках; Колмогоров&ndash;Смирнов (Ліллієфорс) "
@@ -2566,8 +2584,9 @@ TRANSLATIONS = {
             "його наводять. За великого N будь-який тест відмічає незначні відхилення, тож поєднуйте "
             "його з Q-Q графіком та асиметрією/ексцесом.</li>"
             "<li><b>Категоріальний підсумок.</b> Для нечислових змінних показується таблиця частот "
-            "для кожної змінної з підрахунками та відсотками (від непропущених).</li>"
-            "<li><b>Гістограми.</b> Густини. Ширина інтервалу за замовчуванням дорівнює "
+            "для кожної змінної з підрахунками та відсотками (від непропущених). За бажанням таблиці "
+            "частот можна також показати для порядкових змінних та для точних числових значень.</li>"
+            "<li><b>Гістограми.</b> Густини розподілу. Ширина інтервалу за замовчуванням дорівнює "
             "(max &minus; min) / 5, округленій до однієї значущої цифри, якщо не задано Ширину "
             "інтервалу &mdash; встановіть її 1 для шкал типу Лайкерта, щоб кожне значення мало власний "
             "стовпчик. Опорне значення інтервалу (за замовчуванням 0) стає центром одного інтервалу "

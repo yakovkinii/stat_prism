@@ -32,6 +32,7 @@ class DescriptiveStudyConfig:
     extended_stats = attrs.field(default=None)
     frequency_table = attrs.field(default=None)
     frequency_table_ordinal = attrs.field(default=None)
+    frequency_table_numeric = attrs.field(default=False)
     show_normality = attrs.field(default=None)
     normality_test = attrs.field(default=None)
     verbal_indicators = attrs.field(default=None)  # in-table verbal columns (e.g. "Normal?")
@@ -44,11 +45,31 @@ class DescriptiveStudyConfig:
     show_frequency_bars = attrs.field(default=None)
     show_pie = attrs.field(default=None)
     show_qq = attrs.field(default=None)
+    pie_colormap = attrs.field(default="Auto")
+    pie_show_percent = attrs.field(default=True)
+    pie_show_counts = attrs.field(default=False)
+    pie_donut_hole = attrs.field(default=0.42)
+    pie_gap = attrs.field(default=0.08)
+    pie_outline_width = attrs.field(default=1.5)
+    pie_shadow = attrs.field(default=True)
+    pie_shadow_size = attrs.field(default=0.01)
+    pie_hatch = attrs.field(default=True)
+    pie_legend_spacing = attrs.field(default=0.75)
     # Distribution-plot controls
     show_kde = attrs.field(default=None)
     bin_width = attrs.field(default=None)
     bin_reference = attrs.field(default=None)
     kde_smoothing = attrs.field(default=None)
+
+    def __getstate__(self):
+        return {field.name: getattr(self, field.name) for field in attrs.fields(type(self))}
+
+    def __setstate__(self, state):
+        fields = attrs.fields(type(self))
+        if isinstance(state, tuple):
+            state = dict(zip([field.name for field in fields], state))
+        for field in fields:
+            object.__setattr__(self, field.name, state.get(field.name, field.default))
 
 
 class DescriptiveResult(BaseResult):

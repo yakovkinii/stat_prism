@@ -82,6 +82,12 @@ from src.side_area_panel.modules.dp_outliers.dp_outliers_ui import Outliers
 from src.side_area_panel.modules.dp_preprocess.dp_preprocess_main import dp_preprocess_main
 from src.side_area_panel.modules.dp_preprocess.dp_preprocess_result import PreprocessResult, PreprocessStudyConfig
 from src.side_area_panel.modules.dp_preprocess.dp_preprocess_ui import Preprocess
+from src.side_area_panel.modules.dp_random_subsamples.dp_random_subsamples_main import dp_random_subsamples_main
+from src.side_area_panel.modules.dp_random_subsamples.dp_random_subsamples_result import (
+    RandomSubsamplesResult,
+    RandomSubsamplesStudyConfig,
+)
+from src.side_area_panel.modules.dp_random_subsamples.dp_random_subsamples_ui import RandomSubsamples
 from src.side_area_panel.modules.dp_response_quality.dp_response_quality_main import dp_response_quality_main
 from src.side_area_panel.modules.dp_response_quality.dp_response_quality_result import (
     ResponseQualityResult,
@@ -242,6 +248,11 @@ def inject_classes_to_module_registry():
     ModuleRegistry.BOOTSTRAP.value.result_class = BootstrapResult
     ModuleRegistry.BOOTSTRAP.value.config_class = BootstrapStudyConfig
     ModuleRegistry.BOOTSTRAP.value.main_function = dp_bootstrap_main
+
+    ModuleRegistry.RANDOM_SUBSAMPLES.value.ui_class = RandomSubsamples
+    ModuleRegistry.RANDOM_SUBSAMPLES.value.result_class = RandomSubsamplesResult
+    ModuleRegistry.RANDOM_SUBSAMPLES.value.config_class = RandomSubsamplesStudyConfig
+    ModuleRegistry.RANDOM_SUBSAMPLES.value.main_function = dp_random_subsamples_main
 
     ModuleRegistry.SPLIT_MULTISELECT.value.ui_class = SplitMultiSelect
     ModuleRegistry.SPLIT_MULTISELECT.value.result_class = SplitMultiSelectResult

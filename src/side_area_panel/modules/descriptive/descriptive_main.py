@@ -29,6 +29,7 @@ from src.data.data import category_display_series
 from src.data.data_manager import DATA_MANAGER
 from src.side_area_panel.modules.common.column_numbering import ColumnNumbering
 from src.side_area_panel.modules.common.prose import prose_enabled
+from src.side_area_panel.modules.common.result.plot_result import PIE_COLORMAPS, PiePlotConfig
 from src.side_area_panel.modules.common.utility import format_value_apa, smart_comma_join
 from src.side_area_panel.modules.descriptive.descriptive_result import DescriptiveResult
 from src.side_area_panel.modules.descriptive.plot import (
@@ -52,6 +53,42 @@ _AD = "Anderson-Darling"
 
 # Statistic symbol shown in the normality table per test.
 _NORMALITY_LETTER = {_KS: "D", _AD: "A<sup>2</sup>", "Shapiro-Wilk": "W"}
+
+
+def _pie_config_from_cfg(cfg):
+    colormap = cfg.pie_colormap if isinstance(cfg.pie_colormap, str) and cfg.pie_colormap in PIE_COLORMAPS else "Auto"
+    try:
+        hole = float(cfg.pie_donut_hole)
+    except (TypeError, ValueError):
+        hole = 0.42
+    try:
+        gap = float(cfg.pie_gap)
+    except (TypeError, ValueError):
+        gap = 0.08
+    try:
+        outline_width = float(cfg.pie_outline_width)
+    except (TypeError, ValueError):
+        outline_width = 1.5
+    try:
+        shadow_size = float(cfg.pie_shadow_size)
+    except (TypeError, ValueError):
+        shadow_size = 0.01
+    try:
+        legend_spacing = float(cfg.pie_legend_spacing)
+    except (TypeError, ValueError):
+        legend_spacing = 0.75
+    return PiePlotConfig(
+        show_percent=cfg.pie_show_percent if cfg.pie_show_percent is not None else True,
+        show_counts=cfg.pie_show_counts if cfg.pie_show_counts is not None else False,
+        donut_hole=max(0.0, min(0.8, hole)),
+        gap=max(0.0, min(0.16, gap)),
+        outline_width=max(0.0, min(5.0, outline_width)),
+        shadow=cfg.pie_shadow if cfg.pie_shadow is not None else True,
+        shadow_size=max(0.005, min(0.08, shadow_size)),
+        hatch=cfg.pie_hatch if cfg.pie_hatch is not None else True,
+        legend_spacing=max(0.1, min(2.0, legend_spacing)),
+        colormap=colormap,
+    )
 
 
 def _anderson_darling_normal_p(data):
@@ -196,6 +233,7 @@ def recalculate_descriptive_study(elements, result: DescriptiveResult, update) -
     numeric_columns = [
         col for col in selected_columns if data[col].column_type in (ColumnType.NUMERIC, ColumnType.ORDINAL)
     ]
+    pure_numeric_columns = [col for col in selected_columns if data[col].column_type == ColumnType.NUMERIC]
     categorical_columns = [col for col in selected_columns if col not in numeric_columns]
     for col in categorical_columns:
         df[col] = category_display_series(df[col])
@@ -346,6 +384,38 @@ def recalculate_descriptive_study(elements, result: DescriptiveResult, update) -
                 )
             result.update_and_add_element(freq, f"descriptive freq ordinal {col}")
 
+    # ----- Numeric frequency tables (optional) -----
+    # Plain numeric columns normally get quantitative summaries; when requested, also treat exact
+    # observed numeric values as categories for frequency tables and category plots.
+    if cfg.frequency_table_numeric:
+        for col in pure_numeric_columns:
+            if grouping_column is None:
+                value_counts = df[col].dropna().value_counts().sort_index()
+                if value_counts.empty:
+                    continue
+                freq = get_frequency_table(
+                    caption=t("descriptive.freq.caption", col=col),
+                    value_counts=value_counts,
+                )
+            else:
+                categories = sorted(df[col].dropna().unique())
+                group_counts = []
+                for gv in groupby_values:
+                    counts = (
+                        df.loc[df[grouping_column] == gv, col].dropna().value_counts().reindex(categories, fill_value=0)
+                    )
+                    group_counts.append((gv, counts))
+                if all(vc.empty for _, vc in group_counts):
+                    continue
+                freq = get_grouped_frequency_table(
+                    caption=t("descriptive.freq.caption", col=col),
+                    groupby_column=grouping_column,
+                    col=col,
+                    group_counts=group_counts,
+                    verbal=prose_enabled(cfg.interpretation),
+                )
+            result.update_and_add_element(freq, f"descriptive freq numeric {col}")
+
     # ----- Plots -----
     update(30)
     bin_width = _parse_positive_float(cfg.bin_width)
@@ -384,6 +454,16 @@ def recalculate_descriptive_study(elements, result: DescriptiveResult, update) -
                 plot = make_qq_plot(df[col], col, y_axis_tick_labels=axis_tick_labels)
                 if plot is not None:
                     result.update_and_add_element(plot, f"descriptive qq {col}")
+            if data[col].column_type == ColumnType.NUMERIC and cfg.frequency_table_numeric:
+                category_order = sorted(df[col].dropna().unique())
+                if cfg.show_frequency_bars:
+                    plot = make_frequency_bar_plot(df, col, grouping_column, groupby_values, category_order)
+                    if plot is not None:
+                        result.update_and_add_element(plot, f"descriptive frequency {col}")
+                if cfg.show_pie:
+                    plot = make_pie_plot(df[col].dropna(), col, category_order, pie_config=_pie_config_from_cfg(cfg))
+                    if plot is not None:
+                        result.update_and_add_element(plot, f"descriptive pie {col}")
             # Ordinal variables also get frequency bars and a pie -- both built from the original
             # labels (df holds numeric codes here), with categories in the column's defined ordinal
             # order. (Plain numeric columns get neither.)
@@ -399,7 +479,7 @@ def recalculate_descriptive_study(elements, result: DescriptiveResult, update) -
                     if plot is not None:
                         result.update_and_add_element(plot, f"descriptive frequency {col}")
                 if cfg.show_pie:
-                    plot = make_pie_plot(label_series, col, category_order)
+                    plot = make_pie_plot(label_series, col, category_order, pie_config=_pie_config_from_cfg(cfg))
                     if plot is not None:
                         result.update_and_add_element(plot, f"descriptive pie {col}")
         else:
@@ -409,7 +489,7 @@ def recalculate_descriptive_study(elements, result: DescriptiveResult, update) -
                 if plot is not None:
                     result.update_and_add_element(plot, f"descriptive frequency {col}")
             if cfg.show_pie:
-                plot = make_pie_plot(df[col], col, category_order)
+                plot = make_pie_plot(df[col], col, category_order, pie_config=_pie_config_from_cfg(cfg))
                 if plot is not None:
                     result.update_and_add_element(plot, f"descriptive pie {col}")
         update(30 + 65 * (idx + 1) / len(selected_columns))

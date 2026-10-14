@@ -217,11 +217,26 @@ def recalculate_mean_comparison_t_test(
         )
     if not cfg.plots:
         return result
+    plot_columns = selected_columns
+    if cfg.plot_significant_only:
+        plot_columns = _significant_t_test_columns(
+            df=df,
+            rank_df=prepare_df_for_mean_comparison(
+                data=data,
+                cfg=cfg,
+                map_ordinal=True,
+            ),
+            data=data,
+            grouping_column=grouping_column,
+            non_normal_columns=non_numeric_columns + non_normal_columns,
+            non_homogeneous_columns=non_homogeneous_columns,
+            homogeneous_columns=homogeneous_columns,
+        )
 
     add_group_distribution_plots(
         result,
         df,
-        selected_columns,
+        plot_columns,
         numeric_columns,
         grouping_column,
         update,
@@ -231,6 +246,38 @@ def recalculate_mean_comparison_t_test(
         data=data,
     )
     return result
+
+
+def _significant_t_test_columns(
+    df,
+    rank_df,
+    data,
+    grouping_column,
+    non_normal_columns,
+    non_homogeneous_columns,
+    homogeneous_columns,
+):
+    significant = []
+    ordered = ordered_groups(data, grouping_column, rank_df)[:2]
+    for col in non_normal_columns:
+        group1 = rank_df.loc[rank_df[grouping_column] == ordered[0], col].dropna()
+        group2 = rank_df.loc[rank_df[grouping_column] == ordered[1], col].dropna()
+        if stats.mannwhitneyu(group1, group2).pvalue < 0.05:
+            significant.append(col)
+
+    groups = list(df[grouping_column].drop_duplicates())[:2]
+    for col in non_homogeneous_columns:
+        group1 = df.loc[df[grouping_column] == groups[0], col].dropna()
+        group2 = df.loc[df[grouping_column] == groups[1], col].dropna()
+        if stats.ttest_ind(group1, group2, equal_var=False).pvalue < 0.05:
+            significant.append(col)
+
+    for col in homogeneous_columns:
+        group1 = df.loc[df[grouping_column] == groups[0], col].dropna()
+        group2 = df.loc[df[grouping_column] == groups[1], col].dropna()
+        if stats.ttest_ind(group1, group2).pvalue < 0.05:
+            significant.append(col)
+    return significant
 
 
 def _cohen_d_ci(cohen_d: float, n1: int, n2: int) -> str:

@@ -18,7 +18,7 @@
 
 import qtawesome as qta
 from PySide6 import QtWidgets
-from PySide6.QtCore import QSize
+from PySide6.QtCore import QSize, Qt
 
 from src.common.messages import Message, MessageType
 from src.pyside_ext.elements.base import BasePanelElement
@@ -38,6 +38,7 @@ class LargeButton(BasePanelElement):
 
     def setup(self):
         self.widget = QtWidgets.QPushButton(self.label_text)
+        self.widget.setFocusPolicy(Qt.FocusPolicy.NoFocus)
         set_stylesheet(
             self.widget,
             css(

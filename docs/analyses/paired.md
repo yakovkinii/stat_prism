@@ -27,7 +27,9 @@ Assumption checks
 Other
 : **Effect size / post-hoc**, **Verbal indicators** (in-table columns), **Verbal report**
   (dropdown for how much written interpretation: None / Key findings / Significant only /
-  Full), **Number conditions**, and **Plots**.
+  Full), **Number conditions**, and **Plots**. When plots are on, **Plot significant only** is
+  on by default and shows the condition plot only when the selected paired/repeated-measures
+  test is significant.
 
 ## Output
 

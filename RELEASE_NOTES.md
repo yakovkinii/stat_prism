@@ -12,6 +12,21 @@ r{
 
 # StatPrism Release Notes
 
+### StatPrism 1.3.4 (14 Oct 2026)
+
+* New data-processing study: Random Sub-samples
+* Descriptive pie charts were redesigned
+* Descriptive statistics: optional frequencies on numeric columns
+* T-test/ANOVA and paired/repeated-measures plots can now show significant results only 
+* T-test/ANOVA and paired post-hoc tables now include notes naming the variable/condition set they belong to
+* Exploratory Factor Analysis can now sort the loading table and loading heatmap by each item's strongest factor loading
+* Correlation tables now default to the full layout instead of the compact layout
+* Result cards can be collapsed/expanded by double-clicking the card body, and Ctrl+D collapses all result cards
+* The Duplicate analysis/result button uses a different icon
+* Large side-panel menu buttons no longer keep a stale selected/focused appearance
+* Fixed: mediation path diagrams from older/saved result settings could cause a crash
+
+
 ### StatPrism 1.3.3 (1 Oct 2026)
 
 * Ordinal handling is now more explicit and consistent: analyses that support ordinal data use ordinal order codes internally but display only the original face values; analyses that need numeric inputs use the visible face values and report a clear error when they cannot be parsed as numbers

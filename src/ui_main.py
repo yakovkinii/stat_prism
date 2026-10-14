@@ -159,6 +159,8 @@ class MainWindowClass(QtWidgets.QMainWindow):
         QShortcut(QKeySequence.StandardKey.Redo, self, activated=lambda: self.autosave.redo())
         # Ctrl+R: recalculate every study (same as File ▸ Recalculate All).
         QShortcut(QKeySequence("Ctrl+R"), self, activated=lambda: self.main_area_panel.recompute_all())
+        # Ctrl+D: collapse all result cards.
+        QShortcut(QKeySequence("Ctrl+D"), self, activated=lambda: self.main_area_panel.collapse_all())
         # Escape: deselect the active study (clear the main-area focus, back to the Home panel).
         QShortcut(QKeySequence("Escape"), self, activated=lambda: self.main_area_panel.activate_result(None, None))
 

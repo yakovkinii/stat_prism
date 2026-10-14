@@ -85,6 +85,10 @@ def dp_onehot_main(elements: Elements, result: OneHotResult, update):
             name=target,
             dtype="int64",
         )
+        # Adopt the source rows' index: get_dataframe builds its frame by index, so a fresh
+        # RangeIndex would misalign against columns carrying a non-contiguous index (e.g. after
+        # an upstream row filter) and surface as NaNs. One indicator value per source row.
+        indicator.index = source.data_series.index
         new_col = DataColumn.initialize_from_series(indicator)
         new_col.column_type = ColumnType.NUMERIC
         new_col.is_numeric = True

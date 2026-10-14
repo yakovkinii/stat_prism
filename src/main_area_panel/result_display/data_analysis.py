@@ -65,6 +65,7 @@ class DataAnalysisResultDisplay(BaseResultDisplay):
                 l.setContentsMargins(10, 10, 5, 5),
                 l.setSpacing(10),
                 w.clicked.connect(lambda: self.activate_result(self.result_id, None)),
+                w.doubleClicked.connect(self.toggle_collapsed),
             ],
         )
 
@@ -73,7 +74,10 @@ class DataAnalysisResultDisplay(BaseResultDisplay):
             parent=self.widget,
             outer_layout=self.layout,
             inner_layout_class=QHBoxLayout,
-            setup=lambda w, l: [w.clicked.connect(lambda: self.activate_result(self.result_id, None))],
+            setup=lambda w, l: [
+                w.clicked.connect(lambda: self.activate_result(self.result_id, None)),
+                w.doubleClicked.connect(self.toggle_collapsed),
+            ],
         )
 
         # Editable in place: clicking the title renames it; clicking beside it activates the card.
@@ -158,7 +162,7 @@ class DataAnalysisResultDisplay(BaseResultDisplay):
         self.duplicate_button = widget_in_layout(
             widget=create_simple_tool_button_qta(
                 parent=self.header_widget,
-                icon_path="mdi6.content-duplicate",
+                icon_path="mdi6.plus-box-multiple-outline",
                 icon_size=QSize(20, 20),
             ),
             layout=self.header_layout,
@@ -243,6 +247,7 @@ class DataAnalysisResultDisplay(BaseResultDisplay):
                 l.setContentsMargins(2, 0, 20, 0),
                 l.setSpacing(3),
                 w.clicked.connect(lambda: self.activate_result(self.result_id, None)),
+                w.doubleClicked.connect(self.toggle_collapsed),
             ],
         )
         self.filter_rows_container, self.filter_rows_container_layout = empty_widget(
@@ -264,6 +269,7 @@ class DataAnalysisResultDisplay(BaseResultDisplay):
                 # the parent study card (clicking there selects the study, not the table).
                 l.setContentsMargins(0, 0, 20, 0),
                 w.clicked.connect(lambda: self.activate_result(self.result_id, None)),
+                w.doubleClicked.connect(self.toggle_collapsed),
             ],
         )
 
@@ -275,6 +281,7 @@ class DataAnalysisResultDisplay(BaseResultDisplay):
             setup=lambda w, l: [
                 l.setSpacing(5),
                 w.clicked.connect(lambda: self.activate_result(self.result_id, None)),
+                w.doubleClicked.connect(self.toggle_collapsed),
             ],
         )
 

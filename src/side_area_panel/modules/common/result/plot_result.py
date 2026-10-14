@@ -17,6 +17,7 @@
 
 
 import base64
+import colorsys
 import io
 import logging
 from typing import List, Tuple, Union
@@ -24,6 +25,7 @@ from typing import List, Tuple, Union
 import numpy as np
 from matplotlib import cbook
 from matplotlib import pyplot as plt
+from matplotlib.patches import Patch
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 from PySide6.QtGui import QImage
 from PySide6.QtWidgets import QApplication
@@ -268,6 +270,7 @@ class PathDiagramConfig(BasePlotConfig):
         self,
         arrow_color: Tuple[int, int, int] = (90, 90, 90),
         label_font_size: int = 11,
+        node_font_size: int = 9,
         spread: float = 1.0,
     ):
         super().__init__()
@@ -275,11 +278,14 @@ class PathDiagramConfig(BasePlotConfig):
         self.label_font_size = SliderResultItemSetting(
             label="Label size", current_value=label_font_size, min_value=5, max_value=60, step=1
         )
+        self.node_font_size = SliderResultItemSetting(
+            label="Name label size", current_value=node_font_size, min_value=4, max_value=60, step=1
+        )
         self.spread = SliderResultItemSetting(
             label="Horizontal spread", current_value=spread, min_value=0.5, max_value=5.0, step=0.1
         )
         self.display_settings = ContainerResultItemSetting(
-            items=[self.arrow_color, self.label_font_size, self.spread], add_stretch=True
+            items=[self.arrow_color, self.label_font_size, self.node_font_size, self.spread], add_stretch=True
         )
 
 
@@ -350,22 +356,31 @@ class ContingencyPlotConfig(BasePlotConfig):
         self.display_settings = ContainerResultItemSetting(items=[self.numbered_labels], add_stretch=True)
 
 
-# "Auto" keeps the app's own themed categorical palette (Colors()); the rest are matplotlib
-# colormaps sampled across the slices (qualitative maps first, then a couple of sequential ones).
+# "Auto" keeps the app's own themed categorical palette; the rest are matplotlib colormaps
+# sampled across the slices (qualitative maps first, then a couple of sequential ones).
 PIE_COLORMAPS = ["Auto", "tab10", "Set2", "Set3", "Pastel1", "Dark2", "viridis", "plasma"]
 
 
-def _pie_slice_colors(colormap: str, n: int) -> list:
-    """Colours for the n pie slices. "Auto" keeps the app's themed palette (as before); any other
-    choice samples the named matplotlib colormap evenly across the slices."""
+def _pie_slice_colors(colormap: str, n: int, alpha: float = 1.0) -> list:
+    """Colours for the n pie slices. "Auto" uses the theme palette first, then extends with
+    matplotlib palettes instead of repeating immediately."""
     if n <= 0:
         return []
     if colormap == "Auto" or colormap not in PIE_COLORMAPS:
-        palette = Colors()
-        return [rgba_tuple_from_rgb_and_a(palette.get_color_list(), 255) for _ in range(n)]
+        rgb_colors = list(THEME.current.palette)
+        extra = max(0, n - len(rgb_colors))
+        # Continue the theme colors with a golden-angle hue sequence. This avoids the
+        # adjacent near-duplicates that qualitative colormaps can produce after the theme's
+        # first seven colours.
+        for i in range(extra):
+            hue = (0.08 + i * 0.61803398875) % 1.0
+            sat = 0.62 + 0.18 * (i % 3 == 1)
+            val = 0.82 - 0.08 * (i % 3 == 2)
+            rgb_colors.append(tuple(int(round(c * 255)) for c in colorsys.hsv_to_rgb(hue, sat, val)))
+        return [rgba_tuple_from_rgb_and_a(rgb, int(round(alpha * 255))) for rgb in rgb_colors[:n]]
     cmap = plt.get_cmap(colormap)
     positions = [0.5] if n == 1 else np.linspace(0.0, 1.0, n)
-    return [cmap(float(pos)) for pos in positions]
+    return [(*cmap(float(pos))[:3], alpha) for pos in positions]
 
 
 class PiePlotConfig(BasePlotConfig):
@@ -374,47 +389,52 @@ class PiePlotConfig(BasePlotConfig):
         show_percent: bool = True,
         show_counts: bool = False,
         label_font_size: int = 11,
-        donut_hole: float = 0.0,
-        label_color: Tuple[int, int, int] = (0, 0, 0),
-        numbered_labels: bool = False,
-        pct_distance: float = 0.6,
-        label_distance: float = 1.1,
-        radial_labels: bool = False,
+        donut_hole: float = 0.42,
         colormap: str = PIE_COLORMAPS[0],
+        gap: float = 0.08,
+        outline_width: float = 1.5,
+        shadow: bool = True,
+        shadow_size: float = 0.01,
+        hatch: bool = True,
+        legend_spacing: float = 0.75,
     ):
         super().__init__()
         self.colormap = DropdownResultItemSetting(label="Colors", current_value=colormap, items=PIE_COLORMAPS)
-        self.show_percent = PlainCheckboxResultItemSetting(label="Show %", current_value=show_percent)
-        self.show_counts = PlainCheckboxResultItemSetting(label="Show counts", current_value=show_counts)
-        self.numbered_labels = PlainCheckboxResultItemSetting(label="Numbered labels", current_value=numbered_labels)
-        self.radial_labels = PlainCheckboxResultItemSetting(label="Radial labels", current_value=radial_labels)
+        self.show_percent = PlainCheckboxResultItemSetting(label="Legend %", current_value=show_percent)
+        self.show_counts = PlainCheckboxResultItemSetting(label="Legend counts", current_value=show_counts)
+        self.shadow = PlainCheckboxResultItemSetting(label="Shadow", current_value=shadow)
+        self.hatch = PlainCheckboxResultItemSetting(label="Hatch", current_value=hatch)
         self.label_font_size = SliderResultItemSetting(
-            label="Label Size", current_value=label_font_size, min_value=6, max_value=60, step=1
+            label="Legend size", current_value=label_font_size, min_value=6, max_value=60, step=1
         )
         self.donut_hole = SliderResultItemSetting(
-            label="Donut Hole", current_value=donut_hole, min_value=0, max_value=0.8, step=0.1
+            label="Donut hole", current_value=donut_hole, min_value=0, max_value=0.8, step=0.1
         )
-        # Radial position of the two label kinds (fraction of the radius). >1 places a label
-        # outside the pie; the % and the group name are controlled independently.
-        self.pct_distance = SliderResultItemSetting(
-            label="% Position", current_value=pct_distance, min_value=0.0, max_value=1.5, step=0.1
+        self.gap = SliderResultItemSetting(
+            label="Slice gap", current_value=gap, min_value=0.0, max_value=0.16, step=0.01
         )
-        self.label_distance = SliderResultItemSetting(
-            label="Name Position", current_value=label_distance, min_value=0.0, max_value=1.6, step=0.1
+        self.outline_width = SliderResultItemSetting(
+            label="Outline width", current_value=outline_width, min_value=0.0, max_value=5.0, step=0.5
         )
-        self.label_color = ColorGridItemSetting(current_color=label_color, label="Label Color")
+        self.shadow_size = SliderResultItemSetting(
+            label="Shadow size", current_value=shadow_size, min_value=0.005, max_value=0.08, step=0.005
+        )
+        self.legend_spacing = SliderResultItemSetting(
+            label="Legend spacing", current_value=legend_spacing, min_value=0.1, max_value=2.0, step=0.1
+        )
         self.display_settings = ContainerResultItemSetting(
             items=[
                 self.colormap,
                 self.show_percent,
                 self.show_counts,
-                self.numbered_labels,
-                self.radial_labels,
+                self.shadow,
+                self.hatch,
                 self.label_font_size,
                 self.donut_hole,
-                self.pct_distance,
-                self.label_distance,
-                self.label_color,
+                self.gap,
+                self.outline_width,
+                self.shadow_size,
+                self.legend_spacing,
             ],
             add_stretch=True,
         )
@@ -1250,66 +1270,78 @@ class PlotV2(BaseResultElement):
             if isinstance(item, Pie):
                 cfg = item.config
                 bg = self.background_color.get_current_value()
-                slice_colors = _pie_slice_colors(cfg.colormap.get_current_value(), len(item.values))
-                label_color = rgba_tuple_from_rgb_and_a(cfg.label_color.get_current_value(), 255)
+                slice_colors = _pie_slice_colors(cfg.colormap.get_current_value(), len(item.values), 1.0)
                 label_size = cfg.label_font_size.get_current_value()
                 show_percent = cfg.show_percent.get_current_value()
                 show_counts = cfg.show_counts.get_current_value()
-                radial = cfg.radial_labels.get_current_value()
                 hole = cfg.donut_hole.get_current_value()
+                gap = getattr(cfg, "gap", None)
+                gap = gap.get_current_value() if gap is not None else 0.08
+                outline_width = getattr(cfg, "outline_width", None)
+                outline_width = outline_width.get_current_value() if outline_width is not None else 1.5
+                shadow = getattr(cfg, "shadow", None)
+                shadow = shadow.get_current_value() if shadow is not None else True
+                shadow_size = getattr(cfg, "shadow_size", None)
+                shadow_size = shadow_size.get_current_value() if shadow_size is not None else 0.01
+                hatch = getattr(cfg, "hatch", None)
+                hatch = hatch.get_current_value() if hatch is not None else True
+                legend_spacing = getattr(cfg, "legend_spacing", None)
+                legend_spacing = legend_spacing.get_current_value() if legend_spacing is not None else 0.75
                 total = float(sum(item.values))
 
-                def _autopct(pct, _total=total, _p=show_percent, _c=show_counts):
-                    # Percent and count on separate lines. Parenthesise the count only when it sits
-                    # next to a percent; a bare count (no %) is shown as a plain number.
-                    count = int(round(pct * _total / 100.0))
-                    if _p and _c:
-                        return f"{pct:.1f}%\n({count})"
-                    if _p:
-                        return f"{pct:.1f}%"
-                    if _c:
-                        return str(count)
-                    return ""
+                def _legend_label(label, value):
+                    parts = []
+                    if show_percent:
+                        parts.append(f"{value / total * 100:.1f}%" if total > 0 else "0.0%")
+                    if show_counts:
+                        parts.append(f"({int(value)})")
+                    return f"{' '.join(parts)}  {label}" if parts else str(label)
 
-                if cfg.numbered_labels.get_current_value():
-                    pie_labels = [str(i + 1) for i in range(len(item.values))]
-                else:
-                    pie_labels = item.labels
+                pie_labels = item.labels
 
-                wedge_props = {"edgecolor": rgba_tuple_from_rgb_and_a(bg, 255), "linewidth": 1}
+                wedge_props = {
+                    "edgecolor": rgba_tuple_from_rgb_and_a(bg, 255),
+                    "linewidth": outline_width,
+                }
                 if hole > 0:
                     wedge_props["width"] = 1 - hole
-                pie_result = ax.pie(
-                    item.values,
-                    labels=pie_labels,
-                    colors=slice_colors,
-                    autopct=_autopct if (show_percent or show_counts) else None,
-                    pctdistance=cfg.pct_distance.get_current_value(),
-                    labeldistance=cfg.label_distance.get_current_value(),
-                    startangle=90,
-                    counterclock=False,
-                    wedgeprops=wedge_props,
+                pie_kwargs = {
+                    "labels": None,
+                    "colors": slice_colors,
+                    "autopct": None,
+                    "startangle": 90,
+                    "counterclock": False,
+                    "explode": [gap] * len(item.values) if gap > 0 else None,
+                    "wedgeprops": wedge_props,
+                    "shadow": {"ox": -shadow_size, "oy": -shadow_size} if shadow else False,
+                }
+                hatches = ["/", "\\", ".", "x", "-", "+", "o", "O", "*"]
+                if hatch:
+                    pie_kwargs["hatch"] = [hatches[i % len(hatches)] for i in range(len(item.values))]
+                pie_result = ax.pie(item.values, **pie_kwargs)
+                if hatch:
+                    for idx, wedge in enumerate(pie_result[0]):
+                        wedge.set_hatch(hatches[idx % len(hatches)])
+                handles = []
+                for idx, color in enumerate(slice_colors):
+                    patch = Patch(
+                        facecolor=color,
+                        edgecolor=rgba_tuple_from_rgb_and_a(bg, 255),
+                        linewidth=max(outline_width, 1.5),
+                        hatch=hatches[idx % len(hatches)] if hatch else None,
+                    )
+                    handles.append(patch)
+                ax.legend(
+                    handles,
+                    [_legend_label(label, value) for label, value in zip(pie_labels, item.values)],
+                    loc="center left",
+                    bbox_to_anchor=(1.0, 0.5),
+                    frameon=False,
+                    prop={"family": "Segoe UI", "size": label_size},
+                    handlelength=1.8,
+                    handleheight=1.8,
+                    labelspacing=legend_spacing,
                 )
-                # ax.pie returns (wedges, texts) or (wedges, texts, autotexts).
-                text_artists = list(pie_result[1]) + (list(pie_result[2]) if len(pie_result) > 2 else [])
-                for text_artist in text_artists:
-                    text_artist.set_color(label_color)
-                    text_artist.set_fontsize(label_size)
-                    if radial:
-                        # Rotate each label to point along its slice's radius (angle from the
-                        # center to the label), flipping the left half so text stays upright. Anchor
-                        # by the label's INNER end (nearest the center) so labels line up along the
-                        # radius rather than by their center: not flipped -> the text reads outward,
-                        # so its left end is the inner one (ha="left"); flipped -> ha="right".
-                        x, y = text_artist.get_position()
-                        angle = np.degrees(np.arctan2(y, x))
-                        flipped = angle > 90 or angle < -90
-                        if flipped:
-                            angle += -180 if angle > 0 else 180
-                        text_artist.set_rotation(angle)
-                        text_artist.set_rotation_mode("anchor")
-                        text_artist.set_ha("right" if flipped else "left")
-                        text_artist.set_va("center")
                 ax.set_aspect("equal")
                 ax.axis("off")  # a pie needs no axes/frame
 
@@ -1540,7 +1572,8 @@ class PlotV2(BaseResultElement):
 
     def _draw_mediation_diagram(self, ax, item):
         edge, text, face = self._diagram_colors()
-        fs = item.config.node_font_size.get_current_value()  # factor / indicator (name) labels
+        node_font_size = getattr(item.config, "node_font_size", item.config.label_font_size)
+        fs = node_font_size.get_current_value()  # node (name) labels
         label_fs = item.config.label_font_size.get_current_value()  # edge (coefficient) labels
         arrow_color = rgba_tuple_from_rgb_and_a(item.config.arrow_color.get_current_value(), 255)
         s = item.config.spread.get_current_value()  # widens the triangle horizontally

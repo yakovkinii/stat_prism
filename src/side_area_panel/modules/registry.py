@@ -234,6 +234,12 @@ class ModuleRegistry(Enum):
         icon_path="mdi6.calculator-variant-outline",
     )
 
+    RANDOM_SUBSAMPLES = ModuleRegistryItem(
+        display_name="Random Sub-samples",
+        icon_path="mdi6.dice-multiple-outline",
+        module_type=ModuleType.DATA_PROCESSING,
+    )
+
     @property
     def display_name(self):
         return self.value.display_name

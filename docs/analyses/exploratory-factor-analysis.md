@@ -31,6 +31,8 @@ which factor.
   sampling-adequacy table — a KMO/MSA adequacy word per row and a significance verdict for
   Bartlett), **Number columns**, **Verbal report** (dropdown for how much written interpretation),
   and **Plots**.
+- **Sort by factor loadings** sorts the loading table and loading heatmap by each item's strongest
+  loading. It is off by default.
 - **Show per-item MSA** and **Show eigenvalues table** — both off by default, since these tables
   get long with many items. The overall KMO/Bartlett row and the scree plot are always shown.
 

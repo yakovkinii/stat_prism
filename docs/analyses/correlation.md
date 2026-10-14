@@ -23,8 +23,8 @@ Coefficient
   **Phi** / **Tetrachoric** (binary), **Polychoric** (ordinal).
 
 Table
-: **Compact** vs full layout; **Confidence intervals** (95%, via the Fisher-z transform for
-  Pearson and Spearman); **Number columns** for wide matrices.
+: **Compact** vs full layout (full layout is the default); **Confidence intervals** (95%, via
+  the Fisher-z transform for Pearson and Spearman); **Number columns** for wide matrices.
 
 Verbal report
 : How much plain-language interpretation to write, as a single dropdown — **None**,

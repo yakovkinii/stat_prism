@@ -29,6 +29,7 @@ from src.side_area_panel.iispwac.iispwac_float_spin import IISPWACFloatSpin
 from src.side_area_panel.iispwac.iispwac_spacer import IISPWACSpacer
 from src.side_area_panel.modules.base.base import BaseModulePanel
 from src.side_area_panel.modules.common.prose import PROSE_LABEL, PROSE_LEVELS
+from src.side_area_panel.modules.common.result.plot_result import PIE_COLORMAPS
 
 NORMALITY_TESTS = ["Shapiro-Wilk", "Kolmogorov-Smirnov", "Anderson-Darling"]
 
@@ -56,6 +57,11 @@ def _has_quantitative(kwargs):
     return not types or bool(types & {ColumnType.NUMERIC, ColumnType.ORDINAL})
 
 
+def _has_numeric(kwargs):
+    types = _selected_variable_types(kwargs)
+    return not types or ColumnType.NUMERIC in types
+
+
 def _has_categorical(kwargs):
     types = _selected_variable_types(kwargs)
     return not types or ColumnType.NOMINAL in types
@@ -64,6 +70,10 @@ def _has_categorical(kwargs):
 def _has_categories(kwargs):
     types = _selected_variable_types(kwargs)
     return not types or bool(types & {ColumnType.ORDINAL, ColumnType.NOMINAL})
+
+
+def _has_plottable_categories(kwargs):
+    return _has_categories(kwargs) or (bool(kwargs.get("frequency_table_numeric")) and _has_numeric(kwargs))
 
 
 def _has_ordinal(kwargs):
@@ -103,6 +113,9 @@ class Elements(ItemInSidePanelWithAutoConfigHolder):
     frequency_table_ordinal = IISPWACCheckBox(
         label_text="Ordinal frequency table", default_state=False, visible_when=_has_ordinal
     )
+    frequency_table_numeric = IISPWACCheckBox(
+        label_text="Numeric frequency table", default_state=False, visible_when=_has_numeric
+    )
     show_normality = IISPWACCheckBox(label_text="Normality test", default_state=True, visible_when=_has_quantitative)
     normality_test = IISPWACComboBox(
         label_text="Normality test:", items=NORMALITY_TESTS, visible_when=_has_quantitative
@@ -119,9 +132,81 @@ class Elements(ItemInSidePanelWithAutoConfigHolder):
         label_text="Label outliers on box plots", default_state=False, visible_when=_has_quantitative
     )
     show_frequency_bars = IISPWACCheckBox(
-        label_text="Frequency bar charts", default_state=False, visible_when=_has_categorical
+        label_text="Frequency bar charts", default_state=False, visible_when=_has_plottable_categories
     )
-    show_pie = IISPWACCheckBox(label_text="Pie charts", default_state=False, visible_when=_has_categories)
+    show_pie = IISPWACCheckBox(label_text="Pie charts", default_state=False, visible_when=_has_plottable_categories)
+    pie_colormap = IISPWACComboBox(
+        label_text="Pie colors:",
+        items=PIE_COLORMAPS,
+        visible_when=lambda kwargs: bool(kwargs.get("show_pie")) and _has_plottable_categories(kwargs),
+    )
+    pie_show_percent = IISPWACCheckBox(
+        label_text="Pie legend: %",
+        default_state=True,
+        visible_when=lambda kwargs: bool(kwargs.get("show_pie")) and _has_plottable_categories(kwargs),
+    )
+    pie_show_counts = IISPWACCheckBox(
+        label_text="Pie legend: counts",
+        default_state=False,
+        visible_when=lambda kwargs: bool(kwargs.get("show_pie")) and _has_plottable_categories(kwargs),
+    )
+    pie_donut_hole = IISPWACFloatSpin(
+        label_text="Pie donut hole:",
+        min_value=0.0,
+        max_value=0.8,
+        default_value=0.42,
+        decimals=1,
+        step=0.1,
+        visible_when=lambda kwargs: bool(kwargs.get("show_pie")) and _has_plottable_categories(kwargs),
+    )
+    pie_gap = IISPWACFloatSpin(
+        label_text="Pie slice gap:",
+        min_value=0.0,
+        max_value=0.16,
+        default_value=0.08,
+        decimals=2,
+        step=0.01,
+        visible_when=lambda kwargs: bool(kwargs.get("show_pie")) and _has_plottable_categories(kwargs),
+    )
+    pie_outline_width = IISPWACFloatSpin(
+        label_text="Pie outline width:",
+        min_value=0.0,
+        max_value=5.0,
+        default_value=1.5,
+        decimals=1,
+        step=0.5,
+        visible_when=lambda kwargs: bool(kwargs.get("show_pie")) and _has_plottable_categories(kwargs),
+    )
+    pie_shadow = IISPWACCheckBox(
+        label_text="Pie shadow",
+        default_state=True,
+        visible_when=lambda kwargs: bool(kwargs.get("show_pie")) and _has_plottable_categories(kwargs),
+    )
+    pie_shadow_size = IISPWACFloatSpin(
+        label_text="Pie shadow size:",
+        min_value=0.005,
+        max_value=0.08,
+        default_value=0.01,
+        decimals=3,
+        step=0.005,
+        visible_when=lambda kwargs: bool(kwargs.get("show_pie"))
+        and bool(kwargs.get("pie_shadow"))
+        and _has_plottable_categories(kwargs),
+    )
+    pie_hatch = IISPWACCheckBox(
+        label_text="Pie hatch",
+        default_state=True,
+        visible_when=lambda kwargs: bool(kwargs.get("show_pie")) and _has_plottable_categories(kwargs),
+    )
+    pie_legend_spacing = IISPWACFloatSpin(
+        label_text="Pie legend spacing:",
+        min_value=0.1,
+        max_value=2.0,
+        default_value=0.75,
+        decimals=1,
+        step=0.1,
+        visible_when=lambda kwargs: bool(kwargs.get("show_pie")) and _has_plottable_categories(kwargs),
+    )
     show_qq = IISPWACCheckBox(label_text="Q-Q plots", default_state=False, visible_when=_has_quantitative)
     # --- Distribution-plot controls ---
     show_kde = IISPWACCheckBox(label_text="Show KDE curve", default_state=True, visible_when=_has_quantitative)
