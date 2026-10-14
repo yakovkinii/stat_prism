@@ -1331,7 +1331,7 @@ class PlotV2(BaseResultElement):
                         hatch=hatches[idx % len(hatches)] if hatch else None,
                     )
                     handles.append(patch)
-                ax.legend(
+                pie_legend = ax.legend(
                     handles,
                     [_legend_label(label, value) for label, value in zip(pie_labels, item.values)],
                     loc="center left",
@@ -1342,6 +1342,11 @@ class PlotV2(BaseResultElement):
                     handleheight=1.8,
                     labelspacing=legend_spacing,
                 )
+                # Draw the legend text in the configured font color (the same text-color setting
+                # used for the rest of the plot; defaults to white on the Dark theme).
+                pie_legend_color = rgba_tuple_from_rgb_and_a(self.text_color.get_current_value(), 255)
+                for text in pie_legend.get_texts():
+                    text.set_color(pie_legend_color)
                 ax.set_aspect("equal")
                 ax.axis("off")  # a pie needs no axes/frame
 
