@@ -34,6 +34,7 @@ from src.side_area_panel.modules.common.result.plot_result import (
     Line,
     LinePlotConfig,
     Pie,
+    PiePlotConfig,
     PlotV2,
     Scatter,
     ScatterPlotConfig,
@@ -355,7 +356,7 @@ def make_frequency_bar_plot(df, col: str, groupby_column=None, groupby_values=No
     )
 
 
-def make_pie_plot(series: pd.Series, col: str, category_order=None):
+def make_pie_plot(series: pd.Series, col: str, category_order=None, pie_config=None):
     """Category-share pie for a categorical variable (whole variable). `category_order`
     (if given) sets the slice display order, e.g. ordinality."""
     value_counts = series.value_counts()
@@ -370,6 +371,7 @@ def make_pie_plot(series: pd.Series, col: str, category_order=None):
                 labels=[str(c) for c in value_counts.index],
                 values=list(value_counts.values),
                 label="Pie",
+                config=pie_config if pie_config is not None else PiePlotConfig(),
             )
         ],
         title=title,

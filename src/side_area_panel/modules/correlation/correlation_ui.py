@@ -56,7 +56,7 @@ class Elements(ItemInSidePanelWithAutoConfigHolder):
         label_text="Correlation type: ",
         items=list(CORRELATION_TYPE_MAP.keys()),
     )
-    compact = IISPWACCheckBox(label_text="Compact table", default_state=True)
+    compact = IISPWACCheckBox(label_text="Compact table", default_state=False)
     interpretation = IISPWACComboBox(label_text=PROSE_LABEL, items=PROSE_LEVELS)
     number_columns = IISPWACCheckBox(label_text="Number columns in tables", default_state=False)
     confidence_intervals = IISPWACCheckBox(label_text="95% confidence intervals", default_state=False)

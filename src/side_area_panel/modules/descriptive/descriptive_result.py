@@ -45,6 +45,16 @@ class DescriptiveStudyConfig:
     show_frequency_bars = attrs.field(default=None)
     show_pie = attrs.field(default=None)
     show_qq = attrs.field(default=None)
+    pie_colormap = attrs.field(default="Auto")
+    pie_show_percent = attrs.field(default=True)
+    pie_show_counts = attrs.field(default=False)
+    pie_donut_hole = attrs.field(default=0.42)
+    pie_gap = attrs.field(default=0.08)
+    pie_outline_width = attrs.field(default=1.5)
+    pie_shadow = attrs.field(default=True)
+    pie_shadow_size = attrs.field(default=0.01)
+    pie_hatch = attrs.field(default=True)
+    pie_legend_spacing = attrs.field(default=0.75)
     # Distribution-plot controls
     show_kde = attrs.field(default=None)
     bin_width = attrs.field(default=None)
@@ -62,6 +72,17 @@ class DescriptiveStudyConfig:
             value = state.get(field.name, field.default)
             if field.name == "frequency_table_numeric" and value is attrs.NOTHING:
                 value = False
+            if field.name == "pie_colormap" and value not in (
+                "Auto",
+                "tab10",
+                "Set2",
+                "Set3",
+                "Pastel1",
+                "Dark2",
+                "viridis",
+                "plasma",
+            ):
+                value = "Auto"
             object.__setattr__(self, field.name, value)
 
 

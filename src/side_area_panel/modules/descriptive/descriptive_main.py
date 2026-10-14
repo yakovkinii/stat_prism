@@ -29,6 +29,7 @@ from src.data.data import category_display_series
 from src.data.data_manager import DATA_MANAGER
 from src.side_area_panel.modules.common.column_numbering import ColumnNumbering
 from src.side_area_panel.modules.common.prose import prose_enabled
+from src.side_area_panel.modules.common.result.plot_result import PIE_COLORMAPS, PiePlotConfig
 from src.side_area_panel.modules.common.utility import format_value_apa, smart_comma_join
 from src.side_area_panel.modules.descriptive.descriptive_result import DescriptiveResult
 from src.side_area_panel.modules.descriptive.plot import (
@@ -52,6 +53,42 @@ _AD = "Anderson-Darling"
 
 # Statistic symbol shown in the normality table per test.
 _NORMALITY_LETTER = {_KS: "D", _AD: "A<sup>2</sup>", "Shapiro-Wilk": "W"}
+
+
+def _pie_config_from_cfg(cfg):
+    colormap = cfg.pie_colormap if isinstance(cfg.pie_colormap, str) and cfg.pie_colormap in PIE_COLORMAPS else "Auto"
+    try:
+        hole = float(cfg.pie_donut_hole)
+    except (TypeError, ValueError):
+        hole = 0.42
+    try:
+        gap = float(cfg.pie_gap)
+    except (TypeError, ValueError):
+        gap = 0.08
+    try:
+        outline_width = float(cfg.pie_outline_width)
+    except (TypeError, ValueError):
+        outline_width = 1.5
+    try:
+        shadow_size = float(cfg.pie_shadow_size)
+    except (TypeError, ValueError):
+        shadow_size = 0.01
+    try:
+        legend_spacing = float(cfg.pie_legend_spacing)
+    except (TypeError, ValueError):
+        legend_spacing = 0.75
+    return PiePlotConfig(
+        show_percent=cfg.pie_show_percent if cfg.pie_show_percent is not None else True,
+        show_counts=cfg.pie_show_counts if cfg.pie_show_counts is not None else False,
+        donut_hole=max(0.0, min(0.8, hole)),
+        gap=max(0.0, min(0.16, gap)),
+        outline_width=max(0.0, min(5.0, outline_width)),
+        shadow=cfg.pie_shadow if cfg.pie_shadow is not None else True,
+        shadow_size=max(0.005, min(0.08, shadow_size)),
+        hatch=cfg.pie_hatch if cfg.pie_hatch is not None else True,
+        legend_spacing=max(0.1, min(2.0, legend_spacing)),
+        colormap=colormap,
+    )
 
 
 def _anderson_darling_normal_p(data):
@@ -427,7 +464,7 @@ def recalculate_descriptive_study(elements, result: DescriptiveResult, update) -
                     if plot is not None:
                         result.update_and_add_element(plot, f"descriptive frequency {col}")
                 if cfg.show_pie:
-                    plot = make_pie_plot(df[col].dropna(), col, category_order)
+                    plot = make_pie_plot(df[col].dropna(), col, category_order, pie_config=_pie_config_from_cfg(cfg))
                     if plot is not None:
                         result.update_and_add_element(plot, f"descriptive pie {col}")
             # Ordinal variables also get frequency bars and a pie -- both built from the original
@@ -445,7 +482,7 @@ def recalculate_descriptive_study(elements, result: DescriptiveResult, update) -
                     if plot is not None:
                         result.update_and_add_element(plot, f"descriptive frequency {col}")
                 if cfg.show_pie:
-                    plot = make_pie_plot(label_series, col, category_order)
+                    plot = make_pie_plot(label_series, col, category_order, pie_config=_pie_config_from_cfg(cfg))
                     if plot is not None:
                         result.update_and_add_element(plot, f"descriptive pie {col}")
         else:
@@ -455,7 +492,7 @@ def recalculate_descriptive_study(elements, result: DescriptiveResult, update) -
                 if plot is not None:
                     result.update_and_add_element(plot, f"descriptive frequency {col}")
             if cfg.show_pie:
-                plot = make_pie_plot(df[col], col, category_order)
+                plot = make_pie_plot(df[col], col, category_order, pie_config=_pie_config_from_cfg(cfg))
                 if plot is not None:
                     result.update_and_add_element(plot, f"descriptive pie {col}")
         update(30 + 65 * (idx + 1) / len(selected_columns))

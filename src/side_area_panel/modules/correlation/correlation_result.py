@@ -52,7 +52,7 @@ class CorrelationStudyConfig:
     data_source = attrs.field(default=None)
     column_selector = attrs.field(default=None)
     correlation_type = attrs.field(default=None)
-    compact = attrs.field(default=None)
+    compact = attrs.field(default=False)
     generate_heatmap = attrs.field(default=None)
     generate_plots = attrs.field(default=None)
     report_only_significant = attrs.field(default=True)

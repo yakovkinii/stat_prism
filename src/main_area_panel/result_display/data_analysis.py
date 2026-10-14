@@ -162,7 +162,7 @@ class DataAnalysisResultDisplay(BaseResultDisplay):
         self.duplicate_button = widget_in_layout(
             widget=create_simple_tool_button_qta(
                 parent=self.header_widget,
-                icon_path="mdi6.content-duplicate",
+                icon_path="mdi6.plus-box-multiple-outline",
                 icon_size=QSize(20, 20),
             ),
             layout=self.header_layout,
