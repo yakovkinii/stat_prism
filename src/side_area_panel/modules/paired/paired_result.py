@@ -45,10 +45,7 @@ class PairedStudyConfig:
         if isinstance(state, tuple):
             state = dict(zip([field.name for field in fields], state))
         for field in fields:
-            value = state.get(field.name, field.default)
-            if field.name == "plot_significant_only" and value is attrs.NOTHING:
-                value = True
-            object.__setattr__(self, field.name, value)
+            object.__setattr__(self, field.name, state.get(field.name, field.default))
 
 
 class PairedResult(BaseResult):

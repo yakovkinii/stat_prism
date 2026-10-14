@@ -26,7 +26,8 @@ _METHODOLOGY = (
     "Adds a nominal column with randomly assigned sub-sample labels. Assignments can be "
     "specified as exact counts or as percentages. Percentages are converted to integer row "
     "counts by largest-remainder rounding so the generated column always contains exactly "
-    "one label per row. A fixed random seed makes the assignment reproducible."
+    "one label per row. The default seed is 0 for reproducible assignments; enable the seed "
+    "setting to enter a custom seed."
 )
 
 

@@ -69,21 +69,7 @@ class DescriptiveStudyConfig:
         if isinstance(state, tuple):
             state = dict(zip([field.name for field in fields], state))
         for field in fields:
-            value = state.get(field.name, field.default)
-            if field.name == "frequency_table_numeric" and value is attrs.NOTHING:
-                value = False
-            if field.name == "pie_colormap" and value not in (
-                "Auto",
-                "tab10",
-                "Set2",
-                "Set3",
-                "Pastel1",
-                "Dark2",
-                "viridis",
-                "plasma",
-            ):
-                value = "Auto"
-            object.__setattr__(self, field.name, value)
+            object.__setattr__(self, field.name, state.get(field.name, field.default))
 
 
 class DescriptiveResult(BaseResult):

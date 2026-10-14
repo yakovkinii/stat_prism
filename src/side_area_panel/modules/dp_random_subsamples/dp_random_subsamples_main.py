@@ -101,8 +101,7 @@ def _expanded_labels(counts):
 
 def _format_counts(counts, n, seed):
     parts = [f"{html.escape(str(label))}={count}" for label, count in counts.items() if count > 0]
-    seed_text = "random" if seed is None else str(seed)
-    return f"Created assignment: {', '.join(parts)} (N={n}). Seed: {seed_text}."
+    return f"Created assignment: {', '.join(parts)} (N={n}). Seed: {seed}."
 
 
 @log_function
@@ -154,7 +153,8 @@ def dp_random_subsamples_main(elements: Elements, result: RandomSubsamplesResult
         return result
 
     seed_cfg = cfg.seed if isinstance(cfg.seed, dict) else {}
-    seed = None
+    # Default to a fixed seed (0) so the assignment is reproducible unless the user sets their own.
+    seed = 0
     if seed_cfg.get("use"):
         try:
             seed = int(str(seed_cfg.get("value", "")).strip())

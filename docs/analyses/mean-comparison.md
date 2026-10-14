@@ -29,7 +29,9 @@ Other
 : **Effect size** (Cohen's *d* for two groups; η² / partial η² for ANOVA), **Confidence
   intervals**, handling of **missing grouping values**, **Verbal indicators** (in-table
   columns), **Verbal report** (dropdown for how much written interpretation: None / Key
-  findings / Significant only / Full), **Number columns**, and **Plots**.
+  findings / Significant only / Full), **Number columns**, and **Plots**. When plots are on,
+  **Plot significant only** is on by default and limits distribution/box plots to variables
+  whose selected test is significant.
 
 ## Output
 
@@ -37,6 +39,8 @@ Other
 - The **test** result with statistic, df, *p*, and (if requested) effect size and CI.
 - **Assumption-check** results when enabled.
 - A post-hoc comparison for ANOVA where applicable.
+- Plot outputs, when requested, for all tested variables or only significant variables depending
+  on the plot filter.
 
 ## Notes
 

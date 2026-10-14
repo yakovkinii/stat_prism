@@ -22,6 +22,8 @@ Tables
   N / mean / SD / median. **Frequency table** lists category counts (for categorical
   variables, split by group when grouping is set). **Ordinal frequency table** (off by default)
   adds the same count table for ordinal variables, with the rows in their defined order.
+  **Frequency table for numerical columns** (off by default) also treats exact numeric values
+  as categories for frequency tables and category plots.
   **Normality test** runs Shapiro–Wilk,
   Kolmogorov–Smirnov (Lilliefors-corrected), or Anderson–Darling, with optional verbal
   indicators of normality.
@@ -53,7 +55,7 @@ Other
 
 - Ordinal columns are scored numerically for the quantitative summary but keep their labels
   and order in frequency tables and pie charts.
-- Pie-chart settings include a **Colors** palette (Auto plus matplotlib colormaps), **Radial
-  labels** (rotate each label along its slice), and independent **Show %** / **Show counts**
-  toggles — a bare count (no %) is shown as a plain number rather than in parentheses.
+- Pie charts always use a legend. Pie-chart settings include a **Colors** palette (Auto plus
+  matplotlib colormaps), legend **%** and **counts**, donut-hole size, slice gap, outline
+  width, shadow, hatch patterns, and legend spacing.
 - Bin-width and KDE controls only apply when the distribution plot is shown.
