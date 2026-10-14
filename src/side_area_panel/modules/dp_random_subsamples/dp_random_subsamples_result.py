@@ -24,10 +24,10 @@ from src.side_area_panel.modules.common.result.registry import BaseResult
 _METHODOLOGY = (
     "<b>Random sub-samples</b><br>"
     "Adds a nominal column with randomly assigned sub-sample labels. Assignments can be "
-    "specified as exact counts or as percentages. Percentages are converted to integer row "
-    "counts by largest-remainder rounding so the generated column always contains exactly "
-    "one label per row. The default seed is 0 for reproducible assignments; enable the seed "
-    "setting to enter a custom seed."
+    "specified as exact counts or as percentages. The last allocation is always the remaining "
+    "group, so the generated column contains exactly one label per row. Percentages are converted "
+    "to integer row counts by largest-remainder rounding. The fixed seed is 0, so assignments are "
+    "reproducible."
 )
 
 
@@ -37,9 +37,6 @@ class RandomSubsamplesStudyConfig:
     new_name = attrs.field(default=None)
     assignment_mode = attrs.field(default=None)
     allocations = attrs.field(default=None)
-    fill_remaining = attrs.field(default=True)
-    remaining_value = attrs.field(default=None)
-    seed = attrs.field(default=None)
 
 
 class RandomSubsamplesResult(BaseResult):

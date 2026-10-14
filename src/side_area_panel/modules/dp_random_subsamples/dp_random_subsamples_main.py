@@ -64,19 +64,6 @@ def _aggregate_amounts(rows):
     return amounts, order
 
 
-def _default_remaining_value(labels):
-    integers = []
-    for label in labels:
-        try:
-            number = int(str(label).strip())
-        except ValueError:
-            continue
-        integers.append(number)
-    if integers:
-        return str(max(integers) + 1)
-    return str(len(labels) + 1)
-
-
 def _largest_remainder_counts(percentages, n):
     raw = [(label, value * n / 100.0) for label, value in percentages.items()]
     floors = OrderedDict((label, int(math.floor(value))) for label, value in raw)
@@ -118,10 +105,9 @@ def dp_random_subsamples_main(elements: Elements, result: RandomSubsamplesResult
     new_name_raw = (cfg.new_name or "").strip() or "Subsample"
     allocations = cfg.allocations or []
     mode = cfg.assignment_mode or "Counts"
-    fill_remaining = True if cfg.fill_remaining is None else bool(cfg.fill_remaining)
     n = new_data.n_rows()
 
-    parsed_rows = []
+    clean_rows = []
     for row in allocations:
         if not isinstance(row, dict):
             continue
@@ -133,6 +119,16 @@ def dp_random_subsamples_main(elements: Elements, result: RandomSubsamplesResult
             elements.allocations.set_alert()
             result.error_message = "Enter a value for every allocation row."
             return result
+        clean_rows.append((label, amount_text))
+
+    if not clean_rows:
+        elements.allocations.set_alert()
+        result.error_message = "Enter at least one allocation value."
+        return result
+
+    remaining_value = clean_rows[-1][0]
+    parsed_rows = []
+    for label, amount_text in clean_rows[:-1]:
         if mode == "Percentages":
             amount = _parse_percent(amount_text)
             error = "Enter valid non-negative percentages."
@@ -145,28 +141,10 @@ def dp_random_subsamples_main(elements: Elements, result: RandomSubsamplesResult
             return result
         parsed_rows.append((label, amount))
 
-    if not parsed_rows:
-        elements.allocations.set_alert()
-        result.error_message = "Enter at least one allocation value."
-        return result
-
-    seed_cfg = cfg.seed if isinstance(cfg.seed, dict) else {}
-    # Default to a fixed seed (0) so the assignment is reproducible unless the user sets their own.
     seed = 0
-    if seed_cfg.get("use"):
-        try:
-            seed = int(str(seed_cfg.get("value", "")).strip())
-        except ValueError:
-            elements.seed.set_alert()
-            result.error_message = "Enter a valid integer random seed."
-            return result
-        if seed < 0:
-            elements.seed.set_alert()
-            result.error_message = "Enter a non-negative random seed."
-            return result
-
     amounts, value_order = _aggregate_amounts(parsed_rows)
-    remaining_value = (cfg.remaining_value or "").strip() or _default_remaining_value(value_order)
+    if remaining_value not in value_order:
+        value_order.append(remaining_value)
 
     if mode == "Percentages":
         total = sum(amounts.values())
@@ -174,14 +152,7 @@ def dp_random_subsamples_main(elements: Elements, result: RandomSubsamplesResult
             elements.allocations.set_alert()
             result.error_message = "Percentages cannot exceed 100%."
             return result
-        if total < 100.0 - 1e-9:
-            if not fill_remaining:
-                elements.allocations.set_alert()
-                result.error_message = "Percentages must sum to 100% when remaining rows are not filled."
-                return result
-            amounts[remaining_value] = amounts.get(remaining_value, 0.0) + (100.0 - total)
-            if remaining_value not in value_order:
-                value_order.append(remaining_value)
+        amounts[remaining_value] = amounts.get(remaining_value, 0.0) + max(0.0, 100.0 - total)
         counts = _largest_remainder_counts(amounts, n)
     else:
         total = sum(amounts.values())
@@ -189,14 +160,7 @@ def dp_random_subsamples_main(elements: Elements, result: RandomSubsamplesResult
             elements.allocations.set_alert()
             result.error_message = "Requested counts cannot exceed the number of rows."
             return result
-        if total < n:
-            if not fill_remaining:
-                elements.allocations.set_alert()
-                result.error_message = "Counts must match the number of rows when remaining rows are not filled."
-                return result
-            amounts[remaining_value] = amounts.get(remaining_value, 0) + (n - total)
-            if remaining_value not in value_order:
-                value_order.append(remaining_value)
+        amounts[remaining_value] = amounts.get(remaining_value, 0) + (n - total)
         counts = amounts
 
     labels = _expanded_labels(counts)
@@ -205,6 +169,11 @@ def dp_random_subsamples_main(elements: Elements, result: RandomSubsamplesResult
 
     new_name = unique_name(new_name_raw, set(new_data.column_names()))
     series = pd.Series(labels, name=new_name, dtype="string")
+    # Adopt the existing rows' index: get_dataframe builds its frame by index, so a fresh
+    # RangeIndex would misalign against columns carrying a non-contiguous index (e.g. after an
+    # upstream row filter) and surface as NaNs. labels already has one entry per row.
+    if new_data.columns:
+        series.index = new_data.columns[0].data_series.index
     new_col = DataColumn.initialize_from_series(series)
     new_col.column_type = ColumnType.NOMINAL
     new_col.is_numeric = False

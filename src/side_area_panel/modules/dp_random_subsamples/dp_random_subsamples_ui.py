@@ -17,14 +17,13 @@
 
 
 from PySide6.QtCore import QSize
-from PySide6.QtWidgets import QCheckBox, QFrame, QHBoxLayout, QLabel, QLineEdit, QVBoxLayout, QWidget
+from PySide6.QtWidgets import QFrame, QHBoxLayout, QLabel, QLineEdit, QVBoxLayout, QWidget
 
 from src.common.ui_constructor import create_simple_tool_button_qta
 from src.pyside_ext.markup import css
 from src.pyside_ext.styling import Style
 from src.pyside_ext.unique_qss import set_stylesheet
 from src.side_area_panel.blueprint.element import ItemInSidePanelWithAutoConfig, ItemInSidePanelWithAutoConfigHolder
-from src.side_area_panel.iispwac.iispwac_checkbox import IISPWACCheckBox
 from src.side_area_panel.iispwac.iispwac_combobox import IISPWACComboBox
 from src.side_area_panel.iispwac.iispwac_data_source import IISPWACDataSource
 from src.side_area_panel.iispwac.iispwac_spacer import IISPWACSpacer
@@ -63,14 +62,15 @@ class IISPWACAllocationRows(ItemInSidePanelWithAutoConfig):
         self.clear_alert()
         rows = kwargs.get(self.name)
         if not rows:
-            rows = [{"value": "1", "amount": ""}, {"value": "2", "amount": ""}]
+            rows = [{"value": "1", "amount": "remaining"}]
         self._clear_rows()
         for row in rows:
             if not isinstance(row, dict):
                 continue
-            self._add_row(str(row.get("value", "")), str(row.get("amount", "")))
+            self._add_row(str(row.get("value", "")), str(row.get("amount", "")), update_remaining=False)
         if not self.rows:
-            self._add_row("1", "")
+            self._add_row("1", "remaining", update_remaining=False)
+        self._update_remaining_row()
 
     def get_kwargs(self):
         return {
@@ -88,9 +88,10 @@ class IISPWACAllocationRows(ItemInSidePanelWithAutoConfig):
     def _add_clicked(self):
         next_value = str(len(self.rows) + 1)
         self._add_row(next_value, "")
+        self._update_remaining_row()
         self.on_recalculate()
 
-    def _add_row(self, value, amount):
+    def _add_row(self, value, amount, update_remaining=True):
         row_widget = QWidget(self.rows_widget)
         row_layout = QHBoxLayout(row_widget)
         row_layout.setContentsMargins(0, 0, 0, 0)
@@ -115,13 +116,34 @@ class IISPWACAllocationRows(ItemInSidePanelWithAutoConfig):
 
         self.rows_layout.addWidget(row_widget)
         self.rows.append({"widget": row_widget, "value": value_edit, "amount": amount_edit})
+        if update_remaining:
+            self._update_remaining_row()
 
     def _remove_row(self, row_widget):
         self.rows = [row for row in self.rows if row["widget"] is not row_widget]
         row_widget.deleteLater()
         if not self.rows:
-            self._add_row("1", "")
+            self._add_row("1", "remaining")
+        self._update_remaining_row()
         self.on_recalculate()
+
+    def _update_remaining_row(self):
+        for index, row in enumerate(self.rows):
+            is_last = index == len(self.rows) - 1
+            amount = row["amount"]
+            amount.blockSignals(True)
+            amount.setEnabled(not is_last)
+            amount.setReadOnly(is_last)
+            if is_last:
+                amount.setText("remaining")
+                set_stylesheet(
+                    amount, css(color=Style.Color.SecondaryText, background_color=Style.Color.BackgroundElevated)
+                )
+            else:
+                if amount.text().strip().lower() == "remaining":
+                    amount.setText("")
+                set_stylesheet(amount, css(color=Style.Color.Text, background_color=Style.Color.Background))
+            amount.blockSignals(False)
 
     def _clear_rows(self):
         while self.rows_layout.count():
@@ -132,59 +154,12 @@ class IISPWACAllocationRows(ItemInSidePanelWithAutoConfig):
         self.rows = []
 
 
-class IISPWACOptionalSeed(ItemInSidePanelWithAutoConfig):
-    def post_init(self, name, parent_widget):
-        self.name = name
-        self.widget = QWidget(parent_widget)
-        self.layout = QVBoxLayout(self.widget)
-        self.layout.setContentsMargins(2, 2, 2, 2)
-        self.layout.setSpacing(5)
-
-        self.checkbox = QCheckBox("Use fixed random seed", self.widget)
-        self.checkbox.stateChanged.connect(self._seed_state_changed)
-        self.layout.addWidget(self.checkbox)
-
-        self.edit = QLineEdit(self.widget)
-        self.edit.setPlaceholderText("Seed")
-        self.edit.editingFinished.connect(self.on_recalculate)
-        self.layout.addWidget(self.edit)
-        self.clear_alert()
-
-    def configure(self, **kwargs):
-        self.clear_alert()
-        saved = kwargs.get(self.name)
-        if not isinstance(saved, dict):
-            saved = {"use": False, "value": ""}
-        self.checkbox.setChecked(bool(saved.get("use", False)))
-        self.edit.setText(str(saved.get("value", "")))
-        self.edit.setEnabled(self.checkbox.isChecked())
-
-    def get_kwargs(self):
-        return {self.name: {"use": self.checkbox.isChecked(), "value": self.edit.text().strip()}}
-
-    def set_alert(self):
-        set_stylesheet(self.edit, css(border="1px solid red"))
-
-    def clear_alert(self):
-        set_stylesheet(self.edit, css(border=Style.General.border_elevated))
-
-    def _seed_state_changed(self):
-        self.edit.setEnabled(self.checkbox.isChecked())
-        self.on_recalculate()
-
-
 class Elements(ItemInSidePanelWithAutoConfigHolder):
     data_source = IISPWACDataSource()
     spacer = IISPWACSpacer()
     new_name = IISPWACLongTextEdit(label_text="New column name:")
     assignment_mode = IISPWACComboBox(label_text="Assignment mode:", items=["Counts", "Percentages"])
     allocations = IISPWACAllocationRows()
-    fill_remaining = IISPWACCheckBox(label_text="Fill remaining rows", default_state=True)
-    remaining_value = IISPWACLongTextEdit(
-        label_text="Remaining value:",
-        visible_when=lambda kwargs: kwargs.get("fill_remaining") is not False,
-    )
-    seed = IISPWACOptionalSeed()
 
 
 class RandomSubsamples(BaseModulePanel):

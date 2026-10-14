@@ -11,11 +11,8 @@ experimental arms, or manual sub-samples with fixed sizes.
 
 - **New column name** - the assignment column to create.
 - **Assignment mode** - **Counts** for exact row counts, or **Percentages** for proportions.
-- **Allocation** - one row per output value, with the requested count or percentage.
-- **Fill remaining rows** - assigns any unallocated rows to the remaining value.
-- **Remaining value** - the label used for rows not covered by the allocation.
-- **Use fixed random seed** - when enabled, uses the entered seed. When disabled, the default
-  seed is `0`, so the generated assignment is reproducible.
+- **Allocation** - one row per output value. Enter a count or percentage for every row except
+  the last; the last row is always the remaining group.
 
 ## Output
 
@@ -27,3 +24,4 @@ order shown in the settings.
 - Percentages are converted to integer row counts with largest-remainder rounding, so every
   input row receives exactly one label.
 - Requested counts cannot exceed the number of rows. Percentages cannot exceed 100%.
+- Assignment uses a fixed seed of `0`, so the same setup produces the same generated column.
