@@ -402,10 +402,7 @@ def recalculate_descriptive_study(elements, result: DescriptiveResult, update) -
                 group_counts = []
                 for gv in groupby_values:
                     counts = (
-                        df.loc[df[grouping_column] == gv, col]
-                        .dropna()
-                        .value_counts()
-                        .reindex(categories, fill_value=0)
+                        df.loc[df[grouping_column] == gv, col].dropna().value_counts().reindex(categories, fill_value=0)
                     )
                     group_counts.append((gv, counts))
                 if all(vc.empty for _, vc in group_counts):

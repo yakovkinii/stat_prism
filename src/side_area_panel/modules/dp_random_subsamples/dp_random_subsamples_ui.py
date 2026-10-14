@@ -23,10 +23,7 @@ from src.common.ui_constructor import create_simple_tool_button_qta
 from src.pyside_ext.markup import css
 from src.pyside_ext.styling import Style
 from src.pyside_ext.unique_qss import set_stylesheet
-from src.side_area_panel.blueprint.element import (
-    ItemInSidePanelWithAutoConfig,
-    ItemInSidePanelWithAutoConfigHolder,
-)
+from src.side_area_panel.blueprint.element import ItemInSidePanelWithAutoConfig, ItemInSidePanelWithAutoConfigHolder
 from src.side_area_panel.iispwac.iispwac_checkbox import IISPWACCheckBox
 from src.side_area_panel.iispwac.iispwac_combobox import IISPWACComboBox
 from src.side_area_panel.iispwac.iispwac_data_source import IISPWACDataSource
@@ -78,8 +75,7 @@ class IISPWACAllocationRows(ItemInSidePanelWithAutoConfig):
     def get_kwargs(self):
         return {
             self.name: [
-                {"value": row["value"].text().strip(), "amount": row["amount"].text().strip()}
-                for row in self.rows
+                {"value": row["value"].text().strip(), "amount": row["amount"].text().strip()} for row in self.rows
             ]
         }
 

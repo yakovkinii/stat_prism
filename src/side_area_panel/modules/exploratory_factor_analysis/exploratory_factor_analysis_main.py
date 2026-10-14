@@ -331,9 +331,7 @@ def recalculate_factor_analysis_study(elements, result: FactorAnalysisResult, up
 
     display_order = list(range(len(columns)))
     if getattr(cfg, "sort_by_factor_loadings", False):
-        display_order.sort(
-            key=lambda i: (int(np.argmax(np.abs(loadings[i]))), -float(np.max(np.abs(loadings[i]))), i)
-        )
+        display_order.sort(key=lambda i: (int(np.argmax(np.abs(loadings[i]))), -float(np.max(np.abs(loadings[i]))), i))
 
     # ----- Factor loadings table -----
     # Show the rotation in the caption only when one is applied (no "(none)").

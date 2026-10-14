@@ -29,9 +29,7 @@ from src.common.decorators import log_function
 from src.data.data import DataColumn
 from src.data.data_manager import DATA_MANAGER
 from src.side_area_panel.modules.common.utility import unique_name
-from src.side_area_panel.modules.dp_random_subsamples.dp_random_subsamples_result import (
-    RandomSubsamplesResult,
-)
+from src.side_area_panel.modules.dp_random_subsamples.dp_random_subsamples_result import RandomSubsamplesResult
 from src.side_area_panel.modules.dp_random_subsamples.dp_random_subsamples_ui import Elements
 
 

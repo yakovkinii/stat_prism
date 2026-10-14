@@ -410,7 +410,9 @@ class PiePlotConfig(BasePlotConfig):
         self.donut_hole = SliderResultItemSetting(
             label="Donut hole", current_value=donut_hole, min_value=0, max_value=0.8, step=0.1
         )
-        self.gap = SliderResultItemSetting(label="Slice gap", current_value=gap, min_value=0.0, max_value=0.16, step=0.01)
+        self.gap = SliderResultItemSetting(
+            label="Slice gap", current_value=gap, min_value=0.0, max_value=0.16, step=0.01
+        )
         self.outline_width = SliderResultItemSetting(
             label="Outline width", current_value=outline_width, min_value=0.0, max_value=5.0, step=0.5
         )
