@@ -3,12 +3,14 @@ from __future__ import annotations
 import sys
 
 from tests.benchmarks.common import DEFAULT_REPORT, render_report
+from tests.benchmarks.correlation.run import run_correlation_benchmarks
 from tests.benchmarks.reliability.run import run_reliability_benchmarks
 
 
 def run_all() -> list:
     results = []
     results.extend(run_reliability_benchmarks())
+    results.extend(run_correlation_benchmarks())
     return results
 
 

@@ -107,6 +107,8 @@ class HTMLTableV2(BaseResultElement):
         state.pop("display_settings", None)
         state.pop("class_id", None)
         state.pop("_gc_ignore", None)
+        # Transient test-only raw numbers (see BaseResultElement.add_numeric_supplement); never persist.
+        state.pop("numeric_supplement", None)
 
         # Flatten settings to current values; persist their defaults in parallel.
         setting_defaults = {}

@@ -219,9 +219,29 @@ def recalculate_correlation_study(elements, result: CorrelationResult, update) -
 
     if cfg.compact:
         html_table = get_table_compact(columns, correlation_matrix, p_matrix, kind=kind, numbering=numbering)
+        html_table.add_numeric_supplement(
+            {
+                "columns": columns,
+                "correlation_matrix": correlation_matrix,
+                "p_matrix": p_matrix,
+                "kind": kind,
+                "numbering": numbering,
+            }
+        )
     else:
         html_table = get_table_full(
             columns, correlation_matrix, p_matrix, df_matrix, kind=kind, ci_matrix=ci_matrix, numbering=numbering
+        )
+        html_table.add_numeric_supplement(
+            {
+                "columns": columns,
+                "correlation_matrix": correlation_matrix,
+                "p_matrix": p_matrix,
+                "df_matrix": df_matrix,
+                "kind": kind,
+                "ci_matrix": ci_matrix,
+                "numbering": numbering,
+            }
         )
 
     # Verbal report (optional; prefixed with a note when these are partial correlations)
@@ -313,6 +333,18 @@ def _run_cross(result, cfg, data, rows, cols, control_columns, kind, is_partial,
         compact=cfg.compact,
         ci_matrix=ci_matrix,
         numbering=numbering,
+    )
+    html_table.add_numeric_supplement(
+        {
+            "rows": rows,
+            "cols": cols,
+            "correlation_matrix": correlation_matrix,
+            "p_matrix": p_matrix,
+            "df_matrix": df_matrix,
+            "kind": kind,
+            "ci_matrix": ci_matrix,
+            "numbering": numbering,
+        }
     )
 
     if prose_enabled(cfg.interpretation):

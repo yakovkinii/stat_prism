@@ -2,12 +2,14 @@ from __future__ import annotations
 
 import sys
 
+from tests.benchmarks.correlation.regenerate_benchmarks import regenerate_correlation_benchmarks
 from tests.benchmarks.reliability.regenerate_benchmarks import regenerate_reliability_benchmarks
 
 
 def main() -> int:
     try:
         regenerate_reliability_benchmarks()
+        regenerate_correlation_benchmarks()
     except Exception as exc:
         print(f"ERROR: {exc}", file=sys.stderr)
         return 1

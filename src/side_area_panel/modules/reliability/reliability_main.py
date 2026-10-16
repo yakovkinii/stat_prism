@@ -223,11 +223,51 @@ def compute_reliability(config: ReliabilityStudyConfig, df) -> ReliabilityNumeri
     )
 
 
-def transpile_reliability(result: ReliabilityResult, numeric: ReliabilityNumericResult) -> None:
-    """Render a numeric reliability result into the study's result elements: the coefficients
-    table (alpha, optional omega) and the optional if-item-removed table, following the config's
-    verbal / omega / numbering / interpretation flags."""
+@log_function
+def recalculate_reliability_study(elements, result: ReliabilityResult, update) -> ReliabilityResult:
+    """Validate the inputs, compute the numeric reliability result (Cronbach's alpha, optional
+    omega, per-item stats) via compute_reliability, then build the result tables directly from it.
+    The numeric result is kept on `result.numeric` for headless numeric tests, so the rendered
+    tables and the tested numbers share one source. Unexpected exceptions are handled centrally by
+    the panel's recalculate()."""
     config: ReliabilityStudyConfig = result.config
+    result.result_elements = []
+    result.warnings = []
+
+    items = config.column_selector[0] if config.column_selector else None
+    if not items or len(items) < 2:
+        return _fail(result, t("reliability.error.min_items"))
+
+    data = DATA_MANAGER.get_data_from_data_label(
+        data_label=config.data_source,
+        current_result_id=result.unique_id,
+    )
+    correlation_type = CORRELATION_TYPE_MAP[config.correlation_type]
+    if correlation_type == CorrelationType.PEARSON:
+        # Pearson treats items as an interval scale: use the ordinal FACE values (not order codes),
+        # erroring on non-numeric categories and warning that ordinals were cast.
+        try:
+            df, cast = data.get_numeric_face_dataframe(items)
+        except OrdinalCastError as error:
+            return _fail(result, ordinal_cast_error_message(error.column_name))
+        if cast:
+            result.set_warning(ordinal_numeric_cast_warning(cast))
+    else:
+        # Spearman / Kendall (ranks) and polychoric / phi / tetrachoric (latent / 2x2) are true
+        # ordinal estimators: feed the order codes; only coefficients are shown, never the codes.
+        df = data.get_dataframe(columns=items, map_ordinal=True)
+    update(15)
+
+    numeric = compute_reliability(config, df)
+    result.numeric = numeric
+    if numeric.error:
+        return _fail(result, numeric.error)
+    update(50)
+
+    # Immediate transpiling: build the result tables directly from the numeric result here, rather
+    # than through a separate transpile step. Each table also carries a numeric supplement (the raw
+    # numbers behind it) so headless tests fetch exactly what was rendered; the supplements are
+    # transient (dropped by the GUI recompute wrapper) and share their source with the cells.
     show_verbal = 1 if config.verbal_indicators else 0
     show_omega = bool(config.mcdonald_omega)
     alpha = numeric.alpha
@@ -268,6 +308,14 @@ def transpile_reliability(result: ReliabilityResult, numeric: ReliabilityNumeric
     # "Verbal report" dropdown (any enabled level prints the scale-level summary).
     if prose_enabled(config.interpretation):
         coef_table.add_text(report)
+    coef_table.add_numeric_supplement(
+        {
+            "scale_name": numeric.scale_name,
+            "n_items": numeric.n_items,
+            "alpha": numeric.alpha,
+            "omega": numeric.omega,
+        }
+    )
     result.update_and_add_element(coef_table, "reliability alpha")
 
     # ----- If item removed table -----
@@ -317,52 +365,16 @@ def transpile_reliability(result: ReliabilityResult, numeric: ReliabilityNumeric
         elif item_detail == ProseDetail.FULL:
             item_table.add_text(t("reliability.report.item_none"))
     item_table.table_note = numbering.append_to_note(item_table.table_note or "")
+    item_table.add_numeric_supplement(
+        {
+            "items": numeric.items,
+            "alpha": numeric.alpha,
+            "omega": numeric.omega,
+        }
+    )
     # The "if item removed" table is optional (off by default).
     if config.item_deleted_table:
         result.update_and_add_element(item_table, "reliability item_deleted")
-
-
-@log_function
-def recalculate_reliability_study(elements, result: ReliabilityResult, update) -> ReliabilityResult:
-    """Validate the inputs, compute the numeric reliability result (Cronbach's alpha, optional
-    omega, per-item stats), then transpile it into result elements. The numeric result is kept on
-    `result.numeric` for headless numeric tests. Unexpected exceptions are handled centrally by
-    the panel's recalculate()."""
-    config: ReliabilityStudyConfig = result.config
-    result.result_elements = []
-    result.warnings = []
-
-    items = config.column_selector[0] if config.column_selector else None
-    if not items or len(items) < 2:
-        return _fail(result, t("reliability.error.min_items"))
-
-    data = DATA_MANAGER.get_data_from_data_label(
-        data_label=config.data_source,
-        current_result_id=result.unique_id,
-    )
-    correlation_type = CORRELATION_TYPE_MAP[config.correlation_type]
-    if correlation_type == CorrelationType.PEARSON:
-        # Pearson treats items as an interval scale: use the ordinal FACE values (not order codes),
-        # erroring on non-numeric categories and warning that ordinals were cast.
-        try:
-            df, cast = data.get_numeric_face_dataframe(items)
-        except OrdinalCastError as error:
-            return _fail(result, ordinal_cast_error_message(error.column_name))
-        if cast:
-            result.set_warning(ordinal_numeric_cast_warning(cast))
-    else:
-        # Spearman / Kendall (ranks) and polychoric / phi / tetrachoric (latent / 2x2) are true
-        # ordinal estimators: feed the order codes; only coefficients are shown, never the codes.
-        df = data.get_dataframe(columns=items, map_ordinal=True)
-    update(15)
-
-    numeric = compute_reliability(config, df)
-    result.numeric = numeric
-    if numeric.error:
-        return _fail(result, numeric.error)
-    update(50)
-
-    transpile_reliability(result, numeric)
 
     provided_name = (config.scale_name or "").strip()
     result.title_context = provided_name if provided_name else ", ".join(str(i)[:16] for i in items)

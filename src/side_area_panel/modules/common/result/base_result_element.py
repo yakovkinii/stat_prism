@@ -17,5 +17,19 @@
 
 
 class BaseResultElement:
+    # Raw numeric data behind this element, attached during a fresh recompute so headless tests can
+    # fetch the exact numbers that produced the rendered table (see add_numeric_supplement). It is
+    # transient: the GUI recompute wrapper calls BaseResult.drop_numeric_supplement() once the
+    # result has rendered, and it is never serialized (HTMLTableV2.__getstate__ drops it).
+    numeric_supplement = None
+
     def get_html(self):
         return ...
+
+    def add_numeric_supplement(self, supplement):
+        """Attach a module-specific bundle of the raw numbers behind this element (typically a dict).
+        Its shape is up to the caller -- each test knows what its own module stored."""
+        self.numeric_supplement = supplement
+
+    def drop_numeric_supplement(self):
+        self.numeric_supplement = None

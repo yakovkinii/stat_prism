@@ -1,0 +1,106 @@
+{
+  "tolerance": 1e-06,
+  "generated_by": "tests/benchmarks/correlation/r/generate_correlation_benchmarks.R",
+  "studies": {
+    "pearson_square": {
+      "error": "",
+      "pairs": {
+        "col_b__col_a": 0.935424468636976,
+        "col_c__col_a": 0.924238567316764,
+        "col_c__col_b": 0.908647341897345,
+        "col_d__col_a": 0.93458397427355,
+        "col_d__col_b": 0.92599649685899,
+        "col_d__col_c": 0.934309308686112
+      }
+    },
+    "spearman_square": {
+      "error": "",
+      "pairs": {
+        "col_b__col_a": 0.929955169877116,
+        "col_c__col_a": 0.923365097514235,
+        "col_c__col_b": 0.88103349342837,
+        "col_d__col_a": 0.933139947856147,
+        "col_d__col_b": 0.923076923076923,
+        "col_d__col_c": 0.926049803311571
+      }
+    },
+    "kendall_square": {
+      "error": "",
+      "pairs": {
+        "col_b__col_a": 0.883191366892423,
+        "col_c__col_a": 0.868721908712883,
+        "col_c__col_b": 0.826740157947131,
+        "col_d__col_a": 0.883191366892423,
+        "col_d__col_b": 0.868421052631579,
+        "col_d__col_c": 0.880078232653397
+      }
+    },
+    "kendall_tau_c_square": {
+      "error": "",
+      "pairs": {
+        "col_b__col_a": 0.85,
+        "col_c__col_a": 0.88,
+        "col_c__col_b": 0.826666666666667,
+        "col_d__col_a": 0.85,
+        "col_d__col_b": 0.825,
+        "col_d__col_c": 0.88
+      }
+    },
+    "phi_square": {
+      "error": "",
+      "pairs": {
+        "bin_b__bin_a": 0.583333333333333,
+        "bin_c__bin_a": 0.816496580927726,
+        "bin_c__bin_b": 0.408248290463863
+      }
+    },
+    "tetrachoric_square": {
+      "error": "",
+      "pairs": {
+        "bin_b__bin_a": 0.796339058647507,
+        "bin_c__bin_a": 0.999386831112224,
+        "bin_c__bin_b": 0.607092103631115
+      }
+    },
+    "polychoric_square": {
+      "error": "",
+      "pairs": {
+        "col_b__col_a": 0.999958992306093,
+        "col_c__col_a": 0.999924712663775,
+        "col_c__col_b": 0.973597095912415
+      }
+    },
+    "pearson_partial": {
+      "error": "",
+      "pairs": {
+        "col_b__col_a": 0.521226858866896,
+        "col_c__col_a": 0.402558033360351,
+        "col_c__col_b": 0.323089408357488
+      }
+    },
+    "spearman_partial": {
+      "error": "",
+      "pairs": {
+        "col_b__col_a": 0.496080533568817,
+        "col_c__col_a": 0.436546866946036,
+        "col_c__col_b": 0.180623516796614
+      }
+    },
+    "pearson_cross": {
+      "error": "",
+      "pairs": {
+        "col_a__col_c": 0.924238567316764,
+        "col_a__col_d": 0.93458397427355,
+        "col_b__col_c": 0.908647341897345,
+        "col_b__col_d": 0.92599649685899
+      }
+    },
+    "spearman_partial_cross": {
+      "error": "",
+      "pairs": {
+        "col_a__col_c": 0.436546866946036,
+        "col_b__col_c": 0.180623516796614
+      }
+    }
+  }
+}
