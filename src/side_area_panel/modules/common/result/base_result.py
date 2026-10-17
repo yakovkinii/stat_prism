@@ -75,22 +75,6 @@ class BaseResult:
         self.result_elements.append(element)
         self.old_result_elements[name] = element
 
-    def drop_numeric_supplement(self):
-        """Clear the transient numeric supplements the modules attach to their elements for headless
-        tests. Called by the GUI recompute wrapper once the result has rendered, so the raw numbers
-        (which may be heavy and are never serialized) do not linger on the stored result."""
-        for element in self.result_elements:
-            element.drop_numeric_supplement()
-
-    def numeric_supplements(self) -> List:
-        """Every element's numeric supplement, in element order, skipping those without one. For
-        headless tests that fetch the raw numbers a module attached (see add_numeric_supplement)."""
-        return [
-            element.numeric_supplement
-            for element in self.result_elements
-            if getattr(element, "numeric_supplement", None) is not None
-        ]
-
     @staticmethod
     def format_additional_info_html(text) -> str:
         return HTML.div(HTML.bold(text), font_size=Style.FontSize.smaller) + HTML.hr()

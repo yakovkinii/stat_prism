@@ -5,11 +5,10 @@ output_path <- if (length(args) >= 1) {
   file.path("tests", "benchmarks", "reliability", "benchmarks", "reliability_r_benchmarks.json")
 }
 
-if (!requireNamespace("jsonlite", quietly = TRUE)) {
-  stop("Package 'jsonlite' is required. Install with install.packages('jsonlite').", call. = FALSE)
-}
-if (!requireNamespace("psych", quietly = TRUE)) {
-  stop("Package 'psych' is required. Install with install.packages('psych').", call. = FALSE)
+for (pkg in c("jsonlite", "psych", "DescTools")) {
+  if (!requireNamespace(pkg, quietly = TRUE)) {
+    stop(sprintf("Package '%s' is required. Install with install.packages('%s').", pkg, pkg), call. = FALSE)
+  }
 }
 
 likert_data <- data.frame(
@@ -22,141 +21,98 @@ likert_data <- data.frame(
 binary_data <- data.frame(
   bin_a = c(0, 0, 1, 1, 1, 0, 1, 0, 1, 1),
   bin_b = c(0, 1, 1, 1, 1, 0, 1, 0, 1, 0),
-  bin_c = c(0, 0, 1, 0, 1, 0, 1, 0, 1, 1)
+  bin_c = c(0, 0, 1, 0, 1, 0, 1, 0, 1, 1),
+  bin_d = c(0, 0, 1, 1, 1, 0, 1, 1, 1, 0)
 )
 
 ordinal_string_data <- likert_data
 colnames(ordinal_string_data) <- c("ord_a", "ord_b", "ord_c", "ord_d")
 
 clean_number <- function(value) {
-  if (is.nan(value) || is.na(value)) {
-    return(NA_real_)
-  }
-  as.numeric(value)
+  if (is.null(value) || length(value) == 0 || is.nan(value) || is.na(value)) NA_real_ else as.numeric(value)
 }
 
-cronbach_alpha <- function(corr_matrix) {
-  k <- ncol(corr_matrix)
-  if (k < 2) {
-    return(NaN)
-  }
-  matrix_sum <- sum(corr_matrix)
-  if (matrix_sum == 0) {
-    return(NaN)
-  }
-  (k / (k - 1)) * (1 - (sum(diag(corr_matrix)) / matrix_sum))
-}
-
+# Standardized Cronbach's alpha and McDonald's omega-total come from trusted psych routines, not a
+# local re-implementation: psych::alpha(correlation matrix) gives std.alpha, the item-rest r.drop and
+# the std.alpha-if-dropped; psych::omega(nfactors = 1, fm = "minres") gives the single-common-factor
+# omega-total (matching StatPrism's factor_analyzer fit). Only small pre/post-processing is ours.
 omega_total <- function(corr_matrix) {
-  fit <- psych::fa(r = corr_matrix, nfactors = 1, rotate = "none", fm = "minres")
-  loadings <- as.numeric(fit$loadings[, 1])
-  uniquenesses <- as.numeric(fit$uniquenesses)
-  numerator <- sum(loadings) ^ 2
-  denominator <- numerator + sum(uniquenesses)
-  if (denominator <= 0) {
-    return(NaN)
-  }
-  numerator / denominator
-}
-
-tau_c_pair <- function(x, y) {
-  valid <- data.frame(x = x, y = y)
-  valid <- valid[complete.cases(valid), ]
-  n <- nrow(valid)
-  if (n < 2) {
-    return(NaN)
-  }
-  p <- 0
-  q <- 0
-  for (i in seq_len(n - 1)) {
-    for (j in seq.int(i + 1, n)) {
-      product <- sign(valid$x[[j]] - valid$x[[i]]) * sign(valid$y[[j]] - valid$y[[i]])
-      if (product > 0) {
-        p <- p + 1
-      } else if (product < 0) {
-        q <- q + 1
-      }
-    }
-  }
-  m <- min(length(unique(valid$x)), length(unique(valid$y)))
-  if (m <= 1) {
-    return(NaN)
-  }
-  2 * m * (p - q) / (n ^ 2 * (m - 1))
+  suppressWarnings(psych::omega(corr_matrix, nfactors = 1, fm = "minres", plot = FALSE)$omega.tot)
 }
 
 tau_c_matrix <- function(df) {
-  matrix <- diag(1, ncol(df))
-  colnames(matrix) <- colnames(df)
-  rownames(matrix) <- colnames(df)
-  for (i in seq_len(ncol(df))) {
-    for (j in seq_len(ncol(df))) {
-      if (i <= j) {
-        next
-      }
-      value <- tau_c_pair(df[[i]], df[[j]])
-      matrix[i, j] <- value
-      matrix[j, i] <- value
+  cols <- colnames(df)
+  m <- diag(1, length(cols))
+  dimnames(m) <- list(cols, cols)
+  for (i in seq_along(cols)) {
+    for (j in seq_along(cols)) {
+      if (i <= j) next
+      value <- DescTools::StuartTauC(df[[cols[i]]], df[[cols[j]]])
+      m[i, j] <- value
+      m[j, i] <- value
     }
   }
-  matrix
+  m
 }
 
-payload_from_corr <- function(df, corr_matrix, include_omega) {
-  corr_values <- as.matrix(corr_matrix)
-  full_alpha <- cronbach_alpha(corr_values)
-  full_omega <- if (include_omega) omega_total(corr_values) else NA_real_
-  total_sum <- sum(corr_values)
-  row_sums <- rowSums(corr_values)
+payload_from_corr <- function(cols, corr_matrix, include_omega, n_obs) {
+  a <- suppressWarnings(psych::alpha(corr_matrix, n.obs = n_obs, check.keys = FALSE))
+  r_drop <- a$item.stats$r.drop
+  alpha_drop <- a$alpha.drop$std.alpha
   items <- list()
-  for (i in seq_len(ncol(corr_values))) {
-    off_diagonal <- row_sums[[i]] - corr_values[i, i]
-    rest_variance <- total_sum - 2 * row_sums[[i]] + corr_values[i, i]
-    sub <- corr_values[-i, -i, drop = FALSE]
+  for (i in seq_along(cols)) {
+    omega_deleted <- if (include_omega) omega_total(corr_matrix[-i, -i, drop = FALSE]) else NA_real_
     items[[i]] <- list(
-      name = colnames(df)[[i]],
-      item_rest = clean_number(if (rest_variance > 0) off_diagonal / sqrt(rest_variance) else NaN),
-      alpha_deleted = clean_number(cronbach_alpha(sub)),
-      omega_deleted = clean_number(if (include_omega) omega_total(sub) else NA_real_)
+      name = cols[[i]],
+      item_rest = clean_number(r_drop[[i]]),
+      alpha_deleted = clean_number(alpha_drop[[i]]),
+      omega_deleted = clean_number(omega_deleted)
     )
   }
   list(
     error = "",
     scale = list(
-      n_items = ncol(df),
-      alpha = clean_number(full_alpha),
-      omega = clean_number(full_omega)
+      n_items = ncol(corr_matrix),
+      alpha = clean_number(a$total$std.alpha),
+      omega = clean_number(if (include_omega) omega_total(corr_matrix) else NA_real_)
     ),
     items = items
   )
 }
 
-run_case <- function(df, method, include_omega) {
+corr_for <- function(df, method) {
   if (method == "pearson") {
-    corr_matrix <- cor(df, method = "pearson")
+    cor(df, method = "pearson")
   } else if (method == "spearman") {
-    corr_matrix <- cor(df, method = "spearman")
+    cor(df, method = "spearman")
   } else if (method == "kendall") {
-    corr_matrix <- cor(df, method = "kendall")
+    cor(df, method = "kendall")
   } else if (method == "kendall_c") {
-    corr_matrix <- tau_c_matrix(df)
+    tau_c_matrix(df)
   } else if (method == "phi") {
     if (!all(vapply(df, function(col) length(unique(col)) <= 2, logical(1)))) {
-      return(list(
-        error = "All columns must have at most 2 unique values for the selected correlation type",
-        scale = list(n_items = 0, alpha = NA_real_, omega = NA_real_),
-        items = list()
-      ))
+      return(NULL)
     }
-    corr_matrix <- cor(df, method = "pearson")
+    cor(df, method = "pearson") # phi == Pearson on 0/1 items
   } else if (method == "tetrachoric") {
-    corr_matrix <- suppressWarnings(psych::tetrachoric(df, correct = 0)$rho)
+    suppressWarnings(psych::tetrachoric(df, correct = 0)$rho) # psych default smoothing, matching StatPrism
   } else if (method == "polychoric") {
-    corr_matrix <- suppressWarnings(psych::polychoric(df, correct = 0)$rho)
+    suppressWarnings(psych::polychoric(df, correct = 0)$rho)
   } else {
     stop(paste("Unknown method", method))
   }
-  payload_from_corr(df, corr_matrix, include_omega)
+}
+
+run_case <- function(df, method, include_omega) {
+  corr_matrix <- corr_for(df, method)
+  if (is.null(corr_matrix)) {
+    return(list(
+      error = "All columns must have at most 2 unique values for the selected correlation type",
+      scale = list(n_items = 0, alpha = NA_real_, omega = NA_real_),
+      items = list()
+    ))
+  }
+  payload_from_corr(colnames(df), corr_matrix, include_omega, nrow(df))
 }
 
 benchmarks <- list(
@@ -169,35 +125,27 @@ benchmarks <- list(
       "pearson",
       TRUE
     ),
-    spearman_three_items_no_omega = run_case(likert_data[, c("item_a", "item_b", "item_c")], "spearman", FALSE),
-    kendall_three_items_no_omega = run_case(likert_data[, c("item_a", "item_b", "item_c")], "kendall", FALSE),
-    kendall_tau_c_three_items_no_omega = run_case(
-      likert_data[, c("item_a", "item_b", "item_c")],
+    spearman_four_items_with_omega = run_case(likert_data[, c("item_a", "item_b", "item_c", "item_d")], "spearman", TRUE),
+    kendall_four_items_with_omega = run_case(likert_data[, c("item_a", "item_b", "item_c", "item_d")], "kendall", TRUE),
+    kendall_tau_c_four_items_with_omega = run_case(
+      likert_data[, c("item_a", "item_b", "item_c", "item_d")],
       "kendall_c",
-      FALSE
+      TRUE
     ),
-    phi_binary_items_no_omega = run_case(binary_data[, c("bin_a", "bin_b", "bin_c")], "phi", FALSE),
-    tetrachoric_binary_items_no_omega = run_case(
-      binary_data[, c("bin_a", "bin_b", "bin_c")],
+    phi_binary_items_with_omega = run_case(binary_data[, c("bin_a", "bin_b", "bin_c", "bin_d")], "phi", TRUE),
+    tetrachoric_binary_items_with_omega = run_case(
+      binary_data[, c("bin_a", "bin_b", "bin_c", "bin_d")],
       "tetrachoric",
-      FALSE
+      TRUE
     ),
-    polychoric_likert_items_no_omega = run_case(
-      likert_data[, c("item_a", "item_b", "item_c")],
+    polychoric_likert_items_with_omega = run_case(
+      likert_data[, c("item_a", "item_b", "item_c", "item_d")],
       "polychoric",
-      FALSE
+      TRUE
     )
   )
 )
 
 dir.create(dirname(output_path), recursive = TRUE, showWarnings = FALSE)
-jsonlite::write_json(
-  benchmarks,
-  output_path,
-  auto_unbox = TRUE,
-  pretty = TRUE,
-  null = "null",
-  na = "null",
-  digits = NA
-)
+jsonlite::write_json(benchmarks, output_path, auto_unbox = TRUE, pretty = TRUE, null = "null", na = "null", digits = NA)
 cat("Wrote", output_path, "\n")

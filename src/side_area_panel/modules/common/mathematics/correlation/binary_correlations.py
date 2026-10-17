@@ -19,7 +19,7 @@
 import numpy as np
 import pandas as pd
 from scipy.optimize import minimize_scalar
-from scipy.stats import chi2_contingency, multivariate_normal, norm
+from scipy.stats import chi2, chi2_contingency, multivariate_normal, norm
 
 
 def phi_coefficient(var1, var2):
@@ -123,8 +123,13 @@ def tetrachoric_corr_2x2_table(table):
     information = n * density**2 * float(np.sum(1.0 / cells))
     se = 1.0 / np.sqrt(information) if information > 0 else np.nan
 
-    z = rho_est / se if np.isfinite(se) and se > 0 else np.nan
-    p_value = 2 * (1 - norm.cdf(abs(z))) if np.isfinite(z) else np.nan
+    # Significance by a likelihood-ratio test of H0: rho = 0, not a Wald z = rho/se. With the
+    # thresholds fixed at the marginals, rho carries the table's single remaining degree of freedom,
+    # so this LR equals the G^2 likelihood-ratio test of independence (matching R's DescTools::GTest).
+    # Unlike the Wald test it stays well-defined at the boundary (a zero cell drives rho -> 1, where
+    # the asymptotic SE diverges and a Wald p collapses to ~1 for a near-perfect association).
+    lr_stat = max(2.0 * (neg_log_likelihood(0.0) - neg_log_likelihood(rho_est)), 0.0)
+    p_value = float(chi2.sf(lr_stat, df=1)) if np.isfinite(lr_stat) else np.nan
     df = n - 2
 
     return rho_est, se, p_value, df

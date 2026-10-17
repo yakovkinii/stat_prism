@@ -4,8 +4,11 @@ from types import SimpleNamespace
 
 import pandas as pd
 
+# Four-item scales throughout: with omega on, "omega if item dropped" is computed on the remaining
+# three items, where the single-common-factor model is identified. (A three-item scale would leave a
+# two-item submatrix, where that model is under-identified and StatPrism and psych legitimately differ.)
 LIKERT_ITEMS = ["item_a", "item_b", "item_c", "item_d"]
-BINARY_ITEMS = ["bin_a", "bin_b", "bin_c"]
+BINARY_ITEMS = ["bin_a", "bin_b", "bin_c", "bin_d"]
 ORDINAL_ITEMS = ["ord_a", "ord_b", "ord_c", "ord_d"]
 
 
@@ -26,6 +29,7 @@ def binary_data() -> pd.DataFrame:
             "bin_a": [0, 0, 1, 1, 1, 0, 1, 0, 1, 1],
             "bin_b": [0, 1, 1, 1, 1, 0, 1, 0, 1, 0],
             "bin_c": [0, 0, 1, 0, 1, 0, 1, 0, 1, 1],
+            "bin_d": [0, 0, 1, 1, 1, 0, 1, 1, 1, 0],
         }
     )
 
@@ -63,33 +67,33 @@ CASES = [
         "config": lambda: config(ORDINAL_ITEMS, correlation_type="Pearson", omega=True),
     },
     {
-        "study": "spearman_three_items_no_omega",
+        "study": "spearman_four_items_with_omega",
         "data": likert_data,
-        "config": lambda: config(LIKERT_ITEMS[:3], correlation_type="Spearman", omega=False),
+        "config": lambda: config(LIKERT_ITEMS, correlation_type="Spearman", omega=True),
     },
     {
-        "study": "kendall_three_items_no_omega",
+        "study": "kendall_four_items_with_omega",
         "data": likert_data,
-        "config": lambda: config(LIKERT_ITEMS[:3], correlation_type="Kendall", omega=False),
+        "config": lambda: config(LIKERT_ITEMS, correlation_type="Kendall", omega=True),
     },
     {
-        "study": "kendall_tau_c_three_items_no_omega",
+        "study": "kendall_tau_c_four_items_with_omega",
         "data": likert_data,
-        "config": lambda: config(LIKERT_ITEMS[:3], correlation_type="Kendall tau c", omega=False),
+        "config": lambda: config(LIKERT_ITEMS, correlation_type="Kendall tau c", omega=True),
     },
     {
-        "study": "phi_binary_items_no_omega",
+        "study": "phi_binary_items_with_omega",
         "data": binary_data,
-        "config": lambda: config(BINARY_ITEMS, correlation_type="Phi", omega=False),
+        "config": lambda: config(BINARY_ITEMS, correlation_type="Phi", omega=True),
     },
     {
-        "study": "tetrachoric_binary_items_no_omega",
+        "study": "tetrachoric_binary_items_with_omega",
         "data": binary_data,
-        "config": lambda: config(BINARY_ITEMS, correlation_type="Tetrachoric", omega=False),
+        "config": lambda: config(BINARY_ITEMS, correlation_type="Tetrachoric", omega=True),
     },
     {
-        "study": "polychoric_likert_items_no_omega",
+        "study": "polychoric_likert_items_with_omega",
         "data": likert_data,
-        "config": lambda: config(LIKERT_ITEMS[:3], correlation_type="Polychoric", omega=False),
+        "config": lambda: config(LIKERT_ITEMS, correlation_type="Polychoric", omega=True),
     },
 ]

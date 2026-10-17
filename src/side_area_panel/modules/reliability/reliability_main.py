@@ -265,9 +265,8 @@ def recalculate_reliability_study(elements, result: ReliabilityResult, update) -
     update(50)
 
     # Immediate transpiling: build the result tables directly from the numeric result here, rather
-    # than through a separate transpile step. Each table also carries a numeric supplement (the raw
-    # numbers behind it) so headless tests fetch exactly what was rendered; the supplements are
-    # transient (dropped by the GUI recompute wrapper) and share their source with the cells.
+    # than through a separate transpile step, so the rendered cells and the computed numbers share
+    # one source and cannot drift.
     show_verbal = 1 if config.verbal_indicators else 0
     show_omega = bool(config.mcdonald_omega)
     alpha = numeric.alpha
@@ -308,14 +307,6 @@ def recalculate_reliability_study(elements, result: ReliabilityResult, update) -
     # "Verbal report" dropdown (any enabled level prints the scale-level summary).
     if prose_enabled(config.interpretation):
         coef_table.add_text(report)
-    coef_table.add_numeric_supplement(
-        {
-            "scale_name": numeric.scale_name,
-            "n_items": numeric.n_items,
-            "alpha": numeric.alpha,
-            "omega": numeric.omega,
-        }
-    )
     result.update_and_add_element(coef_table, "reliability alpha")
 
     # ----- If item removed table -----
@@ -365,13 +356,6 @@ def recalculate_reliability_study(elements, result: ReliabilityResult, update) -
         elif item_detail == ProseDetail.FULL:
             item_table.add_text(t("reliability.report.item_none"))
     item_table.table_note = numbering.append_to_note(item_table.table_note or "")
-    item_table.add_numeric_supplement(
-        {
-            "items": numeric.items,
-            "alpha": numeric.alpha,
-            "omega": numeric.omega,
-        }
-    )
     # The "if item removed" table is optional (off by default).
     if config.item_deleted_table:
         result.update_and_add_element(item_table, "reliability item_deleted")
