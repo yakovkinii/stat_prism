@@ -1,0 +1,38 @@
+{
+  "tolerance": 1e-06,
+  "generated_by": "tests/benchmarks/descriptives/r/generate_descriptives_benchmarks.R",
+  "studies": {
+    "numeric_summary": {
+      "error": "",
+      "stats": {
+        "N": 20,
+        "missing": 2,
+        "mean": 15,
+        "std": 3.32454983102184,
+        "se": 0.743391941675028,
+        "median": 15,
+        "q1": 12.75,
+        "q3": 17.25,
+        "skew": 0,
+        "kurtosis": -0.732679738562092,
+        "min": 9,
+        "max": 21
+      }
+    },
+    "normality_shapiro": {
+      "error": "",
+      "statistic": 0.709595274386507,
+      "p": 5.11568524430583e-05
+    },
+    "normality_lilliefors": {
+      "error": "",
+      "statistic": 0.25105069077432,
+      "p": 0.00183856892595414
+    },
+    "normality_anderson_darling": {
+      "error": "",
+      "statistic": 2.17797969439526,
+      "p": 9.34563509735257e-06
+    }
+  }
+}
