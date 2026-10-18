@@ -56,6 +56,7 @@ def process_homogeneity_check(
     non_homogeneous_columns_classes = []
     homogeneous_columns_classes = []
 
+    supplement_rows = []
     for index, col in enumerate(selected_columns):
         levene_result = cast(
             LeveneResult,
@@ -64,6 +65,7 @@ def process_homogeneity_check(
                 center="mean",
             ),
         )
+        supplement_rows.append({"variable": col, "f": levene_result.statistic, "p": levene_result.pvalue})
 
         table.add_single_row_apa(
             Row(
@@ -107,5 +109,6 @@ def process_homogeneity_check(
         )
     )
     table.table_note = numbering.append_to_note(table.table_note or "")
+    table.add_numeric_supplement({"kind": "homogeneity_check", "rows": supplement_rows})
 
     return homogeneous_columns, non_homogeneous_columns, table

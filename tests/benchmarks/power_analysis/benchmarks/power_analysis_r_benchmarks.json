@@ -1,0 +1,67 @@
+{
+  "tolerance": 1e-06,
+  "generated_by": "tests/benchmarks/power_analysis/r/generate_power_analysis_benchmarks.R",
+  "studies": {
+    "two_sample_n": {
+      "error": "",
+      "solved_value": 64,
+      "n_total": 128,
+      "n_per_group": 64
+    },
+    "two_sample_n_one_sided": {
+      "error": "",
+      "solved_value": 51,
+      "n_total": 102,
+      "n_per_group": 51
+    },
+    "two_sample_power": {
+      "error": "",
+      "solved_value": 0.47789652076021
+    },
+    "two_sample_effect": {
+      "error": "",
+      "solved_value": 0.735629236718449
+    },
+    "paired_power": {
+      "error": "",
+      "solved_value": 0.753964715743852
+    },
+    "paired_n": {
+      "error": "",
+      "solved_value": 34,
+      "n_total": 34,
+      "n_per_group": 34
+    },
+    "paired_effect": {
+      "error": "",
+      "solved_value": 0.529234471054348
+    },
+    "anova_n": {
+      "error": "",
+      "solved_value": 179,
+      "n_total": 179,
+      "n_per_group": 45
+    },
+    "anova_power": {
+      "error": "",
+      "solved_value": 0.420390090694636
+    },
+    "anova_effect": {
+      "error": "",
+      "solved_value": 0.378801350724584
+    },
+    "corr_power": {
+      "error": "",
+      "solved_value": 0.571555841860208
+    },
+    "corr_n": {
+      "error": "",
+      "solved_value": 85,
+      "n_per_group": 85
+    },
+    "corr_effect": {
+      "error": "",
+      "solved_value": 0.384318619638178
+    }
+  }
+}

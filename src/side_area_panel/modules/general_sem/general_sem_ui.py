@@ -29,7 +29,7 @@ from src.side_area_panel.iispwac.iispwac_text_edit import IISPWACLongTextEdit
 from src.side_area_panel.modules.base.base import BaseModulePanel
 from src.side_area_panel.modules.common.prose import PROSE_LABEL, PROSE_LEVELS
 from src.side_area_panel.modules.common.result.registry import RESULTS
-from src.side_area_panel.modules.confirmatory_factor_analysis.cfa_semopy import OBJECTIVES
+from src.side_area_panel.modules.confirmatory_factor_analysis.cfa_semopy import SEM_OBJECTIVES
 
 
 def _make_factor_fields(n_factors: int):
@@ -47,7 +47,7 @@ class Elements(ItemInSidePanelWithAutoConfigHolder):
     factor_names = IISPWACLongTextEdit(label_text="Factor names (comma-separated, optional):")
     # Structural model: regressions among the factors / observed variables, built click-only.
     paths = IISPWACPathBuilder()
-    estimator = IISPWACComboBox(label_text="Estimator:", items=OBJECTIVES)
+    estimator = IISPWACComboBox(label_text="Estimator:", items=SEM_OBJECTIVES)
     verbal_indicators = IISPWACCheckBox(label_text="Verbal indicators in tables", default_state=False)
     interpretation = IISPWACComboBox(label_text=PROSE_LABEL, items=PROSE_LEVELS)
     plots = IISPWACCheckBox(label_text="Path diagram", default_state=False)

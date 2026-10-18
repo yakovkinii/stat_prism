@@ -46,8 +46,8 @@ from src.side_area_panel.modules.common.utility import (
     ordinal_numeric_cast_warning,
 )
 from src.side_area_panel.modules.confirmatory_factor_analysis.cfa_semopy import (
-    OBJECTIVE_DWLS,
     OBJECTIVE_ML,
+    OBJECTIVE_ULS,
     CFASemopyEstimator,
 )
 from src.side_area_panel.modules.confirmatory_factor_analysis.confirmatory_factor_analysis_result import (
@@ -82,6 +82,11 @@ def _fit_cfa(cfg, structure, values, columns):
 
 def _is_nan(value) -> bool:
     return value is None or (isinstance(value, float) and np.isnan(value))
+
+
+def _supp_float(value):
+    """Supplement-friendly float: None for a missing/NaN value, else a plain float."""
+    return None if _is_nan(value) else float(value)
 
 
 def _fmt(value, decimals: int = 3) -> str:
@@ -181,10 +186,10 @@ def recalculate_cfa_study(elements, result: CFAResult, update) -> CFAResult:
         current_result_id=result.unique_id,
     )
     result.warnings = []
-    # DWLS/WLSMV is a true-ordinal estimator: it works on the ordinal order codes. Every other
-    # estimator (ML) treats ordinals numerically via their face values (error on non-numeric
-    # categories, warn that they were cast).
-    is_ordinal_estimator = (getattr(cfg, "estimator", None) or OBJECTIVE_ML) == OBJECTIVE_DWLS
+    # The polychoric ULS estimator is the true-ordinal one: it works on the ordinal order codes.
+    # ML and DWLS treat the items numerically, so ordinals are used via their face values (error on a
+    # non-numeric category, warn that they were cast).
+    is_ordinal_estimator = (getattr(cfg, "estimator", None) or OBJECTIVE_ML) == OBJECTIVE_ULS
     if is_ordinal_estimator:
         df = data.get_dataframe(columns=unique_vars, map_ordinal=True)
     else:
@@ -236,6 +241,18 @@ def recalculate_cfa_study(elements, result: CFAResult, update) -> CFAResult:
             cells.append(Cell(t(f"cfa.fit.{interp_key}") if interp_key else "—", center=True))
         fit_table.add_single_row_apa(Row(cells))
     prose_enabled(cfg.interpretation) and fit_table.add_text(_fit_prose(fit, cfa_result.converged_))
+    fit_table.add_numeric_supplement(
+        {
+            "kind": "cfa_fit",
+            "chi2": _supp_float(fit["Chi-square"]),
+            "df": _supp_float(fit["df"]),
+            "p": _supp_float(fit["p-value"]),
+            "rmsea": _supp_float(fit["RMSEA"]),
+            "cfi": _supp_float(fit["CFI"]),
+            "tli": _supp_float(fit["TLI"]),
+            "srmr": _supp_float(fit["SRMR"]),
+        }
+    )
     result.update_and_add_element(fit_table, "cfa fit")
 
     # ----- Standardized factor loadings table (with significance stars when verbal) -----
@@ -262,6 +279,14 @@ def recalculate_cfa_study(elements, result: CFAResult, update) -> CFAResult:
     if verbal and any_stars:
         load_table.add_text(t("cfa.loadings_sig_note"))
     load_table.table_note = numbering.append_to_note(load_table.table_note or "")
+    load_table.add_numeric_supplement(
+        {
+            "kind": "cfa_loadings",
+            "columns": [str(c) for c in columns],
+            "factors": list(factor_names),
+            "std_loadings": [[_supp_float(loadings[i, j]) for j in range(n_factors)] for i in range(len(columns))],
+        }
+    )
     result.update_and_add_element(load_table, "cfa loadings")
 
     # ----- Loadings heatmap + factor-structure path diagram -----
@@ -342,6 +367,13 @@ def recalculate_cfa_study(elements, result: CFAResult, update) -> CFAResult:
                     + [Cell(format_r_apa(phi[i, j]), center=True) for j in range(n_factors)]
                 )
             )
+        phi_table.add_numeric_supplement(
+            {
+                "kind": "cfa_phi",
+                "factors": list(factor_names),
+                "phi": [[_supp_float(phi[i, j]) for j in range(n_factors)] for i in range(n_factors)],
+            }
+        )
         result.update_and_add_element(phi_table, "cfa phi")
 
     # ----- Second-order factor loadings (semopy backend) -----
@@ -352,6 +384,12 @@ def recalculate_cfa_study(elements, result: CFAResult, update) -> CFAResult:
             so_table.add_single_row_apa(
                 Row([Cell(factor_name, push_to_left=True), Cell(format_r_apa(loading), center=True)])
             )
+        so_table.add_numeric_supplement(
+            {
+                "kind": "cfa_second_order",
+                "loadings": {str(name): _supp_float(loading) for name, loading in cfa_result.second_order_loadings_},
+            }
+        )
         result.update_and_add_element(so_table, "cfa second order")
 
     # Residual-based cross-loading suggestions. Always computed and stored on the result so the

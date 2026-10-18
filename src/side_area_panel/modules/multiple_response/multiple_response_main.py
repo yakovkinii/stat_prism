@@ -108,6 +108,21 @@ def recalculate_multiple_response_study(elements, result: MultipleResponseResult
             f"Cases = {n_cases} respondent(s) with at least one selection; total selections = {total_selections}. "
             "Percentages of cases sum to more than 100% because a respondent can choose several options."
         )
+    table.add_numeric_supplement(
+        {
+            "kind": "multiple_response",
+            "options": {
+                str(c): {
+                    "count": counts[c],
+                    "pct_responses": 100.0 * counts[c] / total_selections,
+                    "pct_cases": 100.0 * counts[c] / n_cases,
+                }
+                for c in columns
+            },
+            "total_selections": total_selections,
+            "n_cases": n_cases,
+        }
+    )
     result.update_and_add_element(table, "multiple response table")
 
     # ----- Bar chart (counts per option) -----

@@ -157,9 +157,11 @@ def recalculate_cluster_analysis_study(elements, result: ClusterAnalysisResult, 
             + [Cell(col, center=True) for col in columns]
         )
     )
+    cluster_rows = []
     for c in range(k):
         cluster_original = original[labels == c]
         centroid = cluster_original.mean(axis=0) if cluster_original.size else np.full(n_cols, np.nan)
+        cluster_rows.append({"size": int(counts[c]), "centroid": [float(v) for v in centroid]})
         centroid_table.add_single_row_apa(
             Row(
                 [
@@ -169,6 +171,20 @@ def recalculate_cluster_analysis_study(elements, result: ClusterAnalysisResult, 
                 ]
                 + [Cell(format_statistic_apa(v, 2), center=True) for v in centroid]
             )
+        )
+
+    # Deterministic (hierarchical) numeric supplement: label-invariant signatures that a trusted R
+    # run (hclust/cutree/cluster::silhouette) can reproduce -- the merge heights, the mean silhouette,
+    # and the per-cluster size + centroid sorted canonically so cluster numbering does not matter.
+    # (KMeans is reproducible via random_state=0 but its centroids are not cross-validated against R.)
+    if method == ClusterMethod.HIERARCHICAL and linkage_matrix is not None:
+        centroid_table.add_numeric_supplement(
+            {
+                "kind": "cluster_hierarchical",
+                "silhouette": float(silhouette),
+                "heights": sorted(float(h) for h in linkage_matrix[:, 2]),
+                "clusters": sorted(cluster_rows, key=lambda row: tuple(row["centroid"])),
+            }
         )
 
     report = t("cluster.report.summary", k=k, sizes=", ".join(str(int(s)) for s in counts))

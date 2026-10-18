@@ -12,6 +12,16 @@ r{
 
 # StatPrism Release Notes
 
+### StatPrism 1.3.5 (18 Oct 2026)
+
+* Confirmatory Factor Analysis: added a dedicated ordinal estimator, "Unweighted LS (polychoric)". The ML/DWLS estimators now use face values if applied to ordinal data
+* Power Analysis: the correlation power / sample-size calculation now uses Cohen's Fisher-z method
+* Correlation: the tetrachoric coefficient's p-value now comes from a likelihood-ratio test 
+* Exploratory Factor Analysis: removed the Oblimax rotation
+* General SEM: LS/DWLS estimator now uses face values of ordinal columns
+* Testing: added an extended R-vs-StatPrism numeric benchmark
+
+
 ### StatPrism 1.3.4 (14 Oct 2026)
 
 * New data-processing study: Random Sub-samples

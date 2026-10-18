@@ -208,22 +208,38 @@ def _descriptives_table(data, wide: pd.DataFrame, conditions, numbering=None, pa
             ]
         )
     )
+    supplement_rows = []
     for col in conditions:
         series = wide[col]
         is_ordinal = data[col].column_type == ColumnType.ORDINAL
         if parametric or not is_ordinal:
             # Numeric treatment (ordinals cast to their face values for the parametric family): every
             # cell is the ordinary arithmetic statistic.
-            mean = format_value_apa(series.mean())
-            sd = format_value_apa(series.std())
-            median = format_value_apa(series.median())
-            iqr = format_value_apa(series.quantile(0.75) - series.quantile(0.25))
+            raw_mean = series.mean()
+            raw_sd = series.std()
+            raw_median = series.median()
+            raw_iqr = series.quantile(0.75) - series.quantile(0.25)
+            mean = format_value_apa(raw_mean)
+            sd = format_value_apa(raw_sd)
+            median = format_value_apa(raw_median)
+            iqr = format_value_apa(raw_iqr)
         else:
             # Nonparametric (fully-ordinal) family: mean / SD are undefined on an ordinal scale (dash);
             # median / IQR map the order codes back to the face-value scale via the shared helper.
+            raw_mean = raw_sd = raw_median = raw_iqr = None
             mean = MDASH
             sd = MDASH
             median, iqr = median_iqr_display(data, col, series)
+        supplement_rows.append(
+            {
+                "condition": col,
+                "n": len(series),
+                "mean": raw_mean,
+                "sd": raw_sd,
+                "median": raw_median,
+                "iqr": raw_iqr,
+            }
+        )
         table.add_single_row_apa(
             Row(
                 [
@@ -237,6 +253,7 @@ def _descriptives_table(data, wide: pd.DataFrame, conditions, numbering=None, pa
             )
         )
     table.table_note = numbering.append_to_note(table.table_note or "")
+    table.add_numeric_supplement({"kind": "paired_descriptives", "rows": supplement_rows})
     return table
 
 
@@ -268,10 +285,15 @@ def _normality_table(wide: pd.DataFrame, conditions, two_conditions, verbal_indi
                 + [Cell(assumption_met_verbal(p_val), center=True)] * show_verbal
             )
         )
+        table.add_numeric_supplement(
+            {"kind": "paired_normality", "differences": {"w": float(w_stat), "p": float(p_val)}}
+        )
         return table
 
+    condition_rows = []
     for col in conditions:
         w_stat, p_val = stats.shapiro(wide[col])
+        condition_rows.append({"condition": col, "w": float(w_stat), "p": float(p_val)})
         table.add_single_row_apa(
             Row(
                 [
@@ -296,6 +318,13 @@ def _normality_table(wide: pd.DataFrame, conditions, two_conditions, verbal_indi
         )
     )
     table.table_note = numbering.append_to_note(table.table_note or "")
+    table.add_numeric_supplement(
+        {
+            "kind": "paired_normality",
+            "conditions": condition_rows,
+            "sphericity": {"w": float(spher.W), "p": float(spher.pval)},
+        }
+    )
     return table
 
 
@@ -344,18 +373,25 @@ def _paired_t_test(result, wide, conditions, cfg):
     else:
         test_result = TestResult(variable="", letter="t", statistic=t_stat, p=p_val, df=df)
 
-    result.update_and_add_element(
-        _result_table(
-            t("paired.caption.paired_t"),
-            headers,
-            values,
-            test_result,
-            t("paired.test.paired_t"),
-            p_val,
-            prose_detail=cfg.interpretation,
-        ),
-        "paired omnibus",
+    table = _result_table(
+        t("paired.caption.paired_t"),
+        headers,
+        values,
+        test_result,
+        t("paired.test.paired_t"),
+        p_val,
+        prose_detail=cfg.interpretation,
     )
+    table.add_numeric_supplement(
+        {
+            "kind": "paired_t",
+            "t": float(t_stat),
+            "p": float(p_val),
+            "df": int(df),
+            "cohen_dz": float(cohen_dz),
+        }
+    )
+    result.update_and_add_element(table, "paired omnibus")
 
 
 def _wilcoxon_test(result, wide, conditions, cfg):
@@ -380,18 +416,17 @@ def _wilcoxon_test(result, wide, conditions, cfg):
     else:
         test_result = TestResult(variable="", letter="W", statistic=w_stat, p=p_val)
 
-    result.update_and_add_element(
-        _result_table(
-            t("paired.caption.wilcoxon"),
-            headers,
-            values,
-            test_result,
-            t("paired.test.wilcoxon"),
-            p_val,
-            prose_detail=cfg.interpretation,
-        ),
-        "paired omnibus",
+    table = _result_table(
+        t("paired.caption.wilcoxon"),
+        headers,
+        values,
+        test_result,
+        t("paired.test.wilcoxon"),
+        p_val,
+        prose_detail=cfg.interpretation,
     )
+    table.add_numeric_supplement({"kind": "wilcoxon", "w": float(w_stat), "p": float(p_val), "rbc": float(rbc)})
+    result.update_and_add_element(table, "paired omnibus")
 
 
 def _rm_anova(result, wide, conditions, cfg):
@@ -432,6 +467,18 @@ def _rm_anova(result, wide, conditions, cfg):
         prose_detail=cfg.interpretation,
     )
     table.table_note = t("paired.note.gg", p=format_p_apa_full(p_gg), eps=format_value_apa(eps))
+    table.add_numeric_supplement(
+        {
+            "kind": "rm_anova",
+            "f": float(f_stat),
+            "df1": float(df1),
+            "df2": float(df2),
+            "p": float(p_val),
+            "ng2": float(ng2),
+            "p_gg": float(p_gg),
+            "eps": float(eps),
+        }
+    )
     result.update_and_add_element(table, "paired omnibus")
 
     if cfg.effect_size and p_val < 0.05:
@@ -439,17 +486,25 @@ def _rm_anova(result, wide, conditions, cfg):
             data=long, dv=_VALUE, within=_CONDITION, subject=_SUBJECT, padjust="holm", parametric=True
         )
         pair_p = {frozenset((row["A"], row["B"])): row["p-corr"] for _, row in pairwise.iterrows()}
-        result.update_and_add_element(
-            _posthoc_table(
-                conditions,
-                lambda i, j: pair_p[frozenset((conditions[i], conditions[j]))],
-                t("paired.caption.posthoc_param"),
-                t("paired.posthoc.pairwise_t"),
-                ColumnNumbering(list(conditions), enabled=bool(getattr(cfg, "number_columns", False))),
-                prose_detail=cfg.interpretation,
-            ),
-            "paired posthoc",
+        posthoc = _posthoc_table(
+            conditions,
+            lambda i, j: pair_p[frozenset((conditions[i], conditions[j]))],
+            t("paired.caption.posthoc_param"),
+            t("paired.posthoc.pairwise_t"),
+            ColumnNumbering(list(conditions), enabled=bool(getattr(cfg, "number_columns", False))),
+            prose_detail=cfg.interpretation,
         )
+        posthoc.add_numeric_supplement(
+            {
+                "kind": "paired_posthoc_param",
+                "pairs": {
+                    f"{conditions[i]}__{conditions[j]}": float(pair_p[frozenset((conditions[i], conditions[j]))])
+                    for i in range(len(conditions))
+                    for j in range(i)
+                },
+            }
+        )
+        result.update_and_add_element(posthoc, "paired posthoc")
 
 
 def _friedman(result, wide, conditions, cfg):
@@ -472,32 +527,47 @@ def _friedman(result, wide, conditions, cfg):
     else:
         test_result = TestResult(variable="", letter="&chi;&sup2;", statistic=chi2, p=p_val, df=df)
 
-    result.update_and_add_element(
-        _result_table(
-            t("paired.caption.friedman"),
-            headers,
-            values,
-            test_result,
-            t("paired.test.friedman"),
-            p_val,
-            prose_detail=cfg.interpretation,
-        ),
-        "paired omnibus",
+    table = _result_table(
+        t("paired.caption.friedman"),
+        headers,
+        values,
+        test_result,
+        t("paired.test.friedman"),
+        p_val,
+        prose_detail=cfg.interpretation,
     )
+    table.add_numeric_supplement(
+        {
+            "kind": "friedman",
+            "chi2": float(chi2),
+            "df": int(df),
+            "p": float(p_val),
+            "kendall_w": float(kendall_w),
+        }
+    )
+    result.update_and_add_element(table, "paired omnibus")
 
     if cfg.effect_size and p_val < 0.05:
         matrix = posthoc_nemenyi_friedman(wide[list(conditions)].to_numpy())
-        result.update_and_add_element(
-            _posthoc_table(
-                conditions,
-                lambda i, j: matrix.iloc[i, j],
-                t("paired.caption.posthoc_nonparam"),
-                t("paired.posthoc.nemenyi"),
-                ColumnNumbering(list(conditions), enabled=bool(getattr(cfg, "number_columns", False))),
-                prose_detail=cfg.interpretation,
-            ),
-            "paired posthoc",
+        posthoc = _posthoc_table(
+            conditions,
+            lambda i, j: matrix.iloc[i, j],
+            t("paired.caption.posthoc_nonparam"),
+            t("paired.posthoc.nemenyi"),
+            ColumnNumbering(list(conditions), enabled=bool(getattr(cfg, "number_columns", False))),
+            prose_detail=cfg.interpretation,
         )
+        posthoc.add_numeric_supplement(
+            {
+                "kind": "paired_posthoc_nonparam",
+                "pairs": {
+                    f"{conditions[i]}__{conditions[j]}": float(matrix.iloc[i, j])
+                    for i in range(len(conditions))
+                    for j in range(i)
+                },
+            }
+        )
+        result.update_and_add_element(posthoc, "paired posthoc")
 
 
 def _posthoc_table(

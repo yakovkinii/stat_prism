@@ -48,7 +48,7 @@ _METHODOLOGY = (
     "Solves the relationship between significance level (α), statistical power (1 − β), "
     "effect size and sample size for a chosen test, fixing three of them to find the fourth. "
     "t-tests and one-way ANOVA use the standard non-central distributions (statsmodels); "
-    "correlation uses the Fisher z approximation. Effect sizes follow Cohen's metrics: "
+    "correlation uses Cohen's (1988) Fisher z approximation. Effect sizes follow Cohen's metrics: "
     "d for t-tests, f for ANOVA, r for correlation."
 )
 

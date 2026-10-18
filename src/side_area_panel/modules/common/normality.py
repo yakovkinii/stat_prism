@@ -58,10 +58,14 @@ def process_normality_check(
     non_normal_columns_classes = []
     normal_columns_classes = []
 
+    supplement_rows = []
     for index, col in enumerate(selected_columns):
         all_normal = True
         for i, (group_name, group) in enumerate(df.groupby(grouping_column, sort=False)):
             shapiro_result = cast(ShapiroResult, stats.shapiro(group[col].dropna()))
+            supplement_rows.append(
+                {"variable": col, "group": str(group_name), "w": shapiro_result.statistic, "p": shapiro_result.pvalue}
+            )
             table.add_single_row_apa(
                 Row(
                     [
@@ -94,5 +98,6 @@ def process_normality_check(
         )
     )
     table.table_note = numbering.append_to_note(table.table_note or "")
+    table.add_numeric_supplement({"kind": "normality_check", "rows": supplement_rows})
 
     return normal_columns, non_normal_columns, table

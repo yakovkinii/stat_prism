@@ -31,7 +31,7 @@ from src.side_area_panel.iispwac.iispwac_text_edit import IISPWACLongTextEdit
 from src.side_area_panel.modules.base.base import BaseModulePanel
 from src.side_area_panel.modules.common.prose import PROSE_LABEL, PROSE_LEVELS
 from src.side_area_panel.modules.common.result.registry import RESULTS, get_unique_result_id
-from src.side_area_panel.modules.confirmatory_factor_analysis.cfa_semopy import OBJECTIVE_DWLS, OBJECTIVE_ML
+from src.side_area_panel.modules.confirmatory_factor_analysis.cfa_semopy import OBJECTIVE_ML, OBJECTIVE_ULS
 from src.side_area_panel.modules.exploratory_factor_analysis.exploratory_factor_analysis_result import (
     CORRELATION_METHODS,
     ExtractionMethod,
@@ -103,9 +103,9 @@ class FactorAnalysis(BaseModulePanel):
         config.column_selector = structure
         config.allow_factor_correlation = bool(getattr(result, "efa_is_oblique", False))
         config.second_order = False
-        # Ordinal EFA (polychoric correlations) -> DWLS in the CFA; otherwise ML.
+        # Polychoric EFA -> the polychoric (ULS) estimator in the CFA; Pearson EFA -> ML.
         config.estimator = (
-            OBJECTIVE_DWLS if getattr(efa_config, "correlation_method", None) == "Polychoric" else OBJECTIVE_ML
+            OBJECTIVE_ULS if getattr(efa_config, "correlation_method", None) == "Polychoric" else OBJECTIVE_ML
         )
 
         result_id = get_unique_result_id()

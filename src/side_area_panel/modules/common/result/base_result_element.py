@@ -17,5 +17,19 @@
 
 
 class BaseResultElement:
+    # Raw numeric data behind this element, attached where the element is populated so a benchmark
+    # can drive the real recalculate_*_study() and read the exact numbers that went into the table
+    # (keyed by a "kind" tag) instead of re-deriving them. Transient: the GUI recompute wrapper calls
+    # BaseResult.drop_numeric_supplement() once the result has rendered, and HTMLTableV2.__getstate__
+    # drops it so it is never serialized.
+    numeric_supplement = None
+
     def get_html(self):
         return ...
+
+    def add_numeric_supplement(self, supplement):
+        """Attach a dict of the raw numbers behind this element (tagged with a "kind")."""
+        self.numeric_supplement = supplement
+
+    def drop_numeric_supplement(self):
+        self.numeric_supplement = None

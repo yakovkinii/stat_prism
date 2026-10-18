@@ -52,13 +52,12 @@ from src.side_area_panel.modules.exploratory_factor_analysis.exploratory_factor_
 )
 
 # factor_analyzer rotation strings whose factors are correlated (expose phi_).
-_OBLIQUE_ROTATIONS = {"promax", "oblimin", "quartimin", "oblimax", "geomin_obl"}
+_OBLIQUE_ROTATIONS = {"promax", "oblimin", "quartimin", "geomin_obl"}
 
 _ROTATION_MAP = {
     RotationType.VARIMAX: "varimax",
     RotationType.PROMAX: "promax",
     RotationType.OBLIMIN: "oblimin",
-    RotationType.OBLIMAX: "oblimax",
     RotationType.QUARTIMIN: "quartimin",
     RotationType.QUARTIMAX: "quartimax",
     RotationType.EQUAMAX: "equamax",
@@ -151,6 +150,11 @@ def recalculate_factor_analysis_study(elements, result: FactorAnalysisResult, up
     result.result_elements = []
     result.warnings = []
 
+    # Migrate removed/unknown rotations (e.g. "oblimax", dropped because factor_analyzer and GPArotation
+    # disagree on it) to no rotation, so old saves keep opening instead of erroring on RotationType().
+    if cfg.rotation not in {rotation.value for rotation in RotationType}:
+        cfg.rotation = RotationType.NONE.value
+
     selected = cfg.column_selector[0] if cfg.column_selector else None
     if not selected or len(selected) < 2:
         return _fail(result, t("efa.error.min_variables"))
@@ -231,6 +235,16 @@ def recalculate_factor_analysis_study(elements, result: FactorAnalysisResult, up
     if prose_enabled(cfg.interpretation):
         diag_table.add_text(diag_text)
     diag_table.table_note = numbering.append_to_note(diag_table.table_note or "")
+    diag_table.add_numeric_supplement(
+        {
+            "kind": "efa_diagnostics",
+            "kmo": float(kmo_overall),
+            "msa": {str(name): float(val) for name, val in zip(columns, msa)},
+            "bartlett_chi2": float(bart_chi2),
+            "bartlett_df": int(bart_df),
+            "bartlett_p": float(bart_p),
+        }
+    )
     result.update_and_add_element(diag_table, "efa diagnostics")
     update(30)
 
@@ -267,6 +281,15 @@ def recalculate_factor_analysis_study(elements, result: FactorAnalysisResult, up
             )
         if prose_enabled(cfg.interpretation):
             eig_table.add_text(t("efa.report.kaiser", n=n_kaiser) if n_kaiser > 0 else t("efa.report.kaiser_none"))
+        eig_table.add_numeric_supplement(
+            {
+                "kind": "efa_eigenvalues",
+                "eigenvalues": [float(v) for v in eigenvalues],
+                "variance_pct": [float(v) for v in variance_pct],
+                "cumulative_pct": [float(v) for v in cumulative_pct],
+                "n_kaiser": int(n_kaiser),
+            }
+        )
         result.update_and_add_element(eig_table, "efa eigenvalues")
 
     if cfg.plots:
@@ -356,6 +379,17 @@ def recalculate_factor_analysis_study(elements, result: FactorAnalysisResult, up
         ]
         load_table.add_single_row_apa(Row(row))
     load_table.table_note = numbering.append_to_note(load_table.table_note or "")
+    # Loadings stored in original variable order (display_order only affects the printed rows), so a
+    # trusted psych::fa run can be aligned to it. Sign/column order are canonicalised at comparison.
+    load_table.add_numeric_supplement(
+        {
+            "kind": "efa_loadings",
+            "columns": [str(c) for c in columns],
+            "loadings": [[float(loadings[i, j]) for j in range(m)] for i in range(len(columns))],
+            "communalities": [float(v) for v in communalities],
+            "uniquenesses": [float(v) for v in uniquenesses],
+        }
+    )
     result.update_and_add_element(load_table, "efa loadings")
 
     # ----- Loadings heatmap -----
@@ -387,6 +421,9 @@ def recalculate_factor_analysis_study(elements, result: FactorAnalysisResult, up
                     + [Cell(format_r_apa(phi[i, j]), center=True) for j in range(m)]
                 )
             )
+        phi_table.add_numeric_supplement(
+            {"kind": "efa_phi", "phi": [[float(phi[i, j]) for j in range(m)] for i in range(m)]}
+        )
         result.update_and_add_element(phi_table, "efa phi")
 
         structure = loadings @ phi
@@ -402,6 +439,13 @@ def recalculate_factor_analysis_study(elements, result: FactorAnalysisResult, up
                 )
             )
         struct_table.table_note = numbering.append_to_note(struct_table.table_note or "")
+        struct_table.add_numeric_supplement(
+            {
+                "kind": "efa_structure",
+                "columns": [str(c) for c in columns],
+                "structure": [[float(structure[idx, j]) for j in range(m)] for idx in range(len(columns))],
+            }
+        )
         result.update_and_add_element(struct_table, "efa structure")
 
     result.title_context = f"{m} factors, {cfg.rotation}"
