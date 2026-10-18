@@ -93,6 +93,7 @@ def _coefficient_table(model, dependent_sd, show_std, verbal, x, caption, interc
         header.append(Cell(t("verbal.col_significant"), center=True))
     table.add_title_row_apa(Row(header))
 
+    supplement_rows = []
     for param in model.params.index:
         b = model.params[param]
         p = model.pvalues[param]
@@ -102,12 +103,17 @@ def _coefficient_table(model, dependent_sd, show_std, verbal, x, caption, interc
             Cell(format_statistic_apa(b), center=True),
             Cell(format_statistic_apa(model.bse[param]), center=True),
         ]
+        beta_val = None
         if show_std:
             if param == "const":
                 beta_str = "—"
             else:
                 sd_x = x[param].std()
-                beta_str = format_r_apa(b * sd_x / dependent_sd) if (dependent_sd and sd_x) else "—"
+                if dependent_sd and sd_x:
+                    beta_val = b * sd_x / dependent_sd
+                    beta_str = format_r_apa(beta_val)
+                else:
+                    beta_str = "—"
             cells.append(Cell(beta_str, center=True))
         cells += [
             Cell(format_statistic_apa(model.tvalues[param]), center=True),
@@ -116,7 +122,18 @@ def _coefficient_table(model, dependent_sd, show_std, verbal, x, caption, interc
         if verbal:
             cells.append(Cell(significance_verbal(p), center=True))
         table.add_single_row_apa(Row(cells))
+        supplement_rows.append(
+            {
+                "name": str(param),
+                "b": float(b),
+                "se": float(model.bse[param]),
+                "beta": (float(beta_val) if beta_val is not None else None),
+                "t": float(model.tvalues[param]),
+                "p": float(p),
+            }
+        )
 
+    table.add_numeric_supplement({"kind": "regression_linear_coef", "rows": supplement_rows})
     return table
 
 
@@ -144,16 +161,19 @@ def _add_vif_table(result, x, verbal, prose):
     vif_table.add_title_row_apa(Row(header))
 
     high = []
+    supplement_rows = []
     for i, name in enumerate(x.columns):
         if name == "const":
             continue
         vif = variance_inflation_factor(design, i)
         if not np.isnan(vif) and vif >= 10:
             high.append(str(name))
+        supplement_rows.append({"name": str(name), "vif": float(vif)})
         cells = [Cell(str(name), push_to_left=True), Cell(format_statistic_apa(vif), center=True)]
         if verbal:
             cells.append(Cell(t(f"regression.vif.{_vif_key(vif)}"), center=True))
         vif_table.add_single_row_apa(Row(cells))
+    vif_table.add_numeric_supplement({"kind": "regression_vif", "rows": supplement_rows})
     prose and vif_table.add_text(
         t("regression.report.vif_high", items=smart_comma_join(high)) if high else t("regression.report.vif_ok")
     )
@@ -236,6 +256,23 @@ def _add_influence_table(result, model, prose):
         )
 
     dw = float(durbin_watson(model.resid))
+    # The table shows only the flagged observations, but the supplement carries every observation's
+    # diagnostics (the flagged rows are a subset) so the benchmark can validate all of them.
+    table.add_numeric_supplement(
+        {
+            "kind": "regression_influence",
+            "rows": {
+                str(labels[i]): {
+                    "mahalanobis": float(mahalanobis[i]),
+                    "cooks": float(cooks[i]),
+                    "leverage": float(leverage[i]),
+                    "std_resid": float(std_resid[i]),
+                }
+                for i in range(n)
+            },
+            "dw": dw,
+        }
+    )
     if prose:
         if flagged:
             table.add_text(
@@ -491,6 +528,18 @@ def recalculate_regression_study(elements, result: RegressionResult, update) -> 
     )
     if prose:
         fit_table.add_text(report)
+    fit_table.add_numeric_supplement(
+        {
+            "kind": "regression_linear_fit",
+            "n": int(n),
+            "r2": float(model.rsquared),
+            "adj_r2": float(model.rsquared_adj),
+            "f": float(model.fvalue),
+            "df_model": int(model.df_model),
+            "df_resid": int(model.df_resid),
+            "f_p": float(model.f_pvalue),
+        }
+    )
     result.update_and_add_element(fit_table, "regression fit")
 
     # ----- Coefficients table -----
@@ -521,6 +570,8 @@ def recalculate_regression_study(elements, result: RegressionResult, update) -> 
             path_header.append(Cell(t("verbal.col_significant"), center=True))
         path_table.add_title_row_apa(Row(path_header))
 
+        path_supplement_rows = []
+
         def _add_path_rows(path_model, target):
             for param in path_model.params.index:
                 if param == "const":
@@ -536,6 +587,16 @@ def recalculate_regression_study(elements, result: RegressionResult, update) -> 
                 if verbal:
                     cells.append(Cell(significance_verbal(p), center=True))
                 path_table.add_single_row_apa(Row(cells))
+                path_supplement_rows.append(
+                    {
+                        "from": str(param),
+                        "to": str(target),
+                        "b": float(path_model.params[param]),
+                        "se": float(path_model.bse[param]),
+                        "t": float(path_model.tvalues[param]),
+                        "p": float(p),
+                    }
+                )
 
         _add_path_rows(mediator_model, mediator_column)
         _add_path_rows(model, dependent_column)
@@ -558,6 +619,17 @@ def recalculate_regression_study(elements, result: RegressionResult, update) -> 
         if indirect_items:
             med_text += t("regression.report.med_indirect", items=smart_comma_join(indirect_items))
         prose and path_table.add_text(med_text)
+        path_table.add_numeric_supplement(
+            {
+                "kind": "regression_paths",
+                "rows": path_supplement_rows,
+                "indirect": [
+                    {"predictor": str(param), "value": float(mediator_model.params[param] * b_path)}
+                    for param in independent_columns
+                    if param in mediator_model.params.index
+                ],
+            }
+        )
         result.update_and_add_element(path_table, "regression paths")
 
         # Path diagram for the classic single-predictor X -> M -> Y mediation.
@@ -818,6 +890,16 @@ def _run_logistic(
     report += t("regression.report.significant") if model.llr_pvalue < 0.05 else t("regression.report.not_significant")
     if prose:
         fit_table.add_text(report)
+    fit_table.add_numeric_supplement(
+        {
+            "kind": "regression_logistic_fit",
+            "n": int(n),
+            "pseudo_r2": float(model.prsquared),
+            "llr_chi2": float(model.llr),
+            "df_model": int(model.df_model),
+            "llr_p": float(model.llr_pvalue),
+        }
+    )
     result.update_and_add_element(fit_table, "regression fit")
 
     # ----- Coefficients table (log-odds B, SE, odds ratio, z, p) -----
@@ -834,6 +916,7 @@ def _run_logistic(
         header.append(Cell(t("verbal.col_significant"), center=True))
     coefficients_table.add_title_row_apa(Row(header))
 
+    logit_supplement_rows = []
     for param in model.params.index:
         p = model.pvalues[param]
         name = t("regression.row.intercept") if param == "const" else param
@@ -848,6 +931,17 @@ def _run_logistic(
         if verbal:
             cells.append(Cell(significance_verbal(p), center=True))
         coefficients_table.add_single_row_apa(Row(cells))
+        logit_supplement_rows.append(
+            {
+                "name": str(param),
+                "b": float(model.params[param]),
+                "se": float(model.bse[param]),
+                "odds_ratio": float(np.exp(model.params[param])),
+                "z": float(model.tvalues[param]),
+                "p": float(p),
+            }
+        )
+    coefficients_table.add_numeric_supplement({"kind": "regression_logistic_coef", "rows": logit_supplement_rows})
 
     prose and coefficients_table.add_text(_logistic_coefficient_prose(model, dependent_column, positive_label))
     result.update_and_add_element(coefficients_table, "regression coefficients")
@@ -965,6 +1059,16 @@ def _run_multinomial(
     report += t("regression.report.significant") if model.llr_pvalue < 0.05 else t("regression.report.not_significant")
     if prose:
         fit_table.add_text(report)
+    fit_table.add_numeric_supplement(
+        {
+            "kind": "regression_multinomial_fit",
+            "n": int(n),
+            "pseudo_r2": float(model.prsquared),
+            "llr_chi2": float(model.llr),
+            "df_model": int(model.df_model),
+            "llr_p": float(model.llr_pvalue),
+        }
+    )
     result.update_and_add_element(fit_table, "regression fit")
 
     # ----- Coefficients: one block per non-reference category (log-odds B, SE, OR, z, p) -----
@@ -983,6 +1087,7 @@ def _run_multinomial(
     coefficients_table.add_title_row_apa(Row(header))
 
     param_index = list(model.params.index)
+    multinom_blocks = []
     for col in range(model.params.shape[1]):
         params_col = model.params.iloc[:, col]
         bse_col = model.bse.iloc[:, col]
@@ -1001,6 +1106,7 @@ def _run_multinomial(
                 ]
             )
         )
+        block_rows = []
         for param in param_index:
             pv = pv_col.loc[param]
             name = t("regression.row.intercept") if param == "const" else param
@@ -1015,6 +1121,18 @@ def _run_multinomial(
             if verbal:
                 cells.append(Cell(significance_verbal(pv), center=True))
             coefficients_table.add_single_row_apa(Row(cells))
+            block_rows.append(
+                {
+                    "name": str(param),
+                    "b": float(params_col.loc[param]),
+                    "se": float(bse_col.loc[param]),
+                    "odds_ratio": float(np.exp(params_col.loc[param])),
+                    "z": float(tv_col.loc[param]),
+                    "p": float(pv),
+                }
+            )
+        multinom_blocks.append({"category": str(categories[col + 1]), "rows": block_rows})
+    coefficients_table.add_numeric_supplement({"kind": "regression_multinomial_coef", "blocks": multinom_blocks})
 
     prose and coefficients_table.add_text(_multinomial_coefficient_prose(model, dependent_column, categories))
     result.update_and_add_element(coefficients_table, "regression coefficients")

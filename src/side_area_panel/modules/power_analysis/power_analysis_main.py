@@ -61,28 +61,45 @@ def _parse_pos(text):
 # effect(n, alpha, power); `n` is per-group for the t-tests/correlation and total N for ANOVA.
 
 
-def _z_alpha(alpha, two_sided):
-    return norm.ppf(1 - alpha / 2) if two_sided else norm.ppf(1 - alpha)
-
-
 def _corr_power(effect, n, alpha, two_sided):
+    """Power for a correlation test by Cohen's (1988) Fisher-z method, matching R's pwr.r.test:
+    the Fisher z carries the small bias correction r/(2(n-1)), and the critical value comes from the
+    t-distribution (df = n-2) converted to a correlation and then to Fisher z -- a more accurate
+    approximation than a plain normal critical value."""
     if n <= 3:
         return np.nan
-    zr = np.arctanh(min(abs(effect), 0.999))
-    return float(norm.cdf(zr * np.sqrt(n - 3) - _z_alpha(alpha, two_sided)))
+    r = min(abs(effect), 0.999)
+    tside = 2 if two_sided else 1
+    t_crit = stats.t.ppf(1 - alpha / tside, df=n - 2)
+    r_crit = np.sqrt(t_crit**2 / (t_crit**2 + n - 2))
+    zr = np.arctanh(r) + r / (2 * (n - 1))
+    zrc = np.arctanh(r_crit)
+    return float(norm.cdf((zr - zrc) * np.sqrt(n - 3)))
 
 
 def _corr_nobs(effect, alpha, power, two_sided):
-    zr = np.arctanh(min(abs(effect), 0.999))
-    if zr == 0:
+    # The critical value depends on n, so (like pwr.r.test) solve for n numerically.
+    from scipy.optimize import brentq
+
+    r = abs(effect)
+    if r == 0:
         return np.nan
-    return ((_z_alpha(alpha, two_sided) + norm.ppf(power)) / zr) ** 2 + 3
+    try:
+        return float(brentq(lambda n: _corr_power(r, n, alpha, two_sided) - power, 4 + 1e-10, 1e9))
+    except ValueError:
+        return np.nan
 
 
 def _corr_effect(n, alpha, power, two_sided):
+    # Invert the power function for r numerically (matching pwr.r.test's uniroot approach).
+    from scipy.optimize import brentq
+
     if n <= 3:
         return np.nan
-    return float(np.tanh((_z_alpha(alpha, two_sided) + norm.ppf(power)) / np.sqrt(n - 3)))
+    try:
+        return float(brentq(lambda r: _corr_power(r, n, alpha, two_sided) - power, 1e-10, 1 - 1e-10))
+    except ValueError:
+        return np.nan
 
 
 @log_function
@@ -241,6 +258,19 @@ def recalculate_power_analysis_study(elements, result: PowerAnalysisResult, upda
     else:
         solved_text = f"{solved_label}: {int(solved_value)}"
     table.add_text(f"<b>{solved_text}.</b> " + _interpretation(test, solve_for, solved_value, symbol))
+    table.add_numeric_supplement(
+        {
+            "kind": "power_analysis",
+            "test": test,
+            "solve_for": solve_for,
+            "solved_value": float(solved_value),
+            "n_total": (float(n_total) if n_total is not None else None),
+            "n_per_group": (float(n_per_group) if n_per_group is not None else None),
+            "power": (float(power) if power is not None else None),
+            "effect": (float(effect) if effect is not None else None),
+            "alpha": float(alpha),
+        }
+    )
     result.update_and_add_element(table, "power table")
     update(75)
 

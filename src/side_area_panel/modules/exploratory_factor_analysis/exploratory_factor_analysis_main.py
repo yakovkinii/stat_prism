@@ -231,6 +231,16 @@ def recalculate_factor_analysis_study(elements, result: FactorAnalysisResult, up
     if prose_enabled(cfg.interpretation):
         diag_table.add_text(diag_text)
     diag_table.table_note = numbering.append_to_note(diag_table.table_note or "")
+    diag_table.add_numeric_supplement(
+        {
+            "kind": "efa_diagnostics",
+            "kmo": float(kmo_overall),
+            "msa": {str(name): float(val) for name, val in zip(columns, msa)},
+            "bartlett_chi2": float(bart_chi2),
+            "bartlett_df": int(bart_df),
+            "bartlett_p": float(bart_p),
+        }
+    )
     result.update_and_add_element(diag_table, "efa diagnostics")
     update(30)
 
@@ -267,6 +277,15 @@ def recalculate_factor_analysis_study(elements, result: FactorAnalysisResult, up
             )
         if prose_enabled(cfg.interpretation):
             eig_table.add_text(t("efa.report.kaiser", n=n_kaiser) if n_kaiser > 0 else t("efa.report.kaiser_none"))
+        eig_table.add_numeric_supplement(
+            {
+                "kind": "efa_eigenvalues",
+                "eigenvalues": [float(v) for v in eigenvalues],
+                "variance_pct": [float(v) for v in variance_pct],
+                "cumulative_pct": [float(v) for v in cumulative_pct],
+                "n_kaiser": int(n_kaiser),
+            }
+        )
         result.update_and_add_element(eig_table, "efa eigenvalues")
 
     if cfg.plots:
@@ -356,6 +375,17 @@ def recalculate_factor_analysis_study(elements, result: FactorAnalysisResult, up
         ]
         load_table.add_single_row_apa(Row(row))
     load_table.table_note = numbering.append_to_note(load_table.table_note or "")
+    # Loadings stored in original variable order (display_order only affects the printed rows), so a
+    # trusted psych::fa run can be aligned to it. Sign/column order are canonicalised at comparison.
+    load_table.add_numeric_supplement(
+        {
+            "kind": "efa_loadings",
+            "columns": [str(c) for c in columns],
+            "loadings": [[float(loadings[i, j]) for j in range(m)] for i in range(len(columns))],
+            "communalities": [float(v) for v in communalities],
+            "uniquenesses": [float(v) for v in uniquenesses],
+        }
+    )
     result.update_and_add_element(load_table, "efa loadings")
 
     # ----- Loadings heatmap -----

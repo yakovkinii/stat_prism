@@ -65,6 +65,18 @@ def _build_counts_table(contingency_table: pd.DataFrame, col1: str, col2: str) -
     table.add_single_row_apa(
         Row([Cell(total_str)] + [Cell(c) for c in contingency_table.sum()] + [Cell(contingency_table.sum().sum())])
     )
+    table.add_numeric_supplement(
+        {
+            "kind": "contingency_counts",
+            "counts": {
+                str(idx): {str(c): int(contingency_table.loc[idx, c]) for c in contingency_table.columns}
+                for idx in contingency_table.index
+            },
+            "row_totals": {str(idx): int(contingency_table.loc[idx].sum()) for idx in contingency_table.index},
+            "col_totals": {str(c): int(contingency_table[c].sum()) for c in contingency_table.columns},
+            "grand_total": int(contingency_table.values.sum()),
+        }
+    )
     return table
 
 
@@ -112,6 +124,17 @@ def _build_percent_table(contingency_table: pd.DataFrame, col1: str, col2: str, 
         table.add_single_row_apa(Row(cells))
     bottom = [Cell(total_str)] + [Cell(pct(bottom_margin.loc[c])) for c in ct.columns] + [Cell(pct(100.0))]
     table.add_single_row_apa(Row(bottom))
+    table.add_numeric_supplement(
+        {
+            "kind": "contingency_percent",
+            "mode": mode,
+            "inner": {
+                str(idx): {str(c): float(inner.loc[idx, c]) for c in inner.columns} for idx in inner.index
+            },
+            "right_margin": {str(idx): float(right_margin.loc[idx]) for idx in ct.index},
+            "bottom_margin": {str(c): float(bottom_margin.loc[c]) for c in ct.columns},
+        }
+    )
     return table
 
 
@@ -142,6 +165,15 @@ def _build_residuals_table(contingency_table: pd.DataFrame, expected, col1: str,
             flagged = abs(value) > _RESIDUAL_THRESHOLD
             cells.append(Cell(format_statistic_apa(value), is_bold=flagged))
         table.add_single_row_apa(Row(cells))
+    table.add_numeric_supplement(
+        {
+            "kind": "contingency_residuals",
+            "residuals": {
+                str(ct.index[i]): {str(ct.columns[j]): float(adjusted[i, j]) for j in range(len(ct.columns))}
+                for i in range(len(ct.index))
+            },
+        }
+    )
     return table
 
 
@@ -172,6 +204,9 @@ def _add_mcnemar_table(result, contingency_table, correction, prose_detail):
 
     table.add_title_row_apa(Row([Cell("&chi;<sup>2</sup>"), Cell("df"), Cell(t("contingency.col_pvalue"))]))
     table.add_single_row_apa(Row([Cell(format_statistic_apa(stat)), Cell(str(dof)), Cell(format_p_apa(p))]))
+    table.add_numeric_supplement(
+        {"kind": "contingency_mcnemar", "stat": float(stat), "df": int(dof), "p": float(p)}
+    )
     if prose_includes(prose_detail, p < 0.05, p < 0.05):
         key = "contingency.mcnemar.significant" if p < 0.05 else "contingency.mcnemar.not_significant"
         table.add_text(t(key, name=name, stats=f"χ²({dof}) = {format_statistic_apa(stat)}, {format_p_apa_full(p)}"))
@@ -236,6 +271,16 @@ def recalculate_contingency_study(elements, result: ContingencyResult, update) -
     is_2x2 = contingency_table.shape == (2, 2)
     # phi == Cramer's V for 2x2 (min(r,c) - 1 == 1); one formula covers both.
     cramer_v = (chi2 / n / (min(contingency_table.shape) - 1)) ** 0.5
+
+    chi2_supplement = {
+        "kind": "contingency_chi2",
+        "chi2": float(chi2),
+        "n": int(n),
+        "dof": int(dof),
+        "p": float(p),
+        "cramer_v": float(cramer_v),
+        "is_2x2": is_2x2,
+    }
 
     show_effect = bool(cfg.effect_size)
     show_verbal = bool(cfg.verbal_indicators)
@@ -307,6 +352,8 @@ def recalculate_contingency_study(elements, result: ContingencyResult, update) -
     low_expected_count = int((expected < 5).sum())
     if is_2x2 and low_expected_count > 0 and prose_enabled(cfg.interpretation):
         odds_ratio, fisher_p = stats.fisher_exact(contingency_table.to_numpy())
+        chi2_supplement["fisher_odds"] = float(odds_ratio)
+        chi2_supplement["fisher_p"] = float(fisher_p)
         chi2_table.add_text(
             t(
                 "contingency.fisher_text",
@@ -315,6 +362,7 @@ def recalculate_contingency_study(elements, result: ContingencyResult, update) -
             )
         )
 
+    chi2_table.add_numeric_supplement(chi2_supplement)
     result.update_and_add_element(chi2_table, "contingency chi2")
 
     # ----- Post-hoc adjusted standardized residuals (only when the omnibus is significant) -----

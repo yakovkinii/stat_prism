@@ -84,6 +84,11 @@ def _is_nan(value) -> bool:
     return value is None or (isinstance(value, float) and np.isnan(value))
 
 
+def _supp_float(value):
+    """Supplement-friendly float: None for a missing/NaN value, else a plain float."""
+    return None if _is_nan(value) else float(value)
+
+
 def _fmt(value, decimals: int = 3) -> str:
     return "—" if _is_nan(value) else format_statistic_apa(value, decimals)
 
@@ -236,6 +241,18 @@ def recalculate_cfa_study(elements, result: CFAResult, update) -> CFAResult:
             cells.append(Cell(t(f"cfa.fit.{interp_key}") if interp_key else "—", center=True))
         fit_table.add_single_row_apa(Row(cells))
     prose_enabled(cfg.interpretation) and fit_table.add_text(_fit_prose(fit, cfa_result.converged_))
+    fit_table.add_numeric_supplement(
+        {
+            "kind": "cfa_fit",
+            "chi2": _supp_float(fit["Chi-square"]),
+            "df": _supp_float(fit["df"]),
+            "p": _supp_float(fit["p-value"]),
+            "rmsea": _supp_float(fit["RMSEA"]),
+            "cfi": _supp_float(fit["CFI"]),
+            "tli": _supp_float(fit["TLI"]),
+            "srmr": _supp_float(fit["SRMR"]),
+        }
+    )
     result.update_and_add_element(fit_table, "cfa fit")
 
     # ----- Standardized factor loadings table (with significance stars when verbal) -----
@@ -262,6 +279,14 @@ def recalculate_cfa_study(elements, result: CFAResult, update) -> CFAResult:
     if verbal and any_stars:
         load_table.add_text(t("cfa.loadings_sig_note"))
     load_table.table_note = numbering.append_to_note(load_table.table_note or "")
+    load_table.add_numeric_supplement(
+        {
+            "kind": "cfa_loadings",
+            "columns": [str(c) for c in columns],
+            "factors": list(factor_names),
+            "std_loadings": [[_supp_float(loadings[i, j]) for j in range(n_factors)] for i in range(len(columns))],
+        }
+    )
     result.update_and_add_element(load_table, "cfa loadings")
 
     # ----- Loadings heatmap + factor-structure path diagram -----
@@ -342,6 +367,13 @@ def recalculate_cfa_study(elements, result: CFAResult, update) -> CFAResult:
                     + [Cell(format_r_apa(phi[i, j]), center=True) for j in range(n_factors)]
                 )
             )
+        phi_table.add_numeric_supplement(
+            {
+                "kind": "cfa_phi",
+                "factors": list(factor_names),
+                "phi": [[_supp_float(phi[i, j]) for j in range(n_factors)] for i in range(n_factors)],
+            }
+        )
         result.update_and_add_element(phi_table, "cfa phi")
 
     # ----- Second-order factor loadings (semopy backend) -----

@@ -186,6 +186,17 @@ def recalculate_general_sem_study(elements, result: GeneralSEMResult, update) ->
             fit_table.add_single_row_apa(Row(cells))
         if prose:
             fit_table.add_text(_fit_prose(row0))
+        fit_table.add_numeric_supplement(
+            {
+                "kind": "sem_fit",
+                "chi2": _num(row0.get("chi2")),
+                "df": _num(row0.get("DoF")),
+                "p": _num(row0.get("chi2 p-value")),
+                "cfi": _num(row0.get("CFI")),
+                "tli": _num(row0.get("TLI")),
+                "rmsea": _num(row0.get("RMSEA")),
+            }
+        )
         result.update_and_add_element(fit_table, "sem fit")
 
     # ----- Parameter estimates -----
@@ -236,6 +247,16 @@ def recalculate_general_sem_study(elements, result: GeneralSEMResult, update) ->
         param_table.add_text("Stars flag significance of each path: *** p&lt;.001, ** p&lt;.01, * p&lt;.05.")
     if prose:
         param_table.add_text(_param_prose(insp, display, df.shape[0], len(lines)))
+    # Standardized loadings (=~) and structural regressions (~), keyed by display names so a trusted
+    # lavaan fit can be matched path-for-path. Variances/covariances (~~) are omitted.
+    std_params = {}
+    for _, r in insp.iterrows():
+        if r["op"] in ("=~", "~"):
+            lval = display.get(r["lval"], r["lval"])
+            rval = display.get(r["rval"], r["rval"])
+            value = r.get("Est. Std") if has_std else r.get("Estimate")
+            std_params[f"{lval}{r['op']}{rval}"] = _num(value)
+    param_table.add_numeric_supplement({"kind": "sem_params", "std": std_params})
     result.update_and_add_element(param_table, "sem parameters")
 
     # ----- Variances (separate, secondary table) -----
