@@ -53,6 +53,34 @@ Name: "english"; MessagesFile: "compiler:Default.isl"
 Name: "desktopicon"; Description: "Create a &desktop shortcut"; GroupDescription: "Additional icons:"
 Name: "associate"; Description: "Associate {#ProjectExt} project files with {#AppName}"; GroupDescription: "File associations:"
 
+[InstallDelete]
+; Remove the unused QtWebEngine / QML / DataVisualization / PDF libraries and the Qt translation
+; files that pre-1.3.0 builds shipped. Inno Setup upgrades in place and never deletes files that
+; dropped out of the install set, so without this they linger (~180 MB) in existing installs.
+Type: files; Name: "{app}\qt6webenginecore.dll"
+Type: files; Name: "{app}\qt6webenginewidgets.dll"
+Type: files; Name: "{app}\qt6webchannel.dll"
+Type: files; Name: "{app}\QtWebEngineProcess.exe"
+Type: files; Name: "{app}\icudtl.dat"
+Type: files; Name: "{app}\v8_context_snapshot.bin"
+Type: files; Name: "{app}\qtwebengine_devtools_resources.pak"
+Type: files; Name: "{app}\qtwebengine_resources.pak"
+Type: files; Name: "{app}\qtwebengine_resources_100p.pak"
+Type: files; Name: "{app}\qtwebengine_resources_200p.pak"
+Type: files; Name: "{app}\qt6qml.dll"
+Type: files; Name: "{app}\qt6qmlmodels.dll"
+Type: files; Name: "{app}\qt6quick.dll"
+Type: files; Name: "{app}\qt6quickwidgets.dll"
+Type: files; Name: "{app}\qt6datavisualization.dll"
+Type: files; Name: "{app}\qt6positioning.dll"
+Type: files; Name: "{app}\qt6pdf.dll"
+Type: files; Name: "{app}\PySide6\QtWebEngineCore.pyd"
+Type: files; Name: "{app}\PySide6\QtWebEngineWidgets.pyd"
+Type: files; Name: "{app}\PySide6\QtWebChannel.pyd"
+Type: files; Name: "{app}\PySide6\QtDataVisualization.pyd"
+Type: files; Name: "{app}\PySide6\QtPdf.pyd"
+Type: filesandordirs; Name: "{app}\PySide6\translations"
+
 [Files]
 ; The whole Nuitka standalone folder.
 Source: "{#DistDir}\*"; DestDir: "{app}"; Flags: recursesubdirs createallsubdirs ignoreversion

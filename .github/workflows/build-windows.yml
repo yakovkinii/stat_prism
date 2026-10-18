@@ -46,6 +46,33 @@ jobs:
         # The build options live as `# nuitka-project:` directives in launcher.py.
         run: python -m nuitka --assume-yes-for-downloads launcher.py
 
+      - name: Prune unused Qt libraries from the dist
+        # StatPrism uses only QtCore/QtGui/QtWidgets. Nuitka's PySide6 plugin nonetheless bundles the
+        # whole QtWebEngine stack (qt6webenginecore.dll alone is ~143 MB) plus its QML dependency DLLs
+        # and QtDataVisualization/QtPdf/QtPositioning, none of which anything imports. There is no
+        # Nuitka flag to exclude them, so delete them here before packaging. The leftover Qt .qm
+        # translations dir is removed too as a belt-and-braces complement to --noinclude-qt-translations
+        # (the app never installs a Qt QTranslator). Missing files are ignored so this never fails the
+        # build if a future Nuitka already drops some of them.
+        shell: pwsh
+        run: |
+          $dist = "build/nuitka/launcher.dist"
+          $before = (Get-ChildItem $dist -Recurse -File | Measure-Object Length -Sum).Sum
+          $files = @(
+            "qt6webenginecore.dll","qt6webenginewidgets.dll","qt6webchannel.dll",
+            "QtWebEngineProcess.exe","icudtl.dat","v8_context_snapshot.bin",
+            "qtwebengine_devtools_resources.pak","qtwebengine_resources.pak",
+            "qtwebengine_resources_100p.pak","qtwebengine_resources_200p.pak",
+            "qt6qml.dll","qt6qmlmodels.dll","qt6quick.dll","qt6quickwidgets.dll",
+            "qt6datavisualization.dll","qt6positioning.dll","qt6pdf.dll",
+            "PySide6/QtWebEngineCore.pyd","PySide6/QtWebEngineWidgets.pyd",
+            "PySide6/QtWebChannel.pyd","PySide6/QtDataVisualization.pyd","PySide6/QtPdf.pyd"
+          )
+          foreach ($f in $files) { Remove-Item -LiteralPath (Join-Path $dist $f) -Force -ErrorAction SilentlyContinue }
+          Remove-Item -LiteralPath (Join-Path $dist "PySide6/translations") -Recurse -Force -ErrorAction SilentlyContinue
+          $after = (Get-ChildItem $dist -Recurse -File | Measure-Object Length -Sum).Sum
+          "Pruned {0:N1} MB (dist: {1:N1} -> {2:N1} MB)" -f (($before-$after)/1MB), ($before/1MB), ($after/1MB) | Write-Host
+
       - name: Install Inno Setup
         run: choco install innosetup --no-progress -y
 
