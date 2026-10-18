@@ -38,9 +38,7 @@ def _build_data(df):
 def cluster_payload(case: dict) -> dict:
     import src.side_area_panel.modules.common.result.registry  # noqa: F401
     from src.data.data_manager import DATA_MANAGER
-    from src.side_area_panel.modules.cluster_analysis.cluster_analysis_main import (
-        recalculate_cluster_analysis_study,
-    )
+    from src.side_area_panel.modules.cluster_analysis.cluster_analysis_main import recalculate_cluster_analysis_study
     from src.side_area_panel.modules.cluster_analysis.cluster_analysis_result import (
         ClusterAnalysisConfig,
         ClusterAnalysisResult,
@@ -76,8 +74,7 @@ def cluster_payload(case: dict) -> dict:
         "silhouette": _clean(s["silhouette"]),
         "heights": [_clean(h) for h in s["heights"]],
         "clusters": [
-            {"size": _clean(c["size"]), "centroid": [_clean(v) for v in c["centroid"]]}
-            for c in s["clusters"]
+            {"size": _clean(c["size"]), "centroid": [_clean(v) for v in c["centroid"]]} for c in s["clusters"]
         ],
     }
 

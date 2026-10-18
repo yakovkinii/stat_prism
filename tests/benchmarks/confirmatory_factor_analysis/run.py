@@ -11,8 +11,20 @@ MODULE = "confirmatory_factor_analysis"
 # (chi-square scaling, SRMR flavor). DWLS is looser still: semopy fits the standardized codes, not
 # polychoric correlations, so it is not expected to match lavaan WLSMV exactly -- flagged.
 RELATIVE_TOLERANCES = {
-    "cfa_fit": 1e-2, "cfa_loadings": 5e-3, "cfa_phi": 5e-3,
-    "cfa_dwls_fit": 5e-2, "cfa_dwls_loadings": 5e-2, "cfa_dwls_phi": 5e-2,
+    "cfa_fit": 1e-2,
+    "cfa_loadings": 5e-3,
+    "cfa_phi": 5e-3,
+    "cfa_dwls_fit": 5e-2,
+    "cfa_dwls_loadings": 5e-2,
+    "cfa_dwls_phi": 5e-2,
+    # ULS loadings depend on the polychoric matrix, which differs slightly between StatPrism's in-house
+    # routine and lavaan's -> a little looser.
+    "cfa_uls_loadings": 2e-2,
+    "cfa_uls_phi": 2e-2,
+    "cfa_orthogonal_loadings": 5e-3,
+    "cfa_second_order": 1e-2,
+    "cfa_cross_loading_loadings": 5e-3,
+    "cfa_residual_fit": 2e-2,
 }
 
 STRUCTURE = [["v1", "v2", "v3"], ["v4", "v5", "v6"]]
@@ -37,17 +49,18 @@ def cfa_payload(case: dict) -> dict:
         CFAStudyConfig,
     )
 
+    structure = case.get("structure", STRUCTURE)
     cfg = CFAStudyConfig(
         data_source="Auto",
-        column_selector=[list(group) for group in STRUCTURE],
-        n_factors=2,
+        column_selector=[list(group) for group in structure],
+        n_factors=len(structure),
         estimator=case["estimator"],
-        allow_factor_correlation=True,
-        second_order=False,
+        allow_factor_correlation=case.get("allow_factor_correlation", True),
+        second_order=case.get("second_order", False),
         modification_hints=False,
         correlated_residuals=False,
-        cross_loadings=[],
-        residual_correlations=[],
+        cross_loadings=case.get("cross_loadings", []),
+        residual_correlations=case.get("residual_correlations", []),
         verbal_indicators=False,
         interpretation=None,
         number_columns=False,
@@ -72,6 +85,8 @@ def cfa_payload(case: dict) -> dict:
         return {"error": "", **{k: _clean(s[k]) for k in ("chi2", "df", "p", "rmsea", "cfi", "tli", "srmr")}}
     if kind == "cfa_loadings":
         return {"error": "", "std_loadings": [[_clean(v) for v in row] for row in s["std_loadings"]]}
+    if kind == "cfa_second_order":
+        return {"error": "", "loadings": {k: _clean(v) for k, v in s["loadings"].items()}}
     return {"error": "", "phi": [[_clean(v) for v in row] for row in s["phi"]]}
 
 

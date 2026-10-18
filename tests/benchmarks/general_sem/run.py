@@ -8,7 +8,8 @@ from tests.benchmarks.general_sem.paths import BENCHMARK_PATH, GENERATOR_PATH, H
 
 MODULE = "general_sem"
 # semopy vs lavaan: standardized estimates match closely; fit indices looser (chi-square scaling/SRMR).
-RELATIVE_TOLERANCES = {"sem_fit": 1e-2, "sem_params": 1e-2}
+# DWLS looser still (semopy fits standardized values, not polychoric).
+RELATIVE_TOLERANCES = {"sem_fit": 1e-2, "sem_params": 1e-2, "sem_covariance": 1e-2, "sem_dwls_fit": 5e-2}
 
 STRUCTURE = [["v1", "v2", "v3"], ["v4", "v5", "v6"]]
 
@@ -18,6 +19,13 @@ def _clean(value):
         return None
     value = float(value)
     return None if math.isnan(value) else value
+
+
+def _canon_key(key):
+    # A covariance (~~) is undirected; sort its two sides so F1~~F2 and F2~~F1 compare equal.
+    if "~~" in key:
+        return "~~".join(sorted(key.split("~~")))
+    return key
 
 
 def sem_payload(case: dict) -> dict:
@@ -32,8 +40,8 @@ def sem_payload(case: dict) -> dict:
         n_factors=2,
         column_selector=[list(group) for group in STRUCTURE],
         factor_names="F1,F2",
-        paths=[{"from": "F1", "to": "F2", "type": "~"}],
-        estimator="Maximum Likelihood (ML)",
+        paths=case.get("paths", [{"from": "F1", "to": "F2", "type": "~"}]),
+        estimator=case.get("estimator", "Maximum Likelihood (ML)"),
         verbal_indicators=False,
         interpretation=None,
         plots=False,
@@ -55,7 +63,7 @@ def sem_payload(case: dict) -> dict:
 
     if kind == "sem_fit":
         return {"error": "", **{k: _clean(s[k]) for k in ("chi2", "df", "p", "cfi", "tli", "rmsea")}}
-    return {"error": "", "std": {key: _clean(val) for key, val in s["std"].items()}}
+    return {"error": "", "std": {_canon_key(key): _clean(val) for key, val in s["std"].items()}}
 
 
 def run_case(case: dict, benchmarks: dict) -> BenchmarkCaseResult:

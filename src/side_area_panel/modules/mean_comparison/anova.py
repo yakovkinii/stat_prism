@@ -306,9 +306,7 @@ def process_non_normal_anova(
         groups = [df.loc[df[grouping_column] == name, col].dropna() for name in group_names]
 
         h_stat, p_val = stats.kruskal(*groups)
-        supplement_rows.append(
-            {"variable": col, "h": float(h_stat), "p": float(p_val), "df": float(len(groups) - 1)}
-        )
+        supplement_rows.append({"variable": col, "h": float(h_stat), "p": float(p_val), "df": float(len(groups) - 1)})
 
         median_iqr = [median_iqr_display(data, col, group) for group in groups]
 

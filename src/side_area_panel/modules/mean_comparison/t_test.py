@@ -512,8 +512,7 @@ def process_homogeneous_t_test(
         if show_ci:
             ci_items.append(f"{col} {ci_str}")
         _d_se = (
-            (len(group1) + len(group2)) / (len(group1) * len(group2))
-            + cohen_d**2 / (2 * (len(group1) + len(group2)))
+            (len(group1) + len(group2)) / (len(group1) * len(group2)) + cohen_d**2 / (2 * (len(group1) + len(group2)))
         ) ** 0.5
         supplement_rows.append(
             {
@@ -662,8 +661,7 @@ def process_non_homogeneous_t_test(
         if show_ci:
             ci_items.append(f"{col} {ci_str}")
         _d_se = (
-            (len(group1) + len(group2)) / (len(group1) * len(group2))
-            + cohen_d**2 / (2 * (len(group1) + len(group2)))
+            (len(group1) + len(group2)) / (len(group1) * len(group2)) + cohen_d**2 / (2 * (len(group1) + len(group2)))
         ) ** 0.5
         supplement_rows.append(
             {

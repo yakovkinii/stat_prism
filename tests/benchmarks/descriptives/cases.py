@@ -12,6 +12,16 @@ def numeric_data() -> pd.DataFrame:
     )
 
 
+def grouped_data() -> pd.DataFrame:
+    # A numeric column split by a grouping column, to exercise the per-group summary / normality path.
+    return pd.DataFrame(
+        {
+            "x": [12, 15, 14, 10, 18, 20, 13, 16, 11, 19, 9, 8, 11, 7, 10, 12, 6, 9, 8, 10],
+            "g": ["A"] * 10 + ["B"] * 10,
+        }
+    )
+
+
 def skewed_data() -> pd.DataFrame:
     # Clearly non-normal (right-skewed) so the normality tests land in their meaningful range, where
     # every implementation's p-value approximation agrees (the upper tail is where they saturate).
@@ -41,5 +51,23 @@ CASES = [
         "mode": "normality",
         "column": "x",
         "test": "Anderson-Darling",
+    },
+    # Grouped summary / normality: stats computed within group "A".
+    {
+        "study": "summary_grouped",
+        "data": grouped_data,
+        "mode": "summary",
+        "column": "x",
+        "group_col": "g",
+        "group_value": "A",
+    },
+    {
+        "study": "normality_grouped",
+        "data": grouped_data,
+        "mode": "normality",
+        "column": "x",
+        "test": "Shapiro-Wilk",
+        "group_col": "g",
+        "group_value": "A",
     },
 ]

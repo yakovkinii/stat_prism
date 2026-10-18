@@ -43,7 +43,6 @@ from src.side_area_panel.modules.common.utility import (
 )
 from src.side_area_panel.modules.confirmatory_factor_analysis.cfa_semopy import (
     _OBJECTIVE_TO_SEMOPY,
-    OBJECTIVE_DWLS,
     OBJECTIVE_ML,
     calc_stats_scaled,
 )
@@ -86,19 +85,15 @@ def recalculate_general_sem_study(elements, result: GeneralSEMResult, update) ->
 
     data = DATA_MANAGER.get_data_from_data_label(data_label=cfg.data_source, current_result_id=result.unique_id)
     result.warnings = []
-    # DWLS/WLSMV is a true-ordinal estimator: it works on the ordinal order codes. Every other
-    # estimator (ML) treats ordinals numerically via their face values (error on non-numeric
-    # categories, warn that they were cast).
-    is_ordinal_estimator = (cfg.estimator or OBJECTIVE_ML) == OBJECTIVE_DWLS
-    if is_ordinal_estimator:
-        df = data.get_dataframe(columns=observed_needed, map_ordinal=True)
-    else:
-        try:
-            df, cast = data.get_numeric_face_dataframe(observed_needed)
-        except OrdinalCastError as error:
-            return _fail(result, ordinal_cast_error_message(error.column_name))
-        if cast:
-            result.set_warning(ordinal_numeric_cast_warning(cast))
+    # SEM's estimators (ML, DWLS) both treat the indicators numerically, so ordinal columns are used
+    # via their face values (error on a non-numeric category, warn that they were cast). The
+    # polychoric/ordinal estimator is offered in CFA only, so SEM has no order-code path.
+    try:
+        df, cast = data.get_numeric_face_dataframe(observed_needed)
+    except OrdinalCastError as error:
+        return _fail(result, ordinal_cast_error_message(error.column_name))
+    if cast:
+        result.set_warning(ordinal_numeric_cast_warning(cast))
     df = df.select_dtypes(include=[np.number]).astype(float).dropna(axis=0)
     if df.shape[0] < 3 or df.shape[1] < 2:
         return _fail(result, "Not enough complete numeric data to fit the model.")
@@ -251,7 +246,10 @@ def recalculate_general_sem_study(elements, result: GeneralSEMResult, update) ->
     # lavaan fit can be matched path-for-path. Variances/covariances (~~) are omitted.
     std_params = {}
     for _, r in insp.iterrows():
-        if r["op"] in ("=~", "~"):
+        # Loadings (=~), regressions (~) and factor/observed covariances (~~ between two different
+        # variables); variances (x ~~ x) are housekeeping and excluded.
+        is_covariance = r["op"] == "~~" and r["lval"] != r["rval"]
+        if r["op"] in ("=~", "~") or is_covariance:
             lval = display.get(r["lval"], r["lval"])
             rval = display.get(r["rval"], r["rval"])
             value = r.get("Est. Std") if has_std else r.get("Estimate")

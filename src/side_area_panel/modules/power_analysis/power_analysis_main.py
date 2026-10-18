@@ -20,7 +20,7 @@ import logging
 import math
 
 import numpy as np
-from scipy.stats import norm
+from scipy.stats import norm, t
 from statsmodels.stats.power import FTestAnovaPower, TTestIndPower, TTestPower
 
 from src.common.decorators import log_function
@@ -70,7 +70,7 @@ def _corr_power(effect, n, alpha, two_sided):
         return np.nan
     r = min(abs(effect), 0.999)
     tside = 2 if two_sided else 1
-    t_crit = stats.t.ppf(1 - alpha / tside, df=n - 2)
+    t_crit = t.ppf(1 - alpha / tside, df=n - 2)
     r_crit = np.sqrt(t_crit**2 / (t_crit**2 + n - 2))
     zr = np.arctanh(r) + r / (2 * (n - 1))
     zrc = np.arctanh(r_crit)

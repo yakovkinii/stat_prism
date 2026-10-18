@@ -38,6 +38,18 @@ paired_power <- function() {
   list(error = "", solved_value = num(r$power))
 }
 
+paired_n <- function() {
+  r <- pwr::pwr.t.test(d = 0.5, power = 0.8, sig.level = 0.05, type = "one.sample", alternative = "two.sided")
+  npg <- ceiling(r$n)
+  # One-sample / paired: total N equals the single-group n (StatPrism does not multiply by 2).
+  list(error = "", solved_value = num(npg), n_total = num(npg), n_per_group = num(npg))
+}
+
+paired_effect <- function() {
+  r <- pwr::pwr.t.test(n = 30, power = 0.8, sig.level = 0.05, type = "one.sample", alternative = "two.sided")
+  list(error = "", solved_value = num(r$d))
+}
+
 anova_n <- function() {
   r <- pwr::pwr.anova.test(k = 4, f = 0.25, power = 0.8, sig.level = 0.05)
   ntot <- ceiling(r$n * 4)
@@ -51,6 +63,11 @@ anova_power <- function() {
   list(error = "", solved_value = num(r$power))
 }
 
+anova_effect <- function() {
+  r <- pwr::pwr.anova.test(k = 4, n = 80 / 4, power = 0.8, sig.level = 0.05)
+  list(error = "", solved_value = num(r$f))
+}
+
 corr_power <- function() {
   r <- pwr::pwr.r.test(n = 50, r = 0.3, sig.level = 0.05, alternative = "two.sided")
   list(error = "", solved_value = num(r$power))
@@ -62,6 +79,11 @@ corr_n <- function() {
   list(error = "", solved_value = num(npg), n_per_group = num(npg))
 }
 
+corr_effect <- function() {
+  r <- pwr::pwr.r.test(n = 50, power = 0.8, sig.level = 0.05, alternative = "two.sided")
+  list(error = "", solved_value = num(r$r))
+}
+
 benchmarks <- list(
   tolerance = 1e-6,
   generated_by = "tests/benchmarks/power_analysis/r/generate_power_analysis_benchmarks.R",
@@ -71,10 +93,14 @@ benchmarks <- list(
     two_sample_power = two_sample_power(),
     two_sample_effect = two_sample_effect(),
     paired_power = paired_power(),
+    paired_n = paired_n(),
+    paired_effect = paired_effect(),
     anova_n = anova_n(),
     anova_power = anova_power(),
+    anova_effect = anova_effect(),
     corr_power = corr_power(),
-    corr_n = corr_n()
+    corr_n = corr_n(),
+    corr_effect = corr_effect()
   )
 )
 

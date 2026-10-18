@@ -46,8 +46,8 @@ from src.side_area_panel.modules.common.utility import (
     ordinal_numeric_cast_warning,
 )
 from src.side_area_panel.modules.confirmatory_factor_analysis.cfa_semopy import (
-    OBJECTIVE_DWLS,
     OBJECTIVE_ML,
+    OBJECTIVE_ULS,
     CFASemopyEstimator,
 )
 from src.side_area_panel.modules.confirmatory_factor_analysis.confirmatory_factor_analysis_result import (
@@ -186,10 +186,10 @@ def recalculate_cfa_study(elements, result: CFAResult, update) -> CFAResult:
         current_result_id=result.unique_id,
     )
     result.warnings = []
-    # DWLS/WLSMV is a true-ordinal estimator: it works on the ordinal order codes. Every other
-    # estimator (ML) treats ordinals numerically via their face values (error on non-numeric
-    # categories, warn that they were cast).
-    is_ordinal_estimator = (getattr(cfg, "estimator", None) or OBJECTIVE_ML) == OBJECTIVE_DWLS
+    # The polychoric ULS estimator is the true-ordinal one: it works on the ordinal order codes.
+    # ML and DWLS treat the items numerically, so ordinals are used via their face values (error on a
+    # non-numeric category, warn that they were cast).
+    is_ordinal_estimator = (getattr(cfg, "estimator", None) or OBJECTIVE_ML) == OBJECTIVE_ULS
     if is_ordinal_estimator:
         df = data.get_dataframe(columns=unique_vars, map_ordinal=True)
     else:
@@ -384,6 +384,12 @@ def recalculate_cfa_study(elements, result: CFAResult, update) -> CFAResult:
             so_table.add_single_row_apa(
                 Row([Cell(factor_name, push_to_left=True), Cell(format_r_apa(loading), center=True)])
             )
+        so_table.add_numeric_supplement(
+            {
+                "kind": "cfa_second_order",
+                "loadings": {str(name): _supp_float(loading) for name, loading in cfa_result.second_order_loadings_},
+            }
+        )
         result.update_and_add_element(so_table, "cfa second order")
 
     # Residual-based cross-loading suggestions. Always computed and stored on the result so the

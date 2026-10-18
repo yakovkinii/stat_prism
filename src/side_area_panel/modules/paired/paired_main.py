@@ -425,9 +425,7 @@ def _wilcoxon_test(result, wide, conditions, cfg):
         p_val,
         prose_detail=cfg.interpretation,
     )
-    table.add_numeric_supplement(
-        {"kind": "wilcoxon", "w": float(w_stat), "p": float(p_val), "rbc": float(rbc)}
-    )
+    table.add_numeric_supplement({"kind": "wilcoxon", "w": float(w_stat), "p": float(p_val), "rbc": float(rbc)})
     result.update_and_add_element(table, "paired omnibus")
 
 

@@ -34,11 +34,31 @@ from semopy.stats import (
 
 from src.side_area_panel.modules.confirmatory_factor_analysis.cfa_numpy import CFAResultStruct
 
-# Objective labels exposed to the UI -> semopy `obj` argument.
+# Objective labels exposed to the UI -> semopy `obj` argument. New options are APPENDED (never
+# reordered) so estimator strings stored in old save files keep resolving.
 OBJECTIVE_ML = "Maximum Likelihood (ML)"
 OBJECTIVE_DWLS = "Diagonally Weighted LS (DWLS)"
-_OBJECTIVE_TO_SEMOPY = {OBJECTIVE_ML: "MLW", OBJECTIVE_DWLS: "DWLS"}
-OBJECTIVES = [OBJECTIVE_ML, OBJECTIVE_DWLS]
+# Ordinal estimator: ULS on the polychoric correlation matrix of the order codes (CFA only).
+OBJECTIVE_ULS = "Unweighted LS (polychoric)"
+_OBJECTIVE_TO_SEMOPY = {OBJECTIVE_ML: "MLW", OBJECTIVE_DWLS: "DWLS", OBJECTIVE_ULS: "ULS"}
+# CFA offers all three; general SEM offers only the continuous estimators (no polychoric path there).
+OBJECTIVES = [OBJECTIVE_ML, OBJECTIVE_DWLS, OBJECTIVE_ULS]
+SEM_OBJECTIVES = [OBJECTIVE_ML, OBJECTIVE_DWLS]
+
+
+def _polychoric_matrix_from_codes(codes, names):
+    """Full, unit-diagonal polychoric (tetrachoric for binary items) correlation matrix of the
+    ordinal order codes, via the same in-house pairwise routine the Reliability / EFA modules use."""
+    import pandas as pd
+
+    from src.side_area_panel.modules.common.mathematics.correlation.correlation import calculate_correlations
+    from src.side_area_panel.modules.correlation.correlation_result import CorrelationType
+
+    lower, _, _ = calculate_correlations(pd.DataFrame(codes, columns=names), CorrelationType.POLYCHORIC)
+    arr = lower.to_numpy(dtype=float)
+    arr = np.where(np.isnan(arr), arr.T, arr)  # mirror the filled lower triangle
+    np.fill_diagonal(arr, 1.0)
+    return arr
 
 
 def _fit_report(S, Sigma):
@@ -210,11 +230,7 @@ class CFASemopyEstimator:
         X = np.asarray(X, dtype=float)
         if np.isnan(X).any():
             X = X[~np.isnan(X).any(axis=1)]
-        # Standardize (fit on the correlation matrix) — matches cfa_numpy so factor variances are 1.
-        col_std = X.std(axis=0, ddof=0)
-        col_std[col_std == 0] = 1.0
-        X = (X - X.mean(axis=0)) / col_std
-        n_vars = X.shape[1]
+        n_samples, n_vars = X.shape
         if var_names is None:
             var_names = [f"x{i + 1}" for i in range(n_vars)]
 
@@ -244,10 +260,22 @@ class CFASemopyEstimator:
             if item_a in alias_of and item_b in alias_of and item_a != item_b:
                 residual_pairs.append((alias_of[item_a], alias_of[item_b]))
 
-        data = pd.DataFrame(X, columns=aliases)
         model = semopy.Model(self._model_description(factor_names, present, residual_pairs))
         obj = _OBJECTIVE_TO_SEMOPY.get(self.objective, "MLW")
-        res = model.fit(data, obj=obj)
+        if self.objective == OBJECTIVE_ULS:
+            # Ordinal estimator: fit ULS on the in-house polychoric correlation matrix of the order
+            # codes (no standardization, no face-value casting). semopy cannot run DWLS from a cov
+            # matrix (it needs the raw data for the ADF weight), so ULS is used -- the fit indices and
+            # SEs it then reports are the naive (non-robust) ones, not a WLSMV/ULSMV robust solution.
+            S = _polychoric_matrix_from_codes(X, aliases)
+            res = model.fit(cov=pd.DataFrame(S, index=aliases, columns=aliases), n_samples=n_samples, obj="ULS")
+        else:
+            # Standardize (fit on the correlation matrix) -- matches cfa_numpy so factor variances are 1.
+            col_std = X.std(axis=0, ddof=0)
+            col_std[col_std == 0] = 1.0
+            X = (X - X.mean(axis=0)) / col_std
+            S = np.cov(X, rowvar=False, bias=True)
+            res = model.fit(pd.DataFrame(X, columns=aliases), obj=obj)
         converged = bool(getattr(res, "success", True))
         message = str(getattr(res, "name_method", obj))
 
@@ -315,7 +343,6 @@ class CFASemopyEstimator:
                 std_phi[j, :] *= -1
                 std_phi[:, j] *= -1
 
-        S = np.cov(X, rowvar=False, bias=True)
         sigma_model = model.calc_sigma()[0]
         srmr, std_resid = _fit_report(S, sigma_model)
         # Fit indices come from semopy (ML) or the Satorra-Bentler scaling (DWLS). If that raises,

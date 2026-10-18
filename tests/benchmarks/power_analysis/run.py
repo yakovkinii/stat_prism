@@ -7,9 +7,16 @@ from tests.benchmarks.power_analysis.cases import CASES
 from tests.benchmarks.power_analysis.paths import BENCHMARK_PATH, GENERATOR_PATH, HERE
 
 MODULE = "power_analysis"
-# StatPrism's correlation power now follows Cohen's (1988) method exactly as pwr.r.test does, so the
-# default tolerance applies throughout (the sample-size solve still rounds up to a whole n).
-RELATIVE_TOLERANCES: dict = {}
+# StatPrism's correlation power follows Cohen's (1988) method as pwr.r.test does. The sample-size
+# solves round to a whole n and match exactly; the effect-size / power solves differ only at the
+# iterative-root-finder tolerance (statsmodels/brentq vs pwr's uniroot), so they get a small slack.
+RELATIVE_TOLERANCES = {
+    "two_sample_effect": 1e-3,
+    "paired_effect": 1e-3,
+    "anova_effect": 1e-3,
+    "corr_power": 1e-3,
+    "corr_effect": 1e-3,
+}
 
 
 def _clean(value):

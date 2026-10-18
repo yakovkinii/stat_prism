@@ -43,9 +43,10 @@ def descriptives_payload(case: dict) -> dict:
     from src.side_area_panel.modules.descriptive.descriptive_result import DescriptiveResult, DescriptiveStudyConfig
 
     col = case["column"]
+    group_col = case.get("group_col")
     cfg = DescriptiveStudyConfig(
         data_source="Auto",
-        column_selector=[[col], []],
+        column_selector=[[col], [group_col] if group_col else []],
         show_normality=(case["mode"] == "normality"),
         normality_test=case.get("test"),
     )
@@ -58,13 +59,14 @@ def descriptives_payload(case: dict) -> dict:
     finally:
         DATA_MANAGER.get_data_from_data_label = original
 
+    group_value = case.get("group_value")
     supplements = result.numeric_supplements()
     if case["mode"] == "summary":
         rows = next(s for s in supplements if s.get("kind") == "numeric_summary")["rows"]
-        stats = next(r for r in rows if r["variable"] == col and r["group"] is None)
+        stats = next(r for r in rows if r["variable"] == col and r["group"] == group_value)
         return {"error": "", "stats": {key: _clean(stats[key]) for key in SUMMARY_KEYS}}
     rows = next(s for s in supplements if s.get("kind") == "normality")["rows"]
-    row = next(r for r in rows if r["variable"] == col and r["group"] is None)
+    row = next(r for r in rows if r["variable"] == col and r["group"] == group_value)
     return {"error": "", "statistic": _clean(row["norm_stat"]), "p": _clean(row["norm_p"])}
 
 

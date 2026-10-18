@@ -88,8 +88,7 @@ def paired_payload(case: dict) -> dict:
             d = supplement["differences"]
             return {"error": "", "differences": {"w": _clean(d["w"]), "p": _clean(d["p"])}}
         conditions = {
-            row["condition"]: {"w": _clean(row["w"]), "p": _clean(row["p"])}
-            for row in supplement["conditions"]
+            row["condition"]: {"w": _clean(row["w"]), "p": _clean(row["p"])} for row in supplement["conditions"]
         }
         sph = supplement["sphericity"]
         return {"error": "", "conditions": conditions, "sphericity": {"w": _clean(sph["w"]), "p": _clean(sph["p"])}}

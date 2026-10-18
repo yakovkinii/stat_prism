@@ -13,6 +13,9 @@ TABLE_2x2 = {"r1": {"c1": 8, "c2": 2}, "r2": {"c1": 1, "c2": 9}}
 # A 2x2 square (shared labels) with 30 discordant pairs -- >= 25, so statsmodels uses the chi-square
 # McNemar (not the exact binomial), matching R's mcnemar.test.
 SQUARE_2x2 = {"a": {"a": 30, "b": 20}, "b": {"a": 10, "b": 40}}
+# A 2x2 square with only 9 discordant pairs -- < 25, so statsmodels switches to the EXACT binomial
+# McNemar (statistic = min(b, c), p = two-sided binomial), which the generator matches with binom.test.
+SQUARE_2x2_SMALL = {"a": {"a": 20, "b": 3}, "b": {"a": 6, "b": 25}}
 # A 3x3 square (shared labels) with asymmetric off-diagonals -> Bowker's symmetry test.
 SQUARE_3x3 = {
     "a": {"a": 10, "b": 6, "c": 2},
@@ -43,6 +46,10 @@ def square_2x2() -> pd.DataFrame:
     return _expand(SQUARE_2x2)
 
 
+def square_2x2_small() -> pd.DataFrame:
+    return _expand(SQUARE_2x2_SMALL)
+
+
 def square_3x3() -> pd.DataFrame:
     return _expand(SQUARE_3x3)
 
@@ -56,9 +63,14 @@ CASES = [
     {"study": "chi2_2x3", "data": table_2x3, "kind": "contingency_chi2"},
     {"study": "residuals", "data": table_2x3, "post_hoc": True, "kind": "contingency_residuals"},
     # 2x2 with continuity correction + Fisher's exact (interpretation on so Fisher is computed).
-    {"study": "chi2_2x2_fisher", "data": table_2x2, "correction": True, "interpretation": "Full",
-     "kind": "contingency_chi2"},
-    {"study": "mcnemar_2x2", "data": square_2x2, "mcnemar": True, "correction": True,
-     "kind": "contingency_mcnemar"},
+    {
+        "study": "chi2_2x2_fisher",
+        "data": table_2x2,
+        "correction": True,
+        "interpretation": "Full",
+        "kind": "contingency_chi2",
+    },
+    {"study": "mcnemar_2x2", "data": square_2x2, "mcnemar": True, "correction": True, "kind": "contingency_mcnemar"},
+    {"study": "mcnemar_exact", "data": square_2x2_small, "mcnemar": True, "kind": "contingency_mcnemar"},
     {"study": "bowker_3x3", "data": square_3x3, "mcnemar": True, "kind": "contingency_mcnemar"},
 ]

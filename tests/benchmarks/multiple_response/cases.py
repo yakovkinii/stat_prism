@@ -13,6 +13,10 @@ def indicator_data() -> pd.DataFrame:
 
 
 CASES = [
-    {"study": "frequencies", "data": indicator_data, "columns": ["opt_a", "opt_b", "opt_c"],
-     "kind": "multiple_response"},
+    {
+        "study": "frequencies",
+        "data": indicator_data,
+        "columns": ["opt_a", "opt_b", "opt_c"],
+        "kind": "multiple_response",
+    },
 ]

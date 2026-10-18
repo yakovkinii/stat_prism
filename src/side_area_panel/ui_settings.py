@@ -20,8 +20,8 @@ import logging
 from typing import TYPE_CHECKING
 
 from PySide6 import QtWidgets
-from PySide6.QtCore import QUrl
-from PySide6.QtGui import QAction, QDesktopServices
+from PySide6.QtCore import Qt, QUrl
+from PySide6.QtGui import QAction, QDesktopServices, QKeySequence
 from PySide6.QtWidgets import QMenu, QMenuBar, QProgressBar, QVBoxLayout
 
 from src.common.config import read_ui_scale, write_ui_value
@@ -217,6 +217,19 @@ class SettingsPanelClass:
         self.collapse_all_action.triggered.connect(lambda: self.root_class.main_area_panel.collapse_all())
         self.recalculate_all_action.triggered.connect(lambda: self.root_class.main_area_panel.recompute_all())
         self.exit_action.triggered.connect(lambda: self.root_class.close())
+
+        # Show the matching keyboard shortcut next to each menu item. These are display hints only:
+        # the actual global bindings live in App._setup_shortcuts, so a WidgetShortcut context keeps
+        # the menu from double-firing / clashing with those while still rendering the shortcut text.
+        for action, key_sequence in (
+            (self.open_action, QKeySequence.StandardKey.Open),
+            (self.save_action, QKeySequence.StandardKey.Save),
+            (self.save_as_action, QKeySequence.StandardKey.SaveAs),
+            (self.recalculate_all_action, QKeySequence("Ctrl+R")),
+            (self.collapse_all_action, QKeySequence("Ctrl+D")),
+        ):
+            action.setShortcut(key_sequence)
+            action.setShortcutContext(Qt.ShortcutContext.WidgetShortcut)
 
     def set_language_EN(self):
         LANGUAGE.set_language(Languages.EN)

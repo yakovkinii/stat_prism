@@ -13,6 +13,14 @@ for (pkg in c("jsonlite")) {
 
 num <- function(v) as.numeric(v)
 
+# A named list keyed by the vector's names (as.numeric alone would strip them, giving a JSON array
+# where StatPrism emits a label-keyed object).
+named_list <- function(v) {
+  out <- as.list(as.numeric(v))
+  names(out) <- names(v)
+  out
+}
+
 # Count matrices mirror tests/benchmarks/contingency/cases.py (rows = v1 categories, cols = v2).
 tab_2x3 <- matrix(c(20, 5, 10, 5, 20, 10), nrow = 2, byrow = TRUE,
                   dimnames = list(c("r1", "r2"), c("c1", "c2", "c3")))
@@ -20,6 +28,8 @@ tab_2x2 <- matrix(c(8, 2, 1, 9), nrow = 2, byrow = TRUE,
                   dimnames = list(c("r1", "r2"), c("c1", "c2")))
 sq_2x2 <- matrix(c(30, 20, 10, 40), nrow = 2, byrow = TRUE,
                  dimnames = list(c("a", "b"), c("a", "b")))
+sq_2x2_small <- matrix(c(20, 3, 6, 25), nrow = 2, byrow = TRUE,
+                       dimnames = list(c("a", "b"), c("a", "b")))
 sq_3x3 <- matrix(c(10, 6, 2, 3, 12, 5, 1, 4, 15), nrow = 3, byrow = TRUE,
                  dimnames = list(c("a", "b", "c"), c("a", "b", "c")))
 
@@ -39,8 +49,8 @@ cramer_v <- function(chi2, m) num(sqrt(chi2 / sum(m) / (min(dim(m)) - 1)))
 counts <- function() {
   list(
     error = "", counts = nest(tab_2x3),
-    row_totals = as.list(num(rowSums(tab_2x3))),
-    col_totals = as.list(num(colSums(tab_2x3))),
+    row_totals = named_list(rowSums(tab_2x3)),
+    col_totals = named_list(colSums(tab_2x3)),
     grand_total = num(sum(tab_2x3))
   )
 }
@@ -65,7 +75,7 @@ percent <- function(mode) {
   }
   list(
     error = "", mode = mode, inner = nest(inner),
-    right_margin = as.list(num(right)), bottom_margin = as.list(num(bottom))
+    right_margin = named_list(right), bottom_margin = named_list(bottom)
   )
 }
 
@@ -97,6 +107,14 @@ mcnemar_study <- function(m, correction) {
   list(error = "", stat = num(ht$statistic), df = num(ht$parameter), p = num(ht$p.value))
 }
 
+mcnemar_exact_study <- function(m) {
+  # statsmodels' EXACT McNemar (< 25 discordant): statistic = min(b, c), p = two-sided binomial on the
+  # discordant pairs; StatPrism reports df = 1. binom.test gives the same two-sided exact p at 0.5.
+  b <- m[1, 2]
+  c <- m[2, 1]
+  list(error = "", stat = num(min(b, c)), df = 1, p = num(binom.test(b, b + c, 0.5)$p.value))
+}
+
 benchmarks <- list(
   tolerance = 1e-6,
   generated_by = "tests/benchmarks/contingency/r/generate_contingency_benchmarks.R",
@@ -109,6 +127,7 @@ benchmarks <- list(
     residuals = residuals_study(),
     chi2_2x2_fisher = chi2_study(tab_2x2, TRUE, TRUE),
     mcnemar_2x2 = mcnemar_study(sq_2x2, TRUE),
+    mcnemar_exact = mcnemar_exact_study(sq_2x2_small),
     bowker_3x3 = mcnemar_study(sq_3x3, FALSE)
   )
 )

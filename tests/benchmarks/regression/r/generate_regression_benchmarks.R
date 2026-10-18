@@ -127,8 +127,8 @@ logistic_fit <- function() {
   )
 }
 
-logistic_coef <- function() {
-  co <- summary(logit)$coefficients
+glm_coef_rows <- function(g) {
+  co <- summary(g)$coefficients
   rows <- list()
   for (nm in rownames(co)) {
     rows[[length(rows) + 1]] <- list(
@@ -136,7 +136,15 @@ logistic_coef <- function() {
       odds_ratio = num(exp(co[nm, "Estimate"])), z = num(co[nm, "z value"]), p = num(co[nm, "Pr(>|z|)"])
     )
   }
-  list(error = "", rows = rows)
+  rows
+}
+
+logistic_coef <- function() list(error = "", rows = glm_coef_rows(logit))
+
+logistic_moderation_coef <- function() {
+  # StatPrism adds the moderator and its product with each predictor: bin ~ x1 + x2 + x1:x2.
+  g <- glm(factor(bin) ~ x1 + x2 + x1:x2, family = binomial, data = df)
+  list(error = "", rows = glm_coef_rows(g))
 }
 
 # ---- Multinomial: cat ~ x1 + x2 (reference = "A") ----
@@ -188,6 +196,7 @@ benchmarks <- list(
     mediation_paths = mediation_paths(),
     logistic_fit = logistic_fit(),
     logistic_coef = logistic_coef(),
+    logistic_moderation_coef = logistic_moderation_coef(),
     multinomial_fit = multinomial_fit(),
     multinomial_coef = multinomial_coef()
   )

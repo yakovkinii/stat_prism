@@ -13,6 +13,8 @@ for (pkg in c("jsonlite", "e1071", "nortest")) {
 
 numeric_x <- c(12, 15, 14, 10, 18, 20, 13, 16, 11, 19, 17, 14, 15, 13, 21, 9, 16, 18, 12, 17, NA, NA)
 skewed_x <- c(1, 1, 1, 2, 2, 2, 2, 3, 3, 4, 5, 7, 9, 12, 18, 25, 2, 1, 3, 6)
+# Group "A" subset of grouped_data() in cases.py.
+grouped_a_x <- c(12, 15, 14, 10, 18, 20, 13, 16, 11, 19)
 
 clean_number <- function(v) {
   if (is.null(v) || length(v) == 0 || is.nan(v) || is.na(v)) NA_real_ else as.numeric(v)
@@ -56,7 +58,9 @@ benchmarks <- list(
     numeric_summary = numeric_summary(numeric_x),
     normality_shapiro = normality(skewed_x, "shapiro"),
     normality_lilliefors = normality(skewed_x, "lilliefors"),
-    normality_anderson_darling = normality(skewed_x, "anderson_darling")
+    normality_anderson_darling = normality(skewed_x, "anderson_darling"),
+    summary_grouped = numeric_summary(grouped_a_x),
+    normality_grouped = normality(grouped_a_x, "shapiro")
   )
 )
 

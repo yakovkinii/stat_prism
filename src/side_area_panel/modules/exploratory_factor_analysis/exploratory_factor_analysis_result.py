@@ -35,7 +35,6 @@ class RotationType(Enum):
     VARIMAX = "varimax"
     PROMAX = "promax (obl)"
     OBLIMIN = "oblimin (obl)"
-    OBLIMAX = "oblimax"
     QUARTIMIN = "quartimin (obl)"
     QUARTIMAX = "quartimax"
     EQUAMAX = "equamax"

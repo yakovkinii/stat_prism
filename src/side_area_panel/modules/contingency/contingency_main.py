@@ -128,9 +128,7 @@ def _build_percent_table(contingency_table: pd.DataFrame, col1: str, col2: str, 
         {
             "kind": "contingency_percent",
             "mode": mode,
-            "inner": {
-                str(idx): {str(c): float(inner.loc[idx, c]) for c in inner.columns} for idx in inner.index
-            },
+            "inner": {str(idx): {str(c): float(inner.loc[idx, c]) for c in inner.columns} for idx in inner.index},
             "right_margin": {str(idx): float(right_margin.loc[idx]) for idx in ct.index},
             "bottom_margin": {str(c): float(bottom_margin.loc[c]) for c in ct.columns},
         }
@@ -204,9 +202,7 @@ def _add_mcnemar_table(result, contingency_table, correction, prose_detail):
 
     table.add_title_row_apa(Row([Cell("&chi;<sup>2</sup>"), Cell("df"), Cell(t("contingency.col_pvalue"))]))
     table.add_single_row_apa(Row([Cell(format_statistic_apa(stat)), Cell(str(dof)), Cell(format_p_apa(p))]))
-    table.add_numeric_supplement(
-        {"kind": "contingency_mcnemar", "stat": float(stat), "df": int(dof), "p": float(p)}
-    )
+    table.add_numeric_supplement({"kind": "contingency_mcnemar", "stat": float(stat), "df": int(dof), "p": float(p)})
     if prose_includes(prose_detail, p < 0.05, p < 0.05):
         key = "contingency.mcnemar.significant" if p < 0.05 else "contingency.mcnemar.not_significant"
         table.add_text(t(key, name=name, stats=f"χ²({dof}) = {format_statistic_apa(stat)}, {format_p_apa_full(p)}"))

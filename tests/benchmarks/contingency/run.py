@@ -27,10 +27,7 @@ def contingency_payload(case: dict) -> dict:
     from src.data.data import Data
     from src.data.data_manager import DATA_MANAGER
     from src.side_area_panel.modules.contingency.contingency_main import recalculate_contingency_study
-    from src.side_area_panel.modules.contingency.contingency_result import (
-        ContingencyResult,
-        ContingencyStudyConfig,
-    )
+    from src.side_area_panel.modules.contingency.contingency_result import ContingencyResult, ContingencyStudyConfig
 
     cfg = ContingencyStudyConfig(
         data_source="Auto",

@@ -52,13 +52,12 @@ from src.side_area_panel.modules.exploratory_factor_analysis.exploratory_factor_
 )
 
 # factor_analyzer rotation strings whose factors are correlated (expose phi_).
-_OBLIQUE_ROTATIONS = {"promax", "oblimin", "quartimin", "oblimax", "geomin_obl"}
+_OBLIQUE_ROTATIONS = {"promax", "oblimin", "quartimin", "geomin_obl"}
 
 _ROTATION_MAP = {
     RotationType.VARIMAX: "varimax",
     RotationType.PROMAX: "promax",
     RotationType.OBLIMIN: "oblimin",
-    RotationType.OBLIMAX: "oblimax",
     RotationType.QUARTIMIN: "quartimin",
     RotationType.QUARTIMAX: "quartimax",
     RotationType.EQUAMAX: "equamax",
@@ -150,6 +149,11 @@ def recalculate_factor_analysis_study(elements, result: FactorAnalysisResult, up
     cfg = result.config
     result.result_elements = []
     result.warnings = []
+
+    # Migrate removed/unknown rotations (e.g. "oblimax", dropped because factor_analyzer and GPArotation
+    # disagree on it) to no rotation, so old saves keep opening instead of erroring on RotationType().
+    if cfg.rotation not in {rotation.value for rotation in RotationType}:
+        cfg.rotation = RotationType.NONE.value
 
     selected = cfg.column_selector[0] if cfg.column_selector else None
     if not selected or len(selected) < 2:
@@ -417,6 +421,9 @@ def recalculate_factor_analysis_study(elements, result: FactorAnalysisResult, up
                     + [Cell(format_r_apa(phi[i, j]), center=True) for j in range(m)]
                 )
             )
+        phi_table.add_numeric_supplement(
+            {"kind": "efa_phi", "phi": [[float(phi[i, j]) for j in range(m)] for i in range(m)]}
+        )
         result.update_and_add_element(phi_table, "efa phi")
 
         structure = loadings @ phi
@@ -432,6 +439,13 @@ def recalculate_factor_analysis_study(elements, result: FactorAnalysisResult, up
                 )
             )
         struct_table.table_note = numbering.append_to_note(struct_table.table_note or "")
+        struct_table.add_numeric_supplement(
+            {
+                "kind": "efa_structure",
+                "columns": [str(c) for c in columns],
+                "structure": [[float(structure[idx, j]) for j in range(m)] for idx in range(len(columns))],
+            }
+        )
         result.update_and_add_element(struct_table, "efa structure")
 
     result.title_context = f"{m} factors, {cfg.rotation}"

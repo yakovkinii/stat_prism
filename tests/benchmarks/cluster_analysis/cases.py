@@ -15,7 +15,28 @@ def cluster_data() -> pd.DataFrame:
 
 # Only the deterministic hierarchical path is benchmarked (KMeans is reproducible via random_state=0
 # but not cross-validated against R). standardize off so no sd-convention (ddof) mismatch arises.
+# One case per supported linkage method -- each is a distinct scipy_linkage / R hclust algorithm.
 CASES = [
-    {"study": "hierarchical_ward", "method": "Hierarchical", "linkage": "Ward", "k": 3,
-     "kind": "cluster_hierarchical"},
+    {"study": "hierarchical_ward", "method": "Hierarchical", "linkage": "Ward", "k": 3, "kind": "cluster_hierarchical"},
+    {
+        "study": "hierarchical_complete",
+        "method": "Hierarchical",
+        "linkage": "Complete",
+        "k": 3,
+        "kind": "cluster_hierarchical",
+    },
+    {
+        "study": "hierarchical_average",
+        "method": "Hierarchical",
+        "linkage": "Average",
+        "k": 3,
+        "kind": "cluster_hierarchical",
+    },
+    {
+        "study": "hierarchical_single",
+        "method": "Hierarchical",
+        "linkage": "Single",
+        "k": 3,
+        "kind": "cluster_hierarchical",
+    },
 ]

@@ -21,9 +21,7 @@ def multiple_response_payload(case: dict) -> dict:
     import src.side_area_panel.modules.common.result.registry  # noqa: F401
     from src.data.data import Data
     from src.data.data_manager import DATA_MANAGER
-    from src.side_area_panel.modules.multiple_response.multiple_response_main import (
-        recalculate_multiple_response_study,
-    )
+    from src.side_area_panel.modules.multiple_response.multiple_response_main import recalculate_multiple_response_study
     from src.side_area_panel.modules.multiple_response.multiple_response_result import (
         MultipleResponseResult,
         MultipleResponseStudyConfig,
@@ -51,8 +49,11 @@ def multiple_response_payload(case: dict) -> dict:
     return {
         "error": "",
         "options": {
-            opt: {"count": _clean(v["count"]), "pct_responses": _clean(v["pct_responses"]),
-                  "pct_cases": _clean(v["pct_cases"])}
+            opt: {
+                "count": _clean(v["count"]),
+                "pct_responses": _clean(v["pct_responses"]),
+                "pct_cases": _clean(v["pct_cases"]),
+            }
             for opt, v in s["options"].items()
         },
         "total_selections": _clean(s["total_selections"]),

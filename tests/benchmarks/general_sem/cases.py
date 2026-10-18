@@ -18,4 +18,8 @@ def sem_data() -> pd.DataFrame:
 CASES = [
     {"study": "sem_fit", "kind": "sem_fit"},
     {"study": "sem_params", "kind": "sem_params"},
+    # Covariance (undirected ~~) path between the two factors instead of a regression.
+    {"study": "sem_covariance", "paths": [{"from": "F1", "to": "F2", "type": "~~"}], "kind": "sem_params"},
+    # DWLS estimator (robust): semopy DWLS on the standardized values + WLSMV-scaled fit indices.
+    {"study": "sem_dwls_fit", "estimator": "Diagonally Weighted LS (DWLS)", "kind": "sem_fit"},
 ]
