@@ -1,0 +1,28 @@
+{
+  "tolerance": 1e-06,
+  "generated_by": "tests/benchmarks/multiple_response/r/generate_multiple_response_benchmarks.R",
+  "studies": {
+    "frequencies": {
+      "error": "",
+      "options": {
+        "opt_a": {
+          "count": 6,
+          "pct_responses": 37.5,
+          "pct_cases": 60
+        },
+        "opt_b": {
+          "count": 6,
+          "pct_responses": 37.5,
+          "pct_cases": 60
+        },
+        "opt_c": {
+          "count": 4,
+          "pct_responses": 25,
+          "pct_cases": 40
+        }
+      },
+      "total_selections": 16,
+      "n_cases": 10
+    }
+  }
+}
