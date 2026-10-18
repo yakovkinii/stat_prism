@@ -263,6 +263,7 @@ def recalculate_descriptive_study(elements, result: DescriptiveResult, update) -
             groupby_column=grouping_column,
             numbering=numbering,
         )
+        summary.add_numeric_supplement({"kind": "numeric_summary", "rows": rows})
 
         # Outlier report, placed directly beneath the main summary table. Each sentence
         # names both the variable and (when grouping is set) the group; finally every
@@ -316,6 +317,7 @@ def recalculate_descriptive_study(elements, result: DescriptiveResult, update) -
             prose_detail=cfg.interpretation,
             numbering=numbering,
         )
+        normality.add_numeric_supplement({"kind": "normality", "rows": norm_rows})
         result.update_and_add_element(normality, "descriptive normality")
 
     # ----- Categorical frequency tables (split by group when grouping is set) -----

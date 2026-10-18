@@ -300,11 +300,15 @@ def process_non_normal_anova(
     accepted_columns = []
     rejected_columns = []
     significant_columns = []
+    supplement_rows = []
 
     for col in columns:
         groups = [df.loc[df[grouping_column] == name, col].dropna() for name in group_names]
 
         h_stat, p_val = stats.kruskal(*groups)
+        supplement_rows.append(
+            {"variable": col, "h": float(h_stat), "p": float(p_val), "df": float(len(groups) - 1)}
+        )
 
         median_iqr = [median_iqr_display(data, col, group) for group in groups]
 
@@ -348,6 +352,7 @@ def process_non_normal_anova(
         table.add_text(prose)
 
     table.table_note = numbering.append_to_note(table.table_note or "")
+    table.add_numeric_supplement({"kind": "kruskal", "rows": supplement_rows})
     if not effect_size:
         return (table,)
 
@@ -363,6 +368,16 @@ def process_non_normal_anova(
         df_val = df[[col, grouping_column]].dropna(subset=[col])
         posthoc_results = posthoc_dunn(df_val, val_col=col, group_col=grouping_column)
         posthoc_results = posthoc_results.reindex(index=group_names, columns=group_names)
+        post_hoc_table.add_numeric_supplement(
+            {
+                "kind": "posthoc_dunn",
+                "pairs": {
+                    f"{group_names[i]}__{group_names[j]}": float(posthoc_results.iloc[i, j])
+                    for i in range(len(group_names))
+                    for j in range(i)
+                },
+            }
+        )
         for i, group_name in enumerate(group_names):
             row = [Cell(group_name, push_to_left=True)]
             for j in range(i + 1):
@@ -446,6 +461,7 @@ def process_non_homogeneous_anova(
     accepted_columns = []
     rejected_columns = []
     significant_columns = []
+    supplement_rows = []
 
     for col in columns:
         group_data = [df[df[grouping_column] == name][col].dropna() for name in group_names]
@@ -457,6 +473,16 @@ def process_non_homogeneous_anova(
         df_within = f"{welch_result['ddof2'].values[0]:.1f}"
         # pingouin reports partial eta-squared (np2) for the Welch ANOVA.
         eta_sq = welch_result["np2"].values[0] if "np2" in welch_result.columns else np.nan
+        supplement_rows.append(
+            {
+                "variable": col,
+                "f": float(f_stat),
+                "p": float(p_val),
+                "df_between": float(df_between),
+                "df_within": float(welch_result["ddof2"].values[0]),
+                "partial_eta2": float(eta_sq),
+            }
+        )
 
         if p_val > 0.05:
             accepted_columns.append(
@@ -505,6 +531,7 @@ def process_non_homogeneous_anova(
         table.add_text(prose)
 
     table.table_note = numbering.append_to_note(table.table_note or "")
+    table.add_numeric_supplement({"kind": "anova_welch", "rows": supplement_rows})
     if not effect_size:
         return (table,)
 
@@ -520,6 +547,16 @@ def process_non_homogeneous_anova(
         df_val = df[[col, grouping_column]].dropna(subset=[col])
         posthoc_results = posthoc_tamhane(df_val, val_col=col, group_col=grouping_column)
         posthoc_results = posthoc_results.reindex(index=group_names, columns=group_names)
+        post_hoc_table.add_numeric_supplement(
+            {
+                "kind": "posthoc_tamhane",
+                "pairs": {
+                    f"{group_names[i]}__{group_names[j]}": float(posthoc_results.iloc[i, j])
+                    for i in range(len(group_names))
+                    for j in range(i)
+                },
+            }
+        )
 
         for i, group_name in enumerate(group_names):
             row = [Cell(group_name, push_to_left=True)]
@@ -605,6 +642,7 @@ def process_homogeneous_anova(
     accepted_columns = []
     rejected_columns = []
     significant_columns = []
+    supplement_rows = []
 
     for col in columns:
         group_data = [df[df[grouping_column] == name][col].dropna() for name in group_names]
@@ -621,6 +659,16 @@ def process_homogeneous_anova(
             (df_between * f_stat) / (df_between * f_stat + df_within)
             if np.isfinite(f_stat) and (df_between * f_stat + df_within) > 0
             else np.nan
+        )
+        supplement_rows.append(
+            {
+                "variable": col,
+                "f": float(f_stat),
+                "p": float(p_val),
+                "df_between": float(df_between),
+                "df_within": float(df_within),
+                "eta2": float(eta_sq),
+            }
         )
 
         if p_val > 0.05:
@@ -671,6 +719,7 @@ def process_homogeneous_anova(
         table.add_text(prose)
 
     table.table_note = numbering.append_to_note(table.table_note or "")
+    table.add_numeric_supplement({"kind": "anova_oneway", "rows": supplement_rows})
     if not effect_size:
         return (table,)
 
@@ -686,6 +735,16 @@ def process_homogeneous_anova(
         df_val = df[[col, grouping_column]].dropna(subset=[col])
         posthoc_results = posthoc_tukey_hsd(df_val, val_col=col, group_col=grouping_column)
         posthoc_results = posthoc_results.reindex(index=group_names, columns=group_names)
+        posthoc_table.add_numeric_supplement(
+            {
+                "kind": "posthoc_tukey",
+                "pairs": {
+                    f"{group_names[i]}__{group_names[j]}": float(posthoc_results.iloc[i, j])
+                    for i in range(len(group_names))
+                    for j in range(i)
+                },
+            }
+        )
 
         for i, group_name in enumerate(group_names):
             row = [Cell(group_name, push_to_left=True)]

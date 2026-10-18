@@ -409,6 +409,7 @@ class BaseModulePanel:
         if card is not None and hasattr(card, "set_stale"):
             card.set_stale(False)
         result.update_description()
+        result.drop_numeric_supplement()
         self.root_class.mark_dirty()
         RESULTS[focused_id] = result
         main_area.refresh_result(result_id=focused_id)

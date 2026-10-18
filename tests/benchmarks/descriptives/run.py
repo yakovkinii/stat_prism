@@ -17,24 +17,55 @@ def _clean(value):
     return None if math.isnan(value) else value
 
 
-def descriptives_payload(case: dict) -> dict:
-    # Load registry first so the BaseResult <-> *Result mutual import resolves before descriptive_main
-    # pulls descriptive_result (otherwise ImportError on a cold import).
-    import src.side_area_panel.modules.common.result.registry  # noqa: F401
-    from src.data.data import Data
-    from src.side_area_panel.modules.descriptive.descriptive_main import _normality_stats, _numeric_stats
+def _build_data(df):
+    import pandas as pd
 
-    df = case["data"]()
-    col = case["column"]
+    from src.common.constant import ID_COLUMN_NAME, ColumnType
+    from src.data.data import Data, DataColumn
+
     data = Data.initialize_from_dataframe(df)
+    # recalculate_descriptive_study reads the dataframe with include_id_column=True (for the outlier
+    # ID list), so the data must carry an ID column, exactly as an imported dataset does.
+    index = data.columns[0].data_series.index
+    id_series = pd.Series(range(1, len(index) + 1), index=index, name=ID_COLUMN_NAME)
+    id_column = DataColumn.initialize_from_series(id_series)
+    id_column.column_type = ColumnType.ID
+    id_column.is_numeric = False
+    data.add_column_first(id_column)
+    return data
 
+
+def descriptives_payload(case: dict) -> dict:
+    # Drive the real recalculate_descriptive_study and read the supplements it attaches to its tables.
+    import src.side_area_panel.modules.common.result.registry  # noqa: F401
+    from src.data.data_manager import DATA_MANAGER
+    from src.side_area_panel.modules.descriptive.descriptive_main import recalculate_descriptive_study
+    from src.side_area_panel.modules.descriptive.descriptive_result import DescriptiveResult, DescriptiveStudyConfig
+
+    col = case["column"]
+    cfg = DescriptiveStudyConfig(
+        data_source="Auto",
+        column_selector=[[col], []],
+        show_normality=(case["mode"] == "normality"),
+        normality_test=case.get("test"),
+    )
+    data = _build_data(case["data"]())
+    original = DATA_MANAGER.get_data_from_data_label
+    DATA_MANAGER.get_data_from_data_label = lambda *a, **k: data
+    try:
+        result = DescriptiveResult(unique_id=1, settings_panel_index=0, config=cfg)
+        recalculate_descriptive_study(None, result, lambda _p: None)
+    finally:
+        DATA_MANAGER.get_data_from_data_label = original
+
+    supplements = result.numeric_supplements()
     if case["mode"] == "summary":
-        stats = _numeric_stats(data, col, None, df[col])
+        rows = next(s for s in supplements if s.get("kind") == "numeric_summary")["rows"]
+        stats = next(r for r in rows if r["variable"] == col and r["group"] is None)
         return {"error": "", "stats": {key: _clean(stats[key]) for key in SUMMARY_KEYS}}
-    if case["mode"] == "normality":
-        result = _normality_stats(col, None, df[col], case["test"])
-        return {"error": "", "statistic": _clean(result["norm_stat"]), "p": _clean(result["norm_p"])}
-    raise ValueError(f"Unknown case mode: {case['mode']}")
+    rows = next(s for s in supplements if s.get("kind") == "normality")["rows"]
+    row = next(r for r in rows if r["variable"] == col and r["group"] is None)
+    return {"error": "", "statistic": _clean(row["norm_stat"]), "p": _clean(row["norm_p"])}
 
 
 def run_case(case: dict, benchmarks: dict) -> BenchmarkCaseResult:

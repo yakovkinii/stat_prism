@@ -223,6 +223,9 @@ def recalculate_correlation_study(elements, result: CorrelationResult, update) -
         html_table = get_table_full(
             columns, correlation_matrix, p_matrix, df_matrix, kind=kind, ci_matrix=ci_matrix, numbering=numbering
         )
+    html_table.add_numeric_supplement(
+        {"kind": "correlation", "correlation_matrix": correlation_matrix, "p_matrix": p_matrix}
+    )
 
     # Verbal report (optional; prefixed with a note when these are partial correlations)
     if prose_enabled(cfg.interpretation):
@@ -313,6 +316,9 @@ def _run_cross(result, cfg, data, rows, cols, control_columns, kind, is_partial,
         compact=cfg.compact,
         ci_matrix=ci_matrix,
         numbering=numbering,
+    )
+    html_table.add_numeric_supplement(
+        {"kind": "correlation", "correlation_matrix": correlation_matrix, "p_matrix": p_matrix}
     )
 
     if prose_enabled(cfg.interpretation):

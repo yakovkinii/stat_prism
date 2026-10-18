@@ -27,13 +27,45 @@ def _clean_number(value):
     return value
 
 
-def reliability_numeric_payload(numeric) -> dict:
+def _build_data(case):
+    from src.common.constant import ColumnType
+    from src.data.data import Data
+
+    data = Data.initialize_from_dataframe(case["data"]())
+    for column_name, order in (case.get("ordinal_order") or {}).items():
+        column = data[column_name]
+        column.column_type = ColumnType.ORDINAL
+        column.is_numeric = False
+        column.order = {value: index for index, value in enumerate(order, start=1)}
+    return data
+
+
+def reliability_payload(case: dict) -> dict:
+    # Drive the real recalculate_reliability_study and read the supplements it attaches to its tables.
+    import src.side_area_panel.modules.common.result.registry  # noqa: F401
+    from src.data.data_manager import DATA_MANAGER
+    from src.side_area_panel.modules.reliability.reliability_main import recalculate_reliability_study
+    from src.side_area_panel.modules.reliability.reliability_result import ReliabilityResult, ReliabilityStudyConfig
+
+    cfg = ReliabilityStudyConfig(**vars(case["config"]()))
+    data = _build_data(case)
+    original = DATA_MANAGER.get_data_from_data_label
+    DATA_MANAGER.get_data_from_data_label = lambda *a, **k: data
+    try:
+        result = ReliabilityResult(unique_id=1, settings_panel_index=0, config=cfg)
+        recalculate_reliability_study(None, result, lambda _p: None)
+    finally:
+        DATA_MANAGER.get_data_from_data_label = original
+
+    supplements = result.numeric_supplements()
+    scale = next(s for s in supplements if s.get("kind") == "reliability_scale")
+    items = next(s for s in supplements if s.get("kind") == "reliability_items")["items"]
     return {
-        "error": numeric.error,
+        "error": "",
         "scale": {
-            "n_items": numeric.n_items,
-            "alpha": _clean_number(numeric.alpha),
-            "omega": _clean_number(numeric.omega),
+            "n_items": scale["n_items"],
+            "alpha": _clean_number(scale["alpha"]),
+            "omega": _clean_number(scale["omega"]),
         },
         "items": [
             {
@@ -42,31 +74,14 @@ def reliability_numeric_payload(numeric) -> dict:
                 "alpha_deleted": _clean_number(item.alpha_deleted),
                 "omega_deleted": _clean_number(item.omega_deleted),
             }
-            for item in numeric.items
+            for item in items
         ],
     }
 
 
 def run_case(case: dict, benchmarks: dict) -> BenchmarkCaseResult:
-    from src.common.constant import ColumnType
-    from src.data.data import Data
-    from src.side_area_panel.modules.reliability.reliability_main import compute_reliability
-
     study = case["study"]
-    config = case["config"]()
-    df = case["data"]()
-    items = config.column_selector[0]
-    if case.get("ordinal_order"):
-        data = Data.initialize_from_dataframe(df)
-        for column_name, order in case["ordinal_order"].items():
-            data[column_name].column_type = ColumnType.ORDINAL
-            data[column_name].is_numeric = False
-            data[column_name].order = {value: index for index, value in enumerate(order, start=1)}
-        item_frame = data.get_dataframe(columns=items, map_ordinal=True)
-    else:
-        item_frame = df[items].copy()
-    numeric = compute_reliability(config, item_frame)
-    actual = reliability_numeric_payload(numeric)
+    actual = reliability_payload(case)
     expected = benchmarks["studies"][study]
     comparisons = compare_payloads(
         actual,

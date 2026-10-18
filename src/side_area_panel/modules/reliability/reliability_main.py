@@ -307,6 +307,15 @@ def recalculate_reliability_study(elements, result: ReliabilityResult, update) -
     # "Verbal report" dropdown (any enabled level prints the scale-level summary).
     if prose_enabled(config.interpretation):
         coef_table.add_text(report)
+    coef_table.add_numeric_supplement(
+        {
+            "kind": "reliability_scale",
+            "scale_name": numeric.scale_name,
+            "n_items": numeric.n_items,
+            "alpha": numeric.alpha,
+            "omega": numeric.omega,
+        }
+    )
     result.update_and_add_element(coef_table, "reliability alpha")
 
     # ----- If item removed table -----
@@ -356,6 +365,7 @@ def recalculate_reliability_study(elements, result: ReliabilityResult, update) -
         elif item_detail == ProseDetail.FULL:
             item_table.add_text(t("reliability.report.item_none"))
     item_table.table_note = numbering.append_to_note(item_table.table_note or "")
+    item_table.add_numeric_supplement({"kind": "reliability_items", "items": numeric.items})
     # The "if item removed" table is optional (off by default).
     if config.item_deleted_table:
         result.update_and_add_element(item_table, "reliability item_deleted")

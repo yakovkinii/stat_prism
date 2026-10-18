@@ -356,6 +356,7 @@ def process_non_normal_t_test(
 
     accepted_columns = []
     rejected_columns = []
+    supplement_rows = []
 
     for col in columns:
         # An empty group (a column with no data in one group) leaves the test undefined; like the
@@ -371,6 +372,18 @@ def process_non_normal_t_test(
         # Directional rank-biserial correlation (keeps the sign of the effect):
         # computed from U1 so a positive value means group 1 tends to rank higher.
         rank_biserial_correlation = 1 - 2 * u1_stat / (len(group1) * len(group2))
+        supplement_rows.append(
+            {
+                "variable": col,
+                "u": float(u_stat),
+                "p": float(p_val),
+                "rank_biserial": float(rank_biserial_correlation),
+                "median1": float(group1.median()),
+                "iqr1": float(group1.quantile(0.75) - group1.quantile(0.25)),
+                "median2": float(group2.median()),
+                "iqr2": float(group2.quantile(0.75) - group2.quantile(0.25)),
+            }
+        )
 
         if effect_size:
             test_result = TestResult(
@@ -383,7 +396,6 @@ def process_non_normal_t_test(
             accepted_columns.append(test_result)
         else:
             rejected_columns.append(test_result)
-
         table.add_single_row_apa(
             Row(
                 [
@@ -422,6 +434,7 @@ def process_non_normal_t_test(
     if prose:
         table.add_text(prose)
     table.table_note = numbering.append_to_note(table.table_note or "")
+    table.add_numeric_supplement({"kind": "mann_whitney", "rows": supplement_rows})
     return table
 
 
@@ -481,6 +494,7 @@ def process_homogeneous_t_test(
     accepted_columns = []
     rejected_columns = []
     ci_items = []
+    supplement_rows = []
 
     for col in columns:
         group1 = df[df[grouping_column] == df[grouping_column].unique()[0]][col].dropna()
@@ -497,6 +511,25 @@ def process_homogeneous_t_test(
         ci_str = _cohen_d_ci(cohen_d, len(group1), len(group2))
         if show_ci:
             ci_items.append(f"{col} {ci_str}")
+        _d_se = (
+            (len(group1) + len(group2)) / (len(group1) * len(group2))
+            + cohen_d**2 / (2 * (len(group1) + len(group2)))
+        ) ** 0.5
+        supplement_rows.append(
+            {
+                "variable": col,
+                "t": float(t_stat),
+                "p": float(p_val),
+                "df": float(deg_free),
+                "mean1": float(mean[0]),
+                "sd1": float(std[0]),
+                "mean2": float(mean[1]),
+                "sd2": float(std[1]),
+                "cohen_d": float(cohen_d),
+                "ci_low": float(cohen_d - 1.96 * _d_se),
+                "ci_high": float(cohen_d + 1.96 * _d_se),
+            }
+        )
         if effect_size:
             test_result = TestResult(
                 variable=col, letter=["t", "Cohen's d"], statistic=[t_stat, cohen_d], p=p_val, df=f"{deg_free:.1f}"
@@ -550,6 +583,7 @@ def process_homogeneous_t_test(
     if ci_items and prose_enabled(prose_detail):
         table.add_text(t("ttest.ci_sentence", items=smart_comma_join(ci_items)))
     table.table_note = numbering.append_to_note(table.table_note or "")
+    table.add_numeric_supplement({"kind": "ttest_homogeneous", "rows": supplement_rows})
     return table
 
 
@@ -610,6 +644,7 @@ def process_non_homogeneous_t_test(
     accepted_columns = []
     rejected_columns = []
     ci_items = []
+    supplement_rows = []
 
     for col in columns:
         group1 = df[df[grouping_column] == df[grouping_column].unique()[0]][col].dropna()
@@ -626,6 +661,25 @@ def process_non_homogeneous_t_test(
         ci_str = _cohen_d_ci(cohen_d, len(group1), len(group2))
         if show_ci:
             ci_items.append(f"{col} {ci_str}")
+        _d_se = (
+            (len(group1) + len(group2)) / (len(group1) * len(group2))
+            + cohen_d**2 / (2 * (len(group1) + len(group2)))
+        ) ** 0.5
+        supplement_rows.append(
+            {
+                "variable": col,
+                "t": float(t_stat),
+                "p": float(p_val),
+                "df": float(deg_free),
+                "mean1": float(mean[0]),
+                "sd1": float(std[0]),
+                "mean2": float(mean[1]),
+                "sd2": float(std[1]),
+                "cohen_d": float(cohen_d),
+                "ci_low": float(cohen_d - 1.96 * _d_se),
+                "ci_high": float(cohen_d + 1.96 * _d_se),
+            }
+        )
 
         if effect_size:
             test_result = TestResult(
@@ -678,4 +732,5 @@ def process_non_homogeneous_t_test(
     if ci_items and prose_enabled(prose_detail):
         table.add_text(t("ttest.ci_sentence", items=smart_comma_join(ci_items)))
     table.table_note = numbering.append_to_note(table.table_note or "")
+    table.add_numeric_supplement({"kind": "ttest_welch", "rows": supplement_rows})
     return table

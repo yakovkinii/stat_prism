@@ -71,41 +71,54 @@ def _cross_pairs(study, corr, pmat, rows, cols) -> dict:
     return pairs
 
 
-def correlation_payload(case: dict) -> dict:
-    # Load registry first so the BaseResult <-> *Result mutual import resolves before the correlation
-    # math module pulls correlation_result (otherwise ImportError on a cold import).
-    import src.side_area_panel.modules.common.result.registry  # noqa: F401
-    from src.side_area_panel.modules.common.mathematics.correlation.correlation import (
-        calculate_correlations,
-        calculate_cross_correlations,
-        calculate_partial_correlations,
-        calculate_partial_cross_correlations,
-    )
-    from src.side_area_panel.modules.correlation.correlation_result import CORRELATION_TYPE_MAP
-
-    df = case["data"]()
-    kind = CORRELATION_TYPE_MAP[case["correlation_type"]]
-    study, mode = case["study"], case["mode"]
-
+def _column_selector(case: dict):
+    mode = case["mode"]
     if mode == "square":
-        columns = case["columns"]
-        corr, pmat, _df = calculate_correlations(df[columns], kind)
-        pairs = _square_pairs(study, corr, pmat, columns)
-    elif mode == "partial":
-        columns, controls = case["columns"], case["controls"]
-        corr, pmat, _df = calculate_partial_correlations(df[columns + controls], columns, controls, kind)
-        pairs = _square_pairs(study, corr, pmat, columns)
-    elif mode == "cross":
-        rows, cols = case["rows"], case["cols"]
-        corr, pmat, _df = calculate_cross_correlations(df[rows + cols], rows, cols, kind)
-        pairs = _cross_pairs(study, corr, pmat, rows, cols)
-    elif mode == "partial_cross":
-        rows, cols, controls = case["rows"], case["cols"], case["controls"]
-        corr, pmat, _df = calculate_partial_cross_correlations(df[rows + cols + controls], rows, cols, controls, kind)
-        pairs = _cross_pairs(study, corr, pmat, rows, cols)
-    else:
-        raise ValueError(f"Unknown case mode: {mode}")
+        return [list(case["columns"]), [], []]
+    if mode == "partial":
+        return [list(case["columns"]), list(case["controls"]), []]
+    if mode == "cross":
+        return [list(case["rows"]), [], list(case["cols"])]
+    if mode == "partial_cross":
+        return [list(case["rows"]), list(case["controls"]), list(case["cols"])]
+    raise ValueError(f"Unknown case mode: {mode}")
 
+
+def correlation_payload(case: dict) -> dict:
+    # Drive the real recalculate_correlation_study and read the numeric supplement it attaches to the
+    # result table -- the same path the GUI runs. (registry first so the BaseResult <-> *Result
+    # mutual import resolves before correlation_result is pulled.)
+    import src.side_area_panel.modules.common.result.registry  # noqa: F401
+    from src.data.data import Data
+    from src.data.data_manager import DATA_MANAGER
+    from src.side_area_panel.modules.correlation.correlation_main import recalculate_correlation_study
+    from src.side_area_panel.modules.correlation.correlation_result import CorrelationResult, CorrelationStudyConfig
+
+    cfg = CorrelationStudyConfig(
+        data_source="Auto",
+        column_selector=_column_selector(case),
+        correlation_type=case["correlation_type"],
+    )
+    data = Data.initialize_from_dataframe(case["data"]())
+    original = DATA_MANAGER.get_data_from_data_label
+    DATA_MANAGER.get_data_from_data_label = lambda *a, **k: data
+    try:
+        result = CorrelationResult(unique_id=1, settings_panel_index=0, config=cfg)
+        recalculate_correlation_study(None, result, lambda _p: None)
+    finally:
+        DATA_MANAGER.get_data_from_data_label = original
+
+    supplements = [s for s in result.numeric_supplements() if s.get("kind") == "correlation"]
+    if not supplements:
+        raise AssertionError(f"{case['study']}: no correlation supplement (error={result.error_message!r})")
+    corr = supplements[0]["correlation_matrix"]
+    pmat = supplements[0]["p_matrix"]
+    study = case["study"]
+
+    if case["mode"] in ("square", "partial"):
+        pairs = _square_pairs(study, corr, pmat, list(corr.index))
+    else:
+        pairs = _cross_pairs(study, corr, pmat, list(corr.index), list(corr.columns))
     return {"error": "", "pairs": pairs}
 
 
