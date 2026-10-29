@@ -52,12 +52,6 @@
 # nuitka-project: --nofollow-import-to=*.tests
 # nuitka-project: --nofollow-import-to=*.benchmarks
 # nuitka-project: --nofollow-import-to=sympy.testing
-# StatPrism does its own i18n (src/common/translations.py) and never installs a Qt QTranslator, so
-# the bundled Qt .qm translations (~48 MB under PySide6/translations) are never loaded. Skip them.
-# The WebEngine/QML/DataVisualization/PDF Qt libraries cannot be excluded by a flag (the PySide6
-# plugin force-bundles qt6webenginecore.dll + its QML deps, ~195 MB, although nothing imports them);
-# they are pruned from the dist in .github/workflows/build-windows.yml before the installer is built.
-# nuitka-project: --noinclude-qt-translations
 # nuitka-project-if: {OS} == "Windows":
 #    nuitka-project: --windows-console-mode=disable
 #    nuitka-project: --output-filename=StatPrism.exe
