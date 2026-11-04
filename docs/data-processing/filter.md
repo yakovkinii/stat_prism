@@ -9,5 +9,5 @@ Keeps only the rows that match a condition on one column.
 - **Categorical columns:** tick the category values to keep. Missing and blank values appear
   as `—`.
 
-Rows that don't match are removed downstream; previewing shows them in red. Toggle the step
+Rows that do not match are removed downstream; previewing shows them in red. Toggle the step
 off to keep all rows.

@@ -1,0 +1,295 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2026, StatPrism Team
+# This file is distributed under the same license as the StatPrism package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2026.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: StatPrism 1.3\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-11-04 13:45+0100\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language: uk\n"
+"Language-Team: uk <LL@li.org>\n"
+"Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
+"n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.18.0\n"
+
+#: ../../guides/organizing-data.md:1
+msgid "Organizing and cleaning your data"
+msgstr "Упорядкування та очищення даних"
+
+#: ../../guides/organizing-data.md:3
+msgid ""
+"Real survey exports are rarely tidy. This guide shows the point-and-click"
+" ways to fix and organize your columns before you analyze them. Do as "
+"much or as little as you need – each fix is its own step, and everything "
+"downstream updates on its own."
+msgstr ""
+"Реальні експорти опитувань рідко бувають охайними. Цей гайд показує "
+"point-and-click способи виправити та впорядкувати колонки, перш ніж ви "
+"почнете їх аналізувати. Робіть стільки, скільки потрібно – кожне "
+"виправлення є окремим кроком, і все подальше оновлюється саме собою."
+
+#: ../../guides/organizing-data.md:7
+msgid "Fixing wrong answers (mapping)"
+msgstr "Виправлення хибних відповідей (зіставлення)"
+
+#: ../../guides/organizing-data.md:9
+msgid ""
+"Sometimes a respondent types something that does not belong – for "
+"example, in an \"enter your age\" question someone writes the word "
+"*thirty* instead of `30`. You can correct these without editing the "
+"spreadsheet by hand:"
+msgstr ""
+"Іноді респондент вводить щось недоречне – наприклад, у питанні \"введіть "
+"свій вік\" хтось пише слово *тридцять* замість `30`. Ви можете виправити "
+"такі випадки, не редагуючи таблицю вручну:"
+
+#: ../../guides/organizing-data.md:13
+#, python-brace-format
+msgid "Add a {doc}`../data-processing/preprocess` step."
+msgstr "Додайте крок {doc}`../data-processing/preprocess`."
+
+#: ../../guides/organizing-data.md:14
+msgid "On that column, click **Map values…**."
+msgstr "На цій колонці натисніть **Map values…**."
+
+#: ../../guides/organizing-data.md:15
+msgid "Find the odd answer and type what it should become (e.g. `thirty` → `30`)."
+msgstr ""
+"Знайдіть дивну відповідь і впишіть, на що вона має перетворитися "
+"(наприклад, `thirty` → `30`)."
+
+#: ../../guides/organizing-data.md:17
+msgid ""
+"The same mapping converts text answers to numbers (e.g. *Strongly agree* "
+"→ `5`)."
+msgstr ""
+"Те саме зіставлення перетворює текстові відповіді на числа (наприклад, "
+"*Strongly agree* → `5`)."
+
+#: ../../guides/organizing-data.md:19
+msgid "Turning numbers into groups"
+msgstr "Перетворення чисел на групи"
+
+#: ../../guides/organizing-data.md:21
+#, python-brace-format
+msgid ""
+"You can also bundle a numeric column into categories – for example, split"
+" **age** into `<25`, `25–40`, and `40+`. Use a {doc}`../data-"
+"processing/group` step: pick the column and define the cut points. This "
+"is useful for group comparisons or contingency tables later."
+msgstr ""
+"Ви також можете згрупувати числову колонку в категорії – наприклад, "
+"розбити **age** на `<25`, `25–40` та `40+`. Скористайтеся кроком {doc"
+"}`../data-processing/group`: виберіть колонку й задайте точки поділу. Це "
+"стане у пригоді для порівняння груп або таблиць спряженості згодом."
+
+#: ../../guides/organizing-data.md:25
+msgid "Renaming columns"
+msgstr "Перейменування колонок"
+
+#: ../../guides/organizing-data.md:27
+msgid "Long questions make poor column names. There are two ways to rename:"
+msgstr ""
+"Довгі питання стають поганими назвами колонок. Перейменувати можна двома "
+"способами:"
+
+#: ../../guides/organizing-data.md:29
+#, python-brace-format
+msgid ""
+"**By hand:** in {doc}`../data-processing/preprocess`, click a column's "
+"name and type a shorter one (e.g. `Q1`). Press **Tab** in the empty field"
+" to bring back the original."
+msgstr ""
+"**Вручну:** у {doc}`../data-processing/preprocess` натисніть на назву "
+"колонки та впишіть коротшу (наприклад, `Q1`). Натисніть **Tab** у "
+"порожньому полі, щоб повернути початкову назву."
+
+#: ../../guides/organizing-data.md:31
+#, python-brace-format
+msgid ""
+"**Automatically:** when you build a scale with {doc}`../data-processing"
+"/calculate-scale`, choose the **auto-rename** option and its items are "
+"renamed for you (`Scale Q1`, `Scale Q2`, …)."
+msgstr ""
+"**Автоматично:** коли ви будуєте шкалу за допомогою {doc}`../data-"
+"processing/calculate-scale`, виберіть опцію **auto-rename**, і її пункти "
+"буде перейменовано за вас (`Scale Q1`, `Scale Q2`, …)."
+
+#: ../../guides/organizing-data.md:34
+msgid "Coloring columns"
+msgstr "Розфарбовування колонок"
+
+#: ../../guides/organizing-data.md:36
+#, python-brace-format
+msgid ""
+"Columns can carry a **color tag**. Give all the items of one survey the "
+"same color and they become easy to identify, and easier to pick out in a "
+"column selector when several surveys are mixed together. You can set "
+"colors in {doc}`../data-processing/preprocess`, and {doc}`../data-"
+"processing/calculate-scale` can recolor a whole set of items at once."
+msgstr ""
+"Колонки можуть мати **кольорову мітку**. Надайте всім пунктам одного "
+"опитування однаковий колір, і їх стане легко розпізнати, а також легше"
+" виокремити в селекторі колонок, коли кілька опитувань перемішані "
+"разом. Задати кольори можна в {doc}`../data-processing/preprocess`, а "
+"{doc}`../data-processing/calculate-scale` може перефарбувати цілий набір "
+"пунктів одночасно."
+
+#: ../../guides/organizing-data.md:41
+msgid "Reordering columns"
+msgstr "Зміна порядку колонок"
+
+#: ../../guides/organizing-data.md:43
+#, python-brace-format
+msgid ""
+"If a subscale uses only the first few questions, its new column can end "
+"up stranded in the middle of your dataset. Add an {doc}`../data-"
+"processing/arrange` step and drag the columns into whatever order you "
+"like – for example, move that scale to the end so all the raw items stay "
+"together. It is a plain drag-and-drop list, and columns are shown in "
+"their tag colors."
+msgstr ""
+"Якщо субшкала використовує лише перші кілька питань, її нова колонка може"
+" опинитися посеред набору даних. Додайте крок {doc}`../data-"
+"processing/arrange` і перетягніть колонки у будь-який зручний порядок – "
+"наприклад, перемістіть цю шкалу в кінець, щоб усі сирі пункти лишалися "
+"разом. Це звичайний список із перетягуванням, а колонки показано в "
+"кольорах їхніх міток."
+
+#: ../../guides/organizing-data.md:48
+msgid "Missing values and outliers"
+msgstr "Пропущені значення та викиди"
+
+#: ../../guides/organizing-data.md:50
+msgid "Two further options:"
+msgstr "Ще дві опції:"
+
+#: ../../guides/organizing-data.md:52
+#, python-brace-format
+msgid ""
+"**Missing answers** can be filled in with {doc}`../data-"
+"processing/impute` (for example, replace blanks with the column's "
+"median)."
+msgstr ""
+"**Пропущені відповіді** можна заповнити за допомогою {doc}`../data-"
+"processing/impute` (наприклад, замінити порожні клітинки медіаною "
+"колонки)."
+
+#: ../../guides/organizing-data.md:54
+#, python-brace-format
+msgid ""
+"**Outliers** (unusually extreme values) can be checked with several "
+"methods – see {doc}`../data-processing/outliers`."
+msgstr ""
+"**Викиди** (аномально екстремальні значення) можна перевірити кількома "
+"методами – див. {doc}`../data-processing/outliers`."
+
+#: ../../guides/organizing-data.md:57
+msgid ""
+"These are not needed for every study; use them only when your data "
+"requires it."
+msgstr ""
+"Вони потрібні не для кожного дослідження; застосовуйте їх лише тоді, коли"
+" цього вимагають ваші дані."
+
+#~ msgid ""
+#~ "Real survey exports are rarely tidy. "
+#~ "This guide shows the point-and-"
+#~ "click ways to fix and organize "
+#~ "your columns before you analyze them."
+#~ " Do as much or as little as "
+#~ "you need — each fix is its "
+#~ "own step, and everything downstream "
+#~ "updates on its own."
+#~ msgstr ""
+
+#~ msgid ""
+#~ "Sometimes a respondent types something "
+#~ "that doesn't belong — for example, "
+#~ "in an \"enter your age\" question "
+#~ "someone writes the word *thirty* instead"
+#~ " of `30`. You can correct these "
+#~ "without editing the spreadsheet by hand:"
+#~ msgstr ""
+
+#~ msgid ""
+#~ "The same trick converts text answers "
+#~ "to numbers (e.g. *Strongly agree* → "
+#~ "`5`)."
+#~ msgstr ""
+
+#~ msgid ""
+#~ "You can also bundle a numeric "
+#~ "column into categories — for example,"
+#~ " split **age** into `<25`, `25–40`, "
+#~ "and `40+`. Use a {doc}`../data-"
+#~ "processing/group` step: pick the column "
+#~ "and define the cut points. This is"
+#~ " handy for making group comparisons "
+#~ "or contingency tables later."
+#~ msgstr ""
+
+#~ msgid "Long questions make awful column names. Two easy ways to rename:"
+#~ msgstr ""
+
+#~ msgid ""
+#~ "**Automatically:** when you build a "
+#~ "scale with {doc}`../data-processing/calculate-"
+#~ "scale`, choose the **auto-rename** "
+#~ "option and its items are renamed "
+#~ "neatly for you (`Scale Q1`, `Scale "
+#~ "Q2`, …)."
+#~ msgstr ""
+
+#~ msgid ""
+#~ "Columns can carry a **color tag**. "
+#~ "Give all the items of one "
+#~ "questionnaire the same color and they"
+#~ " become easy to spot — and much"
+#~ " easier to pick out in a column"
+#~ " selector when several questionnaires are"
+#~ " mixed together. You can set colors"
+#~ " in {doc}`../data-processing/preprocess`, and "
+#~ "{doc}`../data-processing/calculate-scale` makes "
+#~ "it easy to recolor a whole set "
+#~ "of items at once."
+#~ msgstr ""
+
+#~ msgid ""
+#~ "If a subscale uses only the first"
+#~ " few questions, its new column can"
+#~ " end up stranded in the middle "
+#~ "of your dataset. Add an {doc"
+#~ "}`../data-processing/arrange` step and drag "
+#~ "the columns into whatever order you "
+#~ "like — for example, move that "
+#~ "scale to the end so all the "
+#~ "raw items stay together. It's a "
+#~ "plain drag-and-drop list, and "
+#~ "columns are shown in their tag "
+#~ "colors."
+#~ msgstr ""
+
+#~ msgid "Two more things you can do, in passing:"
+#~ msgstr ""
+
+#~ msgid ""
+#~ "**Outliers** (unusually extreme values) can"
+#~ " be checked with several methods —"
+#~ " see {doc}`../data-processing/outliers`."
+#~ msgstr ""
+
+#~ msgid ""
+#~ "You don't need these for every "
+#~ "study; reach for them only when "
+#~ "your data calls for it."
+#~ msgstr ""
+

@@ -32,7 +32,7 @@ from src.data.data import OrdinalCastError
 from src.data.data_manager import DATA_MANAGER
 from src.side_area_panel.modules.common.column_numbering import ColumnNumbering
 from src.side_area_panel.modules.common.mathematics.correlation.correlation import calculate_correlations
-from src.side_area_panel.modules.common.prose import prose_enabled
+from src.side_area_panel.modules.common.prose import ProseDetail, prose_at_least, prose_enabled
 from src.side_area_panel.modules.common.result.html_result import Cell, HTMLTableV2, Row
 from src.side_area_panel.modules.common.result.plot_result import Heatmap, Line, LinePlotConfig, PlotV2, Scatter
 from src.side_area_panel.modules.common.utility import (
@@ -43,6 +43,7 @@ from src.side_area_panel.modules.common.utility import (
     format_value_apa,
     ordinal_cast_error_message,
     ordinal_numeric_cast_warning,
+    smart_comma_join,
 )
 from src.side_area_panel.modules.correlation.correlation_result import CorrelationType
 from src.side_area_panel.modules.exploratory_factor_analysis.exploratory_factor_analysis_result import (
@@ -68,6 +69,60 @@ _METHOD_MAP = {
     ExtractionMethod.ML: "ml",
     ExtractionMethod.PRINCIPAL: "principal",
 }
+# Extraction method -> its spelled-out-name key, used by the verbose report's methods note.
+_EXTRACTION_KEY = {
+    ExtractionMethod.MINRES: "efa.extraction.minres",
+    ExtractionMethod.ML: "efa.extraction.ml",
+    ExtractionMethod.PRINCIPAL: "efa.extraction.paf",
+}
+# Loading at or above which an item counts as saliently loading on a factor (|λ| ≈ √.10).
+_SALIENT = 0.32
+
+
+def _structure_prose(loadings, columns, m, rotation_value, is_oblique, phi, extraction, is_polychoric, detail) -> str:
+    """Describe the extracted factor solution, layered by level: the solution size and rotation at
+    every level; whether the structure is clean or has cross-loading / unassigned items (*Key
+    findings* up); how evenly the factors are filled (*Significant only* up); and the inter-factor
+    correlation of an oblique solution plus the extraction/input methods note (*Full*)."""
+    if rotation_value and rotation_value != RotationType.NONE.value:
+        parts = [t("efa.report.rotation", m=m, rotation=rotation_value)]
+    else:
+        parts = [t("efa.report.rotation_none", m=m)]
+
+    abs_load = np.abs(loadings)
+    cross_items, low_items = [], []
+    for i, var in enumerate(columns):
+        salient = [j for j in range(m) if abs_load[i, j] >= _SALIENT]
+        if not salient:
+            low_items.append(str(var))
+        elif len(salient) >= 2:
+            cross_items.append(str(var))
+    if prose_at_least(detail, ProseDetail.KEY):
+        if cross_items:
+            cross_names = smart_comma_join([f"&laquo;{item}&raquo;" for item in cross_items])
+            parts.append(t("verbal.structure.cross", items=cross_names))
+        else:
+            parts.append(t("verbal.structure.simple"))
+        if low_items:
+            low_names = smart_comma_join([f"&laquo;{item}&raquo;" for item in low_items])
+            parts.append(t("verbal.structure.low", items=low_names))
+    if prose_at_least(detail, ProseDetail.SIGNIFICANT) and m > 1:
+        # Assign each item to its strongest factor and report how full each factor is.
+        primary = np.argmax(abs_load, axis=1)
+        counts = [int(np.sum(primary == j)) for j in range(m)]
+        key = "verbal.structure.even" if max(counts) - min(counts) <= 1 else "verbal.structure.uneven"
+        parts.append(t(key, counts=", ".join(str(c) for c in counts)))
+    if prose_at_least(detail, ProseDetail.FULL):
+        if is_oblique and phi is not None and m > 1:
+            off_diagonal = [abs(phi[i, j]) for i in range(m) for j in range(i + 1, m)]
+            if off_diagonal:
+                parts.append(t("efa.report.phi", r=format_r_apa(max(off_diagonal))))
+        # Methods note: the extraction method, and whether a polychoric matrix fed the extraction.
+        if extraction in _EXTRACTION_KEY:
+            parts.append(t("efa.report.extraction", method=t(_EXTRACTION_KEY[extraction])))
+        if is_polychoric:
+            parts.append(t("efa.report.polychoric"))
+    return "".join(parts)
 
 
 def _fail(result: FactorAnalysisResult, message: str) -> FactorAnalysisResult:
@@ -229,11 +284,18 @@ def recalculate_factor_analysis_study(elements, result: FactorAnalysisResult, up
     diag_table.add_single_row_apa(
         _diag_row([Cell(t("common.p_value")), Cell(format_p_apa_exact(bart_p), center=True)], bart_word)
     )
-    diag_text = t("efa.report.kmo", label=_kmo_label(kmo_overall), kmo=format_r_apa(kmo_overall))
-    bartlett_key = "efa.report.bartlett_sig" if bart_p < 0.05 else "efa.report.bartlett_ns"
-    diag_text += t(bartlett_key, df=bart_df, chi2=format_statistic_apa(bart_chi2), p=format_p_apa_full(bart_p))
-    if prose_enabled(cfg.interpretation):
-        diag_table.add_text(diag_text)
+    # Sampling-adequacy prose is an assumption check, so it stays out of the one-line Headline: the
+    # KMO verdict appears from "Key findings" up and the fuller Bartlett test from "Significant only".
+    diag_parts = []
+    if prose_at_least(cfg.interpretation, ProseDetail.KEY):
+        diag_parts.append(t("efa.report.kmo", label=_kmo_label(kmo_overall), kmo=format_r_apa(kmo_overall)))
+    if prose_at_least(cfg.interpretation, ProseDetail.SIGNIFICANT):
+        bartlett_key = "efa.report.bartlett_sig" if bart_p < 0.05 else "efa.report.bartlett_ns"
+        diag_parts.append(
+            t(bartlett_key, df=bart_df, chi2=format_statistic_apa(bart_chi2), p=format_p_apa_full(bart_p))
+        )
+    if diag_parts:
+        diag_table.add_text("".join(diag_parts))
     diag_table.table_note = numbering.append_to_note(diag_table.table_note or "")
     diag_table.add_numeric_supplement(
         {
@@ -279,7 +341,7 @@ def recalculate_factor_analysis_study(elements, result: FactorAnalysisResult, up
                     ]
                 )
             )
-        if prose_enabled(cfg.interpretation):
+        if prose_at_least(cfg.interpretation, ProseDetail.KEY):
             eig_table.add_text(t("efa.report.kaiser", n=n_kaiser) if n_kaiser > 0 else t("efa.report.kaiser_none"))
         eig_table.add_numeric_supplement(
             {
@@ -378,6 +440,19 @@ def recalculate_factor_analysis_study(elements, result: FactorAnalysisResult, up
             Cell(format_r_apa(uniquenesses[idx]), center=True),
         ]
         load_table.add_single_row_apa(Row(row))
+    if prose_enabled(cfg.interpretation):
+        structure_text = _structure_prose(
+            loadings,
+            columns,
+            m,
+            cfg.rotation,
+            is_oblique,
+            phi,
+            ExtractionMethod(cfg.method),
+            is_polychoric,
+            cfg.interpretation,
+        )
+        structure_text and load_table.add_text(structure_text)
     load_table.table_note = numbering.append_to_note(load_table.table_note or "")
     # Loadings stored in original variable order (display_order only affects the printed rows), so a
     # trusted psych::fa run can be aligned to it. Sign/column order are canonicalised at comparison.

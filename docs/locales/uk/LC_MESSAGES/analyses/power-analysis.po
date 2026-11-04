@@ -1,0 +1,137 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2026, StatPrism Team
+# This file is distributed under the same license as the StatPrism package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2026.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: StatPrism 1.3\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-11-04 00:10+0100\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language: uk\n"
+"Language-Team: uk <LL@li.org>\n"
+"Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
+"n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.18.0\n"
+
+#: ../../analyses/power-analysis.md:1
+msgid "Power analysis"
+msgstr "Аналіз потужності"
+
+#: ../../analyses/power-analysis.md:3
+msgid "Power curve example"
+msgstr "Приклад кривої потужності"
+
+#: ../../analyses/power-analysis.md:9
+msgid ""
+"Works out the relationship between significance level, statistical power,"
+" effect size, and sample size for a chosen test, fixing three of them to "
+"solve for the fourth. No dataset is needed."
+msgstr "Визначає співвідношення між рівнем значущості, статистичною потужністю, розміром ефекту та обсягом вибірки для обраного тесту, фіксуючи три з них, щоб обчислити четвертий. Набір даних не потрібен."
+
+#: ../../analyses/power-analysis.md:13
+msgid "When to use it"
+msgstr "Коли це використовувати"
+
+#: ../../analyses/power-analysis.md:15
+msgid "Before a study, to plan the **sample size** needed to detect an effect."
+msgstr "Перед дослідженням — щоб спланувати **обсяг вибірки**, потрібний для виявлення ефекту."
+
+#: ../../analyses/power-analysis.md:16
+msgid ""
+"After (or while planning), to check the **power** of a given design, or "
+"the **effect size** it can detect."
+msgstr "Після (або під час планування) — щоб перевірити **потужність** певного дизайну або **розмір ефекту**, який він здатен виявити."
+
+#: ../../analyses/power-analysis.md:19
+msgid "Inputs (all numbers you type)"
+msgstr "Вхідні дані (усі числа ви вводите самостійно)"
+
+#: ../../analyses/power-analysis.md:21
+msgid ""
+"**Test type**: Two-sample t-test, Paired / one-sample t-test, One-way "
+"ANOVA, or Correlation."
+msgstr "**Test type**: Two-sample t-test, Paired / one-sample t-test, One-way ANOVA або Correlation."
+
+#: ../../analyses/power-analysis.md:23
+msgid "**Solve for**: Sample size, Power, or Effect size."
+msgstr "**Solve for**: Sample size, Power, or Effect size."
+
+#: ../../analyses/power-analysis.md:24
+msgid ""
+"**Alpha** (e.g. 0.05), **Power** (e.g. 0.80), **Effect size**, **Sample "
+"size**: provide the three you know."
+msgstr "**Alpha** (наприклад, 0.05), **Power** (наприклад, 0.80), **Effect size**, **Sample size**: вкажіть три з них, які вам відомі."
+
+#: ../../analyses/power-analysis.md:26
+msgid "**Number of groups**: for ANOVA."
+msgstr "**Кількість груп**: для дисперсійного аналізу (ANOVA)."
+
+#: ../../analyses/power-analysis.md:27
+msgid "**Tails**: two-sided or one-sided."
+msgstr "**Tails**: two-sided or one-sided."
+
+#: ../../analyses/power-analysis.md:29
+msgid "Output"
+msgstr "Результат"
+
+#: ../../analyses/power-analysis.md:31
+msgid "The **solved quantity** with the inputs that produced it."
+msgstr "**Обчислена величина** разом із вхідними даними, що її дали."
+
+#: ../../analyses/power-analysis.md:32
+msgid "A **power-vs-sample-size curve** for the chosen test."
+msgstr "**Крива залежності потужності від обсягу вибірки** для обраного тесту."
+
+#: ../../analyses/power-analysis.md:34
+msgid "Notes"
+msgstr "Примітки"
+
+#: ../../analyses/power-analysis.md:36
+msgid ""
+"Effect sizes follow Cohen's conventions: *d* for t-tests, *f* for ANOVA, "
+"*r* for correlation."
+msgstr "Розміри ефектів відповідають конвенціям Коена: *d* для t-тестів, *f* для дисперсійного аналізу (ANOVA), *r* для кореляції."
+
+#: ../../analyses/power-analysis.md:38
+msgid ""
+"t-tests and ANOVA use the standard non-central distributions; correlation"
+" uses Cohen's (1988) Fisher-z approximation (matching R's `pwr.r.test`)."
+msgstr "t-тести та дисперсійний аналіз (ANOVA) використовують стандартні нецентральні розподіли; кореляція використовує наближення Фішера-z Коена (1988) (що відповідає `pwr.r.test` у R)."
+
+#~ msgid ""
+#~ "Works out the relationship between "
+#~ "significance level, statistical power, effect"
+#~ " size, and sample size for a "
+#~ "chosen test — fixing three of them"
+#~ " to solve for the fourth. **No "
+#~ "data set is needed.**"
+#~ msgstr ""
+
+#~ msgid ""
+#~ "**Test type** — Two-sample t-test, "
+#~ "Paired / one-sample t-test, One-"
+#~ "way ANOVA, or Correlation."
+#~ msgstr ""
+
+#~ msgid "**Solve for** — Sample size, Power, or Effect size."
+#~ msgstr ""
+
+#~ msgid ""
+#~ "**Alpha** (e.g. 0.05), **Power** (e.g. "
+#~ "0.80), **Effect size**, **Sample size** "
+#~ "— provide the three you know."
+#~ msgstr ""
+
+#~ msgid "**Number of groups** — for ANOVA."
+#~ msgstr ""
+
+#~ msgid "**Tails** — two-sided or one-sided."
+#~ msgstr ""
+

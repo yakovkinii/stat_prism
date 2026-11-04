@@ -21,33 +21,33 @@ Add a {doc}`../data-processing/preprocess` step to fix up the items in one place
 - If answers came in as **text** ("Strongly agree" … "Strongly disagree"), open **Map values…** on
   each item and map them to numbers `1`–`5`. Set the **type** to **Ordinal** (or **Numeric**) so
   the values are treated as a scale.
-- Optionally give the scale's items a shared **color tag** so they are easy to spot later.
+- Optionally give the scale's items a shared **color tag** so they are easy to identify later.
 
 ```{tip}
-If **every** item shares the *same* text-to-number mapping, it's faster to select them all in a
+If **every** item shares the *same* text-to-number mapping, it is faster to select them all in a
 single {doc}`../data-processing/transform` step and apply the mapping once, instead of mapping each
 column in Preprocess.
 ```
 
-You do **not** need to flip Q2/Q4 here — the Calculate Scale step does that in the next step, using
+You do **not** need to flip Q2/Q4 here – the Calculate Scale step does that in the next step, using
 the correct reference.
 
 ## 3. Combine them with Calculate Scale
 
 Add a {doc}`../data-processing/calculate-scale` step:
 
-1. **Questions** field — put the **direct** (normally-keyed) items here: `Q1`, `Q3`, `Q5`.
-2. **Reverse-score first** field — put the **reverse-keyed** items here: `Q2`, `Q4`. StatPrism
+1. **Questions** field – put the **direct** (normally-keyed) items here: `Q1`, `Q3`, `Q5`.
+2. **Reverse-score first** field – put the **reverse-keyed** items here: `Q2`, `Q4`. StatPrism
    flips them automatically before combining, so a high answer becomes a low one and a low answer
-   becomes a high one. You can almost always leave this alone. (If your scale has a possible answer
-   that nobody in your data happened to choose, the automatic flip can be slightly off — tick the
+   becomes a high one. In most cases this can be left unchanged. (If your scale has a possible answer
+   that nobody in your data happened to choose, the automatic flip can be slightly off – tick the
    box next to it and type the correct number to adjust it; the **Preview** shows the result.)
 3. Give the new column a **name** (e.g. `Wellbeing`). Leaving it blank shows an error until you do.
 4. Choose **Sum** or **Mean**, an optional **normalization** (e.g. Z-score or Stanine), and how to
    handle **missing values** (skip the respondent, or allow up to a set share of missing items).
 5. Optionally set the new column's **color**.
 
-That's it — a new `Wellbeing` column appears, with Q2/Q4 correctly reversed before aggregation. The
+A new `Wellbeing` column appears, with Q2 and Q4 reversed before aggregation. The
 step's summary states which items were reverse-scored, and the source items can be kept, deleted, or
 auto-renamed.
 

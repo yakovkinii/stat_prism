@@ -1,8 +1,8 @@
 # Getting started
 
-This page gives you a quick tour of the StatPrism window and the overall way of working.
+This page introduces the StatPrism window and the general way of working.
 
-## The window at a glance
+## The main window
 
 ```{figure} _static/img/full-window-annotated.png
 :alt: The StatPrism window with its main areas labeled
@@ -15,16 +15,16 @@ the top.
 
 StatPrism has two main areas:
 
-- **The panel on the right** is where you *do* things. This narrower settings panel lists the
-  available modules — data-processing steps and analyses — and shows the settings for
+- **The panel on the right** is where you configure and run steps. This narrower settings panel lists the
+  available modules – data-processing steps and analyses – and shows the settings for
   whichever one you are configuring.
-- **The large area on the left** shows *results* — the tables and figures produced by your
+- **The large area on the left** shows *results* – the tables and figures produced by your
   analyses, each in its own card.
 
 Along the top is the **menu bar** with **File**, **Settings**, and **Help**. Language and
-the visual themes live under **Settings**.
+the visual themes are set under **Settings**.
 
-## The core idea: a chain of steps
+## The processing chain
 
 StatPrism treats your work as a **chain**:
 
@@ -36,7 +36,7 @@ Raw data  →  (optional cleaning steps)  →  analyses
 - Each **data-processing** step (filter, recode, compute a scale, …) takes the data from the
   step before it and produces a new version. These steps stack up in order.
 - Each **analysis** reads from a **data source** you choose. The default source, **Auto**,
-  means "the most recent data" — so analyses automatically see your latest cleaning step.
+  means "the most recent data" – so analyses automatically see your latest cleaning step.
 
 This means you can clean once and run many analyses on the cleaned data, and if you change
 a cleaning step everything downstream updates.
@@ -50,14 +50,14 @@ a cleaning step everything downstream updates.
 3. **Run an analysis.** Pick an analysis module (for example *Descriptive Statistics*),
    choose the columns to analyze, and read the results on the left. See
    {doc}`analyses/index`.
-4. **Get the output out.** Use **File ▸ Copy All Results** and paste into Word, or
+4. **Export the output.** Use **File ▸ Copy All Results** and paste into Word, or
    **File ▸ Export Report (HTML)…** to save a self-contained report. See
    {doc}`results-and-export`.
 
 ## Choosing columns
 
 Most modules ask you to pick one or more columns using a **column selector**. Selectors
-only offer columns of a type that makes sense for that field — for example, a grouping
+only offer columns of a type that makes sense for that field – for example, a grouping
 field accepts categorical columns, while a numeric summary accepts numeric columns. If a
 column you expect is missing from a selector, check its **type** in the data viewer (see
 {doc}`importing-data`).
@@ -69,14 +69,14 @@ several **plot themes** (**Settings ▸ Plot theme**), and has a light/dark **UI
 (**Settings ▸ UI theme**). Changing the language or plot theme rebuilds your results to
 match. See {doc}`projects-and-settings`.
 
-If the interface looks too small or too large on your screen — displays and Windows'
-own scaling vary a lot — use **Settings ▸ UI scale** to zoom the whole interface (this is on top
+If the interface looks too small or too large on your screen (displays and Windows'
+own scaling vary a lot), use **Settings ▸ UI scale** to zoom the whole interface (this is on top
 of Windows' display scaling). It applies the next time you start StatPrism.
 
 ## Saving your work
 
-Use **File ▸ Save** / **Save As…** to store everything — the data, every processing step,
-and every analysis — in a single `.sp` project file you can reopen later. See
+Use **File ▸ Save** / **Save As…** to store everything – the data, every processing step,
+and every analysis – in a single `.sp` project file you can reopen later. See
 {doc}`projects-and-settings`.
 
 ## Keyboard shortcuts

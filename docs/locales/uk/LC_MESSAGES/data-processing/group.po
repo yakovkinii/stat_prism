@@ -1,0 +1,68 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2026, StatPrism Team
+# This file is distributed under the same license as the StatPrism package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2026.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: StatPrism 1.3\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-11-04 00:10+0100\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language: uk\n"
+"Language-Team: uk <LL@li.org>\n"
+"Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
+"n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.18.0\n"
+
+#: ../../data-processing/group.md:1
+msgid "Group Values"
+msgstr "Групування значень"
+
+#: ../../data-processing/group.md:3
+msgid ""
+"Bins a numeric column into ordered groups using split points you provide "
+"(e.g. split points `30, 50` give three bins: under 30, 30–50, and 50+)."
+msgstr ""
+"Розбиває числову колонку на впорядковані групи за точками поділу, які ви "
+"задаєте (наприклад, точки поділу `30, 50` дають три групи: до 30, 30–50 і "
+"50+)."
+
+#: ../../data-processing/group.md:6
+msgid ""
+"**Split point goes to** controls which side a value exactly on a split "
+"point falls on –  *Higher group* (left-closed `[a, b)`, the default) or "
+"*Lower group* (right-closed `(a, b]`)."
+msgstr ""
+"**Split point goes to** визначає, до якого боку відносити значення, що точно "
+"збігається з точкою поділу –  *Higher group* (замкнене зліва `[a, b)`, за "
+"замовчуванням) або *Lower group* (замкнене справа `(a, b]`)."
+
+#: ../../data-processing/group.md:9
+msgid "You can label the bins yourself or let StatPrism name them automatically."
+msgstr ""
+"Ви можете підписати групи самостійно або дозволити StatPrism назвати їх "
+"автоматично."
+
+#: ../../data-processing/group.md:11
+msgid ""
+"The grouped column is added as a new **ordinal** column, leaving the "
+"original untouched."
+msgstr ""
+"Згрупована колонка додається як нова **порядкова** колонка, залишаючи "
+"оригінал недоторканим."
+
+#~ msgid ""
+#~ "**Split point goes to** controls which"
+#~ " side a value exactly on a "
+#~ "split point falls on — *Higher "
+#~ "group* (left-closed `[a, b)`, the "
+#~ "default) or *Lower group* (right-closed"
+#~ " `(a, b]`)."
+#~ msgstr ""
+

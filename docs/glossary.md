@@ -11,9 +11,9 @@ Confidence interval (CI)
   the time (StatPrism reports 95% CIs). Wider intervals mean more uncertainty.
 
 Effect size
-: How *big* an effect is, independent of sample size — e.g. Cohen's *d* (mean differences),
-  *r* (correlation), η²/η²p (ANOVA), Cramér's V (contingency). Significance says whether an
-  effect exists; effect size says whether it matters.
+: How large an effect is, independent of sample size – e.g. Cohen's *d* (mean differences),
+  *r* (correlation), η²/η²p (ANOVA), Cramér's V (contingency). Significance tells you whether an
+  effect is likely real; effect size tells you how large it is.
 
 Degrees of freedom (df)
 : A count tied to sample and model size that calibrates a test's reference distribution.
@@ -32,12 +32,12 @@ Parametric vs non-parametric
   and use ranks.
 
 Normality
-: Whether a variable approximately follows a bell-shaped (normal) distribution — an
+: Whether a variable approximately follows a bell-shaped (normal) distribution – an
   assumption of several parametric tests. Checked with Shapiro–Wilk, Kolmogorov–Smirnov, or
   Anderson–Darling.
 
 Homogeneity of variance
-: Whether groups have similar spread — an assumption of the standard t-test/ANOVA. Welch's
+: Whether groups have similar spread – an assumption of the standard t-test/ANOVA. Welch's
   versions relax it.
 
 Correlation
@@ -51,7 +51,7 @@ Partial correlation
 
 Reliability (Cronbach's α / McDonald's ω)
 : How consistently a set of items measures the same thing. Higher is better; very low values
-  suggest the items don't form a coherent scale. See {doc}`analyses/reliability`.
+  suggest the items do not form a coherent scale. See {doc}`analyses/reliability`.
 
 Factor / loading
 : In factor analysis, a **factor** is an underlying dimension; a **loading** is how strongly

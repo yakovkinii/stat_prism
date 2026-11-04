@@ -16,20 +16,20 @@ summarizes those indicator columns.
 
 ## Inputs
 
-- **Indicator columns (0/1)** — select all the indicator columns that came from one
+- **Indicator columns (0/1)**: select all the indicator columns that came from one
   question.
 
 ## Options
 
-- **Bar chart of counts** — a figure of selections per option.
+- **Bar chart of counts**: a figure of selections per option.
 
 ## Output
 
 A table with, per option:
 
-- **Selected** — how many respondents chose it.
-- **% of responses** — its share of all selections (these sum to 100%).
-- **% of cases** — its share of respondents who chose at least one option (these sum to more
+- **Selected**: how many respondents chose it.
+- **% of responses**: its share of all selections (these sum to 100%).
+- **% of cases**: its share of respondents who chose at least one option (these sum to more
   than 100%, since a respondent can pick several).
 
 Plus a total row, an optional explanatory note (via the **Verbal report** dropdown), and the

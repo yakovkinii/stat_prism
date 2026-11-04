@@ -31,7 +31,7 @@ from src.common.translations import t
 from src.data.data import OrdinalCastError
 from src.data.data_manager import DATA_MANAGER
 from src.side_area_panel.modules.cluster_analysis.cluster_analysis_result import ClusterAnalysisResult, ClusterMethod
-from src.side_area_panel.modules.common.prose import prose_enabled
+from src.side_area_panel.modules.common.prose import ProseDetail, prose_at_least, prose_enabled
 from src.side_area_panel.modules.common.result.html_result import Cell, HTMLTableV2, Row
 from src.side_area_panel.modules.common.result.plot_result import (
     Dendrogram,
@@ -57,6 +57,11 @@ def _fail(result: ClusterAnalysisResult, message: str) -> ClusterAnalysisResult:
     logging.warning("Cluster: %s", message)
     result.set_error(message)
     return result
+
+
+# Clusters whose largest and smallest share differ by at most this many percentage points are
+# described as comparable in size.
+_BALANCED_SPREAD = 15.0
 
 
 def _silhouette_key(score: float) -> str:
@@ -187,15 +192,56 @@ def recalculate_cluster_analysis_study(elements, result: ClusterAnalysisResult, 
             }
         )
 
-    report = t("cluster.report.summary", k=k, sizes=", ".join(str(int(s)) for s in counts))
-    report += t("cluster.report.standardized") if standardize else t("cluster.report.unstandardized")
-    if not np.isnan(silhouette):
-        report += t(
-            "cluster.report.silhouette",
-            sil=format_r_apa(silhouette),
-            label=t(f"cluster.sil.{_silhouette_key(silhouette)}"),
-        )
-    prose_enabled(cfg.interpretation) and centroid_table.add_text(report)
+    # Layered description: a one-line verdict at Headline, the size balance from Key findings up,
+    # the explicit size list + standardisation note from Significant up, and the numeric silhouette
+    # at Full. Sizes are stated as percentages so the balance reads the same regardless of N.
+    detail = cfg.interpretation
+    if prose_enabled(detail):
+        sil_label = t(f"cluster.sil.{_silhouette_key(silhouette)}") if not np.isnan(silhouette) else ""
+        parts = [
+            t("cluster.report.headline", k=k, label=sil_label) if sil_label else t("cluster.report.headline_plain", k=k)
+        ]
+        if prose_at_least(detail, ProseDetail.KEY) and k >= 2:
+            pct = 100.0 * counts / n_rows
+            max_pct, min_pct = float(pct.max()), float(pct.min())
+            # Check comparability first: a small spread is "balanced" even when the larger share
+            # happens to exceed 50% (e.g. a 55/45 two-cluster split is comparable, not dominated).
+            if max_pct - min_pct <= _BALANCED_SPREAD:
+                parts.append(t("cluster.report.balanced"))
+            elif max_pct > 50.0:
+                parts.append(
+                    t(
+                        "cluster.report.dominant",
+                        max_pct=format_value_apa(max_pct, 1),
+                        min_pct=format_value_apa(min_pct, 1),
+                    )
+                )
+            else:
+                parts.append(
+                    t(
+                        "cluster.report.uneven",
+                        min_pct=format_value_apa(min_pct, 1),
+                        max_pct=format_value_apa(max_pct, 1),
+                    )
+                )
+        if prose_at_least(detail, ProseDetail.SIGNIFICANT):
+            parts.append(t("cluster.report.summary", sizes=", ".join(str(int(s)) for s in counts)))
+            parts.append(t("cluster.report.standardized") if standardize else t("cluster.report.unstandardized"))
+        if prose_at_least(detail, ProseDetail.FULL):
+            # Methods note: which algorithm produced the solution (and, for hierarchical, its linkage).
+            if method == ClusterMethod.HIERARCHICAL:
+                parts.append(t("cluster.report.method_hier", linkage=(cfg.linkage or "Ward")))
+            else:
+                parts.append(t("cluster.report.method_kmeans"))
+        if prose_at_least(detail, ProseDetail.FULL) and not np.isnan(silhouette):
+            parts.append(
+                t(
+                    "cluster.report.silhouette",
+                    sil=format_r_apa(silhouette),
+                    label=t(f"cluster.sil.{_silhouette_key(silhouette)}"),
+                )
+            )
+        centroid_table.add_text("".join(parts))
     result.update_and_add_element(centroid_table, "cluster centroids")
 
     # ----- Quality table -----

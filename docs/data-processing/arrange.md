@@ -1,6 +1,6 @@
 # Arrange Columns
 
-Sets the dataset's column order by dragging every column into place in a single list &mdash; there
+Sets the dataset's column order by dragging every column into place in a single list – there
 is no column selector.
 
 - The list shows every column (except the **ID** column, which always stays first), each tinted with

@@ -4,11 +4,12 @@
 [![Homepage](https://img.shields.io/badge/homepage-StatPrism-000000?logoColor=white)](https://www.yakovkinii.com/stat_prism/)
 ![License](https://img.shields.io/badge/license-GPL_3.0-00ff00)
 ![Language](https://img.shields.io/badge/language-Nuitka_python-3776AB?logoColor=white)
-![Supported Platforms](https://img.shields.io/badge/platform-Widows-ffffff?logoColor=black)
+![Supported Platforms](https://img.shields.io/badge/platform-Windows-ffffff?logoColor=black)
 
 
-StatPrism is a statistical software targeting the scientists and students
-of Psychological and Sociological sciences.
+StatPrism is statistical software for researchers and students in the social and
+behavioural sciences (psychology, sociology, and related fields). It is used through a
+point-and-click interface, without writing code.
 
 The primary features distinguishing StatPrism from the competitors are the following.
 
@@ -17,7 +18,7 @@ The primary features distinguishing StatPrism from the competitors are the follo
 * StatPrism aims at producing high-quality publication-ready material.
 * The results in StatPrism are automatically converted to the APA format.
 
-This software is in development and is provided as is, without any guarantees.
+StatPrism is under active development; features and output may change between versions.
 
 ## Documentation
 
@@ -43,5 +44,5 @@ project management). Project page: https://www.yakovkinii.com/stat_prism/
 If you use StatPrism in your research, please cite it (see [CITATION.cff](CITATION.cff) —
 GitHub's "Cite this repository" button generates APA/BibTeX from it):
 
-> Balashevych, A. K., Petrova, N. V., & Yakovkin, I. I. (2023). *StatPrism* (Version 1.3.5)
+> Balashevych, A. K., Petrova, N. V., & Yakovkin, I. I. (2023). *StatPrism* (Version 1.3.6)
 > [Computer software]. https://www.yakovkinii.com/stat_prism/

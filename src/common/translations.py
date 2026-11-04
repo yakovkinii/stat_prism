@@ -39,12 +39,14 @@ TRANSLATIONS = {
             "числовий або скористайтеся методом, що підтримує порядкові дані (напр., Спірмен / поліхорика)."
         ),
     },
-    "common.table": {
-        "en": "Table",
-        "ua": "Таблиця",
-    },
     "common.and": {
         "en": " and ",
+        "ua": " та ",
+    },
+    # Separator before the last item in a 3+ list. English keeps the Oxford comma ("A, B, and C");
+    # Ukrainian academic style takes no comma before "та" ("A, B та C").
+    "common.and_final": {
+        "en": ", and ",
         "ua": " та ",
     },
     "common.p_value": {
@@ -78,10 +80,6 @@ TRANSLATIONS = {
     "common.configure_hint_refresh": {
         "en": "Please refresh this result or change any setting on a panel on the right.",
         "ua": "Будь ласка, оновіть цей результат або змініть будь-яке налаштування на панелі праворуч.",
-    },
-    "common.msg.select_id": {
-        "en": "Select the ID column.",
-        "ua": "Оберіть колонку з ідентифікатором.",
     },
     # ----- Contingency -----
     "contingency.table_caption": {
@@ -179,10 +177,6 @@ TRANSLATIONS = {
     "contingency.plot_y_axis": {
         "en": "{col} (%)",
         "ua": "{col} (%)",
-    },
-    "contingency.fisher_caption": {
-        "en": "Fisher's Exact Test",
-        "ua": "Точний тест Фішера",
     },
     "contingency.fisher_text": {
         "en": "Fisher's exact test: odds ratio = {odds}, {p}.",
@@ -336,30 +330,6 @@ TRANSLATIONS = {
         "ua": "W Шапіро–Уілка",
     },
     # Test names (used in verbal report and post-hoc sentences)
-    "ttest.test.mann_whitney": {
-        "en": "Mann-Whitney U test",
-        "ua": "U-критерій Манна–Уітні",
-    },
-    "ttest.test.ttest_independent": {
-        "en": "Independent Samples T-test",
-        "ua": "t-критерій для незалежних вибірок",
-    },
-    "ttest.test.welch_ttest": {
-        "en": "Welch's T-test",
-        "ua": "t-критерій Велча",
-    },
-    "ttest.test.kruskal": {
-        "en": "Kruskal-Wallis test",
-        "ua": "критерій Краскела–Уолліса",
-    },
-    "ttest.test.welch_anova": {
-        "en": "Welch's ANOVA",
-        "ua": "ANOVA Велча",
-    },
-    "ttest.test.one_way_anova": {
-        "en": "One-Way ANOVA",
-        "ua": "однофакторний дисперсійний аналіз (ANOVA)",
-    },
     "ttest.test.shapiro": {
         "en": "Shapiro-Wilk test",
         "ua": "критерій Шапіро–Уілка",
@@ -369,14 +339,6 @@ TRANSLATIONS = {
         "ua": "критерій Левена",
     },
     # What the test checks
-    "ttest.check.diff_groups": {
-        "en": "difference between the groups",
-        "ua": "відмінність між групами",
-    },
-    "ttest.check.equality_means": {
-        "en": "equality of means",
-        "ua": "рівність середніх значень",
-    },
     "ttest.check.normality": {
         "en": "normality within groups",
         "ua": "нормальність розподілу в групах",
@@ -386,22 +348,6 @@ TRANSLATIONS = {
         "ua": "однорідність дисперсій",
     },
     # Conclusions about variables
-    "ttest.prop.sig_diff": {
-        "en": "are significantly different across the groups",
-        "ua": "статистично значущо відрізняються між групами",
-    },
-    "ttest.prop.not_sig_diff": {
-        "en": "are not significantly different across the groups",
-        "ua": "статистично значущо не відрізняються між групами",
-    },
-    "ttest.prop.diff_means": {
-        "en": "have different means",
-        "ua": "мають різні середні значення",
-    },
-    "ttest.prop.equal_means": {
-        "en": "have equal means",
-        "ua": "мають рівні середні значення",
-    },
     "ttest.prop.normal": {
         "en": "are normally distributed (p &gt; 0.05)",
         "ua": "розподілені нормально (p &gt; 0.05)",
@@ -419,14 +365,6 @@ TRANSLATIONS = {
         "ua": "мають неоднорідні дисперсії",
     },
     # Verbal report connectives
-    "ttest.verbal.compact": {
-        "en": "[Compact description]",
-        "ua": "[Стислий опис]",
-    },
-    "ttest.verbal.detailed": {
-        "en": "[Detailed description]",
-        "ua": "[Детальний опис]",
-    },
     "ttest.verbal.used_to_check": {
         "en": "The {test_name} was used to check the {test_check} and has shown that ",
         "ua": "Застосовано {test_name} для перевірки ({test_check}). Показано, що ",
@@ -434,14 +372,6 @@ TRANSLATIONS = {
     "ttest.verbal.on_other_hand": {
         "en": " On the other hand, ",
         "ua": " З іншого боку, ",
-    },
-    "ttest.verbal.has_shown": {
-        "en": "The {test_name} has shown that {variable} {property}{stats}. ",
-        "ua": "{test_name}: {variable} {property}{stats}. ",
-    },
-    "ttest.verbal.for_group": {
-        "en": "For the group {group}, {stats}. ",
-        "ua": "Для групи «{group}»: {stats}. ",
     },
     # Post-hoc
     "ttest.posthoc.dunn": {
@@ -668,10 +598,6 @@ TRANSLATIONS = {
         "en": "Nemenyi",
         "ua": "Немені",
     },
-    "paired.posthoc_sentence": {
-        "en": "The {name} post-hoc test revealed a significant difference between the following conditions: {groups}.",
-        "ua": "Апостеріорний тест {name} виявив статистично значущу різницю між такими умовами: {groups}.",
-    },
     "paired.verbal.result": {
         "en": "{test} — the difference between conditions is {conclusion} ({stats}).",
         "ua": "{test} — різниця між умовами {conclusion} ({stats}).",
@@ -797,6 +723,14 @@ TRANSLATIONS = {
         "en": "Removing any single item would not increase &alpha;. ",
         "ua": "Вилучення будь-якого окремого пункту не підвищило б α. ",
     },
+    "reliability.report.item_weak": {
+        "en": "{items} correlate weakly with the rest of the scale (item&ndash;total r &lt; .30). ",
+        "ua": "{items} слабко корелюють із рештою шкали (кореляція пункт&ndash;сума r &lt; .30). ",
+    },
+    "reliability.report.method": {
+        "en": "The estimate is based on the {corr}. ",
+        "ua": "Для оцінювання використано {corr}. ",
+    },
     # ----- Regression -----
     "regression.description": {
         "en": (
@@ -844,7 +778,6 @@ TRANSLATIONS = {
     "regression.col.b": {"en": "B", "ua": "B"},
     "regression.col.se": {"en": "SE", "ua": "SE"},
     "regression.col.beta": {"en": "&beta;", "ua": "β"},
-    "regression.col.ci": {"en": "95% CI", "ua": "95% ДІ"},
     "regression.col.t": {"en": "t", "ua": "t"},
     "regression.report.fit": {
         "en": (
@@ -883,10 +816,6 @@ TRANSLATIONS = {
             "Кожен B &mdash; очікувана зміна «{dv}» на одиницю зростання предиктора за інших "
             "незмінних; він значущий, коли p &lt; .05. "
         ),
-    },
-    "regression.report.coef_sig": {
-        "en": "Significant predictors of {dv}: {items}. ",
-        "ua": "Значущі предиктори «{dv}»: {items}. ",
     },
     "regression.report.coef_none": {
         "en": "No predictor significantly predicts {dv} once the others are held constant. ",
@@ -933,7 +862,6 @@ TRANSLATIONS = {
     },
     "regression.plot.total": {"en": "Total effect", "ua": "Загальний ефект"},
     "regression.plot.mediation_title": {"en": "Mediation paths: {dv}", "ua": "Шляхи медіації: {dv}"},
-    "regression.plot.band": {"en": "Standard error", "ua": "Стандартна похибка"},
     "regression.diag.vif_caption": {"en": "Multicollinearity (VIF)", "ua": "Мультиколінеарність (VIF)"},
     "regression.diag.influence_caption": {"en": "Influential observations", "ua": "Впливові спостереження"},
     "regression.diag.observation": {"en": "Observation", "ua": "Спостереження"},
@@ -1064,10 +992,6 @@ TRANSLATIONS = {
             "(ВШ &gt; 1 підвищує шанси, &lt; 1 знижує). "
         ),
     },
-    "regression.report.logit_coef_sig": {
-        "en": "Significant predictors of {positive}: {items}.",
-        "ua": "Значущі предиктори {positive}: {items}.",
-    },
     "regression.plot.prob_curve": {"en": "Fitted probability", "ua": "Прогнозована ймовірність"},
     "regression.plot.prob_axis": {
         "en": "P({positive})",
@@ -1160,6 +1084,29 @@ TRANSLATIONS = {
         "the number of factors. ",
         "ua": "Жодне власне значення не перевищує 1; для вибору кількості факторів скористайтеся "
         "графіком осипу або паралельним аналізом. ",
+    },
+    "efa.report.rotation": {
+        "en": "A {m}-factor solution was extracted with {rotation} rotation. ",
+        "ua": "Виокремлено рішення з {m} фактор(ів) з обертанням {rotation}. ",
+    },
+    "efa.report.rotation_none": {
+        "en": "A {m}-factor solution was extracted without rotation. ",
+        "ua": "Виокремлено рішення з {m} фактор(ів) без обертання. ",
+    },
+    "efa.report.phi": {
+        "en": "The oblique rotation lets the factors correlate; the strongest inter-factor " "correlation is {r}. ",
+        "ua": "Косокутне обертання дозволяє факторам корелювати; найсильніша міжфакторна " "кореляція &mdash; {r}. ",
+    },
+    "efa.extraction.minres": {"en": "minimum residual (MINRES)", "ua": "мінімальних залишків (MINRES)"},
+    "efa.extraction.ml": {"en": "maximum likelihood (ML)", "ua": "максимальної правдоподібності (ML)"},
+    "efa.extraction.paf": {"en": "principal axis (PAF)", "ua": "головних осей (PAF)"},
+    "efa.report.extraction": {
+        "en": "Factors were extracted by the {method} method. ",
+        "ua": "Фактори виокремлено методом {method}. ",
+    },
+    "efa.report.polychoric": {
+        "en": "The extraction used the polychoric correlation matrix of the ordinal items. ",
+        "ua": "Виокремлення виконано на поліхоричній матриці кореляцій порядкових пунктів. ",
     },
     "efa.plot.scree": {"en": "Scree plot", "ua": "Графік осипу"},
     "efa.plot.kaiser_line": {
@@ -1284,6 +1231,45 @@ TRANSLATIONS = {
         "en": "Warning: the optimiser did not fully converge, so the solution may be unreliable. ",
         "ua": "Увага: оптимізатор не повністю збігся, тож розв'язок може бути ненадійним. ",
     },
+    "cfa.verdict.good": {"en": "good", "ua": "добру"},
+    "cfa.verdict.adequate": {"en": "adequate", "ua": "прийнятну"},
+    "cfa.verdict.poor": {"en": "poor", "ua": "погану"},
+    "cfa.report.headline": {
+        "en": "The model shows {verdict} fit to the data (CFI = {cfi}, RMSEA = {rmsea}). ",
+        "ua": "Модель демонструє {verdict} відповідність даним (CFI = {cfi}, RMSEA = {rmsea}). ",
+    },
+    "cfa.report.headline_plain": {
+        "en": "The model was estimated; see the indices above for its fit to the data. ",
+        "ua": "Модель оцінено; див. показники вище щодо її відповідності даним. ",
+    },
+    "cfa.estimator.ml": {
+        "en": "maximum likelihood (ML)",
+        "ua": "максимальної правдоподібності (ML)",
+    },
+    "cfa.estimator.dwls": {
+        "en": "diagonally weighted least squares (DWLS)",
+        "ua": "діагонально зважених найменших квадратів (DWLS)",
+    },
+    "cfa.estimator.uls": {
+        "en": "unweighted least squares on the polychoric matrix (ULS)",
+        "ua": "незважених найменших квадратів на поліхоричній матриці (ULS)",
+    },
+    "cfa.report.estimator": {
+        "en": "The model was estimated by {estimator}. ",
+        "ua": "Модель оцінено методом {estimator}. ",
+    },
+    "cfa.report.phi": {
+        "en": "The factors were allowed to correlate; the strongest inter-factor correlation is {r}. ",
+        "ua": "Факторам дозволено корелювати; найсильніша міжфакторна кореляція &mdash; {r}. ",
+    },
+    "cfa.report.residuals_applied": {
+        "en": "Correlated residuals were freed for {n} item pair(s). ",
+        "ua": "Кореляції залишків звільнено для {n} пар(и) пунктів. ",
+    },
+    "cfa.report.second_order": {
+        "en": "A second-order factor accounts for the correlations among the first-order factors. ",
+        "ua": "Фактор другого порядку пояснює кореляції між факторами першого порядку. ",
+    },
     "cfa.loadings_sig_note": {
         "en": "* p &lt; .05, ** p &lt; .01, *** p &lt; .001 (Wald test of each loading).",
         "ua": "* p &lt; .05, ** p &lt; .01, *** p &lt; .001 (тест Вальда для кожного навантаження).",
@@ -1317,14 +1303,6 @@ TRANSLATIONS = {
         "en": "Not enough data for {n} clusters.",
         "ua": "Недостатньо даних для {n} кластерів.",
     },
-    "cluster.msg.method_not_implemented": {
-        "en": "Selected clustering method not implemented.",
-        "ua": "Обраний метод кластеризації не реалізовано.",
-    },
-    "cluster.header": {
-        "en": "Method: <i>{method}</i>; Clusters: <i>{n}</i>",
-        "ua": "Метод: <i>{method}</i>; Кластерів: <i>{n}</i>",
-    },
     "cluster.description": {
         "en": (
             "Cluster analysis groups observations so that those within a cluster are more "
@@ -1341,7 +1319,6 @@ TRANSLATIONS = {
             "(силует) та двовимірну діаграму розсіювання кластерів."
         ),
     },
-    "cluster.caption.summary": {"en": "Cluster summary", "ua": "Зведення кластерів"},
     "cluster.caption.quality": {"en": "Cluster quality", "ua": "Якість кластеризації"},
     "cluster.col.size": {"en": "Size", "ua": "Розмір"},
     "cluster.col.percent": {"en": "%", "ua": "%"},
@@ -1354,9 +1331,37 @@ TRANSLATIONS = {
     "cluster.sil.reasonable": {"en": "reasonable structure", "ua": "помірна структура"},
     "cluster.sil.weak": {"en": "weak structure", "ua": "слабка структура"},
     "cluster.sil.none": {"en": "no substantial structure", "ua": "немає суттєвої структури"},
+    "cluster.report.headline": {
+        "en": "A {k}-cluster solution was obtained ({label}). ",
+        "ua": "Отримано рішення з {k} кластерів ({label}). ",
+    },
+    "cluster.report.headline_plain": {
+        "en": "A {k}-cluster solution was obtained. ",
+        "ua": "Отримано рішення з {k} кластерів. ",
+    },
+    "cluster.report.balanced": {
+        "en": "The clusters are comparable in size. ",
+        "ua": "Кластери приблизно однакові за розміром. ",
+    },
+    "cluster.report.dominant": {
+        "en": "One cluster predominates ({max_pct}% of cases), while the smallest holds {min_pct}%. ",
+        "ua": "Один кластер переважає ({max_pct}% спостережень), тоді як найменший містить {min_pct}%. ",
+    },
+    "cluster.report.uneven": {
+        "en": "The clusters differ appreciably in size, from {min_pct}% to {max_pct}% of cases. ",
+        "ua": "Кластери помітно різняться за розміром &mdash; від {min_pct}% до {max_pct}% спостережень. ",
+    },
     "cluster.report.summary": {
-        "en": "K-means formed {k} clusters (sizes: {sizes}). ",
-        "ua": "K-середніх утворив {k} кластерів (розміри: {sizes}). ",
+        "en": "Cluster sizes: {sizes}. ",
+        "ua": "Розміри кластерів: {sizes}. ",
+    },
+    "cluster.report.method_kmeans": {
+        "en": "Clusters were formed by k-means. ",
+        "ua": "Кластери сформовано методом k-середніх. ",
+    },
+    "cluster.report.method_hier": {
+        "en": "Clusters were formed by hierarchical clustering ({linkage} linkage). ",
+        "ua": "Кластери сформовано ієрархічною кластеризацією (зв'язування: {linkage}). ",
     },
     "cluster.report.silhouette": {
         "en": "The mean silhouette is {sil} ({label}). ",
@@ -1425,12 +1430,130 @@ TRANSLATIONS = {
     "verbal.no": {"en": "no", "ua": "ні"},
     "verbal.col_significant": {"en": "Significant?", "ua": "Значущість?"},
     "verbal.col_equal_var": {"en": "Equal var.?", "ua": "Рівні дисп.?"},
+    # ----- Shared verbal-report compacter (src/.../common/verbal/compact.py) -----
+    # Full-sentence templates so grammar stays correct per language; {noun} is filled with the
+    # nominative or genitive plural form the sentence needs. {apa} strings are shown verbatim.
+    "verbal.compact.item_desc": {"en": "{label} ({desc}; {apa})", "ua": "{label} ({desc}; {apa})"},
+    "verbal.compact.item_plain": {"en": "{label} ({apa})", "ua": "{label} ({apa})"},
+    "verbal.compact.none": {
+        "en": "No statistically significant {noun} were found. ",
+        "ua": "Статистично значущих {noun} не виявлено. ",
+    },
+    "verbal.compact.all": {
+        "en": "All {noun} were statistically significant. ",
+        "ua": "Усі {noun} виявилися статистично значущими. ",
+    },
+    "verbal.compact.all_except": {
+        "en": "All {noun} were statistically significant except {exceptions}. ",
+        "ua": "Усі {noun}, окрім {exceptions}, виявилися статистично значущими. ",
+    },
+    "verbal.compact.most": {
+        "en": "Most {noun} were statistically significant ({k} of {n}). ",
+        "ua": "Більшість {noun} виявилися статистично значущими ({k} з {n}). ",
+    },
+    "verbal.compact.minority": {
+        "en": "{k} of the {n} {noun} were statistically significant. ",
+        "ua": "Статистично значущими виявилися {k} з {n} {noun}. ",
+    },
+    "verbal.compact.few": {
+        "en": "{k} of the {n} {noun} were statistically significant: {items}. ",
+        "ua": "Статистично значущими виявилися {k} з {n} {noun}: {items}. ",
+    },
+    "verbal.compact.few_one": {
+        "en": "One of the {n} {noun} was statistically significant: {items}. ",
+        "ua": "Статистично значущим виявився лише один із {n} {noun}: {items}. ",
+    },
+    "verbal.compact.most_notable": {
+        "en": "The most notable were {items}. ",
+        "ua": "Найпомітнішими є {items}. ",
+    },
+    "verbal.compact.most_notable_one": {
+        "en": "The most notable was {items}. ",
+        "ua": "Найпомітнішим є {items}. ",
+    },
+    "verbal.compact.remaining_nonsig": {
+        "en": "The remaining {noun} were not statistically significant: {items}. ",
+        "ua": "Решта {noun} не досягли статистичної значущості: {items}. ",
+    },
+    "verbal.compact.key_none_notable": {
+        "en": "No {noun} reached a notable effect size. ",
+        "ua": "Жоден із {noun} не досяг помітного розміру ефекту. ",
+    },
+    # Shared factor-structure phrasing, used by both the EFA and CFA verbal reports.
+    "verbal.structure.spec": {
+        "en": "The model comprises {k} factor(s) over {n} item(s). ",
+        "ua": "Модель охоплює {k} фактор(ів) на {n} пункт(ах). ",
+    },
+    "verbal.structure.simple": {
+        "en": "Each item loads chiefly on a single factor (clean simple structure). ",
+        "ua": "Кожен пункт навантажується переважно на один фактор (чітка проста структура). ",
+    },
+    "verbal.structure.cross": {
+        "en": "Some items load appreciably on more than one factor ({items}), so the simple "
+        "structure is not clean. ",
+        "ua": "Деякі пункти помітно навантажуються більш ніж на один фактор ({items}), тож проста "
+        "структура не є чіткою. ",
+    },
+    "verbal.structure.low": {
+        "en": "Some items show no substantial loading on any factor ({items}). ",
+        "ua": "Деякі пункти не мають суттєвого навантаження на жоден фактор ({items}). ",
+    },
+    "verbal.structure.even": {
+        "en": "The factors are comparably filled (item counts: {counts}). ",
+        "ua": "Фактори наповнені приблизно рівномірно (кількість пунктів: {counts}). ",
+    },
+    "verbal.structure.uneven": {
+        "en": "The factors are unevenly filled (item counts: {counts}). ",
+        "ua": "Наповнення факторів нерівномірне (кількість пунктів: {counts}). ",
+    },
+    "verbal.noun.correlations.nom": {"en": "correlations", "ua": "коефіцієнти кореляції"},
+    "verbal.noun.correlations.gen": {"en": "correlations", "ua": "коефіцієнтів кореляції"},
+    "verbal.noun.comparisons.nom": {"en": "comparisons", "ua": "порівняння"},
+    "verbal.noun.comparisons.gen": {"en": "comparisons", "ua": "порівнянь"},
+    "verbal.noun.pairs.nom": {"en": "pairwise comparisons", "ua": "попарні порівняння"},
+    "verbal.noun.pairs.gen": {"en": "pairwise comparisons", "ua": "попарних порівнянь"},
+    "verbal.noun.predictors.nom": {"en": "predictors", "ua": "предиктори"},
+    "verbal.noun.predictors.gen": {"en": "predictors", "ua": "предикторів"},
+    "regression.compact.most_notable_one": {
+        "en": "The strongest predictor was {items}. ",
+        "ua": "Найсильнішим предиктором є {items}. ",
+    },
+    "regression.compact.most_notable": {
+        "en": "The strongest predictors were {items}. ",
+        "ua": "Найсильнішими предикторами є {items}. ",
+    },
+    "meancomp.compact.most_notable_one": {
+        "en": "The largest difference was found for {items}. ",
+        "ua": "Найбільша відмінність виявлена для {items}. ",
+    },
+    "meancomp.compact.most_notable": {
+        "en": "The largest differences were found for {items}. ",
+        "ua": "Найбільші відмінності виявлені для {items}. ",
+    },
     "effect.magnitude.negligible": {"en": "negligible", "ua": "незначна"},
     "effect.magnitude.small": {"en": "small", "ua": "мала"},
     "effect.magnitude.medium": {"en": "medium", "ua": "середня"},
     "effect.magnitude.large": {"en": "large", "ua": "велика"},
     "correlation.sign.positive": {"en": "positive", "ua": "позитивну"},
     "correlation.sign.negative": {"en": "negative", "ua": "негативну"},
+    # Parenthetical descriptors used by the compacter (e.g. "«A»–«B» (strong, positive; r...)" /
+    # "«A»–«B» (сильна пряма; r...)"). Ukrainian forms are feminine, agreeing with "кореляція".
+    "correlation.strength_nom.strong": {"en": "strong", "ua": "сильна"},
+    "correlation.strength_nom.moderate": {"en": "moderate", "ua": "помірна"},
+    "correlation.strength_nom.weak": {"en": "weak", "ua": "слабка"},
+    "correlation.strength_nom.very_weak": {"en": "very weak", "ua": "дуже слабка"},
+    "correlation.dir.direct": {"en": "positive", "ua": "пряма"},
+    "correlation.dir.inverse": {"en": "negative", "ua": "обернена"},
+    "correlation.descriptor": {"en": "{strength}, {sign} correlation", "ua": "{strength} {sign} кореляція"},
+    # Correlation's own "the most notable ..." phrasing (overrides the generic verbal.compact one).
+    "correlation.compact.most_notable_one": {
+        "en": "The strongest correlation was observed for {items}. ",
+        "ua": "Найбільший коефіцієнт кореляції спостерігається для {items}. ",
+    },
+    "correlation.compact.most_notable": {
+        "en": "The strongest correlations were observed for {items}. ",
+        "ua": "Найбільші коефіцієнти кореляції спостерігаються для {items}. ",
+    },
     "correlation.report.intro": {
         "en": "A {name} was calculated to assess the relationship between the variables {vars}. ",
         "ua": "Розраховано {name} для оцінки зв'язку між змінними {vars}. ",
@@ -1447,14 +1570,6 @@ TRANSLATIONS = {
         "en": "The relationship between the two variables was not significant, {stats}. ",
         "ua": "Зв'язок між двома змінними статистично незначущий, {stats}. ",
     },
-    "correlation.report.multi_significant": {
-        "en": "There was a {strength} {sign} correlation between '{var1}' and '{var2}', {stats}. ",
-        "ua": "Виявлено {strength} {sign} кореляцію між «{var1}» та «{var2}», {stats}. ",
-    },
-    "correlation.report.multi_nonsignificant": {
-        "en": "The correlation between '{var1}' and '{var2}' was not significant, {stats}. ",
-        "ua": "Кореляція між «{var1}» та «{var2}» статистично незначуща, {stats}. ",
-    },
     "correlation.report.negligible": {
         "en": "Although statistically significant, the relationship is negligible. ",
         "ua": "Попри статистичну значущість, зв'язок є незначним за величиною. ",
@@ -1470,10 +1585,6 @@ TRANSLATIONS = {
     "correlation.partial.method_error": {
         "en": "Partial correlation supports only Pearson or Spearman; pick one of those as the correlation type.",
         "ua": "Часткова кореляція підтримує лише Пірсона або Спірмена; оберіть один із цих типів кореляції.",
-    },
-    "correlation.warning.ordinal_pearson": {
-        "en": "Warning: Ordinal data detected. Pearson correlation is not suitable for ordinal data.",
-        "ua": "Увага: виявлено порядкові дані. Кореляція Пірсона не підходить для порядкових даних.",
     },
     "correlation.warning.constant_column": {
         "en": "Note: {columns} has no variance (a single value), " "so its correlations are undefined and left blank.",

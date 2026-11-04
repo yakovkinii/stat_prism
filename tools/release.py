@@ -36,7 +36,8 @@ Usage (run with the app interpreter in venv_39):
 Optional pre-release steps (off by default; each runs in the matching venv):
 
     --test    run the test suite (venv_39 python -m pytest -q)
-    --docs    build the user guide (venv_docs: python -m sphinx -b html docs docs/_build/html)
+    --docs    build the user guide in English (docs/_build/html) and Ukrainian
+              (docs/_build/html-uk), both via venv_docs
     --build   build the standalone exe (venv_39 python -m nuitka launcher.py)
 
 After it succeeds it prints the remaining manual git / GitHub-release steps.
@@ -217,7 +218,23 @@ def main() -> None:
     if args.test:
         run_step("Test suite", [venv_python("venv_39"), "-m", "pytest", "-q"])
     if args.docs:
-        run_step("Docs build", [venv_python("venv_docs"), "-m", "sphinx", "-b", "html", "docs", "docs/_build/html"])
+        run_step(
+            "Docs build (en)", [venv_python("venv_docs"), "-m", "sphinx", "-b", "html", "docs", "docs/_build/html"]
+        )
+        run_step(
+            "Docs build (uk)",
+            [
+                venv_python("venv_docs"),
+                "-m",
+                "sphinx",
+                "-b",
+                "html",
+                "-D",
+                "language=uk",
+                "docs",
+                "docs/_build/html-uk",
+            ],
+        )
     if args.build:
         run_step("Nuitka build", [venv_python("venv_39"), "-m", "nuitka", "launcher.py"])
 

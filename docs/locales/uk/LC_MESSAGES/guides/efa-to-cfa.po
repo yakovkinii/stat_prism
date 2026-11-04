@@ -1,0 +1,179 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2026, StatPrism Team
+# This file is distributed under the same license as the StatPrism package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2026.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: StatPrism 1.3\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-11-04 00:10+0100\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language: uk\n"
+"Language-Team: uk <LL@li.org>\n"
+"Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
+"n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.18.0\n"
+
+#: ../../guides/efa-to-cfa.md:1
+msgid "From exploratory to confirmatory factor analysis"
+msgstr "Від експлораторного до конфірматорного факторного аналізу"
+
+#: ../../guides/efa-to-cfa.md:3
+msgid ""
+"A typical scale-development flow: explore the factor structure with EFA, "
+"then confirm it with CFA. StatPrism can hand the EFA solution straight to"
+" a CFA so you do not re-enter the structure by hand."
+msgstr ""
+"Типовий процес розробки шкали: дослідити факторну структуру за допомогою "
+"EFA, а потім підтвердити її за допомогою CFA. StatPrism може передати "
+"розв'язок EFA прямо до CFA, тож вам не доведеться вводити структуру "
+"вручну."
+
+#: ../../guides/efa-to-cfa.md:6
+msgid "1. Explore with EFA"
+msgstr "1. Дослідіть за допомогою EFA"
+
+#: ../../guides/efa-to-cfa.md:8
+#, python-brace-format
+msgid ""
+"Add an {doc}`../analyses/exploratory-factor-analysis` and select your "
+"items. Choose the **correlation** (Pearson, or **Polychoric** for ordinal"
+" items), an **extraction method**, a **rotation** (an oblique one like "
+"*promax* if you expect the factors to correlate), and the **number of "
+"factors** (the scree plot and eigenvalues help you decide – turn on "
+"**Show eigenvalues table** if you want the numbers)."
+msgstr ""
+"Додайте {doc}`../analyses/exploratory-factor-analysis` і виберіть свої "
+"пункти. Виберіть **кореляцію** (Pearson або **Polychoric** для "
+"порядкових пунктів), **метод виділення**, **обертання** (косокутне, "
+"як-от *promax*, якщо ви очікуєте, що фактори корелюватимуть) та "
+"**кількість факторів** (scree-плот і власні значення допоможуть "
+"визначитися – увімкніть **Show eigenvalues table**, якщо хочете бачити "
+"числа)."
+
+#: ../../guides/efa-to-cfa.md:14
+msgid ""
+"Read the **loadings**: each item should load strongly on one factor and "
+"weakly on the others."
+msgstr ""
+"Прочитайте **навантаження**: кожен пункт має сильно навантажуватися на "
+"один фактор і слабко на інші."
+
+#: ../../guides/efa-to-cfa.md:16
+msgid "2. Hand it to a CFA"
+msgstr "2. Передайте це до CFA"
+
+#: ../../guides/efa-to-cfa.md:18
+#, python-brace-format
+msgid ""
+"At the bottom of the EFA settings, click **Create a CFA from this "
+"solution**. This creates a new {doc}`../analyses/confirmatory-factor-"
+"analysis` and pre-configures it from the EFA: the same items and number "
+"of factors, each item assigned to the factor it loaded on most strongly, "
+"factor correlation enabled if the EFA rotation was oblique, and a DWLS "
+"estimator if the EFA used polychoric correlations. The new CFA is "
+"selected automatically."
+msgstr ""
+"Унизу налаштувань EFA натисніть **Create a CFA from this solution**. Це "
+"створює новий {doc}`../analyses/confirmatory-factor-analysis` і попередньо "
+"налаштовує його з EFA: ті самі пункти та кількість факторів, кожен пункт "
+"призначено до фактора, на який він навантажувався найсильніше, кореляцію "
+"факторів увімкнено, якщо обертання EFA було косокутним, та метод "
+"оцінювання DWLS, якщо EFA використовував поліхоричні кореляції. Новий CFA "
+"обирається автоматично."
+
+#: ../../guides/efa-to-cfa.md:24
+msgid "(Run the EFA at least once first, so its loadings are available.)"
+msgstr "(Спершу запустіть EFA хоча б один раз, щоб його навантаження стали доступними.)"
+
+#: ../../guides/efa-to-cfa.md:26
+msgid "3. Refine and confirm"
+msgstr "3. Уточніть і підтвердіть"
+
+#: ../../guides/efa-to-cfa.md:28
+msgid ""
+"Judge the CFA **fit indices** (chi-square, RMSEA, CFI, TLI, SRMR). To "
+"improve fit, turn on the **Modification hints** and use **Apply cross-"
+"loadings** / **Apply correlated residuals** – only the top few "
+"suggestions are listed (with the total in the heading). Tick one to free "
+"that parameter and re-fit; the path diagram then shows the extra loading "
+"(dashed) or residual link."
+msgstr ""
+"Оцініть **індекси відповідності моделі** CFA (хі-квадрат, RMSEA, CFI, TLI, "
+"SRMR). Щоб покращити відповідність, увімкніть **Modification hints** і "
+"скористайтеся **Apply cross-loadings** / **Apply correlated residuals** – "
+"у списку наведено лише кілька найкращих пропозицій (із загальною кількістю "
+"в заголовку). Поставте позначку на одній, щоб звільнити цей параметр і "
+"переоцінити модель; path-діаграма тоді покаже крос-навантаження "
+"(пунктиром) або зв'язок залишків."
+
+#: ../../guides/efa-to-cfa.md:33
+msgid "4. Score and report"
+msgstr "4. Підрахуйте бали та складіть звіт"
+
+#: ../../guides/efa-to-cfa.md:35
+#, python-brace-format
+msgid ""
+"Once you are happy with the model, click **Create a Calculate Scale step "
+"per factor** on the CFA to turn each factor into a {doc}`../data-"
+"processing/calculate-scale` step, then analyze or export the scores as "
+"usual."
+msgstr ""
+"Коли ви задоволені моделлю, натисніть **Create a Calculate Scale step per "
+"factor** на CFA, щоб перетворити кожен фактор на крок {doc}`../data-"
+"processing/calculate-scale`, а потім аналізуйте чи експортуйте бали як "
+"зазвичай."
+
+#~ msgid ""
+#~ "A typical scale-development flow: "
+#~ "explore the factor structure with EFA,"
+#~ " then confirm it with CFA. StatPrism"
+#~ " can hand the EFA solution straight"
+#~ " to a CFA so you don't re-"
+#~ "enter the structure by hand."
+#~ msgstr ""
+
+#~ msgid ""
+#~ "Add an {doc}`../analyses/exploratory-factor-"
+#~ "analysis` and select your items. Choose"
+#~ " the **correlation** (Pearson, or "
+#~ "**Polychoric** for ordinal items), an "
+#~ "**extraction method**, a **rotation** (an "
+#~ "oblique one like *promax* if you "
+#~ "expect the factors to correlate), and"
+#~ " the **number of factors** (the scree"
+#~ " plot and eigenvalues help you decide"
+#~ " — turn on **Show eigenvalues table**"
+#~ " if you want the numbers)."
+#~ msgstr ""
+
+#~ msgid ""
+#~ "Judge the CFA **fit indices** (chi-"
+#~ "square, RMSEA, CFI, TLI, SRMR). To "
+#~ "improve fit, turn on the **Modification"
+#~ " hints** and use **Apply cross-"
+#~ "loadings** / **Apply correlated residuals**"
+#~ " — only the top few suggestions "
+#~ "are listed (with the total in the"
+#~ " heading). Tick one to free that "
+#~ "parameter and re-fit; the path "
+#~ "diagram then shows the extra loading "
+#~ "(dashed) or residual link."
+#~ msgstr ""
+
+#~ msgid ""
+#~ "Once you're happy with the model, "
+#~ "click **Create a Calculate Scale step"
+#~ " per factor** on the CFA to "
+#~ "turn each factor into a {doc"
+#~ "}`../data-processing/calculate-scale` step, then"
+#~ " analyze or export the scores as "
+#~ "usual."
+#~ msgstr ""
+

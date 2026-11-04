@@ -1,19 +1,25 @@
 # Correlation
 
+```{image} ../_static/img/correlation.png
+:align: right
+:width: 240px
+:alt: Correlation heatmap example
+```
+
 Measures how strongly variables move together, as a correlation matrix with significance
 and (where defensible) confidence intervals.
 
 ## When to use it
 
-To quantify the association between two or more variables — for example, whether higher
+To quantify the association between two or more variables – for example, whether higher
 scores on one item go with higher scores on another.
 
 ## Inputs
 
-- **Variables** — two or more columns for the main matrix.
-- **Control variables (optional)** — turns the analysis into a **partial correlation**,
+- **Variables**: two or more columns for the main matrix.
+- **Control variables (optional)**: turns the analysis into a **partial correlation**,
   holding these constant (Pearson or Spearman only).
-- **Second variable set (optional)** — produces a rectangular **cross** matrix of the first
+- **Second variable set (optional)**: produces a rectangular **cross** matrix of the first
   set against the second, instead of a square matrix.
 
 ## Options
@@ -27,7 +33,7 @@ Table
   the Fisher-z transform for Pearson and Spearman); **Number columns** for wide matrices.
 
 Verbal report
-: How much plain-language interpretation to write, as a single dropdown — **None**,
+: How much plain-language interpretation to write, as a single dropdown – **None**,
   **Key findings** (only strong correlations), **Significant only**, or **Full** (every pair).
   The amount of prose scales with how much there is to say.
 
@@ -46,9 +52,13 @@ Plots
 
 ## Notes
 
-- Confidence intervals are shown only where they are statistically defensible — Pearson and
-  Spearman. Other coefficients show no CI.
+- Confidence intervals are shown only for the coefficients where they are statistically
+  defensible: Pearson and Spearman. The others show none.
 - A column with **no variance** (a single repeated value) has an undefined correlation; its
   cells are left blank and a note explains why.
 - Choosing Pearson on ordinal data triggers a warning, since rank-based coefficients are
   usually more appropriate there.
+- For the **tetrachoric** coefficient the significance p-value comes from a likelihood-ratio test
+  (the G² test of independence, df = 1), which stays valid even at the boundary (for example, a
+  zero cell or a near-perfect association), where a Wald test would break down. Its reported df is
+  therefore 1, not *n* − 2.

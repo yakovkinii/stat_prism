@@ -1,24 +1,30 @@
 # Cluster analysis
 
+```{image} ../_static/img/cluster.png
+:align: right
+:width: 240px
+:alt: Cluster scatter example
+```
+
 Groups respondents into clusters based on their values across several variables.
 
 ## When to use it
 
-To find natural segments in your sample — for example, grouping respondents by a profile of
+To find natural segments in your sample – for example, grouping respondents by a profile of
 scores.
 
 ## Inputs
 
-- **Variables** — the numeric/ordinal columns that define similarity between respondents.
+- **Variables**: the numeric/ordinal columns that define similarity between respondents.
 
 ## Options
 
-- **Method** — **K-means** or **Hierarchical**.
-- **Linkage** (hierarchical) — Ward, Complete, Average, etc.
+- **Method**: **K-means** or **Hierarchical**.
+- **Linkage** (hierarchical): Ward, Complete, Average, etc.
 - **Number of clusters**.
-- **Standardize variables** — z-scores each variable first, so variables on larger scales
-  don't dominate the distance.
-- **Show assignments** — adds a per-respondent cluster table.
+- **Standardize variables**: z-scores each variable first, so variables on larger scales
+  do not dominate the distance.
+- **Show assignments**: adds a per-respondent cluster table.
 - **Verbal indicators** (in-table columns), **Verbal report** (dropdown for how much written
   interpretation), and **Plots**.
 
@@ -32,5 +38,5 @@ scores.
 
 ## Notes
 
-- Results are reproducible — the clustering and 2-D projection use a fixed random seed.
+- Results are reproducible – the clustering and 2-D projection use a fixed random seed.
 - Standardizing is usually advisable when variables are on different scales.

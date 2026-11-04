@@ -49,6 +49,7 @@ version = ".".join(release.split(".")[:2])  # short X.Y, e.g. "1.0"
 extensions = [
     "myst_parser",
     "sphinx_copybutton",
+    "sphinx_design",  # CSS-only responsive card grids for the landing-page gallery
 ]
 
 # MyST Markdown extensions used across the guide.
@@ -71,17 +72,24 @@ myst_substitutions = {
 source_suffix = {".md": "markdown", ".rst": "restructuredtext"}
 
 templates_path = ["_templates"]
-exclude_patterns = ["_build", "Thumbs.db", ".DS_Store"]
+exclude_patterns = ["_build", "Thumbs.db", ".DS_Store", "locales/**"]
 
 language = "en"
 
+# -- Internationalisation (translated guide, e.g. Ukrainian) -------------------
+# Strings are extracted to docs/locale/<lang>/LC_MESSAGES/*.po; build a translation
+# with `sphinx-build -D language=uk ...`. One .po file per source page.
+locale_dirs = ["locales/"]
+gettext_compact = False
+
 # -- HTML output --------------------------------------------------------------
-html_theme = "furo"
+html_theme = "shibuya"
 html_title = "StatPrism User Guide"
 html_static_path = ["_static"]
 
 html_theme_options = {
-    "sidebar_hide_name": False,
+    "github_url": "https://github.com/yakovkinii/stat_prism",
+    "accent_color": "amber",
 }
 
 # -- PDF (LaTeX) output -------------------------------------------------------

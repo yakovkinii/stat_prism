@@ -7,23 +7,23 @@ with its settings; the results are recomputed from those when you reopen it.
 
 ```{note}
 Projects use a JSON + parquet format (since version 1.2.8). Projects saved by versions **before
-1.2.8** use the old format, which this version no longer opens — open such a project once in
+1.2.8** use the old format, which this version no longer opens – open such a project once in
 **version 1.2.8** and **Save** it to convert it, then it will open here. Opening a project saved by a
-*newer* version than you have installed is also not supported — update StatPrism first.
+*newer* version than you have installed is also not supported – update StatPrism first.
 ```
 
-- **File ▸ Save** — save to the current project file.
-- **File ▸ Save As…** — save to a new file.
-- **File ▸ Open…** — open a `.sp` project (or import a raw data file; see
+- **File ▸ Save**: save to the current project file.
+- **File ▸ Save As…**: save to a new file.
+- **File ▸ Open…**: open a `.sp` project (or import a raw data file; see
   {doc}`importing-data`).
 
 ```{tip}
-After you **Open** a `.sp` project, **Save** writes back to that same file — so once a
-project is open, *Save* (not *Save As*) is the quick way to keep it up to date.
+After you **Open** a `.sp` project, **Save** writes back to that same file – so once a
+project is open, *Save* (not *Save As*) is the direct way to keep it up to date.
 ```
 
 Project files are independent of the application folder, so they are safe across app
-updates and easy to back up or share.
+updates and straightforward to back up or share.
 
 All preferences live under the **Settings** menu.
 

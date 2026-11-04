@@ -25,7 +25,7 @@ from src.common.decorators import log_function
 from src.data.data import OrdinalCastError
 from src.data.data_manager import DATA_MANAGER
 from src.side_area_panel.iispwac.iispwac_path_builder import resolve_factor_labels
-from src.side_area_panel.modules.common.prose import prose_enabled
+from src.side_area_panel.modules.common.prose import ProseDetail, prose_at_least, prose_enabled
 from src.side_area_panel.modules.common.result.html_result import Cell, HTMLTableV2, Row
 from src.side_area_panel.modules.common.result.plot_result import (
     FactorDiagram,
@@ -180,7 +180,7 @@ def recalculate_general_sem_study(elements, result: GeneralSEMResult, update) ->
                 cells.append(Cell(_fit_quality(str(name), row0[name]), center=True))
             fit_table.add_single_row_apa(Row(cells))
         if prose:
-            fit_table.add_text(_fit_prose(row0))
+            fit_table.add_text(_fit_prose(row0, cfg.interpretation))
         fit_table.add_numeric_supplement(
             {
                 "kind": "sem_fit",
@@ -241,7 +241,8 @@ def recalculate_general_sem_study(elements, result: GeneralSEMResult, update) ->
     if verbal:
         param_table.add_text("Stars flag significance of each path: *** p&lt;.001, ** p&lt;.01, * p&lt;.05.")
     if prose:
-        param_table.add_text(_param_prose(insp, display, df.shape[0], len(lines)))
+        param_text = _param_prose(insp, display, df.shape[0], len(lines), cfg.interpretation)
+        param_text and param_table.add_text(param_text)
     # Standardized loadings (=~) and structural regressions (~), keyed by display names so a trusted
     # lavaan fit can be matched path-for-path. Variances/covariances (~~) are omitted.
     std_params = {}
@@ -264,7 +265,7 @@ def recalculate_general_sem_study(elements, result: GeneralSEMResult, update) ->
         var_table.add_title_row_apa(_header("Variance"))
         for r in variance_rows:
             var_table.add_single_row_apa(_row_cells(r, plain_name=True))
-        if prose:
+        if prose_at_least(cfg.interpretation, ProseDetail.FULL):
             var_table.add_text(
                 "Each row is an estimated variance. For an observed item it is the residual (error) "
                 "variance left over after its factor is accounted for; its standardized value equals "
@@ -389,8 +390,9 @@ def _fit_quality(name: str, value) -> str:
     return "—"
 
 
-def _fit_prose(row) -> str:
-    """A sentence summarising the global fit from whichever indices semopy reported."""
+def _fit_prose(row, detail) -> str:
+    """Global-fit summary, layered by level: a one-line verdict with the two headline indices at
+    every level, and the full index list plus cut-off guidance from *Significant only* up."""
 
     def get(*names):
         for n in names:
@@ -411,32 +413,39 @@ def _fit_prose(row) -> str:
     labels = [_fit_quality(n, v) for n, v in (("CFI", cfi), ("TLI", tli), ("RMSEA", rmsea)) if v is not None]
     good = {"good", "acceptable", "excellent"}
     verdict = "acceptable" if labels and all(lbl in good for lbl in labels) else "questionable"
-    return (
+    headline = [f"{name} = {_fmt(v)}" for name, v in (("CFI", cfi), ("RMSEA", rmsea)) if v is not None]
+    text = (
         "The measurement + structural model reproduces the observed covariances "
         + ("well" if verdict == "acceptable" else "only partially")
-        + f" ({', '.join(parts)}). "
-        + (
+        + (f" ({', '.join(headline)})" if headline else "")
+        + ". "
+    )
+    if prose_at_least(detail, ProseDetail.SIGNIFICANT):
+        text += f"Fit indices: {', '.join(parts)}. " + (
             "Conventional cut-offs (CFI/TLI ≥ .95, RMSEA ≤ .06) suggest a model worth interpreting."
             if verdict == "acceptable"
             else "At least one index falls short of the usual cut-offs, "
             "so interpret the paths with caution and consider revising the model."
         )
-    )
+    return text
 
 
-def _param_prose(insp, display, n_cases: int, n_equations: int) -> str:
-    """A richer description of the structural paths: how many, how many significant, and the
-    strongest one, using the standardized solution when available."""
+def _param_prose(insp, display, n_cases: int, n_equations: int, detail) -> str:
+    """Structural-path summary, layered by level: how many paths are significant and the strongest
+    one from *Key findings* up, the sample/model context from *Significant only* up, and the
+    standardized-column note at *Full*. Returns "" when nothing is due at the chosen level."""
     reg = insp[insp["op"] == "~"] if "op" in insp.columns else insp.iloc[0:0]
     n_paths = len(reg)
-    text = (
-        f"Fitted a structural equation model on {n_cases} complete cases "
-        f"({n_equations} model equation(s), {n_paths} directed path(s)). "
-    )
-    if n_paths:
+    parts = []
+    if prose_at_least(detail, ProseDetail.SIGNIFICANT):
+        parts.append(
+            f"Fitted a structural equation model on {n_cases} complete cases "
+            f"({n_equations} model equation(s), {n_paths} directed path(s)). "
+        )
+    if n_paths and prose_at_least(detail, ProseDetail.KEY):
         p = reg["p-value"].map(_num) if "p-value" in reg.columns else None
         n_sig = int(sum(1 for v in (p if p is not None else []) if v is not None and v < 0.05))
-        text += f"{n_sig} of {n_paths} directed path(s) reached significance (p &lt; .05). "
+        parts.append(f"{n_sig} of {n_paths} directed path(s) reached significance (p &lt; .05). ")
         est_col = "Est. Std" if "Est. Std" in reg.columns else "Estimate"
         strongest, best = None, -1.0
         for _, r in reg.iterrows():
@@ -446,12 +455,13 @@ def _param_prose(insp, display, n_cases: int, n_equations: int) -> str:
         if strongest is not None:
             lval = display.get(strongest["lval"], strongest["lval"])
             rval = display.get(strongest["rval"], strongest["rval"])
-            text += (
+            parts.append(
                 f"The strongest effect is {rval} → {lval} "
                 f"({'standardized ' if est_col == 'Est. Std' else ''}β = {_fmt(strongest.get(est_col))}). "
             )
-    text += "The Std. column gives the standardized solution."
-    return text
+    if prose_at_least(detail, ProseDetail.FULL):
+        parts.append("The Std. column gives the standardized solution.")
+    return "".join(parts)
 
 
 def _fmt(value) -> str:

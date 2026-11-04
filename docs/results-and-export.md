@@ -1,12 +1,12 @@
 # Results & export
 
 Everything you compute appears as a **result card** in the large area on the left. This page covers reading,
-customizing, and getting those results out — especially into Word for a report or article.
+customizing, and getting those results out, especially into Word for a report or article.
 
 ## Result cards and tabs
 
 - Each analysis produces one **result card**.
-- A card can hold several **elements** — tables and plots — shown as tabs you can switch
+- A card can hold several **elements** – tables and plots – shown as tabs you can switch
   between.
 - **Rename a study** by clicking its title and typing a new name (press Enter or click away to
   finish). The name is used on the card and in the copied/exported report. For data-processing
@@ -15,18 +15,18 @@ customizing, and getting those results out — especially into Word for a report
 
 ## Customizing plots
 
-Plots have their own controls — typically colors, axis titles, gridlines, the title/axis
+Plots have their own controls: typically colors, axis titles, gridlines, the title/axis
 layout, and the figure size. Adjust these before exporting so the figure looks right in your
 document.
 
 ## APA-style tables
 
 Tables are formatted in **APA** style (clean rules, italicized statistics where
-appropriate), so they drop into a manuscript with minimal reformatting.
+appropriate), so they require minimal reformatting in a manuscript.
 
 ## Copy everything into Word
 
-The fastest path to a report:
+To copy all results into a report:
 
 1. **File ▸ Copy All Results.**
 2. Switch to Word (or another rich-text editor) and **paste**.
@@ -49,28 +49,28 @@ A StatPrism result (left) and the same tables and figure pasted into Word (right
 ```{important}
 **Remove the paragraph indent before pasting tables.** Word applies a default first-line/left
 indent to body text, which distorts pasted tables (columns drift or overflow the page). Set
-the indent to **0** (Home ▸ Paragraph) for the area you paste into — or select the pasted
-tables and clear their indent — and they will line up correctly.
+the indent to **0** (Home ▸ Paragraph) for the area you paste into – or select the pasted
+tables and clear their indent – and they will line up correctly.
 ```
 
 ```{tip}
 Set the language (**Settings ▸ Language**) and plot theme (**Settings ▸ Plot theme**)
-**before** copying — results are rendered in the current language and theme.
+**before** copying – results are rendered in the current language and theme.
 ```
 
 ## Export a self-contained report
 
-**File ▸ Export Report (HTML)…** writes a single `.html` file containing every result —
+**File ▸ Export Report (HTML)…** writes a single `.html` file containing every result – 
 tables and figures (images embedded inline). It needs no other files, so you can archive it,
-email it, or open it in a browser and print to PDF. It's also a convenient supplement to a
+email it, or open it in a browser and print to PDF. It is also suitable as a supplement to a
 manuscript.
 
 ## Export data to Excel
 
 You can export the current data table to `.xlsx`, with each column header painted in its
-color tag — handy for sharing a cleaned dataset or for independent checking in another tool.
+color tag, which helps when sharing a cleaned dataset or checking it independently in another tool.
 
 ## Resolution note
 
 Exported plots are rendered at higher resolution than they appear on screen, so pasted and
-exported figures stay crisp in print.
+exported figures remain sharp in print.

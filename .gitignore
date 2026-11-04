@@ -17,6 +17,8 @@ __pycache__/
 # Docs build output and the docs-only virtualenv
 /docs/_build/
 /venv_docs/
+# Compiled gettext catalogs (generated from the .po sources at build time)
+docs/locales/**/*.mo
 
 # Nuitka / packaged binaries — distribute via GitHub Releases, never commit
 *.exe

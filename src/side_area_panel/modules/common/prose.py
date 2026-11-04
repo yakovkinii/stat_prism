@@ -20,7 +20,11 @@ from enum import Enum
 
 
 class ProseDetail(Enum):
+    # Stored in save files by VALUE. The four original values (None/Key findings/Significant only/
+    # Full) are kept verbatim so existing user selections keep resolving; HEADLINE was added later.
+    # Order below is the dropdown order (least -> most prose).
     NONE = "None"
+    HEADLINE = "Headline"
     KEY = "Key findings"
     SIGNIFICANT = "Significant only"
     FULL = "Full"
@@ -63,6 +67,20 @@ def prose_includes(detail, significant: bool, notable: bool = False) -> bool:
         return True
     if level == ProseDetail.SIGNIFICANT:
         return significant
-    if level == ProseDetail.KEY:
+    if level in (ProseDetail.KEY, ProseDetail.HEADLINE):
         return notable
     return False
+
+
+# Ordinal position of each level (NONE = 0 ... FULL = 4), used to compare detail depth.
+_RANK = {level: index for index, level in enumerate(ProseDetail)}
+
+
+def prose_at_least(detail, minimum: ProseDetail) -> bool:
+    """True when prose is on *and* the chosen level is at least ``minimum``.
+
+    Single-result modules use this to layer a description: a one-line verdict at ``HEADLINE``,
+    then progressively more facets (structure, assumptions, diagnostics) as the level rises, each
+    facet guarded by the lowest level at which it should appear."""
+    level = prose_detail_from(detail)
+    return level != ProseDetail.NONE and _RANK[level] >= _RANK[minimum]

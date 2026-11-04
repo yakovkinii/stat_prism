@@ -1,7 +1,7 @@
 # Split Multi-Select
 
-Splits a "select all that apply" / checkbox column — where each cell holds a delimited list
-of chosen options (e.g. *"Email, Calendar"*) — into one **0/1 indicator column per distinct
+Splits a "select all that apply" / checkbox column – where each cell holds a delimited list
+of chosen options (e.g. *"Email, Calendar"*) – into one **0/1 indicator column per distinct
 option**. A cell gets 1 for an option it contains and 0 otherwise; blank cells get 0
 everywhere.
 

@@ -1,0 +1,302 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2026, StatPrism Team
+# This file is distributed under the same license as the StatPrism package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2026.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: StatPrism 1.3\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-11-04 00:10+0100\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language: uk\n"
+"Language-Team: uk <LL@li.org>\n"
+"Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
+"n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.18.0\n"
+
+#: ../../results-and-export.md:1
+msgid "Results & export"
+msgstr "Результати та експорт"
+
+#: ../../results-and-export.md:3
+msgid ""
+"Everything you compute appears as a **result card** in the large area on "
+"the left. This page covers reading, customizing, and getting those "
+"results out, especially into Word for a report or article."
+msgstr ""
+"Усе, що ви обчислюєте, з'являється як **картка результату** у великій "
+"області ліворуч. Ця сторінка охоплює читання, налаштування та виведення цих "
+"результатів, особливо у Word для звіту чи статті."
+
+#: ../../results-and-export.md:6
+msgid "Result cards and tabs"
+msgstr "Картки результатів і вкладки"
+
+#: ../../results-and-export.md:8
+msgid "Each analysis produces one **result card**."
+msgstr "Кожен аналіз створює одну **картку результату**."
+
+#: ../../results-and-export.md:9
+msgid ""
+"A card can hold several **elements** – tables and plots – shown as tabs "
+"you can switch between."
+msgstr ""
+"Картка може містити кілька **елементів** – таблиць і графіків – показаних як "
+"вкладки, між якими можна перемикатися."
+
+#: ../../results-and-export.md:11
+msgid ""
+"**Rename a study** by clicking its title and typing a new name (press "
+"Enter or click away to finish). The name is used on the card and in the "
+"copied/exported report. For data-processing steps the `[Data N]` label is"
+" kept automatically."
+msgstr ""
+"**Перейменуйте дослідження**, натиснувши на його назву та ввівши нову "
+"(натисніть Enter або клацніть осторонь, щоб завершити). Назва "
+"використовується на картці та у скопійованому/експортованому звіті. Для "
+"кроків обробки даних мітка `[Data N]` зберігається автоматично."
+
+#: ../../results-and-export.md:14
+msgid ""
+"Results update automatically when you change a setting or an upstream "
+"data step."
+msgstr ""
+"Результати оновлюються автоматично, коли ви змінюєте налаштування чи "
+"попередній крок обробки даних."
+
+#: ../../results-and-export.md:16
+msgid "Customizing plots"
+msgstr "Налаштування графіків"
+
+#: ../../results-and-export.md:18
+msgid ""
+"Plots have their own controls: typically colors, axis titles, gridlines, "
+"the title/axis layout, and the figure size. Adjust these before exporting"
+" so the figure looks right in your document."
+msgstr ""
+"Графіки мають власні елементи керування: зазвичай кольори, назви осей, лінії "
+"сітки, компонування заголовка/осей та розмір рисунка. Налаштуйте їх перед "
+"експортом, щоб рисунок добре виглядав у вашому документі."
+
+#: ../../results-and-export.md:22
+msgid "APA-style tables"
+msgstr "Таблиці у стилі APA"
+
+#: ../../results-and-export.md:24
+msgid ""
+"Tables are formatted in **APA** style (clean rules, italicized statistics"
+" where appropriate), so they require minimal reformatting in a "
+"manuscript."
+msgstr ""
+"Таблиці оформлено у стилі **APA** (акуратні лінії, курсив для статистик там, "
+"де це доречно), тож у рукописі вони потребують мінімального переформатування."
+
+#: ../../results-and-export.md:27
+msgid "Copy everything into Word"
+msgstr "Скопіюйте все у Word"
+
+#: ../../results-and-export.md:29
+msgid "To copy all results into a report:"
+msgstr "Щоб скопіювати всі результати у звіт:"
+
+#: ../../results-and-export.md:31
+msgid "**File ▸ Copy All Results.**"
+msgstr "**File ▸ Copy All Results.**"
+
+#: ../../results-and-export.md:32
+msgid "Switch to Word (or another rich-text editor) and **paste**."
+msgstr ""
+"Перейдіть у Word (чи інший редактор форматованого тексту) і **вставте**."
+
+#: ../../results-and-export.md:34
+msgid ""
+"Tables paste as real, editable tables; plots paste as embedded images. "
+"This copies *all* result cards at once in the order they appear."
+msgstr ""
+"Таблиці вставляються як справжні редаговані таблиці; графіки вставляються як "
+"вбудовані зображення. Так копіюються *всі* картки результатів одразу в "
+"порядку їх появи."
+
+#: ../../results-and-export.md:37
+msgid "A StatPrism result and the same result pasted into Word, side by side"
+msgstr "Результат StatPrism і той самий результат, вставлений у Word, поруч"
+
+#: ../../results-and-export.md:41
+msgid ""
+"A StatPrism result (left) and the same tables and figure pasted into Word"
+" (right)."
+msgstr ""
+"Результат StatPrism (ліворуч) і ті самі таблиці та рисунок, вставлені у Word "
+"(праворуч)."
+
+#: ../../results-and-export.md:44
+msgid "Regular paste vs. Paste Special"
+msgstr "Звичайне вставлення проти Paste Special"
+
+#: ../../results-and-export.md:46
+msgid "**Regular paste** (Ctrl+V) works well for most reports."
+msgstr "**Звичайне вставлення** (Ctrl+V) добре працює для більшості звітів."
+
+#: ../../results-and-export.md:47
+msgid "For more precise formatting, use **Paste Special ▸ HTML Format**."
+msgstr ""
+"Для точнішого форматування використовуйте **Paste Special ▸ HTML Format**."
+
+#: ../../results-and-export.md:50
+msgid ""
+"**Remove the paragraph indent before pasting tables.** Word applies a "
+"default first-line/left indent to body text, which distorts pasted tables"
+" (columns drift or overflow the page). Set the indent to **0** (Home ▸ "
+"Paragraph) for the area you paste into – or select the pasted tables and "
+"clear their indent – and they will line up correctly."
+msgstr ""
+"**Видаліть абзацний відступ перед вставленням таблиць.** Word застосовує до "
+"основного тексту типовий відступ першого рядка/лівого краю, що спотворює "
+"вставлені таблиці (колонки зсуваються або виходять за межі сторінки). "
+"Встановіть відступ на **0** (Home ▸ Paragraph) для області, у яку ви "
+"вставляєте, – або виділіть вставлені таблиці та очистьте їхній відступ – і "
+"вони вирівняються правильно."
+
+#: ../../results-and-export.md:57
+msgid ""
+"Set the language (**Settings ▸ Language**) and plot theme (**Settings ▸ "
+"Plot theme**) **before** copying – results are rendered in the current "
+"language and theme."
+msgstr ""
+"Встановіть мову (**Settings ▸ Language**) та тему графіків (**Settings ▸ "
+"Plot theme**) **перед** копіюванням – результати відтворюються поточною "
+"мовою та з поточною темою."
+
+#: ../../results-and-export.md:61
+msgid "Export a self-contained report"
+msgstr "Експортуйте самодостатній звіт"
+
+#: ../../results-and-export.md:63
+msgid ""
+"**File ▸ Export Report (HTML)…** writes a single `.html` file containing "
+"every result –  tables and figures (images embedded inline). It needs no "
+"other files, so you can archive it, email it, or open it in a browser and"
+" print to PDF. It is also suitable as a supplement to a manuscript."
+msgstr ""
+"**File ▸ Export Report (HTML)…** записує один файл `.html`, що містить усі "
+"результати – таблиці та рисунки (зображення вбудовано безпосередньо). Йому "
+"не потрібні інші файли, тож ви можете заархівувати його, надіслати поштою "
+"або відкрити у браузері та роздрукувати у PDF. Він також підходить як "
+"додаток до рукопису."
+
+#: ../../results-and-export.md:68
+msgid "Export data to Excel"
+msgstr "Експортуйте дані в Excel"
+
+#: ../../results-and-export.md:70
+msgid ""
+"You can export the current data table to `.xlsx`, with each column header"
+" painted in its color tag, which helps when sharing a cleaned dataset or "
+"checking it independently in another tool."
+msgstr ""
+"Ви можете експортувати поточну таблицю даних у `.xlsx`, де заголовок кожної "
+"колонки пофарбовано в її кольорову мітку, що допомагає ділитися очищеним "
+"набором даних або незалежно перевіряти його в іншому інструменті."
+
+#: ../../results-and-export.md:73
+msgid "Resolution note"
+msgstr "Зауваження щодо роздільної здатності"
+
+#: ../../results-and-export.md:75
+msgid ""
+"Exported plots are rendered at higher resolution than they appear on "
+"screen, so pasted and exported figures remain sharp in print."
+msgstr ""
+"Експортовані графіки відтворюються з вищою роздільною здатністю, ніж вони "
+"виглядають на екрані, тож вставлені та експортовані рисунки лишаються "
+"чіткими в друці."
+
+#~ msgid ""
+#~ "Everything you compute appears as a "
+#~ "**result card** in the large area "
+#~ "on the left. This page covers "
+#~ "reading, customizing, and getting those "
+#~ "results out — especially into Word "
+#~ "for a report or article."
+#~ msgstr ""
+
+#~ msgid ""
+#~ "A card can hold several **elements** "
+#~ "— tables and plots — shown as "
+#~ "tabs you can switch between."
+#~ msgstr ""
+
+#~ msgid ""
+#~ "Plots have their own controls — "
+#~ "typically colors, axis titles, gridlines, "
+#~ "the title/axis layout, and the figure"
+#~ " size. Adjust these before exporting "
+#~ "so the figure looks right in your"
+#~ " document."
+#~ msgstr ""
+
+#~ msgid ""
+#~ "Tables are formatted in **APA** style"
+#~ " (clean rules, italicized statistics where"
+#~ " appropriate), so they drop into a"
+#~ " manuscript with minimal reformatting."
+#~ msgstr ""
+
+#~ msgid "The fastest path to a report:"
+#~ msgstr ""
+
+#~ msgid ""
+#~ "**Remove the paragraph indent before "
+#~ "pasting tables.** Word applies a default"
+#~ " first-line/left indent to body text,"
+#~ " which distorts pasted tables (columns "
+#~ "drift or overflow the page). Set "
+#~ "the indent to **0** (Home ▸ "
+#~ "Paragraph) for the area you paste "
+#~ "into — or select the pasted tables"
+#~ " and clear their indent — and "
+#~ "they will line up correctly."
+#~ msgstr ""
+
+#~ msgid ""
+#~ "Set the language (**Settings ▸ "
+#~ "Language**) and plot theme (**Settings ▸"
+#~ " Plot theme**) **before** copying — "
+#~ "results are rendered in the current "
+#~ "language and theme."
+#~ msgstr ""
+
+#~ msgid ""
+#~ "**File ▸ Export Report (HTML)…** writes"
+#~ " a single `.html` file containing "
+#~ "every result — tables and figures "
+#~ "(images embedded inline). It needs no"
+#~ " other files, so you can archive "
+#~ "it, email it, or open it in "
+#~ "a browser and print to PDF. It's"
+#~ " also a convenient supplement to a"
+#~ " manuscript."
+#~ msgstr ""
+
+#~ msgid ""
+#~ "You can export the current data "
+#~ "table to `.xlsx`, with each column "
+#~ "header painted in its color tag —"
+#~ " handy for sharing a cleaned dataset"
+#~ " or for independent checking in "
+#~ "another tool."
+#~ msgstr ""
+
+#~ msgid ""
+#~ "Exported plots are rendered at higher"
+#~ " resolution than they appear on "
+#~ "screen, so pasted and exported figures"
+#~ " stay crisp in print."
+#~ msgstr ""
+

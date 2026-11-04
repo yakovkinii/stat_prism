@@ -1,0 +1,63 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2026, StatPrism Team
+# This file is distributed under the same license as the StatPrism package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2026.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: StatPrism 1.3\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-11-04 00:10+0100\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language: uk\n"
+"Language-Team: uk <LL@li.org>\n"
+"Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
+"n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.18.0\n"
+
+#: ../../data-processing/arrange.md:1
+msgid "Arrange Columns"
+msgstr "Упорядкування колонок"
+
+#: ../../data-processing/arrange.md:3
+msgid ""
+"Sets the dataset's column order by dragging every column into place in a "
+"single list – there is no column selector."
+msgstr ""
+"Задає порядок колонок набору даних перетягуванням кожної колонки на місце в "
+"єдиному списку – селектора колонок немає."
+
+#: ../../data-processing/arrange.md:6
+msgid ""
+"The list shows every column (except the **ID** column, which always stays"
+" first), each tinted with its color tag. Drag rows up or down to set the "
+"order; the rows are kept compact so a wide dataset fits with little "
+"scrolling."
+msgstr ""
+"Список показує кожну колонку (окрім колонки **ID**, яка завжди залишається "
+"першою), кожну підсвічену її кольоровою позначкою. Перетягуйте рядки вгору "
+"або вниз, щоб задати порядок; рядки залишаються компактними, тож широкий "
+"набір даних вміщується з мінімальним прокручуванням."
+
+#: ../../data-processing/arrange.md:9
+msgid "Columns added by a later step appear at the end until you move them."
+msgstr ""
+"Колонки, додані пізнішим кроком, з'являються в кінці, доки ви їх не "
+"перемістите."
+
+#: ../../data-processing/arrange.md:10
+msgid "Only the column order changes; the values are untouched."
+msgstr "Змінюється лише порядок колонок; значення залишаються недоторканими."
+
+#~ msgid ""
+#~ "Sets the dataset's column order by "
+#~ "dragging every column into place in "
+#~ "a single list &mdash; there is no"
+#~ " column selector."
+#~ msgstr ""
+

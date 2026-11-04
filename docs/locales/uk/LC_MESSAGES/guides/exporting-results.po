@@ -1,0 +1,200 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2026, StatPrism Team
+# This file is distributed under the same license as the StatPrism package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2026.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: StatPrism 1.3\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-11-04 00:10+0100\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language: uk\n"
+"Language-Team: uk <LL@li.org>\n"
+"Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
+"n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.18.0\n"
+
+#: ../../guides/exporting-results.md:1
+msgid "Exporting results to Word and other programs"
+msgstr "Експорт результатів у Word та інші програми"
+
+#: ../../guides/exporting-results.md:3
+#, python-brace-format
+msgid ""
+"Once your tables and figures look right, this page explains how to export"
+" them. See {doc}`../results-and-export` for the full reference."
+msgstr ""
+"Коли ваші таблиці та графіки мають потрібний вигляд, ця сторінка пояснює, "
+"як їх експортувати. Повний довідник див. у {doc}`../results-and-export`."
+
+#: ../../guides/exporting-results.md:6
+msgid "What you can copy"
+msgstr "Що можна скопіювати"
+
+#: ../../guides/exporting-results.md:8
+msgid "Every result has copy buttons, so you can copy exactly what you need:"
+msgstr "Кожен результат має кнопки копіювання, тож ви можете скопіювати саме те, що потрібно:"
+
+#: ../../guides/exporting-results.md:10
+msgid ""
+"**One element**: each table or figure has its own copy button (copies "
+"only that item)."
+msgstr ""
+"**Один елемент**: кожна таблиця чи графік має власну кнопку копіювання "
+"(копіює лише цей елемент)."
+
+#: ../../guides/exporting-results.md:11
+msgid ""
+"**A whole result**: the card's copy button copies all of that analysis's "
+"tables and figures together."
+msgstr ""
+"**Цілий результат**: кнопка копіювання на картці копіює всі таблиці та "
+"графіки цього аналізу разом."
+
+#: ../../guides/exporting-results.md:13
+msgid ""
+"**Everything**: **File ▸ Copy All Results** copies every result card at "
+"once, in order."
+msgstr ""
+"**Усе**: **File ▸ Copy All Results** копіює всі картки результатів "
+"одночасно, у порядку."
+
+#: ../../guides/exporting-results.md:15
+msgid "Pasting into Word"
+msgstr "Вставлення у Word"
+
+#: ../../guides/exporting-results.md:17
+msgid "For the cleanest result, paste as HTML:"
+msgstr "Для найчистішого результату вставляйте як HTML:"
+
+#: ../../guides/exporting-results.md:19
+msgid "Copy (one of the options above)."
+msgstr "Скопіюйте (одним зі способів вище)."
+
+#: ../../guides/exporting-results.md:20
+msgid ""
+"In Word, use **Paste Special ▸ HTML Format**. Tables come in as real, "
+"editable tables in APA style, and figures come in as images."
+msgstr ""
+"У Word скористайтеся **Paste Special ▸ HTML Format**. Таблиці "
+"вставляються як справжні, редаговані таблиці у стилі APA, а графіки – як "
+"зображення."
+
+#: ../../guides/exporting-results.md:23
+msgid "A **plain paste** (Ctrl+V) usually works too, but two things to watch for:"
+msgstr "**Звичайне вставлення** (Ctrl+V) зазвичай теж працює, але варто зважати на дві речі:"
+
+#: ../../guides/exporting-results.md:25
+msgid ""
+"**Remove the indent on the line you paste into.** Word's default first-"
+"line/left indent pushes the table columns out of alignment. Set the "
+"indent to **0** (Home ▸ Paragraph) for that spot, or clear the indent on "
+"the pasted table afterwards."
+msgstr ""
+"**Приберіть відступ на рядку, куди ви вставляєте.** Типовий відступ Word "
+"для першого рядка/зліва зсуває колонки таблиці та порушує їхнє "
+"вирівнювання. Встановіть відступ на **0** (Home ▸ Paragraph) для цього "
+"місця або приберіть відступ на вставленій таблиці потім."
+
+#: ../../guides/exporting-results.md:28
+msgid ""
+"Some columns may **lose their APA formatting** with a plain paste; Paste "
+"Special ▸ HTML keeps it."
+msgstr ""
+"Деякі колонки можуть **втратити форматування APA** при звичайному "
+"вставленні; Paste Special ▸ HTML його зберігає."
+
+#: ../../guides/exporting-results.md:31
+msgid ""
+"Set the language (**Settings ▸ Language**) and plot theme (**Settings ▸ "
+"Plot theme**) *before* copying – results are rendered in whatever "
+"language and theme are active."
+msgstr ""
+"Встановіть мову (**Settings ▸ Language**) та тему графіків (**Settings ▸ "
+"Plot theme**) *перед* копіюванням – результати відтворюються тією мовою й "
+"темою, які активні."
+
+#: ../../guides/exporting-results.md:35
+msgid "Saving a report file"
+msgstr "Збереження файлу звіту"
+
+#: ../../guides/exporting-results.md:37
+msgid ""
+"**File ▸ Export Report (HTML)…** writes a single `.html` file with every "
+"table and figure built in. It needs no other files, so you can open it in"
+" any web browser, email it, or print it to PDF."
+msgstr ""
+"**File ▸ Export Report (HTML)…** записує єдиний файл `.html` з усіма "
+"таблицями та графіками всередині. Йому не потрібні інші файли, тож ви "
+"можете відкрити його в будь-якому веб-браузері, надіслати електронною "
+"поштою або роздрукувати у PDF."
+
+#: ../../guides/exporting-results.md:40
+msgid "Exporting the data"
+msgstr "Експорт даних"
+
+#: ../../guides/exporting-results.md:42
+msgid ""
+"**File ▸ Export data to Excel** saves the current (cleaned) table to "
+"`.xlsx`, with each column header painted in its color tag, which helps "
+"when sharing or double-checking in another program."
+msgstr ""
+"**File ▸ Export data to Excel** зберігає поточну (очищену) таблицю у "
+"`.xlsx`, де заголовок кожної колонки пофарбовано в її кольорову мітку, що "
+"допомагає при обміні чи перевірці в іншій програмі."
+
+#~ msgid "Getting your results into Word (and elsewhere)"
+#~ msgstr ""
+
+#~ msgid ""
+#~ "Once your tables and figures look "
+#~ "right, here's how to get them out."
+#~ " See {doc}`../results-and-export` for "
+#~ "the reference; this is the quick "
+#~ "how-to."
+#~ msgstr ""
+
+#~ msgid "Every result has copy buttons, so you can grab exactly what you need:"
+#~ msgstr ""
+
+#~ msgid ""
+#~ "**One element** — each table or "
+#~ "figure has its own copy button "
+#~ "(copies just that item)."
+#~ msgstr ""
+
+#~ msgid ""
+#~ "**A whole result** — the card's "
+#~ "copy button copies all of that "
+#~ "analysis's tables and figures together."
+#~ msgstr ""
+
+#~ msgid ""
+#~ "**Everything** — **File ▸ Copy All "
+#~ "Results** copies every result card at"
+#~ " once, in order."
+#~ msgstr ""
+
+#~ msgid ""
+#~ "Set the language (**Settings ▸ "
+#~ "Language**) and plot theme (**Settings ▸"
+#~ " Plot theme**) *before* copying — "
+#~ "results are rendered in whatever "
+#~ "language and theme are active."
+#~ msgstr ""
+
+#~ msgid ""
+#~ "**File ▸ Export data to Excel** "
+#~ "saves the current (cleaned) table to "
+#~ "`.xlsx`, with each column header painted"
+#~ " in its color tag — handy for"
+#~ " sharing or double-checking in "
+#~ "another program."
+#~ msgstr ""
+

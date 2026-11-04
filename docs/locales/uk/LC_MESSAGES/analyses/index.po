@@ -1,0 +1,359 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2026, StatPrism Team
+# This file is distributed under the same license as the StatPrism package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2026.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: StatPrism 1.3\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-11-04 00:10+0100\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language: uk\n"
+"Language-Team: uk <LL@li.org>\n"
+"Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
+"n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.18.0\n"
+
+#: ../../analyses/index.md:1
+msgid "Analyzing data"
+msgstr "Аналіз даних"
+
+#: ../../analyses/index.md:3
+msgid ""
+"Each analysis is a module you configure in the settings panel on the "
+"right; its results appear as a card in the large area on the left. Every "
+"analysis lets you choose a **data source** (default **Auto** = your "
+"latest data) and the **columns** to analyze."
+msgstr "Кожен аналіз — це модуль, який ви налаштовуєте на панелі налаштувань праворуч; його результати з'являються як картка у великій області ліворуч. Кожен аналіз дозволяє обрати **джерело даних** (за замовчуванням **Auto** = ваші найновіші дані) та **колонки** для аналізу."
+
+#: ../../analyses/index.md:8
+msgid "Pick the analysis that matches your question:"
+msgstr "Виберіть аналіз, що відповідає вашому запитанню:"
+
+#: ../../analyses/index.md
+msgid "You want to…"
+msgstr "Ви хочете…"
+
+#: ../../analyses/index.md
+msgid "Use"
+msgstr "Використати"
+
+#: ../../analyses/index.md
+msgid "Summarize variables (means, spread, distributions)"
+msgstr "Підсумувати змінні (середні, розкид, розподіли)"
+
+#: ../../analyses/index.md
+#, python-brace-format
+msgid "{doc}`descriptive`"
+msgstr "{doc}`descriptive`"
+
+#: ../../analyses/index.md
+msgid "Measure how two+ variables move together"
+msgstr "Виміряти, як дві чи більше змінні змінюються разом"
+
+#: ../../analyses/index.md
+#, python-brace-format
+msgid "{doc}`correlation`"
+msgstr "{doc}`correlation`"
+
+#: ../../analyses/index.md
+msgid "Compare a measure across independent groups"
+msgstr "Порівняти показник між незалежними групами"
+
+#: ../../analyses/index.md
+#, python-brace-format
+msgid "{doc}`mean-comparison`"
+msgstr "{doc}`mean-comparison`"
+
+#: ../../analyses/index.md
+msgid "Compare conditions measured on the same people"
+msgstr "Порівняти умови, виміряні на тих самих людях"
+
+#: ../../analyses/index.md
+#, python-brace-format
+msgid "{doc}`paired`"
+msgstr "{doc}`paired`"
+
+#: ../../analyses/index.md
+msgid "Relate two categorical variables"
+msgstr "Пов'язати дві категоріальні змінні"
+
+#: ../../analyses/index.md
+#, python-brace-format
+msgid "{doc}`contingency`"
+msgstr "{doc}`contingency`"
+
+#: ../../analyses/index.md
+msgid "Predict an outcome from one or more variables"
+msgstr "Передбачити залежну змінну на основі однієї чи кількох змінних"
+
+#: ../../analyses/index.md
+#, python-brace-format
+msgid "{doc}`regression`"
+msgstr "{doc}`regression`"
+
+#: ../../analyses/index.md
+msgid "Check the internal consistency of a scale"
+msgstr "Перевірити внутрішню узгодженість шкали"
+
+#: ../../analyses/index.md
+#, python-brace-format
+msgid "{doc}`reliability`"
+msgstr "{doc}`reliability`"
+
+#: ../../analyses/index.md
+msgid "Discover the underlying factors behind a set of items"
+msgstr "Виявити приховані фактори, що стоять за набором пунктів"
+
+#: ../../analyses/index.md
+#, python-brace-format
+msgid "{doc}`exploratory-factor-analysis`"
+msgstr "{doc}`exploratory-factor-analysis`"
+
+#: ../../analyses/index.md
+msgid "Test a hypothesized factor structure"
+msgstr "Перевірити гіпотетичну факторну структуру"
+
+#: ../../analyses/index.md
+#, python-brace-format
+msgid "{doc}`confirmatory-factor-analysis`"
+msgstr "{doc}`confirmatory-factor-analysis`"
+
+#: ../../analyses/index.md
+msgid "Fit a custom structural equation model"
+msgstr "Побудувати власну модель структурного моделювання (SEM)"
+
+#: ../../analyses/index.md
+#, python-brace-format
+msgid "{doc}`sem`"
+msgstr "{doc}`sem`"
+
+#: ../../analyses/index.md
+msgid "Group respondents into clusters"
+msgstr "Згрупувати респондентів у кластери"
+
+#: ../../analyses/index.md
+#, python-brace-format
+msgid "{doc}`cluster`"
+msgstr "{doc}`cluster`"
+
+#: ../../analyses/index.md
+msgid "Plan a sample size or check statistical power"
+msgstr "Спланувати обсяг вибірки або перевірити статистичну потужність"
+
+#: ../../analyses/index.md
+#, python-brace-format
+msgid "{doc}`power-analysis`"
+msgstr "{doc}`power-analysis`"
+
+#: ../../analyses/index.md
+msgid "Summarize a \"select all that apply\" question"
+msgstr "Підсумувати запитання типу \"виберіть усі підхожі варіанти\""
+
+#: ../../analyses/index.md
+#, python-brace-format
+msgid "{doc}`multiple-response`"
+msgstr "{doc}`multiple-response`"
+
+#: ../../analyses/index.md:45
+msgid "Common options"
+msgstr "Загальні параметри"
+
+#: ../../analyses/index.md:47
+msgid "Most analyses share several common options:"
+msgstr "Більшість аналізів мають кілька спільних параметрів:"
+
+#: ../../analyses/index.md:49
+msgid ""
+"**Verbal indicators**: adds in-table verbal columns (e.g. whether a "
+"result is statistically significant)."
+msgstr "**Verbal indicators**: додає словесні колонки в таблицю (наприклад, чи є результат статистично значущим)."
+
+#: ../../analyses/index.md:51
+msgid ""
+"**Verbal report**: a dropdown for how much plain-language prose to write,"
+" from least to most: **None** (no prose), **Headline** (one sentence "
+"naming the single standout result), **Key findings** (only the "
+"outstanding results), **Significant only** (every significant result), "
+"and **Full** (also the non-significant results). For analyses that "
+"produce many results (e.g. a correlation matrix, several group "
+"comparisons, a set of regression predictors) the prose is compacted "
+"rather than written one sentence per result – e.g. *\"All correlations "
+"were significant except X and Y\"* or *\"Most predictors were significant"
+" (5 of 8)\"* – with the full APA statistics kept for each result it "
+"names, so even large analyses stay readable. Analyses that produce a "
+"single result (reliability, cluster analysis, factor analysis, SEM) still"
+" layer the description: a one-line verdict at **Headline**, then "
+"progressively more facets as the level rises – the factor structure "
+"(clean vs. cross-loading items, how evenly the factors are filled), the "
+"sampling-adequacy and fit diagnostics, and, at **Full**, a methods note "
+"stating the choices that shaped the numbers (the coefficient type, "
+"estimator, rotation and extraction, clustering algorithm and linkage, and"
+" any applied modifications). (Power analysis is the exception: its single"
+" solved value carries the same short interpretation at every setting.)"
+msgstr "**Словесний звіт**: dropdown для вибору обсягу тексту простою мовою, від найменшого до найбільшого: **None** (без тексту), **Headline** (одне речення, що називає єдиний найпомітніший результат), **Key findings** (лише видатні результати), **Significant only** (кожен значущий результат) та **Full** (також і незначущі результати). Для аналізів, що дають багато результатів (наприклад, кореляційна матриця, кілька порівнянь груп, набір незалежних змінних регресії), текст ущільнюється, а не пишеться по реченню на кожен результат — наприклад, *\"Усі кореляції були значущими, окрім X та Y\"* або *\"Більшість незалежних змінних були значущими (5 з 8)\"* — зі збереженням повної APA-статистики для кожного названого результату, тож навіть великі аналізи залишаються читабельними. Аналізи, що дають єдиний результат (надійність, кластерний аналіз, факторний аналіз, SEM), усе одно нашаровують опис: однорядковий висновок на рівні **Headline**, а потім дедалі більше аспектів зі зростанням рівня — факторна структура (чисті пункти проти пунктів із крос-навантаженнями, наскільки рівномірно заповнені фактори), діагностика адекватності вибірки та відповідності, і на рівні **Full** — методична примітка, що зазначає вибори, які сформували числа (тип коефіцієнта, метод оцінювання, обертання та виділення, алгоритм кластеризації та зв'язування, і будь-які застосовані модифікації). (Аналіз потужності є винятком: його єдине обчислене значення несе однакову коротку інтерпретацію за будь-якого налаштування.)"
+
+#: ../../analyses/index.md:66
+msgid ""
+"**Number columns**: replaces long variable names with numbered references"
+" in big tables and adds a legend, keeping wide tables readable."
+msgstr "**Number columns**: замінює довгі назви змінних на пронумеровані посилання у великих таблицях і додає легенду, зберігаючи широкі таблиці читабельними."
+
+#: ../../analyses/index.md:68
+msgid ""
+"**Plots**: optional figures (histograms, box plots, heatmaps, scatter "
+"plots, …). Plots embed directly in copied/exported output. Where a plot "
+"can **number the variables** (a categorical axis, pie slices, or a "
+"heatmap), the number→name mapping is spelt out as a caption under the "
+"figure. Pie charts also expose separate sliders for the radial position "
+"of the percentages and of the slice names (move either outside the pie)."
+msgstr "**Plots**: необов'язкові рисунки (гістограми, box-плоти, heatmap, діаграми розсіювання, …). Графіки вбудовуються безпосередньо у скопійований / експортований результат. Там, де графік може **нумерувати змінні** (категоріальна вісь, сектори pie-діаграми або heatmap), відповідність номер→назва розписується як підпис під рисунком. pie-діаграми також мають окремі повзунки для радіального розташування відсотків і назв секторів (можна винести будь-що з них за межі діаграми)."
+
+#: ../../analyses/index.md:73
+msgid ""
+"**Confidence intervals / effect sizes**: where applicable, reported "
+"alongside the test."
+msgstr "**Довірчі інтервали / розміри ефектів**: де це доречно, наводяться поряд із тестом."
+
+#: ../../analyses/index.md:74
+#, python-brace-format
+msgid ""
+"**Inline filters**: a per-analysis filter, added with the **Add filter** "
+"button in the analysis card's button row. It restricts the analysis to a "
+"subset of rows *without* adding a data-processing step to the chain, so "
+"it affects only this analysis. Each filter row (directly under the title)"
+" shows its **condition** and how many **additional** rows it removes "
+"beyond the earlier filters, plus an eye button to **preview** those rows "
+"(shown in red) and a delete button. **Click the row** to configure it "
+"(the same options as the {doc}`../data-processing/filter` step, with a "
+"**Back** button to the analysis). Multiple filters combine with **AND** –"
+" a row is kept only if it passes every filter. The filter summary is "
+"included when you copy the analysis. If a filter's column later "
+"disappears, the row is outlined red and the analysis stops with an error "
+"until you fix or remove it."
+msgstr "**Вбудовані фільтри**: фільтр для окремого аналізу, який додається кнопкою **Add filter** у рядку кнопок картки аналізу. Він обмежує аналіз підмножиною рядків, *не* додаючи кроку обробки даних до ланцюжка, тож впливає лише на цей аналіз. Кожен рядок фільтра (безпосередньо під заголовком) показує свою **умову** і скільки **додаткових** рядків він видаляє понад попередні фільтри, а також кнопку-око для **попереднього перегляду** цих рядків (показані червоним) і кнопку видалення. **Натисніть на рядок**, щоб налаштувати його (ті самі параметри, що й у кроці {doc}`../data-processing/filter`, з кнопкою **Back** для повернення до аналізу). Кілька фільтрів поєднуються через **AND** — рядок зберігається лише тоді, коли проходить кожен фільтр. Зведення фільтра включається, коли ви копіюєте аналіз. Якщо колонка фільтра згодом зникає, рядок обводиться червоним, і аналіз зупиняється з помилкою, доки ви не виправите або не видалите його."
+
+#: ../../analyses/index.md:85
+#, python-brace-format
+msgid "Every result can be copied or exported – see {doc}`../results-and-export`."
+msgstr "Кожен результат можна скопіювати або експортувати — див. {doc}`../results-and-export`."
+
+#~ msgid "Most analyses share a few conveniences:"
+#~ msgstr ""
+
+#~ msgid ""
+#~ "**Verbal indicators** — adds in-table"
+#~ " verbal columns (e.g. whether a "
+#~ "result is statistically significant)."
+#~ msgstr ""
+
+#~ msgid ""
+#~ "**Verbal report** — a dropdown for "
+#~ "how much plain-language prose to "
+#~ "write, from least to most: **None** "
+#~ "(no prose), **Headline** (one sentence "
+#~ "naming the single standout result), "
+#~ "**Key findings** (just the outstanding "
+#~ "results), **Significant only** (every "
+#~ "significant result), and **Full** (also "
+#~ "the non-significant results). For "
+#~ "analyses that produce many results (e.g."
+#~ " a correlation matrix, several group "
+#~ "comparisons, a set of regression "
+#~ "predictors) the prose is compacted "
+#~ "rather than written one sentence per "
+#~ "result — e.g. *\"All correlations were"
+#~ " significant except X and Y\"* or "
+#~ "*\"Most predictors were significant (5 "
+#~ "of 8)\"* — with the full APA "
+#~ "statistics kept for each result it "
+#~ "names, so even large analyses stay "
+#~ "readable. Analyses that produce a single"
+#~ " result (reliability, cluster analysis, "
+#~ "factor analysis, SEM) still layer the"
+#~ " description: a one-line verdict at"
+#~ " **Headline**, then progressively more "
+#~ "facets as the level rises — the"
+#~ " factor structure (clean vs. cross-"
+#~ "loading items, how evenly the factors"
+#~ " are filled), the sampling-adequacy "
+#~ "and fit diagnostics, and, at **Full**,"
+#~ " a methods note stating the choices"
+#~ " that shaped the numbers (the "
+#~ "coefficient type, estimator, rotation and "
+#~ "extraction, clustering algorithm and linkage,"
+#~ " and any applied modifications). (Power "
+#~ "analysis is the exception: its single"
+#~ " solved value carries the same short"
+#~ " interpretation at every setting.)"
+#~ msgstr ""
+
+#~ msgid ""
+#~ "**Number columns** — replaces long "
+#~ "variable names with numbered references "
+#~ "in big tables and adds a legend,"
+#~ " keeping wide tables readable."
+#~ msgstr ""
+
+#~ msgid ""
+#~ "**Plots** — optional figures (histograms, "
+#~ "box plots, heatmaps, scatter plots, …)."
+#~ " Plots embed directly in copied/exported"
+#~ " output. Where a plot can **number"
+#~ " the variables** (a categorical axis, "
+#~ "pie slices, or a heatmap), the "
+#~ "number→name mapping is spelt out as "
+#~ "a caption under the figure. Pie "
+#~ "charts also expose separate sliders for"
+#~ " the radial position of the "
+#~ "percentages and of the slice names "
+#~ "(move either outside the pie)."
+#~ msgstr ""
+
+#~ msgid ""
+#~ "**Confidence intervals / effect sizes** "
+#~ "— where applicable, reported alongside "
+#~ "the test."
+#~ msgstr ""
+
+#~ msgid ""
+#~ "**Inline filters** — a per-analysis "
+#~ "filter, added with the **Add filter**"
+#~ " button in the analysis card's button"
+#~ " row. It restricts the analysis to"
+#~ " a subset of rows *without* adding"
+#~ " a data-processing step to the "
+#~ "chain, so it affects only this "
+#~ "analysis. Each filter row (just under"
+#~ " the title) shows its **condition** "
+#~ "and how many **additional** rows it "
+#~ "removes beyond the earlier filters, plus"
+#~ " an eye button to **preview** those"
+#~ " rows (shown in red) and a "
+#~ "delete button. **Click the row** to "
+#~ "configure it (the same options as "
+#~ "the {doc}`../data-processing/filter` step, "
+#~ "with a **Back** button to the "
+#~ "analysis). Multiple filters combine with "
+#~ "**AND** — a row is kept only "
+#~ "if it passes every filter. The "
+#~ "filter summary is included when you "
+#~ "copy the analysis. If a filter's "
+#~ "column later disappears, the row is "
+#~ "outlined red and the analysis stops "
+#~ "with an error until you fix or "
+#~ "remove it."
+#~ msgstr ""
+
+#~ msgid ""
+#~ "Every result can be copied or "
+#~ "exported — see {doc}`../results-and-"
+#~ "export`."
+#~ msgstr ""
+

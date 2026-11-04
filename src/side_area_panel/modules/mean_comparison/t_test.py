@@ -387,7 +387,12 @@ def process_non_normal_t_test(
 
         if effect_size:
             test_result = TestResult(
-                variable=col, letter=["U", "r<sub>rb</sub>"], statistic=[u_stat, rank_biserial_correlation], p=p_val
+                variable=col,
+                letter=["U", "r<sub>rb</sub>"],
+                statistic=[u_stat, rank_biserial_correlation],
+                p=p_val,
+                effect=rank_biserial_correlation,
+                effect_word=correlation_magnitude(rank_biserial_correlation),
             )
         else:
             test_result = TestResult(variable=col, letter="U", statistic=u_stat, p=p_val)
@@ -426,10 +431,10 @@ def process_non_normal_t_test(
         prose_detail,
         rejected_columns,
         accepted_columns,
-        test_name=t("ttest.test.mann_whitney"),
-        test_check=t("ttest.check.diff_groups"),
-        yes_property=t("ttest.prop.sig_diff"),
-        no_property=t("ttest.prop.not_sig_diff"),
+        noun_nom=t("verbal.noun.comparisons.nom"),
+        noun_gen=t("verbal.noun.comparisons.gen"),
+        notable_one_key="meancomp.compact.most_notable_one",
+        notable_key="meancomp.compact.most_notable",
     )
     if prose:
         table.add_text(prose)
@@ -531,7 +536,13 @@ def process_homogeneous_t_test(
         )
         if effect_size:
             test_result = TestResult(
-                variable=col, letter=["t", "Cohen's d"], statistic=[t_stat, cohen_d], p=p_val, df=f"{deg_free:.1f}"
+                variable=col,
+                letter=["t", "Cohen's d"],
+                statistic=[t_stat, cohen_d],
+                p=p_val,
+                df=f"{deg_free:.1f}",
+                effect=cohen_d,
+                effect_word=cohen_d_magnitude(cohen_d),
             )
         else:
             test_result = TestResult(variable=col, letter="t", statistic=t_stat, p=p_val, df=f"{deg_free:.0f}")
@@ -572,10 +583,10 @@ def process_homogeneous_t_test(
         prose_detail,
         rejected_columns,
         accepted_columns,
-        test_name=t("ttest.test.ttest_independent"),
-        test_check=t("ttest.check.equality_means"),
-        yes_property=t("ttest.prop.sig_diff"),
-        no_property=t("ttest.prop.not_sig_diff"),
+        noun_nom=t("verbal.noun.comparisons.nom"),
+        noun_gen=t("verbal.noun.comparisons.gen"),
+        notable_one_key="meancomp.compact.most_notable_one",
+        notable_key="meancomp.compact.most_notable",
     )
     if prose:
         table.add_text(prose)
@@ -681,7 +692,13 @@ def process_non_homogeneous_t_test(
 
         if effect_size:
             test_result = TestResult(
-                variable=col, letter=["t", "Cohen's d"], statistic=[t_stat, cohen_d], p=p_val, df=f"{deg_free:.1f}"
+                variable=col,
+                letter=["t", "Cohen's d"],
+                statistic=[t_stat, cohen_d],
+                p=p_val,
+                df=f"{deg_free:.1f}",
+                effect=cohen_d,
+                effect_word=cohen_d_magnitude(cohen_d),
             )
         else:
             test_result = TestResult(variable=col, letter="t", statistic=t_stat, p=p_val, df=f"{deg_free:.0f}")
@@ -720,10 +737,10 @@ def process_non_homogeneous_t_test(
         prose_detail,
         rejected_columns,
         accepted_columns,
-        test_name=t("ttest.test.welch_ttest"),
-        test_check=t("ttest.check.equality_means"),
-        yes_property=t("ttest.prop.sig_diff"),
-        no_property=t("ttest.prop.not_sig_diff"),
+        noun_nom=t("verbal.noun.comparisons.nom"),
+        noun_gen=t("verbal.noun.comparisons.gen"),
+        notable_one_key="meancomp.compact.most_notable_one",
+        notable_key="meancomp.compact.most_notable",
     )
     if prose:
         table.add_text(prose)

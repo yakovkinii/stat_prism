@@ -28,7 +28,7 @@ from src.data.data import OrdinalCastError
 from src.data.data_manager import DATA_MANAGER
 from src.side_area_panel.modules.common.column_numbering import ColumnNumbering
 from src.side_area_panel.modules.common.mathematics.correlation.correlation import calculate_correlations
-from src.side_area_panel.modules.common.prose import ProseDetail, prose_detail_from, prose_enabled
+from src.side_area_panel.modules.common.prose import ProseDetail, prose_at_least, prose_enabled
 from src.side_area_panel.modules.common.result.html_result import Cell, HTMLTableV2, Row
 from src.side_area_panel.modules.common.utility import (
     format_r_apa,
@@ -54,6 +54,18 @@ _PANDAS_CORR = {
 _BINARY_TYPES = (CorrelationType.PHI, CorrelationType.TETRACHORIC)
 _SMOOTH_TYPES = (CorrelationType.TETRACHORIC, CorrelationType.POLYCHORIC)
 _SMOOTH_EIGEN_TOL = 1e-12
+# Classic cut-off below which an item is said to correlate weakly with the rest of the scale.
+_WEAK_ITEM_REST = 0.30
+# Inter-item correlation type -> its spelled-out name key (shared with the correlation module), so
+# the verbose report can state which coefficient the reliability estimate was built on.
+_CORR_NAME_KEY = {
+    CorrelationType.PEARSON: "correlation.name.pearson",
+    CorrelationType.SPEARMAN: "correlation.name.spearman",
+    CorrelationType.KENDALL: "correlation.name.kendall",
+    CorrelationType.PHI: "correlation.name.phi",
+    CorrelationType.TETRACHORIC: "correlation.name.tetrachoric",
+    CorrelationType.POLYCHORIC: "correlation.name.polychoric",
+}
 
 
 def _fail(result: ReliabilityResult, message: str) -> ReliabilityResult:
@@ -300,8 +312,16 @@ def recalculate_reliability_study(elements, result: ReliabilityResult, update) -
         if show_verbal:
             omega_row.append(Cell(omega_level.capitalize() if not np.isnan(omega) else "—", center=True))
         coef_table.add_single_row_apa(Row(omega_row))
-        if not np.isnan(omega):
+        # The omega coefficient is a second scale-level number: keep it out of the one-line
+        # Headline, add it from "Key findings" up.
+        if not np.isnan(omega) and prose_at_least(config.interpretation, ProseDetail.KEY):
             report += t("reliability.report.omega", omega=format_r_apa(omega), level=omega_level)
+
+    # Methods note (verbose only): name the inter-item coefficient the estimate was built on, since
+    # it changes the numbers (e.g. polychoric vs Pearson &alpha;).
+    if prose_at_least(config.interpretation, ProseDetail.FULL):
+        corr_name = t(_CORR_NAME_KEY.get(correlation_type, "correlation.name.pearson"))
+        report += t("reliability.report.method", corr=corr_name)
 
     # The interpretation column stays on "Verbal indicators"; the written report follows the
     # "Verbal report" dropdown (any enabled level prints the scale-level summary).
@@ -356,14 +376,24 @@ def recalculate_reliability_study(elements, result: ReliabilityResult, update) -
                 row_cells.append(Cell(_improves_text(item.alpha_deleted, alpha), center=True))
         item_table.add_single_row_apa(Row(row_cells))
 
-    # "Which items would improve the scale?" prose. At Full we also state when none would; at
-    # the compact levels (Significant only / Key findings) we mention only items that improve it.
-    item_detail = prose_detail_from(config.interpretation)
-    if prose_enabled(item_detail):
+    # Item-level discussion is reserved for the extended levels: the one-line scale verdict above
+    # already carries the headline, so the "if item removed" table stays silent at Headline. From
+    # "Key findings" up we name items whose removal would raise the coefficient (the actionable
+    # finding); only "Full" also reassures when none would and flags items that correlate weakly
+    # with the scale total.
+    if prose_at_least(config.interpretation, ProseDetail.KEY):
         if improves:
-            item_table.add_text(t("reliability.report.item_improve", items=smart_comma_join(improves)))
-        elif item_detail == ProseDetail.FULL:
+            improve_names = smart_comma_join([f"&laquo;{name}&raquo;" for name in improves])
+            item_table.add_text(t("reliability.report.item_improve", items=improve_names))
+        elif prose_at_least(config.interpretation, ProseDetail.FULL):
             item_table.add_text(t("reliability.report.item_none"))
+        if prose_at_least(config.interpretation, ProseDetail.FULL):
+            weak = [
+                item.name for item in numeric.items if not np.isnan(item.item_rest) and item.item_rest < _WEAK_ITEM_REST
+            ]
+            if weak:
+                weak_names = smart_comma_join([f"&laquo;{name}&raquo;" for name in weak])
+                item_table.add_text(t("reliability.report.item_weak", items=weak_names))
     item_table.table_note = numbering.append_to_note(item_table.table_note or "")
     item_table.add_numeric_supplement({"kind": "reliability_items", "items": numeric.items})
     # The "if item removed" table is optional (off by default).

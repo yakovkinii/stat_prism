@@ -4,9 +4,9 @@
 
 StatPrism is developed by the **StatPrism Team** (Copyright 2023–2026):
 
-- **A. K. Balashevych** — Model specification
-- **N. V. Petrova** — Testing & QA
-- **I. I. Yakovkin** — Software development & project management
+- **A. K. Balashevych**: Model specification
+- **N. V. Petrova**: Testing & QA
+- **I. I. Yakovkin**: Software development & project management
 
 Project page: <https://www.yakovkinii.com/stat_prism/>
 
@@ -18,7 +18,7 @@ If you use StatPrism in your research, please cite it. A suggested format:
 > [Computer software]. https://www.yakovkinii.com/stat_prism/
 
 The repository also includes a machine-readable
-[`CITATION.cff`](https://github.com/yakovkinii/stat_prism/blob/master/CITATION.cff) — GitHub
+[`CITATION.cff`](https://github.com/yakovkinii/stat_prism/blob/master/CITATION.cff) – GitHub
 shows a **"Cite this repository"** button that generates APA/BibTeX from it.
 
 ```{note}

@@ -1,5 +1,11 @@
 # Comparing groups (t-test / ANOVA)
 
+```{image} ../_static/img/mean-comparison.png
+:align: right
+:width: 240px
+:alt: Group comparison plot example
+```
+
 Compares a numeric measure across **independent groups** and routes automatically to the
 right test family: two groups → a t-test, three or more → ANOVA.
 
@@ -10,8 +16,8 @@ or region A/B/C) and you want to know whether a measure differs between them.
 
 ## Inputs
 
-- **Dependent variable(s)** — the numeric measure(s) to compare. You can list several.
-- **Grouping** — exactly one categorical column defining the groups.
+- **Dependent variable(s)**: the numeric measure(s) to compare. You can list several.
+- **Grouping**: exactly one categorical column defining the groups.
 
 ## Options
 
@@ -21,7 +27,7 @@ Method
   groups / Kruskal–Wallis for more).
 
 Assumption checks
-: **Auto / Yes / No** — runs checks such as Levene's test for equal variances and a
+: **Auto / Yes / No** – runs checks such as Levene's test for equal variances and a
   normality check. (With *Detect automatically*, assumption checks must be on so the method
   can be chosen.)
 
@@ -44,6 +50,6 @@ Other
 
 ## Notes
 
-- Groups need a minimum number of cases; very small groups are reported as insufficient.
+- Each group needs a minimum number of cases; very small groups are reported as insufficient.
 - For comparing **conditions measured on the same people** (repeated measures), use
   {doc}`paired` instead.

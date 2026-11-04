@@ -1,7 +1,13 @@
 # Descriptive statistics
 
-Summarizes one or more variables — central tendency, spread, distribution shape — and
-optionally produces frequency tables, normality tests, and a range of plots.
+```{image} ../_static/img/descriptive.png
+:align: right
+:width: 240px
+:alt: Distribution plot example
+```
+
+Summarizes one or more variables (central tendency, spread, distribution shape) and can also
+produce frequency tables, normality tests, and a range of plots.
 
 ## When to use it
 
@@ -11,9 +17,9 @@ variable's distribution.
 
 ## Inputs
 
-- **Variables** — the columns to summarize. Numeric and ordinal columns get a quantitative
+- **Variables**: the columns to summarize. Numeric and ordinal columns get a quantitative
   summary; nominal columns get frequency tables and category charts.
-- **Grouping (optional)** — a categorical column to split every summary by group.
+- **Grouping (optional)**: a categorical column to split every summary by group.
 
 ## Options
 
@@ -36,7 +42,7 @@ Plots
 Verbal output
 : Two independent controls. **Verbal indicators in tables** adds in-table verbal columns (for
   example a *Normal?* conclusion in the normality table). **Verbal report** is a dropdown that
-  sets how much written prose is added — the outlier report, normality summary, and
+  sets how much written prose is added – the outlier report, normality summary, and
   grouped-frequency summary: **None**, **Key findings** / **Significant only** (in the normality
   summary, only the non-normal variables), or **Full** (every variable).
 
@@ -47,7 +53,7 @@ Other
 
 - A **numeric summary** table (per group when grouping is on).
 - An **outlier report** beneath the summary (when the plain-language summary is on), naming
-  each outlier and listing their IDs for easy follow-up.
+  each outlier and listing their IDs for follow-up.
 - A **normality** table (if requested).
 - **Frequency** tables and the requested **plots**.
 

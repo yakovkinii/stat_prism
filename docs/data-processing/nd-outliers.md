@@ -1,6 +1,6 @@
 # ND outliers (multidimensional)
 
-Flags **multivariate** outliers across several columns at once — unusual *combinations* that
+Flags **multivariate** outliers across several columns at once – unusual *combinations* that
 per-column checks miss. (A point can sit within the normal range on each variable on its own,
 yet be an outlier for the set because it breaks their typical relationship.)
 

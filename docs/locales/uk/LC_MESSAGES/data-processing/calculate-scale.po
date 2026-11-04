@@ -1,0 +1,179 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2026, StatPrism Team
+# This file is distributed under the same license as the StatPrism package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2026.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: StatPrism 1.3\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-11-04 00:10+0100\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language: uk\n"
+"Language-Team: uk <LL@li.org>\n"
+"Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
+"n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.18.0\n"
+
+#: ../../data-processing/calculate-scale.md:1
+msgid "Calculate Scale"
+msgstr "Обчислення шкали"
+
+#: ../../data-processing/calculate-scale.md:3
+msgid ""
+"Builds a new scale column by aggregating selected numeric or ordinal item"
+" columns per row:"
+msgstr ""
+"Будує нову колонку-шкалу, агрегуючи вибрані числові або порядкові колонки "
+"пунктів для кожного рядка:"
+
+#: ../../data-processing/calculate-scale.md:5
+msgid "**Sum** or **Mean** across the items."
+msgstr "**Sum** або **Mean** за пунктами."
+
+#: ../../data-processing/calculate-scale.md:6
+msgid ""
+"Ordinal items are parsed from their displayed values, not their internal "
+"order codes. If those displayed values cannot be parsed as numbers, the "
+"study shows an error."
+msgstr ""
+"Порядкові пункти зчитуються за їхніми відображуваними значеннями, а не за "
+"внутрішніми кодами порядку. Якщо ці відображувані значення не вдається "
+"розпізнати як числа, аналіз показує помилку."
+
+#: ../../data-processing/calculate-scale.md:8
+msgid ""
+"Optionally **normalize** the result – Z-score, Stanine, Center, Min-max, "
+"Log, or Rank. *Stanine* is the normalized 1–9 score (mean 5, SD ≈ 2) from"
+" each value's percentile rank, using the standard stanine bands (not a "
+"linear rescale)."
+msgstr ""
+"За бажанням можна **нормалізувати** результат – Z-score, Stanine, "
+"Center, Min-max, Log або Rank. *Stanine* – це нормалізована оцінка "
+"1–9 (середнє 5, SD ≈ 2), отримана з процентильного рангу кожного значення за "
+"стандартними смугами станайну (не лінійне перешкалювання)."
+
+#: ../../data-processing/calculate-scale.md:11
+msgid "The source questions can be kept, deleted, or auto-renamed."
+msgstr "Вихідні запитання можна зберегти, видалити або автоматично перейменувати."
+
+#: ../../data-processing/calculate-scale.md:13
+msgid ""
+"**Color** tags the new scale column and its item columns. Leaving the "
+"color unset (**None**) means \"no change\" – the items keep their "
+"existing color tags rather than being cleared."
+msgstr ""
+"**Color** позначає нову колонку-шкалу та її колонки пунктів. Якщо колір не "
+"задано (**None**), це означає \"без змін\" – пункти зберігають свої наявні "
+"кольорові позначки, а не очищуються."
+
+#: ../../data-processing/calculate-scale.md:16
+#, python-brace-format
+msgid ""
+"**Reverse-keyed items**: put any reverse-scored questions in the "
+"**Reverse-score first** field. They are flipped (using the same reference"
+" as {doc}`invert-scale` – auto-inferred as *max + min* over their pooled "
+"values, or a **Manual** override you can **Preview**) and then aggregated"
+" together with the normal questions. With **Replace reverse-scored "
+"columns with flipped** on (default), those source columns are written "
+"back flipped and renamed `… (flipped)` – unless the questions are **auto-"
+"renamed**, in which case they take the `<scale> Q1`, `<scale> Q2` … names"
+" instead."
+msgstr ""
+"**Перевернуті пункти**: розмістіть будь-які запитання зі зворотним "
+"оцінюванням у полі **Reverse-score first**. Вони перевертаються (з тим самим "
+"опорним значенням, що й у {doc}`invert-scale` – автоматично визначеним як "
+"*max + min* за їхніми об'єднаними значеннями, або вручну через **Manual**, що "
+"можна переглянути через **Preview**) і потім агрегуються разом зі звичайними "
+"запитаннями. Якщо увімкнено **Replace reverse-scored columns with flipped** "
+"(за замовчуванням), ці вихідні колонки записуються перевернутими і "
+"перейменовуються на `… (flipped)` – якщо тільки запитання не **автоматично "
+"перейменовані**, у такому разі вони отримують натомість назви `<scale> Q1`, "
+"`<scale> Q2` …"
+
+#: ../../data-processing/calculate-scale.md:24
+msgid "**Missing values** controls respondents who skipped some items:"
+msgstr "**Missing values** керує респондентами, які пропустили деякі пункти:"
+
+#: ../../data-processing/calculate-scale.md:26
+msgid ""
+"**Skip respondent** (default): a row missing **any** item gets no scale "
+"value."
+msgstr ""
+"**Skip respondent** (за замовчуванням): рядок, у якому пропущено **будь-який** "
+"пункт, не отримує значення шкали."
+
+#: ../../data-processing/calculate-scale.md:27
+msgid ""
+"**Allow up to max %**: aggregate over the items that are present, as long"
+" as the share of missing items is within **Max missing %**. For example, "
+"`0` keeps only complete respondents, `100` always aggregates over "
+"whatever is present, and `25` allows up to a quarter of items to be "
+"missing."
+msgstr ""
+"**Allow up to max %**: агрегувати за наявними пунктами, доки частка "
+"пропущених пунктів не перевищує **Max missing %**. Наприклад, `0` залишає "
+"лише повних респондентів, `100` завжди агрегує за тим, що є наявним, а `25` "
+"дозволяє пропустити до чверті пунктів."
+
+#~ msgid ""
+#~ "Optionally **normalize** the result — "
+#~ "Z-score, Stanine, Center, Min-max, Log,"
+#~ " or Rank. *Stanine* is the normalized"
+#~ " 1–9 score (mean 5, SD ≈ 2) "
+#~ "from each value's percentile rank, using"
+#~ " the standard stanine bands (not a"
+#~ " linear rescale)."
+#~ msgstr ""
+
+#~ msgid ""
+#~ "**Color** tags the new scale column "
+#~ "and its item columns. Leaving the "
+#~ "color unset (**None**) means \"no "
+#~ "change\" — the items keep their "
+#~ "existing color tags rather than being"
+#~ " cleared."
+#~ msgstr ""
+
+#~ msgid ""
+#~ "**Reverse-keyed items** — put any "
+#~ "reverse-scored questions in the "
+#~ "**Reverse-score first** field. They are "
+#~ "flipped (using the same reference as "
+#~ "{doc}`invert-scale` — auto-inferred as"
+#~ " *max + min* over their pooled "
+#~ "values, or a **Manual** override you "
+#~ "can **Preview**) and then aggregated "
+#~ "together with the normal questions. With"
+#~ " **Replace reverse-scored columns with "
+#~ "flipped** on (default), those source "
+#~ "columns are written back flipped and "
+#~ "renamed `… (flipped)` — unless the "
+#~ "questions are **auto-renamed**, in which"
+#~ " case they simply take the `<scale>"
+#~ " Q1`, `<scale> Q2` … names."
+#~ msgstr ""
+
+#~ msgid ""
+#~ "**Skip respondent** (default) — a row"
+#~ " missing **any** item gets no scale"
+#~ " value."
+#~ msgstr ""
+
+#~ msgid ""
+#~ "**Allow up to max %** — aggregate"
+#~ " over the items that are present, "
+#~ "as long as the share of missing"
+#~ " items is within **Max missing %**."
+#~ " For example, `0` keeps only complete"
+#~ " respondents, `100` always aggregates over"
+#~ " whatever is present, and `25` allows"
+#~ " up to a quarter of items to"
+#~ " be missing."
+#~ msgstr ""
+

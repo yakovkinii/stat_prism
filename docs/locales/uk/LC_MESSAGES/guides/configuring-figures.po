@@ -1,0 +1,246 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2026, StatPrism Team
+# This file is distributed under the same license as the StatPrism package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2026.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: StatPrism 1.3\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-11-04 00:10+0100\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language: uk\n"
+"Language-Team: uk <LL@li.org>\n"
+"Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
+"n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.18.0\n"
+
+#: ../../guides/configuring-figures.md:1
+msgid "Adjusting figures"
+msgstr "Налаштування графіків"
+
+#: ../../guides/configuring-figures.md:3
+msgid ""
+"Every figure in StatPrism is adjustable; the default appearance can be "
+"changed. This guide shows where the controls are and how to correct the "
+"most common problem: text that overlaps."
+msgstr ""
+"Кожен графік у StatPrism можна налаштувати; вигляд за замовчуванням можна "
+"змінити. Цей гайд показує, де розташовані елементи керування і як "
+"виправити найпоширенішу проблему: текст, що перекривається."
+
+#: ../../guides/configuring-figures.md:6
+msgid "Where the settings are"
+msgstr "Де розташовані налаштування"
+
+#: ../../guides/configuring-figures.md:8
+msgid ""
+"Click a **figure** (or select its tab on a result card). Its **settings**"
+" appear in the panel on the right. There is no code; the controls are "
+"sliders, dropdowns, checkboxes, and color pickers. Each change redraws "
+"the figure immediately."
+msgstr ""
+"Натисніть на **графік** (або виберіть його вкладку на картці результату). "
+"Його **налаштування** з'являться на панелі праворуч. Коду немає; елементи "
+"керування – це повзунки, dropdown-и, checkbox-и та палітри кольорів. Кожна "
+"зміна одразу перемальовує графік."
+
+#: ../../guides/configuring-figures.md:12
+msgid "What you can change"
+msgstr "Що можна змінити"
+
+#: ../../guides/configuring-figures.md:14
+msgid "The exact controls depend on the figure, but you will usually find:"
+msgstr "Конкретні елементи керування залежать від графіка, але зазвичай ви знайдете:"
+
+#: ../../guides/configuring-figures.md:16
+msgid ""
+"**Colors**: line, bar, and point colors, the frame/text color, and the "
+"background."
+msgstr ""
+"**Кольори**: кольори ліній, стовпців та точок, колір рамки/тексту і тло."
+
+#: ../../guides/configuring-figures.md:17
+msgid ""
+"**Font sizes**: separate sliders for the title, axis titles, tick labels,"
+" and legend."
+msgstr ""
+"**Розміри шрифту**: окремі повзунки для заголовка, назв осей, підписів "
+"поділок та легенди."
+
+#: ../../guides/configuring-figures.md:18
+msgid ""
+"**Axis titles and labels**: type your own axis titles; rotate the x-axis "
+"labels; number the categories instead of naming them."
+msgstr ""
+"**Назви та підписи осей**: впишіть власні назви осей; поверніть підписи осі "
+"x; пронумеруйте категорії замість того, щоб називати їх."
+
+#: ../../guides/configuring-figures.md:20
+msgid "**Line thickness, point size, transparency**: for scatter/line/box plots."
+msgstr "**Товщина ліній, розмір точок, прозорість**: для діаграм розсіювання, лінійних графіків та box-плотів."
+
+#: ../../guides/configuring-figures.md:21
+msgid ""
+"**Overall size and shape**: a **Plot Size** slider (bigger for a report, "
+"smaller to fit) and an **Aspect** slider (taller vs. wider)."
+msgstr ""
+"**Загальний розмір і форма**: повзунок **Plot Size** (більший для звіту, "
+"менший, щоб вмістити) та повзунок **Aspect** (вищий чи ширший)."
+
+#: ../../guides/configuring-figures.md:23
+msgid "**Gridlines, frame, margins** and more."
+msgstr "**Лінії сітки, рамка, поля** та інше."
+
+#: ../../guides/configuring-figures.md:25
+msgid "Fixing overlapping or cut-off text"
+msgstr "Виправлення тексту, що перекривається або обрізається"
+
+#: ../../guides/configuring-figures.md:27
+msgid ""
+"If labels overlap or run off the edge – usually because you have many "
+"columns or long column names –  this can usually be corrected by "
+"adjusting one or two settings:"
+msgstr ""
+"Якщо підписи перекриваються або виходять за край – зазвичай через велику "
+"кількість колонок чи довгі назви колонок – це здебільшого можна виправити, "
+"змінивши одне-два налаштування:"
+
+#: ../../guides/configuring-figures.md:30
+msgid ""
+"**Rotate the x-axis labels** (upright labels take far less width). "
+"Heatmaps and contingency tables already do this by default."
+msgstr ""
+"**Поверніть підписи осі x** (вертикальні підписи займають значно менше "
+"ширини). Heatmap-и та таблиці спряженості вже роблять це за замовчуванням."
+
+#: ../../guides/configuring-figures.md:32
+msgid "**Shrink the tick-label font** with its slider."
+msgstr "**Зменшіть шрифт підписів поділок** за допомогою відповідного повзунка."
+
+#: ../../guides/configuring-figures.md:33
+msgid ""
+"**Make the figure bigger** with **Plot Size**, or change its **Aspect** "
+"to give the labels room."
+msgstr ""
+"**Збільшіть графік** за допомогою **Plot Size** або змініть його "
+"**Aspect**, щоб дати підписам простір."
+
+#: ../../guides/configuring-figures.md:34
+#, python-brace-format
+msgid ""
+"**Shorten long names**: either turn on **Trim long labels** (on "
+"heatmaps), rename the columns first (see {doc}`organizing-data`), or "
+"number the categories and read the key beneath the figure."
+msgstr ""
+"**Скоротіть довгі назви**: або увімкніть **Trim long labels** (на "
+"heatmap-ах), спершу перейменуйте колонки (див. {doc}`organizing-data`), "
+"або пронумеруйте категорії та читайте ключ під графіком."
+
+#: ../../guides/configuring-figures.md:38
+msgid ""
+"Nothing you change here affects your data or your numbers, only how the "
+"figure is drawn. Each setting has a reset button that restores its "
+"default."
+msgstr ""
+"Ніщо з того, що ви тут змінюєте, не впливає на ваші дані чи числа – лише на "
+"те, як намальовано графік. Кожне налаштування має кнопку скидання, що "
+"відновлює його значення за замовчуванням."
+
+#: ../../guides/configuring-figures.md:42
+#, python-brace-format
+msgid ""
+"Adjust the figure until it looks right, then copy or export it (see {doc"
+"}`exporting-results`)."
+msgstr ""
+"Налаштовуйте графік, доки він не матиме потрібного вигляду, а потім "
+"скопіюйте або експортуйте його (див. {doc}`exporting-results`)."
+
+#~ msgid "Making your figures look right"
+#~ msgstr ""
+
+#~ msgid ""
+#~ "Every figure in StatPrism is adjustable"
+#~ " — you don't have to accept the"
+#~ " default look. This guide shows where"
+#~ " the controls are and how to "
+#~ "fix the most common problem: text "
+#~ "that overlaps."
+#~ msgstr ""
+
+#~ msgid ""
+#~ "Click a **figure** (or select its "
+#~ "tab on a result card). Its "
+#~ "**settings** appear in the panel on "
+#~ "the right. There's no code — just"
+#~ " sliders, dropdowns, checkboxes, and color"
+#~ " pickers. Change one and the figure"
+#~ " redraws immediately, so it's safe to"
+#~ " experiment."
+#~ msgstr ""
+
+#~ msgid "The exact controls depend on the figure, but you'll usually find:"
+#~ msgstr ""
+
+#~ msgid ""
+#~ "**Colors** — line, bar, and point "
+#~ "colors, the frame/text color, and the"
+#~ " background."
+#~ msgstr ""
+
+#~ msgid ""
+#~ "**Font sizes** — separate sliders for"
+#~ " the title, axis titles, tick labels,"
+#~ " and legend."
+#~ msgstr ""
+
+#~ msgid ""
+#~ "**Axis titles and labels** — type "
+#~ "your own axis titles; rotate the "
+#~ "x-axis labels; number the categories "
+#~ "instead of naming them."
+#~ msgstr ""
+
+#~ msgid ""
+#~ "**Line thickness, point size, transparency**"
+#~ " — for scatter/line/box plots."
+#~ msgstr ""
+
+#~ msgid ""
+#~ "**Overall size and shape** — a "
+#~ "**Plot Size** slider (bigger for a "
+#~ "report, smaller to fit) and an "
+#~ "**Aspect** slider (taller vs. wider)."
+#~ msgstr ""
+
+#~ msgid ""
+#~ "If labels overlap or run off the"
+#~ " edge — usually because you have "
+#~ "many columns or long column names "
+#~ "— you can almost always fix it "
+#~ "by tweaking a setting or two:"
+#~ msgstr ""
+
+#~ msgid ""
+#~ "**Shorten long names** — either turn "
+#~ "on **Trim long labels** (on heatmaps),"
+#~ " rename the columns first (see {doc"
+#~ "}`organizing-data`), or number the "
+#~ "categories and read the key beneath "
+#~ "the figure."
+#~ msgstr ""
+
+#~ msgid ""
+#~ "Nothing you change here affects your "
+#~ "data or your numbers — only how"
+#~ " the figure is drawn. If you "
+#~ "make a mess, the reset button on"
+#~ " a setting puts it back to its"
+#~ " default."
+#~ msgstr ""
+

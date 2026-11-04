@@ -1,16 +1,16 @@
-# Getting your results into Word (and elsewhere)
+# Exporting results to Word and other programs
 
-Once your tables and figures look right, here's how to get them out. See
-{doc}`../results-and-export` for the reference; this is the quick how-to.
+Once your tables and figures look right, this page explains how to export them. See
+{doc}`../results-and-export` for the full reference.
 
 ## What you can copy
 
-Every result has copy buttons, so you can grab exactly what you need:
+Every result has copy buttons, so you can copy exactly what you need:
 
-- **One element** — each table or figure has its own copy button (copies just that item).
-- **A whole result** — the card's copy button copies all of that analysis's tables and figures
+- **One element**: each table or figure has its own copy button (copies only that item).
+- **A whole result**: the card's copy button copies all of that analysis's tables and figures
   together.
-- **Everything** — **File ▸ Copy All Results** copies every result card at once, in order.
+- **Everything**: **File ▸ Copy All Results** copies every result card at once, in order.
 
 ## Pasting into Word
 
@@ -29,7 +29,7 @@ A **plain paste** (Ctrl+V) usually works too, but two things to watch for:
 
 ```{tip}
 Set the language (**Settings ▸ Language**) and plot theme (**Settings ▸ Plot theme**) *before*
-copying — results are rendered in whatever language and theme are active.
+copying – results are rendered in whatever language and theme are active.
 ```
 
 ## Saving a report file
@@ -40,4 +40,4 @@ It needs no other files, so you can open it in any web browser, email it, or pri
 ## Exporting the data
 
 **File ▸ Export data to Excel** saves the current (cleaned) table to `.xlsx`, with each column
-header painted in its color tag — handy for sharing or double-checking in another program.
+header painted in its color tag, which helps when sharing or double-checking in another program.
