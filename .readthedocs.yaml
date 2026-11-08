@@ -10,10 +10,7 @@ build:
 sphinx:
   configuration: docs/conf.py
 
-# Web is primary; PDF + ePub are generated from the same source.
-formats:
-  - pdf
-  - epub
+formats: []
 
 python:
   install:
