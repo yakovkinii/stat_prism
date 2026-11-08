@@ -10,6 +10,7 @@ build:
 sphinx:
   configuration: docs/conf.py
 
+# For adding PDF need to make the sphinx render static
 formats: []
 
 python:
