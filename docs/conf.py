@@ -20,6 +20,7 @@ Authored in Markdown (via MyST). Built to HTML for the web and to PDF/ePub on
 Read the Docs. Keep prose in the .md files; this file is wiring only.
 """
 
+import os
 import re
 from pathlib import Path
 
@@ -74,7 +75,10 @@ source_suffix = {".md": "markdown", ".rst": "restructuredtext"}
 templates_path = ["_templates"]
 exclude_patterns = ["_build", "Thumbs.db", ".DS_Store", "locales/**"]
 
-language = "en"
+# On Read the Docs each translation is a separate project that sets this env var
+# to its own language; locally it defaults to English. Override with
+# `sphinx-build -D language=uk ...` to preview the Ukrainian build.
+language = os.environ.get("READTHEDOCS_LANGUAGE", "en")
 
 # -- Internationalisation (translated guide, e.g. Ukrainian) -------------------
 # Strings are extracted to docs/locale/<lang>/LC_MESSAGES/*.po; build a translation
