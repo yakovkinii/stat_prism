@@ -2,7 +2,7 @@
 
 Turns a single-select **nominal** column with *k* categories into **0/1 indicator columns**
 (one per category, named *column = category*). This lets a categorical variable be used as a
-**regression predictor** (regression accepts only numeric/ordinal inputs — see
+**regression predictor** (regression accepts only numeric/ordinal inputs – see
 {doc}`../analyses/regression`).
 
 - By default, all *k* columns are produced.

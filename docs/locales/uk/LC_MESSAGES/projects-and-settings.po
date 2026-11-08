@@ -1,0 +1,215 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2026, StatPrism Team
+# This file is distributed under the same license as the StatPrism package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2026.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: StatPrism 1.3\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-11-04 00:10+0100\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language: uk\n"
+"Language-Team: uk <LL@li.org>\n"
+"Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
+"n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.18.0\n"
+
+#: ../../projects-and-settings.md:1
+msgid "Projects & settings"
+msgstr "Проєкти та налаштування"
+
+#: ../../projects-and-settings.md:3
+msgid "Saving and reopening your work"
+msgstr "Збереження та повторне відкриття вашої роботи"
+
+#: ../../projects-and-settings.md:5
+msgid ""
+"A StatPrism **project** (`.sp` file) stores your imported dataset and "
+"every step and analysis with its settings; the results are recomputed "
+"from those when you reopen it."
+msgstr ""
+"**Проєкт** StatPrism (файл `.sp`) зберігає ваш імпортований набір даних та "
+"кожен крок і аналіз з його налаштуваннями; результати переобчислюються з "
+"них, коли ви знову відкриваєте проєкт."
+
+#: ../../projects-and-settings.md:9
+msgid ""
+"Projects use a JSON + parquet format (since version 1.2.8). Projects "
+"saved by versions **before 1.2.8** use the old format, which this version"
+" no longer opens – open such a project once in **version 1.2.8** and "
+"**Save** it to convert it, then it will open here. Opening a project "
+"saved by a *newer* version than you have installed is also not supported "
+"– update StatPrism first."
+msgstr ""
+"Проєкти використовують формат JSON + parquet (починаючи з версії 1.2.8). "
+"Проєкти, збережені версіями **до 1.2.8**, використовують старий формат, який "
+"ця версія більше не відкриває – відкрийте такий проєкт один раз у **версії "
+"1.2.8** і **збережіть** його, щоб перетворити, після чого він "
+"відкриватиметься тут. Відкриття проєкту, збереженого *новішою* версією, ніж "
+"встановлена у вас, також не підтримується – спершу оновіть StatPrism."
+
+#: ../../projects-and-settings.md:15
+msgid "**File ▸ Save**: save to the current project file."
+msgstr "**File ▸ Save**: зберегти в поточний файл проєкту."
+
+#: ../../projects-and-settings.md:16
+msgid "**File ▸ Save As…**: save to a new file."
+msgstr "**File ▸ Save As…**: зберегти в новий файл."
+
+#: ../../projects-and-settings.md:17
+#, python-brace-format
+msgid ""
+"**File ▸ Open…**: open a `.sp` project (or import a raw data file; see "
+"{doc}`importing-data`)."
+msgstr ""
+"**File ▸ Open…**: відкрити проєкт `.sp` (або імпортувати файл сирих даних; "
+"див. {doc}`importing-data`)."
+
+#: ../../projects-and-settings.md:21
+msgid ""
+"After you **Open** a `.sp` project, **Save** writes back to that same "
+"file – so once a project is open, *Save* (not *Save As*) is the direct "
+"way to keep it up to date."
+msgstr ""
+"Після того як ви **відкриєте** (**Open**) проєкт `.sp`, **Save** записує "
+"назад у той самий файл – тож коли проєкт відкрито, *Save* (а не *Save As*) є "
+"прямим способом підтримувати його в актуальному стані."
+
+#: ../../projects-and-settings.md:25
+msgid ""
+"Project files are independent of the application folder, so they are safe"
+" across app updates and straightforward to back up or share."
+msgstr ""
+"Файли проєктів незалежні від папки програми, тож вони в безпеці при "
+"оновленнях програми, і їх легко резервувати чи передавати."
+
+#: ../../projects-and-settings.md:28
+msgid "All preferences live under the **Settings** menu."
+msgstr "Усі налаштування містяться в меню **Settings**."
+
+#: ../../projects-and-settings.md:30
+msgid "Language"
+msgstr "Мова"
+
+#: ../../projects-and-settings.md:32
+msgid ""
+"**Settings ▸ Language** switches the whole interface and all results "
+"between **English** and **Ukrainian**. Switching re-renders existing "
+"results in the new language, so copy/export *after* choosing the language"
+" you want."
+msgstr ""
+"**Settings ▸ Language** перемикає весь інтерфейс та всі результати між "
+"**English** та **Ukrainian**. Перемикання повторно відтворює наявні "
+"результати новою мовою, тож копіюйте/експортуйте *після* того, як виберете "
+"потрібну мову."
+
+#: ../../projects-and-settings.md:36
+msgid "Plot theme"
+msgstr "Тема графіків"
+
+#: ../../projects-and-settings.md:38
+msgid ""
+"**Settings ▸ Plot theme** offers several looks for figures (for example "
+"*Default*, *Strict*, and *Dark*). Changing it rebuilds plots and results "
+"with the new look. (Changing the theme returns you to the home view, "
+"since results are regenerated.) Your choice is remembered between "
+"sessions."
+msgstr ""
+"**Settings ▸ Plot theme** пропонує кілька варіантів вигляду рисунків "
+"(наприклад, *Default*, *Strict* та *Dark*). Зміна теми перебудовує графіки "
+"та результати з новим виглядом. (Зміна теми повертає вас на домашній екран, "
+"оскільки результати генеруються заново.) Ваш вибір запам'ятовується між "
+"сеансами."
+
+#: ../../projects-and-settings.md:43
+msgid "UI theme"
+msgstr "Тема інтерфейсу"
+
+#: ../../projects-and-settings.md:45
+msgid ""
+"**Settings ▸ UI theme** switches the application's own appearance between"
+" **Light** and **Dark**. This affects only the window chrome, not your "
+"results; it takes effect the next time you start StatPrism."
+msgstr ""
+"**Settings ▸ UI theme** перемикає власний вигляд програми між **Light** та "
+"**Dark**. Це впливає лише на оформлення вікна, а не на ваші результати; воно "
+"набуває чинності під час наступного запуску StatPrism."
+
+#: ../../projects-and-settings.md:49
+msgid "Auto-recalculate"
+msgstr "Автоматичне переобчислення"
+
+#: ../../projects-and-settings.md:51
+msgid ""
+"**Settings ▸ Auto-recalculate**, when enabled, recomputes results "
+"automatically as you change data steps. With it off, changed results are "
+"marked as needing recalculation and you refresh them yourself (or use "
+"**File ▸ Recalculate All**, or press **Ctrl+R**). The setting is "
+"remembered between sessions."
+msgstr ""
+"**Settings ▸ Auto-recalculate**, коли увімкнено, автоматично переобчислює "
+"результати в міру того, як ви змінюєте кроки обробки даних. Коли вимкнено, "
+"змінені результати позначаються як такі, що потребують переобчислення, і ви "
+"оновлюєте їх самостійно (або скористайтеся **File ▸ Recalculate All**, чи "
+"натисніть **Ctrl+R**). Налаштування запам'ятовується між сеансами."
+
+#: ../../projects-and-settings.md:56
+msgid "Help / About"
+msgstr "Help / About"
+
+#: ../../projects-and-settings.md:58
+msgid ""
+"The **Help** menu includes the **User Guide** (this documentation) and "
+"**About**, with version and project information."
+msgstr ""
+"Меню **Help** містить **User Guide** (цю документацію) та **About** з "
+"інформацією про версію та проєкт."
+
+#~ msgid ""
+#~ "Projects use a JSON + parquet "
+#~ "format (since version 1.2.8). Projects "
+#~ "saved by versions **before 1.2.8** use"
+#~ " the old format, which this version"
+#~ " no longer opens — open such a"
+#~ " project once in **version 1.2.8** "
+#~ "and **Save** it to convert it, "
+#~ "then it will open here. Opening a"
+#~ " project saved by a *newer* version"
+#~ " than you have installed is also "
+#~ "not supported — update StatPrism first."
+#~ msgstr ""
+
+#~ msgid "**File ▸ Save** — save to the current project file."
+#~ msgstr ""
+
+#~ msgid "**File ▸ Save As…** — save to a new file."
+#~ msgstr ""
+
+#~ msgid ""
+#~ "**File ▸ Open…** — open a `.sp`"
+#~ " project (or import a raw data "
+#~ "file; see {doc}`importing-data`)."
+#~ msgstr ""
+
+#~ msgid ""
+#~ "After you **Open** a `.sp` project, "
+#~ "**Save** writes back to that same "
+#~ "file — so once a project is "
+#~ "open, *Save* (not *Save As*) is "
+#~ "the quick way to keep it up "
+#~ "to date."
+#~ msgstr ""
+
+#~ msgid ""
+#~ "Project files are independent of the "
+#~ "application folder, so they are safe "
+#~ "across app updates and easy to "
+#~ "back up or share."
+#~ msgstr ""
+

@@ -104,12 +104,11 @@ def smart_comma_join(items):
     if len(items) == 1:
         return items[0]
 
-    and_word = t("common.and")  # " and " / " та "
-
     if len(items) == 2:
-        return f"{items[0]}{and_word}{items[1]}"
+        return f"{items[0]}{t('common.and')}{items[1]}"  # " and " / " та "
 
-    return ", ".join(items[:-1]) + f",{and_word}{items[-1]}"
+    # 3+: Oxford comma in English (", and "), none before "та" in Ukrainian academic style.
+    return ", ".join(items[:-1]) + f"{t('common.and_final')}{items[-1]}"
 
 
 def _is_missing_value(value):

@@ -1,0 +1,266 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2026, StatPrism Team
+# This file is distributed under the same license as the StatPrism package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2026.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: StatPrism 1.3\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-11-04 00:10+0100\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language: uk\n"
+"Language-Team: uk <LL@li.org>\n"
+"Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
+"n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.18.0\n"
+
+#: ../../guides/reverse-keyed-scale.md:1
+msgid "Building a scale with reverse-keyed items"
+msgstr "Побудова шкали з перевернутими пунктами"
+
+#: ../../guides/reverse-keyed-scale.md:3
+msgid ""
+"A common task: several Likert items make up one scale, but some are "
+"**reverse-keyed** (worded in the opposite direction), so they must be "
+"flipped before the items are combined. This guide takes you from the raw "
+"spreadsheet to a finished scale column."
+msgstr ""
+"Поширене завдання: кілька пунктів Лайкерта утворюють одну шкалу, але деякі "
+"з них **перевернуті** (сформульовані у протилежному напрямку), тож їх "
+"потрібно розвернути, перш ніж пункти буде об'єднано. Цей гайд проведе вас "
+"від сирої таблиці до готової колонки шкали."
+
+#: ../../guides/reverse-keyed-scale.md:7
+msgid ""
+"Suppose a 5-item wellbeing scale rated **1–5**, where items **Q2** and "
+"**Q4** are reverse-worded."
+msgstr ""
+"Припустімо, маємо шкалу благополуччя з 5 пунктів, оцінювану за шкалою "
+"**1–5**, де пункти **Q2** та **Q4** сформульовані у зворотному напрямку."
+
+#: ../../guides/reverse-keyed-scale.md:9
+msgid "1. Import the data"
+msgstr "1. Імпортуйте дані"
+
+#: ../../guides/reverse-keyed-scale.md:11
+#, python-brace-format
+msgid ""
+"**File ▸ Open…** and pick your `.xlsx`/`.csv` export. Open the **data "
+"viewer** to check that the items loaded and that their **types** look "
+"right (see {doc}`../importing-data`). StatPrism adds an **ID** column at "
+"the front automatically."
+msgstr ""
+"**File ▸ Open…** і виберіть свій експорт `.xlsx`/`.csv`. Відкрийте "
+"**переглядач даних**, щоб перевірити, що пункти завантажилися і що їхні "
+"**типи** визначено правильно (див. {doc}`../importing-data`). StatPrism "
+"автоматично додає колонку **ID** на початку."
+
+#: ../../guides/reverse-keyed-scale.md:15
+msgid "2. Tidy the items with Preprocess"
+msgstr "2. Упорядкуйте пункти за допомогою Preprocess"
+
+#: ../../guides/reverse-keyed-scale.md:17
+#, python-brace-format
+msgid ""
+"Add a {doc}`../data-processing/preprocess` step to fix up the items in "
+"one place:"
+msgstr ""
+"Додайте крок {doc}`../data-processing/preprocess`, щоб упорядкувати пункти "
+"в одному місці:"
+
+#: ../../guides/reverse-keyed-scale.md:19
+msgid ""
+"**Rename** any awkward column names by clicking the name in place (e.g. a"
+" full question becomes `Q1`). Press **Tab** in the empty field to bring "
+"back the original name."
+msgstr ""
+"**Перейменуйте** будь-які незручні назви колонок, натиснувши на назву на "
+"місці (наприклад, повне питання стає `Q1`). Натисніть **Tab** у порожньому "
+"полі, щоб повернути початкову назву."
+
+#: ../../guides/reverse-keyed-scale.md:21
+msgid ""
+"If answers came in as **text** (\"Strongly agree\" … \"Strongly "
+"disagree\"), open **Map values…** on each item and map them to numbers "
+"`1`–`5`. Set the **type** to **Ordinal** (or **Numeric**) so the values "
+"are treated as a scale."
+msgstr ""
+"Якщо відповіді надійшли як **текст** (\"Strongly agree\" … \"Strongly "
+"disagree\"), відкрийте **Map values…** на кожному пункті та зіставте їх із "
+"числами `1`–`5`. Встановіть **тип** на **Ordinal** (або **Numeric**), щоб "
+"значення трактувалися як шкала."
+
+#: ../../guides/reverse-keyed-scale.md:24
+msgid ""
+"Optionally give the scale's items a shared **color tag** so they are easy"
+" to identify later."
+msgstr ""
+"За бажанням надайте пунктам шкали спільну **кольорову мітку**, щоб їх було "
+"легко розпізнати згодом."
+
+#: ../../guides/reverse-keyed-scale.md:27
+#, python-brace-format
+msgid ""
+"If **every** item shares the *same* text-to-number mapping, it is faster "
+"to select them all in a single {doc}`../data-processing/transform` step "
+"and apply the mapping once, instead of mapping each column in Preprocess."
+msgstr ""
+"Якщо **кожен** пункт має *однакове* зіставлення тексту з числами, швидше "
+"вибрати їх усі в одному кроці {doc}`../data-processing/transform` та "
+"застосувати зіставлення одноразово, замість зіставляти кожну колонку в "
+"Preprocess."
+
+#: ../../guides/reverse-keyed-scale.md:32
+msgid ""
+"You do **not** need to flip Q2/Q4 here – the Calculate Scale step does "
+"that in the next step, using the correct reference."
+msgstr ""
+"Вам **не** потрібно розвертати Q2/Q4 тут – крок Calculate Scale робить це "
+"на наступному кроці, використовуючи правильну точку відліку."
+
+#: ../../guides/reverse-keyed-scale.md:35
+msgid "3. Combine them with Calculate Scale"
+msgstr "3. Об'єднайте їх за допомогою Calculate Scale"
+
+#: ../../guides/reverse-keyed-scale.md:37
+#, python-brace-format
+msgid "Add a {doc}`../data-processing/calculate-scale` step:"
+msgstr "Додайте крок {doc}`../data-processing/calculate-scale`:"
+
+#: ../../guides/reverse-keyed-scale.md:39
+msgid ""
+"**Questions** field – put the **direct** (normally-keyed) items here: "
+"`Q1`, `Q3`, `Q5`."
+msgstr ""
+"Поле **Questions** – розмістіть тут **прямі** (звичайно сформульовані) "
+"пункти: `Q1`, `Q3`, `Q5`."
+
+#: ../../guides/reverse-keyed-scale.md:40
+msgid ""
+"**Reverse-score first** field – put the **reverse-keyed** items here: "
+"`Q2`, `Q4`. StatPrism flips them automatically before combining, so a "
+"high answer becomes a low one and a low answer becomes a high one. In "
+"most cases this can be left unchanged. (If your scale has a possible "
+"answer that nobody in your data happened to choose, the automatic flip "
+"can be slightly off – tick the box next to it and type the correct number"
+" to adjust it; the **Preview** shows the result.)"
+msgstr ""
+"Поле **Reverse-score first** – розмістіть тут **перевернуті** пункти: "
+"`Q2`, `Q4`. StatPrism автоматично розвертає їх перед об'єднанням, тож "
+"висока відповідь стає низькою, а низька – високою. У більшості випадків це "
+"можна залишити без змін. (Якщо ваша шкала має можливу відповідь, яку ніхто "
+"у ваших даних не обрав, автоматичне розвертання може бути трохи "
+"неточним – поставте позначку поряд із нею та впишіть правильне число для "
+"коригування; **Preview** показує результат.)"
+
+#: ../../guides/reverse-keyed-scale.md:45
+msgid ""
+"Give the new column a **name** (e.g. `Wellbeing`). Leaving it blank shows"
+" an error until you do."
+msgstr ""
+"Надайте новій колонці **назву** (наприклад, `Wellbeing`). Якщо залишити "
+"поле порожнім, показуватиметься помилка, доки ви цього не зробите."
+
+#: ../../guides/reverse-keyed-scale.md:46
+msgid ""
+"Choose **Sum** or **Mean**, an optional **normalization** (e.g. Z-score "
+"or Stanine), and how to handle **missing values** (skip the respondent, "
+"or allow up to a set share of missing items)."
+msgstr ""
+"Виберіть **Sum** чи **Mean**, за бажанням **нормалізацію** (наприклад, "
+"Z-score або Stanine), а також спосіб обробки **пропущених значень** "
+"(пропустити респондента або дозволити до заданої частки пропущених "
+"пунктів)."
+
+#: ../../guides/reverse-keyed-scale.md:48
+msgid "Optionally set the new column's **color**."
+msgstr "За бажанням задайте **колір** нової колонки."
+
+#: ../../guides/reverse-keyed-scale.md:50
+msgid ""
+"A new `Wellbeing` column appears, with Q2 and Q4 reversed before "
+"aggregation. The step's summary states which items were reverse-scored, "
+"and the source items can be kept, deleted, or auto-renamed."
+msgstr ""
+"З'являється нова колонка `Wellbeing`, де Q2 та Q4 розвернуто перед "
+"агрегуванням. У підсумку кроку зазначено, які пункти було перевернуто, а "
+"вихідні пункти можна зберегти, видалити або автоматично перейменувати."
+
+#: ../../guides/reverse-keyed-scale.md:54
+msgid "4. Use the scale"
+msgstr "4. Використайте шкалу"
+
+#: ../../guides/reverse-keyed-scale.md:56
+#, python-brace-format
+msgid ""
+"Point any analysis (for example {doc}`../analyses/descriptive`, "
+"{doc}`../analyses/correlation`, or {doc}`../analyses/reliability` to "
+"check the scale's alpha) at the **Auto** data source and select your new "
+"`Wellbeing` column."
+msgstr ""
+"Спрямуйте будь-який аналіз (наприклад, {doc}`../analyses/descriptive`, "
+"{doc}`../analyses/correlation` чи {doc}`../analyses/reliability`, щоб "
+"перевірити альфу шкали) на джерело даних **Auto** і виберіть свою нову "
+"колонку `Wellbeing`."
+
+#~ msgid ""
+#~ "Optionally give the scale's items a "
+#~ "shared **color tag** so they are "
+#~ "easy to spot later."
+#~ msgstr ""
+
+#~ msgid ""
+#~ "If **every** item shares the *same* "
+#~ "text-to-number mapping, it's faster "
+#~ "to select them all in a single "
+#~ "{doc}`../data-processing/transform` step and "
+#~ "apply the mapping once, instead of "
+#~ "mapping each column in Preprocess."
+#~ msgstr ""
+
+#~ msgid ""
+#~ "You do **not** need to flip Q2/Q4"
+#~ " here — the Calculate Scale step "
+#~ "does that in the next step, using"
+#~ " the correct reference."
+#~ msgstr ""
+
+#~ msgid ""
+#~ "**Questions** field — put the **direct**"
+#~ " (normally-keyed) items here: `Q1`, "
+#~ "`Q3`, `Q5`."
+#~ msgstr ""
+
+#~ msgid ""
+#~ "**Reverse-score first** field — put "
+#~ "the **reverse-keyed** items here: `Q2`,"
+#~ " `Q4`. StatPrism flips them automatically"
+#~ " before combining, so a high answer"
+#~ " becomes a low one and a low"
+#~ " answer becomes a high one. You "
+#~ "can almost always leave this alone. "
+#~ "(If your scale has a possible "
+#~ "answer that nobody in your data "
+#~ "happened to choose, the automatic flip"
+#~ " can be slightly off — tick the"
+#~ " box next to it and type the"
+#~ " correct number to adjust it; the "
+#~ "**Preview** shows the result.)"
+#~ msgstr ""
+
+#~ msgid ""
+#~ "That's it — a new `Wellbeing` "
+#~ "column appears, with Q2/Q4 correctly "
+#~ "reversed before aggregation. The step's "
+#~ "summary states which items were "
+#~ "reverse-scored, and the source items "
+#~ "can be kept, deleted, or auto-"
+#~ "renamed."
+#~ msgstr ""
+

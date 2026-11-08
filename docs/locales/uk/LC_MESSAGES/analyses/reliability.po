@@ -1,0 +1,185 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2026, StatPrism Team
+# This file is distributed under the same license as the StatPrism package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2026.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: StatPrism 1.3\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-11-04 13:45+0100\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language: uk\n"
+"Language-Team: uk <LL@li.org>\n"
+"Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
+"n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.18.0\n"
+
+#: ../../analyses/reliability.md:1
+msgid "Reliability"
+msgstr "Надійність"
+
+#: ../../analyses/reliability.md:3
+msgid "Estimates the internal consistency of a multi-item scale."
+msgstr "Оцінює внутрішню узгодженість шкали з кількох пунктів."
+
+#: ../../analyses/reliability.md:5
+msgid "When to use it"
+msgstr "Коли це використовувати"
+
+#: ../../analyses/reliability.md:7
+msgid ""
+"After designing or administering a survey scale, to check whether its "
+"items are internally consistent and whether removing an item would "
+"improve consistency."
+msgstr ""
+"Після розробки або проведення шкали опитування, щоб перевірити, чи є "
+"її пункти внутрішньо узгодженими та чи покращило б видалення пункту "
+"узгодженість."
+
+#: ../../analyses/reliability.md:10
+msgid "Inputs"
+msgstr "Вхідні дані"
+
+#: ../../analyses/reliability.md:12
+#, python-brace-format
+msgid ""
+"**Items**: two or more numeric (or ordinal) columns that make up one "
+"scale. Reverse-keyed items should be corrected first with **Invert "
+"Scale** (see {doc}`../data-processing/invert-scale`)."
+msgstr ""
+"**Пункти**: дві або більше числових (або порядкових) колонок, що "
+"складають одну шкалу. Перевернуті пункти слід спершу скоригувати за "
+"допомогою **Invert Scale** (див. {doc}`../data-processing/invert-scale`)."
+
+#: ../../analyses/reliability.md:15
+msgid "Options"
+msgstr "Параметри"
+
+#: ../../analyses/reliability.md:17
+msgid "**Coefficient type**: the inter-item correlation used (e.g. Pearson)."
+msgstr ""
+"**Тип коефіцієнта**: використовувана кореляція між пунктами (наприклад, "
+"Пірсона)."
+
+#: ../../analyses/reliability.md:18
+msgid "**McDonald's omega**: reports ω in addition to Cronbach's α."
+msgstr "**Омега Макдональда**: повідомляє ω на додаток до α Кронбаха."
+
+#: ../../analyses/reliability.md:19
+msgid "**Scale name**: a label for the output."
+msgstr "**Назва шкали**: підпис для результату."
+
+#: ../../analyses/reliability.md:20
+msgid ""
+"**Verbal report**: dropdown for how much plain-language interpretation to"
+" add (None / Headline / Key findings / Significant only / Full). "
+"**Headline** gives the one-line scale verdict (α and its level); **Key "
+"findings** adds ω and flags any item whose removal would raise the "
+"coefficient; **Full** also reassures when no item would and flags items "
+"that correlate weakly with the scale total (the item-level discussion "
+"needs the *if item removed* table switched on)."
+msgstr ""
+"**Словесний звіт**: dropdown для вибору обсягу інтерпретації простою "
+"мовою (None / Headline / Key findings / Significant only / Full). "
+"**Headline** дає однорядковий висновок щодо шкали (α та її рівень); **Key"
+" findings** додають ω та позначають будь-який пункт, видалення якого "
+"підвищило б коефіцієнт; **Full** також підтверджує, коли жоден пункт "
+"цього не зробив би, і позначає пункти, що слабко корелюють із загальним "
+"балом шкали (обговорення на рівні пунктів потребує ввімкненої таблиці "
+"*якщо пункт видалено*)."
+
+#: ../../analyses/reliability.md:25
+msgid "**Verbal indicators** and **Number columns**."
+msgstr "**Verbal indicators** та **Number columns**."
+
+#: ../../analyses/reliability.md:27
+msgid "Output"
+msgstr "Вихідні дані"
+
+#: ../../analyses/reliability.md:29
+msgid ""
+"**Cronbach's α** (and **McDonald's ω** if requested) with an "
+"interpretation."
+msgstr "**α Кронбаха** (та **ω Макдональда**, якщо запитано) з інтерпретацією."
+
+#: ../../analyses/reliability.md:30
+msgid ""
+"An **item statistics** table including item–total correlations and **α if"
+" the item is removed** (plus **ω if removed** when McDonald's omega is "
+"enabled), which flags items that weaken the scale. With **Verbal "
+"indicators** on, each coefficient gets a plain-language reading, and the "
+"item table shows a separate \"Improves α?\" / \"Improves ω?\" verdict per"
+" coefficient."
+msgstr ""
+"Таблиця **статистики пунктів**, що включає item-total кореляції та **α, "
+"якщо пункт видалено** (а також **ω, якщо видалено**, коли ввімкнено омегу"
+" Макдональда), яка позначає пункти, що послаблюють шкалу. З увімкненими "
+"**словесними індикаторами** кожен коефіцієнт отримує тлумачення простою "
+"мовою, а таблиця пунктів показує окремий висновок \"Improves α?\" / "
+"\"Improves ω?\" для кожного коефіцієнта."
+
+#: ../../analyses/reliability.md:35
+msgid "Notes"
+msgstr "Примітки"
+
+#: ../../analyses/reliability.md:37
+msgid "At least two items are required."
+msgstr "Потрібно щонайменше два пункти."
+
+#: ../../analyses/reliability.md:38
+msgid ""
+"A high \"alpha if removed\" relative to the overall alpha suggests an "
+"item may not belong on the scale."
+msgstr ""
+"Високе \"alpha if removed\" порівняно із загальною альфою свідчить, що "
+"пункт, можливо, не належить до шкали."
+
+#~ msgid ""
+#~ "After designing or administering a "
+#~ "questionnaire scale, to check that its"
+#~ " items hang together — and to "
+#~ "see whether dropping an item would "
+#~ "help."
+#~ msgstr ""
+
+#~ msgid ""
+#~ "**Items** — two or more numeric "
+#~ "(or ordinal) columns that make up "
+#~ "one scale. Reverse-keyed items should"
+#~ " be corrected first with **Invert "
+#~ "Scale** (see {doc}`../data-processing/invert-"
+#~ "scale`)."
+#~ msgstr ""
+
+#~ msgid "**Coefficient type** — the inter-item correlation used (e.g. Pearson)."
+#~ msgstr ""
+
+#~ msgid "**McDonald's omega** — reports ω in addition to Cronbach's α."
+#~ msgstr ""
+
+#~ msgid "**Scale name** — a label for the output."
+#~ msgstr ""
+
+#~ msgid ""
+#~ "**Verbal report** — dropdown for how "
+#~ "much plain-language interpretation to "
+#~ "add (None / Headline / Key "
+#~ "findings / Significant only / Full). "
+#~ "**Headline** gives the one-line scale"
+#~ " verdict (α and its level); **Key "
+#~ "findings** adds ω and flags any "
+#~ "item whose removal would raise the "
+#~ "coefficient; **Full** also reassures when "
+#~ "no item would and flags items that"
+#~ " correlate weakly with the scale "
+#~ "total (the item-level discussion needs"
+#~ " the *if item removed* table switched"
+#~ " on)."
+#~ msgstr ""
+

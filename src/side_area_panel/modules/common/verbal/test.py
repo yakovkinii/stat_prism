@@ -21,6 +21,7 @@ from typing import List, Union
 from src.common.translations import t
 from src.side_area_panel.modules.common.prose import ProseDetail, prose_detail_from
 from src.side_area_panel.modules.common.utility import format_p_apa, format_statistic_apa, smart_comma_join
+from src.side_area_panel.modules.common.verbal.compact import ReportItem, summarize
 
 
 class TestResult:
@@ -33,6 +34,8 @@ class TestResult:
         df: Union[int, str] = None,
         df2: Union[int, str] = None,
         decimals: int = 2,
+        effect: float = None,
+        effect_word: str = "",
     ):
         self.variable = variable
         self.letter = letter
@@ -41,6 +44,22 @@ class TestResult:
         self.df = df
         self.df2 = df2
         self.decimals = decimals
+        # Optional effect size + its magnitude word, used by the verbal compacter to rank the
+        # outstanding results and to label them (e.g. "large"); absent -> ranked by |statistic|.
+        self.effect = effect
+        self.effect_word = effect_word
+
+    def _magnitude(self) -> float:
+        source = (
+            self.effect
+            if self.effect is not None
+            else (self.statistic[0] if isinstance(self.statistic, list) else self.statistic)
+        )
+        try:
+            value = abs(float(source))
+        except (TypeError, ValueError):
+            return 0.0
+        return value if value == value else 0.0  # NaN -> 0
 
     def __str__(self):
         if isinstance(self.letter, list):
@@ -105,18 +124,45 @@ def describe_single_test_multiple_variables(
     return text
 
 
-def describe_grouped_test(prose_detail, yes_columns, no_columns, *, test_name, test_check, yes_property, no_property):
+def describe_grouped_test(
+    prose_detail,
+    yes_columns,
+    no_columns,
+    *,
+    noun_nom,
+    noun_gen,
+    notable_one_key,
+    notable_key,
+):
+    """Compacted verbal summary of a test applied to several variables, via the shared compacter.
+
+    ``yes_columns`` are the significant :class:`TestResult`s, ``no_columns`` the non-significant
+    ones. The result groups them ("all ... except X", "most ...", "the largest difference was ...")
+    instead of one sentence per variable, with full APA stats, at the chosen prose level.
+    """
     detail = prose_detail_from(prose_detail)
     if detail == ProseDetail.NONE:
         return None
-    included_no = no_columns if detail == ProseDetail.FULL else []
-    if not yes_columns and not included_no:
+
+    def to_item(test_result, significant):
+        return ReportItem(
+            label=f"&laquo;{test_result.variable}&raquo;",
+            significant=significant,
+            apa=str(test_result),
+            magnitude=test_result._magnitude(),
+            notable=significant,
+            descriptor=test_result.effect_word or "",
+        )
+
+    items = [to_item(tr, True) for tr in yes_columns] + [to_item(tr, False) for tr in no_columns]
+    if not items:
         return None
-    return describe_single_test_multiple_variables(
-        test_name=test_name,
-        test_check=test_check,
-        yes_columns=yes_columns,
-        no_columns=included_no,
-        yes_property=yes_property,
-        no_property=no_property,
+    text = summarize(
+        items,
+        detail,
+        noun_nom=noun_nom,
+        noun_gen=noun_gen,
+        notable_one_key=notable_one_key,
+        notable_key=notable_key,
     )
+    return text or None

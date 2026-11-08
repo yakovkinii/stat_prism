@@ -1,0 +1,220 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2026, StatPrism Team
+# This file is distributed under the same license as the StatPrism package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2026.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: StatPrism 1.3\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-11-04 00:10+0100\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language: uk\n"
+"Language-Team: uk <LL@li.org>\n"
+"Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
+"n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.18.0\n"
+
+#: ../../analyses/correlation.md:1
+msgid "Correlation"
+msgstr "Кореляція"
+
+#: ../../analyses/correlation.md:3
+msgid "Correlation heatmap example"
+msgstr "Приклад кореляційної heatmap"
+
+#: ../../analyses/correlation.md:9
+msgid ""
+"Measures how strongly variables move together, as a correlation matrix "
+"with significance and (where defensible) confidence intervals."
+msgstr "Вимірює, наскільки сильно змінні змінюються разом, у вигляді кореляційної матриці зі значущістю та (де це обґрунтовано) довірчими інтервалами."
+
+#: ../../analyses/correlation.md:12
+msgid "When to use it"
+msgstr "Коли це використовувати"
+
+#: ../../analyses/correlation.md:14
+msgid ""
+"To quantify the association between two or more variables – for example, "
+"whether higher scores on one item go with higher scores on another."
+msgstr "Щоб кількісно оцінити зв'язок між двома або більше змінними – наприклад, чи відповідають вищі бали за одним пунктом вищим балам за іншим."
+
+#: ../../analyses/correlation.md:17
+msgid "Inputs"
+msgstr "Вхідні дані"
+
+#: ../../analyses/correlation.md:19
+msgid "**Variables**: two or more columns for the main matrix."
+msgstr "**Змінні**: дві або більше колонок для основної матриці."
+
+#: ../../analyses/correlation.md:20
+msgid ""
+"**Control variables (optional)**: turns the analysis into a **partial "
+"correlation**, holding these constant (Pearson or Spearman only)."
+msgstr "**Контрольні змінні (необов'язково)**: перетворює аналіз на **часткову кореляцію**, утримуючи їх сталими (лише Pearson або Spearman)."
+
+#: ../../analyses/correlation.md:22
+msgid ""
+"**Second variable set (optional)**: produces a rectangular **cross** "
+"matrix of the first set against the second, instead of a square matrix."
+msgstr "**Другий набір змінних (необов'язково)**: створює прямокутну **перехресну** матрицю першого набору проти другого замість квадратної матриці."
+
+#: ../../analyses/correlation.md:25
+msgid "Options"
+msgstr "Параметри"
+
+#: ../../analyses/correlation.md:27
+msgid "Coefficient"
+msgstr "Коефіцієнт"
+
+#: ../../analyses/correlation.md:28
+msgid ""
+"**Pearson** (linear), **Spearman** and **Kendall** / **Kendall tau-c** "
+"(rank-based), **Phi** / **Tetrachoric** (binary), **Polychoric** "
+"(ordinal)."
+msgstr "**Pearson** (лінійний), **Spearman** та **Kendall** / **Kendall tau-c** (рангові), **Phi** / **Tetrachoric** (бінарні), **Polychoric** (порядкові)."
+
+#: ../../analyses/correlation.md:31
+msgid "Table"
+msgstr "Таблиця"
+
+#: ../../analyses/correlation.md:32
+msgid ""
+"**Compact** vs full layout (full layout is the default); **Confidence "
+"intervals** (95%, via the Fisher-z transform for Pearson and Spearman); "
+"**Number columns** for wide matrices."
+msgstr "**Компактне** чи повне компонування (повне компонування за замовчуванням); **Confidence intervals** (95%, через перетворення Фішера-z для Pearson і Spearman); **Number columns** для широких матриць."
+
+#: ../../analyses/correlation.md:35
+msgid "Verbal report"
+msgstr "Словесний звіт"
+
+#: ../../analyses/correlation.md:36
+msgid ""
+"How much plain-language interpretation to write, as a single dropdown – "
+"**None**, **Key findings** (only strong correlations), **Significant "
+"only**, or **Full** (every pair). The amount of prose scales with how "
+"much there is to say."
+msgstr "Скільки інтерпретації простою мовою писати – один dropdown: **None**, **Key findings** (лише сильні кореляції), **Significant only** чи **Full** (кожна пара). Обсяг тексту масштабується залежно від того, скільки є що сказати."
+
+#: ../../analyses/correlation.md:40
+msgid "Plots"
+msgstr "Графіки"
+
+#: ../../analyses/correlation.md:41
+msgid ""
+"**Heatmap** of the matrix, and pairwise **scatter plots** with a "
+"regression line and its standard-error band. **Plot only significant "
+"correlations** trims the pairwise plots. The heatmap's **color scale** is"
+" selectable in its plot settings (a diverging map such as `bwr` or `RdBu`"
+" by default, plus sequential options like `viridis` and `Blues`)."
+msgstr "**Heatmap** матриці та попарні **діаграми розсіювання** з лінією регресії та її смугою стандартної похибки. **Plot only significant correlations** скорочує набір попарних графіків. **Колірну шкалу** heatmap можна вибрати в її налаштуваннях графіка (за замовчуванням розбіжна карта на кшталт `bwr` чи `RdBu`, а також послідовні варіанти як-от `viridis` і `Blues`)."
+
+#: ../../analyses/correlation.md:46
+msgid "Output"
+msgstr "Вихідні дані"
+
+#: ../../analyses/correlation.md:48
+msgid ""
+"The **correlation matrix** with coefficients, significance, degrees of "
+"freedom, and optional CIs."
+msgstr "**Кореляційна матриця** з коефіцієнтами, значущістю, ступенями свободи та необов'язковими довірчими інтервалами."
+
+#: ../../analyses/correlation.md:50
+msgid "A **verbal report** describing each association."
+msgstr "**Словесний звіт**, що описує кожен зв'язок."
+
+#: ../../analyses/correlation.md:51
+msgid "Optional **heatmap** and **scatter** figures."
+msgstr "Необов'язкові графіки **heatmap** і **діаграми розсіювання**."
+
+#: ../../analyses/correlation.md:53
+msgid "Notes"
+msgstr "Примітки"
+
+#: ../../analyses/correlation.md:55
+msgid ""
+"Confidence intervals are shown only for the coefficients where they are "
+"statistically defensible: Pearson and Spearman. The others show none."
+msgstr "Довірчі інтервали показуються лише для тих коефіцієнтів, де це статистично обґрунтовано: Pearson і Spearman. Решта їх не показують."
+
+#: ../../analyses/correlation.md:57
+msgid ""
+"A column with **no variance** (a single repeated value) has an undefined "
+"correlation; its cells are left blank and a note explains why."
+msgstr "Колонка з **нульовою дисперсією** (одне повторюване значення) має невизначену кореляцію; її клітинки залишаються порожніми, а примітка пояснює чому."
+
+#: ../../analyses/correlation.md:59
+msgid ""
+"Choosing Pearson on ordinal data triggers a warning, since rank-based "
+"coefficients are usually more appropriate there."
+msgstr "Вибір Pearson для порядкових даних викликає попередження, оскільки рангові коефіцієнти тут зазвичай доречніші."
+
+#: ../../analyses/correlation.md:61
+msgid ""
+"For the **tetrachoric** coefficient the significance p-value comes from a"
+" likelihood-ratio test (the G² test of independence, df = 1), which stays"
+" valid even at the boundary (for example, a zero cell or a near-perfect "
+"association), where a Wald test would break down. Its reported df is "
+"therefore 1, not *n* − 2."
+msgstr "Для коефіцієнта **tetrachoric** p-значення значущості отримують з тесту відношення правдоподібності (G²-тест незалежності, df = 1), який залишається валідним навіть на межі (наприклад, нульова клітинка чи майже ідеальний зв'язок), де тест Вальда став би непридатним. Тому його df дорівнює 1, а не *n* − 2."
+
+#~ msgid ""
+#~ "To quantify the association between two"
+#~ " or more variables — for example, "
+#~ "whether higher scores on one item "
+#~ "go with higher scores on another."
+#~ msgstr ""
+
+#~ msgid "**Variables** — two or more columns for the main matrix."
+#~ msgstr ""
+
+#~ msgid ""
+#~ "**Control variables (optional)** — turns "
+#~ "the analysis into a **partial "
+#~ "correlation**, holding these constant (Pearson"
+#~ " or Spearman only)."
+#~ msgstr ""
+
+#~ msgid ""
+#~ "**Second variable set (optional)** — "
+#~ "produces a rectangular **cross** matrix "
+#~ "of the first set against the "
+#~ "second, instead of a square matrix."
+#~ msgstr ""
+
+#~ msgid ""
+#~ "How much plain-language interpretation "
+#~ "to write, as a single dropdown —"
+#~ " **None**, **Key findings** (only strong"
+#~ " correlations), **Significant only**, or "
+#~ "**Full** (every pair). The amount of "
+#~ "prose scales with how much there "
+#~ "is to say."
+#~ msgstr ""
+
+#~ msgid ""
+#~ "Confidence intervals are shown only "
+#~ "where they are statistically defensible "
+#~ "— Pearson and Spearman. Other "
+#~ "coefficients show no CI."
+#~ msgstr ""
+
+#~ msgid ""
+#~ "For the **tetrachoric** coefficient the "
+#~ "significance p-value comes from a "
+#~ "likelihood-ratio test (the G² test of"
+#~ " independence, df = 1), which stays"
+#~ " valid even at the boundary — "
+#~ "for example a zero cell or a "
+#~ "near-perfect association, where a Wald"
+#~ " test would break down. Its reported"
+#~ " df is therefore 1, not *n* −"
+#~ " 2."
+#~ msgstr ""
+

@@ -130,7 +130,10 @@ def tetrachoric_corr_2x2_table(table):
     # the asymptotic SE diverges and a Wald p collapses to ~1 for a near-perfect association).
     lr_stat = max(2.0 * (neg_log_likelihood(0.0) - neg_log_likelihood(rho_est)), 0.0)
     p_value = float(chi2.sf(lr_stat, df=1)) if np.isfinite(lr_stat) else np.nan
-    df = n - 2
+    # The reported p comes from the 1-df likelihood-ratio test above, so the displayed df must be 1
+    # to match it (it is not the n-2 of a Pearson t-test). df is used only for display, not in any
+    # downstream computation.
+    df = 1
 
     return rho_est, se, p_value, df
 

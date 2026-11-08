@@ -1,0 +1,383 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2026, StatPrism Team
+# This file is distributed under the same license as the StatPrism package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2026.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: StatPrism 1.3\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-11-04 00:10+0100\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language: uk\n"
+"Language-Team: uk <LL@li.org>\n"
+"Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
+"n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.18.0\n"
+
+#: ../../worked-example.md:1
+msgid "Worked example: from a Google Form to a report"
+msgstr "Розібраний приклад: від Google Form до звіту"
+
+#: ../../worked-example.md:3
+msgid ""
+"This end-to-end example takes a survey export all the way to results "
+"pasted into Word. It follows a typical workflow; adapt the column names "
+"to your own study."
+msgstr ""
+"Цей наскрізний приклад проводить експорт опитування аж до результатів, "
+"вставлених у Word. Він відтворює типовий робочий процес; адаптуйте назви "
+"колонок під власне дослідження."
+
+#: ../../worked-example.md:6
+msgid ""
+"Consider a short survey with questions such as: age, monthly income, a "
+"test score, an overall satisfaction rating (1–5), whether the person "
+"passed an exam (Yes/No), gender, region, and a \"which features do you "
+"use? (select all that apply)\" checkbox question."
+msgstr ""
+"Розгляньмо коротке опитування з такими запитаннями: вік, місячний дохід, "
+"тестовий бал, загальна оцінка задоволеності (1–5), чи склала особа іспит "
+"(Yes/No), стать, регіон, а також checkbox-запитання \"які функції ви "
+"використовуєте? (виберіть усі, що підходять)\"."
+
+#: ../../worked-example.md:10
+msgid "1. Import the export"
+msgstr "1. Імпортуйте експортований файл"
+
+#: ../../worked-example.md:12
+msgid "**File ▸ Open…** and select the Forms `.xlsx`."
+msgstr "**File ▸ Open…** і виберіть `.xlsx` із Forms."
+
+#: ../../worked-example.md:13
+msgid ""
+"Open the **data viewer** to confirm the columns loaded and check their "
+"**types** (numbers as Numeric, text as Nominal). Note that the app added "
+"an **ID** column at the front."
+msgstr ""
+"Відкрийте **переглядач даних**, щоб переконатися, що колонки завантажилися, "
+"і перевірте їхні **типи** (числа як Numeric, текст як Nominal). Зверніть "
+"увагу, що програма додала колонку **ID** на початку."
+
+#: ../../worked-example.md:16
+msgid "The imported survey data in the data viewer"
+msgstr "Імпортовані дані опитування в переглядачі даних"
+
+#: ../../worked-example.md:20
+msgid ""
+"Step 1 – the imported data in the data viewer, with column types and the "
+"added ID column."
+msgstr ""
+"Крок 1 – імпортовані дані в переглядачі даних, із типами колонок і доданою "
+"колонкою ID."
+
+#: ../../worked-example.md:23
+msgid "2. Clean the data"
+msgstr "2. Очистьте дані"
+
+#: ../../worked-example.md:25
+msgid "Add the processing steps you need (each becomes a card in the chain):"
+msgstr ""
+"Додайте потрібні вам кроки обробки (кожен стає карткою в ланцюжку):"
+
+#: ../../worked-example.md:27
+msgid ""
+"**Impute Missing** on income with **Median**, to fill the few skipped "
+"answers."
+msgstr ""
+"**Impute Missing** за доходом із **Median**, щоб заповнити кілька "
+"пропущених відповідей."
+
+#: ../../worked-example.md:28
+msgid ""
+"**Filter** to drop test rows – for example, keep only rows where age **is"
+" not empty**."
+msgstr ""
+"**Filter**, щоб відкинути тестові рядки – наприклад, залишити лише рядки, де "
+"вік **is not empty**."
+
+#: ../../worked-example.md:29
+msgid ""
+"**Outliers** (IQR) on income, if you want to exclude extreme values. "
+"Toggle it off later to compare."
+msgstr ""
+"**Outliers** (IQR) за доходом, якщо ви хочете виключити екстремальні "
+"значення. Пізніше вимкніть перемикач, щоб порівняти."
+
+#: ../../worked-example.md:31
+msgid ""
+"**Response Quality** to drop careless respondents – for example, those "
+"who straightlined the rating grid or skipped most questions."
+msgstr ""
+"**Response Quality**, щоб відкинути недбалих респондентів – наприклад, тих, "
+"хто давав long-string (послідовність однакових відповідей) у сітці оцінок "
+"або пропустив більшість запитань."
+
+#: ../../worked-example.md:34
+msgid ""
+"Preview any step to see its effect (removed rows show in red). Steps that"
+" remove rows (Filter, the outlier steps, Response Quality) list the "
+"flagged IDs as checkboxes – untick any to keep that respondent."
+msgstr ""
+"Зробіть попередній перегляд будь-якого кроку, щоб побачити його ефект "
+"(вилучені рядки показано червоним). Кроки, що вилучають рядки (Filter, кроки "
+"з викидами, Response Quality), перелічують позначені ID як checkbox – зніміть "
+"позначку з будь-якого, щоб зберегти цього респондента."
+
+#: ../../worked-example.md:38
+msgid "Data-processing steps stacked as cards in the chain"
+msgstr "Кроки обробки даних, складені як картки в ланцюжку"
+
+#: ../../worked-example.md:42
+msgid ""
+"Step 2 – cleaning steps stacked as cards in the chain; each feeds the "
+"next."
+msgstr ""
+"Крок 2 – кроки очищення, складені як картки в ланцюжку; кожен передає дані "
+"наступному."
+
+#: ../../worked-example.md:45
+msgid "3. Build derived variables"
+msgstr "3. Побудуйте похідні змінні"
+
+#: ../../worked-example.md:47
+msgid ""
+"**One-hot encoding** on *region* → 0/1 indicator columns, so region can "
+"enter a regression."
+msgstr ""
+"**One-hot encoding** за *region* → колонки-індикатори 0/1, щоб регіон міг "
+"увійти в регресію."
+
+#: ../../worked-example.md:49
+msgid ""
+"**Split Multi-Select** on the features question → one 0/1 column per "
+"feature."
+msgstr ""
+"**Split Multi-Select** за запитанням про функції → по одній колонці 0/1 на "
+"кожну функцію."
+
+#: ../../worked-example.md:50
+msgid ""
+"**Calculate Scale** if you have several items that form a scale (Sum or "
+"Mean)."
+msgstr ""
+"**Calculate Scale**, якщо у вас є кілька пунктів, що утворюють шкалу (Sum "
+"або Mean)."
+
+#: ../../worked-example.md:52
+msgid "4. Run the analyses"
+msgstr "4. Запустіть аналізи"
+
+#: ../../worked-example.md:54
+msgid ""
+"Pick modules in the settings panel on the right and choose the relevant "
+"columns:"
+msgstr ""
+"Виберіть модулі на панелі налаштувань праворуч і виберіть відповідні "
+"колонки:"
+
+#: ../../worked-example.md:56
+msgid ""
+"**Descriptive Statistics** on age, income, score (add a histogram and box"
+" plot)."
+msgstr ""
+"**Descriptive Statistics** за віком, доходом, балом (додайте гістограму та "
+"box-плот)."
+
+#: ../../worked-example.md:57
+msgid ""
+"**Correlation** among age, income, score (Pearson, with confidence "
+"intervals)."
+msgstr ""
+"**Correlation** між віком, доходом, балом (Pearson, з довірчими "
+"інтервалами)."
+
+#: ../../worked-example.md:58
+msgid "**T-test/ANOVA** of score by *passed* (Yes/No)."
+msgstr "**T-test/ANOVA** бала за *passed* (Yes/No)."
+
+#: ../../worked-example.md:59
+msgid ""
+"**Regression** predicting score from age, income, and the region "
+"indicators."
+msgstr ""
+"**Regression**, що передбачає бал за віком, доходом та індикаторами "
+"регіону."
+
+#: ../../worked-example.md:60
+msgid "**Multiple Response** on the split feature indicators."
+msgstr "**Multiple Response** за розділеними індикаторами функцій."
+
+#: ../../worked-example.md:62
+msgid ""
+"Each result appears as a card on the left and updates if you change the "
+"cleaning steps."
+msgstr ""
+"Кожен результат з'являється як картка ліворуч і оновлюється, якщо ви "
+"змінюєте кроки очищення."
+
+#: ../../worked-example.md:64
+msgid ""
+"An analysis configured in the settings panel, with the assembled result "
+"cards"
+msgstr ""
+"Аналіз, налаштований на панелі налаштувань, зі зібраними картками "
+"результатів"
+
+#: ../../worked-example.md:68
+msgid ""
+"An analysis configured on the right, with the resulting cards (tables and"
+" plots) assembled on the left – ready to copy or export together."
+msgstr ""
+"Аналіз, налаштований праворуч, із підсумковими картками (таблиці та "
+"графіки), зібраними ліворуч – готовими до спільного копіювання чи експорту."
+
+#: ../../worked-example.md:72
+msgid "5. Export to your document"
+msgstr "5. Експортуйте у ваш документ"
+
+#: ../../worked-example.md:74
+msgid ""
+"Choose your **Language** (**Settings ▸ Language**) and **Plot theme** "
+"(**Settings ▸ Plot theme**)."
+msgstr ""
+"Виберіть вашу **Language** (**Settings ▸ Language**) та **Plot theme** "
+"(**Settings ▸ Plot theme**)."
+
+#: ../../worked-example.md:76
+#, python-brace-format
+msgid ""
+"**File ▸ Copy All Results**, then **paste into Word** – tables arrive as "
+"editable tables, figures as images. (See {doc}`results-and-export` for "
+"the paste tips, including removing Word's paragraph indent so tables line"
+" up.)"
+msgstr ""
+"**File ▸ Copy All Results**, потім **вставте у Word** – таблиці надходять як "
+"редаговані таблиці, рисунки як зображення. (Поради щодо вставлення, зокрема "
+"про видалення абзацного відступу Word, щоб таблиці вирівнялися, див. у "
+"{doc}`results-and-export`.)"
+
+#: ../../worked-example.md:79
+msgid ""
+"Or **File ▸ Export Report (HTML)…** for a single self-contained file you "
+"can archive or print to PDF."
+msgstr ""
+"Або **File ▸ Export Report (HTML)…** для одного самодостатнього файлу, який "
+"можна заархівувати чи роздрукувати у PDF."
+
+#: ../../worked-example.md:82
+msgid "6. Save the project"
+msgstr "6. Збережіть проєкт"
+
+#: ../../worked-example.md:84
+msgid ""
+"**File ▸ Save As…** to a `.sp` file so you can reopen the entire session "
+"– data, steps, and analyses – later."
+msgstr ""
+"**File ▸ Save As…** у файл `.sp`, щоб пізніше знову відкрити весь сеанс – "
+"дані, кроки та аналізи."
+
+#: ../../worked-example.md:89
+msgid ""
+"This completes the workflow: **import → clean → derive → analyze → "
+"export**. Once it is set up, re-running with new responses requires only "
+"re-importing and recomputing the chain."
+msgstr ""
+"На цьому робочий процес завершено: **import → clean → derive → analyze → "
+"export**. Щойно його налаштовано, повторний запуск із новими відповідями "
+"потребує лише повторного імпорту та переобчислення ланцюжка."
+
+#~ msgid ""
+#~ "This end-to-end example takes a"
+#~ " survey export all the way to "
+#~ "results pasted into Word. It mirrors "
+#~ "a real workflow; adapt the column "
+#~ "names to your own study."
+#~ msgstr ""
+
+#~ msgid ""
+#~ "Imagine a short survey with questions"
+#~ " including: age, monthly income, a "
+#~ "test score, an overall satisfaction "
+#~ "rating (1–5), whether the person passed"
+#~ " an exam (Yes/No), gender, region, "
+#~ "and a \"which features do you use?"
+#~ " (select all that apply)\" checkbox "
+#~ "question."
+#~ msgstr ""
+
+#~ msgid ""
+#~ "Step 1 — the imported data in "
+#~ "the data viewer, with column types "
+#~ "and the added ID column."
+#~ msgstr ""
+
+#~ msgid ""
+#~ "**Filter** to drop test rows — for"
+#~ " example, keep only rows where age"
+#~ " **is not empty**."
+#~ msgstr ""
+
+#~ msgid ""
+#~ "**Response Quality** to drop careless "
+#~ "respondents — for example, those who "
+#~ "straightlined the rating grid or skipped"
+#~ " most questions."
+#~ msgstr ""
+
+#~ msgid ""
+#~ "Preview any step to see its effect"
+#~ " (removed rows show in red). Steps"
+#~ " that remove rows (Filter, the "
+#~ "outlier steps, Response Quality) list "
+#~ "the flagged IDs as checkboxes — "
+#~ "untick any to keep that respondent."
+#~ msgstr ""
+
+#~ msgid ""
+#~ "Step 2 — cleaning steps stacked as"
+#~ " cards in the chain; each feeds "
+#~ "the next."
+#~ msgstr ""
+
+#~ msgid ""
+#~ "An analysis configured on the right, "
+#~ "with the resulting cards (tables and "
+#~ "plots) assembled on the left — "
+#~ "ready to copy or export together."
+#~ msgstr ""
+
+#~ msgid "5. Get it into your document"
+#~ msgstr ""
+
+#~ msgid ""
+#~ "**File ▸ Copy All Results**, then "
+#~ "**paste into Word** — tables arrive "
+#~ "as editable tables, figures as images."
+#~ " (See {doc}`results-and-export` for "
+#~ "the paste tips, including removing "
+#~ "Word's paragraph indent so tables line"
+#~ " up.)"
+#~ msgstr ""
+
+#~ msgid ""
+#~ "**File ▸ Save As…** to a `.sp` "
+#~ "file so you can reopen the entire"
+#~ " session — data, steps, and analyses"
+#~ " — later."
+#~ msgstr ""
+
+#~ msgid ""
+#~ "That's the whole loop: **import → "
+#~ "clean → derive → analyze → "
+#~ "export**. Once it's set up, re-"
+#~ "running with new responses is just "
+#~ "re-importing and letting the chain "
+#~ "recompute."
+#~ msgstr ""
+

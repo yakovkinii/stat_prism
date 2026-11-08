@@ -1,0 +1,66 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2026, StatPrism Team
+# This file is distributed under the same license as the StatPrism package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2026.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: StatPrism 1.3\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-11-04 00:10+0100\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language: uk\n"
+"Language-Team: uk <LL@li.org>\n"
+"Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
+"n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.18.0\n"
+
+#: ../../data-processing/impute.md:1
+msgid "Impute Missing"
+msgstr "Заповнення пропусків"
+
+#: ../../data-processing/impute.md:3
+msgid ""
+"Fills missing cells in the selected columns, or removes rows that have "
+"missing values."
+msgstr ""
+"Заповнює пропущені клітинки у вибраних колонках або видаляє рядки, що мають "
+"пропущені значення."
+
+#: ../../data-processing/impute.md:5
+msgid "**Mean** / **Median**: from the column's non-missing numeric values."
+msgstr "**Mean** / **Median**: з непропущених числових значень колонки."
+
+#: ../../data-processing/impute.md:6
+msgid "**Mode**: the most frequent value."
+msgstr "**Mode**: найчастіше значення."
+
+#: ../../data-processing/impute.md:7
+msgid "**Constant value**: a value you supply."
+msgstr "**Constant value**: значення, яке ви задаєте."
+
+#: ../../data-processing/impute.md:8
+msgid "**Remove rows**: drops rows missing any selected column."
+msgstr "**Remove rows**: видаляє рядки з пропуском у будь-якій вибраній колонці."
+
+#: ../../data-processing/impute.md:10
+msgid "\"Missing\" captures both blank strings and true `NaN`."
+msgstr "\"Пропущеними\" вважаються і порожні рядки, і справжні `NaN`."
+
+#~ msgid "**Mean** / **Median** — from the column's non-missing numeric values."
+#~ msgstr ""
+
+#~ msgid "**Mode** — the most frequent value."
+#~ msgstr ""
+
+#~ msgid "**Constant value** — a value you supply."
+#~ msgstr ""
+
+#~ msgid "**Remove rows** — drops rows missing any selected column."
+#~ msgstr ""
+

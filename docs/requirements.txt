@@ -1,5 +1,7 @@
 sphinx>=7.2
 myst-parser>=2.0
-furo>=2024.1
+shibuya>=2024.1
 linkify-it-py>=2.0
 sphinx-copybutton>=0.5
+sphinx-design>=0.5
+sphinx-intl>=2.2

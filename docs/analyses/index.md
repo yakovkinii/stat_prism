@@ -44,30 +44,42 @@ power-analysis
 
 ## Common options
 
-Most analyses share a few conveniences:
+Most analyses share several common options:
 
-- **Verbal indicators** — adds in-table verbal columns (e.g. whether a result is statistically
+- **Verbal indicators**: adds in-table verbal columns (e.g. whether a result is statistically
   significant).
-- **Verbal report** — a dropdown for how much plain-language prose to write: **None**, **Key
-  findings**, **Significant only**, or **Full**. The amount of prose scales with how much
-  there is to say, so large analyses stay readable.
-- **Number columns** — replaces long variable names with numbered references in big tables
+- **Verbal report**: a dropdown for how much plain-language prose to write, from least to most:
+  **None** (no prose), **Headline** (one sentence naming the single standout result),
+  **Key findings** (only the outstanding results), **Significant only** (every significant result),
+  and **Full** (also the non-significant results). For analyses that produce many results (e.g.
+  a correlation matrix, several group comparisons, a set of regression predictors) the prose is
+  compacted rather than written one sentence per result – e.g. *"All correlations were significant
+  except X and Y"* or *"Most predictors were significant (5 of 8)"* – with the full APA statistics
+  kept for each result it names, so even large analyses stay readable. Analyses that produce a
+  single result (reliability, cluster analysis, factor analysis, SEM) still layer the description:
+  a one-line verdict at **Headline**, then progressively more facets as the level rises – the
+  factor structure (clean vs. cross-loading items, how evenly the factors are filled), the
+  sampling-adequacy and fit diagnostics, and, at **Full**, a methods note stating the choices that
+  shaped the numbers (the coefficient type, estimator, rotation and extraction, clustering
+  algorithm and linkage, and any applied modifications). (Power analysis is the exception: its
+  single solved value carries the same short interpretation at every setting.)
+- **Number columns**: replaces long variable names with numbered references in big tables
   and adds a legend, keeping wide tables readable.
-- **Plots** — optional figures (histograms, box plots, heatmaps, scatter plots, …). Plots
+- **Plots**: optional figures (histograms, box plots, heatmaps, scatter plots, …). Plots
   embed directly in copied/exported output. Where a plot can **number the variables** (a
   categorical axis, pie slices, or a heatmap), the number→name mapping is spelt out as a
   caption under the figure. Pie charts also expose separate sliders for the radial position
   of the percentages and of the slice names (move either outside the pie).
-- **Confidence intervals / effect sizes** — where applicable, reported alongside the test.
-- **Inline filters** — a per-analysis filter, added with the **Add filter** button in the analysis
+- **Confidence intervals / effect sizes**: where applicable, reported alongside the test.
+- **Inline filters**: a per-analysis filter, added with the **Add filter** button in the analysis
   card's button row. It restricts the analysis to a subset of rows *without* adding a
-  data-processing step to the chain, so it affects only this analysis. Each filter row (just under
+  data-processing step to the chain, so it affects only this analysis. Each filter row (directly under
   the title) shows its **condition** and how many **additional** rows it removes beyond the earlier
   filters, plus an eye button to **preview** those rows (shown in red) and a delete button. **Click
   the row** to configure it (the same options as the {doc}`../data-processing/filter` step, with a
-  **Back** button to the analysis). Multiple filters combine with **AND** — a row is kept only if it
+  **Back** button to the analysis). Multiple filters combine with **AND** – a row is kept only if it
   passes every filter. The filter summary is included when you copy the analysis. If a filter's
   column later disappears, the row is outlined red and the analysis stops with an error until you fix
   or remove it.
 
-Every result can be copied or exported — see {doc}`../results-and-export`.
+Every result can be copied or exported – see {doc}`../results-and-export`.

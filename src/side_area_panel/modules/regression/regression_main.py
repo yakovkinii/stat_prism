@@ -30,7 +30,7 @@ from src.common.qcolor import Colors
 from src.common.translations import t
 from src.data.data import OrdinalCastError, category_display_series
 from src.data.data_manager import DATA_MANAGER
-from src.side_area_panel.modules.common.prose import prose_enabled
+from src.side_area_panel.modules.common.prose import ProseDetail, prose_detail_from, prose_enabled
 from src.side_area_panel.modules.common.result.html_result import Cell, HTMLTableV2, Row
 from src.side_area_panel.modules.common.result.plot_result import (
     Band,
@@ -42,6 +42,7 @@ from src.side_area_panel.modules.common.result.plot_result import (
     Scatter,
 )
 from src.side_area_panel.modules.common.utility import (
+    format_p_apa,
     format_p_apa_exact,
     format_p_apa_full,
     format_r_apa,
@@ -51,6 +52,7 @@ from src.side_area_panel.modules.common.utility import (
     ordinal_numeric_cast_warning,
     smart_comma_join,
 )
+from src.side_area_panel.modules.common.verbal.compact import ReportItem, summarize
 from src.side_area_panel.modules.common.verbal.significance import significance_verbal
 from src.side_area_panel.modules.regression.constant import RegressionModelType
 from src.side_area_panel.modules.regression.regression_result import RegressionResult, RegressionStudyConfig
@@ -333,21 +335,52 @@ def _add_diagnostics(result, model, x, verbal, prose):
     )
 
 
-def _coefficient_prose(model, dependent_column) -> str:
-    """Explain what the coefficients mean and name the significant predictors (with the
-    sign of their association)."""
-    text = t("regression.report.coef_intro", dv=dependent_column)
-    significant = []
+def _coefficient_apa(model, param) -> str:
+    """Full APA line for one coefficient: B, its t with residual df, and p (shown verbatim)."""
+    b = model.params[param]
+    tval = model.tvalues[param]
+    p = model.pvalues[param]
+    df = int(model.df_resid) if np.isfinite(model.df_resid) else model.df_resid
+    return (
+        f"B = {format_statistic_apa(b)}, t({df}) = {format_statistic_apa(tval)}, "
+        f"p {format_p_apa(p, add_equals=True)}"
+    )
+
+
+def _coefficient_prose(model, dependent_column, detail) -> str:
+    """Name the predictors, compacted by significance, with full APA per coefficient. The
+    "what B means" preamble is shown only at the Significant/Full levels."""
+    level = prose_detail_from(detail)
+    items = []
     for param in model.params.index:
-        if param == "const" or model.pvalues[param] >= 0.05:
+        if param == "const":
             continue
+        p = model.pvalues[param]
         direction = t("regression.dir.positive") if model.params[param] >= 0 else t("regression.dir.negative")
-        significant.append(f"{param} ({direction})")
-    if significant:
-        text += t("regression.report.coef_sig", dv=dependent_column, items=smart_comma_join(significant))
-    else:
-        text += t("regression.report.coef_none", dv=dependent_column)
-    return text
+        items.append(
+            ReportItem(
+                label=f"&laquo;{param}&raquo;",
+                significant=p < 0.05,
+                apa=_coefficient_apa(model, param),
+                magnitude=abs(model.tvalues[param]) if np.isfinite(model.tvalues[param]) else 0.0,
+                notable=p < 0.05,
+                descriptor=direction,
+            )
+        )
+    findings = summarize(
+        items,
+        detail,
+        noun_nom=t("verbal.noun.predictors.nom"),
+        noun_gen=t("verbal.noun.predictors.gen"),
+        notable_one_key="regression.compact.most_notable_one",
+        notable_key="regression.compact.most_notable",
+    )
+    intro = (
+        t("regression.report.coef_intro", dv=dependent_column)
+        if level in (ProseDetail.SIGNIFICANT, ProseDetail.FULL)
+        else ""
+    )
+    return intro + findings
 
 
 @log_function
@@ -552,7 +585,7 @@ def recalculate_regression_study(elements, result: RegressionResult, update) -> 
         caption=t("regression.caption.coefficients"),
         intercept_label=t("regression.row.intercept"),
     )
-    prose and coefficients_table.add_text(_coefficient_prose(model, dependent_column))
+    prose and coefficients_table.add_text(_coefficient_prose(model, dependent_column, cfg.interpretation))
     result.update_and_add_element(coefficients_table, "regression coefficients")
     update(65)
 
@@ -943,7 +976,9 @@ def _run_logistic(
         )
     coefficients_table.add_numeric_supplement({"kind": "regression_logistic_coef", "rows": logit_supplement_rows})
 
-    prose and coefficients_table.add_text(_logistic_coefficient_prose(model, dependent_column, positive_label))
+    prose and coefficients_table.add_text(
+        _logistic_coefficient_prose(model, dependent_column, positive_label, cfg.interpretation)
+    )
     result.update_and_add_element(coefficients_table, "regression coefficients")
     update(70)
 
@@ -964,21 +999,48 @@ def _run_logistic(
     return result
 
 
-def _logistic_coefficient_prose(model, dependent_column, positive_label) -> str:
-    """Name the significant predictors and whether they raise or lower the odds of the
-    positive outcome."""
-    text = t("regression.report.logit_coef_intro", dv=dependent_column, positive=positive_label)
-    significant = []
+def _logit_coefficient_apa(model, param) -> str:
+    """Full APA line for one logistic coefficient: B (log-odds), its z, and p (verbatim)."""
+    b = model.params[param]
+    z = model.tvalues[param]
+    p = model.pvalues[param]
+    return f"B = {format_statistic_apa(b)}, z = {format_statistic_apa(z)}, p {format_p_apa(p, add_equals=True)}"
+
+
+def _logistic_coefficient_prose(model, dependent_column, positive_label, detail) -> str:
+    """Name the predictors, compacted by significance, with full APA and whether each raises or
+    lowers the odds of the positive outcome. The preamble shows only at Significant/Full."""
+    level = prose_detail_from(detail)
+    items = []
     for param in model.params.index:
-        if param == "const" or model.pvalues[param] >= 0.05:
+        if param == "const":
             continue
+        p = model.pvalues[param]
         direction = t("regression.dir.increase") if model.params[param] >= 0 else t("regression.dir.decrease")
-        significant.append(f"{param} ({direction})")
-    if significant:
-        text += t("regression.report.logit_coef_sig", positive=positive_label, items=smart_comma_join(significant))
-    else:
-        text += t("regression.report.coef_none", dv=dependent_column)
-    return text
+        items.append(
+            ReportItem(
+                label=f"&laquo;{param}&raquo;",
+                significant=p < 0.05,
+                apa=_logit_coefficient_apa(model, param),
+                magnitude=abs(model.tvalues[param]) if np.isfinite(model.tvalues[param]) else 0.0,
+                notable=p < 0.05,
+                descriptor=direction,
+            )
+        )
+    findings = summarize(
+        items,
+        detail,
+        noun_nom=t("verbal.noun.predictors.nom"),
+        noun_gen=t("verbal.noun.predictors.gen"),
+        notable_one_key="regression.compact.most_notable_one",
+        notable_key="regression.compact.most_notable",
+    )
+    intro = (
+        t("regression.report.logit_coef_intro", dv=dependent_column, positive=positive_label)
+        if level in (ProseDetail.SIGNIFICANT, ProseDetail.FULL)
+        else ""
+    )
+    return intro + findings
 
 
 # ===================================================================================

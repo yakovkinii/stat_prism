@@ -1,16 +1,16 @@
 # Importing data
 
-StatPrism reads spreadsheet exports — the kind you get from survey tools such as Google
+StatPrism reads spreadsheet exports – the kind you get from survey tools such as Google
 Forms, or any `.xlsx` / `.csv` file.
 
 ## Opening a file
 
 Use **File ▸ Open…** and choose your file. StatPrism supports:
 
-- `.xlsx` Excel workbooks (if a workbook has several sheets, you'll be asked which one to
+- `.xlsx` Excel workbooks (if a workbook has several sheets, you will be asked which one to
   load),
 - `.csv` files,
-- `.sp` StatPrism project files (these reopen a whole saved session — see
+- `.sp` StatPrism project files (these reopen a whole saved session – see
   {doc}`projects-and-settings`).
 
 The loaded data becomes the **raw data** at the start of your chain.
@@ -25,14 +25,14 @@ A Forms response sheet usually has:
 - "select all that apply" (checkbox) answers as a **comma-separated list in one cell**,
 - linear-scale answers as numbers.
 
-StatPrism reads all of this as-is. You don't need to rename or reshape anything before
+StatPrism reads all of this as-is. You do not need to rename or reshape anything before
 importing.
 
 ## The ID column
 
 On import, StatPrism adds a mandatory **ID** column (1, 2, 3, …) as the first column. It
 uniquely identifies each respondent/row and is used, for example, to list which respondents
-are outliers. You don't have to do anything with it.
+are outliers. No further action is required.
 
 If your file already contained a column literally named `ID`, it is kept but renamed out of
 the way so the automatic identifier can take that name. If you would rather use one of your
@@ -68,7 +68,7 @@ viewer, and use **Impute Missing** or **Filter** if you need to handle them.
 
 ## Setting a column to Ordinal (and its order)
 
-Many questionnaire items are ordered (e.g. *High school < Bachelor < Master < PhD*). To
+Many survey items are ordered (e.g. *High school < Bachelor < Master < PhD*). To
 have StatPrism respect that order in tables and charts, set the column to **Ordinal** and
 define the category order with the **Transform Column** step (see {doc}`data-processing/transform`).
 Ordinal columns are scored numerically where an analysis needs numbers (e.g. correlations),
@@ -84,7 +84,7 @@ colored header cells are picked up automatically on import.
 
 Open the **data viewer** to see the imported table, confirm column types, and spot how
 blanks were read. After adding cleaning steps, previewing a step's data shows the effect of
-that step — for example, **Filter** and **Outliers** show removed rows in red.
+that step – for example, **Filter** and **Outliers** show removed rows in red.
 
 ## Replacing the data
 

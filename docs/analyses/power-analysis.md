@@ -1,8 +1,14 @@
 # Power analysis
 
+```{image} ../_static/img/power-analysis.png
+:align: right
+:width: 240px
+:alt: Power curve example
+```
+
 Works out the relationship between significance level, statistical power, effect size, and
-sample size for a chosen test — fixing three of them to solve for the fourth. **No data set
-is needed.**
+sample size for a chosen test, fixing three of them to solve for the fourth. No dataset
+is needed.
 
 ## When to use it
 
@@ -12,13 +18,13 @@ is needed.**
 
 ## Inputs (all numbers you type)
 
-- **Test type** — Two-sample t-test, Paired / one-sample t-test, One-way ANOVA, or
+- **Test type**: Two-sample t-test, Paired / one-sample t-test, One-way ANOVA, or
   Correlation.
-- **Solve for** — Sample size, Power, or Effect size.
-- **Alpha** (e.g. 0.05), **Power** (e.g. 0.80), **Effect size**, **Sample size** — provide
+- **Solve for**: Sample size, Power, or Effect size.
+- **Alpha** (e.g. 0.05), **Power** (e.g. 0.80), **Effect size**, **Sample size**: provide
   the three you know.
-- **Number of groups** — for ANOVA.
-- **Tails** — two-sided or one-sided.
+- **Number of groups**: for ANOVA.
+- **Tails**: two-sided or one-sided.
 
 ## Output
 
@@ -29,5 +35,5 @@ is needed.**
 
 - Effect sizes follow Cohen's conventions: *d* for t-tests, *f* for ANOVA, *r* for
   correlation.
-- t-tests and ANOVA use the standard non-central distributions; correlation uses the
-  Fisher-z approximation.
+- t-tests and ANOVA use the standard non-central distributions; correlation uses Cohen's (1988)
+  Fisher-z approximation (matching R's `pwr.r.test`).

@@ -1,0 +1,302 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2026, StatPrism Team
+# This file is distributed under the same license as the StatPrism package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2026.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: StatPrism 1.3\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-11-04 00:10+0100\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language: uk\n"
+"Language-Team: uk <LL@li.org>\n"
+"Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
+"n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.18.0\n"
+
+#: ../../glossary.md:1
+msgid "Glossary"
+msgstr "Словник термінів"
+
+#: ../../glossary.md:3
+msgid ""
+"Plain-language definitions of terms used in this guide and in StatPrism's"
+" output."
+msgstr ""
+"Визначення простою мовою термінів, що вживаються в цьому гайді та у вихідних "
+"даних StatPrism."
+
+#: ../../glossary.md:5
+msgid "p-value"
+msgstr "p-значення (p-value)"
+
+#: ../../glossary.md:6
+msgid ""
+"The probability of seeing a result at least as extreme as the one "
+"observed if there were really no effect. Small values (commonly < .05) "
+"are taken as evidence against \"no effect\"."
+msgstr ""
+"Імовірність побачити результат принаймні настільки ж екстремальний, як "
+"спостережений, якби ефекту насправді не було. Малі значення (зазвичай "
+"< .05) трактуються як свідчення проти \"відсутності ефекту\"."
+
+#: ../../glossary.md:9
+msgid "Confidence interval (CI)"
+msgstr "Довірчий інтервал (CI)"
+
+#: ../../glossary.md:10
+msgid ""
+"A range that, under repeated sampling, would contain the true value a "
+"stated percentage of the time (StatPrism reports 95% CIs). Wider "
+"intervals mean more uncertainty."
+msgstr ""
+"Діапазон, який за умови повторного вибіркового відбору містив би істинне "
+"значення у заявленому відсотку випадків (StatPrism подає 95% CI). Ширші "
+"інтервали означають більшу невизначеність."
+
+#: ../../glossary.md:13
+msgid "Effect size"
+msgstr "Розмір ефекту (effect size)"
+
+#: ../../glossary.md:14
+msgid ""
+"How large an effect is, independent of sample size – e.g. Cohen's *d* "
+"(mean differences), *r* (correlation), η²/η²p (ANOVA), Cramér's V "
+"(contingency). Significance tells you whether an effect is likely real; "
+"effect size tells you how large it is."
+msgstr ""
+"Наскільки великим є ефект, незалежно від обсягу вибірки – наприклад, *d* "
+"Коена (різниці середніх), *r* (кореляція), η²/η²p (ANOVA), V Крамера "
+"(спряженість). Значущість показує, чи ефект імовірно реальний; розмір "
+"ефекту показує, наскільки він великий."
+
+#: ../../glossary.md:18
+msgid "Degrees of freedom (df)"
+msgstr "Ступені свободи (df)"
+
+#: ../../glossary.md:19
+msgid ""
+"A count tied to sample and model size that calibrates a test's reference "
+"distribution."
+msgstr ""
+"Величина, пов'язана з обсягом вибірки та розміром моделі, яка калібрує "
+"еталонний розподіл тесту."
+
+#: ../../glossary.md:21
+msgid "Numeric / Nominal / Ordinal"
+msgstr "Numeric / Nominal / Ordinal"
+
+#: ../../glossary.md:22
+#, python-brace-format
+msgid ""
+"Column types. **Numeric** = quantities; **Nominal** = unordered "
+"categories; **Ordinal** = ordered categories. See {doc}`importing-data`."
+msgstr ""
+"Типи колонок. **Numeric** = кількісні величини; **Nominal** = невпорядковані "
+"категорії; **Ordinal** = впорядковані категорії. Див. {doc}`importing-data`."
+
+#: ../../glossary.md:25
+msgid "Missing data"
+msgstr "Пропущені дані"
+
+#: ../../glossary.md:26
+msgid ""
+"Cells with no answer. In numeric columns these stay genuinely missing; in"
+" text columns a blank is read as the literal `nan`. Handle with **Impute "
+"Missing** or **Filter**."
+msgstr ""
+"Клітинки без відповіді. У числових колонках вони лишаються справді "
+"пропущеними; у текстових колонках порожнє поле зчитується як буквальне "
+"`nan`. Опрацьовуйте за допомогою **Impute Missing** або **Filter**."
+
+#: ../../glossary.md:29
+msgid "Parametric vs non-parametric"
+msgstr "Параметричні проти непараметричних"
+
+#: ../../glossary.md:30
+msgid ""
+"Parametric tests (t-test, ANOVA, Pearson) assume things like normality; "
+"non-parametric tests (Mann–Whitney, Kruskal–Wallis, Wilcoxon, Friedman, "
+"Spearman) make fewer assumptions and use ranks."
+msgstr ""
+"Параметричні тести (t-тест, ANOVA, Pearson) передбачають, зокрема, "
+"нормальність; непараметричні тести (Mann–Whitney, Kruskal–Wallis, Wilcoxon, "
+"Friedman, Spearman) роблять менше припущень і використовують ранги."
+
+#: ../../glossary.md:34
+msgid "Normality"
+msgstr "Нормальність"
+
+#: ../../glossary.md:35
+msgid ""
+"Whether a variable approximately follows a bell-shaped (normal) "
+"distribution – an assumption of several parametric tests. Checked with "
+"Shapiro–Wilk, Kolmogorov–Smirnov, or Anderson–Darling."
+msgstr ""
+"Чи змінна приблизно відповідає дзвоноподібному (нормальному) розподілу – "
+"припущення кількох параметричних тестів. Перевіряється за допомогою "
+"Shapiro–Wilk, Kolmogorov–Smirnov або Anderson–Darling."
+
+#: ../../glossary.md:39
+msgid "Homogeneity of variance"
+msgstr "Однорідність дисперсій"
+
+#: ../../glossary.md:40
+msgid ""
+"Whether groups have similar spread – an assumption of the standard "
+"t-test/ANOVA. Welch's versions relax it."
+msgstr ""
+"Чи мають групи схожий розкид – припущення стандартного t-тесту/ANOVA. "
+"Версії Велча пом'якшують його."
+
+#: ../../glossary.md:43
+msgid "Correlation"
+msgstr "Кореляція"
+
+#: ../../glossary.md:44
+msgid ""
+"The strength and direction of association between two variables, from −1 "
+"to +1. **Pearson** measures linear association; **Spearman**/**Kendall** "
+"measure rank (monotonic) association."
+msgstr ""
+"Сила та напрям зв'язку між двома змінними, від −1 до +1. **Pearson** вимірює "
+"лінійний зв'язок; **Spearman**/**Kendall** вимірюють ранговий (монотонний) "
+"зв'язок."
+
+#: ../../glossary.md:48
+msgid "Partial correlation"
+msgstr "Часткова кореляція"
+
+#: ../../glossary.md:49
+msgid ""
+"The association between two variables after removing the influence of one"
+" or more control variables."
+msgstr ""
+"Зв'язок між двома змінними після усунення впливу однієї чи кількох "
+"контрольних змінних."
+
+#: ../../glossary.md:52
+msgid "Reliability (Cronbach's α / McDonald's ω)"
+msgstr "Надійність (альфа Кронбаха / омега Макдональда)"
+
+#: ../../glossary.md:53
+#, python-brace-format
+msgid ""
+"How consistently a set of items measures the same thing. Higher is "
+"better; very low values suggest the items do not form a coherent scale. "
+"See {doc}`analyses/reliability`."
+msgstr ""
+"Наскільки узгоджено набір пунктів вимірює те саме. Що вище, то краще; дуже "
+"низькі значення свідчать, що пункти не утворюють цілісної шкали. Див. "
+"{doc}`analyses/reliability`."
+
+#: ../../glossary.md:56
+msgid "Factor / loading"
+msgstr "Фактор / навантаження"
+
+#: ../../glossary.md:57
+#, python-brace-format
+msgid ""
+"In factor analysis, a **factor** is an underlying dimension; a "
+"**loading** is how strongly an item reflects a factor. See {doc}`analyses"
+"/exploratory-factor-analysis` and {doc}`analyses/confirmatory-factor-"
+"analysis`."
+msgstr ""
+"У факторному аналізі **factor** – це прихований вимір; **loading** – це "
+"те, наскільки сильно пункт відображає фактор. Див. {doc}`analyses"
+"/exploratory-factor-analysis` та {doc}`analyses/confirmatory-factor-"
+"analysis`."
+
+#: ../../glossary.md:61
+msgid "Statistical power"
+msgstr "Статистична потужність"
+
+#: ../../glossary.md:62
+#, python-brace-format
+msgid ""
+"The chance a study will detect an effect that is really there. Power "
+"analysis relates power, sample size, effect size, and significance level."
+" See {doc}`analyses/power-analysis`."
+msgstr ""
+"Імовірність того, що дослідження виявить ефект, який справді існує. Аналіз "
+"потужності пов'язує потужність, обсяг вибірки, розмір ефекту та рівень "
+"значущості. Див. {doc}`analyses/power-analysis`."
+
+#: ../../glossary.md:65
+msgid "Standardized coefficient (β)"
+msgstr "Стандартизований коефіцієнт (β)"
+
+#: ../../glossary.md:66
+msgid ""
+"A regression coefficient expressed in standard-deviation units, so "
+"predictors on different scales can be compared."
+msgstr ""
+"Коефіцієнт регресії, виражений в одиницях стандартного відхилення, щоб можна "
+"було порівнювати незалежні змінні в різних шкалах."
+
+#: ../../glossary.md:69
+msgid "One-hot / indicator column"
+msgstr "One-hot / колонка-індикатор"
+
+#: ../../glossary.md:70
+msgid ""
+"A 0/1 column marking whether a category applies. Created by **One-hot "
+"encoding** (from a single-select column) or **Split Multi-Select** (from "
+"a checkbox question)."
+msgstr ""
+"Колонка 0/1, що позначає, чи застосовна категорія. Створюється за допомогою "
+"**One-hot encoding** (із колонки з одиничним вибором) або **Split "
+"Multi-Select** (із checkbox-запитання)."
+
+#: ../../glossary.md:73
+msgid "APA style"
+msgstr "Стиль APA"
+
+#: ../../glossary.md:74
+msgid ""
+"The American Psychological Association's formatting conventions for "
+"tables and statistics, widely used in the social sciences. StatPrism "
+"formats output to match."
+msgstr ""
+"Правила форматування таблиць і статистики від Американської психологічної "
+"асоціації (APA), поширені в соціальних науках. StatPrism форматує вихідні "
+"дані відповідно до них."
+
+#~ msgid ""
+#~ "How *big* an effect is, independent "
+#~ "of sample size — e.g. Cohen's *d*"
+#~ " (mean differences), *r* (correlation), "
+#~ "η²/η²p (ANOVA), Cramér's V (contingency). "
+#~ "Significance says whether an effect "
+#~ "exists; effect size says whether it "
+#~ "matters."
+#~ msgstr ""
+
+#~ msgid ""
+#~ "Whether a variable approximately follows "
+#~ "a bell-shaped (normal) distribution —"
+#~ " an assumption of several parametric "
+#~ "tests. Checked with Shapiro–Wilk, "
+#~ "Kolmogorov–Smirnov, or Anderson–Darling."
+#~ msgstr ""
+
+#~ msgid ""
+#~ "Whether groups have similar spread — "
+#~ "an assumption of the standard "
+#~ "t-test/ANOVA. Welch's versions relax it."
+#~ msgstr ""
+
+#~ msgid ""
+#~ "How consistently a set of items "
+#~ "measures the same thing. Higher is "
+#~ "better; very low values suggest the "
+#~ "items don't form a coherent scale. "
+#~ "See {doc}`analyses/reliability`."
+#~ msgstr ""
+

@@ -341,10 +341,10 @@ def process_non_normal_anova(
         prose_detail,
         rejected_columns,
         accepted_columns,
-        test_name=t("ttest.test.kruskal"),
-        test_check=t("ttest.check.diff_groups"),
-        yes_property=t("ttest.prop.sig_diff"),
-        no_property=t("ttest.prop.not_sig_diff"),
+        noun_nom=t("verbal.noun.comparisons.nom"),
+        noun_gen=t("verbal.noun.comparisons.gen"),
+        notable_one_key="meancomp.compact.most_notable_one",
+        notable_key="meancomp.compact.most_notable",
     )
     if prose:
         table.add_text(prose)
@@ -482,13 +482,33 @@ def process_non_homogeneous_anova(
             }
         )
 
+        _eta_word = _eta_squared_magnitude(eta_sq) if np.isfinite(eta_sq) else ""
+        _eta_eff = float(eta_sq) if np.isfinite(eta_sq) else None
         if p_val > 0.05:
             accepted_columns.append(
-                TestResult(variable=col, letter="F", statistic=f_stat, p=p_val, df=df_between, df2=df_within)
+                TestResult(
+                    variable=col,
+                    letter="F",
+                    statistic=f_stat,
+                    p=p_val,
+                    df=df_between,
+                    df2=df_within,
+                    effect=_eta_eff,
+                    effect_word=_eta_word,
+                )
             )
         else:
             rejected_columns.append(
-                TestResult(variable=col, letter="F", statistic=f_stat, p=p_val, df=df_between, df2=df_within)
+                TestResult(
+                    variable=col,
+                    letter="F",
+                    statistic=f_stat,
+                    p=p_val,
+                    df=df_between,
+                    df2=df_within,
+                    effect=_eta_eff,
+                    effect_word=_eta_word,
+                )
             )
             significant_columns.append(col)
 
@@ -520,10 +540,10 @@ def process_non_homogeneous_anova(
         prose_detail,
         rejected_columns,
         accepted_columns,
-        test_name=t("ttest.test.welch_anova"),
-        test_check=t("ttest.check.equality_means"),
-        yes_property=t("ttest.prop.diff_means"),
-        no_property=t("ttest.prop.equal_means"),
+        noun_nom=t("verbal.noun.comparisons.nom"),
+        noun_gen=t("verbal.noun.comparisons.gen"),
+        notable_one_key="meancomp.compact.most_notable_one",
+        notable_key="meancomp.compact.most_notable",
     )
     if prose:
         table.add_text(prose)
@@ -669,13 +689,33 @@ def process_homogeneous_anova(
             }
         )
 
+        _eta_word = _eta_squared_magnitude(eta_sq) if np.isfinite(eta_sq) else ""
+        _eta_eff = float(eta_sq) if np.isfinite(eta_sq) else None
         if p_val > 0.05:
             accepted_columns.append(
-                TestResult(variable=col, letter="F", statistic=f_stat, p=p_val, df=df_between, df2=df_within)
+                TestResult(
+                    variable=col,
+                    letter="F",
+                    statistic=f_stat,
+                    p=p_val,
+                    df=df_between,
+                    df2=df_within,
+                    effect=_eta_eff,
+                    effect_word=_eta_word,
+                )
             )
         else:
             rejected_columns.append(
-                TestResult(variable=col, letter="F", statistic=f_stat, p=p_val, df=df_between, df2=df_within)
+                TestResult(
+                    variable=col,
+                    letter="F",
+                    statistic=f_stat,
+                    p=p_val,
+                    df=df_between,
+                    df2=df_within,
+                    effect=_eta_eff,
+                    effect_word=_eta_word,
+                )
             )
             significant_columns.append(col)
 
@@ -708,10 +748,10 @@ def process_homogeneous_anova(
         prose_detail,
         rejected_columns,
         accepted_columns,
-        test_name=t("ttest.test.one_way_anova"),
-        test_check=t("ttest.check.equality_means"),
-        yes_property=t("ttest.prop.diff_means"),
-        no_property=t("ttest.prop.equal_means"),
+        noun_nom=t("verbal.noun.comparisons.nom"),
+        noun_gen=t("verbal.noun.comparisons.gen"),
+        notable_one_key="meancomp.compact.most_notable_one",
+        notable_key="meancomp.compact.most_notable",
     )
     if prose:
         table.add_text(prose)

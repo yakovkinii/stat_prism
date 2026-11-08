@@ -27,7 +27,7 @@ from src.common.translations import t
 from src.data.data import OrdinalCastError
 from src.data.data_manager import DATA_MANAGER
 from src.side_area_panel.modules.common.column_numbering import ColumnNumbering
-from src.side_area_panel.modules.common.prose import prose_enabled
+from src.side_area_panel.modules.common.prose import ProseDetail, prose_at_least, prose_enabled
 from src.side_area_panel.modules.common.result.html_result import Cell, HTMLTableV2, Row
 from src.side_area_panel.modules.common.result.plot_result import (
     FactorDiagram,
@@ -44,8 +44,10 @@ from src.side_area_panel.modules.common.utility import (
     get_stars,
     ordinal_cast_error_message,
     ordinal_numeric_cast_warning,
+    smart_comma_join,
 )
 from src.side_area_panel.modules.confirmatory_factor_analysis.cfa_semopy import (
+    OBJECTIVE_DWLS,
     OBJECTIVE_ML,
     OBJECTIVE_ULS,
     CFASemopyEstimator,
@@ -59,6 +61,8 @@ from src.side_area_panel.modules.confirmatory_factor_analysis.confirmatory_facto
 _MOD_HINT_THRESHOLD = 0.10
 # Only the strongest modification suggestions are worth acting on; show at most this many.
 _MAX_SUGGESTIONS = 6
+# Estimator value (stored on the config) -> translation-key suffix for its spelled-out name.
+_ESTIMATOR_KEY = {OBJECTIVE_ML: "ml", OBJECTIVE_DWLS: "dwls", OBJECTIVE_ULS: "uls"}
 
 
 def _fail(result: CFAResult, message: str) -> CFAResult:
@@ -133,24 +137,96 @@ def _label(name: str, value) -> str:
     return t(f"cfa.fit.{key}") if key else "—"
 
 
-def _fit_prose(fit: dict, converged: bool) -> str:
-    text = "" if converged else t("cfa.report.not_converged")
-    chi2, df, p = fit["Chi-square"], fit["df"], fit["p-value"]
-    if not _is_nan(p):
-        key = "cfa.report.chi2_good" if p >= 0.05 else "cfa.report.chi2_poor"
-        text += t(key, df=_fmt_df(df), chi2=_fmt(chi2, 2), p=format_p_apa_full(p))
-    text += t(
-        "cfa.report.indices",
-        rmsea=_fmt(fit["RMSEA"]),
-        rmsea_label=_label("RMSEA", fit["RMSEA"]),
-        cfi=_fmt(fit["CFI"]),
-        cfi_label=_label("CFI", fit["CFI"]),
-        tli=_fmt(fit["TLI"]),
-        tli_label=_label("TLI", fit["TLI"]),
-        srmr=_fmt(fit["SRMR"]),
-        srmr_label=_label("SRMR", fit["SRMR"]),
-    )
-    return text
+def _fit_verdict(fit: dict) -> str:
+    """One-word global-fit verdict (good / adequate / poor) from the approximate-fit indices."""
+    good = {"good", "acceptable", "excellent"}
+    labels = [_interpretation_key(name, fit[name]) for name in ("RMSEA", "CFI", "TLI", "SRMR")]
+    labels = [label for label in labels if label]
+    if not labels:
+        return "adequate"
+    n_good = sum(1 for label in labels if label in good)
+    if n_good == len(labels):
+        return "good"
+    if n_good * 2 >= len(labels):
+        return "adequate"
+    return "poor"
+
+
+def _fit_prose(fit: dict, converged: bool, detail, estimator: str) -> str:
+    """Layered fit description: a one-line verdict at every level, the exact-fit test and the full
+    index line from *Significant only* up, and the estimator from *Full*."""
+    parts = []
+    if not converged:
+        parts.append(t("cfa.report.not_converged"))
+    cfi, rmsea = fit["CFI"], fit["RMSEA"]
+    if not _is_nan(cfi) and not _is_nan(rmsea):
+        parts.append(
+            t("cfa.report.headline", verdict=t(f"cfa.verdict.{_fit_verdict(fit)}"), cfi=_fmt(cfi), rmsea=_fmt(rmsea))
+        )
+    else:
+        parts.append(t("cfa.report.headline_plain"))
+    if prose_at_least(detail, ProseDetail.SIGNIFICANT):
+        chi2, df, p = fit["Chi-square"], fit["df"], fit["p-value"]
+        if not _is_nan(p):
+            key = "cfa.report.chi2_good" if p >= 0.05 else "cfa.report.chi2_poor"
+            parts.append(t(key, df=_fmt_df(df), chi2=_fmt(chi2, 2), p=format_p_apa_full(p)))
+        parts.append(
+            t(
+                "cfa.report.indices",
+                rmsea=_fmt(fit["RMSEA"]),
+                rmsea_label=_label("RMSEA", fit["RMSEA"]),
+                cfi=_fmt(fit["CFI"]),
+                cfi_label=_label("CFI", fit["CFI"]),
+                tli=_fmt(fit["TLI"]),
+                tli_label=_label("TLI", fit["TLI"]),
+                srmr=_fmt(fit["SRMR"]),
+                srmr_label=_label("SRMR", fit["SRMR"]),
+            )
+        )
+    if prose_at_least(detail, ProseDetail.FULL):
+        parts.append(t("cfa.report.estimator", estimator=t(f"cfa.estimator.{_ESTIMATOR_KEY.get(estimator, 'ml')}")))
+    return "".join(parts)
+
+
+def _structure_prose(cfg, base_structure, phi, n_factors: int, detail) -> str:
+    """Describe the factor structure, layered by level: whether the structure is clean or has
+    cross-loadings (*Key findings* up), the model spec and inter-factor correlation (*Significant
+    only* up), and how evenly the factors are filled plus any applied modifications (*Full*)."""
+    parts = []
+    # Mirror recalculate_cfa_study's defensive read of cross_loadings: entries may be malformed.
+    cross_items = []
+    for pair in cfg.cross_loadings or []:
+        try:
+            cross_items.append(str(pair[0]))
+        except (TypeError, IndexError):
+            continue
+    cross_items = list(dict.fromkeys(cross_items))
+    if prose_at_least(detail, ProseDetail.SIGNIFICANT):
+        n_items = len({var for factor_vars in base_structure for var in factor_vars})
+        parts.append(t("verbal.structure.spec", k=n_factors, n=n_items))
+    if prose_at_least(detail, ProseDetail.KEY):
+        parts.append(
+            t("verbal.structure.cross", items=smart_comma_join([f"&laquo;{item}&raquo;" for item in cross_items]))
+            if cross_items
+            else t("verbal.structure.simple")
+        )
+    oblique = cfg.allow_factor_correlation and n_factors > 1 and phi is not None
+    if prose_at_least(detail, ProseDetail.SIGNIFICANT) and oblique:
+        off_diagonal = [
+            abs(phi[i, j]) for i in range(n_factors) for j in range(i + 1, n_factors) if not _is_nan(phi[i, j])
+        ]
+        if off_diagonal:
+            parts.append(t("cfa.report.phi", r=format_r_apa(max(off_diagonal))))
+    if prose_at_least(detail, ProseDetail.FULL):
+        counts = [len(factor_vars) for factor_vars in base_structure]
+        if len(counts) > 1:  # "evenly filled" is only meaningful with more than one factor
+            key = "verbal.structure.even" if max(counts) - min(counts) <= 1 else "verbal.structure.uneven"
+            parts.append(t(key, counts=", ".join(str(c) for c in counts)))
+        if cfg.residual_correlations:
+            parts.append(t("cfa.report.residuals_applied", n=len(cfg.residual_correlations)))
+        if getattr(cfg, "second_order", False):
+            parts.append(t("cfa.report.second_order"))
+    return "".join(parts)
 
 
 @log_function
@@ -240,7 +316,10 @@ def recalculate_cfa_study(elements, result: CFAResult, update) -> CFAResult:
         if verbal:
             cells.append(Cell(t(f"cfa.fit.{interp_key}") if interp_key else "—", center=True))
         fit_table.add_single_row_apa(Row(cells))
-    prose_enabled(cfg.interpretation) and fit_table.add_text(_fit_prose(fit, cfa_result.converged_))
+    estimator_value = getattr(cfg, "estimator", None) or OBJECTIVE_ML
+    prose_enabled(cfg.interpretation) and fit_table.add_text(
+        _fit_prose(fit, cfa_result.converged_, cfg.interpretation, estimator_value)
+    )
     fit_table.add_numeric_supplement(
         {
             "kind": "cfa_fit",
@@ -278,6 +357,9 @@ def recalculate_cfa_study(elements, result: CFAResult, update) -> CFAResult:
         load_table.add_single_row_apa(Row(cells))
     if verbal and any_stars:
         load_table.add_text(t("cfa.loadings_sig_note"))
+    if prose_enabled(cfg.interpretation):
+        structure_text = _structure_prose(cfg, cfg.column_selector or [], phi, n_factors, cfg.interpretation)
+        structure_text and load_table.add_text(structure_text)
     load_table.table_note = numbering.append_to_note(load_table.table_note or "")
     load_table.add_numeric_supplement(
         {

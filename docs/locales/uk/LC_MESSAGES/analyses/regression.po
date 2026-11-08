@@ -1,0 +1,223 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2026, StatPrism Team
+# This file is distributed under the same license as the StatPrism package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2026.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: StatPrism 1.3\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-11-04 00:10+0100\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language: uk\n"
+"Language-Team: uk <LL@li.org>\n"
+"Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
+"n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.18.0\n"
+
+#: ../../analyses/regression.md:1
+msgid "Regression"
+msgstr "Регресія"
+
+#: ../../analyses/regression.md:3
+msgid "Regression plot example"
+msgstr "Приклад графіка регресії"
+
+#: ../../analyses/regression.md:9
+msgid ""
+"Predicts one outcome from one or more predictors, with optional "
+"moderation and mediation. Three model types are available: **linear "
+"(OLS)** for a numeric outcome, **binary logistic** for a two-category "
+"outcome, and **multinomial logistic** for an unordered outcome with three"
+" or more categories."
+msgstr "Передбачає одну залежну змінну за однією або кількома незалежними змінними, з необов'язковими модерацією та медіацією. Доступні три типи моделей: **лінійна (OLS)** для числової залежної змінної, **бінарна логістична** для залежної змінної з двома категоріями та **мультиноміальна логістична** для невпорядкованої залежної змінної з трьома або більше категоріями."
+
+#: ../../analyses/regression.md:14
+msgid "When to use it"
+msgstr "Коли це використовувати"
+
+#: ../../analyses/regression.md:16
+msgid ""
+"To model how an outcome depends on several variables at once – for "
+"example, predicting a test score from age and income – and to estimate "
+"each predictor's unique contribution."
+msgstr "Щоб змоделювати, як залежна змінна залежить від кількох змінних одночасно – наприклад, передбачити бал тесту за віком і доходом – та оцінити унікальний внесок кожної незалежної змінної."
+
+#: ../../analyses/regression.md:19
+msgid "Inputs"
+msgstr "Вхідні дані"
+
+#: ../../analyses/regression.md:21
+msgid ""
+"**Dependent**: the outcome: numeric for linear, two categories for binary"
+" logistic, or three-plus categories for multinomial logistic."
+msgstr "**Залежна**: залежна змінна – числова для лінійної, дві категорії для бінарної логістичної або три й більше категорій для мультиноміальної логістичної."
+
+#: ../../analyses/regression.md:23
+msgid "**Independent**: one or more predictors."
+msgstr "**Незалежна**: одна або кілька незалежних змінних."
+
+#: ../../analyses/regression.md:24
+msgid "**Moderator (optional)**: adds an interaction (moderation model)."
+msgstr "**Модератор (необов'язково)**: додає взаємодію (модель модерації)."
+
+#: ../../analyses/regression.md:25
+msgid "**Mediator (optional)**: fits a mediation model with indirect paths."
+msgstr "**Медіатор (необов'язково)**: будує модель медіації з непрямими шляхами."
+
+#: ../../analyses/regression.md:27
+msgid "Moderation and mediation are mutually exclusive."
+msgstr "Модерація і медіація є взаємовиключними."
+
+#: ../../analyses/regression.md:29
+msgid "Options"
+msgstr "Параметри"
+
+#: ../../analyses/regression.md:31
+msgid "**Model**: Linear (OLS), Logistic (binary), or Multinomial (logistic)."
+msgstr "**Модель**: Linear (OLS), Logistic (binary) або Multinomial (logistic)."
+
+#: ../../analyses/regression.md:32
+msgid ""
+"**Standardized coefficients**: reports standardized (β) alongside "
+"unstandardized estimates (linear model)."
+msgstr "**Стандартизовані коефіцієнти**: повідомляє стандартизовані (β) поряд з нестандартизованими оцінками (лінійна модель)."
+
+#: ../../analyses/regression.md:34
+msgid ""
+"**Diagnostics**: an influence table (**Mahalanobis distance**, **Cook's "
+"distance**, **leverage**, **studentized residuals**, flagging the "
+"observations that exceed the usual cut-offs) plus the **Durbin–Watson** "
+"autocorrelation statistic and residual plots. This is a *report only* – "
+"nothing is excluded from the model."
+msgstr "**Діагностика**: таблиця впливу (**відстань Махаланобіса**, **відстань Кука**, **важіль впливу**, **стьюдентизовані залишки** з позначенням спостережень, що перевищують звичайні порогові значення), а також статистика автокореляції **Дарбіна–Вотсона** і графіки залишків. Це *лише звіт* – з моделі нічого не виключається."
+
+#: ../../analyses/regression.md:38
+msgid ""
+"**Verbal indicators** (in-table columns), **Verbal report** (dropdown for"
+" how much written interpretation: None / Key findings / Significant only "
+"/ Full), and **Plots**."
+msgstr "**Verbal indicators** (колонки в таблиці), **Словесний звіт** (dropdown для обсягу письмової інтерпретації: None / Key findings / Significant only / Full) та **Plots**."
+
+#: ../../analyses/regression.md:41
+msgid "Output"
+msgstr "Вихідні дані"
+
+#: ../../analyses/regression.md:43
+msgid ""
+"A **model fit** table (R², adjusted R², F, *p* for OLS; pseudo-R² and a "
+"likelihood-ratio χ² for the logistic models)."
+msgstr "Таблиця **відповідності моделі** (R², скоригований R², F, *p* для OLS; псевдо-R² та χ² відношення правдоподібності для логістичних моделей)."
+
+#: ../../analyses/regression.md:45
+msgid ""
+"A **coefficients** table (estimates, standard errors, *t*/*z*, *p*, CIs; "
+"standardized if requested; odds ratios for logistic). The multinomial "
+"model reports one coefficient block per non-reference category, each "
+"compared against the first category as the baseline."
+msgstr "Таблиця **коефіцієнтів** (оцінки, стандартні похибки, *t*/*z*, *p*, довірчі інтервали; стандартизовані за запитом; відношення шансів для логістичної). Мультиноміальна модель повідомляє один блок коефіцієнтів на кожну нереферентну категорію, кожен з яких порівнюється з першою категорією як базовою."
+
+#: ../../analyses/regression.md:48
+msgid ""
+"**Path tables** for mediation (plus an **X → M → Y path diagram** for a "
+"single-predictor mediation when plots are on – with arrow-color, label-"
+"size and spread controls), **diagnostics** when enabled, and a plot."
+msgstr "**Таблиці шляхів** для медіації (плюс **path-діаграма X → M → Y** для медіації з однією незалежною змінною, коли графіки увімкнені – з керуванням кольором стрілок, розміром підписів і розкидом), **діагностика**, коли увімкнена, і графік."
+
+#: ../../analyses/regression.md:51
+msgid ""
+"**Plots.** With a single predictor the plot is a scatter with the fitted "
+"line (plus simple slopes / mediation paths where relevant). With "
+"**several predictors** there is no 2-D scatter, so an **observed-vs-"
+"predicted** plot is drawn instead (each point is a case, plotted as its "
+"actual outcome against the model's prediction; points near the 45° line "
+"indicate a good fit)."
+msgstr "**Plots.** З однією незалежною змінною графік є діаграмою розсіювання з підігнаною лінією (плюс прості нахили / шляхи медіації, де це доречно). З **кількома незалежними змінними** 2-D діаграми розсіювання немає, тож натомість будується графік **спостережені-проти-передбачених** (кожна точка – це спостереження, нанесене як його фактична залежна змінна проти передбачення моделі; точки поблизу лінії 45° вказують на добру відповідність)."
+
+#: ../../analyses/regression.md:56
+msgid "Using categorical predictors"
+msgstr "Використання категорійних незалежних змінних"
+
+#: ../../analyses/regression.md:58
+#, python-brace-format
+msgid ""
+"Regression accepts only **numeric / ordinal** predictors. To include a "
+"**nominal** variable (e.g. region), first convert it with **One-hot "
+"encoding** (see {doc}`../data-processing/onehot`); the resulting 0/1 "
+"indicator columns can then be selected as predictors."
+msgstr "Регресія приймає лише **числові / порядкові** незалежні змінні. Щоб включити **номінальну** змінну (наприклад, регіон), спершу перетворіть її за допомогою **One-hot кодування** (див. {doc}`../data-processing/onehot`); отримані індикаторні колонки 0/1 можна потім вибрати як незалежні змінні."
+
+#: ../../analyses/regression.md:63
+msgid "Notes"
+msgstr "Примітки"
+
+#: ../../analyses/regression.md:65
+msgid "Rows with any missing value in the used columns are dropped (list-wise)."
+msgstr "Рядки з будь-яким пропущеним значенням у використаних колонках відкидаються (list-wise, порядкове видалення)."
+
+#: ../../analyses/regression.md:66
+msgid ""
+"A predictor literally named `const` is not allowed (the model adds its "
+"own intercept)."
+msgstr "Незалежна змінна з буквальною назвою `const` не допускається (модель додає власний вільний член)."
+
+#~ msgid ""
+#~ "To model how an outcome depends on"
+#~ " several variables at once — for "
+#~ "example, predicting a test score from"
+#~ " age and income — and to "
+#~ "estimate each predictor's unique contribution."
+#~ msgstr ""
+
+#~ msgid ""
+#~ "**Dependent** — the outcome: numeric for"
+#~ " linear, two categories for binary "
+#~ "logistic, or three-plus categories for"
+#~ " multinomial logistic."
+#~ msgstr ""
+
+#~ msgid "**Independent** — one or more predictors."
+#~ msgstr ""
+
+#~ msgid "**Moderator (optional)** — adds an interaction (moderation model)."
+#~ msgstr ""
+
+#~ msgid "**Mediator (optional)** — fits a mediation model with indirect paths."
+#~ msgstr ""
+
+#~ msgid "**Model** — Linear (OLS), Logistic (binary), or Multinomial (logistic)."
+#~ msgstr ""
+
+#~ msgid ""
+#~ "**Standardized coefficients** — reports "
+#~ "standardized (β) alongside unstandardized "
+#~ "estimates (linear model)."
+#~ msgstr ""
+
+#~ msgid ""
+#~ "**Diagnostics** — an influence table "
+#~ "(**Mahalanobis distance**, **Cook's distance**, "
+#~ "**leverage**, **studentized residuals**, flagging"
+#~ " the observations that exceed the "
+#~ "usual cut-offs) plus the "
+#~ "**Durbin–Watson** autocorrelation statistic and "
+#~ "residual plots. This is a *report "
+#~ "only* — nothing is excluded from "
+#~ "the model."
+#~ msgstr ""
+
+#~ msgid ""
+#~ "**Path tables** for mediation (plus an"
+#~ " **X → M → Y path diagram** "
+#~ "for a single-predictor mediation when"
+#~ " plots are on — with arrow-"
+#~ "color, label-size and spread controls),"
+#~ " **diagnostics** when enabled, and a "
+#~ "plot."
+#~ msgstr ""
+

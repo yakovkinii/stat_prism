@@ -1,0 +1,66 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2026, StatPrism Team
+# This file is distributed under the same license as the StatPrism package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2026.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: StatPrism 1.3\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-11-04 00:10+0100\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language: uk\n"
+"Language-Team: uk <LL@li.org>\n"
+"Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
+"n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.18.0\n"
+
+#: ../../data-processing/filter.md:1
+msgid "Filter"
+msgstr "Фільтр"
+
+#: ../../data-processing/filter.md:3
+msgid "Keeps only the rows that match a condition on one column."
+msgstr "Залишає лише ті рядки, що відповідають умові за однією колонкою."
+
+#: ../../data-processing/filter.md:5
+msgid ""
+"**Numeric columns:** keep rows where the value satisfies a comparison "
+"(`<`, `≤`, `=`, `≥`, `>`, `≠`) against a value. For `=`/`≠` you may list "
+"several values (comma/space separated) to keep/exclude any of them. You "
+"can also keep rows where the cell **is empty** or **is not empty**."
+msgstr ""
+"**Числові колонки:** залишити рядки, де значення задовольняє порівняння "
+"(`<`, `≤`, `=`, `≥`, `>`, `≠`) із заданим значенням. Для `=`/`≠` можна "
+"перелічити кілька значень (через кому/пробіл), щоб залишити/виключити "
+"будь-яке з них. Ви також можете залишити рядки, де клітинка **порожня** або "
+"**не порожня**."
+
+#: ../../data-processing/filter.md:9
+msgid ""
+"**Categorical columns:** tick the category values to keep. Missing and "
+"blank values appear as `—`."
+msgstr ""
+"**Категорійні колонки:** позначте значення категорій, які треба залишити. "
+"Пропущені та порожні значення відображаються як `—`."
+
+#: ../../data-processing/filter.md:12
+msgid ""
+"Rows that do not match are removed downstream; previewing shows them in "
+"red. Toggle the step off to keep all rows."
+msgstr ""
+"Рядки, що не відповідають умові, видаляються далі за ланцюжком; попередній "
+"перегляд показує їх червоним. Вимкніть крок, щоб зберегти всі рядки."
+
+#~ msgid ""
+#~ "Rows that don't match are removed "
+#~ "downstream; previewing shows them in "
+#~ "red. Toggle the step off to keep"
+#~ " all rows."
+#~ msgstr ""
+

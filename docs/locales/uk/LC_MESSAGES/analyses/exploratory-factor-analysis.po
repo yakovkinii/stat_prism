@@ -1,0 +1,245 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2026, StatPrism Team
+# This file is distributed under the same license as the StatPrism package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2026.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: StatPrism 1.3\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-11-04 00:10+0100\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language: uk\n"
+"Language-Team: uk <LL@li.org>\n"
+"Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
+"n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.18.0\n"
+
+#: ../../analyses/exploratory-factor-analysis.md:1
+msgid "Exploratory factor analysis"
+msgstr "Експлораторний факторний аналіз"
+
+#: ../../analyses/exploratory-factor-analysis.md:3
+#, python-brace-format
+msgid ""
+"**Exploratory Factor Analysis (EFA)** uncovers the latent factors behind "
+"a set of items –  how many underlying factors a battery reflects, and "
+"which items load on which factor. Use it when you do *not* yet have a "
+"hypothesized structure; to test a structure you already have, see {doc"
+"}`confirmatory-factor-analysis`."
+msgstr "**Експлораторний факторний аналіз (EFA)** розкриває латентні фактори, що стоять за набором пунктів, – скільки прихованих факторів відображає батарея пунктів і які пункти навантажують який фактор. Використовуйте його, коли ви ще *не* маєте гіпотетичної структури; щоб перевірити структуру, яку ви вже маєте, див. {doc}`confirmatory-factor-analysis`."
+
+#: ../../analyses/exploratory-factor-analysis.md:8
+msgid "When to use it"
+msgstr "Коли це використовувати"
+
+#: ../../analyses/exploratory-factor-analysis.md:10
+msgid ""
+"To discover how many underlying factors a battery of items reflects, and "
+"which items load on which factor."
+msgstr "Щоб з'ясувати, скільки прихованих факторів відображає батарея пунктів і які пункти навантажують який фактор."
+
+#: ../../analyses/exploratory-factor-analysis.md:13
+msgid "Inputs"
+msgstr "Вхідні дані"
+
+#: ../../analyses/exploratory-factor-analysis.md:15
+msgid "**Variables**: two or more numeric/ordinal items."
+msgstr "**Змінні**: два або більше числових/порядкових пунктів."
+
+#: ../../analyses/exploratory-factor-analysis.md:17
+msgid "Options"
+msgstr "Параметри"
+
+#: ../../analyses/exploratory-factor-analysis.md:19
+msgid ""
+"**Correlation**: **Pearson** (from the raw data) or **Polychoric** "
+"(tetrachoric for binary items), the latter estimated in-house and better "
+"suited to ordinal Likert items. The chosen matrix drives the KMO/Bartlett"
+" checks, the eigenvalues, and the extraction."
+msgstr "**Кореляція**: **Pearson** (з необроблених даних) або **Polychoric** (тетрахорична для бінарних пунктів); остання оцінюється власними засобами й краще підходить для порядкових пунктів за шкалою Лайкерта. Обрана матриця визначає перевірки KMO/Бартлетта, власні значення та екстракцію."
+
+#: ../../analyses/exploratory-factor-analysis.md:22
+msgid ""
+"**Extraction method**: Minimum Residual (MINRES), Maximum Likelihood "
+"(ML), or Principal Axis (PAF)."
+msgstr "**Метод екстракції**: Minimum Residual (MINRES), Maximum Likelihood (ML) або Principal Axis (PAF)."
+
+#: ../../analyses/exploratory-factor-analysis.md:24
+msgid ""
+"**Rotation**: none, varimax, promax, oblimin, quartimax, and others "
+"(oblique rotations allow correlated factors)."
+msgstr "**Обертання**: немає, varimax, promax, oblimin, quartimax та інші (косокутні обертання допускають корельовані фактори)."
+
+#: ../../analyses/exploratory-factor-analysis.md:26
+msgid "**Number of factors**: how many to extract."
+msgstr "**Кількість факторів**: скільки видобути."
+
+#: ../../analyses/exploratory-factor-analysis.md:27
+msgid ""
+"**Factor names**: optional comma-separated labels for the factors (e.g. "
+"`Anxiety, Mood`). They replace the default `F1`, `F2` … in every table "
+"and the loadings heatmap; blank or missing entries keep the default for "
+"that factor."
+msgstr "**Назви факторів**: необов'язкові підписи для факторів, розділені комами (наприклад, `Anxiety, Mood`). Вони замінюють стандартні `F1`, `F2` … у кожній таблиці та на heatmap навантажень; порожні або відсутні записи зберігають стандартну назву для цього фактора."
+
+#: ../../analyses/exploratory-factor-analysis.md:30
+msgid ""
+"**Kaiser normalization**, **Verbal indicators in tables** (adds a plain-"
+"language column to the sampling-adequacy table – a KMO/MSA adequacy word "
+"per row and a significance verdict for Bartlett), **Number columns**, "
+"**Verbal report** (dropdown for how much written interpretation), and "
+"**Plots**."
+msgstr "**Kaiser normalization**, **Verbal indicators in tables** (додає колонку простою мовою до таблиці адекватності вибірки – слово про адекватність KMO/MSA для кожного рядка та висновок про значущість для Бартлетта), **Number columns**, **Словесний звіт** (dropdown для вибору обсягу письмової інтерпретації) та **Plots**."
+
+#: ../../analyses/exploratory-factor-analysis.md:34
+msgid ""
+"**Sort by factor loadings** sorts the loading table and loading heatmap "
+"by each item's strongest loading. It is off by default."
+msgstr "**Sort by factor loadings** сортує таблицю навантажень і heatmap навантажень за найсильнішим навантаженням кожного пункту. За замовчуванням вимкнено."
+
+#: ../../analyses/exploratory-factor-analysis.md:36
+msgid ""
+"**Show per-item MSA** and **Show eigenvalues table** – both off by "
+"default, since these tables get long with many items. The overall "
+"KMO/Bartlett row and the scree plot are always shown."
+msgstr "**Show per-item MSA** та **Show eigenvalues table** – обидва за замовчуванням вимкнені, оскільки ці таблиці стають довгими за багатьох пунктів. Загальний рядок KMO/Бартлетта та scree-плот показуються завжди."
+
+#: ../../analyses/exploratory-factor-analysis.md:39
+msgid "Output"
+msgstr "Вихідні дані"
+
+#: ../../analyses/exploratory-factor-analysis.md:41
+msgid ""
+"**Sampling adequacy**: the overall KMO and Bartlett's test (plus per-item"
+" MSA when **Show per-item MSA** is on), with plain-language adequacy "
+"labels when verbal indicators are on."
+msgstr "**Адекватність вибірки**: загальний KMO та тест Бартлетта (а також MSA для кожного пункту, коли ввімкнено **Show per-item MSA**), зі словесними підписами адекватності, коли ввімкнено словесні індикатори."
+
+#: ../../analyses/exploratory-factor-analysis.md:43
+msgid ""
+"A **scree plot**, and the **eigenvalues** table when **Show eigenvalues "
+"table** is on."
+msgstr "**Scree-плот** і таблиця **власних значень**, коли ввімкнено **Show eigenvalues table**."
+
+#: ../../analyses/exploratory-factor-analysis.md:44
+msgid ""
+"**Factor loadings** with communalities and uniquenesses, plus a loadings "
+"**heatmap**."
+msgstr "**Факторні навантаження** з комунальностями та унікальностями, а також **heatmap** навантажень."
+
+#: ../../analyses/exploratory-factor-analysis.md:45
+msgid "**Factor correlations** and a structure matrix for oblique rotations."
+msgstr "**Кореляції факторів** і структурна матриця для косокутних обертань."
+
+#: ../../analyses/exploratory-factor-analysis.md:47
+msgid "Create a CFA from this solution"
+msgstr "Create a CFA from this solution"
+
+#: ../../analyses/exploratory-factor-analysis.md:49
+#, python-brace-format
+msgid ""
+"The **Create a CFA from this solution** button (at the bottom of the "
+"settings) spins off a new {doc}`confirmatory-factor-analysis` study pre-"
+"configured from the current EFA: the same variables and number of "
+"factors, each item assigned to the factor it loads on most strongly, "
+"factor correlation enabled when the rotation was oblique, and the "
+"**Unweighted LS (polychoric)** estimator when the EFA used polychoric "
+"correlations (ML otherwise). Run the EFA first so its loadings are "
+"available, then adjust the generated CFA as needed. The two studies are "
+"independent."
+msgstr "Кнопка **Create a CFA from this solution** (унизу налаштувань) створює нове дослідження {doc}`confirmatory-factor-analysis`, попередньо налаштоване за поточним EFA: ті самі змінні та кількість факторів, кожен пункт призначено факторові, на який він навантажує найсильніше, кореляцію факторів увімкнено, коли обертання було косокутним, і метод оцінювання **Unweighted LS (polychoric)**, коли EFA використовував поліхоричні кореляції (інакше ML). Спершу запустіть EFA, щоб його навантаження були доступні, потім скоригуйте згенерований CFA за потреби. Два дослідження є незалежними."
+
+#: ../../analyses/exploratory-factor-analysis.md:57
+msgid "Notes"
+msgstr "Примітки"
+
+#: ../../analyses/exploratory-factor-analysis.md:59
+msgid ""
+"The number of factors cannot exceed the number of variables, and you need"
+" enough complete cases for a stable solution."
+msgstr "Кількість факторів не може перевищувати кількість змінних, і вам потрібно достатньо повних спостережень для стабільного розв'язку."
+
+#~ msgid ""
+#~ "**Exploratory Factor Analysis (EFA)** uncovers"
+#~ " the latent factors behind a set "
+#~ "of items — how many underlying "
+#~ "factors a battery reflects, and which"
+#~ " items load on which factor. Use "
+#~ "it when you do *not* yet have "
+#~ "a hypothesized structure; to test a "
+#~ "structure you already have, see {doc"
+#~ "}`confirmatory-factor-analysis`."
+#~ msgstr ""
+
+#~ msgid "**Variables** — two or more numeric/ordinal items."
+#~ msgstr ""
+
+#~ msgid ""
+#~ "**Correlation** — **Pearson** (from the "
+#~ "raw data) or **Polychoric** (tetrachoric "
+#~ "for binary items), the latter estimated"
+#~ " in-house and better suited to "
+#~ "ordinal Likert items. The chosen matrix"
+#~ " drives the KMO/Bartlett checks, the "
+#~ "eigenvalues, and the extraction."
+#~ msgstr ""
+
+#~ msgid ""
+#~ "**Extraction method** — Minimum Residual "
+#~ "(MINRES), Maximum Likelihood (ML), or "
+#~ "Principal Axis (PAF)."
+#~ msgstr ""
+
+#~ msgid ""
+#~ "**Rotation** — none, varimax, promax, "
+#~ "oblimin, quartimax, and others (oblique "
+#~ "rotations allow correlated factors)."
+#~ msgstr ""
+
+#~ msgid "**Number of factors** — how many to extract."
+#~ msgstr ""
+
+#~ msgid ""
+#~ "**Factor names** — optional comma-"
+#~ "separated labels for the factors (e.g."
+#~ " `Anxiety, Mood`). They replace the "
+#~ "default `F1`, `F2` … in every "
+#~ "table and the loadings heatmap; blank"
+#~ " or missing entries keep the default"
+#~ " for that factor."
+#~ msgstr ""
+
+#~ msgid ""
+#~ "**Kaiser normalization**, **Verbal indicators "
+#~ "in tables** (adds a plain-language "
+#~ "column to the sampling-adequacy table"
+#~ " — a KMO/MSA adequacy word per "
+#~ "row and a significance verdict for "
+#~ "Bartlett), **Number columns**, **Verbal "
+#~ "report** (dropdown for how much written"
+#~ " interpretation), and **Plots**."
+#~ msgstr ""
+
+#~ msgid ""
+#~ "**Show per-item MSA** and **Show "
+#~ "eigenvalues table** — both off by "
+#~ "default, since these tables get long "
+#~ "with many items. The overall "
+#~ "KMO/Bartlett row and the scree plot "
+#~ "are always shown."
+#~ msgstr ""
+
+#~ msgid ""
+#~ "**Sampling adequacy** — the overall KMO"
+#~ " and Bartlett's test (plus per-item"
+#~ " MSA when **Show per-item MSA** "
+#~ "is on), with plain-language adequacy "
+#~ "labels when verbal indicators are on."
+#~ msgstr ""
+

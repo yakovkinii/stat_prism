@@ -12,6 +12,16 @@ r{
 
 # StatPrism Release Notes
 
+### StatPrism 1.3.6 (4 Nov 2026)
+
+* Verbal reports now summarise many results into a few sentences (e.g. "All correlations were significant except X and Y") instead of one sentence per result, keeping the full APA statistics for every named result
+* New "Headline" verbal-report level: a one-sentence verdict naming the single most notable result
+* Single-result analyses (reliability, cluster, factor analysis, SEM) now layer their written description by level, adding structure, assumption, and fit detail as the level rises
+* Regression verbal reports now interpret logistic and multinomial coefficients, not just linear
+* Internal: unified verbal-report generation behind a shared compacter, so report structure and grammar stay consistent across analyses and languages
+* Documentation: new online User Guide (Shibuya theme) with a module gallery and a Ukrainian translation
+
+
 ### StatPrism 1.3.5 (18 Oct 2026)
 
 * Confirmatory Factor Analysis: added a dedicated ordinal estimator, "Unweighted LS (polychoric)". The ML/DWLS estimators now use face values if applied to ordinal data

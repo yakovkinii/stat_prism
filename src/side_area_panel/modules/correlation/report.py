@@ -21,6 +21,7 @@ import pandas as pd
 from src.common.translations import t
 from src.side_area_panel.modules.common.prose import prose_includes
 from src.side_area_panel.modules.common.utility import format_apa, smart_comma_join
+from src.side_area_panel.modules.common.verbal.compact import ReportItem, summarize
 from src.side_area_panel.modules.correlation.correlation_result import CorrelationType
 
 
@@ -71,6 +72,43 @@ def _sign(r):
     return t("correlation.sign.positive") if r > 0 else t("correlation.sign.negative")
 
 
+def _strength_nom(r):
+    """Nominative strength word for the compacter's parenthetical descriptor."""
+    a = abs(round(r, 2))
+    if a > 0.5:
+        key = "strong"
+    elif a > 0.3:
+        key = "moderate"
+    elif a > 0.1:
+        key = "weak"
+    else:
+        key = "very_weak"
+    return t(f"correlation.strength_nom.{key}")
+
+
+def _descriptor(r):
+    direction = t("correlation.dir.direct") if r > 0 else t("correlation.dir.inverse")
+    return t("correlation.descriptor", strength=_strength_nom(r), sign=direction)
+
+
+def _pair_label(a, b):
+    return f"&laquo;{a}&raquo;&ndash;&laquo;{b}&raquo;"
+
+
+_NOUN = ("verbal.noun.correlations.nom", "verbal.noun.correlations.gen")
+
+
+def _summarize(items, detail):
+    return summarize(
+        items,
+        detail,
+        noun_nom=t(_NOUN[0]),
+        noun_gen=t(_NOUN[1]),
+        notable_one_key="correlation.compact.most_notable_one",
+        notable_key="correlation.compact.most_notable",
+    )
+
+
 def _with_ci(stats: str, ci_matrix, row, column) -> str:
     """Append the CI string to an APA stats fragment when a CI is available."""
     if ci_matrix is None:
@@ -104,7 +142,7 @@ def get_report(columns, correlation_matrix, p_matrix, df_matrix, detail, kind: C
             text += t("correlation.report.negligible")
         return text
 
-    reported_any = False
+    items = []
     for i_row, row in enumerate(columns):
         for i_column, column in enumerate(columns):
             if i_column >= i_row:
@@ -112,26 +150,19 @@ def get_report(columns, correlation_matrix, p_matrix, df_matrix, detail, kind: C
             r = correlation_matrix.loc[row, column]
             p = p_matrix.loc[row, column]
             df = df_matrix.loc[row, column]
-            if not prose_includes(detail, _significant(p), _notable(r, p)):
+            if p is None or pd.isna(p):
                 continue
-            reported_any = True
-            stats = _with_ci(format_apa(r, p, df, letter), ci_matrix, row, column)
-            if p > 0.05:
-                text += t("correlation.report.multi_nonsignificant", var1=row, var2=column, stats=stats)
-            else:
-                text += t(
-                    "correlation.report.multi_significant",
-                    strength=_strength(r),
-                    sign=_sign(r),
-                    var1=row,
-                    var2=column,
-                    stats=stats,
+            items.append(
+                ReportItem(
+                    label=_pair_label(column, row),
+                    significant=_significant(p),
+                    apa=_with_ci(format_apa(r, p, df, letter), ci_matrix, row, column),
+                    magnitude=abs(r),
+                    notable=_notable(r, p),
+                    descriptor=_descriptor(r),
                 )
-                if abs(r) < 0.1:
-                    text += t("correlation.report.negligible")
-    if not reported_any:
-        return t("correlation.report.none_significant")
-    return text
+            )
+    return text + _summarize(items, detail)
 
 
 def get_cross_report(
@@ -148,7 +179,7 @@ def get_cross_report(
     col_vars = smart_comma_join([f"&laquo;{var}&raquo;" for var in cols])
     text = t("correlation.report.cross_intro", name=name, rows=row_vars, cols=col_vars)
 
-    reported_any = False
+    items = []
     for row in rows:
         for col in cols:
             if row == col:
@@ -158,24 +189,14 @@ def get_cross_report(
             df = df_matrix.loc[row, col]
             if p is None or pd.isna(p):
                 continue
-            if not prose_includes(detail, _significant(p), _notable(r, p)):
-                continue
-            reported_any = True
-            stats = _with_ci(format_apa(r, p, df, letter), ci_matrix, row, col)
-            if p > 0.05:
-                text += t("correlation.report.multi_nonsignificant", var1=row, var2=col, stats=stats)
-            else:
-                text += t(
-                    "correlation.report.multi_significant",
-                    strength=_strength(r),
-                    sign=_sign(r),
-                    var1=row,
-                    var2=col,
-                    stats=stats,
+            items.append(
+                ReportItem(
+                    label=_pair_label(row, col),
+                    significant=_significant(p),
+                    apa=_with_ci(format_apa(r, p, df, letter), ci_matrix, row, col),
+                    magnitude=abs(r),
+                    notable=_notable(r, p),
+                    descriptor=_descriptor(r),
                 )
-                if abs(r) < 0.1:
-                    text += t("correlation.report.negligible")
-
-    if not reported_any:
-        return t("correlation.report.none_significant")
-    return text
+            )
+    return text + _summarize(items, detail)

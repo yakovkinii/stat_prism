@@ -1,11 +1,11 @@
 # FAQ & troubleshooting
 
-**A column I want isn't offered in a selector.**
+**A column I want is not offered in a selector.**
 : Selectors only show columns of a compatible type. Check the column's **type** in the data
-  viewer — for example, a numeric summary won't list a text column. Use **Transform Column**
+  viewer – for example, a numeric summary will not list a text column. Use **Transform Column**
   to change a column's type (see {doc}`data-processing/transform`).
 
-**My nominal variable won't go into a regression.**
+**My nominal variable will not go into a regression.**
 : Regression accepts only numeric/ordinal predictors. Convert the nominal column with
   **One-hot encoding** first; then select the resulting 0/1 indicator columns. See
   {doc}`analyses/regression`.
@@ -17,14 +17,14 @@
 
 **A correlation cell is empty.**
 : If a variable has **no variance** (one repeated value), its correlation is undefined and
-  shown blank — a note explains this. Also, confidence intervals are only shown for Pearson
+  shown blank – a note explains this. Also, confidence intervals are only shown for Pearson
   and Spearman; other coefficients legitimately show none.
 
-**My results didn't change after I edited a cleaning step.**
+**My results did not change after I edited a cleaning step.**
 : Results read from a **data source**. With **Auto** they follow your latest step
   automatically; if you set a specific source, make sure it points where you intend.
 
-**A group comparison says there aren't enough groups / cases.**
+**A group comparison says there are not enough groups / cases.**
 : The grouping column must define at least two groups, each with enough cases. Check the
   grouping column's values (watch for a stray `nan` category from blank answers).
 
@@ -46,9 +46,9 @@
   and all analyses. See {doc}`projects-and-settings`.
 
 **Is StatPrism free?**
-: Yes — it is open source. Report issues or suggest features on the
+: Yes. StatPrism is open source; report issues or request features on the
   [project's GitHub repository](https://github.com/yakovkinii/stat_prism).
 
 ```{seealso}
-New here? Start with {doc}`getting-started`, then follow the {doc}`worked-example`.
+New users should start with {doc}`getting-started`, then follow the {doc}`worked-example`.
 ```

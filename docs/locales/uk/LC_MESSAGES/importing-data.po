@@ -1,0 +1,332 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2026, StatPrism Team
+# This file is distributed under the same license as the StatPrism package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2026.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: StatPrism 1.3\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-11-04 13:45+0100\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language: uk\n"
+"Language-Team: uk <LL@li.org>\n"
+"Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
+"n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.18.0\n"
+
+#: ../../importing-data.md:1
+msgid "Importing data"
+msgstr "Імпорт даних"
+
+#: ../../importing-data.md:3
+msgid ""
+"StatPrism reads spreadsheet exports – the kind you get from survey tools "
+"such as Google Forms, or any `.xlsx` / `.csv` file."
+msgstr ""
+"StatPrism читає експортовані таблиці – такі, які ви отримуєте з "
+"інструментів опитування, як-от Google Forms, або будь-який файл `.xlsx` /"
+" `.csv`."
+
+#: ../../importing-data.md:6
+msgid "Opening a file"
+msgstr "Відкриття файлу"
+
+#: ../../importing-data.md:8
+msgid "Use **File ▸ Open…** and choose your file. StatPrism supports:"
+msgstr "Скористайтеся **File ▸ Open…** і виберіть свій файл. StatPrism підтримує:"
+
+#: ../../importing-data.md:10
+msgid ""
+"`.xlsx` Excel workbooks (if a workbook has several sheets, you will be "
+"asked which one to load),"
+msgstr ""
+"книги Excel `.xlsx` (якщо книга має кілька аркушів, вас запитають, який "
+"із них завантажити),"
+
+#: ../../importing-data.md:12
+msgid "`.csv` files,"
+msgstr "файли `.csv`,"
+
+#: ../../importing-data.md:13
+#, python-brace-format
+msgid ""
+"`.sp` StatPrism project files (these reopen a whole saved session – see "
+"{doc}`projects-and-settings`)."
+msgstr ""
+"файли проєктів StatPrism `.sp` (вони відкривають цілу збережену сесію – "
+"див. {doc}`projects-and-settings`)."
+
+#: ../../importing-data.md:16
+msgid "The loaded data becomes the **raw data** at the start of your chain."
+msgstr "Завантажені дані стають **сирими даними** на початку вашого ланцюга."
+
+#: ../../importing-data.md:18
+msgid "What a Google Forms export looks like"
+msgstr "Який вигляд має експорт із Google Forms"
+
+#: ../../importing-data.md:20
+msgid "A Forms response sheet usually has:"
+msgstr "Аркуш відповідей Forms зазвичай має:"
+
+#: ../../importing-data.md:22
+msgid "a **Timestamp** column first,"
+msgstr "спершу колонку **Timestamp**,"
+
+#: ../../importing-data.md:23
+msgid "one column per question, with the **full question text as the header**,"
+msgstr ""
+"по одній колонці на запитання, з **повним текстом запитання як "
+"заголовком**,"
+
+#: ../../importing-data.md:24
+msgid "multiple-choice answers as plain text,"
+msgstr "відповіді з вибором одного варіанта як звичайний текст,"
+
+#: ../../importing-data.md:25
+msgid ""
+"\"select all that apply\" (checkbox) answers as a **comma-separated list "
+"in one cell**,"
+msgstr ""
+"відповіді типу \"виберіть усе, що підходить\" (checkbox) як **список "
+"через кому в одній клітинці**,"
+
+#: ../../importing-data.md:26
+msgid "linear-scale answers as numbers."
+msgstr "відповіді за лінійною шкалою як числа."
+
+#: ../../importing-data.md:28
+msgid ""
+"StatPrism reads all of this as-is. You do not need to rename or reshape "
+"anything before importing."
+msgstr ""
+"StatPrism читає все це як є. Вам не потрібно нічого перейменовувати чи "
+"змінювати структуру перед імпортом."
+
+#: ../../importing-data.md:31
+msgid "The ID column"
+msgstr "Колонка ID"
+
+#: ../../importing-data.md:33
+msgid ""
+"On import, StatPrism adds a mandatory **ID** column (1, 2, 3, …) as the "
+"first column. It uniquely identifies each respondent/row and is used, for"
+" example, to list which respondents are outliers. No further action is "
+"required."
+msgstr ""
+"Під час імпорту StatPrism додає обов'язкову колонку **ID** (1, 2, 3, …) "
+"як першу колонку. Вона однозначно ідентифікує кожного респондента/рядок і"
+" використовується, наприклад, щоб перелічити, які респонденти є викидами."
+" Жодних додаткових дій не потрібно."
+
+#: ../../importing-data.md:37
+#, python-brace-format
+msgid ""
+"If your file already contained a column literally named `ID`, it is kept "
+"but renamed out of the way so the automatic identifier can take that "
+"name. If you would rather use one of your own columns as the identifier, "
+"use the **Select ID** processing step (see {doc}`data-processing/select-"
+"id`)."
+msgstr ""
+"Якщо ваш файл уже містив колонку з буквальною назвою `ID`, вона "
+"зберігається, але перейменовується, щоб автоматичний ідентифікатор міг "
+"отримати цю назву. Якщо ви бажаєте використати як ідентифікатор одну з "
+"власних колонок, скористайтеся кроком обробки **Select ID** (див. {doc"
+"}`data-processing/select-id`)."
+
+#: ../../importing-data.md:42
+msgid "Column types"
+msgstr "Типи колонок"
+
+#: ../../importing-data.md:44
+msgid ""
+"Every column has a **type** that controls how StatPrism treats it and "
+"which analyses will accept it:"
+msgstr ""
+"Кожна колонка має **тип**, який визначає, як StatPrism з нею поводиться "
+"та які аналізи її приймуть:"
+
+#: ../../importing-data.md:47
+msgid "Numeric"
+msgstr "Числовий"
+
+#: ../../importing-data.md:48
+msgid ""
+"Quantities and scores (age, income, test score, a 1–5 scale treated as a "
+"number)."
+msgstr ""
+"Величини та бали (вік, дохід, тестовий бал, шкала 1–5, що трактується як "
+"число)."
+
+#: ../../importing-data.md:50
+msgid "Nominal"
+msgstr "Номінальний"
+
+#: ../../importing-data.md:51
+msgid "Unordered categories (gender, region)."
+msgstr "Невпорядковані категорії (стать, регіон)."
+
+#: ../../importing-data.md:53
+msgid "Ordinal"
+msgstr "Порядковий"
+
+#: ../../importing-data.md:54
+msgid ""
+"Ordered categories (education level; a Likert scale treated as ordered "
+"labels)."
+msgstr ""
+"Упорядковані категорії (рівень освіти; шкала Лайкерта, що трактується як "
+"упорядковані мітки)."
+
+#: ../../importing-data.md:56
+msgid "ID"
+msgstr "ID"
+
+#: ../../importing-data.md:57
+msgid "The identifier column."
+msgstr "Колонка-ідентифікатор."
+
+#: ../../importing-data.md:59
+msgid ""
+"On import, StatPrism infers a type from the data: numbers become "
+"**Numeric**, text becomes **Nominal**. Dates/timestamps are read as text."
+msgstr ""
+"Під час імпорту StatPrism визначає тип за даними: числа стають "
+"**Numeric**, текст стає **Nominal**. Дати/позначки часу читаються як "
+"текст."
+
+#: ../../importing-data.md:63
+msgid ""
+"A blank answer in a **text** column is read as the literal value `nan` "
+"rather than a true \"missing\". A blank answer in a **numeric** column "
+"stays genuinely missing. If you plan to analyze a question that has "
+"skipped answers, check how its blanks were read in the data viewer, and "
+"use **Impute Missing** or **Filter** if you need to handle them."
+msgstr ""
+"Порожня відповідь у **текстовій** колонці читається як буквальне значення"
+" `nan`, а не як справжнє \"пропущене\". Порожня відповідь у **числовій** "
+"колонці залишається справді пропущеною. Якщо ви плануєте аналізувати "
+"запитання з пропущеними відповідями, перевірте в перегляді даних, як були"
+" прочитані його порожні значення, і скористайтеся **Impute Missing** або "
+"**Filter**, якщо їх потрібно обробити."
+
+#: ../../importing-data.md:69
+msgid "Setting a column to Ordinal (and its order)"
+msgstr "Встановлення колонки як Ordinal (та її порядку)"
+
+#: ../../importing-data.md:71
+#, python-brace-format
+msgid ""
+"Many survey items are ordered (e.g. *High school < Bachelor < Master < "
+"PhD*). To have StatPrism respect that order in tables and charts, set the"
+" column to **Ordinal** and define the category order with the **Transform"
+" Column** step (see {doc}`data-processing/transform`). Ordinal columns "
+"are scored numerically where an analysis needs numbers (e.g. "
+"correlations), and keep their labels and order in frequency tables and "
+"pie charts."
+msgstr ""
+"Багато пунктів опитування є впорядкованими (наприклад, *High school < "
+"Bachelor < Master < PhD*). Щоб StatPrism дотримувався цього порядку в "
+"таблицях і діаграмах, установіть колонку як **Ordinal** і визначте "
+"порядок категорій за допомогою кроку **Transform Column** (див. {doc"
+"}`data-processing/transform`). Порядкові колонки оцінюються числово там, "
+"де аналізу потрібні числа (наприклад, кореляції), і зберігають свої мітки"
+" та порядок у таблицях частот і pie-діаграмах."
+
+#: ../../importing-data.md:77
+msgid "Color tags"
+msgstr "Кольорові теги"
+
+#: ../../importing-data.md:79
+msgid ""
+"Columns can carry a soft **color tag** that follows them through the app "
+"and into exported Excel headers, which helps when you have many "
+"variables. Colors from a source sheet's colored header cells are picked "
+"up automatically on import."
+msgstr ""
+"Колонки можуть нести м'який **кольоровий тег**, який супроводжує їх по "
+"всій програмі та в експортованих заголовках Excel, що допомагає, коли у "
+"вас багато змінних. Кольори з кольорових клітинок заголовків вихідного "
+"аркуша підхоплюються автоматично під час імпорту."
+
+#: ../../importing-data.md:83
+msgid "Viewing and checking the data"
+msgstr "Перегляд і перевірка даних"
+
+#: ../../importing-data.md:85
+msgid ""
+"Open the **data viewer** to see the imported table, confirm column types,"
+" and spot how blanks were read. After adding cleaning steps, previewing a"
+" step's data shows the effect of that step – for example, **Filter** and "
+"**Outliers** show removed rows in red."
+msgstr ""
+"Відкрийте **перегляд даних**, щоб побачити імпортовану таблицю, "
+"підтвердити типи колонок і помітити, як були прочитані порожні значення. "
+"Після додавання кроків очищення попередній перегляд даних кроку показує "
+"ефект цього кроку – наприклад, **Filter** та **Outliers** показують "
+"вилучені рядки червоним."
+
+#: ../../importing-data.md:89
+msgid "Replacing the data"
+msgstr "Заміна даних"
+
+#: ../../importing-data.md:91
+msgid ""
+"You can load a different file at any time. Note that this resets the "
+"chain, so re-import before building your processing steps and analyses."
+msgstr ""
+"Ви можете завантажити інший файл будь-коли. Зверніть увагу, що це скидає "
+"ланцюг, тож повторно імпортуйте дані перед побудовою кроків обробки та "
+"аналізів."
+
+#~ msgid ""
+#~ "StatPrism reads spreadsheet exports — "
+#~ "the kind you get from survey tools"
+#~ " such as Google Forms, or any "
+#~ "`.xlsx` / `.csv` file."
+#~ msgstr ""
+
+#~ msgid ""
+#~ "`.xlsx` Excel workbooks (if a workbook"
+#~ " has several sheets, you'll be asked"
+#~ " which one to load),"
+#~ msgstr ""
+
+#~ msgid ""
+#~ "`.sp` StatPrism project files (these "
+#~ "reopen a whole saved session — see"
+#~ " {doc}`projects-and-settings`)."
+#~ msgstr ""
+
+#~ msgid ""
+#~ "StatPrism reads all of this as-is."
+#~ " You don't need to rename or "
+#~ "reshape anything before importing."
+#~ msgstr ""
+
+#~ msgid ""
+#~ "On import, StatPrism adds a mandatory"
+#~ " **ID** column (1, 2, 3, …) as"
+#~ " the first column. It uniquely "
+#~ "identifies each respondent/row and is "
+#~ "used, for example, to list which "
+#~ "respondents are outliers. You don't have"
+#~ " to do anything with it."
+#~ msgstr ""
+
+#~ msgid ""
+#~ "Open the **data viewer** to see "
+#~ "the imported table, confirm column "
+#~ "types, and spot how blanks were "
+#~ "read. After adding cleaning steps, "
+#~ "previewing a step's data shows the "
+#~ "effect of that step — for example,"
+#~ " **Filter** and **Outliers** show removed"
+#~ " rows in red."
+#~ msgstr ""
+

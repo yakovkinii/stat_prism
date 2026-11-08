@@ -1,0 +1,88 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2026, StatPrism Team
+# This file is distributed under the same license as the StatPrism package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2026.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: StatPrism 1.3\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-11-03 22:39+0100\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language: uk\n"
+"Language-Team: uk <LL@li.org>\n"
+"Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
+"n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.18.0\n"
+
+#: ../../data-processing/index.md:1
+msgid "Preparing data"
+msgstr "Підготовка даних"
+
+#: ../../data-processing/index.md:3
+msgid ""
+"Data-processing steps clean and reshape your data before analysis. Each "
+"step is added to the **chain**: it takes the data from the step before it"
+" and produces a new version, leaving the original untouched. You can "
+"stack as many steps as you need, reorder them, and turn some of them on "
+"or off."
+msgstr ""
+"Кроки обробки даних очищують і змінюють структуру ваших даних перед аналізом. "
+"Кожен крок додається до **ланцюжка**: він бере дані з попереднього кроку і "
+"створює нову версію, залишаючи оригінал недоторканим. Ви можете скласти "
+"стільки кроків, скільки потрібно, змінювати їх порядок, а деякі з них "
+"вмикати або вимикати."
+
+#: ../../data-processing/index.md:8
+msgid "How processing steps work"
+msgstr "Як працюють кроки обробки"
+
+#: ../../data-processing/index.md:10
+msgid ""
+"**Data source.** Like analyses, each step reads from a source. **Auto** "
+"means \"the output of the previous step\", so a chain flows naturally "
+"from one step to the next."
+msgstr ""
+"**Джерело даних.** Як і аналізи, кожен крок читає з джерела. **Auto** означає "
+"\"вихідні дані попереднього кроку\", тож ланцюжок природно переходить від "
+"одного кроку до наступного."
+
+#: ../../data-processing/index.md:12
+msgid ""
+"**Most steps add a new column** and leave the source column in place (for"
+" example, *Group Values*, *One-hot encoding*). A few replace a column "
+"**in place** (*Transform Column*) or remove rows (*Filter*, the outlier "
+"steps, *Response Quality*, *Impute ▸ Remove rows*)."
+msgstr ""
+"**Більшість кроків додають нову колонку** і залишають вихідну колонку на "
+"місці (наприклад, *Group Values*, *One-hot encoding*). Деякі замінюють "
+"колонку **на місці** (*Transform Column*) або видаляють рядки (*Filter*, "
+"кроки видалення викидів, *Response Quality*, *Impute ▸ Remove rows*)."
+
+#: ../../data-processing/index.md:15
+msgid ""
+"**Toggleable steps.** *Filter*, the outlier steps, and *Response Quality*"
+" have an enable/disable switch on their card, so you can compare results "
+"with and without them without deleting the step."
+msgstr ""
+"**Кроки з перемикачем.** *Filter*, кроки видалення викидів і *Response "
+"Quality* мають перемикач увімкнення/вимкнення на своїй картці, тож ви можете "
+"порівнювати результати з ними та без них, не видаляючи крок."
+
+#: ../../data-processing/index.md:18
+msgid ""
+"**Previewing** a step shows its output; row-removing steps display "
+"removed rows in red."
+msgstr ""
+"**Попередній перегляд** кроку показує його вихідні дані; кроки, що видаляють "
+"рядки, відображають видалені рядки червоним."
+
+#: ../../data-processing/index.md:20
+msgid "The pages below describe each step."
+msgstr "Сторінки нижче описують кожен крок."
+

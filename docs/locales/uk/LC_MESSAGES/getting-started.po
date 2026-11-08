@@ -1,0 +1,373 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2026, StatPrism Team
+# This file is distributed under the same license as the StatPrism package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2026.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: StatPrism 1.3\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-11-04 00:10+0100\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language: uk\n"
+"Language-Team: uk <LL@li.org>\n"
+"Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
+"n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.18.0\n"
+
+#: ../../getting-started.md:1
+msgid "Getting started"
+msgstr "Початок роботи"
+
+#: ../../getting-started.md:3
+msgid "This page introduces the StatPrism window and the general way of working."
+msgstr "Ця сторінка знайомить із вікном StatPrism і загальним принципом роботи."
+
+#: ../../getting-started.md:5
+msgid "The main window"
+msgstr "Головне вікно"
+
+#: ../../getting-started.md:7
+msgid "The StatPrism window with its main areas labeled"
+msgstr "Вікно StatPrism із позначеними основними областями"
+
+#: ../../getting-started.md:11
+msgid ""
+"The StatPrism window: the **results area** on the left (one card per "
+"result), the **settings panel** on the right (modules and their options),"
+" and the **menu bar** along the top."
+msgstr ""
+"Вікно StatPrism: **область результатів** ліворуч (одна картка на кожен "
+"результат), **панель налаштувань** праворуч (модулі та їхні параметри) і "
+"**рядок меню** вгорі."
+
+#: ../../getting-started.md:16
+msgid "StatPrism has two main areas:"
+msgstr "StatPrism має дві основні області:"
+
+#: ../../getting-started.md:18
+msgid ""
+"**The panel on the right** is where you configure and run steps. This "
+"narrower settings panel lists the available modules – data-processing "
+"steps and analyses – and shows the settings for whichever one you are "
+"configuring."
+msgstr ""
+"**На панелі праворуч** ви налаштовуєте й запускаєте кроки. Ця вужча панель "
+"налаштувань містить перелік доступних модулів – кроків обробки даних та "
+"аналізів – і показує налаштування того з них, який ви зараз налаштовуєте."
+
+#: ../../getting-started.md:21
+msgid ""
+"**The large area on the left** shows *results* – the tables and figures "
+"produced by your analyses, each in its own card."
+msgstr ""
+"**Велика область ліворуч** показує *результати* – таблиці та графіки, "
+"створені вашими аналізами, кожен у власній картці."
+
+#: ../../getting-started.md:24
+msgid ""
+"Along the top is the **menu bar** with **File**, **Settings**, and "
+"**Help**. Language and the visual themes are set under **Settings**."
+msgstr ""
+"Угорі розташований **рядок меню** з пунктами **File**, **Settings** та "
+"**Help**. Мова та візуальні теми задаються в розділі **Settings**."
+
+#: ../../getting-started.md:27
+msgid "The processing chain"
+msgstr "Ланцюг обробки"
+
+#: ../../getting-started.md:29
+msgid "StatPrism treats your work as a **chain**:"
+msgstr "StatPrism розглядає вашу роботу як **ланцюг**:"
+
+#: ../../getting-started.md:35
+msgid ""
+"When you import a file it becomes the **raw data** at the start of the "
+"chain."
+msgstr ""
+"Коли ви імпортуєте файл, він стає **сирими даними** на початку ланцюга."
+
+#: ../../getting-started.md:36
+msgid ""
+"Each **data-processing** step (filter, recode, compute a scale, …) takes "
+"the data from the step before it and produces a new version. These steps "
+"stack up in order."
+msgstr ""
+"Кожен крок **обробки даних** (фільтрування, перекодування, обчислення шкали "
+"…) бере дані з попереднього кроку й створює нову версію. Ці кроки "
+"накопичуються по порядку."
+
+#: ../../getting-started.md:38
+msgid ""
+"Each **analysis** reads from a **data source** you choose. The default "
+"source, **Auto**, means \"the most recent data\" – so analyses "
+"automatically see your latest cleaning step."
+msgstr ""
+"Кожен **аналіз** читає з обраного вами **джерела даних**. Джерело за "
+"замовчуванням, **Auto**, означає \"найсвіжіші дані\" – тож аналізи "
+"автоматично бачать ваш останній крок очищення."
+
+#: ../../getting-started.md:41
+msgid ""
+"This means you can clean once and run many analyses on the cleaned data, "
+"and if you change a cleaning step everything downstream updates."
+msgstr ""
+"Це означає, що ви можете один раз очистити дані й запустити багато аналізів "
+"на очищених даних, а якщо ви зміните крок очищення, усе подальше оновиться."
+
+#: ../../getting-started.md:44
+msgid "A first run in four steps"
+msgstr "Перший запуск за чотири кроки"
+
+#: ../../getting-started.md:46
+#, python-brace-format
+msgid ""
+"**Import your data.** Use **File ▸ Open…** and pick your survey export. "
+"See {doc}`importing-data`."
+msgstr ""
+"**Імпортуйте дані.** Скористайтеся **File ▸ Open…** і виберіть експорт свого "
+"опитування. Див. {doc}`importing-data`."
+
+#: ../../getting-started.md:48
+#, python-brace-format
+msgid ""
+"**(Optional) Clean it.** Add data-processing steps such as *Filter* or "
+"*Impute Missing*. See {doc}`data-processing/index`."
+msgstr ""
+"**(Необов'язково) Очистіть дані.** Додайте кроки обробки даних, як-от "
+"*Filter* або *Impute Missing*. Див. {doc}`data-processing/index`."
+
+#: ../../getting-started.md:50
+#, python-brace-format
+msgid ""
+"**Run an analysis.** Pick an analysis module (for example *Descriptive "
+"Statistics*), choose the columns to analyze, and read the results on the "
+"left. See {doc}`analyses/index`."
+msgstr ""
+"**Запустіть аналіз.** Виберіть модуль аналізу (наприклад, *Descriptive "
+"Statistics*), виберіть колонки для аналізу та переглядайте результати "
+"ліворуч. Див. {doc}`analyses/index`."
+
+#: ../../getting-started.md:53
+#, python-brace-format
+msgid ""
+"**Export the output.** Use **File ▸ Copy All Results** and paste into "
+"Word, or **File ▸ Export Report (HTML)…** to save a self-contained "
+"report. See {doc}`results-and-export`."
+msgstr ""
+"**Експортуйте результат.** Скористайтеся **File ▸ Copy All Results** і "
+"вставте у Word або **File ▸ Export Report (HTML)…**, щоб зберегти "
+"самодостатній звіт. Див. {doc}`results-and-export`."
+
+#: ../../getting-started.md:57
+msgid "Choosing columns"
+msgstr "Вибір колонок"
+
+#: ../../getting-started.md:59
+#, python-brace-format
+msgid ""
+"Most modules ask you to pick one or more columns using a **column "
+"selector**. Selectors only offer columns of a type that makes sense for "
+"that field – for example, a grouping field accepts categorical columns, "
+"while a numeric summary accepts numeric columns. If a column you expect "
+"is missing from a selector, check its **type** in the data viewer (see "
+"{doc}`importing-data`)."
+msgstr ""
+"Більшість модулів пропонують вибрати одну або кілька колонок за допомогою "
+"**селектора колонок**. Селектори пропонують лише колонки того типу, який "
+"має сенс для цього поля – наприклад, поле групування приймає категорійні "
+"колонки, тоді як числове зведення приймає числові колонки. Якщо очікуваної "
+"колонки немає в селекторі, перевірте її **тип** у перегляді даних (див. "
+"{doc}`importing-data`)."
+
+#: ../../getting-started.md:65
+msgid "Languages and themes"
+msgstr "Мови та теми"
+
+#: ../../getting-started.md:67
+#, python-brace-format
+msgid ""
+"StatPrism is available in **English** and **Ukrainian** (**Settings ▸ "
+"Language**), offers several **plot themes** (**Settings ▸ Plot theme**), "
+"and has a light/dark **UI theme** (**Settings ▸ UI theme**). Changing the"
+" language or plot theme rebuilds your results to match. See {doc"
+"}`projects-and-settings`."
+msgstr ""
+"StatPrism доступний **англійською** та **українською** (**Settings ▸ "
+"Language**), пропонує кілька **тем графіків** (**Settings ▸ Plot theme**) і "
+"має світлу/темну **тему інтерфейсу** (**Settings ▸ UI theme**). Зміна мови "
+"або теми графіків перебудовує ваші результати відповідно до них. Див. {doc"
+"}`projects-and-settings`."
+
+#: ../../getting-started.md:72
+msgid ""
+"If the interface looks too small or too large on your screen (displays "
+"and Windows' own scaling vary a lot), use **Settings ▸ UI scale** to zoom"
+" the whole interface (this is on top of Windows' display scaling). It "
+"applies the next time you start StatPrism."
+msgstr ""
+"Якщо інтерфейс виглядає надто дрібним або надто великим на вашому екрані "
+"(дисплеї та власне масштабування Windows дуже різняться), скористайтеся "
+"**Settings ▸ UI scale**, щоб масштабувати весь інтерфейс (це додається "
+"поверх масштабування дисплея Windows). Зміна застосовується під час "
+"наступного запуску StatPrism."
+
+#: ../../getting-started.md:76
+msgid "Saving your work"
+msgstr "Збереження вашої роботи"
+
+#: ../../getting-started.md:78
+#, python-brace-format
+msgid ""
+"Use **File ▸ Save** / **Save As…** to store everything – the data, every "
+"processing step, and every analysis – in a single `.sp` project file you "
+"can reopen later. See {doc}`projects-and-settings`."
+msgstr ""
+"Скористайтеся **File ▸ Save** / **Save As…**, щоб зберегти все – дані, "
+"кожен крок обробки та кожен аналіз – в єдиному файлі проєкту `.sp`, який ви "
+"зможете відкрити пізніше. Див. {doc}`projects-and-settings`."
+
+#: ../../getting-started.md:82
+msgid "Keyboard shortcuts"
+msgstr "Комбінації клавіш"
+
+#: ../../getting-started.md:7
+msgid "Shortcut"
+msgstr "Комбінація"
+
+#: ../../getting-started.md:7
+msgid "Action"
+msgstr "Дія"
+
+#: ../../getting-started.md:7
+msgid "**Ctrl+O**"
+msgstr "**Ctrl+O**"
+
+#: ../../getting-started.md:7
+msgid "Open a project"
+msgstr "Відкрити проєкт"
+
+#: ../../getting-started.md:7
+msgid "**Ctrl+S**"
+msgstr "**Ctrl+S**"
+
+#: ../../getting-started.md:7
+msgid "Save"
+msgstr "Зберегти"
+
+#: ../../getting-started.md:7
+msgid "**Ctrl+Shift+S**"
+msgstr "**Ctrl+Shift+S**"
+
+#: ../../getting-started.md:7
+msgid "Save As…"
+msgstr "Зберегти як…"
+
+#: ../../getting-started.md:7
+msgid "**Ctrl+R**"
+msgstr "**Ctrl+R**"
+
+#: ../../getting-started.md:7
+msgid "Recalculate all studies (also **File ▸ Recalculate All**)"
+msgstr "Перерахувати всі дослідження (також **File ▸ Recalculate All**)"
+
+#: ../../getting-started.md:7
+msgid "**Esc**"
+msgstr "**Esc**"
+
+#: ../../getting-started.md:7
+msgid "Deselect the current study (return to the Home panel)"
+msgstr "Зняти вибір поточного дослідження (повернутися на панель Home)"
+
+#~ msgid ""
+#~ "This page gives you a quick tour"
+#~ " of the StatPrism window and the "
+#~ "overall way of working."
+#~ msgstr ""
+
+#~ msgid "The window at a glance"
+#~ msgstr ""
+
+#~ msgid ""
+#~ "**The panel on the right** is "
+#~ "where you *do* things. This narrower "
+#~ "settings panel lists the available "
+#~ "modules — data-processing steps and "
+#~ "analyses — and shows the settings "
+#~ "for whichever one you are configuring."
+#~ msgstr ""
+
+#~ msgid ""
+#~ "**The large area on the left** "
+#~ "shows *results* — the tables and "
+#~ "figures produced by your analyses, each"
+#~ " in its own card."
+#~ msgstr ""
+
+#~ msgid ""
+#~ "Along the top is the **menu bar**"
+#~ " with **File**, **Settings**, and **Help**."
+#~ " Language and the visual themes live"
+#~ " under **Settings**."
+#~ msgstr ""
+
+#~ msgid "The core idea: a chain of steps"
+#~ msgstr ""
+
+#~ msgid ""
+#~ "Each **analysis** reads from a **data"
+#~ " source** you choose. The default "
+#~ "source, **Auto**, means \"the most "
+#~ "recent data\" — so analyses "
+#~ "automatically see your latest cleaning "
+#~ "step."
+#~ msgstr ""
+
+#~ msgid ""
+#~ "**Get the output out.** Use **File "
+#~ "▸ Copy All Results** and paste "
+#~ "into Word, or **File ▸ Export "
+#~ "Report (HTML)…** to save a self-"
+#~ "contained report. See {doc}`results-and-"
+#~ "export`."
+#~ msgstr ""
+
+#~ msgid ""
+#~ "Most modules ask you to pick one"
+#~ " or more columns using a **column "
+#~ "selector**. Selectors only offer columns "
+#~ "of a type that makes sense for "
+#~ "that field — for example, a "
+#~ "grouping field accepts categorical columns,"
+#~ " while a numeric summary accepts "
+#~ "numeric columns. If a column you "
+#~ "expect is missing from a selector, "
+#~ "check its **type** in the data "
+#~ "viewer (see {doc}`importing-data`)."
+#~ msgstr ""
+
+#~ msgid ""
+#~ "If the interface looks too small "
+#~ "or too large on your screen — "
+#~ "displays and Windows' own scaling vary"
+#~ " a lot — use **Settings ▸ UI"
+#~ " scale** to zoom the whole interface"
+#~ " (this is on top of Windows' "
+#~ "display scaling). It applies the next"
+#~ " time you start StatPrism."
+#~ msgstr ""
+
+#~ msgid ""
+#~ "Use **File ▸ Save** / **Save As…**"
+#~ " to store everything — the data, "
+#~ "every processing step, and every "
+#~ "analysis — in a single `.sp` "
+#~ "project file you can reopen later. "
+#~ "See {doc}`projects-and-settings`."
+#~ msgstr ""
+

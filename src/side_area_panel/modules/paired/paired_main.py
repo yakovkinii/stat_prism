@@ -29,7 +29,7 @@ from src.common.translations import t
 from src.data.data import OrdinalCastError, infer_ordinal_order
 from src.data.data_manager import DATA_MANAGER
 from src.side_area_panel.modules.common.column_numbering import ColumnNumbering
-from src.side_area_panel.modules.common.prose import ProseDetail, prose_enabled, prose_includes
+from src.side_area_panel.modules.common.prose import ProseDetail, prose_includes
 from src.side_area_panel.modules.common.result.html_result import Cell, HTMLTableV2, Row
 from src.side_area_panel.modules.common.utility import (
     format_p_apa,
@@ -38,8 +38,8 @@ from src.side_area_panel.modules.common.utility import (
     format_value_apa,
     ordinal_cast_error_message,
     ordinal_numeric_cast_warning,
-    smart_comma_join,
 )
+from src.side_area_panel.modules.common.verbal.compact import ReportItem, summarize
 from src.side_area_panel.modules.common.verbal.effect_size import cohen_d_magnitude, correlation_magnitude
 from src.side_area_panel.modules.common.verbal.significance import assumption_met_verbal, significance_verbal
 from src.side_area_panel.modules.common.verbal.test import TestResult
@@ -582,7 +582,7 @@ def _posthoc_table(
     )
     table.add_title_row_apa(Row([Cell()] + [Cell(numbering.label(name), center=True) for name in conditions]))
 
-    significant = []
+    items = []
     for i, name in enumerate(conditions):
         row = [Cell(numbering.label(name), push_to_left=True)]
         for j in range(i + 1):
@@ -591,22 +591,20 @@ def _posthoc_table(
             else:
                 p_val = get_p(i, j)
                 row.append(Cell(format_p_apa(p_val), center=True))
-                if p_val < 0.05:
-                    significant.append((i, j))
+                items.append(
+                    ReportItem(
+                        label=f"&laquo;{conditions[i]}&raquo;&ndash;&laquo;{conditions[j]}&raquo;",
+                        significant=p_val < 0.05,
+                        apa=format_p_apa_full(p_val),
+                        magnitude=1.0 - min(max(float(p_val), 0.0), 1.0),
+                        notable=p_val < 0.05,
+                    )
+                )
         table.add_single_row_apa(Row(row))
 
-    prose_enabled(prose_detail) and table.add_text(
-        t(
-            "paired.posthoc_sentence",
-            name=test_name,
-            groups=smart_comma_join(
-                [
-                    t("ttest.group_pair", a=conditions[i], b=conditions[j], p=format_p_apa_full(get_p(i, j)))
-                    for i, j in significant
-                ]
-            ),
-        )
-    )
+    prose = summarize(items, prose_detail, noun_nom=t("verbal.noun.pairs.nom"), noun_gen=t("verbal.noun.pairs.gen"))
+    if prose:
+        table.add_text(prose)
     note = "Columns: " + ", ".join(numbering.label(name) for name in conditions) + "."
     table.table_note = numbering.append_to_note(note)
     return table

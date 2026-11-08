@@ -1,0 +1,207 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2026, StatPrism Team
+# This file is distributed under the same license as the StatPrism package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2026.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: StatPrism 1.3\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-11-04 00:10+0100\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language: uk\n"
+"Language-Team: uk <LL@li.org>\n"
+"Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
+"n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.18.0\n"
+
+#: ../../analyses/contingency.md:1
+msgid "Contingency tables"
+msgstr "Таблиці спряженості"
+
+#: ../../analyses/contingency.md:3
+msgid ""
+"Cross-tabulates two categorical variables and tests whether they are "
+"associated."
+msgstr "Будує таблицю спряженості для двох категоріальних змінних і перевіряє, чи пов'язані вони між собою."
+
+#: ../../analyses/contingency.md:5
+msgid "When to use it"
+msgstr "Коли використовувати"
+
+#: ../../analyses/contingency.md:7
+msgid ""
+"To relate two categorical questions: for example, region by preference, "
+"or gender by a yes/no outcome."
+msgstr "Щоб пов'язати два категоріальні запитання: наприклад, регіон за вподобанням або стать за результатом так/ні."
+
+#: ../../analyses/contingency.md:10
+msgid "Inputs"
+msgstr "Вхідні дані"
+
+#: ../../analyses/contingency.md:12
+msgid "**Row variable**: one categorical column."
+msgstr "**Змінна рядків**: одна категоріальна колонка."
+
+#: ../../analyses/contingency.md:13
+msgid "**Column variable**: a second categorical column."
+msgstr "**Змінна колонок**: друга категоріальна колонка."
+
+#: ../../analyses/contingency.md:15
+msgid "Options"
+msgstr "Параметри"
+
+#: ../../analyses/contingency.md:17
+msgid "**Continuity correction**: applies Yates' correction (2×2 tables only)."
+msgstr "**Поправка на неперервність**: застосовує поправку Єйтса (лише для таблиць 2×2)."
+
+#: ../../analyses/contingency.md:18
+msgid "**Effect size**: Cramér's V / phi."
+msgstr "**Розмір ефекту**: V Крамера / phi."
+
+#: ../../analyses/contingency.md:19
+msgid ""
+"**Percentages**: adds a percentages table normalized by **row**, "
+"**column**, or **total** (or *None* to hide it)."
+msgstr "**Відсотки**: додає таблицю відсотків, нормалізовану за **row**, **column** або **total** (або *None*, щоб приховати її)."
+
+#: ../../analyses/contingency.md:21
+msgid ""
+"**Post-hoc residuals**: when the chi-square test is significant, adds a "
+"table of **adjusted standardized residuals**; cells with |z| > 1.96 "
+"(shown in bold) are the ones driving the association."
+msgstr "**Post-hoc залишки**: коли тест хі-квадрат є значущим, додає таблицю **скоригованих стандартизованих залишків**; клітинки з |z| > 1.96 (виділені жирним) є тими, що зумовлюють зв'язок."
+
+#: ../../analyses/contingency.md:24
+msgid ""
+"**Verbal indicators**: in-table verbal columns (a *Significant?* "
+"conclusion and effect-size magnitude)."
+msgstr "**Verbal indicators**: словесні колонки в таблиці (висновок *Significant?* і величина розміру ефекту)."
+
+#: ../../analyses/contingency.md:26
+msgid ""
+"**Verbal report**: dropdown for how much written interpretation to add "
+"(None / Key findings / Significant only / Full)."
+msgstr "**Словесний звіт**: dropdown для вибору обсягу письмової інтерпретації (None / Key findings / Significant only / Full)."
+
+#: ../../analyses/contingency.md:28
+msgid ""
+"**Paired data (symmetry test)**: for a square table of the same "
+"categories measured twice, runs a symmetry test (McNemar / Bowker) "
+"instead of the standard independence test."
+msgstr "**Paired data (symmetry test)**: для квадратної таблиці тих самих категорій, виміряних двічі, виконує тест симетрії (МакНемара / Боукера) замість стандартного тесту незалежності."
+
+#: ../../analyses/contingency.md:30
+msgid "**Plots**: a distribution chart of the cross-tabulation."
+msgstr "**Plots**: діаграма розподілу таблиці спряженості."
+
+#: ../../analyses/contingency.md:32
+msgid "Output"
+msgstr "Вихідні дані"
+
+#: ../../analyses/contingency.md:34
+msgid "The **counts** table (the cross-tabulation)."
+msgstr "Таблиця **частот** (таблиця спряженості)."
+
+#: ../../analyses/contingency.md:35
+msgid ""
+"A **chi-square** test of independence with df and *p*, plus an effect "
+"size."
+msgstr "Тест незалежності **хі-квадрат** з df і *p*, а також розмір ефекту."
+
+#: ../../analyses/contingency.md:36
+msgid "**Fisher's exact** test for small 2×2 tables."
+msgstr "**Точний тест Фішера** для малих таблиць 2×2."
+
+#: ../../analyses/contingency.md:37
+msgid "Optional plot."
+msgstr "Необов'язковий графік."
+
+#: ../../analyses/contingency.md:39
+msgid "Notes"
+msgstr "Примітки"
+
+#: ../../analyses/contingency.md:41
+msgid "Both variables need at least two categories with data."
+msgstr "Обидві змінні повинні мати щонайменше дві категорії з даними."
+
+#: ../../analyses/contingency.md:42
+msgid ""
+"Remember that blank text answers are read as a literal `nan` category; "
+"clean those first (e.g. with **Filter**) if you do not want them as a "
+"row/column."
+msgstr "Пам'ятайте, що порожні текстові відповіді читаються як буквальна категорія `nan`; очистіть їх спочатку (наприклад, за допомогою **Filter**), якщо ви не хочете, щоб вони були рядком/колонкою."
+
+#~ msgid ""
+#~ "To relate two categorical questions —"
+#~ " for example, region by preference, "
+#~ "or gender by a yes/no outcome."
+#~ msgstr ""
+
+#~ msgid "**Row variable** — one categorical column."
+#~ msgstr ""
+
+#~ msgid "**Column variable** — a second categorical column."
+#~ msgstr ""
+
+#~ msgid ""
+#~ "**Continuity correction** — applies Yates' "
+#~ "correction (2×2 tables only)."
+#~ msgstr ""
+
+#~ msgid "**Effect size** — Cramér's V / phi."
+#~ msgstr ""
+
+#~ msgid ""
+#~ "**Percentages** — adds a percentages "
+#~ "table normalized by **row**, **column**, "
+#~ "or **total** (or *None* to hide "
+#~ "it)."
+#~ msgstr ""
+
+#~ msgid ""
+#~ "**Post-hoc residuals** — when the "
+#~ "chi-square test is significant, adds "
+#~ "a table of **adjusted standardized "
+#~ "residuals**; cells with |z| > 1.96 "
+#~ "(shown in bold) are the ones "
+#~ "driving the association."
+#~ msgstr ""
+
+#~ msgid ""
+#~ "**Verbal indicators** — in-table verbal"
+#~ " columns (a *Significant?* conclusion and"
+#~ " effect-size magnitude)."
+#~ msgstr ""
+
+#~ msgid ""
+#~ "**Verbal report** — dropdown for how "
+#~ "much written interpretation to add (None"
+#~ " / Key findings / Significant only"
+#~ " / Full)."
+#~ msgstr ""
+
+#~ msgid ""
+#~ "**Paired data (symmetry test)** — for"
+#~ " a square table of the same "
+#~ "categories measured twice, runs a "
+#~ "symmetry test (McNemar / Bowker) instead"
+#~ " of the standard independence test."
+#~ msgstr ""
+
+#~ msgid "**Plots** — a distribution chart of the cross-tabulation."
+#~ msgstr ""
+
+#~ msgid ""
+#~ "Remember that blank text answers are "
+#~ "read as a literal `nan` category; "
+#~ "clean those first (e.g. with **Filter**)"
+#~ " if you don't want them as a"
+#~ " row/column."
+#~ msgstr ""
+

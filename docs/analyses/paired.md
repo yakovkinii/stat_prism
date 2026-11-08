@@ -5,12 +5,12 @@ in separate columns.
 
 ## When to use it
 
-When each row has several measurements to compare — for example, a pre-test and a post-test
-column, or three time points — rather than separate groups of people.
+When each row has several measurements to compare – for example, a pre-test and a post-test
+column, or three time points – rather than separate groups of people.
 
 ## Inputs
 
-- **Conditions** — two or more numeric columns, one per condition/time point.
+- **Conditions**: two or more numeric columns, one per condition/time point.
 
 With two conditions you get a paired test; with three or more, a repeated-measures test.
 
@@ -21,7 +21,7 @@ Method
   **Non-parametric** (Wilcoxon signed-rank / Friedman).
 
 Assumption checks
-: **Auto / Yes / No** — includes a normality check on the differences. (With *Detect
+: **Auto / Yes / No** – includes a normality check on the differences. (With *Detect
   automatically*, assumption checks must be on.)
 
 Other

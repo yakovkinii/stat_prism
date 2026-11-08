@@ -1,0 +1,148 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2026, StatPrism Team
+# This file is distributed under the same license as the StatPrism package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2026.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: StatPrism 1.3\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-11-04 00:10+0100\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language: uk\n"
+"Language-Team: uk <LL@li.org>\n"
+"Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
+"n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.18.0\n"
+
+#: ../../analyses/paired.md:1
+msgid "Paired / repeated measures"
+msgstr "Парні / повторні вимірювання"
+
+#: ../../analyses/paired.md:3
+msgid ""
+"Compares two or more **conditions measured on the same respondents** "
+"(within-subject), held in separate columns."
+msgstr "Порівнює дві або більше **умов, виміряних на тих самих респондентах** (для залежних вибірок), що містяться в окремих колонках."
+
+#: ../../analyses/paired.md:6
+msgid "When to use it"
+msgstr "Коли використовувати"
+
+#: ../../analyses/paired.md:8
+msgid ""
+"When each row has several measurements to compare – for example, a pre-"
+"test and a post-test column, or three time points – rather than separate "
+"groups of people."
+msgstr "Коли кожен рядок має кілька вимірювань для порівняння – наприклад, колонку передтесту і колонку післятесту, або три часові точки – а не окремі групи людей."
+
+#: ../../analyses/paired.md:11
+msgid "Inputs"
+msgstr "Вхідні дані"
+
+#: ../../analyses/paired.md:13
+msgid "**Conditions**: two or more numeric columns, one per condition/time point."
+msgstr "**Умови**: дві або більше числові колонки, по одній на кожну умову/часову точку."
+
+#: ../../analyses/paired.md:15
+msgid ""
+"With two conditions you get a paired test; with three or more, a "
+"repeated-measures test."
+msgstr "За двох умов ви отримуєте парний тест; за трьох або більше – тест для повторних вимірювань."
+
+#: ../../analyses/paired.md:17
+msgid "Options"
+msgstr "Параметри"
+
+#: ../../analyses/paired.md:19
+msgid "Method"
+msgstr "Метод"
+
+#: ../../analyses/paired.md:20
+msgid ""
+"**Detect automatically**, **Parametric** (paired *t* / repeated-measures "
+"ANOVA), or **Non-parametric** (Wilcoxon signed-rank / Friedman)."
+msgstr "**Detect automatically**, **Parametric** (парний *t* / ANOVA для повторних вимірювань) або **Non-parametric** (знаково-рангового Вілкоксона / Фрідмана)."
+
+#: ../../analyses/paired.md:23
+msgid "Assumption checks"
+msgstr "Перевірка припущень"
+
+#: ../../analyses/paired.md:24
+msgid ""
+"**Auto / Yes / No** – includes a normality check on the differences. "
+"(With *Detect automatically*, assumption checks must be on.)"
+msgstr "**Auto / Yes / No** – включає перевірку нормальності різниць. (З *Detect automatically* перевірка припущень має бути увімкнена.)"
+
+#: ../../analyses/paired.md:27
+msgid "Other"
+msgstr "Інше"
+
+#: ../../analyses/paired.md:28
+msgid ""
+"**Effect size / post-hoc**, **Verbal indicators** (in-table columns), "
+"**Verbal report** (dropdown for how much written interpretation: None / "
+"Key findings / Significant only / Full), **Number conditions**, and "
+"**Plots**. When plots are on, **Plot significant only** is on by default "
+"and shows the condition plot only when the selected paired/repeated-"
+"measures test is significant."
+msgstr "**Розмір ефекту / post-hoc**, **Verbal indicators** (колонки в таблиці), **Словесний звіт** (dropdown для вибору обсягу письмової інтерпретації: None / Key findings / Significant only / Full), **Number conditions** та **Plots**. Коли графіки увімкнено, **Plot significant only** увімкнено за замовчуванням і показує графік умов лише тоді, коли обраний парний тест / тест для повторних вимірювань є значущим."
+
+#: ../../analyses/paired.md:34
+msgid "Output"
+msgstr "Вихідні дані"
+
+#: ../../analyses/paired.md:36
+msgid "A **descriptives** table across conditions."
+msgstr "Таблиця **описових статистик** за умовами."
+
+#: ../../analyses/paired.md:37
+msgid "A **normality** table (when checks are on)."
+msgstr "Таблиця **нормальності** (коли перевірки ввімкнено)."
+
+#: ../../analyses/paired.md:38
+msgid ""
+"The **test** result with the appropriate statistic, *p*, and effect size "
+"(e.g. Cohen's *d*z, generalized eta-squared, Kendall's *W*, or rank-"
+"biserial correlation)."
+msgstr "Результат **тесту** з відповідною статистикою, *p* і розміром ефекту (наприклад, *d*z Коена, узагальнене eta-квадрат, *W* Кендалла або рангово-бісеріальна кореляція)."
+
+#: ../../analyses/paired.md:40
+msgid "Post-hoc comparisons for three or more conditions."
+msgstr "Post-hoc порівняння для трьох або більше умов."
+
+#: ../../analyses/paired.md:42
+msgid "Notes"
+msgstr "Примітки"
+
+#: ../../analyses/paired.md:44
+msgid ""
+"Rows missing any condition are dropped (complete-case analysis), so all "
+"conditions are compared on the same respondents."
+msgstr "Рядки, у яких відсутня будь-яка умова, відкидаються (аналіз лише повних спостережень), тож усі умови порівнюються на тих самих респондентах."
+
+#~ msgid ""
+#~ "When each row has several measurements"
+#~ " to compare — for example, a "
+#~ "pre-test and a post-test column, "
+#~ "or three time points — rather than"
+#~ " separate groups of people."
+#~ msgstr ""
+
+#~ msgid ""
+#~ "**Conditions** — two or more numeric "
+#~ "columns, one per condition/time point."
+#~ msgstr ""
+
+#~ msgid ""
+#~ "**Auto / Yes / No** — includes "
+#~ "a normality check on the differences."
+#~ " (With *Detect automatically*, assumption "
+#~ "checks must be on.)"
+#~ msgstr ""
+

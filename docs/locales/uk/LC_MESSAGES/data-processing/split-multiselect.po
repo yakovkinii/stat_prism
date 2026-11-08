@@ -1,0 +1,65 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2026, StatPrism Team
+# This file is distributed under the same license as the StatPrism package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2026.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: StatPrism 1.3\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-11-04 00:10+0100\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language: uk\n"
+"Language-Team: uk <LL@li.org>\n"
+"Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
+"n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.18.0\n"
+
+#: ../../data-processing/split-multiselect.md:1
+msgid "Split Multi-Select"
+msgstr "Розділення множинного вибору"
+
+#: ../../data-processing/split-multiselect.md:3
+msgid ""
+"Splits a \"select all that apply\" / checkbox column – where each cell "
+"holds a delimited list of chosen options (e.g. *\"Email, Calendar\"*) – "
+"into one **0/1 indicator column per distinct option**. A cell gets 1 for "
+"an option it contains and 0 otherwise; blank cells get 0 everywhere."
+msgstr ""
+"Розділяє колонку \"виберіть усе, що підходить\" / checkbox – де кожна "
+"клітинка містить розділений список вибраних варіантів (наприклад, *\"Email, "
+"Calendar\"*) – на одну **колонку-індикатор 0/1 на кожен окремий варіант**. "
+"Клітинка отримує 1 для варіанта, який вона містить, і 0 в іншому разі; "
+"порожні клітинки отримують 0 усюди."
+
+#: ../../data-processing/split-multiselect.md:8
+#, python-brace-format
+msgid ""
+"The new columns are numeric, so each can be summarized (its mean is the "
+"proportion who chose that option) or correlated, and together they feed "
+"the **Multiple Response** analysis (see {doc}`../analyses/multiple-"
+"response`). Set the **delimiter** (comma by default) and an optional name"
+" **prefix**."
+msgstr ""
+"Нові колонки числові, тож кожну можна підсумувати (її середнє – це частка "
+"тих, хто вибрав цей варіант) або корелювати, а разом вони живлять аналіз "
+"**Multiple Response** (див. {doc}`../analyses/multiple-response`). Задайте "
+"**роздільник** (кома за замовчуванням) і необов'язковий **префікс** назви."
+
+#~ msgid ""
+#~ "Splits a \"select all that apply\" "
+#~ "/ checkbox column — where each "
+#~ "cell holds a delimited list of "
+#~ "chosen options (e.g. *\"Email, Calendar\"*)"
+#~ " — into one **0/1 indicator column"
+#~ " per distinct option**. A cell gets"
+#~ " 1 for an option it contains "
+#~ "and 0 otherwise; blank cells get 0"
+#~ " everywhere."
+#~ msgstr ""
+
