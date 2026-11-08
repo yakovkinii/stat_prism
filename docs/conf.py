@@ -92,6 +92,16 @@ html_theme_options = {
     "accent_color": "amber",
 }
 
+# Drop the ad sidebars Shibuya ships by default (carbon-ads, ethical-ads /
+# readthedocs). Keep the useful ones: local ToC, repo stats, edit-this-page.
+html_sidebars = {
+    "**": [
+        "sidebars/localtoc.html",
+        "sidebars/repo-stats.html",
+        "sidebars/edit-this-page.html",
+    ]
+}
+
 # -- PDF (LaTeX) output -------------------------------------------------------
 latex_elements = {
     "papersize": "a4paper",
