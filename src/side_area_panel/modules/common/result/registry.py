@@ -45,6 +45,7 @@ from src.side_area_panel.modules.power_analysis.power_analysis_result import Pow
 from src.side_area_panel.modules.raw_data.raw_data_result import RawDataResult
 from src.side_area_panel.modules.regression.regression_result import RegressionResult
 from src.side_area_panel.modules.reliability.reliability_result import ReliabilityResult
+from src.side_area_panel.modules.rose_plot.rose_plot_result import RosePlotResult
 
 RESULTS: Dict[
     int,
@@ -74,6 +75,7 @@ RESULTS: Dict[
         SplitMultiSelectResult,
         OneHotResult,
         MultipleResponseResult,
+        RosePlotResult,
     ],
 ] = {}
 

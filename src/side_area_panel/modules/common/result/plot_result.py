@@ -26,6 +26,7 @@ import numpy as np
 from matplotlib import cbook
 from matplotlib import pyplot as plt
 from matplotlib.patches import Patch
+from matplotlib.ticker import MaxNLocator
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 from PySide6.QtGui import QImage
 from PySide6.QtWidgets import QApplication
@@ -69,6 +70,20 @@ class Pie:
         self.values = values
         self.label = label
         self.config = config if config else PiePlotConfig()
+
+
+class RosePlot:
+    """A circular bar chart (one polar bar per selected column). ``values`` are the per-column
+    aggregates, ``names`` the column names shown in the legend, and ``scale_min``/``scale_max`` set
+    the radial axis limits. Each ray is identified by its colour (and an optional rim bead)."""
+
+    def __init__(self, values, names, scale_min, scale_max, label="Rose plot", config=None):
+        self.values = values
+        self.names = names
+        self.scale_min = scale_min
+        self.scale_max = scale_max
+        self.label = label
+        self.config = config if config else RosePlotConfig()
 
 
 class Scatter:
@@ -436,6 +451,45 @@ class PiePlotConfig(BasePlotConfig):
                 self.shadow_size,
                 self.legend_spacing,
             ],
+            add_stretch=True,
+        )
+
+
+# Cyclic colormaps read best on a rose/radar: the hue wraps smoothly around the circle. "hsv" is
+# the default the user liked; "Auto" falls back to the theme palette (via the pie helper).
+ROSE_COLORMAPS = ["hsv", "twilight", "rainbow", "turbo", "Auto"]
+
+
+def _rose_colors(colormap: str, n: int, alpha: float = 1.0) -> list:
+    """One colour per ray, sampled from the chosen colormap. Cyclic maps are sampled with
+    endpoint=False so the first and last rays do not share a colour."""
+    if n <= 0:
+        return []
+    if colormap == "Auto" or colormap not in ROSE_COLORMAPS:
+        return _pie_slice_colors("Auto", n, alpha)
+    cmap = plt.get_cmap(colormap)
+    positions = [0.5] if n == 1 else np.linspace(0.0, 1.0, n, endpoint=False)
+    return [(*cmap(float(pos))[:3], alpha) for pos in positions]
+
+
+class RosePlotConfig(BasePlotConfig):
+    def __init__(
+        self,
+        colormap: str = ROSE_COLORMAPS[0],
+        show_values: bool = True,
+        angular_gap: float = 0.0,
+        trim_labels: bool = False,
+    ):
+        super().__init__()
+        self.colormap = DropdownResultItemSetting(label="Colors", current_value=colormap, items=ROSE_COLORMAPS)
+        # Print each ray's aggregate value just outside the rim; turn off for a plain rose.
+        self.show_values = PlainCheckboxResultItemSetting(label="Ray values", current_value=show_values)
+        self.angular_gap = SliderResultItemSetting(
+            label="Angular gap", current_value=angular_gap, min_value=0.0, max_value=0.8, step=0.05
+        )
+        self.trim_labels = PlainCheckboxResultItemSetting(label="Trim long labels", current_value=trim_labels)
+        self.display_settings = ContainerResultItemSetting(
+            items=[self.colormap, self.show_values, self.angular_gap, self.trim_labels],
             add_stretch=True,
         )
 
@@ -928,8 +982,112 @@ class PlotV2(BaseResultElement):
         for setting in self._value_settings():
             setting.restore_default_value()
 
+    def _create_rose_figure(self):
+        """Render the circular bar (rose) plot on polar axes. Bypasses the cartesian machinery
+        below; reuses the shared figure-level settings (size, colours, fonts) so it themes and
+        exports like every other plot."""
+        item = next(it for it in self.items if isinstance(it, RosePlot))
+
+        face_color = self.background_color.get_current_value()
+        bg_alpha = self.background_alpha.get_current_value()
+        text_color = rgba_tuple_from_rgb_and_a(self.text_color.get_current_value(), 255)
+        face_rgba = rgba_tuple_from_rgb_and_a(face_color, bg_alpha)
+        frame_rgba = rgba_tuple_from_rgb_and_a(self.frame_color.get_current_value(), 255)
+
+        fig = plt.figure()
+        dpi = fig.get_dpi()
+        width = self.plot_size.get_current_value()
+        height = width * self.plot_aspect.get_current_value()
+        fig.set_size_inches(width / dpi, height / dpi)
+        ax = fig.add_subplot(projection="polar")
+        fig.patch.set_facecolor(face_rgba)
+        ax.set_facecolor(face_rgba)
+        ax.set_theta_offset(np.pi / 2)
+        ax.set_theta_direction(-1)
+
+        values = np.asarray(item.values, dtype=float)
+        n = len(values)
+        theta = np.linspace(0.0, 2 * np.pi, n, endpoint=False) if n else np.array([])
+        bar_width = (2 * np.pi / n) * (1.0 - item.config.angular_gap.get_current_value()) if n else 1.0
+        colors = _rose_colors(item.config.colormap.get_current_value(), n)
+        heights = np.clip(values - item.scale_min, 0.0, None)
+        ax.bar(theta, heights, width=bar_width, bottom=item.scale_min, color=colors,
+               edgecolor=face_rgba, linewidth=1.0, zorder=0.5)
+        tick_fs = self.tick_label_font_size.get_current_value()
+        span = item.scale_max - item.scale_min
+        show_values = item.config.show_values.get_current_value() and bool(n)
+        # Each ray's value is printed just outside the rim. Extend the radial view past that text so
+        # it is never clipped; the rings, spokes and frame are drawn manually only out to scale_max,
+        # keeping the outer margin clean.
+        value_r = item.scale_max + span * 0.10
+        rmax = (value_r + span * 0.12) if show_values else item.scale_max
+        ax.set_ylim(item.scale_min, rmax)
+
+        ax.set_xticks(theta)
+        ax.set_xticklabels([])
+        ax.tick_params(axis="x", length=0)
+
+        locator = MaxNLocator(nbins=5, steps=[1, 2, 2.5, 5, 10])
+        ring_values = [
+            t for t in locator.tick_values(item.scale_min, item.scale_max)
+            if item.scale_min < t <= item.scale_max + 1e-9
+        ]
+        ax.set_yticks(ring_values if ring_values else [item.scale_max])
+        ax.set_yticklabels([])
+        ax.tick_params(axis="y", length=0)
+        ax.grid(False)
+        ax.spines["polar"].set_visible(False)
+
+        ring_angles = np.linspace(0.0, 2 * np.pi, 180)
+        for ring in ring_values:
+            ax.plot(ring_angles, np.full_like(ring_angles, ring), color=frame_rgba,
+                    alpha=0.4, linewidth=0.8, zorder=1)
+        for angle in theta:
+            ax.plot([angle, angle], [item.scale_min, item.scale_max], color=frame_rgba,
+                    alpha=0.4, linewidth=0.8, zorder=1)
+        ax.plot(ring_angles, np.full_like(ring_angles, item.scale_max), color=frame_rgba,
+                linewidth=self.frame_thickness.get_current_value(), zorder=2)
+
+        # Each ray's aggregate value, printed just outside the rim.
+        if show_values:
+            for angle, value in zip(theta, values):
+                ax.text(angle, value_r, f"{value:g}", color=text_color, fontsize=tick_fs,
+                        ha="center", va="center", zorder=7)
+
+        trim = item.config.trim_labels.get_current_value()
+        handles = [
+            Patch(
+                facecolor=colors[i],
+                edgecolor=frame_rgba,
+                label=_ellipsize(item.names[i]) if trim else item.names[i],
+            )
+            for i in range(n)
+        ]
+        if handles:
+            leg = ax.legend(
+                handles=handles,
+                fontsize=self.legend_font_size.get_current_value(),
+                loc="center left",
+                bbox_to_anchor=(1.08, 0.5),
+                frameon=True,
+            )
+            leg.get_frame().set_facecolor(rgba_tuple_from_rgb_and_a(face_color, max(bg_alpha, 200)))
+            leg.get_frame().set_edgecolor(frame_rgba)
+            for text in leg.get_texts():
+                text.set_color(text_color)
+
+        title = self.plot_title.get_current_value()
+        if title:
+            ax.set_title(title, color=text_color, fontsize=self.axis_title_font_size.get_current_value(), pad=18)
+
+        # Extra pad so the rim beads (drawn outside the axes with clip_on=False) keep a margin.
+        fig.tight_layout(pad=1.8)
+        return fig, ax
+
     def create_figure(self):
         plt.close("all")
+        if any(isinstance(it, RosePlot) for it in self.items):
+            return self._create_rose_figure()
         fig, ax = plt.subplots()
 
         face_color = self.background_color.get_current_value()
