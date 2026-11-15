@@ -25,7 +25,7 @@ from statsmodels.stats.diagnostic import lilliefors
 from src.common.constant import ColumnType
 from src.common.decorators import log_function
 from src.common.translations import t
-from src.data.data import category_display_series
+from src.data.data import OrdinalCastError, category_display_series
 from src.data.data_manager import DATA_MANAGER
 from src.side_area_panel.modules.common.column_numbering import ColumnNumbering
 from src.side_area_panel.modules.common.prose import prose_enabled
@@ -136,10 +136,23 @@ def _parse_float_or_none(text):
         return None
 
 
-def _numeric_stats(data, col, group, series) -> dict:
+def _numeric_stats(data, col, group, series, face_series=None) -> dict:
     clean = series.dropna()
     n = int(clean.count())
     is_ordinal = data[col].column_type == ColumnType.ORDINAL
+    # Arithmetic statistics (mean / SD / SE / skew / kurtosis) require adding/dividing the values.
+    # A plain numeric column uses its own values; a *castable* ordinal (numeric face values supplied)
+    # uses those face values, flagged with an asterisk; a non-castable ordinal has no arithmetic mean
+    # (dash). Order statistics (min / max / median / quartiles) always stay on the ordinal ranks and
+    # are shown as face labels, so an ordinal never gains a mean-based "continuous" median here.
+    face_cast = is_ordinal and face_series is not None
+    if face_cast:
+        arith = face_series.dropna()
+    elif is_ordinal:
+        arith = None
+    else:
+        arith = clean
+    arith_n = 0 if arith is None else int(arith.count())
 
     def order_stat(reduce):
         # Order statistics (min / max) are valid on an ordinal scale; show the user-facing category
@@ -158,23 +171,22 @@ def _numeric_stats(data, col, group, series) -> dict:
         value = clean.quantile(p, interpolation="nearest" if is_ordinal else "linear")
         return data.to_face_value(col, value) if is_ordinal else value
 
-    # Arithmetic statistics (mean / SD / SE / skew / kurtosis) require adding/dividing the values,
-    # which an ordinal scale does not permit, so they are left blank (dash) for ordinal columns.
     return {
         "variable": col,
         "group": group,
         "N": n,
         "missing": int(series.isnull().sum()),
-        "mean": np.nan if is_ordinal else (clean.mean() if n else np.nan),
-        "std": np.nan if is_ordinal else (clean.std() if n > 1 else np.nan),
-        "se": np.nan if is_ordinal else (clean.std() / np.sqrt(n) if n > 1 else np.nan),
+        "mean": arith.mean() if arith is not None and arith_n else np.nan,
+        "std": arith.std() if arith is not None and arith_n > 1 else np.nan,
+        "se": arith.std() / np.sqrt(arith_n) if arith is not None and arith_n > 1 else np.nan,
         "median": quantile_stat(0.5),
         "q1": quantile_stat(0.25),
         "q3": quantile_stat(0.75),
-        "skew": np.nan if is_ordinal else (clean.skew() if n > 2 else np.nan),
-        "kurtosis": np.nan if is_ordinal else (clean.kurtosis() if n > 3 else np.nan),
+        "skew": arith.skew() if arith is not None and arith_n > 2 else np.nan,
+        "kurtosis": arith.kurtosis() if arith is not None and arith_n > 3 else np.nan,
         "min": order_stat(lambda s: s.min()),
         "max": order_stat(lambda s: s.max()),
+        "face_cast": face_cast,
     }
 
 
@@ -234,6 +246,19 @@ def recalculate_descriptive_study(elements, result: DescriptiveResult, update) -
         col for col in selected_columns if data[col].column_type in (ColumnType.NUMERIC, ColumnType.ORDINAL)
     ]
     pure_numeric_columns = [col for col in selected_columns if data[col].column_type == ColumnType.NUMERIC]
+    # Castable ordinals (every face value numeric) are treated as numeric for the arithmetic and
+    # normality statistics, using their FACE values (never the internal order codes); the asterisk +
+    # note flag that. Non-castable ordinals keep the dash / excluded behaviour. ``face_series_map``
+    # holds the numeric face series for each castable ordinal, aligned to ``df``.
+    face_series_map = {}
+    for col in numeric_columns:
+        if data[col].column_type != ColumnType.ORDINAL:
+            continue
+        try:
+            face_df, _ = data.get_numeric_face_dataframe([col])
+            face_series_map[col] = face_df[col].reindex(df.index)
+        except OrdinalCastError:
+            continue
     categorical_columns = [col for col in selected_columns if col not in numeric_columns]
     for col in categorical_columns:
         df[col] = category_display_series(df[col])
@@ -250,12 +275,14 @@ def recalculate_descriptive_study(elements, result: DescriptiveResult, update) -
     if numeric_columns:
         rows = []
         for col in numeric_columns:
+            face = face_series_map.get(col)
             if grouping_column is None:
-                rows.append(_numeric_stats(data, col, None, df[col]))
+                rows.append(_numeric_stats(data, col, None, df[col], face))
             else:
                 for groupby_value in groupby_values:
                     subframe = df.loc[df[grouping_column] == groupby_value]
-                    rows.append(_numeric_stats(data, col, groupby_value, subframe[col]))
+                    face_sub = face.loc[subframe.index] if face is not None else None
+                    rows.append(_numeric_stats(data, col, groupby_value, subframe[col], face_sub))
         summary = get_numeric_summary_table(
             rows,
             caption=t("descriptive.table.caption"),
@@ -295,18 +322,31 @@ def recalculate_descriptive_study(elements, result: DescriptiveResult, update) -
         result.update_and_add_element(summary, "descriptive summary")
 
     # ----- Normality table + verbal report -----
-    if cfg.show_normality and numeric_columns:
+    # Normality is a numeric-only procedure: plain numeric columns and *castable* ordinals (tested on
+    # their face values) are included; a non-castable ordinal is excluded (never Shapiro-tested on its
+    # order codes, which would be meaningless).
+    normality_columns = [
+        col
+        for col in numeric_columns
+        if data[col].column_type == ColumnType.NUMERIC or col in face_series_map
+    ]
+    if cfg.show_normality and normality_columns:
         test = cfg.normality_test or "Shapiro-Wilk"
         letter = _NORMALITY_LETTER.get(test, "W")
         norm_rows = []
-        for col in numeric_columns:
+        for col in normality_columns:
+            face = face_series_map.get(col)
             if grouping_column is None:
-                norm_rows.append(_normality_stats(col, None, df[col], test))
+                row = _normality_stats(col, None, face if face is not None else df[col], test)
+                row["face_cast"] = face is not None
+                norm_rows.append(row)
             else:
                 for groupby_value in groupby_values:
-                    norm_rows.append(
-                        _normality_stats(col, groupby_value, df.loc[df[grouping_column] == groupby_value][col], test)
-                    )
+                    subframe = df.loc[df[grouping_column] == groupby_value]
+                    series = face.loc[subframe.index] if face is not None else subframe[col]
+                    row = _normality_stats(col, groupby_value, series, test)
+                    row["face_cast"] = face is not None
+                    norm_rows.append(row)
         normality = get_normality_table(
             norm_rows,
             caption=t("descriptive.normality.caption", test=test),
