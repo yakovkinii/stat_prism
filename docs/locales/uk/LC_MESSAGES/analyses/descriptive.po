@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: StatPrism 1.3\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-04 00:10+0100\n"
+"POT-Creation-Date: 2026-11-15 18:32+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: uk\n"
@@ -33,7 +33,10 @@ msgid ""
 "Summarizes one or more variables (central tendency, spread, distribution "
 "shape) and can also produce frequency tables, normality tests, and a "
 "range of plots."
-msgstr "Підсумовує одну або більше змінних (центральна тенденція, розкид, форма розподілу), а також може створювати таблиці частот, тести на нормальність і низку графіків."
+msgstr ""
+"Підсумовує одну або більше змінних (центральна тенденція, розкид, форма "
+"розподілу), а також може створювати таблиці частот, тести на нормальність"
+" і низку графіків."
 
 #: ../../analyses/descriptive.md:12
 msgid "When to use it"
@@ -44,7 +47,10 @@ msgid ""
 "To describe your sample before (or alongside) inferential tests: means "
 "and standard deviations for numeric variables, counts for categories, and"
 " figures that show each variable's distribution."
-msgstr "Щоб описати вашу вибірку перед (або поряд із) інференційними тестами: середні та стандартні відхилення для числових змінних, кількості для категорій і графіки, що показують розподіл кожної змінної."
+msgstr ""
+"Щоб описати вашу вибірку перед (або поряд із) інференційними тестами: "
+"середні та стандартні відхилення для числових змінних, кількості для "
+"категорій і графіки, що показують розподіл кожної змінної."
 
 #: ../../analyses/descriptive.md:18
 msgid "Inputs"
@@ -52,26 +58,34 @@ msgstr "Вхідні дані"
 
 #: ../../analyses/descriptive.md:20
 msgid ""
-"**Variables**: the columns to summarize. Numeric and ordinal columns get "
-"a quantitative summary; nominal columns get frequency tables and category"
-" charts."
-msgstr "**Змінні**: колонки для підсумовування. Числові та порядкові колонки отримують кількісний підсумок; номінальні колонки отримують таблиці частот і діаграми категорій."
+"**Variables**: the columns to summarize. Numeric columns get a full "
+"quantitative summary; ordinal columns get order-based statistics (and a "
+"mean / SD / normality test when their categories are numeric — see "
+"Notes); nominal columns get frequency tables and category charts."
+msgstr ""
+"**Змінні**: колонки для підсумовування. Числові колонки отримують повний "
+"кількісний підсумок; порядкові колонки отримують статистики на основі "
+"порядку (а також середнє / SD / перевірку нормальності, коли їхні категорії "
+"числові — див. Примітки); номінальні колонки отримують таблиці частот і "
+"діаграми категорій."
 
-#: ../../analyses/descriptive.md:22
+#: ../../analyses/descriptive.md:23
 msgid ""
 "**Grouping (optional)**: a categorical column to split every summary by "
 "group."
-msgstr "**Групування (необов'язково)**: категорійна колонка, за якою кожен підсумок розбивається на групи."
+msgstr ""
+"**Групування (необов'язково)**: категорійна колонка, за якою кожен "
+"підсумок розбивається на групи."
 
-#: ../../analyses/descriptive.md:24
+#: ../../analyses/descriptive.md:25
 msgid "Options"
 msgstr "Параметри"
 
-#: ../../analyses/descriptive.md:26
+#: ../../analyses/descriptive.md:27
 msgid "Tables"
 msgstr "Таблиці"
 
-#: ../../analyses/descriptive.md:27
+#: ../../analyses/descriptive.md:28
 msgid ""
 "**Extended statistics** adds skewness, kurtosis, quartiles, and more to "
 "the basic N / mean / SD / median. **Frequency table** lists category "
@@ -82,25 +96,41 @@ msgid ""
 "values as categories for frequency tables and category plots. **Normality"
 " test** runs Shapiro–Wilk, Kolmogorov–Smirnov (Lilliefors-corrected), or "
 "Anderson–Darling, with optional verbal indicators of normality."
-msgstr "**Розширена статистика** додає асиметрію, ексцес, квартилі та інше до базових N / середнє / SD / медіана. **Таблиця частот** перелічує кількості категорій (для категорійних змінних, з розбивкою за групами, коли задано групування). **Порядкова таблиця частот** (вимкнена за замовчуванням) додає таку саму таблицю кількостей для порядкових змінних, з рядками у їх визначеному порядку. **Таблиця частот для числових колонок** (вимкнена за замовчуванням) також трактує точні числові значення як категорії для таблиць частот і діаграм категорій. **Тест на нормальність** запускає Шапіро–Вілка, Колмогорова–Смирнова (з поправкою Лілліефорса) або Андерсона–Дарлінга, з необов'язковими словесними індикаторами нормальності."
+msgstr ""
+"**Розширена статистика** додає асиметрію, ексцес, квартилі та інше до "
+"базових N / середнє / SD / медіана. **Таблиця частот** перелічує "
+"кількості категорій (для категорійних змінних, з розбивкою за групами, "
+"коли задано групування). **Порядкова таблиця частот** (вимкнена за "
+"замовчуванням) додає таку саму таблицю кількостей для порядкових змінних,"
+" з рядками у їх визначеному порядку. **Таблиця частот для числових "
+"колонок** (вимкнена за замовчуванням) також трактує точні числові "
+"значення як категорії для таблиць частот і діаграм категорій. **Тест на "
+"нормальність** запускає Шапіро–Вілка, Колмогорова–Смирнова (з поправкою "
+"Лілліефорса) або Андерсона–Дарлінга, з необов'язковими словесними "
+"індикаторами нормальності."
 
-#: ../../analyses/descriptive.md:37
+#: ../../analyses/descriptive.md:38
 msgid "Plots"
 msgstr "Графіки"
 
-#: ../../analyses/descriptive.md:38
+#: ../../analyses/descriptive.md:39
 msgid ""
 "**Distribution** (histogram, with an optional KDE smoothing curve and "
 "control over bin width), **Box plot** (optionally marking outliers), "
 "**Q–Q plot**, **Frequency bars**, and **Pie chart**. Ordinal variables "
 "can also get a pie chart in their defined order."
-msgstr "**Distribution** (гістограма, з необов'язковою згладжувальною кривою оцінки густини розподілу (KDE) та керуванням шириною інтервалу), **Box plot** (з необов'язковим позначенням викидів), **Q–Q plot**, **Frequency bars** і **Pie chart**. Порядкові змінні також можуть отримати pie-діаграму у їх визначеному порядку."
+msgstr ""
+"**Distribution** (гістограма, з необов'язковою згладжувальною кривою "
+"оцінки густини розподілу (KDE) та керуванням шириною інтервалу), **Box "
+"plot** (з необов'язковим позначенням викидів), **Q–Q plot**, **Frequency "
+"bars** і **Pie chart**. Порядкові змінні також можуть отримати "
+"pie-діаграму у їх визначеному порядку."
 
-#: ../../analyses/descriptive.md:42
+#: ../../analyses/descriptive.md:43
 msgid "Verbal output"
 msgstr "Словесні результати"
 
-#: ../../analyses/descriptive.md:43
+#: ../../analyses/descriptive.md:44
 msgid ""
 "Two independent controls. **Verbal indicators in tables** adds in-table "
 "verbal columns (for example a *Normal?* conclusion in the normality "
@@ -109,59 +139,88 @@ msgid ""
 "summary: **None**, **Key findings** / **Significant only** (in the "
 "normality summary, only the non-normal variables), or **Full** (every "
 "variable)."
-msgstr "Два незалежні елементи керування. **Verbal indicators in tables** додають словесні колонки в таблицях (наприклад, висновок *Normal?* у таблиці нормальності). **Словесний звіт** – це dropdown, що задає, скільки письмового тексту додається – звіт про викиди, підсумок нормальності та підсумок згрупованих частот: **None**, **Key findings** / **Significant only** (у підсумку нормальності – лише ненормальні змінні) або **Full** (кожна змінна)."
+msgstr ""
+"Два незалежні елементи керування. **Verbal indicators in tables** додають"
+" словесні колонки в таблицях (наприклад, висновок *Normal?* у таблиці "
+"нормальності). **Словесний звіт** – це dropdown, що задає, скільки "
+"письмового тексту додається – звіт про викиди, підсумок нормальності та "
+"підсумок згрупованих частот: **None**, **Key findings** / **Significant "
+"only** (у підсумку нормальності – лише ненормальні змінні) або **Full** "
+"(кожна змінна)."
 
-#: ../../analyses/descriptive.md:49
+#: ../../analyses/descriptive.md:50
 msgid "Other"
 msgstr "Інше"
 
-#: ../../analyses/descriptive.md:50
+#: ../../analyses/descriptive.md:51
 msgid "**Number columns** for compact wide tables."
 msgstr "**Number columns** для компактних широких таблиць."
 
-#: ../../analyses/descriptive.md:52
+#: ../../analyses/descriptive.md:53
 msgid "Output"
 msgstr "Вихідні дані"
 
-#: ../../analyses/descriptive.md:54
+#: ../../analyses/descriptive.md:55
 msgid "A **numeric summary** table (per group when grouping is on)."
 msgstr "Таблиця **числового підсумку** (по групах, коли ввімкнено групування)."
 
-#: ../../analyses/descriptive.md:55
+#: ../../analyses/descriptive.md:56
 msgid ""
 "An **outlier report** beneath the summary (when the plain-language "
 "summary is on), naming each outlier and listing their IDs for follow-up."
-msgstr "**Звіт про викиди** під підсумком (коли ввімкнено підсумок простою мовою), що називає кожен викид і перелічує їхні ID для подальшого аналізу."
+msgstr ""
+"**Звіт про викиди** під підсумком (коли ввімкнено підсумок простою "
+"мовою), що називає кожен викид і перелічує їхні ID для подальшого "
+"аналізу."
 
-#: ../../analyses/descriptive.md:57
+#: ../../analyses/descriptive.md:58
 msgid "A **normality** table (if requested)."
 msgstr "Таблиця **нормальності** (за запитом)."
 
-#: ../../analyses/descriptive.md:58
+#: ../../analyses/descriptive.md:59
 msgid "**Frequency** tables and the requested **plots**."
 msgstr "Таблиці **частот** і запитані **графіки**."
 
-#: ../../analyses/descriptive.md:60
+#: ../../analyses/descriptive.md:61
 msgid "Notes"
 msgstr "Примітки"
 
-#: ../../analyses/descriptive.md:62
+#: ../../analyses/descriptive.md:63
 msgid ""
-"Ordinal columns are scored numerically for the quantitative summary but "
-"keep their labels and order in frequency tables and pie charts."
-msgstr "Порядкові колонки оцінюються числово для кількісного підсумку, але зберігають свої мітки та порядок у таблицях частот і pie-діаграмах."
+"Ordinal columns always get order-based statistics — median, quartiles, "
+"min and max — shown as their category labels. The mean, SD and normality test are numeric-only: they are "
+"computed for an ordinal column **only when its categories are numeric**, "
+"using those face values, and that row is flagged with a note. An ordinal "
+"column with non-numeric categories shows no mean/SD and is not normality-"
+"tested. Frequency tables and pie charts keep the original labels and "
+"order."
+msgstr ""
+"Порядкові колонки завжди отримують статистики на основі порядку — медіану, "
+"квартилі, мінімум і максимум — показані як мітки їхніх категорій. Середнє, SD і перевірка нормальності є суто "
+"числовими: їх обчислюють для порядкової колонки **лише коли її категорії "
+"числові**, використовуючи ці числові значення, і такий рядок позначають "
+"приміткою. Порядкова колонка з нечисловими категоріями не показує "
+"середнього/SD і не перевіряється на нормальність. Таблиці частот і pie-"
+"діаграми зберігають початкові мітки та порядок."
 
-#: ../../analyses/descriptive.md:64
+#: ../../analyses/descriptive.md:69
 msgid ""
 "Pie charts always use a legend. Pie-chart settings include a **Colors** "
 "palette (Auto plus matplotlib colormaps), legend **%** and **counts**, "
 "donut-hole size, slice gap, outline width, shadow, hatch patterns, and "
 "legend spacing."
-msgstr "Pie-діаграми завжди використовують легенду. Налаштування pie-діаграми включають палітру **Colors** (Auto плюс колірні карти matplotlib), **%** та **кількості** в легенді, розмір отвору-пончика, проміжок між секторами, товщину контуру, тінь, візерунки штрихування та інтервали легенди."
+msgstr ""
+"Pie-діаграми завжди використовують легенду. Налаштування pie-діаграми "
+"включають палітру **Colors** (Auto плюс колірні карти matplotlib), **%** "
+"та **кількості** в легенді, розмір отвору-пончика, проміжок між "
+"секторами, товщину контуру, тінь, візерунки штрихування та інтервали "
+"легенди."
 
-#: ../../analyses/descriptive.md:67
+#: ../../analyses/descriptive.md:72
 msgid "Bin-width and KDE controls only apply when the distribution plot is shown."
-msgstr "Керування шириною інтервалу та KDE застосовується лише коли показано графік розподілу."
+msgstr ""
+"Керування шириною інтервалу та KDE застосовується лише коли показано "
+"графік розподілу."
 
 #~ msgid ""
 #~ "Summarizes one or more variables — "
@@ -207,4 +266,15 @@ msgstr "Керування шириною інтервалу та KDE засто
 #~ "listing their IDs for easy follow-"
 #~ "up."
 #~ msgstr ""
+
+#~ msgid ""
+#~ "Ordinal columns are scored numerically "
+#~ "for the quantitative summary but keep"
+#~ " their labels and order in frequency"
+#~ " tables and pie charts."
+#~ msgstr ""
+#~ "Порядкові колонки оцінюються числово для "
+#~ "кількісного підсумку, але зберігають свої "
+#~ "мітки та порядок у таблицях частот "
+#~ "і pie-діаграмах."
 

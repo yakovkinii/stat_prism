@@ -240,6 +240,12 @@ class ModuleRegistry(Enum):
         module_type=ModuleType.DATA_PROCESSING,
     )
 
+    # Visualisation.
+    ROSE_PLOT = ModuleRegistryItem(
+        display_name="Rose Plot",
+        icon_path="mdi6.radar",
+    )
+
     @property
     def display_name(self):
         return self.value.display_name

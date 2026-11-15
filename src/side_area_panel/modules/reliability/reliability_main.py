@@ -284,6 +284,7 @@ def recalculate_reliability_study(elements, result: ReliabilityResult, update) -
     alpha = numeric.alpha
     omega = numeric.omega
     level_word = t(f"reliability.interpret.{_alpha_level_key(alpha)}")
+    level_word_nom = t(f"reliability.interpret_nom.{_alpha_level_key(alpha)}")
     numbering = ColumnNumbering([item.name for item in numeric.items], enabled=bool(config.number_columns))
 
     # ----- Reliability coefficients table (alpha, optional omega) + verbal report -----
@@ -295,7 +296,7 @@ def recalculate_reliability_study(elements, result: ReliabilityResult, update) -
 
     alpha_row = [Cell(t("reliability.caption.cronbach"), push_to_left=True), Cell(format_r_apa(alpha), center=True)]
     if show_verbal:
-        alpha_row.append(Cell(level_word.capitalize(), center=True))
+        alpha_row.append(Cell(level_word_nom.capitalize(), center=True))
     coef_table.add_single_row_apa(Row(alpha_row))
 
     report = t(
@@ -307,15 +308,15 @@ def recalculate_reliability_study(elements, result: ReliabilityResult, update) -
     )
 
     if show_omega:
-        omega_level = t(f"reliability.interpret.{_alpha_level_key(omega)}")
+        omega_level_nom = t(f"reliability.interpret_nom.{_alpha_level_key(omega)}")
         omega_row = [Cell(t("reliability.row.omega"), push_to_left=True), Cell(format_r_apa(omega), center=True)]
         if show_verbal:
-            omega_row.append(Cell(omega_level.capitalize() if not np.isnan(omega) else "—", center=True))
+            omega_row.append(Cell(omega_level_nom.capitalize() if not np.isnan(omega) else "—", center=True))
         coef_table.add_single_row_apa(Row(omega_row))
         # The omega coefficient is a second scale-level number: keep it out of the one-line
         # Headline, add it from "Key findings" up.
         if not np.isnan(omega) and prose_at_least(config.interpretation, ProseDetail.KEY):
-            report += t("reliability.report.omega", omega=format_r_apa(omega), level=omega_level)
+            report += t("reliability.report.omega", omega=format_r_apa(omega), level=omega_level_nom)
 
     # Methods note (verbose only): name the inter-item coefficient the estimate was built on, since
     # it changes the numbers (e.g. polychoric vs Pearson &alpha;).

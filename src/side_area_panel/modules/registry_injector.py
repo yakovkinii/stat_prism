@@ -147,6 +147,9 @@ from src.side_area_panel.modules.regression.regression_ui import Regression
 from src.side_area_panel.modules.reliability.reliability_main import recalculate_reliability_study
 from src.side_area_panel.modules.reliability.reliability_result import ReliabilityResult, ReliabilityStudyConfig
 from src.side_area_panel.modules.reliability.reliability_ui import Reliability
+from src.side_area_panel.modules.rose_plot.rose_plot_main import recalculate_rose_plot_study
+from src.side_area_panel.modules.rose_plot.rose_plot_result import RosePlotResult, RosePlotStudyConfig
+from src.side_area_panel.modules.rose_plot.rose_plot_ui import RosePlotPanel
 
 
 def inject_classes_to_module_registry():
@@ -308,3 +311,8 @@ def inject_classes_to_module_registry():
     ModuleRegistry.ARRANGE_COLUMNS.value.result_class = ArrangeColumnsResult
     ModuleRegistry.ARRANGE_COLUMNS.value.config_class = ArrangeColumnsStudyConfig
     ModuleRegistry.ARRANGE_COLUMNS.value.main_function = dp_arrange_main
+
+    ModuleRegistry.ROSE_PLOT.value.ui_class = RosePlotPanel
+    ModuleRegistry.ROSE_PLOT.value.result_class = RosePlotResult
+    ModuleRegistry.ROSE_PLOT.value.config_class = RosePlotStudyConfig
+    ModuleRegistry.ROSE_PLOT.value.main_function = recalculate_rose_plot_study

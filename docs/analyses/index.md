@@ -22,6 +22,7 @@ Pick the analysis that matches your question:
 | Group respondents into clusters | {doc}`cluster` |
 | Plan a sample size or check statistical power | {doc}`power-analysis` |
 | Summarize a "select all that apply" question | {doc}`multiple-response` |
+| Compare many variables on one radial chart | {doc}`rose-plot` |
 
 ```{toctree}
 :maxdepth: 1
@@ -40,6 +41,7 @@ confirmatory-factor-analysis
 sem
 cluster
 power-analysis
+rose-plot
 ```
 
 ## Common options

@@ -73,6 +73,8 @@ def get_numeric_summary_table(
     prev_variable = None
     for r in rows:
         label = numbering.label(r["variable"]) if r["variable"] != prev_variable else ""
+        if label and r.get("face_cast"):
+            label += "*"
         cells = [Cell(label, push_to_left=True)]
         prev_variable = r["variable"]
         if grouped:
@@ -91,6 +93,8 @@ def get_numeric_summary_table(
         ]
         table.add_single_row_apa(Row(cells))
 
+    if any(r.get("face_cast") for r in rows):
+        table.table_note = (t("descriptive.note.face_values") + " " + (table.table_note or "")).strip()
     table.table_note = numbering.append_to_note(table.table_note or "")
     return table
 
@@ -138,6 +142,8 @@ def get_normality_table(
             else (t("descriptive.normality.no") if not _is_nan(r["norm_p"]) else "—")
         )
         label = numbering.label(r["variable"]) if r["variable"] != prev_variable else ""
+        if label and r.get("face_cast"):
+            label += "*"
         cells = [Cell(label, push_to_left=True)]
         prev_variable = r["variable"]
         if grouped:
@@ -156,6 +162,8 @@ def get_normality_table(
     # If any cell is blank (test could not run), explain why rather than leaving it unexplained.
     if any(_is_nan(r["norm_p"]) for r in rows):
         table.add_text(t("descriptive.normality.note_blank"))
+    if any(r.get("face_cast") for r in rows):
+        table.table_note = (t("descriptive.note.face_values") + " " + (table.table_note or "")).strip()
     table.table_note = numbering.append_to_note(table.table_note or "")
     return table
 

@@ -79,7 +79,9 @@ _EXTRACTION_KEY = {
 _SALIENT = 0.32
 
 
-def _structure_prose(loadings, columns, m, rotation_value, is_oblique, phi, extraction, is_polychoric, detail) -> str:
+def _structure_prose(
+    loadings, columns, m, rotation_value, is_oblique, phi, extraction, is_polychoric, detail, communalities=None
+) -> str:
     """Describe the extracted factor solution, layered by level: the solution size and rotation at
     every level; whether the structure is clean or has cross-loading / unassigned items (*Key
     findings* up); how evenly the factors are filled (*Significant only* up); and the inter-factor
@@ -113,6 +115,13 @@ def _structure_prose(loadings, columns, m, rotation_value, is_oblique, phi, extr
         key = "verbal.structure.even" if max(counts) - min(counts) <= 1 else "verbal.structure.uneven"
         parts.append(t(key, counts=", ".join(str(c) for c in counts)))
     if prose_at_least(detail, ProseDetail.FULL):
+        # Heywood case: a communality above 1 (equivalently a negative uniqueness) means an improper
+        # solution. Flag it in prose rather than as a banner, naming the offending item(s).
+        if communalities is not None:
+            heywood = [str(columns[i]) for i in range(len(columns)) if communalities[i] > 1.001]
+            if heywood:
+                heywood_names = smart_comma_join([f"&laquo;{item}&raquo;" for item in heywood])
+                parts.append(t("efa.report.heywood", items=heywood_names))
         if is_oblique and phi is not None and m > 1:
             off_diagonal = [abs(phi[i, j]) for i in range(m) for j in range(i + 1, m)]
             if off_diagonal:
@@ -451,6 +460,7 @@ def recalculate_factor_analysis_study(elements, result: FactorAnalysisResult, up
             ExtractionMethod(cfg.method),
             is_polychoric,
             cfg.interpretation,
+            communalities,
         )
         structure_text and load_table.add_text(structure_text)
     load_table.table_note = numbering.append_to_note(load_table.table_note or "")

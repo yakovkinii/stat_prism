@@ -124,7 +124,10 @@ def recalculate_paired_study(elements: Elements, result: PairedResult, update) -
         "paired descriptives",
     )
 
-    if cfg.assumption_checks != PairedAssumptionChecks.NEVER.value:
+    # Assumptions (normality + sphericity) are only meaningful for the parametric family. The
+    # non-parametric family is rank-based (and, for ordinals, would otherwise run Shapiro/Mauchly on
+    # the order codes), so its assumptions table is skipped regardless of the checkbox.
+    if parametric and cfg.assumption_checks != PairedAssumptionChecks.NEVER.value:
         result.update_and_add_element(
             _normality_table(wide, conditions, two_conditions, cfg.verbal_indicators, numbering),
             "paired normality",

@@ -12,6 +12,16 @@ r{
 
 # StatPrism Release Notes
 
+### StatPrism 1.3.7 (15 Nov 2026)
+
+* New visualisation module: Rose Plot — a circular (polar) bar chart comparing the aggregate (mean/sum/median) of several columns on one radial scale, with colour-coded rays, each ray's value at the rim, an automatic or manual scale, and selectable colour maps
+* Exploratory Factor Analysis: the Full verbal report now flags Heywood cases (an item communality above 1) and notes that the solution is statistically improper
+* Descriptive statistics: ordinal columns whose categories are numeric now get a mean, SD, and normality test from their face values (marked with a table note); ordinal columns with non-numeric categories keep their ordinal-only summaries and are no longer normality-tested
+* Paired/repeated-measures: the normality and sphericity assumption checks are no longer shown when a non-parametric test is used (they were previously computed on internal order codes)
+* Fixed: the group-normality summary in T-test/ANOVA now writes p-values in APA style, without a leading zero (e.g. "p < .05")
+* Fixed: some Ukrainian interpretation labels (reliability, and factor-analysis sampling adequacy) now use the correct grammatical form
+
+
 ### StatPrism 1.3.6 (4 Nov 2026)
 
 * Verbal reports now summarise many results into a few sentences (e.g. "All correlations were significant except X and Y") instead of one sentence per result, keeping the full APA statistics for every named result

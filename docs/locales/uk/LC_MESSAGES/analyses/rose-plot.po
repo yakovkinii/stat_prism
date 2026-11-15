@@ -1,0 +1,170 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2026, StatPrism Team
+# This file is distributed under the same license as the StatPrism package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2026.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: StatPrism 1.3\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-11-15 19:07+0100\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language: uk\n"
+"Language-Team: uk <LL@li.org>\n"
+"Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
+"n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.18.0\n"
+
+#: ../../analyses/rose-plot.md:1
+msgid "Rose Plot"
+msgstr "Rose-плот"
+
+#: ../../analyses/rose-plot.md:3
+msgid "Rose plot example"
+msgstr "Приклад rose-плоту"
+
+#: ../../analyses/rose-plot.md:9
+msgid ""
+"Draws a **rose plot** (a circular bar chart): one bar — a *ray* — per "
+"selected column, its length set by the chosen aggregate of that column. "
+"It is a compact way to compare many variables on a single radial scale."
+msgstr ""
+"Будує **rose-плот** (кругову bar-діаграму): один стовпчик — *промінь* — "
+"на кожну вибрану колонку, довжина якого задається обраним агрегатом цієї "
+"колонки. Це компактний спосіб порівняти багато змінних на одній "
+"радіальній шкалі."
+
+#: ../../analyses/rose-plot.md:13
+msgid "When to use it"
+msgstr "Коли це використовувати"
+
+#: ../../analyses/rose-plot.md:15
+msgid ""
+"To compare the typical level of several items at a glance — for example "
+"the mean of each item in a profile, or the total of each category — on "
+"one circular figure instead of a row of separate bar charts."
+msgstr ""
+"Щоб порівняти типовий рівень кількох пунктів з одного погляду — "
+"наприклад, середнє кожного пункту в профілі або суму кожної категорії — "
+"на одному круговому графіку замість низки окремих bar-діаграм."
+
+#: ../../analyses/rose-plot.md:19
+msgid "Inputs"
+msgstr "Вхідні дані"
+
+#: ../../analyses/rose-plot.md:21
+msgid "**Columns (numeric / ordinal)**: one to twelve columns, one ray each."
+msgstr ""
+"**Columns (numeric / ordinal)**: від однієї до дванадцяти колонок, по "
+"одному променю на кожну."
+
+#: ../../analyses/rose-plot.md:22
+msgid "No grouping: the plot summarises each column across all respondents."
+msgstr "Без групування: графік підсумовує кожну колонку за всіма респондентами."
+
+#: ../../analyses/rose-plot.md:24
+msgid "Options"
+msgstr "Параметри"
+
+#: ../../analyses/rose-plot.md:26
+msgid "Aggregate"
+msgstr "Агрегування"
+
+#: ../../analyses/rose-plot.md:27
+msgid ""
+"**Mean**, **Sum**, or **Median** — the statistic that sets each ray's "
+"length. Each column is aggregated over all respondents; ordinal columns "
+"are read as their numeric face values and non-numeric cells are ignored."
+msgstr ""
+"**Mean**, **Sum** або **Median** — статистика, що задає довжину кожного "
+"променя. Кожна колонка агрегується за всіма респондентами; порядкові "
+"колонки читаються як їхні числові значення, а нечислові клітинки "
+"ігноруються."
+
+#: ../../analyses/rose-plot.md:31
+msgid "Scale"
+msgstr "Шкала"
+
+#: ../../analyses/rose-plot.md:32
+msgid ""
+"**Scale min** and **Scale max** set the radial axis limits. Left blank, "
+"they are chosen automatically from the data (the minimum is clamped to 0 "
+"when all values are non-negative)."
+msgstr ""
+"**Scale min** і **Scale max** задають межі радіальної осі. Якщо залишити "
+"порожніми, вони обираються автоматично за даними (мінімум встановлюється "
+"на 0, коли всі значення невід'ємні)."
+
+#: ../../analyses/rose-plot.md:35
+msgid "Plot settings"
+msgstr "Параметри графіка"
+
+#: ../../analyses/rose-plot.md:36
+msgid ""
+"**Colors** — the colour map for the rays (`hsv`, `twilight`, `rainbow`, "
+"`turbo`, or **Auto** for the StatPrism palette). **Ray values** prints "
+"each ray's aggregate just outside the rim; **Decimal places** rounds "
+"those printed values to a fixed number of places — by default one more "
+"than the data's own precision (so an aggregate such as the mean keeps a "
+"useful digit), or **Off** for the full value — and **Value label "
+"distance** moves them further out from the rim. **Angular gap** adds "
+"space between the rays. **Trim long labels** shortens long column names "
+"in the legend. The shared figure controls (size, fonts, colours) also "
+"apply."
+msgstr ""
+"**Colors** — мапа кольорів для променів (`hsv`, `twilight`, `rainbow`, "
+"`turbo` або **Auto** для палітри StatPrism). **Ray values** друкує "
+"агрегат кожного променя одразу за обідком; **Decimal places** округлює ці"
+" надруковані значення до фіксованої кількості знаків — за замовчуванням на "
+"один більше за точність самих даних (щоб агрегат, як-от середнє, зберіг "
+"корисну цифру), або **Off** для повного значення — а **Value label "
+"distance** відсуває їх далі від обідка. **Angular gap** додає проміжок між "
+"променями. **Trim long labels** скорочує довгі назви колонок у легенді. "
+"Також застосовуються спільні елементи керування графіком (розмір, шрифти, "
+"кольори)."
+
+#: ../../analyses/rose-plot.md:45
+msgid "Output"
+msgstr "Вихідні дані"
+
+#: ../../analyses/rose-plot.md:47
+msgid ""
+"A **rose plot** figure: one colour-coded ray per column, each ray "
+"identified by colour in the legend, with its aggregate value printed at "
+"the rim (when **Ray values** is on)."
+msgstr ""
+"Графік **rose-плот**: по одному кольоровому променю на колонку; кожен "
+"промінь позначено кольором у легенді, а його агрегат надруковано біля "
+"обідка (коли ввімкнено **Ray values**)."
+
+#: ../../analyses/rose-plot.md:50
+msgid "Notes"
+msgstr "Примітки"
+
+#: ../../analyses/rose-plot.md:52
+msgid ""
+"Each ray is identified by its **colour** (see the legend), not by a "
+"number, so column names that already contain numbers do not clash with "
+"ray labels."
+msgstr ""
+"Кожен промінь позначається **кольором** (див. легенду), а не номером, тож"
+" назви колонок, що вже містять числа, не конфліктують із підписами "
+"променів."
+
+#: ../../analyses/rose-plot.md:54
+msgid "Columns with no numeric values to aggregate are dropped from the plot."
+msgstr "Колонки без числових значень для агрегування вилучаються з графіка."
+
+#: ../../analyses/rose-plot.md:55
+msgid ""
+"The plot embeds directly in copied and exported output, like every other "
+"StatPrism figure."
+msgstr ""
+"Графік вбудовується безпосередньо в скопійований та експортований "
+"результат, як і будь-яка інша фігура StatPrism."
+

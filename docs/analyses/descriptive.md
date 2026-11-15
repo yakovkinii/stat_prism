@@ -17,8 +17,9 @@ variable's distribution.
 
 ## Inputs
 
-- **Variables**: the columns to summarize. Numeric and ordinal columns get a quantitative
-  summary; nominal columns get frequency tables and category charts.
+- **Variables**: the columns to summarize. Numeric columns get a full quantitative summary;
+  ordinal columns get order-based statistics (and a mean / SD / normality test when their
+  categories are numeric — see Notes); nominal columns get frequency tables and category charts.
 - **Grouping (optional)**: a categorical column to split every summary by group.
 
 ## Options
@@ -59,8 +60,12 @@ Other
 
 ## Notes
 
-- Ordinal columns are scored numerically for the quantitative summary but keep their labels
-  and order in frequency tables and pie charts.
+- Ordinal columns always get order-based statistics — median, quartiles, min and max — shown
+  as their category labels. The mean, SD and normality test are
+  numeric-only: they are computed for an ordinal column **only when its categories are numeric**,
+  using those face values, and that row is flagged with a note. An ordinal column with
+  non-numeric categories shows no mean/SD and is not normality-tested. Frequency tables and pie
+  charts keep the original labels and order.
 - Pie charts always use a legend. Pie-chart settings include a **Colors** palette (Auto plus
   matplotlib colormaps), legend **%** and **counts**, donut-hole size, slice gap, outline
   width, shadow, hatch patterns, and legend spacing.

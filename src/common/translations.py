@@ -349,12 +349,12 @@ TRANSLATIONS = {
     },
     # Conclusions about variables
     "ttest.prop.normal": {
-        "en": "are normally distributed (p &gt; 0.05)",
-        "ua": "розподілені нормально (p &gt; 0.05)",
+        "en": "are normally distributed (p &gt; .05)",
+        "ua": "розподілені нормально (p &gt; .05)",
     },
     "ttest.prop.not_normal": {
-        "en": "are not normally distributed (p &lt; 0.05)",
-        "ua": "розподілені ненормально (p &lt; 0.05)",
+        "en": "are not normally distributed (p &lt; .05)",
+        "ua": "розподілені ненормально (p &lt; .05)",
     },
     "ttest.prop.homogeneous": {
         "en": "have homogeneity of variance",
@@ -705,12 +705,21 @@ TRANSLATIONS = {
     "reliability.col.alpha_improves": {"en": "Improves &alpha;?", "ua": "Покращує &alpha;?"},
     "reliability.col.omega_improves": {"en": "Improves &omega;?", "ua": "Покращує &omega;?"},
     "reliability.scale_default": {"en": "The scale", "ua": "Шкала"},
+    # Accusative forms, for the running sentence "має {level} внутрішню узгодженість".
     "reliability.interpret.excellent": {"en": "excellent", "ua": "відмінну"},
     "reliability.interpret.good": {"en": "good", "ua": "добру"},
     "reliability.interpret.acceptable": {"en": "acceptable", "ua": "прийнятну"},
     "reliability.interpret.questionable": {"en": "questionable", "ua": "сумнівну"},
     "reliability.interpret.poor": {"en": "poor", "ua": "низьку"},
     "reliability.interpret.unacceptable": {"en": "unacceptable", "ua": "неприйнятну"},
+    # Nominative forms, for a standalone slot (the Interpretation cell and the "ω = {omega} ({level})"
+    # parenthetical), where Ukrainian needs the nominative rather than the sentence's accusative.
+    "reliability.interpret_nom.excellent": {"en": "excellent", "ua": "відмінна"},
+    "reliability.interpret_nom.good": {"en": "good", "ua": "добра"},
+    "reliability.interpret_nom.acceptable": {"en": "acceptable", "ua": "прийнятна"},
+    "reliability.interpret_nom.questionable": {"en": "questionable", "ua": "сумнівна"},
+    "reliability.interpret_nom.poor": {"en": "poor", "ua": "низька"},
+    "reliability.interpret_nom.unacceptable": {"en": "unacceptable", "ua": "неприйнятна"},
     "reliability.report.main": {
         "en": "{scale} ({n} items) shows {level} internal consistency, Cronbach's &alpha; = {alpha}. ",
         "ua": "{scale} ({n} пунктів) має {level} внутрішню узгодженість, альфа Кронбаха = {alpha}. ",
@@ -1053,12 +1062,14 @@ TRANSLATIONS = {
     "efa.row.msa": {"en": "MSA: {name}", "ua": "MSA: {name}"},
     "efa.row.bartlett": {"en": "Bartlett's &chi;&sup2;", "ua": "χ² Бартлетта"},
     "efa.row.df": {"en": "df", "ua": "df"},
-    "efa.kmo.marvelous": {"en": "marvelous", "ua": "чудовий"},
-    "efa.kmo.meritorious": {"en": "good", "ua": "добрий"},
+    # Feminine forms: the label stands alone in the Interpretation cell and follows the feminine
+    # "Адекватність вибірки {label}" in prose, so both slots take the feminine.
+    "efa.kmo.marvelous": {"en": "marvelous", "ua": "чудова"},
+    "efa.kmo.meritorious": {"en": "good", "ua": "добра"},
     "efa.kmo.middling": {"en": "above average", "ua": "вище середнього"},
     "efa.kmo.mediocre": {"en": "below average", "ua": "нижче середнього"},
-    "efa.kmo.miserable": {"en": "bad", "ua": "поганий"},
-    "efa.kmo.unacceptable": {"en": "unacceptable", "ua": "неприйнятний"},
+    "efa.kmo.miserable": {"en": "bad", "ua": "погана"},
+    "efa.kmo.unacceptable": {"en": "unacceptable", "ua": "неприйнятна"},
     "efa.report.kmo": {
         "en": "Sampling adequacy is {label} (KMO = {kmo}). ",
         "ua": "Адекватність вибірки {label} (KMO = {kmo}). ",
@@ -1107,6 +1118,18 @@ TRANSLATIONS = {
     "efa.report.polychoric": {
         "en": "The extraction used the polychoric correlation matrix of the ordinal items. ",
         "ua": "Виокремлення виконано на поліхоричній матриці кореляцій порядкових пунктів. ",
+    },
+    "efa.report.heywood": {
+        "en": (
+            "For {items}, the communality exceeds 1 (a Heywood case), so the factor solution is "
+            "statistically improper &mdash; commonly a sign of over-extraction (too many factors), "
+            "an unstable item, or a small sample; interpret it with caution. "
+        ),
+        "ua": (
+            "Для {items} спільність перевищує 1 (випадок Гейвуда), тож факторний розв'язок "
+            "статистично некоректний &mdash; зазвичай це ознака надмірного виокремлення (забагато "
+            "факторів), нестабільного пункту або малої вибірки; інтерпретуйте з обережністю. "
+        ),
     },
     "efa.plot.scree": {"en": "Scree plot", "ua": "Графік осипу"},
     "efa.plot.kaiser_line": {
@@ -1699,6 +1722,10 @@ TRANSLATIONS = {
     "descriptive.table.caption": {
         "en": "Descriptive statistics",
         "ua": "Описова статистика",
+    },
+    "descriptive.note.face_values": {
+        "en": "* Computed from the ordinal column's numeric face values.",
+        "ua": "* Обчислено за числовими значеннями порядкової колонки.",
     },
     "descriptive.freq.caption": {
         "en": "Frequencies: {col}",
@@ -2657,6 +2684,12 @@ TRANSLATIONS = {
             "(Lilliefors) is the least powerful of the three and is offered mainly for comparability with "
             "tools that report it. With large N any test flags trivial deviations, so pair it with the "
             "Q-Q plot and skewness/kurtosis.</li>"
+            "<li><b>Ordinal columns.</b> Order-based statistics (median, quartiles, min, max) are "
+            "shown as the category labels, never the internal order codes. The mean, SD and "
+            "normality test are numeric-only: they are computed from an ordinal column&rsquo;s "
+            "numeric face values only when every category is numeric (the row is marked with a "
+            "note); an ordinal column with non-numeric categories shows no mean/SD and is not "
+            "normality-tested.</li>"
             "<li><b>Categorical summary.</b> A per-variable frequency table with counts and "
             "percentages (of non-missing) is shown for non-numeric variables. Optional frequency "
             "tables can also be shown for ordinal variables and for exact numeric values.</li>"
@@ -2705,6 +2738,12 @@ TRANSLATIONS = {
             "найменш потужний із трьох і пропонується переважно для сумісності з інструментами, що "
             "його наводять. За великого N будь-який тест відмічає незначні відхилення, тож поєднуйте "
             "його з Q-Q графіком та асиметрією/ексцесом.</li>"
+            "<li><b>Порядкові колонки.</b> Статистики на основі порядку (медіана, квартилі, мінімум, "
+            "максимум) показуються як мітки категорій, а не внутрішні коди порядку. Середнє, SD і "
+            "перевірка нормальності є суто числовими: їх обчислюють за числовими значеннями "
+            "порядкової колонки лише тоді, коли всі категорії числові (рядок позначається "
+            "приміткою); порядкова колонка з нечисловими категоріями не показує середнього/SD і не "
+            "перевіряється на нормальність.</li>"
             "<li><b>Категоріальний підсумок.</b> Для нечислових змінних показується таблиця частот "
             "для кожної змінної з підрахунками та відсотками (від непропущених). За бажанням таблиці "
             "частот можна також показати для порядкових змінних та для точних числових значень.</li>"

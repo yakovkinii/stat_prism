@@ -58,3 +58,7 @@ adjust the generated CFA as needed. The two studies are independent.
 
 - The number of factors cannot exceed the number of variables, and you need enough complete
   cases for a stable solution.
+- A **Heywood case** — an item communality above 1 (equivalently a negative uniqueness) — marks
+  a statistically improper solution, usually from extracting too many factors, an unstable item,
+  or a small sample. At the **Full** verbal-report level the written report flags it and names the
+  affected item.
