@@ -1011,8 +1011,16 @@ class PlotV2(BaseResultElement):
         bar_width = (2 * np.pi / n) * (1.0 - item.config.angular_gap.get_current_value()) if n else 1.0
         colors = _rose_colors(item.config.colormap.get_current_value(), n)
         heights = np.clip(values - item.scale_min, 0.0, None)
-        ax.bar(theta, heights, width=bar_width, bottom=item.scale_min, color=colors,
-               edgecolor=face_rgba, linewidth=1.0, zorder=0.5)
+        ax.bar(
+            theta,
+            heights,
+            width=bar_width,
+            bottom=item.scale_min,
+            color=colors,
+            edgecolor=face_rgba,
+            linewidth=1.0,
+            zorder=0.5,
+        )
         tick_fs = self.tick_label_font_size.get_current_value()
         span = item.scale_max - item.scale_min
         show_values = item.config.show_values.get_current_value() and bool(n)
@@ -1029,7 +1037,8 @@ class PlotV2(BaseResultElement):
 
         locator = MaxNLocator(nbins=5, steps=[1, 2, 2.5, 5, 10])
         ring_values = [
-            t for t in locator.tick_values(item.scale_min, item.scale_max)
+            t
+            for t in locator.tick_values(item.scale_min, item.scale_max)
             if item.scale_min < t <= item.scale_max + 1e-9
         ]
         ax.set_yticks(ring_values if ring_values else [item.scale_max])
@@ -1040,19 +1049,25 @@ class PlotV2(BaseResultElement):
 
         ring_angles = np.linspace(0.0, 2 * np.pi, 180)
         for ring in ring_values:
-            ax.plot(ring_angles, np.full_like(ring_angles, ring), color=frame_rgba,
-                    alpha=0.4, linewidth=0.8, zorder=1)
+            ax.plot(ring_angles, np.full_like(ring_angles, ring), color=frame_rgba, alpha=0.4, linewidth=0.8, zorder=1)
         for angle in theta:
-            ax.plot([angle, angle], [item.scale_min, item.scale_max], color=frame_rgba,
-                    alpha=0.4, linewidth=0.8, zorder=1)
-        ax.plot(ring_angles, np.full_like(ring_angles, item.scale_max), color=frame_rgba,
-                linewidth=self.frame_thickness.get_current_value(), zorder=2)
+            ax.plot(
+                [angle, angle], [item.scale_min, item.scale_max], color=frame_rgba, alpha=0.4, linewidth=0.8, zorder=1
+            )
+        ax.plot(
+            ring_angles,
+            np.full_like(ring_angles, item.scale_max),
+            color=frame_rgba,
+            linewidth=self.frame_thickness.get_current_value(),
+            zorder=2,
+        )
 
         # Each ray's aggregate value, printed just outside the rim.
         if show_values:
             for angle, value in zip(theta, values):
-                ax.text(angle, value_r, f"{value:g}", color=text_color, fontsize=tick_fs,
-                        ha="center", va="center", zorder=7)
+                ax.text(
+                    angle, value_r, f"{value:g}", color=text_color, fontsize=tick_fs, ha="center", va="center", zorder=7
+                )
 
         trim = item.config.trim_labels.get_current_value()
         handles = [

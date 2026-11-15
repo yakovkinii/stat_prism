@@ -326,9 +326,7 @@ def recalculate_descriptive_study(elements, result: DescriptiveResult, update) -
     # their face values) are included; a non-castable ordinal is excluded (never Shapiro-tested on its
     # order codes, which would be meaningless).
     normality_columns = [
-        col
-        for col in numeric_columns
-        if data[col].column_type == ColumnType.NUMERIC or col in face_series_map
+        col for col in numeric_columns if data[col].column_type == ColumnType.NUMERIC or col in face_series_map
     ]
     if cfg.show_normality and normality_columns:
         test = cfg.normality_test or "Shapiro-Wilk"

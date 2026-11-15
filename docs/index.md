@@ -53,6 +53,12 @@ students who need correct statistics and APA-style output without writing code.
 :img-top: _static/img/power-analysis.png
 :::
 
+:::{grid-item-card} Rose plot
+:link: analyses/rose-plot
+:link-type: doc
+:img-top: _static/img/rose-plot.png
+:::
+
 :::{grid-item-card} See all analyses →
 :link: analyses/index
 :link-type: doc
