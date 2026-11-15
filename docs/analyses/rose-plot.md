@@ -34,9 +34,13 @@ Scale
 
 Plot settings
 : **Colors** — the colour map for the rays (`hsv`, `twilight`, `rainbow`, `turbo`, or **Auto**
-  for the StatPrism palette). **Ray values** prints each ray's aggregate just outside the rim.
-  **Angular gap** adds space between the rays. **Trim long labels** shortens long column names
-  in the legend. The shared figure controls (size, fonts, colours) also apply.
+  for the StatPrism palette). **Ray values** prints each ray's aggregate just outside the rim;
+  **Decimal places** rounds those printed values to a fixed number of places — by default one
+  more than the data's own precision (so an aggregate such as the mean keeps a useful digit),
+  or **Off** for the full value — and **Value label distance** moves them further out from the
+  rim. **Angular gap** adds space
+  between the rays. **Trim long labels** shortens long column names in the legend. The shared
+  figure controls (size, fonts, colours) also apply.
 
 ## Output
 

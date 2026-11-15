@@ -22,7 +22,7 @@ import pandas as pd
 
 from src.common.decorators import log_function
 from src.data.data_manager import DATA_MANAGER
-from src.side_area_panel.modules.common.result.plot_result import PlotV2, RosePlot
+from src.side_area_panel.modules.common.result.plot_result import PlotV2, RosePlot, RosePlotConfig
 from src.side_area_panel.modules.rose_plot.rose_plot_result import RosePlotResult
 
 
@@ -42,6 +42,23 @@ def _auto_max(values) -> float:
     span = high - _auto_min(values)
     headroom = span * 0.08 if span else (abs(high) * 0.08 or 1.0)
     return float(high + headroom)
+
+
+def _default_decimals(df, columns) -> str:
+    """Default for the value labels: one more decimal place than the raw data carries, since the
+    aggregate (notably the mean) adds about one digit of precision. Outside the supported range
+    (0-4 places) it falls back to "Off" (the full value)."""
+    raw = 0
+    for column in columns:
+        series = pd.to_numeric(df[column], errors="coerce").dropna()
+        for value in series.unique():
+            d = 0
+            while d < 5 and round(float(value), d) != round(float(value), 5):
+                d += 1
+            raw = max(raw, d)
+        if raw > 3:
+            break
+    return str(raw + 1) if raw <= 3 else "Off"
 
 
 def _parse_scale(text, auto: float) -> float:
@@ -107,6 +124,7 @@ def recalculate_rose_plot_study(elements, result: RosePlotResult, update) -> Ros
                 names=[str(column) for column in kept],
                 scale_min=scale_min,
                 scale_max=scale_max,
+                config=RosePlotConfig(decimals=_default_decimals(df, kept)),
             )
         ],
         title="Rose plot",

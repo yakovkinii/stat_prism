@@ -472,11 +472,16 @@ def _rose_colors(colormap: str, n: int, alpha: float = 1.0) -> list:
     return [(*cmap(float(pos))[:3], alpha) for pos in positions]
 
 
+ROSE_DECIMALS = ["Off", "0", "1", "2", "3", "4"]
+
+
 class RosePlotConfig(BasePlotConfig):
     def __init__(
         self,
         colormap: str = ROSE_COLORMAPS[0],
         show_values: bool = True,
+        decimals: str = ROSE_DECIMALS[0],
+        value_distance: float = 0.10,
         angular_gap: float = 0.0,
         trim_labels: bool = False,
     ):
@@ -484,12 +489,25 @@ class RosePlotConfig(BasePlotConfig):
         self.colormap = DropdownResultItemSetting(label="Colors", current_value=colormap, items=ROSE_COLORMAPS)
         # Print each ray's aggregate value just outside the rim; turn off for a plain rose.
         self.show_values = PlainCheckboxResultItemSetting(label="Ray values", current_value=show_values)
+        # Round each printed value to this many decimal places; "Off" prints the value in full.
+        self.decimals = DropdownResultItemSetting(label="Decimal places", current_value=decimals, items=ROSE_DECIMALS)
+        # How far past the rim the value labels sit, as a fraction of the radial span.
+        self.value_distance = SliderResultItemSetting(
+            label="Value label distance", current_value=value_distance, min_value=0.0, max_value=0.5, step=0.05
+        )
         self.angular_gap = SliderResultItemSetting(
             label="Angular gap", current_value=angular_gap, min_value=0.0, max_value=0.8, step=0.05
         )
         self.trim_labels = PlainCheckboxResultItemSetting(label="Trim long labels", current_value=trim_labels)
         self.display_settings = ContainerResultItemSetting(
-            items=[self.colormap, self.show_values, self.angular_gap, self.trim_labels],
+            items=[
+                self.colormap,
+                self.show_values,
+                self.decimals,
+                self.value_distance,
+                self.angular_gap,
+                self.trim_labels,
+            ],
             add_stretch=True,
         )
 
@@ -1027,7 +1045,7 @@ class PlotV2(BaseResultElement):
         # Each ray's value is printed just outside the rim. Extend the radial view past that text so
         # it is never clipped; the rings, spokes and frame are drawn manually only out to scale_max,
         # keeping the outer margin clean.
-        value_r = item.scale_max + span * 0.10
+        value_r = item.scale_max + span * item.config.value_distance.get_current_value()
         rmax = (value_r + span * 0.12) if show_values else item.scale_max
         ax.set_ylim(item.scale_min, rmax)
 
@@ -1062,12 +1080,14 @@ class PlotV2(BaseResultElement):
             zorder=2,
         )
 
-        # Each ray's aggregate value, printed just outside the rim.
+        # Each ray's aggregate value, printed just outside the rim. "Off" prints the value in full;
+        # a chosen count shows exactly that many decimal places (fixed, so 1.3 reads as "1.30").
         if show_values:
+            dec = item.config.decimals.get_current_value()
+            places = int(dec) if str(dec).isdigit() else None
             for angle, value in zip(theta, values):
-                ax.text(
-                    angle, value_r, f"{value:g}", color=text_color, fontsize=tick_fs, ha="center", va="center", zorder=7
-                )
+                label = f"{value:g}" if places is None else f"{float(value):.{places}f}"
+                ax.text(angle, value_r, label, color=text_color, fontsize=tick_fs, ha="center", va="center", zorder=7)
 
         trim = item.config.trim_labels.get_current_value()
         handles = [

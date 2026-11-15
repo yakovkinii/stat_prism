@@ -40,7 +40,8 @@ _FINE_PRINT = (
     "<li><b>Scale min / max</b> set the radial axis limits. Left blank, they are chosen "
     "automatically from the data (minimum clamped to 0 when all values are non-negative).</li>"
     "<li>Each ray is identified by its colour (see the legend); its aggregate value is printed "
-    "just outside the rim.</li>"
+    "just outside the rim &mdash; rounded to a fixed number of decimal places (by default one "
+    "more than the data carries), and moved further out with the value-label distance.</li>"
     "</ul>"
 )
 
