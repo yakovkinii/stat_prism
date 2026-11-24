@@ -25,7 +25,7 @@ from typing import List, Tuple, Union
 import numpy as np
 from matplotlib import cbook
 from matplotlib import pyplot as plt
-from matplotlib.patches import Patch
+from matplotlib.patches import Patch, Rectangle
 from matplotlib.ticker import MaxNLocator
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 from PySide6.QtGui import QImage
@@ -475,6 +475,9 @@ def _rose_colors(colormap: str, n: int, alpha: float = 1.0) -> list:
 ROSE_DECIMALS = ["Off", "0", "1", "2", "3", "4"]
 
 
+ROSE_SHADE_GROUPS = ["Off", "2", "3", "4", "5", "6", "8", "10"]
+
+
 class RosePlotConfig(BasePlotConfig):
     def __init__(
         self,
@@ -484,6 +487,9 @@ class RosePlotConfig(BasePlotConfig):
         value_distance: float = 0.10,
         angular_gap: float = 0.0,
         trim_labels: bool = False,
+        shade_groups: str = ROSE_SHADE_GROUPS[0],
+        shade_color: Tuple[int, int, int] = (128, 128, 128),
+        shade_alpha: int = 40,
     ):
         super().__init__()
         self.colormap = DropdownResultItemSetting(label="Colors", current_value=colormap, items=ROSE_COLORMAPS)
@@ -499,6 +505,15 @@ class RosePlotConfig(BasePlotConfig):
             label="Angular gap", current_value=angular_gap, min_value=0.0, max_value=0.8, step=0.05
         )
         self.trim_labels = PlainCheckboxResultItemSetting(label="Trim long labels", current_value=trim_labels)
+        # Shade alternating blocks of N rays (and the matching legend rows) so groups are easy to
+        # count. "Off" = no shading; the colour and alpha controls below apply only when it is on.
+        self.shade_groups = DropdownResultItemSetting(
+            label="Group shading", current_value=shade_groups, items=ROSE_SHADE_GROUPS
+        )
+        self.shade_color = ColorGridItemSetting(current_color=shade_color, label="Shade color")
+        self.shade_alpha = SliderResultItemSetting(
+            label="Shade alpha", current_value=shade_alpha, min_value=0, max_value=255, step=5
+        )
         self.display_settings = ContainerResultItemSetting(
             items=[
                 self.colormap,
@@ -507,6 +522,9 @@ class RosePlotConfig(BasePlotConfig):
                 self.value_distance,
                 self.angular_gap,
                 self.trim_labels,
+                self.shade_groups,
+                self.shade_color,
+                self.shade_alpha,
             ],
             add_stretch=True,
         )
@@ -1049,6 +1067,20 @@ class PlotV2(BaseResultElement):
         rmax = (value_r + span * 0.12) if show_values else item.scale_max
         ax.set_ylim(item.scale_min, rmax)
 
+        # Group shading: a faint wedge behind alternating blocks of `group_size` rays, so groups are
+        # easy to count. The same blocks are shaded behind the legend rows (below).
+        shade_setting = item.config.shade_groups.get_current_value()
+        group_size = int(shade_setting) if str(shade_setting).isdigit() else 0
+        shade_rgba = rgba_tuple_from_rgb_and_a(
+            item.config.shade_color.get_current_value(), item.config.shade_alpha.get_current_value()
+        )
+        if group_size and n:
+            half = np.pi / n
+            for g in range(0, n, group_size):
+                if (g // group_size) % 2 == 1:
+                    arc = np.linspace(theta[g] - half, theta[min(g + group_size - 1, n - 1)] + half, 60)
+                    ax.fill_between(arc, item.scale_min, item.scale_max, color=shade_rgba, zorder=0)
+
         ax.set_xticks(theta)
         ax.set_xticklabels([])
         ax.tick_params(axis="x", length=0)
@@ -1117,6 +1149,33 @@ class PlotV2(BaseResultElement):
 
         # Extra pad so the rim beads (drawn outside the axes with clip_on=False) keep a margin.
         fig.tight_layout(pad=1.8)
+
+        # Legend group shading: after tight_layout has finalised the legend's position, shade the
+        # same alternating blocks behind the legend rows so they line up with the plot's wedges.
+        # Computed here (not before tight_layout, which would move the legend out from under the
+        # bands); the legend frame is made transparent so the figure-level bands show through.
+        if handles and group_size:
+            leg.get_frame().set_facecolor("none")
+            fig.canvas.draw()
+            renderer = fig.canvas.get_renderer()
+            to_fig = fig.transFigure.inverted()
+            box = leg.get_window_extent(renderer)
+            centers = [sum(t.get_window_extent(renderer).intervaly) / 2.0 for t in leg.get_texts()]
+            # Row pitch from all rows; each band spans its group's rows to the midpoints on both sides,
+            # so shaded and unshaded blocks tile exactly without gaps or bleed into neighbours.
+            pitch = abs(centers[0] - centers[-1]) / max(len(centers) - 1, 1)
+            for g in range(0, n, group_size):
+                if (g // group_size) % 2 != 1:
+                    continue
+                grp = centers[g:g + group_size]
+                (x0, by0) = to_fig.transform((box.x0, min(grp) - pitch / 2.0))
+                (x1, by1) = to_fig.transform((box.x1, max(grp) + pitch / 2.0))
+                fig.patches.append(
+                    Rectangle(
+                        (x0, by0), x1 - x0, by1 - by0, transform=fig.transFigure,
+                        facecolor=shade_rgba, edgecolor="none", zorder=0,
+                    )
+                )
         return fig, ax
 
     def create_figure(self):

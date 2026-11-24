@@ -1,0 +1,78 @@
+name: Build macOS app
+
+# Builds a standalone StatPrism .app with Nuitka and zips it for download.
+#   * "Run workflow" (workflow_dispatch) -> uploads the zipped .app as a workflow artifact
+#   * push a tag  v1.2.3                  -> also attaches the zip to that tag's GitHub Release
+#
+# IMPORTANT: this build is UNSIGNED and NOT notarized (no Apple Developer account yet), so macOS
+# Gatekeeper quarantines it on download. To run it, a tester either right-clicks StatPrism.app and
+# chooses "Open" (then confirms in the dialog / System Settings > Privacy & Security > "Open
+# Anyway"), or clears the quarantine flag once:
+#     xattr -dr com.apple.quarantine /path/to/StatPrism.app
+#
+# Built on macos-13 (Intel x86_64) so the single artifact runs on Intel Macs natively and on Apple
+# Silicon via Rosetta 2. A native arm64 build (runs-on: macos-14) can be added as a matrix later.
+
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write # attach the zip to the tag's Release
+
+jobs:
+  build:
+    runs-on: macos-13
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Read app version from src/about.py
+        id: ver
+        run: |
+          V=$(python3 -c "import re,io; print(re.search(r'version\s*=\s*\"([^\"]+)\"', io.open('src/about.py', encoding='utf-8').read()).group(1))")
+          echo "version=$V" >> "$GITHUB_OUTPUT"
+          echo "StatPrism version: $V"
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.9"
+          cache: "pip"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install "nuitka>=2.4"
+
+      - name: Build standalone .app (Nuitka)
+        # Build options live as `# nuitka-project:` directives in launcher.py (the Darwin block).
+        run: python -m nuitka --assume-yes-for-downloads launcher.py
+
+      - name: Locate the .app bundle
+        id: app
+        run: |
+          APP=$(find build/nuitka -maxdepth 1 -name "*.app" | head -1)
+          if [ -z "$APP" ]; then echo "No .app bundle produced:"; ls -la build/nuitka || true; exit 1; fi
+          echo "path=$APP" >> "$GITHUB_OUTPUT"
+          echo "Found: $APP"
+
+      - name: Zip the .app (ditto preserves the bundle)
+        run: |
+          ditto -c -k --sequesterRsrc --keepParent "${{ steps.app.outputs.path }}" \
+            "StatPrism-${{ steps.ver.outputs.version }}-macos-x86_64.zip"
+
+      - name: Upload app artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: StatPrism-${{ steps.ver.outputs.version }}-macos-x86_64
+          path: StatPrism-${{ steps.ver.outputs.version }}-macos-x86_64.zip
+          if-no-files-found: error
+
+      - name: Attach to the Release (tag builds only)
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: StatPrism-${{ steps.ver.outputs.version }}-macos-x86_64.zip

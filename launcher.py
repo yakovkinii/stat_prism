@@ -60,6 +60,13 @@
 #    nuitka-project: --file-description=StatPrism
 #    nuitka-project: --file-version={APP_VERSION}
 #    nuitka-project: --product-version={APP_VERSION}
+# nuitka-project-if: {OS} == "Darwin":
+#    nuitka-project: --macos-create-app-bundle
+#    nuitka-project: --macos-app-name=StatPrism
+#    nuitka-project: --macos-app-icon={MAIN_DIRECTORY}/resources/icon.png
+#    nuitka-project: --macos-app-version={APP_VERSION}
+#    nuitka-project: --product-name=StatPrism
+#    nuitka-project: --product-version={APP_VERSION}
 
 
 def _setup_logging(level=None):

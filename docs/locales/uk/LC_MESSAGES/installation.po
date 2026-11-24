@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: StatPrism 1.3\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-04 00:10+0100\n"
+"POT-Creation-Date: 2026-11-24 23:08+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: uk\n"
@@ -101,8 +101,8 @@ msgid ""
 "setup."
 msgstr ""
 "Якщо ви працюєте з вихідного репозиторію, а не зі спакованого релізу, "
-"запустіть програму у вбудованому середовищі за допомогою наданого скрипту "
-"запуску (`_RUN.bat`). Налаштування для розробників див. у `README` "
+"запустіть програму у вбудованому середовищі за допомогою наданого скрипту"
+" запуску (`_RUN.bat`). Налаштування для розробників див. у `README` "
 "репозиторію."
 
 #: ../../installation.md:34
@@ -116,25 +116,59 @@ msgid ""
 "and are not affected by updating."
 msgstr ""
 "Щоб оновитися, завантажте новіший реліз і замініть наявну копію. Ваші "
-"збережені файли проєктів `.sp` не залежать від папки програми, і оновлення "
-"на них не впливає."
+"збережені файли проєктів `.sp` не залежать від папки програми, і "
+"оновлення на них не впливає."
 
 #: ../../installation.md:39
+msgid "Code signing policy"
+msgstr "Політика підписання коду"
+
+#: ../../installation.md:41
+msgid ""
+"Free code signing on Windows is provided by "
+"[SignPath.io](https://about.signpath.io), certificate by [SignPath "
+"Foundation](https://signpath.org)."
+msgstr ""
+"Безкоштовне підписання коду для Windows забезпечує "
+"[SignPath.io](https://about.signpath.io), сертифікат надано [SignPath "
+"Foundation](https://signpath.org)."
+
+#: ../../installation.md:44
+msgid ""
+"**Authors / committers / reviewers / approvers:** [I. I. Yakovkin "
+"(@yakovkinii)](https://github.com/yakovkinii), the sole maintainer, who "
+"is the only committer, reviewer and approver of every signed release."
+msgstr ""
+"**Автори / коміттери / рецензенти / затверджувачі:** [I. I. Yakovkin "
+"(@yakovkinii)](https://github.com/yakovkinii), єдиний супровідник, який є "
+"єдиним коміттером, рецензентом і затверджувачем кожного підписаного релізу."
+
+#: ../../installation.md:48
+msgid ""
+"**Privacy policy.** This program will not transfer any information to "
+"other networked systems unless specifically requested by the user or the "
+"person installing or operating it."
+msgstr ""
+"**Політика конфіденційності.** Ця програма не передаватиме жодної "
+"інформації до інших мережевих систем, якщо цього явно не вимагає "
+"користувач або особа, яка встановлює чи використовує її."
+
+#: ../../installation.md:51
 msgid "What you will need"
 msgstr "Що вам знадобиться"
 
-#: ../../installation.md:41
+#: ../../installation.md:53
 msgid "A Windows PC."
 msgstr "ПК з Windows."
 
-#: ../../installation.md:42
+#: ../../installation.md:54
 #, python-brace-format
 msgid ""
 "Your data as a spreadsheet – typically a `.xlsx` or `.csv` exported from "
 "a survey tool such as Google Forms. See {doc}`importing-data`."
 msgstr ""
-"Ваші дані у вигляді таблиці – зазвичай `.xlsx` або `.csv`, експортований з "
-"інструмента опитування, як-от Google Forms. Див. {doc}`importing-data`."
+"Ваші дані у вигляді таблиці – зазвичай `.xlsx` або `.csv`, експортований "
+"з інструмента опитування, як-от Google Forms. Див. {doc}`importing-data`."
 
 #~ msgid ""
 #~ "No separate Python installation is "
