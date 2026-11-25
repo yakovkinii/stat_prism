@@ -117,14 +117,17 @@ def sync_readme(new: str, dry_run: bool) -> None:
 
 def sync_citation(new: str, today: str, dry_run: bool) -> None:
     text = _read(CITATION)
-    text, n = re.subn(r"(?m)^version:.*$", f"version: {new}", text)
+    # Bump every `version:` line -- both the top-level one and the indented one under
+    # `preferred-citation:` (the leading `\s*` keeps each line's own indentation). `cff-version:`
+    # is left alone because the line does not start with `version:`.
+    text, n = re.subn(r"(?m)^(\s*)version:.*$", rf"\g<1>version: {new}", text)
     if n == 0:
         print(f"  WARNING: no 'version:' line in {CITATION.name}; skipped")
         return
     if re.search(r"(?m)^date-released:", text):
         text = re.sub(r"(?m)^date-released:.*$", f"date-released: {today}", text)
     else:
-        # Insert right after the version line so the file stays tidy.
+        # Insert right after the top-level version line so the file stays tidy.
         text = re.sub(r"(?m)^(version:.*)$", rf"\1\ndate-released: {today}", text, count=1)
     _write(CITATION, text, dry_run)
 

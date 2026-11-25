@@ -5,6 +5,7 @@
 ![License](https://img.shields.io/badge/license-GPL_3.0-00ff00)
 ![Language](https://img.shields.io/badge/language-Nuitka_python-3776AB?logoColor=white)
 ![Supported Platforms](https://img.shields.io/badge/platform-Windows-ffffff?logoColor=black)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.24532261.svg)](https://doi.org/10.5281/zenodo.24532261)
 
 
 StatPrism is statistical software for researchers and students in the social and
@@ -62,4 +63,4 @@ If you use StatPrism in your research, please cite it (see [CITATION.cff](CITATI
 GitHub's "Cite this repository" button generates APA/BibTeX from it):
 
 > Balashevych, O. K., Petrova, N. V., & Yakovkin, I. I. (2023). *StatPrism* (Version 1.3.8)
-> [Computer software]. https://www.yakovkinii.com/stat_prism/
+> [Computer software]. https://doi.org/10.5281/zenodo.24532261

@@ -1,5 +1,6 @@
 # Citation metadata for StatPrism. See https://citation-file-format.github.io/
-# TODO: once a release is archived on Zenodo, add its DOI under `identifiers:` and set `doi:`.
+# `doi` below is the Zenodo *concept* DOI, which always resolves to the latest version; Zenodo
+# also mints a per-release version DOI, but the concept DOI is the one we cite.
 cff-version: 1.2.0
 message: "If you use this software, please cite it as below."
 title: StatPrism
@@ -26,6 +27,7 @@ date-released: 2026-11-25
 license: GPL-3.0-or-later
 repository-code: "https://github.com/yakovkinii/stat_prism"
 url: "https://www.yakovkinii.com/stat_prism/"
+doi: "10.5281/zenodo.24532261"
 keywords:
   - statistics
   - survey analysis
@@ -52,5 +54,6 @@ preferred-citation:
       orcid: "https://orcid.org/0000-0003-1563-8528"
       affiliation: "Institute of Physics of the National Academy of Sciences of Ukraine, Kyiv, Ukraine"
   year: 2023
-  version: 1.2.3
+  version: 1.3.8
   url: "https://www.yakovkinii.com/stat_prism/"
+  doi: "10.5281/zenodo.24532261"
