@@ -30,5 +30,17 @@
     "APA",
     "data visualization",
     "social sciences"
+  ],
+  "related_identifiers": [
+    {
+      "relation": "isDescribedBy",
+      "identifier": "https://www.yakovkinii.com/stat_prism/",
+      "resource_type": "other"
+    },
+    {
+      "relation": "isDocumentedBy",
+      "identifier": "https://stat-prism.readthedocs.io/en/latest/",
+      "resource_type": "publication-softwaredocumentation"
+    }
   ]
 }
