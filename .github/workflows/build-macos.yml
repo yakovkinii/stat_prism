@@ -3,15 +3,11 @@ name: Build macOS app
 # Builds a standalone StatPrism .app with Nuitka and zips it for download.
 #   * "Run workflow" (workflow_dispatch) -> uploads the zipped .app as a workflow artifact
 #   * push a tag  v1.2.3                  -> also attaches the zip to that tag's GitHub Release
+
 #
-# IMPORTANT: this build is UNSIGNED and NOT notarized (no Apple Developer account yet), so macOS
-# Gatekeeper quarantines it on download. To run it, a tester either right-clicks StatPrism.app and
-# chooses "Open" (then confirms in the dialog / System Settings > Privacy & Security > "Open
-# Anyway"), or clears the quarantine flag once:
-#     xattr -dr com.apple.quarantine /path/to/StatPrism.app
-#
-# Built on macos-13 (Intel x86_64) so the single artifact runs on Intel Macs natively and on Apple
-# Silicon via Rosetta 2. A native arm64 build (runs-on: macos-14) can be added as a matrix later.
+# Built on macos-15-intel (Intel x86_64) so the single artifact runs on Intel Macs natively and on
+# Apple Silicon via Rosetta 2. A native arm64 build (runs-on: macos-15)
+# can be added as a matrix later.
 
 on:
   workflow_dispatch:
@@ -24,7 +20,7 @@ permissions:
 
 jobs:
   build:
-    runs-on: macos-13
+    runs-on: macos-15-intel
 
     steps:
       - uses: actions/checkout@v4
