@@ -39,8 +39,10 @@ Plot settings
   more than the data's own precision (so an aggregate such as the mean keeps a useful digit),
   or **Off** for the full value — and **Value label distance** moves them further out from the
   rim. **Angular gap** adds space
-  between the rays. **Trim long labels** shortens long column names in the legend. The shared
-  figure controls (size, fonts, colours) also apply.
+  between the rays. **Trim long labels** shortens long column names in the legend. **Group
+  shading** shades alternating blocks of *N* rays — and the matching legend rows — so groups are
+  easy to count when there are many columns (off by default; **Shade color** and **Shade alpha**
+  tune the band when it is on). The shared figure controls (size, fonts, colours) also apply.
 
 ## Output
 

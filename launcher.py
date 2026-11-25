@@ -60,18 +60,26 @@
 #    nuitka-project: --file-description=StatPrism
 #    nuitka-project: --file-version={APP_VERSION}
 #    nuitka-project: --product-version={APP_VERSION}
+# nuitka-project-if: {OS} == "Darwin":
+#    nuitka-project: --macos-create-app-bundle
+#    nuitka-project: --macos-app-name=StatPrism
+#    nuitka-project: --macos-app-icon={MAIN_DIRECTORY}/resources/icon.png
+#    nuitka-project: --macos-app-version={APP_VERSION}
+#    nuitka-project: --product-name=StatPrism
+#    nuitka-project: --product-version={APP_VERSION}
 
 
 def _setup_logging(level=None):
     """Send logs to a single file that is overwritten on each launch (the packaged app runs with
     no console, so a file is the only place logs can go). The file sits next to the executable
-    when packaged, falling back to %LOCALAPPDATA%\\StatPrism if that directory is read-only (e.g.
-    an install under Program Files). A coloured console handler is added only when a real stderr
-    exists (source runs / console builds)."""
+    when packaged, falling back to the per-user data directory if that is read-only (e.g. an
+    install under Program Files, or a macOS .app bundle). A coloured console handler is added only
+    when a real stderr exists (source runs / console builds)."""
     import logging
-    import os
     import sys
     from pathlib import Path
+
+    from src.common.paths import user_data_dir
 
     if level is None:
         level = logging.INFO
@@ -81,8 +89,7 @@ def _setup_logging(level=None):
     root = logging.getLogger()
     root.setLevel(level)
 
-    local_appdata = os.environ.get("LOCALAPPDATA", str(base))
-    for path in (base / "statprism.log", Path(local_appdata) / "StatPrism" / "statprism.log"):
+    for path in (base / "statprism.log", user_data_dir() / "statprism.log"):
         try:
             path.parent.mkdir(parents=True, exist_ok=True)
             file_handler = logging.FileHandler(path, mode="w", encoding="utf-8")  # truncate each launch

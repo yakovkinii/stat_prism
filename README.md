@@ -33,9 +33,26 @@ Video guide is available on YouTube: **https://www.youtube.com/@statprism**.
 StatPrism is free and open-source software, licensed under the **GNU General Public License
 v3.0 or later** — see [LICENSE](LICENSE).
 
+## Code signing policy
+
+Free code signing on Windows is provided by [SignPath.io](https://about.signpath.io),
+certificate by [SignPath Foundation](https://signpath.org).
+
+### Team roles
+
+StatPrism is maintained in a single-owner repository, whose owner is the sole committer,
+reviewer and approver of every signed release:
+
+- **Authors / Committers / Reviewers / Approvers:** [I. I. Yakovkin (@yakovkinii)](https://github.com/yakovkinii)
+
+### Privacy policy
+
+This program will not transfer any information to other networked systems unless specifically
+requested by the user or the person installing or operating it.
+
 ## Credits
 
-Developed by the StatPrism Team (Copyright 2023–2026): A. K. Balashevych (model
+Developed by the StatPrism Team (Copyright 2023–2026): O. K. Balashevych (model
 specification), N. V. Petrova (testing & QA), and I. I. Yakovkin (software development &
 project management). Project page: https://www.yakovkinii.com/stat_prism/
 
@@ -44,5 +61,5 @@ project management). Project page: https://www.yakovkinii.com/stat_prism/
 If you use StatPrism in your research, please cite it (see [CITATION.cff](CITATION.cff) —
 GitHub's "Cite this repository" button generates APA/BibTeX from it):
 
-> Balashevych, A. K., Petrova, N. V., & Yakovkin, I. I. (2023). *StatPrism* (Version 1.3.7)
+> Balashevych, O. K., Petrova, N. V., & Yakovkin, I. I. (2023). *StatPrism* (Version 1.3.8)
 > [Computer software]. https://www.yakovkinii.com/stat_prism/

@@ -36,6 +36,18 @@ repository's `README` for the developer setup.
 To update, download the newer release and replace your existing copy. Your saved `.sp`
 project files are independent of the application folder and are not affected by updating.
 
+## Code signing policy
+
+Free code signing on Windows is provided by [SignPath.io](https://about.signpath.io),
+certificate by [SignPath Foundation](https://signpath.org).
+
+- **Authors / committers / reviewers / approvers:**
+  [I. I. Yakovkin (@yakovkinii)](https://github.com/yakovkinii), the sole maintainer, who is the
+  only committer, reviewer and approver of every signed release.
+
+**Privacy policy.** This program will not transfer any information to other networked systems
+unless specifically requested by the user or the person installing or operating it.
+
 ## What you will need
 
 - A Windows PC.
