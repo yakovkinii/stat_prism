@@ -19,7 +19,10 @@
 #   python -m nuitka launcher.py
 #
 # nuitka-project-set: APP_VERSION = __import__("src.about", fromlist=["version"]).version
-# nuitka-project: --mode=standalone
+# nuitka-project-if: {OS} == "Darwin":
+#    nuitka-project: --mode=app
+# nuitka-project-if: {OS} != "Darwin":
+#    nuitka-project: --mode=standalone
 # nuitka-project: --output-dir={MAIN_DIRECTORY}/build/nuitka
 # nuitka-project: --remove-output
 # nuitka-project: --python-flag=unbuffered
@@ -61,7 +64,6 @@
 #    nuitka-project: --file-version={APP_VERSION}
 #    nuitka-project: --product-version={APP_VERSION}
 # nuitka-project-if: {OS} == "Darwin":
-#    nuitka-project: --macos-create-app-bundle
 #    nuitka-project: --macos-app-name=StatPrism
 #    nuitka-project: --macos-app-icon={MAIN_DIRECTORY}/resources/icon.png
 #    nuitka-project: --macos-app-version={APP_VERSION}
