@@ -18,7 +18,6 @@
 
 import json
 import logging
-import os
 import shutil
 from pathlib import Path
 
@@ -26,6 +25,7 @@ from PySide6.QtCore import QTimer
 
 from src.about import version
 from src.common.languages import LANGUAGE
+from src.common.paths import user_data_dir
 from src.common.theme import THEME
 from src.data.data_manager import DATA_MANAGER
 from src.savefile.json_store import build_project_dict, write_project_files, write_raw_files
@@ -37,8 +37,7 @@ def autosave_dir() -> Path:
     # A single rolling snapshot of the current session, in the per-user app-data folder (the same
     # place the launcher writes its log). The user never sees it; it exists only so a crash can be
     # recovered. One slot, not per-project -- it is always "the last session".
-    base = os.environ.get("LOCALAPPDATA") or os.path.expanduser("~")
-    return Path(base) / "StatPrism" / "autosave"
+    return user_data_dir() / "autosave"
 
 
 # Owns two things built on the same compact snapshots (chain + configs in project.json, the raw

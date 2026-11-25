@@ -20,6 +20,8 @@ import configparser
 import os
 from pathlib import Path
 
+from src.common.paths import user_data_dir
+
 _INI_NAME = "statprism.ini"
 _DEFAULT_THEME = "light"
 
@@ -32,10 +34,9 @@ def _env_override(key: str):
 
 def _user_ini_path() -> Path:
     # Per-user, always-writable location. An installed app's own directory (cwd) is often read-only
-    # (e.g. Program Files), so writing the ini there silently fails and nothing persists. Mirrors the
-    # launcher log and the autosave folder under %LOCALAPPDATA%/StatPrism.
-    base = os.environ.get("LOCALAPPDATA") or os.path.expanduser("~")
-    return Path(base) / "StatPrism" / _INI_NAME
+    # (e.g. Program Files, or a macOS .app bundle), so writing the ini there silently fails and
+    # nothing persists. Mirrors the launcher log and the autosave folder (see user_data_dir).
+    return user_data_dir() / _INI_NAME
 
 
 def _ini_candidates() -> list:
