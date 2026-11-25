@@ -1167,13 +1167,18 @@ class PlotV2(BaseResultElement):
             for g in range(0, n, group_size):
                 if (g // group_size) % 2 != 1:
                     continue
-                grp = centers[g:g + group_size]
+                grp = centers[g : g + group_size]
                 (x0, by0) = to_fig.transform((box.x0, min(grp) - pitch / 2.0))
                 (x1, by1) = to_fig.transform((box.x1, max(grp) + pitch / 2.0))
                 fig.patches.append(
                     Rectangle(
-                        (x0, by0), x1 - x0, by1 - by0, transform=fig.transFigure,
-                        facecolor=shade_rgba, edgecolor="none", zorder=0,
+                        (x0, by0),
+                        x1 - x0,
+                        by1 - by0,
+                        transform=fig.transFigure,
+                        facecolor=shade_rgba,
+                        edgecolor="none",
+                        zorder=0,
                     )
                 )
         return fig, ax

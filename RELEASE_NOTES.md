@@ -12,6 +12,13 @@ r{
 
 # StatPrism Release Notes
 
+### StatPrism 1.3.8 (25 Nov 2026)
+
+* Value labels in Rose plot can be rounded to a set number of decimal places and moved further from the rim, and new group shading marks alternating blocks of rays and their legend rows to make them easier to count
+* Prepare for macOS builds
+* Prepare for code-signing and Zenodo
+
+
 ### StatPrism 1.3.7 (15 Nov 2026)
 
 * New visualisation module: Rose Plot — a circular (polar) bar chart comparing the aggregate (mean/sum/median) of several columns on one radial scale, with colour-coded rays, each ray's value at the rim, an automatic or manual scale, and selectable colour maps

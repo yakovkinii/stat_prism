@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: StatPrism 1.3\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-15 19:07+0100\n"
+"POT-Creation-Date: 2026-11-25 13:20+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: uk\n"
@@ -114,25 +114,31 @@ msgid ""
 "useful digit), or **Off** for the full value — and **Value label "
 "distance** moves them further out from the rim. **Angular gap** adds "
 "space between the rays. **Trim long labels** shortens long column names "
-"in the legend. The shared figure controls (size, fonts, colours) also "
-"apply."
+"in the legend. **Group shading** shades alternating blocks of *N* rays — "
+"and the matching legend rows — so groups are easy to count when there are"
+" many columns (off by default; **Shade color** and **Shade alpha** tune "
+"the band when it is on). The shared figure controls (size, fonts, "
+"colours) also apply."
 msgstr ""
 "**Colors** — мапа кольорів для променів (`hsv`, `twilight`, `rainbow`, "
 "`turbo` або **Auto** для палітри StatPrism). **Ray values** друкує "
 "агрегат кожного променя одразу за обідком; **Decimal places** округлює ці"
-" надруковані значення до фіксованої кількості знаків — за замовчуванням на "
-"один більше за точність самих даних (щоб агрегат, як-от середнє, зберіг "
-"корисну цифру), або **Off** для повного значення — а **Value label "
-"distance** відсуває їх далі від обідка. **Angular gap** додає проміжок між "
-"променями. **Trim long labels** скорочує довгі назви колонок у легенді. "
-"Також застосовуються спільні елементи керування графіком (розмір, шрифти, "
-"кольори)."
+" надруковані значення до фіксованої кількості знаків — за замовчуванням "
+"на один більше за точність самих даних (щоб агрегат, як-от середнє, "
+"зберіг корисну цифру), або **Off** для повного значення — а **Value label"
+" distance** відсуває їх далі від обідка. **Angular gap** додає проміжок "
+"між променями. **Trim long labels** скорочує довгі назви колонок у "
+"легенді. **Group shading** затінює почергові блоки з *N* променів — і "
+"відповідні рядки легенди — щоб групи було легко рахувати, коли колонок "
+"багато (за замовчуванням вимкнено; **Shade color** і **Shade alpha** "
+"налаштовують смугу, коли її ввімкнено). Також застосовуються спільні "
+"елементи керування графіком (розмір, шрифти, кольори)."
 
-#: ../../analyses/rose-plot.md:45
+#: ../../analyses/rose-plot.md:47
 msgid "Output"
 msgstr "Вихідні дані"
 
-#: ../../analyses/rose-plot.md:47
+#: ../../analyses/rose-plot.md:49
 msgid ""
 "A **rose plot** figure: one colour-coded ray per column, each ray "
 "identified by colour in the legend, with its aggregate value printed at "
@@ -142,11 +148,11 @@ msgstr ""
 "промінь позначено кольором у легенді, а його агрегат надруковано біля "
 "обідка (коли ввімкнено **Ray values**)."
 
-#: ../../analyses/rose-plot.md:50
+#: ../../analyses/rose-plot.md:52
 msgid "Notes"
 msgstr "Примітки"
 
-#: ../../analyses/rose-plot.md:52
+#: ../../analyses/rose-plot.md:54
 msgid ""
 "Each ray is identified by its **colour** (see the legend), not by a "
 "number, so column names that already contain numbers do not clash with "
@@ -156,11 +162,11 @@ msgstr ""
 " назви колонок, що вже містять числа, не конфліктують із підписами "
 "променів."
 
-#: ../../analyses/rose-plot.md:54
+#: ../../analyses/rose-plot.md:56
 msgid "Columns with no numeric values to aggregate are dropped from the plot."
 msgstr "Колонки без числових значень для агрегування вилучаються з графіка."
 
-#: ../../analyses/rose-plot.md:55
+#: ../../analyses/rose-plot.md:57
 msgid ""
 "The plot embeds directly in copied and exported output, like every other "
 "StatPrism figure."

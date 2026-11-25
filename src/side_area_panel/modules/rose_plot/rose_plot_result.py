@@ -42,6 +42,8 @@ _FINE_PRINT = (
     "<li>Each ray is identified by its colour (see the legend); its aggregate value is printed "
     "just outside the rim &mdash; rounded to a fixed number of decimal places (by default one "
     "more than the data carries), and moved further out with the value-label distance.</li>"
+    "<li>With many columns, <b>group shading</b> can shade alternating blocks of rays (and the "
+    "matching legend rows) so they are easier to count.</li>"
     "</ul>"
 )
 
